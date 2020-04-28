@@ -1,7 +1,7 @@
 create_table("teams") {
 	t.Column("id", "uuid", {primary: true})
 	t.Column("name", "string", {})
-	t.Column("image", "byteslice", {null: true})
+	t.Column("image", "blob", {null: true})
 	t.Column("role", "string", {})
 	t.Timestamps()
 }
