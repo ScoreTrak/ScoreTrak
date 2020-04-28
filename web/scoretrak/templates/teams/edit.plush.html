@@ -1,0 +1,8 @@
+<div class="py-4 mb-2">
+  <h3 class="d-inline-block">Edit Team</h3>
+</div>
+
+<%= formFor(team, {action: teamPath({ team_id: team.ID }), method: "PUT"}) { %>
+  <%= partial("teams/form.html") %>
+  <%= linkTo(teamPath({ team_id: team.ID }), {class: "btn btn-warning", "data-confirm": "Are you sure?", body: "Cancel"}) %>
+<% } %>

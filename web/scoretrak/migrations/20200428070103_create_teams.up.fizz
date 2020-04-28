@@ -1,4 +1,0 @@
-create_table("teams") {
-	t.Column("id", "uuid", {primary: true})
-	t.Timestamps()
-}

@@ -79,6 +79,13 @@ func App() *buffalo.App {
 		users.POST("/", UsersCreate)
 		users.Middleware.Remove(Authorize)
 
+		
+		
+		
+		
+		
+		
+		app.Resource("/teams", TeamsResource{})
 		app.ServeFiles("/", assetsBox) // serve files from the public directory
 	}
 
