@@ -7,7 +7,7 @@ import (
 
 func (as *ActionSuite) createUser() (*models.User, error) {
 	u := &models.User{
-		Username:                "mark@example.com",
+		Username:             "mark@example.com",
 		Password:             "password",
 		PasswordConfirmation: "password",
 	}
@@ -35,7 +35,7 @@ func (as *ActionSuite) Test_Auth_Create() {
 	as.NoError(err)
 
 	tcases := []struct {
-		Username       string
+		Username    string
 		Password    string
 		Status      int
 		RedirectURL string
@@ -50,7 +50,7 @@ func (as *ActionSuite) Test_Auth_Create() {
 	for _, tcase := range tcases {
 		as.Run(tcase.Identifier, func() {
 			res := as.HTML("/auth").Post(&models.User{
-				Username:    tcase.Username,
+				Username: tcase.Username,
 				Password: tcase.Password,
 			})
 

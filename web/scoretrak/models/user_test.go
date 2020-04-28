@@ -6,7 +6,7 @@ func (ms *ModelSuite) Test_User_Create() {
 	ms.Equal(0, count)
 
 	u := &User{
-		Username:                "mark@example.com",
+		Username:             "mark@example.com",
 		Password:             "password",
 		PasswordConfirmation: "password",
 	}
@@ -49,7 +49,7 @@ func (ms *ModelSuite) Test_User_Create_UserExists() {
 	ms.Equal(0, count)
 
 	u := &User{
-		Username:                "mark@example.com",
+		Username:             "mark@example.com",
 		Password:             "password",
 		PasswordConfirmation: "password",
 	}
@@ -66,7 +66,7 @@ func (ms *ModelSuite) Test_User_Create_UserExists() {
 	ms.Equal(1, count)
 
 	u = &User{
-		Username:    "mark@example.com",
+		Username: "mark@example.com",
 		Password: "password",
 	}
 

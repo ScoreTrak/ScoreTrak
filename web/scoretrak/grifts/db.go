@@ -1,8 +1,8 @@
 package grifts
 
 import (
-	"scoretrak/models"
 	. "github.com/markbates/grift/grift"
+	"scoretrak/models"
 )
 
 var _ = Namespace("user", func() {

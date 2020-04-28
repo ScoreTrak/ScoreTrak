@@ -2,21 +2,23 @@ package models
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/gobuffalo/nulls"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
-	"github.com/gofrs/uuid"
-	"time"
 	"github.com/gobuffalo/validate/v3/validators"
+	"github.com/gofrs/uuid"
 )
+
 // Team is used by pop to map your teams database table to your go code.
 type Team struct {
-    ID uuid.UUID `json:"id" db:"id"`
-    Name string `json:"name" db:"name"`
-    Image nulls.ByteSlice `json:"image" db:"image"`
-    Role string `json:"role" db:"role"`
-    CreatedAt time.Time `json:"created_at" db:"created_at"`
-    UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+	ID        uuid.UUID       `json:"id" db:"id"`
+	Name      string          `json:"name" db:"name"`
+	Image     nulls.ByteSlice `json:"image" db:"image"`
+	Role      string          `json:"role" db:"role"`
+	CreatedAt time.Time       `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time       `json:"updated_at" db:"updated_at"`
 }
 
 // String is not required by pop and may be deleted
