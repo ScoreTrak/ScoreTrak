@@ -17,6 +17,7 @@ type Team struct {
 	Name      string          `json:"name" db:"name"`
 	Image     nulls.ByteSlice `json:"image" db:"image"`
 	Role      string          `json:"role" db:"role"`
+	Users     []User          `json:"users,omitempty" has_many:"users"`
 	CreatedAt time.Time       `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time       `json:"updated_at" db:"updated_at"`
 }
