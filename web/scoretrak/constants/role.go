@@ -1,7 +1,8 @@
 package constants
-const(
+
+const (
 	Black = "black"
-	Blue = "blue"
-	Red = "red"
+	Blue  = "blue"
+	Red   = "red"
 	White = "white"
 )
