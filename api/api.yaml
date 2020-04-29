@@ -1,0 +1,99 @@
+swagger: "2.0"
+info:
+  description: "Swagger representation of ScoreTrak's Mater API"
+  version: "1.0.0"
+  title: "ScoreTrak Mater API"
+tags:
+- name: "Service Group"
+schemes:
+- "https"
+- "http"
+
+paths:
+  /service_group:
+    post:
+      tags:
+      - "Service Group"
+      summary: "Add a new service group"
+      description: "Orders scoring engine to create a service group entry in a database"
+      operationId: "AddServiceGroup"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Service Group object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/service_group"
+      responses:
+        "201":
+          description: "Object Created"
+        "401":
+          $ref: '#/responses/UnauthorizedError'
+        "405":
+          description: "Invalid input"
+      security:
+       - api_key: []
+  
+  /service_group/{serviceGroupId}:
+    get:
+      tags:
+      - "Service Group"
+      summary: "Get a service group"
+      description: "Gets a service group from based on ID"
+      operationId: "GetServiceGroup"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "serviceGroupId"
+        in: "path"
+        description: "ID of service group to return"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/service_group"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Service group not found"
+      security:
+      - api_key: []
+    
+definitions:
+  service_group:
+    type: "object"
+    required:
+    - "name"
+    properties:
+      name:
+        type: "string"
+        example: "External Scoring Group"
+      label:
+        type: "string"
+        example: "external"
+      enabled:
+        type: "boolean"
+        description: "Enables or Disables the service"
+        default: "false"
+        
+responses:
+  UnauthorizedError:
+    description: Authentication token is missing, or incorrect
+    headers:
+      WWW_Authenticate:
+        type: string
+        
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
