@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"scoretrak/constants"
 )
 
 // Team is used by pop to map your teams database table to your go code.
@@ -61,6 +62,16 @@ func (t *Team) Validate(tx *pop.Connection) (*validate.Errors, error) {
 				return !b
 			},
 		},
+		&validators.FuncValidator{
+			Field:   t.Role,
+			Name:    "Role",
+			Message: "%s is not an existing role",
+			Fn: func() bool {
+				items := []string{constants.Black, constants.Blue, constants.Red, constants.White}
+				_, found := Find(items, t.Role)
+				return found
+			},
+		},
 	), err
 }
 
@@ -74,4 +85,13 @@ func (t *Team) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 // This method is not required and may be deleted.
 func (t *Team) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+func Find(slice []string, val string) (int, bool) {
+	for i, item := range slice {
+		if item == val {
+			return i, true
+		}
+	}
+	return -1, false
 }
