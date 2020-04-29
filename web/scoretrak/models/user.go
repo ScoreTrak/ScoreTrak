@@ -60,6 +60,7 @@ func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: u.Username, Name: "Username"},
 		&validators.StringIsPresent{Field: u.PasswordHash, Name: "PasswordHash"},
+		&validators.UUIDIsPresent{Field: u.TeamID, Name: "TeamID"},
 		// check to see if the username address is already taken:
 		&validators.FuncValidator{
 			Field:   u.Username,
