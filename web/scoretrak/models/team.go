@@ -40,10 +40,28 @@ func (t Teams) String() string {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (t *Team) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	var err error
 	return validate.Validate(
 		&validators.StringIsPresent{Field: t.Name, Name: "Name"},
 		&validators.StringIsPresent{Field: t.Role, Name: "Role"},
-	), nil
+		&validators.FuncValidator{
+			Field:   t.Name,
+			Name:    "Name",
+			Message: "%s is already taken",
+			Fn: func() bool {
+				var b bool
+				q := tx.Where("name = ?", t.Name)
+				if t.ID != uuid.Nil {
+					q = q.Where("id != ?", t.ID)
+				}
+				b, err = q.Exists(t)
+				if err != nil {
+					return false
+				}
+				return !b
+			},
+		},
+	), err
 }
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
