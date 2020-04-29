@@ -19,8 +19,15 @@ CREATE TABLE users (
 	id UUID NOT NULL,
 	username VARCHAR(255) NOT NULL,
 	password_hash VARCHAR(255) NOT NULL,
+	team_id UUID NOT NULL,
 	created_at TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP NOT NULL,
 	CONSTRAINT "primary" PRIMARY KEY (id ASC),
-	FAMILY "primary" (id, username, password_hash, created_at, updated_at)
+	INDEX users_auto_index_users_teams_id_fk (team_id ASC),
+	FAMILY "primary" (id, username, password_hash, team_id, created_at, updated_at)
 );
+
+ALTER TABLE users ADD CONSTRAINT users_teams_id_fk FOREIGN KEY (team_id) REFERENCES teams(id);
+
+-- Validate foreign key constraints. These can fail if there was unvalidated data during the dump.
+ALTER TABLE users VALIDATE CONSTRAINT users_teams_id_fk;
