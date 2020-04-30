@@ -36,9 +36,57 @@ paths:
         "405":
           description: "Invalid input"
       security:
-       - api_key: []
+      - api_key: []
+    
+    get:
+      tags:
+      - "Service Group"
+      summary: "Return a list of all service groups"
+      description: "Gets all the service groups from the database."
+      operationId: "GetServiceGroups"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/service_group"
+        "401":
+          $ref: '#/responses/UnauthorizedError'
+      security:
+      - api_key: []
+
+    put:
+      tags:
+      - "Service Group"
+      summary: "Update a service group"
+      description: "update the service group in the database"
+      operationId: "UpdateServiceGroup"
+      consumes:
+      - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Service group that needs to be updated"
+          required: true
+          schema:
+            $ref: "#/definitions/service_group"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          $ref: '#/responses/UnauthorizedError'
+        "405":
+          description: "Invalid input"
+      security:
+      - api_key: []
+
   
-  /service_group/{serviceGroupId}:
+  /service_group/{id}:
     get:
       tags:
       - "Service Group"
@@ -50,7 +98,7 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: "serviceGroupId"
+      - name: "id"
         in: "path"
         description: "ID of service group to return"
         required: true
@@ -63,6 +111,8 @@ paths:
             $ref: "#/definitions/service_group"
         "400":
           description: "Invalid ID supplied"
+        "401":
+          $ref: '#/responses/UnauthorizedError'
         "404":
           description: "Service group not found"
       security:
@@ -74,6 +124,8 @@ definitions:
     required:
     - "name"
     properties:
+      id:
+        type: "integer"
       name:
         type: "string"
         example: "External Scoring Group"
