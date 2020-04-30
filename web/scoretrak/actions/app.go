@@ -74,10 +74,10 @@ func App() *buffalo.App {
 		auth.Middleware.Skip(Authorize, AuthLanding, AuthNew, AuthCreate)
 
 		//Routes for User registration (Disabled. Let admin create new accounts)
-		// users := app.Group("/users")
-		// users.GET("/new", UsersNew)
+		users := app.Group("/users")
+		users.GET("/new", UsersNew)
 		// users.POST("/", UsersCreate)
-		// users.Middleware.Remove(Authorize)
+		users.Middleware.Remove(Authorize)
 
 		app.Resource("/teams", TeamsResource{})
 		app.ServeFiles("/", assetsBox) // serve files from the public directory

@@ -238,8 +238,13 @@ func (v TeamsResource) Destroy(c buffalo.Context) error {
 	team := &models.Team{}
 
 	// To find the Team the parameter team_id is used.
-	if err := tx.Find(team, c.Param("team_id")); err != nil {
+	if err := tx.Eager().Find(team, c.Param("team_id")); err != nil {
 		return c.Error(http.StatusNotFound, err)
+	}
+
+	if len(team.Users) > 0{
+		c.Flash().Add("Failed", "The team contains user(s) that need to be removed first")
+		return c.Redirect(303, "/teams/")
 	}
 
 	if err := tx.Destroy(team); err != nil {
