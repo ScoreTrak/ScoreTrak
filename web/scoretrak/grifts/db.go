@@ -33,13 +33,7 @@ var _ = Namespace("create", func() {
 		err = query.All(&a_t)
 		if err != nil {
 			return err
-		}
-
-		b_t[0].Users = append(b_t[0].Users, a_t[0])
-		_, err = models.DB.ValidateAndUpdate(&b_t[0])
-		if err != nil {
-			return err
-		}
+		}		
 		return nil
 	})
 })
