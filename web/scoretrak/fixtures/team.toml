@@ -1,0 +1,12 @@
+[[scenario]]
+name = "Create a Team"
+
+  [[scenario.table]]
+    name = "teams"
+
+    [[scenario.table.row]]
+      id = "<%= uuid() %>"
+      name = "Mock Team"
+      role = "red"
+      created_at = "<%= now() %>"
+      updated_at = "<%= now() %>"
