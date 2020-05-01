@@ -238,7 +238,7 @@ func (v TeamsResource) Destroy(c buffalo.Context) error {
 	// Allocate an empty Team
 	team := &models.Team{}
 
-	if err := tx.Find(team, c.Param("team_id")); err != nil {
+	if err := tx.Eager().Find(team, c.Param("team_id")); err != nil {
 		return c.Error(http.StatusNotFound, err)
 	}
 
@@ -251,17 +251,23 @@ func (v TeamsResource) Destroy(c buffalo.Context) error {
 		
 		//if there is 1 or less black teams left
 		if len(teams) <= 1{
-			//Then deny the deletino
+			//Then deny the deletion
 			c.Flash().Add("Failed", fmt.Sprintf("You should have at least one team with role \"%s\"", constants.Black))
-			return c.Redirect(303, "/teams/")
+			return responder.Wants("html", func(c buffalo.Context) error {
+				c.Set("team", team)
+				return c.Render(http.StatusForbidden, r.HTML("/teams/show.plush.html"))
+			}).Respond(c)
 		}
 
 	}
 
-	//Disallow deletion of the last constants.Black team
-	if len(team.Users) > 0{
+	//Disallow deletion of the last user in last constants.Black team
+	if len(team.Users) >= 1{
 		c.Flash().Add("Failed", "The team contains user(s) that need to be removed first")
-		return c.Redirect(303, "/teams/")
+		return responder.Wants("html", func(c buffalo.Context) error {
+			c.Set("team", team)
+			return c.Render(http.StatusConflict, r.HTML("/teams/show.plush.html"))
+		}).Respond(c)
 	}
 
 	if err := tx.Destroy(team); err != nil {
