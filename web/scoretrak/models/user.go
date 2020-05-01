@@ -117,16 +117,39 @@ func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 			Message: fmt.Sprintf("You cannot reassign last user in last team with role \"%s\"", constants.Black),
 			Fn: func() bool {
 				teams := []Team{}
-				//Query for all teams with role constants.Black
-				if err = tx.Where("role = (?)", constants.Black).Eager().All(&teams); err != nil {
-					return false
-				}
-				//Disallow deletion of the last constants.Black team
-				if len(teams) == 1 && len(teams[0].Users) == 1{
-					return false
+				user, err := GetUserByID(tx, u.ID)
+				if user.TeamID != u.TeamID {
+					//Query for all teams with role constants.Black
+					if err = tx.Where("role = (?)", constants.Black).Eager().All(&teams); err != nil {
+						return false
+					}
+					//Disallow deletion of the last constants.Black team
+					if len(teams) == 1 && len(teams[0].Users) == 1 && teams[0].Users[0].ID == u.ID{
+						return false
+					}
 				}
 				return true
 			},
 		},
 	), err
+}
+
+//GetUserByUsername retreives User object that matches the username parameter
+func GetUserByUsername(tx *pop.Connection, n string) (User, error){
+	u := []User{}
+	query := tx.Where("username = (?)", n)
+	err := query.All(&u)
+	if err != nil {
+		return User{}, err
+	}
+	return u[0], err
+}
+
+func GetUserByID(tx *pop.Connection, id uuid.UUID) (User, error){
+	u := User{}
+	err := tx.Find(&u, id)
+	if err != nil {
+		return User{}, err
+	}
+	return u, err
 }
