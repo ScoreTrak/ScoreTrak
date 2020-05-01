@@ -3,7 +3,7 @@ package models
 import (
 	"encoding/json"
 	"time"
-
+	"fmt"
 	"github.com/gobuffalo/nulls"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
@@ -84,7 +84,26 @@ func (t *Team) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 // ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
 // This method is not required and may be deleted.
 func (t *Team) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
+	var err error
+	return validate.Validate(
+		&validators.FuncValidator{
+			Field:   t.Role,
+			Name:    "Role",
+			Message: fmt.Sprintf("You should have at least one team with role \"%s\"", constants.Black),
+			Fn: func() bool {
+				teams := []Team{}
+				//Query for all teams with role constants.Black
+				if err = tx.Where("role = (?)", constants.Black).All(&teams); err != nil {
+					return false
+				}
+				//Disallow deletion of the last constants.Black team
+				if len(teams) <= 1{
+					return false
+				}
+				return true
+			},
+		},
+	), err
 }
 
 func Find(slice []string, val string) (int, bool) {
