@@ -68,7 +68,7 @@ func (t *Team) Validate(tx *pop.Connection) (*validate.Errors, error) {
 			Message: "%s is not an existing role",
 			Fn: func() bool {
 				items := []string{constants.Black, constants.Blue, constants.Red, constants.White}
-				_, found := Find(items, t.Role)
+				_, found := find(items, t.Role)
 				return found
 			},
 		},
@@ -91,14 +91,21 @@ func (t *Team) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 			Name:    "Role",
 			Message: fmt.Sprintf("You should have at least one team with role \"%s\"", constants.Black),
 			Fn: func() bool {
-				teams := []Team{}
-				//Query for all teams with role constants.Black
-				if err = tx.Where("role = (?)", constants.Black).All(&teams); err != nil {
+				
+				team := Team{}
+				if err = tx.Find(&team, t.ID); err != nil {
 					return false
 				}
-				//Disallow deletion of the last constants.Black team
-				if len(teams) <= 1{
-					return false
+				if team.Role == constants.Black && t.Role != constants.Black{
+					teams := []Team{}
+					//Query for all teams with role constants.Black
+					if err = tx.Where("role = (?)", constants.Black).All(&teams); err != nil {
+						return false
+					}
+					//Disallow deletion of the last constants.Black team
+					if len(teams) <= 1 {
+						return false
+					}
 				}
 				return true
 			},
@@ -106,11 +113,23 @@ func (t *Team) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	), err
 }
 
-func Find(slice []string, val string) (int, bool) {
+//find finds weather a given string is in the slice of strings.
+func find(slice []string, val string) (int, bool) {
 	for i, item := range slice {
 		if item == val {
 			return i, true
 		}
 	}
 	return -1, false
+}
+
+//GetTeamByName retreives Team Object that matches the name parameter
+func GetTeamByName(tx *pop.Connection, n string) (Team, error){
+	t := []Team{}
+	query := tx.Where("name = (?)", n)
+	err := query.All(&t)
+	if err != nil {
+		return Team{}, err
+	}
+	return t[0], err
 }
