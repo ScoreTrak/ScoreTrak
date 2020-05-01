@@ -1,1 +1,151 @@
-swagger: "2.0"info:  description: "Swagger representation of ScoreTrak's Mater API"  version: "1.0.0"  title: "ScoreTrak Mater API"tags:  - name: "Service Group"schemes:  - "https"  - "http"paths:  /service_group:    get:      tags:        - "Service Group"      summary: "Retreive all Service Groups"      description: "Orders scoring engine to return all scoring groups"      operationId: "GetServiceGroups"      consumes:        - "application/json"      produces:        - "application/json"      responses:        "200":          description: "OK"          schema:            $ref: '#/definitions/array_of_service_groups'        "401":          $ref: '#/responses/UnauthorizedError'      security:        - api_key: []    post:      tags:        - "Service Group"      summary: "Add a new service group"      description: "Orders scoring engine to create a service group entry in a database"      operationId: "AddServiceGroup"      consumes:        - "application/json"      produces:        - "application/json"      parameters:        - in: "body"          name: "body"          description: "Service Group object that needs to be added to the store"          required: true          schema:            $ref: "#/definitions/service_group"      responses:        "201":          description: "Object Created"        "401":          $ref: '#/responses/UnauthorizedError'        "405":          description: "Invalid input"      security:        - api_key: []  /service_group/{serviceGroupId}:    get:      tags:        - "Service Group"      summary: "Get a service group"      description: "Gets a service group from based on ID"      operationId: "GetServiceGroup"      consumes:        - "application/json"      produces:        - "application/json"      parameters:        - name: "serviceGroupId"          in: "path"          description: "ID of service group to return"          required: true          type: "integer"          format: "int64"      responses:        "200":          description: "successful operation"          schema:            $ref: "#/definitions/service_group"        "400":          description: "Invalid ID supplied"        "401":          $ref: '#/responses/UnauthorizedError'        "404":          description: "Service group not found"      security:        - api_key: []    put:      tags:        - "Service Group"      summary: "Update a service group"      description: "Updates the service group based on ID"      operationId: "UpdateServiceGroup"      consumes:        - "application/json"      produces:        - "application/json"      parameters:        - name: "serviceGroupId"          in: "path"          description: "ID of service group to update"          required: true          type: "integer"          format: "int64"        - in: "body"          name: "body"          description: "Service Group object that needs to be added to the store"          required: true          schema:            $ref: "#/definitions/service_group"      responses:        "200":          description: "successful operation"        "400":          description: "Invalid ID supplied"        "401":          $ref: '#/responses/UnauthorizedError'        "404":          description: "Service group not found"      security:        - api_key: []    delete:      tags:        - "Service Group"      summary: "Get a service group"      description: "Gets a service group from based on ID"      operationId: "DeleteServiceGroup"      consumes:        - "application/json"      produces:        - "application/json"      parameters:        - name: "serviceGroupId"          in: "path"          description: "ID of service group to delete"          required: true          type: "integer"          format: "int64"      responses:        "200":          description: "successful operation"        "400":          description: "Invalid ID supplied"        "401":          $ref: '#/responses/UnauthorizedError'        "404":          description: "Service group not found"      security:        - api_key: []definitions:  service_group:    type: "object"    required:      - "name"    properties:      name:        type: "string"        example: "External Scoring Group"      label:        type: "string"        example: "external"      enabled:        type: "boolean"        description: "Enables or Disables the service"        default: True  array_of_service_groups:    type: array    items:      $ref: '#/definitions/service_group'    example:      - name: "External Scoring Group"        label: "external"        enabled: True      - name: "Internal Scoring Group"        label: "internal"        enabled: Falseresponses:  UnauthorizedError:    description: Authentication token is missing, or incorrect    headers:      WWW_Authenticate:        type: stringsecurityDefinitions:  api_key:    type: "apiKey"    name: "api_key"    in: "header"
+swagger: "2.0"
+info:
+  description: "Swagger representation of ScoreTrak's Mater API"
+  version: "1.0.0"
+  title: "ScoreTrak Mater API"
+tags:
+- name: "Service Group"
+schemes:
+- "https"
+- "http"
+
+paths:
+  /service_group:
+    post:
+      tags:
+      - "Service Group"
+      summary: "Add a new service group"
+      description: "Orders scoring engine to create a service group entry in a database"
+      operationId: "AddServiceGroup"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Service Group object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/service_group"
+      responses:
+        "201":
+          description: "Object Created"
+        "401":
+          $ref: '#/responses/UnauthorizedError'
+        "405":
+          description: "Invalid input"
+      security:
+      - api_key: []
+    
+    get:
+      tags:
+      - "Service Group"
+      summary: "Return a list of all service groups"
+      description: "Gets all the service groups from the database."
+      operationId: "GetServiceGroups"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/service_group"
+        "401":
+          $ref: '#/responses/UnauthorizedError'
+      security:
+      - api_key: []
+
+    put:
+      tags:
+      - "Service Group"
+      summary: "Update a service group"
+      description: "update the service group in the database"
+      operationId: "UpdateServiceGroup"
+      consumes:
+      - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Service group that needs to be updated"
+          required: true
+          schema:
+            $ref: "#/definitions/service_group"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          $ref: '#/responses/UnauthorizedError'
+        "405":
+          description: "Invalid input"
+      security:
+      - api_key: []
+
+  
+  /service_group/{id}:
+    get:
+      tags:
+      - "Service Group"
+      summary: "Get a service group"
+      description: "Gets a service group from based on ID"
+      operationId: "GetServiceGroup"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of service group to return"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/service_group"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          $ref: '#/responses/UnauthorizedError'
+        "404":
+          description: "Service group not found"
+      security:
+      - api_key: []
+    
+definitions:
+  service_group:
+    type: "object"
+    required:
+    - "name"
+    properties:
+      id:
+        type: "integer"
+      name:
+        type: "string"
+        example: "External Scoring Group"
+      label:
+        type: "string"
+        example: "external"
+      enabled:
+        type: "boolean"
+        description: "Enables or Disables the service"
+        default: "false"
+        
+responses:
+  UnauthorizedError:
+    description: Authentication token is missing, or incorrect
+    headers:
+      WWW_Authenticate:
+        type: string
+        
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
