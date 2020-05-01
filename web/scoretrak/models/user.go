@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"strings"
 	"time"
-
+	"fmt"
+	"scoretrak/constants"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
@@ -109,5 +110,23 @@ func (u *User) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 // ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
 // This method is not required and may be deleted.
 func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
+	var err error
+	return validate.Validate(
+		&validators.FuncValidator{
+			Name:    "TeamID",
+			Message: fmt.Sprintf("You cannot reassign last user in last team with role \"%s\"", constants.Black),
+			Fn: func() bool {
+				teams := []Team{}
+				//Query for all teams with role constants.Black
+				if err = tx.Where("role = (?)", constants.Black).Eager().All(&teams); err != nil {
+					return false
+				}
+				//Disallow deletion of the last constants.Black team
+				if len(teams) == 1 && len(teams[0].Users) == 1{
+					return false
+				}
+				return true
+			},
+		},
+	), err
 }
