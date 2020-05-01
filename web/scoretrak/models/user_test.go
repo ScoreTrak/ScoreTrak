@@ -168,9 +168,6 @@ func (ms *ModelSuite) Test_User_Update_LastBlackTeamUser() {
 	t_u.Username = "testusername2"
 	verrs, err = ms.DB.ValidateAndUpdate(&t_u)
 	ms.NoError(err)
-	if verrs.Count() > 0 {
-		log.Print("\n\n\n\n", verrs, "\n\n\n\n")
-    }
 	ms.False(verrs.HasAny())
 
 	t_u.TeamID = t.ID
