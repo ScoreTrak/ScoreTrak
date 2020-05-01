@@ -235,26 +235,30 @@ func (v TeamsResource) Destroy(c buffalo.Context) error {
 		return fmt.Errorf("no transaction found")
 	}
 
-	
 	// Allocate an empty Team
-	teams := []models.Team{}
-	//Query for all teams with role constants.Black
-	if err := tx.Where("role = (?)", constants.Black).All(&teams); err != nil {
-		return c.Error(http.StatusInternalServerError, err)
-	}
-	//Disallow deletion of the last constants.Black team
-	if len(teams) <= 1{
-		c.Flash().Add("Failed", fmt.Sprintf("You should have at least one team with role \"%s\"", constants.Black))
-		return c.Redirect(303, "/teams/")
-	}
-
 	team := &models.Team{}
 
-	// To find the Team the parameter team_id is used.
-	if err := tx.Eager().Find(team, c.Param("team_id")); err != nil {
+	if err := tx.Find(team, c.Param("team_id")); err != nil {
 		return c.Error(http.StatusNotFound, err)
 	}
 
+	if team.Role == constants.Black{
+		teams := []models.Team{}
+		//Query for all teams with role constants.Black
+		if err := tx.Where("role = (?)", constants.Black).All(&teams); err != nil {
+			return c.Error(http.StatusInternalServerError, err)
+		}
+		
+		//if there is 1 or less black teams left
+		if len(teams) <= 1{
+			//Then deny the deletino
+			c.Flash().Add("Failed", fmt.Sprintf("You should have at least one team with role \"%s\"", constants.Black))
+			return c.Redirect(303, "/teams/")
+		}
+
+	}
+
+	//Disallow deletion of the last constants.Black team
 	if len(team.Users) > 0{
 		c.Flash().Add("Failed", "The team contains user(s) that need to be removed first")
 		return c.Redirect(303, "/teams/")
