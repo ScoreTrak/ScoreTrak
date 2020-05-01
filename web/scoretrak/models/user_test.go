@@ -127,7 +127,7 @@ func (ms *ModelSuite) Test_User_Create_NonExistentTeamID() {
 }
 
 
-func (ms *ModelSuite) Test_Reassign_Last_BlackTeamUser() {
+func (ms *ModelSuite) Test_User_Update_LastBlackTeamUser() {
 	defer destroy_Users_And_Teams(ms)
 	ms.LoadFixture("Create Multiple Teams")
 	t, terr := GetTeamByName(ms.DB, "Black Team")
