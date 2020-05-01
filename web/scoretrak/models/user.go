@@ -82,7 +82,7 @@ func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		
 		&validators.FuncValidator{
 			Name:    "TeamID",
-			Message: "Provided TeamID does not exists",
+			Message: "Provided TeamID does not exist",
 			Fn: func() bool {
 				var t Team
 				err := tx.Find(&t, u.TeamID)
