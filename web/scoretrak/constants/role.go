@@ -6,3 +6,5 @@ const (
 	Red   = "red"
 	White = "white"
 )
+
+var Roles = [...]string {Black, Blue, Red, White}
