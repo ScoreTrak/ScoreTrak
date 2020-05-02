@@ -8,11 +8,12 @@ CREATE TABLE teams (
 	id UUID NOT NULL,
 	name VARCHAR(255) NOT NULL,
 	image BYTES NULL,
+	image_type VARCHAR(255) NULL,
 	role VARCHAR(255) NOT NULL,
 	created_at TIMESTAMP NOT NULL,
 	updated_at TIMESTAMP NOT NULL,
 	CONSTRAINT "primary" PRIMARY KEY (id ASC),
-	FAMILY "primary" (id, name, image, role, created_at, updated_at)
+	FAMILY "primary" (id, name, image, image_type, role, created_at, updated_at)
 );
 
 CREATE TABLE users (

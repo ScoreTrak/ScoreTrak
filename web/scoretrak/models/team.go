@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"time"
+	"io/ioutil"
 	"fmt"
 	"github.com/gobuffalo/nulls"
 	"github.com/gobuffalo/pop/v5"
@@ -10,17 +11,51 @@ import (
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 	"scoretrak/constants"
+	"github.com/gobuffalo/buffalo/binding"
+	"net/http"
+	"strings"
+	b64 "encoding/base64"
 )
 
 // Team is used by pop to map your teams database table to your go code.
 type Team struct {
-	ID        uuid.UUID       `json:"id" db:"id"`
-	Name      string          `json:"name" db:"name"`
-	Image     nulls.ByteSlice `json:"image" db:"image"`
-	Role      string          `json:"role" db:"role"`
-	Users     []User          `json:"users,omitempty" has_many:"users"`
-	CreatedAt time.Time       `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time       `json:"updated_at" db:"updated_at"`
+	ID       		uuid.UUID       `json:"id" db:"id"`
+	Name      		string          `json:"name" db:"name"`
+	EncodedImage	string		 	`db:"-"`
+	Avatar 			binding.File 	`db:"-"`
+	Image     		nulls.ByteSlice `json:"image" db:"image"`
+	ImageType		string			`json:"image_type" db:"image_type"`
+	Role      		string          `json:"role" db:"role"`
+	Users     		[]User          `json:"users,omitempty" has_many:"users"`
+	CreatedAt 		time.Time       `json:"created_at" db:"created_at"`
+	UpdatedAt		time.Time       `json:"updated_at" db:"updated_at"`
+}
+
+func (w *Team) AfterFind(tx *pop.Connection) error{
+	w.EncodedImage = b64.StdEncoding.EncodeToString(w.Image.ByteSlice)
+	return nil
+}
+
+func (w *Team) BeforeValidate(tx *pop.Connection) error {
+	if !w.Avatar.Valid() {
+	  return nil
+	}
+	var b []byte
+	b, err := ioutil.ReadAll(w.Avatar.File)
+	if err != nil {
+		return err
+	}
+	t := http.DetectContentType(b)
+	if t == "text/plain; charset=utf-8" && strings.HasSuffix(w.Avatar.FileHeader.Filename, ".svg") {
+		w.ImageType = "image/svg+xml"
+	} else{
+		w.ImageType = t
+	}
+	
+	
+
+	w.Image = nulls.NewByteSlice(b)
+	return nil
 }
 
 // String is not required by pop and may be deleted
@@ -72,8 +107,23 @@ func (t *Team) Validate(tx *pop.Connection) (*validate.Errors, error) {
 				return found
 			},
 		},
+		&validators.FuncValidator{
+			Field:   "Avatar",
+			Name:    "Avatar",
+			Message: "%s must be an Image",
+			Fn: func() bool {
+				//Check if image type is one of the allowed image types
+				if t.ImageType != "" {
+					_, found := find([]string{"image/svg+xml", "image/png", "image/jpeg", "image/gif"}, t.ImageType)
+					return found
+				}
+				return true
+			},
+		},
+
 	), err
 }
+
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
 // This method is not required and may be deleted.

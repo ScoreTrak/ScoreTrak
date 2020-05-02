@@ -15,7 +15,7 @@
   <tbody>
     <%= for (team) in teams { %>
       <tr>
-        <td class="align-middle"><%= team.Name %></td><td class="align-middle"><%= team.Image %></td><td class="align-middle"><%= team.Role %></td>
+        <td class="align-middle"><%= team.Name %></td><td class="align-middle"><img src="data:<%= team.ImageType %>;base64, <%= team.EncodedImage %>" alt="Avatar" /></td><td class="align-middle"><%= team.Role %></td>
         <td>
           <div class="float-right">
             <%= linkTo(teamPath({ team_id: team.ID }), {class: "btn btn-info", body: "View"}) %>

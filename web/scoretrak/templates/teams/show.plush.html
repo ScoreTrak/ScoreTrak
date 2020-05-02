@@ -21,11 +21,15 @@
   </li>
 
 
+  
+  <%= if (team.ImageType) { %>
+    <li class="list-group-item pb-1">
+      <label class="small d-block"><img src="data:<%= team.ImageType %>;base64, <%= team.EncodedImage %>" alt="Avatar" /></label>
+      <p class="d-inline-block"></p>
+    </li>
+  <% } %>
 
-  <li class="list-group-item pb-1">
-    <label class="small d-block">Image</label>
-    <p class="d-inline-block"><%= team.Image %></p>
-  </li>
+
 
 
 
