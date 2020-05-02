@@ -93,7 +93,7 @@ func (v TeamsResource) Show(c buffalo.Context) error {
 // This function is mapped to the path GET /teams/new
 func (v TeamsResource) New(c buffalo.Context) error {
 	c.Set("team", &models.Team{})
-
+	c.Set("roles", constants.Roles)
 	return c.Render(http.StatusOK, r.HTML("/teams/new.plush.html"))
 }
 
@@ -128,7 +128,7 @@ func (v TeamsResource) Create(c buffalo.Context) error {
 			// Render again the new.html template that the user can
 			// correct the input.
 			c.Set("team", team)
-
+			c.Set("roles", constants.Roles)
 			return c.Render(http.StatusUnprocessableEntity, r.HTML("/teams/new.plush.html"))
 		}).Wants("json", func(c buffalo.Context) error {
 			return c.Render(http.StatusUnprocessableEntity, r.JSON(verrs))
@@ -154,6 +154,7 @@ func (v TeamsResource) Create(c buffalo.Context) error {
 // mapped to the path GET /teams/{team_id}/edit
 func (v TeamsResource) Edit(c buffalo.Context) error {
 	// Get the DB connection from the context
+
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
 		return fmt.Errorf("no transaction found")
@@ -161,11 +162,12 @@ func (v TeamsResource) Edit(c buffalo.Context) error {
 
 	// Allocate an empty Team
 	team := &models.Team{}
-
+	c.Set("roles", constants.Roles)
 	if err := tx.Find(team, c.Param("team_id")); err != nil {
 		return c.Error(http.StatusNotFound, err)
 	}
 
+	
 	c.Set("team", team)
 	return c.Render(http.StatusOK, r.HTML("/teams/edit.plush.html"))
 }
@@ -204,7 +206,7 @@ func (v TeamsResource) Update(c buffalo.Context) error {
 			// Render again the edit.html template that the user can
 			// correct the input.
 			c.Set("team", team)
-
+			c.Set("roles", constants.Roles)
 			return c.Render(http.StatusUnprocessableEntity, r.HTML("/teams/edit.plush.html"))
 		}).Wants("json", func(c buffalo.Context) error {
 			return c.Render(http.StatusUnprocessableEntity, r.JSON(verrs))
