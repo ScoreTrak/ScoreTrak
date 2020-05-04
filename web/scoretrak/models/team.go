@@ -14,7 +14,6 @@ import (
 	"github.com/gobuffalo/buffalo/binding"
 	"net/http"
 	"strings"
-	b64 "encoding/base64"
 )
 
 // Team is used by pop to map your teams database table to your go code.
@@ -31,10 +30,6 @@ type Team struct {
 	UpdatedAt		time.Time       `json:"updated_at" db:"updated_at"`
 }
 
-func (w *Team) AfterFind(tx *pop.Connection) error{
-	w.EncodedImage = b64.StdEncoding.EncodeToString(w.Image.ByteSlice)
-	return nil
-}
 
 func (w *Team) BeforeValidate(tx *pop.Connection) error {
 	if !w.Avatar.Valid() {
