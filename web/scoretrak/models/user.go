@@ -30,14 +30,32 @@ type User struct {
 // Create wraps up the pattern of encrypting the password and
 // running validations. Useful when writing tests.
 func (u *User) Create(tx *pop.Connection) (*validate.Errors, error) {
+	if err := u.generateHash(); err !=nil{
+		return validate.NewErrors(), errors.WithStack(err)
+	}
+	return tx.ValidateAndCreate(u)
+}
+
+func (u *User) Update(tx *pop.Connection) (*validate.Errors, error) {
+	if u.Password != "" {
+		if err := u.generateHash(); err !=nil{
+			return validate.NewErrors(), errors.WithStack(err)
+		}
+	}
+	return tx.ValidateAndUpdate(u)
+}
+
+
+func (u *User) generateHash() error{
 	u.Username = strings.ToLower(u.Username)
 	ph, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return validate.NewErrors(), errors.WithStack(err)
+		return err
 	}
 	u.PasswordHash = string(ph)
-	return tx.ValidateAndCreate(u)
+	return nil
 }
+
 
 // String is not required by pop and may be deleted
 func (u User) String() string {

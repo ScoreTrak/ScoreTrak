@@ -64,6 +64,11 @@ func App() *buffalo.App {
 		//AuthMiddlewares
 		app.Use(SetCurrentUser)
 		app.Use(Authorize)
+		app.Use(GetTeam)
+		app.Use(AuthorizeBlackTeam)
+
+		app.Middleware.Skip(Authorize, HomeHandler)
+		app.Middleware.Skip(AuthorizeBlackTeam, HomeHandler)
 
 		//Routes for Auth
 		auth := app.Group("/auth")
@@ -71,16 +76,29 @@ func App() *buffalo.App {
 		auth.GET("/new", AuthNew)
 		auth.POST("/", AuthCreate)
 		auth.DELETE("/", AuthDestroy)
+
+
+		auth.Middleware.Skip(GetTeam, AuthLanding, AuthNew, AuthCreate)
+		auth.Middleware.Skip(GetTeam, AuthLanding, AuthNew, AuthCreate)
 		auth.Middleware.Skip(Authorize, AuthLanding, AuthNew, AuthCreate)
+		auth.Middleware.Skip(AuthorizeBlackTeam, AuthLanding, AuthNew, AuthCreate, AuthDestroy)
 
 		//Routes for User registration (Disabled. Let admin create new accounts)
 		users := app.Group("/users")
 		users.GET("/new", UsersNew)
-		// users.POST("/", UsersCreate)
-		users.Middleware.Remove(Authorize)
+		users.GET("/", UsersList)
+		users.GET("/{user_id}", UsersShow)
+		users.PUT("/{user_id}", UsersUpdate)
+		users.DELETE("/{user_id}", UsersDestroy)
+		users.GET("/{user_id}/edit", UsersEdit)
+		users.POST("/", UsersCreate)
 
-		app.Resource("/teams", TeamsResource{})
+		res := TeamsResource{}
+		tr := app.Resource("/teams", res)
+		tr.Middleware.Skip(AuthorizeBlackTeam, res.Show)
+
 		app.ServeFiles("/", assetsBox) // serve files from the public directory
+
 	}
 
 	return app
