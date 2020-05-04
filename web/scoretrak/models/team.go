@@ -24,7 +24,7 @@ type Team struct {
 	EncodedImage	string		 	`db:"-"`
 	Avatar 			binding.File 	`db:"-"`
 	Image     		nulls.ByteSlice `json:"image" db:"image"`
-	ImageType		string			`json:"image_type" db:"image_type"`
+	ImageType		nulls.String	`json:"image_type" db:"image_type"`
 	Role      		string          `json:"role" db:"role"`
 	Users     		[]User          `json:"users,omitempty" has_many:"users"`
 	CreatedAt 		time.Time       `json:"created_at" db:"created_at"`
@@ -47,9 +47,9 @@ func (w *Team) BeforeValidate(tx *pop.Connection) error {
 	}
 	t := http.DetectContentType(b)
 	if t == "text/plain; charset=utf-8" && strings.HasSuffix(w.Avatar.FileHeader.Filename, ".svg") {
-		w.ImageType = "image/svg+xml"
+		w.ImageType = nulls.NewString("image/svg+xml")
 	} else{
-		w.ImageType = t
+		w.ImageType = nulls.NewString(t)
 	}
 	
 	
@@ -113,8 +113,8 @@ func (t *Team) Validate(tx *pop.Connection) (*validate.Errors, error) {
 			Message: "%s must be an Image",
 			Fn: func() bool {
 				//Check if image type is one of the allowed image types
-				if t.ImageType != "" {
-					_, found := find([]string{"image/svg+xml", "image/png", "image/jpeg", "image/gif"}, t.ImageType)
+				if t.ImageType.Valid {
+					_, found := find([]string{"image/svg+xml", "image/png", "image/jpeg", "image/gif"}, t.ImageType.String)
 					return found
 				}
 				return true

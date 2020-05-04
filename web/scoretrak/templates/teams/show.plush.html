@@ -22,9 +22,9 @@
 
 
   
-  <%= if (team.ImageType) { %>
+  <%= if (team.ImageType.Valid) { %>
     <li class="list-group-item pb-1">
-      <label class="small d-block"><img src="data:<%= team.ImageType %>;base64, <%= team.EncodedImage %>" alt="Avatar" /></label>
+      <label class="small d-block"><img src="data:<%= team.ImageType.String %>;base64, <%= team.EncodedImage %>" alt="Avatar" /></label>
       <p class="d-inline-block"></p>
     </li>
   <% } %>
