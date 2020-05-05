@@ -59,16 +59,18 @@ func App() *buffalo.App {
 		// Setup and use translations:
 		app.Use(translations())
 
+
 		app.GET("/", HomeHandler)
+		app.GET("/routes", RouteHandler)
 
 		//AuthMiddlewares
 		app.Use(SetCurrentUser)
 		app.Use(Authorize)
-		app.Use(GetTeam)
 		app.Use(AuthorizeBlackTeam)
 
-		app.Middleware.Skip(Authorize, HomeHandler)
-		app.Middleware.Skip(AuthorizeBlackTeam, HomeHandler)
+		app.Middleware.Skip(Authorize, RouteHandler)
+		app.Middleware.Skip(AuthorizeBlackTeam, RouteHandler, HomeHandler)
+
 
 		//Routes for Auth
 		auth := app.Group("/auth")
@@ -77,9 +79,6 @@ func App() *buffalo.App {
 		auth.POST("/", AuthCreate)
 		auth.DELETE("/", AuthDestroy)
 
-
-		auth.Middleware.Skip(GetTeam, AuthLanding, AuthNew, AuthCreate)
-		auth.Middleware.Skip(GetTeam, AuthLanding, AuthNew, AuthCreate)
 		auth.Middleware.Skip(Authorize, AuthLanding, AuthNew, AuthCreate)
 		auth.Middleware.Skip(AuthorizeBlackTeam, AuthLanding, AuthNew, AuthCreate, AuthDestroy)
 
