@@ -76,5 +76,5 @@ func AuthCreate(c buffalo.Context) error {
 func AuthDestroy(c buffalo.Context) error {
 	c.Session().Clear()
 	c.Flash().Add("success", "You have been logged out!")
-	return c.Redirect(302, "/")
+	return c.Redirect(302, "/auth/new")
 }
