@@ -259,6 +259,16 @@ func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
 				// return errors.WithStack(err)
 			}
 			c.Set("current_user", u)
+			t := &models.Team{}
+			if u != nil{
+				tx := c.Value("tx").(*pop.Connection)
+				err := tx.Find(t, u.TeamID)
+				if err != nil {
+					return errors.WithStack(err)
+				}
+			}
+			c.Set("current_team", t)
+			c.Set("roles", constants.Roles)
 		}
 		return next(c)
 	}
@@ -278,37 +288,15 @@ func Authorize(next buffalo.Handler) buffalo.Handler {
 			c.Flash().Add("danger", "You must be authorized to see that page")
 			return c.Redirect(302, "/auth/new")
 		}
-		c.Set("roles", constants.Roles)
 		return next(c)
 	}
 }
-
-//GetTeam sets the current user's team into the context
-func GetTeam(next buffalo.Handler) buffalo.Handler {
-	return func(c buffalo.Context) error {
-		
-
-		uc := c.Value("current_user")
-		if uc != nil{
-			u := uc.(*models.User)
-			t := &models.Team{}
-			tx := c.Value("tx").(*pop.Connection)
-			err := tx.Find(t, u.TeamID)
-			if err != nil {
-				return errors.WithStack(err)
-			}
-			c.Set("team_role", t.Role)
-		}
-		return next(c)
-	}
-}
-
 
 //VerifyAdminTeam verifies weather or not a given user set by context in SetCurrentUser belongs to an Admin Team
 func AuthorizeBlackTeam(next buffalo.Handler) buffalo.Handler {
 	return func(c buffalo.Context) error {
-		r := c.Value("team_role").(string)
-		if r != constants.Black {
+		r := c.Value("current_team").(*models.Team)
+		if r.Role != constants.Black {
 			c.Flash().Add("danger", fmt.Sprintf("You must be a member of a team with role \"%s\" to access this page", constants.Black))
 			return c.Redirect(302, "/")
 		}
