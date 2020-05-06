@@ -2,10 +2,11 @@ package models
 
 import (
 	"encoding/json"
-	"strings"
-	"time"
 	"fmt"
 	"scoretrak/constants"
+	"strings"
+	"time"
+
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
@@ -30,7 +31,7 @@ type User struct {
 // Create wraps up the pattern of encrypting the password and
 // running validations. Useful when writing tests.
 func (u *User) Create(tx *pop.Connection) (*validate.Errors, error) {
-	if err := u.generateHash(); err !=nil{
+	if err := u.generateHash(); err != nil {
 		return validate.NewErrors(), errors.WithStack(err)
 	}
 	return tx.ValidateAndCreate(u)
@@ -38,15 +39,14 @@ func (u *User) Create(tx *pop.Connection) (*validate.Errors, error) {
 
 func (u *User) Update(tx *pop.Connection) (*validate.Errors, error) {
 	if u.Password != "" {
-		if err := u.generateHash(); err !=nil{
+		if err := u.generateHash(); err != nil {
 			return validate.NewErrors(), errors.WithStack(err)
 		}
 	}
 	return tx.ValidateAndUpdate(u)
 }
 
-
-func (u *User) generateHash() error{
+func (u *User) generateHash() error {
 	u.Username = strings.ToLower(u.Username)
 	ph, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -55,7 +55,6 @@ func (u *User) generateHash() error{
 	u.PasswordHash = string(ph)
 	return nil
 }
-
 
 // String is not required by pop and may be deleted
 func (u User) String() string {
@@ -98,7 +97,7 @@ func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 				return !b
 			},
 		},
-		
+
 		&validators.FuncValidator{
 			Name:    "TeamID",
 			Message: "Provided TeamID does not exist",
@@ -111,7 +110,6 @@ func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 				return true
 			},
 		},
-
 	), err
 }
 
@@ -142,7 +140,7 @@ func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 						return false
 					}
 					//Disallow deletion of the last constants.Black team
-					if len(teams) == 1 && len(teams[0].Users) == 1 && teams[0].Users[0].ID == u.ID{
+					if len(teams) == 1 && len(teams[0].Users) == 1 && teams[0].Users[0].ID == u.ID {
 						return false
 					}
 				}
@@ -153,7 +151,7 @@ func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 //GetUserByUsername retreives User object that matches the username parameter
-func GetUserByUsername(tx *pop.Connection, n string) (User, error){
+func GetUserByUsername(tx *pop.Connection, n string) (User, error) {
 	u := []User{}
 	query := tx.Where("username = (?)", n)
 	err := query.All(&u)
@@ -163,7 +161,7 @@ func GetUserByUsername(tx *pop.Connection, n string) (User, error){
 	return u[0], err
 }
 
-func GetUserByID(tx *pop.Connection, id uuid.UUID) (User, error){
+func GetUserByID(tx *pop.Connection, id uuid.UUID) (User, error) {
 	u := User{}
 	err := tx.Find(&u, id)
 	if err != nil {
