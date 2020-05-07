@@ -993,15 +993,19 @@ paths:
 definitions:
   engine:
     type: object
+    description: Engine model is a set of columns describing the config of the scoring engine
     properties:
-      round_units:
+      round_durration:
         type: integer
         format: int64
         example: '20'
+        description: Describes how long each round unit takes to execute in seconds. This value shuold have a minimum value enforced (something like 20 seconds)
       enabled:
         type: boolean
+        description: Enables on disables competition globally
   score:
     type: object
+    description: Score object shows scores for a given team
     properties:
       team_id:
         type: integer
@@ -1013,16 +1017,19 @@ definitions:
         example: '1000'
   team:
     type: object
+    description: Team model represents internal team model of the scoring engine.
     required:
-      - external_id
+      - id
     properties:
       id:
         type: integer
         format: int64
+        description: this id refers to ID of a team in web.
       enabled:
         type: boolean
   host_group:
     type: object
+    description: Host Group model represents a set of hosts that have a common purpose, but are in different teams. For instance team 1 web, and team 2 web would bellong to a host group Web
     required:
       - name
     properties:
@@ -1031,12 +1038,15 @@ definitions:
         format: int64
       name:
         type: string
+        example: Web
       enabled:
         type: boolean
+        description: Enables on disables scoring for a given host group. In case you want to stop scoring a set of simalar hosts, you can set this property to false
   host:
     type: object
+    description: Host model represents a single machine. This could be an IP address or a resolvable hostname
     required:
-      - hostname
+      - address
     properties:
       id:
         type: integer
@@ -1046,13 +1056,21 @@ definitions:
       host_group_id:
         type: integer
         format: int64
+        description: The ID of a host group that the host belongs to.
       team_id:
         type: integer
         format: int64
+        description: The ID of a team that this host belongs too. This parameter is optional, however is needed to appear on the scoring engine.
       enabled:
         type: boolean
+        description: Enables on disables scoring for a single host
+      edit_host:
+        type: boolean
+        example: 'true'
+        description: Enables to Edit the hostname. If a single host needs to be eddited for one service, and kept only visible for other service, you can make 2 services that point to same address, and have different edit_host properties.
   service_group:
     type: object
+    description: Service Group model describes a groupping of services.
     required:
       - name
     properties:
@@ -1071,6 +1089,7 @@ definitions:
         default: true
   service:
     type: object
+    description: Service Model represents a service that is being scored for a given host
     required:
       - name
       - points
@@ -1087,32 +1106,34 @@ definitions:
         type: integer
         format: int64
         example: '20'
+        description: Points granted for a successful check
       round_units:
         type: integer
         format: int64
         example: '5'
+        description: The frequency of a service check. If round_units is 5 and round_delay is 0, then service checks will happen on every 5th round. (5,10, etc)
       round_delay:
         type: integer
         format: int64
         example: '2'
+        description: The frequency of a service check. If round_units is 7 and round_delay is 3, then service checks will happen on every 7th round with an offset of 3. (10,17, etc)
       service_group_id:
         type: integer
         format: int64
         example: '333'
+        description: ID of a service group the service belongs to
       host_id:
         type: integer
         format: int64
         example: '444'
-      edit_host:
-        type: boolean
-        example: 'true'
-        description: Enables to Edit the hostname
+        description: ID of a host the service belongs to
       enabled:
         type: boolean
         description: Enables or Disables the service
         default: true
   property:
     type: object
+    description: Property model describes a single key value pair for a service(parameters). An example could be a port for HTTP checking
     required:
       - name
       - service_id
@@ -1124,7 +1145,7 @@ definitions:
       service_id:
         type: integer
         format: int64
-      name:
+      key:
         type: string
         example: username
       value:
@@ -1135,6 +1156,7 @@ definitions:
         example: View
   check:
     type: object
+    description: Check model contains an instance of a single check performed on a single host at a given round for a given service
     required:
       - hostname
     properties:
@@ -1149,8 +1171,10 @@ definitions:
         format: int64
       log:
         type: string
+        description: Represents an comment/log of a check. This will be helpful for debugging purposes during the competition
       passed:
         type: boolean
+
 responses:
   UnauthorizedError:
     description: 'Authentication token is missing, or incorrect'
