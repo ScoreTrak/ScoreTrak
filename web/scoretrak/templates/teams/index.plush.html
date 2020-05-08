@@ -19,8 +19,8 @@
           <%= team.Name %>
         </td>
         <td class="align-middle">
-          <%= if (team.ImageType.Valid) { %>
-            <img src="data:<%= team.ImageType.String %>;base64, <%= team.EncodedImage %>" alt="Avatar" />
+          <%= if (team.ImageID.Valid) { %>
+            <img src="data:<%= team.Image.ImageType %>;base64, <%= team.Image.EncodedImage %>" alt="Avatar" />
           <% } %>
         </td>
         <td class="align-middle"><%= team.Role %>
