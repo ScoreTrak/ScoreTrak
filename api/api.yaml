@@ -24,7 +24,7 @@ paths:
         - Check
       summary: Retreive total number of rounds
       description: Orders scoring engine to return total number of rounds
-      operationId: GetCheck
+      operationId: GetChecks
       parameters:
         - name: TeamId
           in: path
@@ -46,18 +46,62 @@ paths:
         '200':
           description: OK
           schema:
+            type: array
+            items:
+              $ref: '#/definitions/check'
+        '401':
+          $ref: '#/responses/UnauthorizedError'
+      security:
+        - api_key: []
+
+  '/check/{TeamId}/{RoundId}/{ServiceID}':
+    get:
+      tags:
+        - Check
+      summary: Retreive total number of rounds
+      description: Orders scoring engine to return total number of rounds
+      operationId: GetCheck
+      parameters:
+        - name: TeamId
+          in: path
+          description: ID of a Team
+          required: true
+          type: integer
+          format: int64
+        - name: RoundId
+          in: path
+          description: ID of a Round
+          required: true
+          type: integer
+          format: int64
+        - name: ServiceID
+          in: path
+          description: ID of a ServiceID
+          required: true
+          type: integer
+          format: int64
+
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
             $ref: '#/definitions/check'
         '401':
           $ref: '#/responses/UnauthorizedError'
       security:
         - api_key: []
+
   /score:
     get:
       tags:
         - Score
       summary: Retreive all Scores
       description: Orders scoring engine to retrive all scores
-      operationId: GetScore
+      operationId: GetScores
       consumes:
         - application/json
       produces:
@@ -73,6 +117,36 @@ paths:
           $ref: '#/responses/UnauthorizedError'
       security:
         - api_key: []
+
+  '/score/{teamID}':
+    get:
+      tags:
+        - Score
+      summary: Retreive all Scores for a given team
+      description: Orders scoring engine to retrive all scores
+      operationId: GetScore
+      consumes:
+        - application/json
+      parameters:
+        - name: teamID
+          in: path
+          description: ID of Host to return
+          required: true
+          type: integer
+          format: int64
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/score'
+        '401':
+          $ref: '#/responses/UnauthorizedError'
+      security:
+        - api_key: []
+
+
   /round:
     get:
       tags:
