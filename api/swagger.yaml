@@ -1,0 +1,1490 @@
+---
+swagger: "2.0"
+info:
+  description: "Swagger representation of ScoreTrak's Mater API"
+  version: "1.0.0"
+  title: "ScoreTrak Mater API"
+tags:
+- name: "Engine"
+- name: "Score"
+- name: "Team"
+- name: "HostGroup"
+- name: "Host"
+- name: "Service Group"
+- name: "Service"
+- name: "Round"
+- name: "Property"
+- name: "Check"
+schemes:
+- "https"
+- "http"
+paths:
+  /check/{TeamId}/{RoundId}:
+    get:
+      tags:
+      - "Check"
+      summary: "Retreive total number of rounds"
+      description: "Orders scoring engine to return total number of rounds"
+      operationId: "GetChecks"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "TeamId"
+        in: "path"
+        description: "ID of a Team"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "TeamId"
+      - name: "RoundId"
+        in: "path"
+        description: "ID of a Round"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "RoundId"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/check"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+      security:
+      - api_key: []
+  /check/{TeamId}/{RoundId}/{ServiceID}:
+    get:
+      tags:
+      - "Check"
+      summary: "Retreive total number of rounds"
+      description: "Orders scoring engine to return total number of rounds"
+      operationId: "GetCheck"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "TeamId"
+        in: "path"
+        description: "ID of a Team"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "TeamId"
+      - name: "RoundId"
+        in: "path"
+        description: "ID of a Round"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "RoundId"
+      - name: "ServiceID"
+        in: "path"
+        description: "ID of a ServiceID"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "ServiceID"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/check"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+      security:
+      - api_key: []
+  /score:
+    get:
+      tags:
+      - "Score"
+      summary: "Retreive all Scores"
+      description: "Orders scoring engine to retrive all scores"
+      operationId: "GetScores"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/score"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+      security:
+      - api_key: []
+  /score/{teamID}:
+    get:
+      tags:
+      - "Score"
+      summary: "Retreive all Scores for a given team"
+      description: "Orders scoring engine to retrive all scores"
+      operationId: "GetScore"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "teamID"
+        in: "path"
+        description: "ID of Host to return"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "TeamID"
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/score"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+      security:
+      - api_key: []
+  /round:
+    get:
+      tags:
+      - "Round"
+      summary: "Retreive total number of rounds"
+      description: "Orders scoring engine to return total number of rounds"
+      operationId: "GetRoundNumber"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/round"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+      security:
+      - api_key: []
+  /engine:
+    get:
+      tags:
+      - "Engine"
+      summary: "Retreive all properties"
+      description: "Orders scoring engine to return all properties"
+      operationId: "GetEngineProperties"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            $ref: "#/definitions/engine"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+      security:
+      - api_key: []
+    put:
+      tags:
+      - "Engine"
+      summary: "Update Engine properties"
+      description: "Orders scoring engine to update Engine columns in a database"
+      operationId: "AddEngineProperties"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Engine Properties that needs to be added to the database"
+        required: true
+        schema:
+          $ref: "#/definitions/engine"
+        x-exportParamName: "Body"
+      responses:
+        "200":
+          description: "successful operation"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "405":
+          description: "Invalid input"
+      security:
+      - api_key: []
+  /host:
+    get:
+      tags:
+      - "Host"
+      summary: "Retreive all properties"
+      description: "Orders scoring engine to return all properties"
+      operationId: "GetHosts"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/host"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+      security:
+      - api_key: []
+    post:
+      tags:
+      - "Host"
+      summary: "Add a new Host"
+      description: "Orders scoring engine to create a host entry in a database"
+      operationId: "AddHost"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Host object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/host"
+        x-exportParamName: "Body"
+      responses:
+        "201":
+          description: "Object Created"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "405":
+          description: "Invalid input"
+      security:
+      - api_key: []
+  /host/{hostId}:
+    get:
+      tags:
+      - "Host"
+      summary: "Get a Host"
+      description: "Gets a Host based on ID"
+      operationId: "GetHost"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "hostId"
+        in: "path"
+        description: "ID of Host to return"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "HostId"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/host"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Host not found"
+      security:
+      - api_key: []
+    put:
+      tags:
+      - "Host"
+      summary: "Update a Host"
+      description: "Updates the Host based on ID"
+      operationId: "UpdateHost"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "hostId"
+        in: "path"
+        description: "ID of Host to update"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "HostId"
+      - in: "body"
+        name: "body"
+        description: "Host object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/host"
+        x-exportParamName: "Body"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Host not found"
+      security:
+      - api_key: []
+    delete:
+      tags:
+      - "Host"
+      summary: "Delete a Host"
+      description: "Deletes a Host Group from based on ID"
+      operationId: "DeleteHost"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "hostId"
+        in: "path"
+        description: "ID of Host Host to delete"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "HostId"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Host not found"
+      security:
+      - api_key: []
+  /host_group:
+    get:
+      tags:
+      - "HostGroup"
+      summary: "Retreive all properties"
+      description: "Orders scoring engine to return all properties"
+      operationId: "GetHostGroups"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/host_group"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+      security:
+      - api_key: []
+    post:
+      tags:
+      - "HostGroup"
+      summary: "Add a new Host Group"
+      description: "Orders scoring engine to create a host_group entry in a database"
+      operationId: "AddHostGroup"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Host Group object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/host_group"
+        x-exportParamName: "Body"
+      responses:
+        "201":
+          description: "Object Created"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "405":
+          description: "Invalid input"
+      security:
+      - api_key: []
+  /host_group/{host_groupId}:
+    get:
+      tags:
+      - "HostGroup"
+      summary: "Get a Host Group"
+      description: "Gets a Host Group based on ID"
+      operationId: "GetHostGroup"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "host_groupId"
+        in: "path"
+        description: "ID of Host Group to return"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "HostGroupId"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/host_group"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "HostGroup not found"
+      security:
+      - api_key: []
+    put:
+      tags:
+      - "HostGroup"
+      summary: "Update a Host Group"
+      description: "Updates the Host Group based on ID"
+      operationId: "UpdateHostGroup"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "host_groupId"
+        in: "path"
+        description: "ID of Host Group to update"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "HostGroupId"
+      - in: "body"
+        name: "body"
+        description: "HostGroup object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/host_group"
+        x-exportParamName: "Body"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "HostGroup not found"
+      security:
+      - api_key: []
+    delete:
+      tags:
+      - "HostGroup"
+      summary: "Delete a Host Group"
+      description: "Deletes a Host Group from based on ID"
+      operationId: "DeleteHostGroup"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "host_groupId"
+        in: "path"
+        description: "ID of Host HostGroup to delete"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "HostGroupId"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "HostGroup not found"
+      security:
+      - api_key: []
+  /team:
+    get:
+      tags:
+      - "Team"
+      summary: "Retreive all Teams"
+      description: "Orders scoring engine to return all teams"
+      operationId: "GetTeams"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/team"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+      security:
+      - api_key: []
+    post:
+      tags:
+      - "Team"
+      summary: "Add a new team"
+      description: "Orders scoring engine to create a team entry in a database"
+      operationId: "AddTeam"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Team object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/team"
+        x-exportParamName: "Body"
+      responses:
+        "201":
+          description: "Object Created"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "405":
+          description: "Invalid input"
+      security:
+      - api_key: []
+  /team/{TeamId}:
+    get:
+      tags:
+      - "Team"
+      summary: "Get a team"
+      description: "Gets a team based on External ID"
+      operationId: "GetTeam"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "TeamId"
+        in: "path"
+        description: "External ID of team to return"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "TeamId"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/team"
+        "400":
+          description: "Invalid External ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Team not found"
+      security:
+      - api_key: []
+    put:
+      tags:
+      - "Team"
+      summary: "Update a team"
+      description: "Updates the team based on External ID"
+      operationId: "UpdateTeam"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "TeamId"
+        in: "path"
+        description: "External ID of team to update"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "TeamId"
+      - in: "body"
+        name: "body"
+        description: "Team object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/team"
+        x-exportParamName: "Body"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Invalid External ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Team not found"
+      security:
+      - api_key: []
+    delete:
+      tags:
+      - "Team"
+      summary: "Deletes a team"
+      description: "Deletes a team from based on External ID"
+      operationId: "DelteTeam"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "TeamId"
+        in: "path"
+        description: "External ID of team to delete"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "TeamId"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Invalid External ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Team not found"
+      security:
+      - api_key: []
+  /service_group:
+    get:
+      tags:
+      - "Service Group"
+      summary: "Retreive all Service Groups"
+      description: "Orders scoring engine to return all scoring groups"
+      operationId: "GetServiceGroups"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/service_group"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+      security:
+      - api_key: []
+    post:
+      tags:
+      - "Service Group"
+      summary: "Add a new service group"
+      description: "Orders scoring engine to create a service group entry in a database"
+      operationId: "AddServiceGroup"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Service Group object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/service_group"
+        x-exportParamName: "Body"
+      responses:
+        "201":
+          description: "Object Created"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "405":
+          description: "Invalid input"
+      security:
+      - api_key: []
+  /service_group/{serviceGroupId}:
+    get:
+      tags:
+      - "Service Group"
+      summary: "Get a service group"
+      description: "Gets a service group from based on ID"
+      operationId: "GetServiceGroup"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "serviceGroupId"
+        in: "path"
+        description: "ID of service group to return"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "ServiceGroupId"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/service_group"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Service group not found"
+      security:
+      - api_key: []
+    put:
+      tags:
+      - "Service Group"
+      summary: "Update a service group"
+      description: "Updates the service group based on ID"
+      operationId: "UpdateServiceGroup"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "serviceGroupId"
+        in: "path"
+        description: "ID of service group to update"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "ServiceGroupId"
+      - in: "body"
+        name: "body"
+        description: "Service Group object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/service_group"
+        x-exportParamName: "Body"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Service group not found"
+      security:
+      - api_key: []
+    delete:
+      tags:
+      - "Service Group"
+      summary: "Deletes a service group"
+      description: "Deletes a service group from based on ID"
+      operationId: "DeleteServiceGroup"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "serviceGroupId"
+        in: "path"
+        description: "ID of service group to delete"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "ServiceGroupId"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Service group not found"
+      security:
+      - api_key: []
+  /service:
+    get:
+      tags:
+      - "Service"
+      summary: "Retreive all Services"
+      description: "Orders scoring engine to return all scoring services"
+      operationId: "GetServices"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/service"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+      security:
+      - api_key: []
+    post:
+      tags:
+      - "Service"
+      summary: "Add a new service"
+      description: "Orders scoring engine to create a service entry in a database"
+      operationId: "AddService"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Service object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/service"
+        x-exportParamName: "Body"
+      responses:
+        "201":
+          description: "Object Created"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "405":
+          description: "Invalid input"
+      security:
+      - api_key: []
+  /service/{serviceId}:
+    get:
+      tags:
+      - "Service"
+      summary: "Get a service"
+      description: "Gets a service based on ID"
+      operationId: "GetService"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "serviceId"
+        in: "path"
+        description: "ID of service to return"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "ServiceId"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/service"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Service not found"
+      security:
+      - api_key: []
+    put:
+      tags:
+      - "Service"
+      summary: "Update a service"
+      description: "Updates the service based on ID"
+      operationId: "UpdateService"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "serviceId"
+        in: "path"
+        description: "ID of service to update"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "ServiceId"
+      - in: "body"
+        name: "body"
+        description: "Service object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/service"
+        x-exportParamName: "Body"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Service not found"
+      security:
+      - api_key: []
+    delete:
+      tags:
+      - "Service"
+      summary: "Delete a service"
+      description: "Gets a service from based on ID"
+      operationId: "DeleteService"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "serviceId"
+        in: "path"
+        description: "ID of service to delete"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "ServiceId"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Service not found"
+      security:
+      - api_key: []
+  /property:
+    get:
+      tags:
+      - "Property"
+      summary: "Retreive all properties"
+      description: "Orders scoring engine to return all properties"
+      operationId: "GetProperties"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "OK"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/property"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+      security:
+      - api_key: []
+    post:
+      tags:
+      - "Property"
+      summary: "Add a new property"
+      description: "Orders scoring engine to create a property entry in a database"
+      operationId: "AddProprty"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Property object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/property"
+        x-exportParamName: "Body"
+      responses:
+        "201":
+          description: "Object Created"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "405":
+          description: "Invalid input"
+      security:
+      - api_key: []
+  /property/{propertyId}:
+    get:
+      tags:
+      - "Property"
+      summary: "Get a property"
+      description: "Gets a property based on ID"
+      operationId: "GetProperty"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "propertyId"
+        in: "path"
+        description: "ID of property to return"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "PropertyId"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/property"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Property not found"
+      security:
+      - api_key: []
+    put:
+      tags:
+      - "Property"
+      summary: "Update a property"
+      description: "Updates the property based on ID"
+      operationId: "UpdateProperty"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "propertyId"
+        in: "path"
+        description: "ID of property to update"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "PropertyId"
+      - in: "body"
+        name: "body"
+        description: "Property object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/property"
+        x-exportParamName: "Body"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Property not found"
+      security:
+      - api_key: []
+    delete:
+      tags:
+      - "Property"
+      summary: "Delete a property"
+      description: "Deletes a property from based on ID"
+      operationId: "DeleteProperty"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "propertyId"
+        in: "path"
+        description: "ID of property to delete"
+        required: true
+        type: "integer"
+        format: "int64"
+        x-exportParamName: "PropertyId"
+      responses:
+        "200":
+          description: "successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "HostGroup not found"
+      security:
+      - api_key: []
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
+definitions:
+  engine:
+    type: "object"
+    properties:
+      round_durration:
+        type: "integer"
+        format: "int64"
+        example: 20
+        description: "Describes how long each round unit takes to execute in seconds.\
+          \ This value shuold have a minimum value enforced (something like 20 seconds)"
+      enabled:
+        type: "boolean"
+        description: "Enables on disables competition globally"
+    description: "Engine model is a set of columns describing the config of the scoring\
+      \ engine"
+    example:
+      round_durration: 20
+      enabled: true
+  score:
+    type: "object"
+    properties:
+      team_id:
+        type: "integer"
+        format: "int64"
+        example: 20
+      score:
+        type: "integer"
+        format: "int64"
+        example: 1000
+    description: "Score object shows scores for a given team"
+    example:
+      score: 1000
+      team_id: 20
+  team:
+    type: "object"
+    required:
+    - "id"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "this id refers to ID of a team in web."
+      enabled:
+        type: "boolean"
+    description: "Team model represents internal team model of the scoring engine."
+    example:
+      id: 0
+      enabled: true
+  host_group:
+    type: "object"
+    required:
+    - "name"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+        example: "Web"
+      enabled:
+        type: "boolean"
+        description: "Enables on disables scoring for a given host group. In case\
+          \ you want to stop scoring a set of simalar hosts, you can set this property\
+          \ to false"
+    description: "Host Group model represents a set of hosts that have a common purpose,\
+      \ but are in different teams. For instance team 1 web, and team 2 web would\
+      \ bellong to a host group Web"
+    example:
+      name: "Web"
+      id: 0
+      enabled: true
+  host:
+    type: "object"
+    required:
+    - "address"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      address:
+        type: "string"
+      host_group_id:
+        type: "integer"
+        format: "int64"
+        description: "The ID of a host group that the host belongs to."
+      team_id:
+        type: "integer"
+        format: "int64"
+        description: "The ID of a team that this host belongs too. This parameter\
+          \ is optional, however is needed to appear on the scoring engine."
+      enabled:
+        type: "boolean"
+        description: "Enables on disables scoring for a single host"
+      edit_host:
+        type: "boolean"
+        example: true
+        description: "Enables to Edit the hostname. If a single host needs to be eddited\
+          \ for one service, and kept only visible for other service, you can make\
+          \ 2 services that point to same address, and have different edit_host properties."
+    description: "Host model represents a single machine. This could be an IP address\
+      \ or a resolvable hostname"
+    example:
+      address: "address"
+      host_group_id: 6
+      id: 0
+      team_id: 1
+      edit_host: true
+      enabled: true
+  service_group:
+    type: "object"
+    required:
+    - "name"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+        example: "External Scoring Group"
+      label:
+        type: "string"
+        example: "external"
+      enabled:
+        type: "boolean"
+        description: "Enables or Disables the service"
+        default: true
+    description: "Service Group model describes a groupping of services."
+    example:
+      name: "External Scoring Group"
+      id: 0
+      label: "external"
+      enabled: true
+  service:
+    type: "object"
+    required:
+    - "host_id"
+    - "name"
+    - "points"
+    - "service_group_id"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+        example: "FTP Windows"
+      points:
+        type: "integer"
+        format: "int64"
+        example: 20
+        description: "Points granted for a successful check"
+      round_units:
+        type: "integer"
+        format: "int64"
+        example: 5
+        description: "The frequency of a service check. If round_units is 5 and round_delay\
+          \ is 0, then service checks will happen on every 5th round. (5,10, etc)"
+      round_delay:
+        type: "integer"
+        format: "int64"
+        example: 2
+        description: "The frequency of a service check. If round_units is 7 and round_delay\
+          \ is 3, then service checks will happen on every 7th round with an offset\
+          \ of 3. (10,17, etc)"
+      service_group_id:
+        type: "integer"
+        format: "int64"
+        example: 333
+        description: "ID of a service group the service belongs to"
+      host_id:
+        type: "integer"
+        format: "int64"
+        example: 444
+        description: "ID of a host the service belongs to"
+      enabled:
+        type: "boolean"
+        description: "Enables or Disables the service"
+        default: true
+    description: "Service Model represents a service that is being scored for a given\
+      \ host"
+    example:
+      round_delay: 2
+      name: "FTP Windows"
+      round_units: 5
+      id: 0
+      service_group_id: 333
+      host_id: 444
+      enabled: true
+      points: 20
+  property:
+    type: "object"
+    required:
+    - "service_id"
+    - "value"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      service_id:
+        type: "integer"
+        format: "int64"
+      key:
+        type: "string"
+        example: "username"
+      value:
+        type: "string"
+        example: "(Encoded username)"
+      status:
+        type: "string"
+        example: "View"
+    description: "Property model describes a single key value pair for a service(parameters).\
+      \ An example could be a port for HTTP checking"
+    example:
+      service_id: 6
+      id: 0
+      value: "(Encoded username)"
+      key: "username"
+      status: "View"
+  check:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      service_id:
+        type: "integer"
+        format: "int64"
+      round_id:
+        type: "integer"
+        format: "int64"
+      log:
+        type: "string"
+        description: "Represents an comment/log of a check. This will be helpful for\
+          \ debugging purposes during the competition"
+      passed:
+        type: "boolean"
+    description: "Check model contains an instance of a single check performed on\
+      \ a single host at a given round for a given service"
+    example:
+      round_id: 1
+      log: "log"
+      service_id: 6
+      id: 0
+      passed: true
+  round:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "Round ID can also represent the round number"
+      start:
+        type: "string"
+        format: "date-time"
+      end:
+        type: "string"
+        format: "date-time"
+      passed:
+        type: "boolean"
+    description: "Round Model holds the information about all the rounds that have\
+      \ passed"
+    example:
+      start: "2000-01-23T04:56:07.000+00:00"
+      end: "2000-01-23T04:56:07.000+00:00"
+      id: 0
+      passed: true
+responses:
+  UnauthorizedError:
+    description: "Authentication token is missing, or incorrect"
+    headers:
+      WWW_Authenticate:
+        type: "string"

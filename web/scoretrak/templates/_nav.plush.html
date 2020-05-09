@@ -1,0 +1,28 @@
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">
+          ScoreTrak
+        </a>
+      </div>
+      <ul class="nav navbar-nav navbar-right">
+        <%= if (current_user) { %>
+          <li>
+            <a href="<%= authPath() %>" data-method="DELETE"> Sign Out </a>
+          </li>
+            <%= if (current_team.Role == roles[0]) { %>     
+                <li>
+                    <a href="<%= usersPath() %>"> Users </a>
+                </li>
+                <li>
+                    <a href="<%= teamsPath() %>"> Teams </a>
+                </li>
+            <% } %>
+        <% } else { %>
+          <li>
+            <a href="<%= newAuthPath() %>"> Sign In </a>
+          </li>
+        <% } %>
+      </ul>
+    </div>
+  </nav>

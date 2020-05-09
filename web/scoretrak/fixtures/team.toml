@@ -1,0 +1,34 @@
+[[scenario]]
+name = "Create a Team"
+
+  [[scenario.table]]
+    name = "teams"
+
+    [[scenario.table.row]]
+      id = "<%= uuid() %>"
+      name = "Black Team"
+      role = "black"
+      created_at = "<%= now() %>"
+      updated_at = "<%= now() %>"
+
+
+[[scenario]]
+name = "Create Multiple Teams"
+
+  [[scenario.table]]
+    name = "teams"
+
+    [[scenario.table.row]]
+      id = "<%= uuid() %>"
+      name = "Black Team"
+      role = "black"
+      created_at = "<%= now() %>"
+      updated_at = "<%= now() %>"
+
+    [[scenario.table.row]]
+      id = "<%= uuid() %>"
+      name = "Red Team"
+      role = "red"
+      created_at = "<%= now() %>"
+      updated_at = "<%= now() %>"
+
