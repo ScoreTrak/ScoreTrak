@@ -1,0 +1,6 @@
+- id: "team.created.success"
+  translation: "Team was successfully created."
+- id: "team.updated.success"
+  translation: "Team was successfully updated."
+- id: "team.destroyed.success"
+  translation: "Team was successfully destroyed."
