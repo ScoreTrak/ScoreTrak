@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"time"
-	"io/ioutil"
 	"fmt"
 	"github.com/gobuffalo/nulls"
 	"github.com/gobuffalo/pop/v5"
@@ -12,45 +11,20 @@ import (
 	"github.com/gofrs/uuid"
 	"scoretrak/constants"
 	"github.com/gobuffalo/buffalo/binding"
-	"net/http"
-	"strings"
+	
 )
 
 // Team is used by pop to map your teams database table to your go code.
 type Team struct {
 	ID       		uuid.UUID       `json:"id" db:"id"`
 	Name      		string          `json:"name" db:"name"`
-	EncodedImage	string		 	`db:"-"`
 	Avatar 			binding.File 	`db:"-"`
-	Image     		nulls.ByteSlice `json:"image" db:"image"`
-	ImageType		nulls.String	`json:"image_type" db:"image_type"`
+	ImageID       	nulls.UUID 		`json:"-" db:"image_id"`
+	Image        	*Image       	`belongs_to:"image"`
 	Role      		string          `json:"role" db:"role"`
 	Users     		[]User          `json:"users,omitempty" has_many:"users"`
 	CreatedAt 		time.Time       `json:"created_at" db:"created_at"`
 	UpdatedAt		time.Time       `json:"updated_at" db:"updated_at"`
-}
-
-
-func (w *Team) BeforeValidate(tx *pop.Connection) error {
-	if !w.Avatar.Valid() {
-	  return nil
-	}
-	var b []byte
-	b, err := ioutil.ReadAll(w.Avatar.File)
-	if err != nil {
-		return err
-	}
-	t := http.DetectContentType(b)
-	if t == "text/plain; charset=utf-8" && strings.HasSuffix(w.Avatar.FileHeader.Filename, ".svg") {
-		w.ImageType = nulls.NewString("image/svg+xml")
-	} else{
-		w.ImageType = nulls.NewString(t)
-	}
-	
-	
-
-	w.Image = nulls.NewByteSlice(b)
-	return nil
 }
 
 // String is not required by pop and may be deleted
@@ -102,22 +76,37 @@ func (t *Team) Validate(tx *pop.Connection) (*validate.Errors, error) {
 				return found
 			},
 		},
+		
 		&validators.FuncValidator{
 			Field:   "Avatar",
 			Name:    "Avatar",
 			Message: "%s must be an Image",
 			Fn: func() bool {
 				//Check if image type is one of the allowed image types
-				if t.ImageType.Valid {
-					_, found := find([]string{"image/svg+xml", "image/png", "image/jpeg", "image/gif"}, t.ImageType.String)
-					return found
-				}
+				if !t.Avatar.Valid() {
+					return true
+				  }
+				  i := &Image{}
+				  if t.ImageID.Valid{
+					i_ID, err := t.ImageID.Value()
+					if err != nil{
+						return false
+					}
+					i.ID = uuid.Must(uuid.FromString(i_ID.(string)))
+				  }
+				  i.Avatar = &t.Avatar
+				  t.Image = i
+				  verrs, err := tx.Eager().ValidateAndSave(i)
+				  if verrs.HasAny() || err != nil{
+					return  false
+				  }
 				return true
 			},
 		},
-
 	), err
 }
+
+
 
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
@@ -157,6 +146,7 @@ func (t *Team) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 		},
 	), err
 }
+
 
 //find finds weather a given string is in the slice of strings.
 func find(slice []string, val string) (int, bool) {
