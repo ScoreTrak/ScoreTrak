@@ -12,7 +12,7 @@ type Config struct {
 	Enabled bool `json:"enabled,omitempty"`
 
 	// Auth Token specified on init of the config
-	Token string `json:"-"`
+	token string `json:"-"`
 }
 
 var config Config
@@ -20,15 +20,12 @@ var mu sync.RWMutex
 
 //Initializes the auth token
 func InitAuthToken(t string) {
-	mu.RLock()
-	defer mu.RUnlock()
-	config.Token = t
+	config.token = t
 }
 
-func GetToken() string {
-	mu.RLock()
-	defer mu.RUnlock()
-	return config.Token
+//Token returns the Token from Config struct
+func Token() string {
+	return config.token
 }
 
 //PullConfig retrieves the config from the database, and updates the shared config variable
