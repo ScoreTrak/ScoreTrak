@@ -1,7 +1,7 @@
 ---
 development:
   dialect: cockroach
-  database: scoretrak_development
+  database: scoretrak_web_development
   host: {{ envOr "COCKROACH_HOST" "127.0.0.1"  }}
   port: {{ envOr "COCKROACH_PORT" "26257"  }}
   user: {{ envOr "COCKROACH_USER" "root"  }}
@@ -15,7 +15,7 @@ development:
 
 test:
   dialect: cockroach
-  database: scoretrak_test
+  database: scoretrak_web_test
   host: {{ envOr "COCKROACH_HOST" "127.0.0.1"  }}
   port: {{ envOr "COCKROACH_PORT" "26257"  }}
   user: {{ envOr "COCKROACH_USER" "root"  }}
@@ -29,7 +29,7 @@ test:
 
 production:
   dialect: cockroach
-  database: scoretrak_production
+  database: scoretrak_web_production
   host: {{ envOr "COCKROACH_HOST" "127.0.0.1"  }}
   port: {{ envOr "COCKROACH_PORT" "26257"  }}
   user: {{ envOr "COCKROACH_USER" "root"  }}
