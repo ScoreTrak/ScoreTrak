@@ -19,7 +19,7 @@ schemes:
   - "https"
   - "http"
 paths:
-  /check/{TeamId}/{RoundId}:
+  /check/{TeamID}/{RoundID}:
     get:
       tags:
         - "Check"
@@ -31,20 +31,20 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "TeamId"
+        - name: "TeamID"
           in: "path"
           description: "ID of a Team"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "TeamId"
-        - name: "RoundId"
+          x-exportParamName: "TeamID"
+        - name: "RoundID"
           in: "path"
           description: "ID of a Round"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "RoundId"
+          x-exportParamName: "RoundID"
       responses:
         "200":
           description: "OK"
@@ -59,7 +59,7 @@ paths:
               type: "string"
       security:
         - api_key: []
-  /check/{TeamId}/{RoundId}/{ServiceID}:
+  /check/{TeamID}/{RoundID}/{ServiceID}:
     get:
       tags:
         - "Check"
@@ -71,20 +71,20 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "TeamId"
+        - name: "TeamID"
           in: "path"
           description: "ID of a Team"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "TeamId"
-        - name: "RoundId"
+          x-exportParamName: "TeamID"
+        - name: "RoundID"
           in: "path"
           description: "ID of a Round"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "RoundId"
+          x-exportParamName: "RoundID"
         - name: "ServiceID"
           in: "path"
           description: "ID of a ServiceID"
@@ -167,7 +167,7 @@ paths:
         - "Round"
       summary: "Retreive total number of rounds"
       description: "Orders scoring engine to return total number of rounds"
-      operationId: "GetRoundNumber"
+      operationId: "GetLastRound"
       consumes:
         - "application/json"
       produces:
@@ -214,7 +214,7 @@ paths:
         - "Config"
       summary: "Update Engine configuration"
       description: "Orders scoring engine to update Config columns in a database"
-      operationId: "AddConfigProperties"
+      operationId: "UpdateConfigProperties"
       consumes:
         - "application/json"
       produces:
@@ -295,7 +295,7 @@ paths:
           description: "Invalid input"
       security:
         - api_key: []
-  /host/{hostId}:
+  /host/{hostID}:
     get:
       tags:
         - "Host"
@@ -307,13 +307,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "hostId"
+        - name: "hostID"
           in: "path"
           description: "ID of Host to return"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "HostId"
+          x-exportParamName: "HostID"
       responses:
         "200":
           description: "successful operation"
@@ -341,13 +341,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "hostId"
+        - name: "hostID"
           in: "path"
           description: "ID of Host to update"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "HostId"
+          x-exportParamName: "HostID"
         - in: "body"
           name: "body"
           description: "Host object that needs to be added to the store"
@@ -380,13 +380,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "hostId"
+        - name: "hostID"
           in: "path"
           description: "ID of Host Host to delete"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "HostId"
+          x-exportParamName: "HostID"
       responses:
         "200":
           description: "successful operation"
@@ -457,7 +457,7 @@ paths:
           description: "Invalid input"
       security:
         - api_key: []
-  /host_group/{host_groupId}:
+  /host_group/{host_groupID}:
     get:
       tags:
         - "HostGroup"
@@ -469,13 +469,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "host_groupId"
+        - name: "host_groupID"
           in: "path"
           description: "ID of Host Group to return"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "HostGroupId"
+          x-exportParamName: "HostGroupID"
       responses:
         "200":
           description: "successful operation"
@@ -503,13 +503,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "host_groupId"
+        - name: "host_groupID"
           in: "path"
           description: "ID of Host Group to update"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "HostGroupId"
+          x-exportParamName: "HostGroupID"
         - in: "body"
           name: "body"
           description: "HostGroup object that needs to be added to the store"
@@ -542,13 +542,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "host_groupId"
+        - name: "host_groupID"
           in: "path"
           description: "ID of Host HostGroup to delete"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "HostGroupId"
+          x-exportParamName: "HostGroupID"
       responses:
         "200":
           description: "successful operation"
@@ -619,7 +619,7 @@ paths:
           description: "Invalid input"
       security:
         - api_key: []
-  /team/{TeamId}:
+  /team/{TeamID}:
     get:
       tags:
         - "Team"
@@ -631,13 +631,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "TeamId"
+        - name: "TeamID"
           in: "path"
           description: "External ID of team to return"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "TeamId"
+          x-exportParamName: "TeamID"
       responses:
         "200":
           description: "successful operation"
@@ -665,13 +665,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "TeamId"
+        - name: "TeamID"
           in: "path"
           description: "External ID of team to update"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "TeamId"
+          x-exportParamName: "TeamID"
         - in: "body"
           name: "body"
           description: "Team object that needs to be added to the store"
@@ -698,19 +698,19 @@ paths:
         - "Team"
       summary: "Deletes a team"
       description: "Deletes a team from based on External ID"
-      operationId: "DelteTeam"
+      operationId: "DeleteTeam"
       consumes:
         - "application/json"
       produces:
         - "application/json"
       parameters:
-        - name: "TeamId"
+        - name: "TeamID"
           in: "path"
           description: "External ID of team to delete"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "TeamId"
+          x-exportParamName: "TeamID"
       responses:
         "200":
           description: "successful operation"
@@ -781,7 +781,7 @@ paths:
           description: "Invalid input"
       security:
         - api_key: []
-  /service_group/{serviceGroupId}:
+  /service_group/{serviceGroupID}:
     get:
       tags:
         - "Service Group"
@@ -793,13 +793,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "serviceGroupId"
+        - name: "serviceGroupID"
           in: "path"
           description: "ID of service group to return"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "ServiceGroupId"
+          x-exportParamName: "ServiceGroupID"
       responses:
         "200":
           description: "successful operation"
@@ -827,13 +827,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "serviceGroupId"
+        - name: "serviceGroupID"
           in: "path"
           description: "ID of service group to update"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "ServiceGroupId"
+          x-exportParamName: "ServiceGroupID"
         - in: "body"
           name: "body"
           description: "Service Group object that needs to be added to the store"
@@ -866,13 +866,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "serviceGroupId"
+        - name: "serviceGroupID"
           in: "path"
           description: "ID of service group to delete"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "ServiceGroupId"
+          x-exportParamName: "ServiceGroupID"
       responses:
         "200":
           description: "successful operation"
@@ -943,7 +943,7 @@ paths:
           description: "Invalid input"
       security:
         - api_key: []
-  /service/{serviceId}:
+  /service/{serviceID}:
     get:
       tags:
         - "Service"
@@ -955,13 +955,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "serviceId"
+        - name: "serviceID"
           in: "path"
           description: "ID of service to return"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "ServiceId"
+          x-exportParamName: "ServiceID"
       responses:
         "200":
           description: "successful operation"
@@ -989,13 +989,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "serviceId"
+        - name: "serviceID"
           in: "path"
           description: "ID of service to update"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "ServiceId"
+          x-exportParamName: "ServiceID"
         - in: "body"
           name: "body"
           description: "Service object that needs to be added to the store"
@@ -1028,13 +1028,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "serviceId"
+        - name: "serviceID"
           in: "path"
           description: "ID of service to delete"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "ServiceId"
+          x-exportParamName: "ServiceID"
       responses:
         "200":
           description: "successful operation"
@@ -1105,7 +1105,7 @@ paths:
           description: "Invalid input"
       security:
         - api_key: []
-  /property/{propertyId}:
+  /property/{propertyID}:
     get:
       tags:
         - "Property"
@@ -1117,13 +1117,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "propertyId"
+        - name: "propertyID"
           in: "path"
           description: "ID of property to return"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "PropertyId"
+          x-exportParamName: "PropertyID"
       responses:
         "200":
           description: "successful operation"
@@ -1151,13 +1151,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "propertyId"
+        - name: "propertyID"
           in: "path"
           description: "ID of property to update"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "PropertyId"
+          x-exportParamName: "PropertyID"
         - in: "body"
           name: "body"
           description: "Property object that needs to be added to the store"
@@ -1190,13 +1190,13 @@ paths:
       produces:
         - "application/json"
       parameters:
-        - name: "propertyId"
+        - name: "propertyID"
           in: "path"
           description: "ID of property to delete"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "PropertyId"
+          x-exportParamName: "PropertyID"
       responses:
         "200":
           description: "successful operation"
@@ -1339,7 +1339,7 @@ definitions:
         type: "boolean"
         description: "Enables or Disables the service"
         default: true
-    description: "Service Group model describes a groupping of services."
+    description: "Service Group model describes a grouping of services."
     example:
       name: "External Scoring Group"
       id: 0
@@ -1358,7 +1358,10 @@ definitions:
         format: "int64"
       name:
         type: "string"
-        example: "FTP Windows"
+        example: "FTP"
+      display_name:
+        type: "string"
+        example: "FTP Windows 10"
       points:
         type: "integer"
         format: "int64"
@@ -1487,8 +1490,6 @@ definitions:
       end:
         type: "string"
         format: "date-time"
-      passed:
-        type: "boolean"
     description: "Round Model holds the information about all the rounds that have\
       \ passed"
     example:

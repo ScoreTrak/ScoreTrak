@@ -1,0 +1,9 @@
+roundduration: 60
+
+enabled: False
+
+db:
+  cockroach:
+    host: 172.22.218.32
+
+port: 33333

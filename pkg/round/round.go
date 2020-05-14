@@ -1,6 +1,7 @@
 package round
 
 import (
+	"ScoreTrak/pkg/check"
 	"time"
 )
 
@@ -8,11 +9,11 @@ import (
 type Round struct {
 
 	// Round ID can also represent the round number
-	Id int64 `json:"id,omitempty"`
+	ID uint64 `json:"id,omitempty" gorm:"primary_key"`
 
-	Start time.Time `json:"start,omitempty"`
+	Start time.Time `json:"start,omitempty" gorm:"not null"`
 
-	End time.Time `json:"end,omitempty"`
+	End *time.Time `json:"end,omitempty"`
 
-	Passed bool `json:"passed,omitempty"`
+	Checks []check.Check `json:"-" gorm:"foreignkey:RoundID"`
 }

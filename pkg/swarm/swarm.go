@@ -1,9 +1,17 @@
 package swarm
 
+import "ScoreTrak/pkg/service"
+
 type Swarm struct {
-	Id int64 `json:"id,omitempty"`
+	ID uint64 `json:"id,omitempty" gorm:"primary_key"`
 
-	ServiceId int64 `json:"service_id"`
+	Service service.Service `json:"-" gorm:"foreignkey:ServiceID"`
 
-	Label string `json:"label"`
+	ServiceID uint64 `json:"service_id"`
+
+	Label string `json:"label" gorm:"not null"`
+}
+
+func (Swarm) TableName() string {
+	return "swarms"
 }

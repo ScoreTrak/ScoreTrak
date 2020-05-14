@@ -1,26 +1,38 @@
 package service
 
+import (
+	"ScoreTrak/pkg/check"
+	"ScoreTrak/pkg/property"
+)
+
 // Service Model represents a service that is being scored for a given host
 type Service struct {
-	Id int64 `json:"id,omitempty"`
+	ID uint64 `json:"id,omitempty" gorm:"primary_key"`
 
-	Name string `json:"name"`
+	//Name of the service that will be checked against known services
+	Name string `json:"name" gorm:"not null"`
+
+	DisplayName string `json:"display_name,omitempty"`
 
 	// Points granted for a successful check
-	Points int64 `json:"points"`
+	Points uint64 `json:"points" gorm:"not null"`
 
 	// The frequency of a service check. If round_units is 5 and round_delay is 0, then service checks will happen on every 5th round. (5,10, etc)
-	RoundUnits int64 `json:"round_units,omitempty"`
+	RoundUnits uint64 `json:"round_units,omitempty" gorm:"not null"`
 
 	// The frequency of a service check. If round_units is 7 and round_delay is 3, then service checks will happen on every 7th round with an offset of 3. (10,17, etc)
-	RoundDelay int64 `json:"round_delay,omitempty"`
+	RoundDelay uint64 `json:"round_delay,omitempty"`
 
 	// ID of a service group the service belongs to
-	ServiceGroupId int64 `json:"service_group_id"`
+	ServiceGroupID uint64 `json:"service_group_id"`
 
 	// ID of a host the service belongs to
-	HostId int64 `json:"host_id"`
+	HostID uint64 `json:"host_id" gorm:"not null"`
 
 	// Enables or Disables the service
 	Enabled bool `json:"enabled,omitempty"`
+
+	Properties []property.Property `json:"-" gorm:"foreignkey:ServiceID"`
+
+	Checks []check.Check `json:"-" gorm:"foreignkey:ServiceID"`
 }
