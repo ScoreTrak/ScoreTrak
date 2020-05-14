@@ -24,7 +24,6 @@ func (c *roundController) GetLastRound(w http.ResponseWriter, r *http.Request) {
 		c.log.Error(err)
 		return
 	}
-
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(rnd)
 	if err != nil {
@@ -32,5 +31,4 @@ func (c *roundController) GetLastRound(w http.ResponseWriter, r *http.Request) {
 		c.log.Error(err)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
 }
