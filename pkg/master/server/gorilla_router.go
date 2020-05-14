@@ -132,13 +132,13 @@ func (ds *dserver) configRoutes() Routes {
 		Route{
 			"UpdateConfigProperties",
 			strings.ToUpper("Put"),
-			"/engine",
+			"/config",
 			cfg.Update,
 		},
 		Route{
 			"GetEngineProperties",
 			strings.ToUpper("Get"),
-			"/engine",
+			"/config",
 			cfg.Get,
 		},
 	}

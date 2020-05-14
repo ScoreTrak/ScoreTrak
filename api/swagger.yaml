@@ -201,7 +201,7 @@ paths:
         "200":
           description: "OK"
           schema:
-            $ref: "#/definitions/engine"
+            $ref: "#/definitions/config"
         "401":
           description: "Authentication token is missing, or incorrect"
           headers:
@@ -225,7 +225,7 @@ paths:
           description: "Config Properties that needs to be added to the database"
           required: true
           schema:
-            $ref: "#/definitions/engine"
+            $ref: "#/definitions/config"
           x-exportParamName: "Body"
       responses:
         "200":
