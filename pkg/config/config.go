@@ -27,7 +27,7 @@ type Config struct {
 			Password string `default:""`
 			Database string `default:"scoretrak"`
 		}
-	} `gorm:"-"`
+	} `json:"-" gorm:"-"`
 
 	Logger struct {
 		Use         string `default:"zapLogger"`
