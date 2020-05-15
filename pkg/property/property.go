@@ -10,5 +10,5 @@ type Property struct {
 
 	Value string `json:"value" gorm:"not null"`
 
-	Status string `json:"status,omitempty" gorm:"not null"`
+	Status string `json:"status,omitempty" gorm:"not null default: View"`
 }
