@@ -12,7 +12,7 @@ type Config struct {
 	RoundDuration uint64 `json:"round_durration,omitempty" default:"60"`
 
 	// Enables or disables competition globally
-	Enabled bool `json:"enabled,omitempty" default:"false"`
+	Enabled *bool `json:"enabled,omitempty" default:"false" gorm:"not null default: false"`
 
 	// token specified on init of the config
 	Token string `json:"-" default:"" gorm:"-"`
@@ -34,6 +34,14 @@ type Config struct {
 		Environment string `default:"prod"`
 		LogLevel    string `default:"info"`
 		FileName    string `default:"scoretrak.log"`
+	} `json:"-" gorm:"-"`
+
+	Queue struct {
+		Use   string `default:"nats"`
+		Kafka struct {
+		}
+		Nats struct {
+		}
 	} `json:"-" gorm:"-"`
 
 	Port string `default:"8080" json:"-" gorm:"-"`
