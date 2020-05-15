@@ -6,12 +6,12 @@ import "ScoreTrak/pkg/service"
 type ServiceGroup struct {
 	ID uint64 `json:"id,omitempty"`
 
-	Name string `json:"name"`
-
-	Services []service.Service `gorm:"foreignkey:ServiceGroupID"`
+	Name string `json:"name" gorm:"not null"`
 
 	// Enables or Disables the service
-	Enabled bool `json:"enabled,omitempty"`
+	Enabled *bool `json:"enabled,omitempty" gorm:"not null default: false"`
+
+	Services []service.Service `gorm:"foreignkey:ServiceGroupID"`
 }
 
 func (ServiceGroup) TableName() string {

@@ -66,7 +66,7 @@ func (h *hostGroupRepo) Store(hstgrp *host_group.HostGroup) error {
 
 func (h *hostGroupRepo) Update(hstgrp *host_group.HostGroup) error {
 	h.log.Debugf("updating the hostGroup, hostGroup_id : %v", hstgrp.ID)
-	err := h.db.Model(&hstgrp).Updates(host_group.HostGroup{}).Error
+	err := h.db.Model(&hstgrp).Updates(host_group.HostGroup{Name: hstgrp.Name, Enabled: hstgrp.Enabled}).Error
 	if err != nil {
 		h.log.Errorf("error while updating the hostGroup, reason : %v", err)
 		return err

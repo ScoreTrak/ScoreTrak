@@ -55,7 +55,7 @@ func (s *serviceGroupRepo) GetByID(id uint64) (*service_group.ServiceGroup, erro
 func (s *serviceGroupRepo) Store(sgr *service_group.ServiceGroup) error {
 	s.log.Debugf("creating the Service Group with id : %v", sgr.ID)
 
-	err := s.db.Create(&sgr).Error
+	err := s.db.Model(&sgr).Updates(service_group.ServiceGroup{Name: sgr.Name, Enabled: sgr.Enabled}).Error
 	if err != nil {
 		s.log.Errorf("error while creating the Service Group, reason : %v", err)
 		return err

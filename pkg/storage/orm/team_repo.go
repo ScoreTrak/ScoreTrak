@@ -64,7 +64,7 @@ func (t *teamRepo) Store(tm *team.Team) error {
 
 func (t *teamRepo) Update(tm *team.Team) error {
 	t.log.Debugf("updating the team, with id : %v", tm.ID)
-	err := t.db.Save(&tm).Error
+	err := t.db.Model(&tm).Updates(team.Team{Enabled: tm.Enabled}).Error
 	if err != nil {
 		t.log.Errorf("error while updating the team, reason : %v", err)
 		return err

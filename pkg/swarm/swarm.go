@@ -7,7 +7,7 @@ type Swarm struct {
 
 	Service service.Service `json:"-" gorm:"foreignkey:ServiceID"`
 
-	ServiceID uint64 `json:"service_id"`
+	ServiceID *uint64 `json:"service_id" gorm:"not null"`
 
 	Label string `json:"label" gorm:"not null"`
 }

@@ -64,7 +64,10 @@ func (s *serviceRepo) Store(swm *service.Service) error {
 
 func (s *serviceRepo) Update(swm *service.Service) error {
 	s.log.Debugf("updating the service, id : %v", swm.ID)
-	err := s.db.Save(&swm).Error
+	err := s.db.Model(&swm).Updates(service.Service{Enabled: swm.Enabled,
+		Name: swm.Name, Points: swm.Points, RoundDelay: swm.RoundDelay,
+		RoundUnits: swm.RoundUnits, ServiceGroupID: swm.ServiceGroupID,
+		HostID: swm.HostID}).Error
 	if err != nil {
 		s.log.Errorf("error while updating the service, reason : %v", err)
 		return err

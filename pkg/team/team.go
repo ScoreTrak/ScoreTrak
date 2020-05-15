@@ -10,7 +10,7 @@ type Team struct {
 	// this id refers to ID of a team in web.
 	ID string `json:"id" gorm:"primary_key"`
 
-	Enabled bool `json:"enabled,omitempty, not null"`
+	Enabled *bool `json:"enabled,omitempty" gorm:"not null default: false"`
 
 	Hosts []host.Host `gorm:"foreignkey:TeamID" json:"-"`
 }
