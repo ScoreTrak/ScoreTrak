@@ -70,7 +70,6 @@ func (t *teamController) GetByID(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		t.log.Error(err)
 	}
-	w.WriteHeader(http.StatusOK)
 }
 
 func (t *teamController) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -91,7 +90,6 @@ func (t *teamController) GetAll(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		t.log.Error(err)
 	}
-	w.WriteHeader(http.StatusOK)
 }
 
 func (t *teamController) Update(w http.ResponseWriter, r *http.Request) {
