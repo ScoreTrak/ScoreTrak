@@ -6,9 +6,11 @@ type Property struct {
 
 	ServiceID uint64 `json:"service_id" gorm:"not null"`
 
-	Key string `json:"key,omitempty" gorm:"not null"`
+	Key string `json:"key" gorm:"not null"`
 
 	Value string `json:"value" gorm:"not null"`
+
+	Description *string `json:"description"`
 
 	Status string `json:"status,omitempty" gorm:"not null default: View"`
 }

@@ -67,7 +67,7 @@ func (p *propertyRepo) Update(prop *property.Property) error {
 	p.log.Debugf("updating the property, property_id : %v", prop.ID)
 	err := p.db.Model(&prop).Updates(property.Property{
 		ServiceID: prop.ServiceID, Key: prop.Key, Value: prop.Value,
-		Status: prop.Status,
+		Status: prop.Status, Description: prop.Description,
 	}).Error
 	if err != nil {
 		p.log.Errorf("error while updating the property, reason : %v", err)
