@@ -1426,6 +1426,7 @@ definitions:
     type: "object"
     required:
       - "service_id"
+      - "key"
       - "value"
     properties:
       id:
@@ -1440,6 +1441,9 @@ definitions:
       value:
         type: "string"
         example: "(Encoded username)"
+      description:
+        type: "string"
+        example: "description of the parameter"
       status:
         type: "string"
         example: "View"
