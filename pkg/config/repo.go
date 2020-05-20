@@ -1,6 +1,6 @@
 package config
 
 type Repo interface {
-	Get() (*Config, error)
-	Update(*Config) error
+	Get() (*DynamicConfig, error)
+	Update(*DynamicConfig) error
 }

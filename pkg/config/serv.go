@@ -1,8 +1,8 @@
 package config
 
 type Serv interface {
-	Get() (*Config, error)
-	Update(*Config) error
+	Get() (*DynamicConfig, error)
+	Update(*DynamicConfig) error
 }
 
 type configServ struct {
@@ -15,6 +15,6 @@ func NewConfigServ(repo Repo) Serv {
 	}
 }
 
-func (svc *configServ) Get() (*Config, error) { return svc.repo.Get() }
+func (svc *configServ) Get() (*DynamicConfig, error) { return svc.repo.Get() }
 
-func (svc *configServ) Update(cfg *Config) error { return svc.repo.Update(cfg) }
+func (svc *configServ) Update(cfg *DynamicConfig) error { return svc.repo.Update(cfg) }
