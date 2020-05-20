@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-func NewZapLogger(config *config.Config) (*zap.SugaredLogger, error) {
+func NewZapLogger(config *config.StaticConfig) (*zap.SugaredLogger, error) {
 	var cfg zap.Config
 
 	switch strings.ToLower(config.Logger.Environment) {
