@@ -10,14 +10,14 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-func NewDb(c *config.Config) (*gorm.DB, error) {
+func NewDb(c *config.StaticConfig) (*gorm.DB, error) {
 	if c.DB.Use == "cockroach" {
 		return newCockroach(c)
 	}
 	return nil, errors.New("Not supported db")
 }
 
-func newCockroach(c *config.Config) (*gorm.DB, error) {
+func newCockroach(c *config.StaticConfig) (*gorm.DB, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable",
 		c.DB.Cockroach.Host,
 		c.DB.Cockroach.Port,
