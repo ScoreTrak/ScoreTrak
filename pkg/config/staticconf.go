@@ -66,7 +66,7 @@ func GetToken() string {
 }
 
 func NewStaticConfig() error {
-	err := configor.Load(&staticConfig, "configs/staticConfig.yml")
+	err := configor.Load(&staticConfig, "configs/config.yml")
 	if err != nil {
 		return err
 	}
