@@ -5,9 +5,9 @@ import "ScoreTrak/pkg/service"
 type Swarm struct {
 	ID uint64 `json:"id,omitempty" gorm:"primary_key"`
 
-	Service service.Service `json:"-" gorm:"foreignkey:ServiceID"`
+	Service service.Service `json:"-" gorm:"foreignkey:ServiceGroupID"`
 
-	ServiceID *uint64 `json:"service_id" gorm:"not null"`
+	ServiceGroupID *uint64 `json:"service_group_id" gorm:"not null"`
 
 	Label string `json:"label" gorm:"not null"`
 }
