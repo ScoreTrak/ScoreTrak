@@ -44,7 +44,7 @@ func (ds *dserver) SetupDB() error {
 
 	db.AutoMigrate(&team.Team{})
 	db.AutoMigrate(&check.Check{})
-	db.AutoMigrate(&config.Config{})
+	db.AutoMigrate(&config.DynamicConfig{})
 	db.AutoMigrate(&host.Host{})
 	db.AutoMigrate(&host_group.HostGroup{})
 	db.AutoMigrate(&property.Property{})
@@ -58,8 +58,8 @@ func (ds *dserver) SetupDB() error {
 
 // Start start serving the application
 func (ds *dserver) Start() error {
-	var cfg *config.Config
-	if err := ds.cont.Invoke(func(c *config.Config) { cfg = c }); err != nil {
+	var cfg *config.StaticConfig
+	if err := ds.cont.Invoke(func(c *config.StaticConfig) { cfg = c }); err != nil {
 		return err
 	}
 	return http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), ds.router)
