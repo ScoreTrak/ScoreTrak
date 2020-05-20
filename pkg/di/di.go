@@ -7,6 +7,7 @@ import (
 	"ScoreTrak/pkg/host_group"
 	"ScoreTrak/pkg/logger"
 	"ScoreTrak/pkg/property"
+	"ScoreTrak/pkg/queue"
 	"ScoreTrak/pkg/round"
 	"ScoreTrak/pkg/service"
 	"ScoreTrak/pkg/service_group"
@@ -19,45 +20,50 @@ import (
 
 var container = dig.New()
 
-func BuildContainer() *dig.Container {
-	// config
-	container.Provide(config.NewConfig)
-	// DB
-	container.Provide(storage.NewDb)
-	// logger
-	container.Provide(logger.NewLogger)
+func BuildMasterContainer() (*dig.Container, error) {
+	cnf := config.GetStaticConfig()
+	var ctr []interface{}
 
-	container.Provide(orm.NewCheckRepo)
-	container.Provide(check.NewCheckServ)
+	ctr = append(ctr,
+		config.GetStaticConfig,
+		storage.NewDb,
+		logger.NewLogger,
+		orm.NewCheckRepo, check.NewCheckServ,
+		orm.NewHostGroupRepo, host_group.NewHostGroupServ,
+		orm.NewPropertyRepo, property.NewPropertyServ,
+		orm.NewConfigRepo, config.NewConfigServ,
+		orm.NewHostRepo, host.NewHostServ,
+		orm.NewRoundRepo, round.NewRoundServ,
+		orm.NewServiceGroupRepo, service_group.NewServiceGroupServ,
+		orm.NewServiceRepo, service.NewServiceServ,
+		orm.NewTeamRepo, team.NewTeamServ, queue.NewQueue,
+	)
 
-	container.Provide(orm.NewHostGroupRepo)
-	container.Provide(host_group.NewHostGroupServ)
+	if cnf.Platform == "swarm" {
+		ctr = append(ctr, orm.NewSwarmRepo)
+		ctr = append(ctr, swarm.NewSwarmServ)
+	}
 
-	container.Provide(orm.NewPropertyRepo)
-	container.Provide(property.NewPropertyServ)
+	for _, i := range ctr {
+		err := container.Provide(i)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return container, nil
+}
 
-	container.Provide(orm.NewConfigRepo)
-	container.Provide(config.NewConfigServ)
+func BuildWorkerContainer() (*dig.Container, error) {
+	var ctr []interface{}
+	ctr = append(ctr, config.GetStaticConfig, queue.NewQueue)
 
-	container.Provide(orm.NewHostRepo)
-	container.Provide(host.NewHostServ)
-
-	container.Provide(orm.NewRoundRepo)
-	container.Provide(round.NewRoundServ)
-
-	container.Provide(orm.NewServiceGroupRepo)
-	container.Provide(service_group.NewServiceGroupServ)
-
-	container.Provide(orm.NewServiceRepo)
-	container.Provide(service.NewServiceServ)
-
-	container.Provide(orm.NewSwarmRepo)
-	container.Provide(swarm.NewSwarmServ)
-
-	container.Provide(orm.NewTeamRepo)
-	container.Provide(team.NewTeamServ)
-
-	return container
+	for _, i := range ctr {
+		err := container.Provide(i)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return container, nil
 }
 
 func Invoke(i interface{}) error {
