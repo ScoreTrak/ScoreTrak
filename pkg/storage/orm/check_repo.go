@@ -27,7 +27,7 @@ func (c *checkRepo) GetAllByRoundID(r_id uint64) ([]*check.Check, error) {
 func (c *checkRepo) GetByRoundServiceID(r_id uint64, s_id uint64) ([]*check.Check, error) {
 	c.log.Debug("get all the checks")
 	var checks []*check.Check
-	err := c.db.Where("round_id == ? AND service_id", r_id, s_id).Find(&checks).Error
+	err := c.db.Where("round_id = ? AND service_id = ?", r_id, s_id).Find(&checks).Error
 	return checks, err
 }
 

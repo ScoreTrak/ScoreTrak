@@ -20,7 +20,7 @@ func NewHostGroupRepo(db *gorm.DB, log logger.LogInfoFormat) host_group.Repo {
 func (h *hostGroupRepo) Delete(id uint64) error {
 	h.log.Debugf("deleting the hostGroup with id : %h", id)
 
-	if h.db.Delete(&host_group.HostGroup{}, "hostGroup_id = ?", id).Error != nil {
+	if h.db.Delete(&host_group.HostGroup{}, "id = ?", id).Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the hostGroup with id : %h", id)
 		h.log.Errorf(errMsg)
 		return errors.New(errMsg)
@@ -44,7 +44,7 @@ func (h *hostGroupRepo) GetByID(id uint64) (*host_group.HostGroup, error) {
 	h.log.Debugf("get hostGroup details by id : %h", id)
 
 	hstgrp := &host_group.HostGroup{}
-	err := h.db.Where("hostGroup_id = ?", id).First(&hstgrp).Error
+	err := h.db.Where("id = ?", id).First(&hstgrp).Error
 	if err != nil {
 		h.log.Errorf("hostGroup not found with id : %h, reason : %v", id, err)
 		return nil, err
@@ -65,7 +65,7 @@ func (h *hostGroupRepo) Store(hstgrp *host_group.HostGroup) error {
 }
 
 func (h *hostGroupRepo) Update(hstgrp *host_group.HostGroup) error {
-	h.log.Debugf("updating the hostGroup, hostGroup_id : %v", hstgrp.ID)
+	h.log.Debugf("updating the hostGroup, id : %v", hstgrp.ID)
 	err := h.db.Model(&hstgrp).Updates(host_group.HostGroup{Name: hstgrp.Name, Enabled: hstgrp.Enabled}).Error
 	if err != nil {
 		h.log.Errorf("error while updating the hostGroup, reason : %v", err)
