@@ -108,14 +108,14 @@ func (ds *dserver) teamRoutes() Routes {
 		Route{
 			"DeleteTeam",
 			strings.ToUpper("Delete"),
-			"/team/{TeamID}",
+			"/team/{id}",
 			tm.Delete,
 		},
 
 		Route{
 			"GetTeam",
 			strings.ToUpper("Get"),
-			"/team/{TeamID}",
+			"/team/{id}",
 			tm.GetByID,
 		},
 
@@ -129,7 +129,7 @@ func (ds *dserver) teamRoutes() Routes {
 		Route{
 			"UpdateTeam",
 			strings.ToUpper("Put"),
-			"/team/{TeamID}",
+			"/team/{id}",
 			tm.Update,
 		},
 	}
@@ -203,14 +203,14 @@ func (ds *dserver) hostRoutes() Routes {
 		Route{
 			"DeleteHost",
 			strings.ToUpper("Delete"),
-			"/host/{HostID}",
+			"/host/{id}",
 			hst.Delete,
 		},
 
 		Route{
 			"GetHost",
 			strings.ToUpper("Get"),
-			"/host/{HostID}",
+			"/host/{id}",
 			hst.GetByID,
 		},
 
@@ -224,7 +224,7 @@ func (ds *dserver) hostRoutes() Routes {
 		Route{
 			"UpdateHost",
 			strings.ToUpper("Put"),
-			"/host/{HostID}",
+			"/host/{id}",
 			hst.Update,
 		},
 	}
@@ -250,14 +250,14 @@ func (ds *dserver) hostGroupRoutes() Routes {
 		Route{
 			"DeleteHostGroup",
 			strings.ToUpper("Delete"),
-			"/host_group/{host_groupID}",
+			"/host_group/{id}",
 			hstgrp.Delete,
 		},
 
 		Route{
 			"GetHostGroup",
 			strings.ToUpper("Get"),
-			"/host_group/{host_groupID}",
+			"/host_group/{id}",
 			hstgrp.GetByID,
 		},
 
@@ -271,7 +271,7 @@ func (ds *dserver) hostGroupRoutes() Routes {
 		Route{
 			"UpdateHostGroup",
 			strings.ToUpper("Put"),
-			"/host_group/{host_groupID}",
+			"/host_group/{id}",
 			hstgrp.Update,
 		},
 	}
@@ -299,7 +299,7 @@ func (ds *dserver) propertyRoutes() Routes {
 		Route{
 			"DeleteProperty",
 			strings.ToUpper("Delete"),
-			"/property/{propertyID}",
+			"/property/{id}",
 			prop.Delete,
 		},
 
@@ -313,14 +313,14 @@ func (ds *dserver) propertyRoutes() Routes {
 		Route{
 			"GetProperty",
 			strings.ToUpper("Get"),
-			"/property/{propertyID}",
-			prop.Get,
+			"/property/{id}",
+			prop.GetByID,
 		},
 
 		Route{
 			"UpdateProperty",
 			strings.ToUpper("Put"),
-			"/property/{propertyID}",
+			"/property/{id}",
 			prop.Update,
 		},
 	}
@@ -354,7 +354,7 @@ func (ds *dserver) scoreRoutes() Routes {
 		Route{
 			"GetScore",
 			strings.ToUpper("Get"),
-			"/score/{teamID}",
+			"/score/{TeamID}",
 			s.GetScore,
 		},
 
@@ -388,14 +388,14 @@ func (ds *dserver) serviceRoutes() Routes {
 		Route{
 			"DeleteService",
 			strings.ToUpper("Delete"),
-			"/service/{ServiceID}",
+			"/service/{id}",
 			srv.Delete,
 		},
 
 		Route{
 			"GetService",
 			strings.ToUpper("Get"),
-			"/service/{ServiceID}",
+			"/service/{id}",
 			srv.GetByID,
 		},
 
@@ -409,7 +409,7 @@ func (ds *dserver) serviceRoutes() Routes {
 		Route{
 			"UpdateService",
 			strings.ToUpper("Put"),
-			"/service/{ServiceID}",
+			"/service/{id}",
 			srv.Update,
 		},
 	}
@@ -436,14 +436,14 @@ func (ds *dserver) serviceGroupRoutes() Routes {
 		Route{
 			"DeleteServiceGroup",
 			strings.ToUpper("Delete"),
-			"/service_group/{serviceGroupID}",
+			"/service_group/{id}",
 			servg.Delete,
 		},
 
 		Route{
 			"GetServiceGroup",
 			strings.ToUpper("Get"),
-			"/service_group/{serviceGroupID}",
+			"/service_group/{id}",
 			servg.GetByID,
 		},
 
@@ -457,7 +457,7 @@ func (ds *dserver) serviceGroupRoutes() Routes {
 		Route{
 			"UpdateServiceGroup",
 			strings.ToUpper("Put"),
-			"/service_group/{serviceGroupID}",
+			"/service_group/{id}",
 			servg.Update,
 		},
 	}

@@ -41,7 +41,7 @@ func (t *teamController) Store(w http.ResponseWriter, r *http.Request) {
 func (t *teamController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	params := mux.Vars(r)
-	err := t.svc.Delete(params["TeamID"])
+	err := t.svc.Delete(params["id"])
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		t.log.Error(err)
@@ -53,7 +53,7 @@ func (t *teamController) Delete(w http.ResponseWriter, r *http.Request) {
 func (t *teamController) GetByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	params := mux.Vars(r)
-	tm, err := t.svc.GetByID(params["TeamID"])
+	tm, err := t.svc.GetByID(params["id"])
 
 	if tm == nil {
 		w.WriteHeader(http.StatusNoContent)
@@ -98,7 +98,7 @@ func (t *teamController) Update(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var tm team.Team
 	err := decoder.Decode(&tm)
-	tm.ID = params["TeamID"]
+	tm.ID = params["id"]
 	if err != nil {
 		t.log.Error(err)
 		w.WriteHeader(http.StatusBadRequest)
