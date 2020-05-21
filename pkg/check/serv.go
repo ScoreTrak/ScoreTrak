@@ -1,8 +1,8 @@
 package check
 
 type Serv interface {
-	GetAllByTeamRoundID(t_id string, r_id uint64) ([]*Check, error)
-	GetByTeamRoundServiceID(t_id string, r_id uint64, s_id uint64) (*Check, error)
+	GetAllByRoundID(r_id uint64) ([]*Check, error)
+	GetByRoundServiceID(r_id uint64, s_id uint64) ([]*Check, error)
 	Delete(id uint64) error
 	GetAll() ([]*Check, error)
 	GetByID(id uint64) (*Check, error)
@@ -20,11 +20,11 @@ func NewCheckServ(repo Repo) Serv {
 	}
 }
 
-func (svc *checkServ) GetAllByTeamRoundID(t_id string, r_id uint64) ([]*Check, error) {
-	return svc.repo.GetAllByTeamRoundID(t_id, r_id)
+func (svc *checkServ) GetAllByRoundID(r_id uint64) ([]*Check, error) {
+	return svc.repo.GetAllByRoundID(r_id)
 }
-func (svc *checkServ) GetByTeamRoundServiceID(t_id string, r_id uint64, s_id uint64) (*Check, error) {
-	return svc.repo.GetByTeamRoundServiceID(t_id, r_id, s_id)
+func (svc *checkServ) GetByRoundServiceID(r_id uint64, s_id uint64) ([]*Check, error) {
+	return svc.repo.GetByRoundServiceID(r_id, s_id)
 }
 
 func (svc *checkServ) Delete(id uint64) error { return svc.repo.Delete(id) }
