@@ -171,14 +171,14 @@ func (ds *dserver) checkRoutes() Routes {
 		Route{
 			"GetCheck",
 			strings.ToUpper("Get"),
-			"/check/{TeamID}/{RoundID}/{ServiceID}",
-			chk.GetAllByTeamRoundID,
+			"/check/{RoundID}/{ServiceID}",
+			chk.GetAllByRoundID,
 		},
 		Route{
 			"GetChecks",
 			strings.ToUpper("Get"),
-			"/check/{TeamID}/{RoundID}",
-			chk.GetByTeamRoundServiceID,
+			"/check/{RoundID}",
+			chk.GetByRoundServiceID,
 		},
 	}
 	return checkRoutes
