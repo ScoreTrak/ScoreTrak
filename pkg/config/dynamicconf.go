@@ -23,8 +23,8 @@ func PullConfig() {
 	//query dynamicConfig from DB, update it
 }
 
-//PushConfig pushes the provided dynamicConfig to database, AND updates dynamicConfig variable
-func PushConfig() {
+//UpdateConfig updates dynamic config variable from provided dc variable
+func UpdateConfig(dc DynamicConfig) {
 	mu.Lock()
 	defer mu.Unlock()
 
