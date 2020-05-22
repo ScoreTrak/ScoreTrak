@@ -15,8 +15,11 @@ require (
 	github.com/masterzen/winrm v0.0.0-20190308153735-1d17eaf15943
 	github.com/miekg/dns v1.1.29
 	github.com/nsqio/go-nsq v1.0.8
+	github.com/onsi/ginkgo v1.12.2
+	github.com/onsi/gomega v1.10.1
 	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
 	go.uber.org/dig v1.9.0
 	go.uber.org/zap v1.15.0
 	golang.org/x/crypto v0.0.0-20200429183012-4b2356b1ed79
+	golang.org/x/net v0.0.0-20200520182314-0ba52f642ac2 // indirect
 )
