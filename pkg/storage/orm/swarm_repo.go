@@ -18,10 +18,10 @@ func NewSwarmRepo(db *gorm.DB, log logger.LogInfoFormat) swarm.Repo {
 }
 
 func (s *swarmRepo) Delete(id uint64) error {
-	s.log.Debugf("deleting the swarm with id : %s", id)
+	s.log.Debugf("deleting the swarm with id : %d", id)
 
 	if s.db.Delete(&swarm.Swarm{}, "id = ?", id).Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the swarm with id : %s", id)
+		errMsg := fmt.Sprintf("error while deleting the swarm with id : %d", id)
 		s.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}
@@ -46,7 +46,7 @@ func (s *swarmRepo) GetByID(id uint64) (*swarm.Swarm, error) {
 	swm := &swarm.Swarm{}
 	err := s.db.Where("id = ?", id).First(&swm).Error
 	if err != nil {
-		s.log.Errorf("swarm not found with id : %s, reason : %v", id, err)
+		s.log.Errorf("swarm not found with id : %d, reason : %v", id, err)
 		return nil, err
 	}
 	return swm, nil

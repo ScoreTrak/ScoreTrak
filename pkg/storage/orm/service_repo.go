@@ -18,10 +18,10 @@ func NewServiceRepo(db *gorm.DB, log logger.LogInfoFormat) service.Repo {
 }
 
 func (s *serviceRepo) Delete(id uint64) error {
-	s.log.Debugf("deleting the service with id : %s", id)
+	s.log.Debugf("deleting the service with id : %d", id)
 
 	if s.db.Delete(&service.Service{}, "id = ?", id).Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the service with id : %s", id)
+		errMsg := fmt.Sprintf("error while deleting the service with id : %d", id)
 		s.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}
@@ -46,7 +46,7 @@ func (s *serviceRepo) GetByID(id uint64) (*service.Service, error) {
 	ser := &service.Service{}
 	err := s.db.Where("id = ?", id).First(&ser).Error
 	if err != nil {
-		s.log.Errorf("service not found with id : %s, reason : %v", id, err)
+		s.log.Errorf("service not found with id : %d, reason : %v", id, err)
 		return nil, err
 	}
 	return ser, nil

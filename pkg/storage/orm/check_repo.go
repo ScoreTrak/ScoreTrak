@@ -32,10 +32,10 @@ func (c *checkRepo) GetByRoundServiceID(r_id uint64, s_id uint64) ([]*check.Chec
 }
 
 func (s *checkRepo) Delete(id uint64) error {
-	s.log.Debugf("deleting the check with id : %s", id)
+	s.log.Debugf("deleting the check with id : %d", id)
 
 	if s.db.Delete(&check.Check{}, "id = ?", id).Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the check with id : %s", id)
+		errMsg := fmt.Sprintf("error while deleting the check with id : %d", id)
 		s.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}
@@ -60,7 +60,7 @@ func (s *checkRepo) GetByID(id uint64) (*check.Check, error) {
 	chck := &check.Check{}
 	err := s.db.Where("id = ?", id).First(&chck).Error
 	if err != nil {
-		s.log.Errorf("check not found with id : %s, reason : %v", id, err)
+		s.log.Errorf("check not found with id : %d, reason : %v", id, err)
 		return nil, err
 	}
 	return chck, nil

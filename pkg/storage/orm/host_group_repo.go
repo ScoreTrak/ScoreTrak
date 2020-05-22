@@ -21,7 +21,7 @@ func (h *hostGroupRepo) Delete(id uint64) error {
 	h.log.Debugf("deleting the hostGroup with id : %h", id)
 
 	if h.db.Delete(&host_group.HostGroup{}, "id = ?", id).Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the hostGroup with id : %h", id)
+		errMsg := fmt.Sprintf("error while deleting the hostGroup with id : %d", id)
 		h.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}

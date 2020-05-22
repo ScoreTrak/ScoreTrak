@@ -20,7 +20,7 @@ func NewHostRepo(db *gorm.DB, log logger.LogInfoFormat) host.Repo {
 func (h *hostRepo) Delete(id uint64) error {
 	h.log.Debugf("deleting the host with id : %h", id)
 	if h.db.Delete(&host.Host{}, "id = ?", id).Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the host with id : %h", id)
+		errMsg := fmt.Sprintf("error while deleting the host with id : %d", id)
 		h.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}

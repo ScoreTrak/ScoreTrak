@@ -18,10 +18,10 @@ func NewPropertyRepo(db *gorm.DB, log logger.LogInfoFormat) property.Repo {
 }
 
 func (p *propertyRepo) Delete(id uint64) error {
-	p.log.Debugf("deleting the property with id : %s", id)
+	p.log.Debugf("deleting the property with id : %d", id)
 
 	if p.db.Delete(&property.Property{}, "property_id = ?", id).Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the property with id : %s", id)
+		errMsg := fmt.Sprintf("error while deleting the property with id : %d", id)
 		p.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}
@@ -46,7 +46,7 @@ func (p *propertyRepo) GetByID(id uint64) (*property.Property, error) {
 	prop := &property.Property{}
 	err := p.db.Where("property_id = ?", id).First(&prop).Error
 	if err != nil {
-		p.log.Errorf("property not found with id : %s, reason : %v", id, err)
+		p.log.Errorf("property not found with id : %d, reason : %v", id, err)
 		return nil, err
 	}
 	return prop, nil

@@ -18,10 +18,10 @@ func NewRoundRepo(db *gorm.DB, log logger.LogInfoFormat) round.Repo {
 }
 
 func (t *roundRepo) Delete(id uint64) error {
-	t.log.Debugf("deleting the round with id : %s", id)
+	t.log.Debugf("deleting the round with id : %d", id)
 
 	if t.db.Delete(&round.Round{}, "id = ?", id).Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the round with id : %s", id)
+		errMsg := fmt.Sprintf("error while deleting the round with id : %d", id)
 		t.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}
@@ -45,7 +45,7 @@ func (t *roundRepo) GetByID(id uint64) (*round.Round, error) {
 	tea := &round.Round{}
 	err := t.db.Where("id = ?", id).First(&tea).Error
 	if err != nil {
-		t.log.Errorf("round not found with id : %s, reason : %v", id, err)
+		t.log.Errorf("round not found with id : %d, reason : %v", id, err)
 		return nil, err
 	}
 	return tea, nil

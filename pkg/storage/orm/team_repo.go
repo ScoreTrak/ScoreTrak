@@ -19,7 +19,7 @@ func NewTeamRepo(db *gorm.DB, log logger.LogInfoFormat) team.Repo {
 }
 
 func (t *teamRepo) Delete(id string) error {
-	t.log.Debugf("deleting the team with id : %s", id)
+	t.log.Debugf("deleting the team with id : %d", id)
 
 	if t.db.Delete(&team.Team{}, "id = ?", id).Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the team with id : %s", id)
@@ -46,7 +46,7 @@ func (t *teamRepo) GetByID(id string) (*team.Team, error) {
 	tea := &team.Team{}
 	err := t.db.Where("id = ?", id).First(&tea).Error
 	if err != nil {
-		t.log.Errorf("team not found with id : %s, reason : %v", id, err)
+		t.log.Errorf("team not found with id : %d, reason : %v", id, err)
 		return nil, err
 	}
 	return tea, nil
