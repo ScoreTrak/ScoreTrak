@@ -9,12 +9,12 @@ import (
 
 func main() {
 
-	if err := config.NewStaticConfig(); err != nil {
+	if err := config.NewStaticConfig("configs/config.yml"); err != nil {
 		fmt.Fprintf(os.Stderr, "%v", err)
 		os.Exit(-1)
 	}
 
-	if err := config.NewDynamicConfig(); err != nil {
+	if err := config.NewDynamicConfig("configs/config.yml"); err != nil {
 		fmt.Fprintf(os.Stderr, "%v", err)
 		os.Exit(-1)
 	}
