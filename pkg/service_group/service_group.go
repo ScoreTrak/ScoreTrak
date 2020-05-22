@@ -6,7 +6,7 @@ import "ScoreTrak/pkg/service"
 type ServiceGroup struct {
 	ID uint64 `json:"id,omitempty"`
 
-	Name string `json:"name" gorm:"not null"`
+	Name string `json:"name" gorm:"not null;unique;default:null"`
 
 	// Enables or Disables the service
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null default: false"`

@@ -10,7 +10,7 @@ type Service struct {
 	ID uint64 `json:"id,omitempty" gorm:"primary_key"`
 
 	//Name of the service that will be checked against known services
-	Name string `json:"name" gorm:"not null"`
+	Name string `json:"name" gorm:"not null default:null"`
 
 	DisplayName string `json:"display_name,omitempty"`
 
@@ -24,10 +24,10 @@ type Service struct {
 	RoundDelay *uint64 `json:"round_delay,omitempty" gorm:"not null default: 0"`
 
 	// ID of a service group the service belongs to
-	ServiceGroupID *uint64 `json:"service_group_id" gorm:"not null"`
+	ServiceGroupID uint64 `json:"service_group_id" gorm:"not null"`
 
 	// ID of a host the service belongs to
-	HostID *uint64 `json:"host_id" gorm:"not null"`
+	HostID uint64 `json:"host_id" gorm:"not null"`
 
 	// Enables or Disables the service
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null default: false"`
