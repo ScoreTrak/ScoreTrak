@@ -17,6 +17,7 @@ require (
 	github.com/nsqio/go-nsq v1.0.8
 	github.com/onsi/ginkgo v1.12.2
 	github.com/onsi/gomega v1.10.1
+	github.com/smartystreets/goconvey v1.6.4
 	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
 	go.uber.org/dig v1.9.0
 	go.uber.org/zap v1.15.0
