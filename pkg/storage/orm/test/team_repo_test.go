@@ -9,8 +9,9 @@ import (
 
 func TestSpec(t *testing.T) {
 
-	c := setupConfig()
+	c := newConfigClone(setupConfig())
 	c.DB.Cockroach.Database = "scoretrak_test_team"
+	c.Logger.FileName = "scoretrak_team.log"
 	db := setupDB(c)
 	l := setupLogger(c)
 
@@ -37,7 +38,28 @@ func TestSpec(t *testing.T) {
 					ac, err := tr.GetAll()
 					So(err, ShouldBeNil)
 					So(len(ac), ShouldEqual, 1)
+					So(ac[0].ID, ShouldEqual, "TestTeam")
 				})
+
+				Convey("Then Deleting a wrong entry", func() {
+					err = tr.Delete("TestTeamWRONG")
+					So(err, ShouldBeNil)
+					Convey("Should output one entry", func() {
+						ac, err := tr.GetAll()
+						So(err, ShouldBeNil)
+						So(len(ac), ShouldEqual, 1)
+					})
+				})
+				Convey("Then Deleting the added entry", func() {
+					err = tr.Delete("TestTeam")
+					So(err, ShouldBeNil)
+					Convey("Should output no entries", func() {
+						ac, err := tr.GetAll()
+						So(err, ShouldBeNil)
+						So(len(ac), ShouldEqual, 0)
+					})
+				})
+
 			})
 
 		})
