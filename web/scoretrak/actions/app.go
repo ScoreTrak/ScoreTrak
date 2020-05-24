@@ -59,7 +59,6 @@ func App() *buffalo.App {
 		// Setup and use translations:
 		app.Use(translations())
 
-
 		app.GET("/", HomeHandler)
 		app.GET("/routes", RouteHandler)
 
@@ -70,7 +69,6 @@ func App() *buffalo.App {
 
 		app.Middleware.Skip(Authorize, RouteHandler)
 		app.Middleware.Skip(AuthorizeBlackTeam, RouteHandler, HomeHandler)
-
 
 		//Routes for Auth
 		auth := app.Group("/auth")

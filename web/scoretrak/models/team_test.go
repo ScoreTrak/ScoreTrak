@@ -70,7 +70,6 @@ func (ms *ModelSuite) Test_Team_Create_TeamExists() {
 	ms.Equal(1, count)
 }
 
-
 func (ms *ModelSuite) Test_Team_Update_LastBlackTeam() {
 	count, err := ms.DB.Count("teams")
 	ms.NoError(err)
@@ -88,7 +87,7 @@ func (ms *ModelSuite) Test_Team_Update_LastBlackTeam() {
 	ms.NoError(err)
 	ms.Equal(1, count)
 	team, terr := GetTeamByName(ms.DB, "SomeName")
-	if err != nil{
+	if err != nil {
 		log.Fatal(terr)
 	}
 	team.Name = "DifferentName"
