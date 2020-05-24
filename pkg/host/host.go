@@ -1,12 +1,14 @@
 package host
 
-import "ScoreTrak/pkg/service"
+import (
+	"ScoreTrak/pkg/service"
+)
 
 // Host model represents a single machine. This could be an IP address or a resolvable hostname
 type Host struct {
 	ID uint64 `json:"id,omitempty"`
 
-	Address string `json:"address" gorm:"not null;default:null"`
+	Address string `json:"address" gorm:"not null;default:null" valid:"host"`
 
 	// The ID of a host group that the host belongs to.
 	HostGroupID *uint64 `json:"host_group_id,omitempty"`

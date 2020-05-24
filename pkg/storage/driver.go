@@ -8,13 +8,22 @@ import (
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/qor/validations"
 )
 
 func NewDb(c *config.StaticConfig) (*gorm.DB, error) {
+	var db *gorm.DB
+	var err error
+
 	if c.DB.Use == "cockroach" {
-		return newCockroach(c)
+		db, err = newCockroach(c)
 	}
-	return nil, errors.New("Not supported db")
+
+	if err != nil {
+		return nil, errors.New("Not supported db")
+	}
+	validations.RegisterCallbacks(db)
+	return db, nil
 }
 
 func newCockroach(c *config.StaticConfig) (*gorm.DB, error) {
