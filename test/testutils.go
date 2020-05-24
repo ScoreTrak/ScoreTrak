@@ -1,4 +1,4 @@
-package orm_test
+package test
 
 import (
 	"ScoreTrak/pkg/check"
@@ -11,77 +11,34 @@ import (
 	"ScoreTrak/pkg/service"
 	"ScoreTrak/pkg/service_group"
 	"ScoreTrak/pkg/storage"
-	"ScoreTrak/pkg/storage/orm"
 	"ScoreTrak/pkg/swarm"
 	"ScoreTrak/pkg/team"
 	"fmt"
+	"github.com/jinzhu/copier"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 )
 
-var dbPrep *gorm.DB
-var db *gorm.DB
-var l logger.LogInfoFormat
-var c *config.StaticConfig
-
-var _ = Describe("Orm", func() {
-	It("Sets up database", func() {
-		setupConfig()
-		setupLogger()
-		setupDB()
-	})
-	It("Creates tables", func() {
-		createTables()
-	})
-	Describe("Team", func() {
-		var tr team.Repo
-		Context("initially", func() {
-			It("should be empty", func() {
-				tr = orm.NewTeamRepo(db, l)
-				ac, err := tr.GetAll()
-				Ω(err).ShouldNot(HaveOccurred())
-				Ω(ac).Should(HaveLen(0))
-			})
-		})
-		Context("when new item is added", func() {
-			It("it should not be empty", func() {
-				var err error
-				t := team.Team{ID: "TestTeam"}
-				err = tr.Store(&t)
-				Ω(err).ShouldNot(HaveOccurred())
-				ac, err := tr.GetAll()
-				Ω(err).ShouldNot(HaveOccurred())
-				Ω(ac).Should(HaveLen(1))
-			})
-		})
-	})
-
-	It("Drops database", func() {
-		dropDB()
-	})
-})
-
-func setupDB() {
+func SetupDB(c *config.StaticConfig) *gorm.DB {
 	var err error
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s sslmode=disable",
 		c.DB.Cockroach.Host,
 		c.DB.Cockroach.Port,
 		c.DB.Cockroach.UserName)
-	dbPrep, err = gorm.Open("postgres", psqlInfo)
+	dbPrep, err := gorm.Open("postgres", psqlInfo)
 	if err != nil {
 		panic(err)
 	}
 	dbPrep.Exec(fmt.Sprintf("drop database if exists  %s", c.DB.Cockroach.Database))
 	dbPrep.Exec(fmt.Sprintf("create database if not exists  %s", c.DB.Cockroach.Database))
-	db, err = storage.NewDb(c)
+	dbPrep.Close()
+	db, err := storage.NewDb(c)
 	if err != nil {
 		panic(err)
 	}
+	return db
 }
 
-func createTables() {
+func CreateAllTables(db *gorm.DB) {
 	db.AutoMigrate(&team.Team{})
 	db.AutoMigrate(&check.Check{})
 	db.AutoMigrate(&config.DynamicConfig{})
@@ -102,16 +59,25 @@ func createTables() {
 	db.Model(&swarm.Swarm{}).AddForeignKey("service_group_id", "service_groups(id)", "RESTRICT", "RESTRICT")
 }
 
-func setupConfig() {
+func SetupConfig(f string) *config.StaticConfig {
 	var err error
-	err = config.NewStaticConfig("../../../configs/dev-config.yml")
+	err = config.NewStaticConfig(f)
 	if err != nil {
 		panic(err)
 	}
-	c = config.GetConfig()
+	return config.GetConfig()
 }
 
-func cleanDB() {
+func NewConfigClone(c *config.StaticConfig) *config.StaticConfig {
+	cnf := config.StaticConfig{}
+	err := copier.Copy(&cnf, &c)
+	if err != nil {
+		panic(err)
+	}
+	return &cnf
+}
+
+func CleanAllTables(db *gorm.DB) {
 	db.DropTableIfExists(&check.Check{})
 	db.DropTableIfExists(&property.Property{})
 	db.DropTableIfExists(&swarm.Swarm{})
@@ -124,16 +90,14 @@ func cleanDB() {
 	db.DropTableIfExists(&config.DynamicConfig{})
 }
 
-func dropDB() {
-	db.Close()
-	dbPrep.Exec(fmt.Sprintf("drop database %s", c.DB.Cockroach.Database))
-	dbPrep.Close()
+func DropDB(db *gorm.DB, c *config.StaticConfig) {
+	db.Exec(fmt.Sprintf("drop database %s", c.DB.Cockroach.Database))
 }
 
-func setupLogger() {
-	var err error
-	l, err = logger.NewLogger(c)
+func SetupLogger(c *config.StaticConfig) logger.LogInfoFormat {
+	l, err := logger.NewLogger(c)
 	if err != nil {
 		panic(err)
 	}
+	return l
 }
