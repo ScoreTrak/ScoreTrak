@@ -12,5 +12,9 @@ type Property struct {
 
 	Description *string `json:"description"`
 
-	Status string `json:"status,omitempty" gorm:"not null;default: View"`
+	Status string `json:"status,omitempty" gorm:"not null;default:'View'"`
+}
+
+func (Property) TableName() string {
+	return "properties"
 }
