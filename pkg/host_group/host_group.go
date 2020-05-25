@@ -9,7 +9,7 @@ type HostGroup struct {
 	Name string `json:"name" gorm:"not null"`
 
 	// Enables or disables scoring for a given host group. In case you want to stop scoring a set of simalar hosts, you can set this property to false
-	Enabled *bool `json:"enabled,omitempty" gorm:"not null default: false"`
+	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: false"`
 
 	Hosts []host.Host `gorm:"foreignkey:HostGroupID"`
 }

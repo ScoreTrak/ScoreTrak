@@ -9,7 +9,7 @@ type ServiceGroup struct {
 	Name string `json:"name" gorm:"not null;unique;default:null"`
 
 	// Enables or Disables the service
-	Enabled *bool `json:"enabled,omitempty" gorm:"not null default: false"`
+	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: false"`
 
 	Services []service.Service `gorm:"foreignkey:ServiceGroupID"`
 }
