@@ -39,7 +39,7 @@ func UpdateConfig(dc DynamicConfig) {
 func GetRoundDuration() uint64 {
 	mu.RLock()
 	defer mu.RUnlock()
-	return *d.RoundDuration
+	return d.RoundDuration
 }
 
 func GetEnabled() bool {
