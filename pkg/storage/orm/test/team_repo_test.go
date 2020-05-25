@@ -27,6 +27,21 @@ func TestSpec(t *testing.T) {
 				So(err, ShouldBeNil)
 				So(len(ac), ShouldEqual, 0)
 			})
+
+			Convey("Adding a entry with empty name", func() {
+				var err error
+				tru := true
+				t := team.Team{ID: "", Enabled: &tru}
+				err = tr.Store(&t)
+				So(err, ShouldNotBeNil)
+
+				Convey("Should output no entry", func() {
+					ac, err := tr.GetAll()
+					So(err, ShouldBeNil)
+					So(len(ac), ShouldEqual, 0)
+				})
+			})
+
 			Convey("Adding an entry", func() {
 				var err error
 				t := team.Team{ID: "TestTeam"}
@@ -58,6 +73,39 @@ func TestSpec(t *testing.T) {
 					})
 				})
 
+				Convey("Then Retrieving entry by ID", func() {
+					tm, err := tr.GetByID("TestTeam")
+					So(err, ShouldBeNil)
+					Convey("Should output the inserted entry", func() {
+						So(tm.ID, ShouldEqual, "TestTeam")
+						So(*(tm.Enabled), ShouldBeFalse)
+					})
+				})
+
+				Convey("Then Updating Enabled to true", func() {
+					tru := true
+					new_team := &team.Team{Enabled: &tru}
+					Convey("For the wrong Team should not update the entry", func() {
+						new_team.ID = "WrongTestTeam"
+						err = tr.Update(new_team)
+						So(err, ShouldBeNil)
+						ac, err := tr.GetAll()
+						So(err, ShouldBeNil)
+						So(len(ac), ShouldEqual, 1)
+						So(*(ac[0].Enabled), ShouldBeFalse)
+
+					})
+					Convey("For the correct Team should not yield error", func() {
+						err = tr.Update(new_team)
+						So(err, ShouldBeNil)
+						ac, err := tr.GetAll()
+						So(err, ShouldBeNil)
+						So(len(ac), ShouldEqual, 1)
+						So(*(ac[0].Enabled), ShouldBeTrue)
+
+					})
+				})
+
 				Convey("Creating Hosts Table", func() {
 					db.AutoMigrate(&host.Host{})
 					db.Model(&host.Host{}).AddForeignKey("team_id", "teams(id)", "RESTRICT", "RESTRICT")
@@ -79,7 +127,6 @@ func TestSpec(t *testing.T) {
 							So(err, ShouldBeNil)
 							So(len(ac), ShouldEqual, 0)
 						})
-
 					})
 					Reset(func() {
 						db.DropTableIfExists(&host.Host{})
