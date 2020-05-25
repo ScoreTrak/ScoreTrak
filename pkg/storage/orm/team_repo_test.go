@@ -8,10 +8,10 @@ import (
 	"testing"
 )
 
-func TestSpec(t *testing.T) {
+func TestTeamSpec(t *testing.T) {
 	c := NewConfigClone(SetupConfig("dev-config.yml"))
 	c.DB.Cockroach.Database = "scoretrak_test_team"
-	c.Logger.FileName = "scoretrak_team.log"
+	c.Logger.FileName = "team_repo.log"
 	db := SetupDB(c)
 	l := SetupLogger(c)
 	Convey("Creating Team Tables", t, func() {
@@ -27,7 +27,7 @@ func TestSpec(t *testing.T) {
 				So(len(ac), ShouldEqual, 0)
 			})
 
-			Convey("Adding a entry with empty name", func() {
+			Convey("Adding an entry with empty name", func() {
 				var err error
 				tru := true
 				t := team.Team{ID: "", Enabled: &tru}
@@ -41,7 +41,7 @@ func TestSpec(t *testing.T) {
 				})
 			})
 
-			Convey("Adding an valid entry", func() {
+			Convey("Adding a valid entry", func() {
 				var err error
 				t := team.Team{ID: "TestTeam"}
 				err = tr.Store(&t)
