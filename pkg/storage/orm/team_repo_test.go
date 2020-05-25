@@ -1,8 +1,7 @@
-package test
+package orm
 
 import (
 	"ScoreTrak/pkg/host"
-	"ScoreTrak/pkg/storage/orm"
 	"ScoreTrak/pkg/team"
 	. "ScoreTrak/test"
 	. "github.com/smartystreets/goconvey/convey"
@@ -17,7 +16,7 @@ func TestSpec(t *testing.T) {
 	l := SetupLogger(c)
 	Convey("Creating Team Tables", t, func() {
 		db.AutoMigrate(&team.Team{})
-		tr := orm.NewTeamRepo(db, l)
+		tr := NewTeamRepo(db, l)
 		Reset(func() {
 			db.DropTableIfExists(&team.Team{})
 		})
@@ -42,7 +41,7 @@ func TestSpec(t *testing.T) {
 				})
 			})
 
-			Convey("Adding an entry", func() {
+			Convey("Adding an valid entry", func() {
 				var err error
 				t := team.Team{ID: "TestTeam"}
 				err = tr.Store(&t)
@@ -118,8 +117,7 @@ func TestSpec(t *testing.T) {
 							So(err, ShouldBeNil)
 							So(len(ac), ShouldEqual, 1)
 						})
-
-						Convey("Deleting a host then deleting a table", func() {
+						Convey("Deleting a host then deleting a team", func() {
 							db.Exec("DELETE FROM hosts WHERE id=4")
 							err = tr.Delete("TestTeam")
 							So(err, ShouldBeNil)
@@ -127,15 +125,22 @@ func TestSpec(t *testing.T) {
 							So(err, ShouldBeNil)
 							So(len(ac), ShouldEqual, 0)
 						})
-					})
-					Reset(func() {
-						db.DropTableIfExists(&host.Host{})
+
+						Convey("Updating a team enabled without deleting a host should not yield error", func() {
+							tru := true
+							t.Enabled = &tru
+							err = tr.Update(&t)
+							So(err, ShouldBeNil)
+						})
+
+						Reset(func() {
+							db.DropTableIfExists(&host.Host{})
+						})
 					})
 				})
 			})
 		})
 	})
-
 	DropDB(db, c)
 	db.Close()
 }
