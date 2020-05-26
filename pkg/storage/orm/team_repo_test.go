@@ -14,6 +14,7 @@ func TestTeamSpec(t *testing.T) {
 	c.Logger.FileName = "team_repo.log"
 	db := SetupDB(c)
 	l := SetupLogger(c)
+	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Team Tables", t, func() {
 		db.AutoMigrate(&team.Team{})
 		tr := NewTeamRepo(db, l)
@@ -83,10 +84,10 @@ func TestTeamSpec(t *testing.T) {
 
 				Convey("Then Updating Enabled to true", func() {
 					tru := true
-					new_team := &team.Team{Enabled: &tru}
-					Convey("For the wrong Team should not update the entry", func() {
-						new_team.ID = "WrongTestTeam"
-						err = tr.Update(new_team)
+					newTeam := &team.Team{Enabled: &tru}
+					Convey("For the wrong entry should not update anything", func() {
+						newTeam.ID = "WrongTestTeam"
+						err = tr.Update(newTeam)
 						So(err, ShouldBeNil)
 						ac, err := tr.GetAll()
 						So(err, ShouldBeNil)
@@ -94,8 +95,8 @@ func TestTeamSpec(t *testing.T) {
 						So(*(ac[0].Enabled), ShouldBeFalse)
 
 					})
-					Convey("For the correct Team should not yield error", func() {
-						err = tr.Update(new_team)
+					Convey("For the correct entry should update", func() {
+						err = tr.Update(newTeam)
 						So(err, ShouldBeNil)
 						ac, err := tr.GetAll()
 						So(err, ShouldBeNil)

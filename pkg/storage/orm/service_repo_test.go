@@ -18,6 +18,7 @@ func TestServiceSpec(t *testing.T) {
 	c.Logger.FileName = "service_repo.log"
 	db := SetupDB(c)
 	l := SetupLogger(c)
+	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Service, Service Group, Host Tables along with their foreign keys", t, func() {
 		db.AutoMigrate(&service.Service{})
 		db.AutoMigrate(&service_group.ServiceGroup{})
@@ -94,7 +95,6 @@ func TestServiceSpec(t *testing.T) {
 						})
 					})
 				})
-
 				Convey("Create Multiple services", func() {
 					s1 := service.Service{Name: "TestService", ServiceGroupID: 2, HostID: 4}
 					s2 := service.Service{Name: "TestService2", ServiceGroupID: 7, HostID: 5}
@@ -107,17 +107,25 @@ func TestServiceSpec(t *testing.T) {
 						db.AutoMigrate(&check.Check{})
 						db.Model(&check.Check{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
 						db.Model(&property.Property{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
-
 						db.Exec(fmt.Sprintf("INSERT INTO checks (id, service_id, round_id, passed) VALUES (5, %d, 999, false)", s1.ID))
 						db.Exec(fmt.Sprintf("INSERT INTO checks (id, service_id, round_id, passed) VALUES (42, %d, 333, false)", s2.ID))
 						db.Exec(fmt.Sprintf("INSERT INTO properties (id, service_id, key, value) VALUES (5, %d, 'sample_key', 'sample_value')", s1.ID))
-						db.Exec(fmt.Sprintf("INSERT INTO properties (id, service_id, key, value) VALUES (33, %d, 'sample_key', 'sample_value')", s1.ID))
-
+						db.Exec(fmt.Sprintf("INSERT INTO properties (id, service_id, key, value) VALUES (33, %d, 'sample_key', 'sample_value')", s2.ID))
+						Convey("Deleting the service", func() {
+							err = sr.Delete(s1.ID)
+							So(err, ShouldBeNil)
+							Convey("Should also delete checks and properties associated with the deleted service", func() {
+								var count int
+								db.Table("properties").Count(&count)
+								So(count, ShouldEqual, 1)
+								db.Table("checks").Count(&count)
+								So(count, ShouldEqual, 1)
+							})
+						})
 						Reset(func() {
 							db.DropTableIfExists(&property.Property{})
 							db.DropTableIfExists(&check.Check{})
 						})
-
 					})
 				})
 
