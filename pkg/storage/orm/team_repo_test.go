@@ -11,7 +11,7 @@ import (
 func TestTeamSpec(t *testing.T) {
 	c := NewConfigClone(SetupConfig("dev-config.yml"))
 	c.DB.Cockroach.Database = "scoretrak_test_team"
-	c.Logger.FileName = "team_repo.log"
+	c.Logger.FileName = "team_test_repo.log"
 	db := SetupDB(c)
 	l := SetupLogger(c)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
@@ -107,10 +107,13 @@ func TestTeamSpec(t *testing.T) {
 				})
 
 				Convey("Creating Hosts Table", func() {
+					var count int
 					db.AutoMigrate(&host.Host{})
 					db.Model(&host.Host{}).AddForeignKey("team_id", "teams(id)", "RESTRICT", "RESTRICT")
 					Convey("Associating a single Host with a team", func() {
 						db.Exec("INSERT INTO hosts (id, address, team_id) VALUES (4, '192.168.1.1', 'TestTeam')")
+						db.Table("hosts").Count(&count)
+						So(count, ShouldEqual, 1)
 						Convey("Delete a team without deleting a host", func() {
 							err = tr.Delete("TestTeam")
 							So(err, ShouldNotBeNil)

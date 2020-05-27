@@ -5,6 +5,7 @@ import (
 	"ScoreTrak/pkg/service_group"
 	"ScoreTrak/pkg/swarm"
 	. "ScoreTrak/test"
+	"fmt"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 )
@@ -12,7 +13,7 @@ import (
 func TestServiceGroupSpec(t *testing.T) {
 	c := NewConfigClone(SetupConfig("dev-config.yml"))
 	c.DB.Cockroach.Database = "scoretrak_test_service_group"
-	c.Logger.FileName = "service_group_repo.log"
+	c.Logger.FileName = "service_group_test_repo.log"
 	db := SetupDB(c)
 	l := SetupLogger(c)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
@@ -29,8 +30,8 @@ func TestServiceGroupSpec(t *testing.T) {
 
 			Convey("Adding a valid entry", func() {
 				var err error
-				t := service_group.ServiceGroup{Name: "TestServiceGroup"}
-				err = sgr.Store(&t)
+				s := service_group.ServiceGroup{Name: "TestServiceGroup"}
+				err = sgr.Store(&s)
 				So(err, ShouldBeNil)
 
 				Convey("Should create an entry in the database", func() {
@@ -52,7 +53,7 @@ func TestServiceGroupSpec(t *testing.T) {
 				})
 
 				Convey("Then Deleting a wrong entry", func() {
-					err = sgr.Delete(t.ID + 1)
+					err = sgr.Delete(s.ID + 1)
 					So(err, ShouldBeNil)
 					Convey("Should output one entry", func() {
 						ac, err := sgr.GetAll()
@@ -62,7 +63,7 @@ func TestServiceGroupSpec(t *testing.T) {
 				})
 
 				Convey("Then Deleting the added entry", func() {
-					err = sgr.Delete(t.ID)
+					err = sgr.Delete(s.ID)
 					So(err, ShouldBeNil)
 					Convey("Should output no entries", func() {
 						ac, err := sgr.GetAll()
@@ -72,7 +73,7 @@ func TestServiceGroupSpec(t *testing.T) {
 				})
 
 				Convey("Then Retrieving entry by ID", func() {
-					sg, err := sgr.GetByID(t.ID)
+					sg, err := sgr.GetByID(s.ID)
 					So(err, ShouldBeNil)
 					Convey("Should output the inserted entry", func() {
 						So(sg.Name, ShouldEqual, "TestServiceGroup")
@@ -82,10 +83,10 @@ func TestServiceGroupSpec(t *testing.T) {
 
 				Convey("Then Updating Enabled to true", func() {
 					tru := true
-					new_sgr := &service_group.ServiceGroup{Enabled: &tru}
+					newSgr := &service_group.ServiceGroup{Enabled: &tru}
 					Convey("For the wrong entry should not update anything", func() {
-						new_sgr.ID = t.ID + 1
-						err = sgr.Update(new_sgr)
+						newSgr.ID = s.ID + 1
+						err = sgr.Update(newSgr)
 						So(err, ShouldBeNil)
 						ac, err := sgr.GetAll()
 						So(err, ShouldBeNil)
@@ -94,7 +95,7 @@ func TestServiceGroupSpec(t *testing.T) {
 
 					})
 					Convey("For the correct entry should update", func() {
-						err = sgr.Update(new_sgr)
+						err = sgr.Update(newSgr)
 						So(err, ShouldBeNil)
 						ac, err := sgr.GetAll()
 						So(err, ShouldBeNil)
@@ -102,26 +103,51 @@ func TestServiceGroupSpec(t *testing.T) {
 						So(*(ac[0].Enabled), ShouldBeTrue)
 					})
 				})
-
-				Convey("Creating Swarm and Service Tables", func() {
+				Convey("Creating Service Table", func() {
+					var count int
 					db.AutoMigrate(&service.Service{})
-					db.AutoMigrate(&swarm.Swarm{})
 					db.Model(&service.Service{}).AddForeignKey("service_group_id", "service_groups(id)", "RESTRICT", "RESTRICT")
-					db.Model(&swarm.Swarm{}).AddForeignKey("service_group_id", "service_groups(id)", "CASCADE", "RESTRICT")
-
 					Convey("Then associating one service with the service group", func() {
-						db.Exec("INSERT INTO hosts (id, address, team_id) VALUES (4, '192.168.1.1', 'TestTeam')")
+						db.Exec(fmt.Sprintf("INSERT INTO services (id, service_group_id, host_id, name) VALUES (5, %d, 999, 'TestService')", s.ID))
+						db.Table("services").Count(&count)
+						So(count, ShouldEqual, 1)
+						Convey("Then Deleting the service group should be restricted", func() {
+							err = sgr.Delete(s.ID)
+							So(err, ShouldNotBeNil)
+							ac, err := sgr.GetAll()
+							So(err, ShouldBeNil)
+							So(len(ac), ShouldEqual, 1)
+							db.Table("services").Count(&count)
+							So(count, ShouldEqual, 1)
+						})
 					})
-
-					Convey("Then associating one swarm with the service group", func() {
-						db.Exec("INSERT INTO hosts (id, address, team_id) VALUES (4, '192.168.1.1', 'TestTeam')")
-					})
-
 					Reset(func() {
 						db.DropTableIfExists(&service.Service{})
+					})
+				})
+
+				Convey("Creating Swarm Table", func() {
+					var count int
+					db.AutoMigrate(&swarm.Swarm{})
+					db.Model(&swarm.Swarm{}).AddForeignKey("service_group_id", "service_groups(id)", "CASCADE", "RESTRICT")
+					Convey("Then associating one swarm with the service group", func() {
+						db.Exec(fmt.Sprintf("INSERT INTO swarms (id, service_group_id, label) VALUES (4, %d, 'TestLabel')", s.ID))
+						db.Table("swarms").Count(&count)
+						So(count, ShouldEqual, 1)
+						Convey("Then Deleting the service group should also delete the swarm label associated", func() {
+							err = sgr.Delete(s.ID)
+							So(err, ShouldBeNil)
+							ac, err := sgr.GetAll()
+							So(err, ShouldBeNil)
+							So(len(ac), ShouldEqual, 0)
+							db.Table("swarms").Count(&count)
+							So(count, ShouldEqual, 0)
+						})
+
+					})
+					Reset(func() {
 						db.DropTableIfExists(&swarm.Swarm{})
 					})
-
 				})
 			})
 		})

@@ -15,7 +15,7 @@ import (
 func TestServiceSpec(t *testing.T) {
 	c := NewConfigClone(SetupConfig("dev-config.yml"))
 	c.DB.Cockroach.Database = "scoretrak_test_service"
-	c.Logger.FileName = "service_repo.log"
+	c.Logger.FileName = "service_test_repo.log"
 	db := SetupDB(c)
 	l := SetupLogger(c)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
@@ -26,7 +26,7 @@ func TestServiceSpec(t *testing.T) {
 		db.Model(&service.Service{}).AddForeignKey("service_group_id", "service_groups(id)", "RESTRICT", "RESTRICT")
 		db.Model(&service.Service{}).AddForeignKey("host_id", "hosts(id)", "RESTRICT", "RESTRICT")
 		sr := NewServiceRepo(db, l)
-		Convey("When the All tables are empty", func() {
+		Convey("When all tables are empty", func() {
 			Convey("Should output no entry", func() {
 				gt, err := sr.GetAll()
 				So(err, ShouldBeNil)
@@ -41,10 +41,16 @@ func TestServiceSpec(t *testing.T) {
 				So(len(ac), ShouldEqual, 0)
 			})
 			Convey("Load Sample Service Group, And Host Data", func() {
+				var count int
 				db.Exec("INSERT INTO hosts (id, address) VALUES (5, '192.168.1.2')")
 				db.Exec("INSERT INTO hosts (id, address) VALUES (4, '192.168.1.1')")
 				db.Exec("INSERT INTO service_groups (id, name) VALUES (7, 'TestServiceGroup')")
 				db.Exec("INSERT INTO service_groups (id, name) VALUES (2, 'TestServiceGroup2')")
+				db.Table("hosts").Count(&count)
+				So(count, ShouldEqual, 2)
+				db.Table("service_groups").Count(&count)
+				So(count, ShouldEqual, 2)
+
 				Convey("Creating a sample service and associating with host id 5, and service group id 2", func() {
 					s := service.Service{Name: "TestService", ServiceGroupID: 2, HostID: 5}
 					err := sr.Store(&s)
@@ -63,7 +69,7 @@ func TestServiceSpec(t *testing.T) {
 
 						})
 
-						Convey("Then updating to non existent host should no be allowed", func() {
+						Convey("Then updating to non existent host should not be allowed", func() {
 							s.HostID = 20
 							err = sr.Update(&s)
 							So(err, ShouldNotBeNil)
@@ -111,6 +117,10 @@ func TestServiceSpec(t *testing.T) {
 						db.Exec(fmt.Sprintf("INSERT INTO checks (id, service_id, round_id, passed) VALUES (42, %d, 333, false)", s2.ID))
 						db.Exec(fmt.Sprintf("INSERT INTO properties (id, service_id, key, value) VALUES (5, %d, 'sample_key', 'sample_value')", s1.ID))
 						db.Exec(fmt.Sprintf("INSERT INTO properties (id, service_id, key, value) VALUES (33, %d, 'sample_key', 'sample_value')", s2.ID))
+						db.Table("checks").Count(&count)
+						So(count, ShouldEqual, 2)
+						db.Table("properties").Count(&count)
+						So(count, ShouldEqual, 2)
 						Convey("Deleting the service", func() {
 							err = sr.Delete(s1.ID)
 							So(err, ShouldBeNil)
@@ -149,3 +159,5 @@ func TestServiceSpec(t *testing.T) {
 	DropDB(db, c)
 	db.Close()
 }
+
+//TODO: Test that only available services can be set. Ex: FTP, HTTP, etc
