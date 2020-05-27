@@ -9,7 +9,7 @@ require (
 	github.com/emersion/go-imap v1.0.4
 	github.com/go-ldap/ldap/v3 v3.1.10
 	github.com/go-testfixtures/testfixtures/v3 v3.2.0 // indirect
-	github.com/gobuffalo/logger v1.0.3 // indirect
+	github.com/gobuffalo/suite/v3 v3.0.0 // indirect
 	github.com/gorilla/mux v1.7.4
 	github.com/hirochachacha/go-smb2 v0.0.0-20200509054601-823d9b854690
 	github.com/jinzhu/configor v1.2.0
@@ -20,7 +20,7 @@ require (
 	github.com/miekg/dns v1.1.29
 	github.com/nsqio/go-nsq v1.0.8
 	github.com/onsi/ginkgo v1.12.2 // indirect
-	github.com/onsi/gomega v1.10.1 // indirect
+	github.com/qor/qor v0.0.0-20200224122013-457d2e3f50e1 // indirect
 	github.com/qor/validations v0.0.0-20171228122639-f364bca61b46
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
