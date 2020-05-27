@@ -10,10 +10,15 @@ var d DynamicConfig
 
 // Dynamic Config model is a set of columns describing the dynamicConfig of the scoring engine
 type DynamicConfig struct {
+	ID uint64 `json:"id,omitempty"`
 	// Describes how long each round unit takes to execute in seconds. This value shuold have a minimum value enforced (something like 20 seconds)
 	RoundDuration uint64 `json:"round_durration,omitempty" default:"60"`
 	// Enables or disables competition globally
 	Enabled *bool `json:"enabled,omitempty" default:"false" gorm:"not null;default: false"`
+}
+
+func (DynamicConfig) TableName() string {
+	return "config"
 }
 
 //PullConfig retrieves the dynamicConfig from the database, and updates the shared dynamicConfig variable
