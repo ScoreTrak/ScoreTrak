@@ -88,3 +88,14 @@ func (s *checkRepo) Update(chck *check.Check) error {
 	}
 	return nil
 }
+
+//This method could allow for optimization as per gorm's https://github.com/jinzhu/gorm/issues/255#issuecomment-590287329
+func (s *checkRepo) StoreMany(chcks []*check.Check) error {
+	for _, chck := range chcks {
+		err := s.Store(chck)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
