@@ -65,7 +65,7 @@ func (s *swarmRepo) Store(swm *swarm.Swarm) error {
 
 func (s *swarmRepo) Update(swm *swarm.Swarm) error {
 	s.log.Debugf("updating the swarm, id : %v", swm.ID)
-	err := s.db.Model(&swm).Updates(swarm.Swarm{Label: swm.Label, ServiceGroupID: swm.ServiceGroupID}).Error
+	err := s.db.Model(&swm).Updates(swarm.Swarm{Label: swm.Label}).Error
 	if err != nil {
 		s.log.Errorf("error while updating the swarm, reason : %v", err)
 		return err
