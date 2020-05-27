@@ -52,6 +52,9 @@ func (t *roundRepo) GetByID(id uint64) (*round.Round, error) {
 }
 
 func (t *roundRepo) Store(tm *round.Round) error {
+	if tm.ID == 0 {
+		return errors.New("the ID should be provided")
+	}
 	t.log.Debugf("creating the round with id : %v", tm.ID)
 	err := t.db.Create(&tm).Error
 	if err != nil {
