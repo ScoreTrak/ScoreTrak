@@ -23,6 +23,7 @@ func NewDb(c *config.StaticConfig) (*gorm.DB, error) {
 		return nil, errors.New("Not supported db")
 	}
 	validations.RegisterCallbacks(db)
+	db.BlockGlobalUpdate(true)
 	return db, nil
 }
 

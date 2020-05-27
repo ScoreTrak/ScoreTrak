@@ -96,6 +96,7 @@ func TestTeamSpec(t *testing.T) {
 
 					})
 					Convey("For the correct entry should update", func() {
+						newTeam.ID = "TestTeam"
 						err = tr.Update(newTeam)
 						So(err, ShouldBeNil)
 						ac, err := tr.GetAll()
