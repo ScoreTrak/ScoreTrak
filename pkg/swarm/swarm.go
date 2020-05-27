@@ -9,7 +9,7 @@ type Swarm struct {
 
 	ServiceGroup service_group.ServiceGroup `json:"-"`
 
-	ServiceGroupID uint64 `json:"service_group_id" gorm:"not null"`
+	ServiceGroupID uint64 `json:"service_group_id" gorm:"not null;unique"`
 
 	Label string `json:"label" gorm:"not null"`
 }
