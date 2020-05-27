@@ -8,7 +8,6 @@ type Serv interface {
 	GetByID(id uint64) (*Check, error)
 	Store(u *Check) error
 	StoreMany(u []*Check) error
-	Update(u *Check) error
 }
 
 type checkServ struct {
@@ -37,5 +36,3 @@ func (svc *checkServ) GetByID(id uint64) (*Check, error) { return svc.repo.GetBy
 func (svc *checkServ) Store(c *Check) error { return svc.repo.Store(c) }
 
 func (svc *checkServ) StoreMany(c []*Check) error { return svc.repo.StoreMany(c) }
-
-func (svc *checkServ) Update(c *Check) error { return svc.repo.Update(c) }
