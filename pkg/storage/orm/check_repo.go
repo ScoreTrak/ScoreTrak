@@ -20,7 +20,7 @@ func NewCheckRepo(db *gorm.DB, log logger.LogInfoFormat) check.Repo {
 func (c *checkRepo) GetAllByRoundID(r_id uint64) ([]*check.Check, error) {
 	c.log.Debug("get all the checks")
 	var checks []*check.Check
-	err := c.db.Where("round_id == ?", r_id).Find(&checks).Error
+	err := c.db.Where("round_id = ?", r_id).Find(&checks).Error
 	return checks, err
 }
 
@@ -72,18 +72,6 @@ func (s *checkRepo) Store(chck *check.Check) error {
 	err := s.db.Create(&chck).Error
 	if err != nil {
 		s.log.Errorf("error while creating the check, reason : %v", err)
-		return err
-	}
-	return nil
-}
-
-func (s *checkRepo) Update(chck *check.Check) error {
-	s.log.Debugf("updating the check, id : %v", chck.ID)
-	err := s.db.Model(&chck).Updates(check.Check{ServiceID: chck.ServiceID,
-		RoundID: chck.RoundID, Log: chck.Log, Passed: chck.Passed,
-	}).Error
-	if err != nil {
-		s.log.Errorf("error while updating the check, reason : %v", err)
 		return err
 	}
 	return nil
