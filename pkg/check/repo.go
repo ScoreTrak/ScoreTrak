@@ -7,5 +7,6 @@ type Repo interface {
 	GetAll() ([]*Check, error)
 	GetByID(id uint64) (*Check, error)
 	Store(u *Check) error
+	StoreMany(u []*Check) error
 	Update(u *Check) error
 }
