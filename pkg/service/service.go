@@ -15,10 +15,10 @@ type Service struct {
 	DisplayName string `json:"display_name,omitempty"`
 
 	// Points granted for a successful check
-	Points uint64 `json:"points" gorm:"not null"`
+	Points uint64 `json:"points" gorm:"not null;default: 0"`
 
 	// The frequency of a service check. If round_units is 5 and round_delay is 0, then service checks will happen on every 5th round. (5,10, etc)
-	RoundUnits uint64 `json:"round_units,omitempty" gorm:"not null; default:1"`
+	RoundUnits uint64 `json:"round_units,omitempty" gorm:"not null;default:1"`
 
 	// The frequency of a service check. If round_units is 7 and round_delay is 3, then service checks will happen on every 7th round with an offset of 3. (10,17, etc)
 	RoundDelay *uint64 `json:"round_delay,omitempty" gorm:"not null;default: 0"`
