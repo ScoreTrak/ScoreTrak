@@ -95,6 +95,7 @@ func TestServiceGroupSpec(t *testing.T) {
 
 					})
 					Convey("For the correct entry should update", func() {
+						newSgr.ID = s.ID
 						err = sgr.Update(newSgr)
 						So(err, ShouldBeNil)
 						ac, err := sgr.GetAll()
