@@ -124,4 +124,6 @@ func TestSpec(t *testing.T) {
 			})
 		})
 	})
+	DropDB(db, c)
+	db.Close()
 }
