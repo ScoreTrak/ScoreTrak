@@ -92,7 +92,7 @@ func TestCheckSpec(t *testing.T) {
 						})
 					})
 				})
-				Convey("Creating a swarm with wrong service should not be allowed", func() {
+				Convey("Creating a check with wrong service should not be allowed", func() {
 					s := check.Check{Log: "TestLog", ServiceID: 999, RoundID: 1}
 					err := cr.Store(&s)
 					So(err, ShouldNotBeNil)
@@ -101,7 +101,7 @@ func TestCheckSpec(t *testing.T) {
 					So(len(ac), ShouldEqual, 0)
 				})
 
-				Convey("Creating a swarm with wrong round should not be allowed", func() {
+				Convey("Creating a check with wrong round should not be allowed", func() {
 					s := check.Check{Log: "TestLog", ServiceID: 5, RoundID: 4}
 					err := cr.Store(&s)
 					So(err, ShouldNotBeNil)
