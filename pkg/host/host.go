@@ -8,7 +8,7 @@ import (
 type Host struct {
 	ID uint64 `json:"id,omitempty"`
 
-	Address string `json:"address" gorm:"not null;default:null" valid:"host"`
+	Address *string `json:"address" gorm:"not null;default:null" valid:"host,optional"`
 
 	// The ID of a host group that the host belongs to.
 	HostGroupID *uint64 `json:"host_group_id,omitempty"`

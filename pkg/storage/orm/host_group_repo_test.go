@@ -34,7 +34,7 @@ func TestHostGroupSpec(t *testing.T) {
 				h := host_group.HostGroup{ID: 3, Name: "host group"}
 				err = hg.Store(&h)
 				So(err, ShouldBeNil)
-				Convey("Adding a valid entry", func() {
+				Convey("Then making sure the entry exists", func() {
 					ac, err := hg.GetAll()
 					So(err, ShouldBeNil)
 					So(len(ac), ShouldEqual, 1)
