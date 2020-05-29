@@ -128,7 +128,7 @@ func (ds *dserver) teamRoutes() Routes {
 
 		Route{
 			"UpdateTeam",
-			strings.ToUpper("Put"),
+			strings.ToUpper("Patch"),
 			"/team/{id}",
 			tm.Update,
 		},
@@ -147,7 +147,7 @@ func (ds *dserver) configRoutes() Routes {
 	configRoutes := Routes{
 		Route{
 			"UpdateConfigProperties",
-			strings.ToUpper("Put"),
+			strings.ToUpper("Patch"),
 			"/config",
 			cfg.Update,
 		},
@@ -223,7 +223,7 @@ func (ds *dserver) hostRoutes() Routes {
 
 		Route{
 			"UpdateHost",
-			strings.ToUpper("Put"),
+			strings.ToUpper("Patch"),
 			"/host/{id}",
 			hst.Update,
 		},
@@ -270,7 +270,7 @@ func (ds *dserver) hostGroupRoutes() Routes {
 
 		Route{
 			"UpdateHostGroup",
-			strings.ToUpper("Put"),
+			strings.ToUpper("Patch"),
 			"/host_group/{id}",
 			hstgrp.Update,
 		},
@@ -319,7 +319,7 @@ func (ds *dserver) propertyRoutes() Routes {
 
 		Route{
 			"UpdateProperty",
-			strings.ToUpper("Put"),
+			strings.ToUpper("Patch"),
 			"/property/{id}",
 			prop.Update,
 		},
@@ -408,7 +408,7 @@ func (ds *dserver) serviceRoutes() Routes {
 
 		Route{
 			"UpdateService",
-			strings.ToUpper("Put"),
+			strings.ToUpper("Patch"),
 			"/service/{id}",
 			srv.Update,
 		},
@@ -456,7 +456,7 @@ func (ds *dserver) serviceGroupRoutes() Routes {
 
 		Route{
 			"UpdateServiceGroup",
-			strings.ToUpper("Put"),
+			strings.ToUpper("Patch"),
 			"/service_group/{id}",
 			servg.Update,
 		},
