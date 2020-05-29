@@ -9,7 +9,7 @@ import (
 
 func TestConfigSpec(t *testing.T) {
 	c := NewConfigClone(SetupConfig("dev-config.yml"))
-	c.DB.Cockroach.Database = "scoretrak_test_config"
+	c.DB.Cockroach.Database = "scoretrak_test_orm_config"
 	c.Logger.FileName = "config_test_repo.log"
 	db := SetupDB(c)
 	l := SetupLogger(c)

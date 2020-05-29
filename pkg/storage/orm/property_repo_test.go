@@ -10,7 +10,7 @@ import (
 
 func TestPropertySpec(t *testing.T) {
 	c := NewConfigClone(SetupConfig("dev-config.yml"))
-	c.DB.Cockroach.Database = "scoretrak_test_property"
+	c.DB.Cockroach.Database = "scoretrak_test_orm_property"
 	c.Logger.FileName = "property_test_repo.log"
 	db := SetupDB(c)
 	l := SetupLogger(c)

@@ -11,7 +11,7 @@ import (
 
 func TestHostGroupSpec(t *testing.T) {
 	c := NewConfigClone(SetupConfig("dev-config.yml"))
-	c.DB.Cockroach.Database = "scoretrak_test_host_group"
+	c.DB.Cockroach.Database = "scoretrak_test_orm_host_group"
 	c.Logger.FileName = "host_group_test_repo.log"
 	db := SetupDB(c)
 	l := SetupLogger(c)

@@ -14,7 +14,7 @@ import (
 
 func TestServiceSpec(t *testing.T) {
 	c := NewConfigClone(SetupConfig("dev-config.yml"))
-	c.DB.Cockroach.Database = "scoretrak_test_service"
+	c.DB.Cockroach.Database = "scoretrak_test_orm_service"
 	c.Logger.FileName = "service_test_repo.log"
 	db := SetupDB(c)
 	l := SetupLogger(c)

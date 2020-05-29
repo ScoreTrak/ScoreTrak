@@ -12,7 +12,7 @@ import (
 
 func TestRoundSpec(t *testing.T) {
 	c := NewConfigClone(SetupConfig("dev-config.yml"))
-	c.DB.Cockroach.Database = "scoretrak_test_round"
+	c.DB.Cockroach.Database = "scoretrak_test_orm_round"
 	c.Logger.FileName = "round_test_repo.log"
 	db := SetupDB(c)
 	l := SetupLogger(c)

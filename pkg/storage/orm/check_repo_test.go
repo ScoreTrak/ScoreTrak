@@ -12,7 +12,7 @@ import (
 
 func TestCheckSpec(t *testing.T) {
 	c := NewConfigClone(SetupConfig("dev-config.yml"))
-	c.DB.Cockroach.Database = "scoretrak_test_check"
+	c.DB.Cockroach.Database = "scoretrak_test_orm_check"
 	c.Logger.FileName = "check_test_repo.log"
 	db := SetupDB(c)
 	l := SetupLogger(c)

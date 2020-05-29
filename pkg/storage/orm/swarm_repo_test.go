@@ -10,7 +10,7 @@ import (
 
 func TestSwarmSpec(t *testing.T) {
 	c := NewConfigClone(SetupConfig("dev-config.yml"))
-	c.DB.Cockroach.Database = "scoretrak_test_swarm"
+	c.DB.Cockroach.Database = "scoretrak_test_orm_swarm"
 	c.Logger.FileName = "swarm_test_repo.log"
 	db := SetupDB(c)
 	l := SetupLogger(c)
