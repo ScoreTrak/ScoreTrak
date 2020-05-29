@@ -9,7 +9,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestSpec(t *testing.T) {
+func TestHostGroupSpec(t *testing.T) {
 	c := NewConfigClone(SetupConfig("dev-config.yml"))
 	c.DB.Cockroach.Database = "scoretrak_test_host_group"
 	c.Logger.FileName = "host_group_test_repo.log"
@@ -40,6 +40,13 @@ func TestSpec(t *testing.T) {
 					So(len(ac), ShouldEqual, 1)
 					So(ac[0].ID, ShouldEqual, 3)
 					So(ac[0].Name, ShouldEqual, "host group")
+				})
+
+				Convey("Then getting entry by id", func() {
+					ac, err := hg.GetByID(3)
+					So(err, ShouldBeNil)
+					So(ac.ID, ShouldEqual, 3)
+					So(ac.Name, ShouldEqual, "host group")
 				})
 
 				Convey("Then Deleting a wrong entry", func() {
