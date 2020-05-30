@@ -1,17 +1,25 @@
 package orm
 
 import (
+	"ScoreTrak/pkg/config"
 	"ScoreTrak/pkg/service"
 	"ScoreTrak/pkg/service_group"
 	"ScoreTrak/pkg/swarm"
 	. "ScoreTrak/test"
 	"fmt"
 	. "github.com/smartystreets/goconvey/convey"
+	"os"
 	"testing"
 )
 
 func TestServiceGroupSpec(t *testing.T) {
-	c := NewConfigClone(SetupConfig("dev-config.yml"))
+	var c *config.StaticConfig
+	autoTest := os.Getenv("AUTO_TEST")
+	if autoTest == "TRUE" {
+		c = NewConfigClone(SetupConfig("../../../configs/test-config.yml.go"))
+	} else {
+		c = NewConfigClone(SetupConfig("dev-config.yml"))
+	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_service_group"
 	c.Logger.FileName = "service_group_test_repo.log"
 	db := SetupDB(c)

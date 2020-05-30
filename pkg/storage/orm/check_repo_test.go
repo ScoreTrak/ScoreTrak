@@ -2,16 +2,24 @@ package orm
 
 import (
 	"ScoreTrak/pkg/check"
+	"ScoreTrak/pkg/config"
 	"ScoreTrak/pkg/round"
 	"ScoreTrak/pkg/service"
 	. "ScoreTrak/test"
 	. "github.com/smartystreets/goconvey/convey"
+	"os"
 	"testing"
 	"time"
 )
 
 func TestCheckSpec(t *testing.T) {
-	c := NewConfigClone(SetupConfig("dev-config.yml"))
+	var c *config.StaticConfig
+	autoTest := os.Getenv("AUTO_TEST")
+	if autoTest == "TRUE" {
+		c = NewConfigClone(SetupConfig("../../../configs/test-config.yml.go"))
+	} else {
+		c = NewConfigClone(SetupConfig("dev-config.yml"))
+	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_check"
 	c.Logger.FileName = "check_test_repo.log"
 	db := SetupDB(c)

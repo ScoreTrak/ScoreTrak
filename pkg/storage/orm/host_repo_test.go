@@ -1,15 +1,23 @@
 package orm
 
 import (
+	"ScoreTrak/pkg/config"
 	"ScoreTrak/pkg/host"
 	. "ScoreTrak/test"
+	"os"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestHostSpec(t *testing.T) {
-	c := NewConfigClone(SetupConfig("dev-config.yml"))
+	var c *config.StaticConfig
+	autoTest := os.Getenv("AUTO_TEST")
+	if autoTest == "TRUE" {
+		c = NewConfigClone(SetupConfig("../../../configs/test-config.yml.go"))
+	} else {
+		c = NewConfigClone(SetupConfig("dev-config.yml"))
+	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_host"
 	c.Logger.FileName = "host_test_repo.log"
 	db := SetupDB(c)
