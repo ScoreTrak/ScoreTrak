@@ -7,11 +7,6 @@ import (
 	"log"
 )
 
-type Check_details struct {
-	Round_Number    int
-	Values_to_check []int
-}
-
 func main() {
 	// Instantiate a producer.
 	config := nsq.NewConfig()
