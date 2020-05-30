@@ -97,7 +97,7 @@ func TestServiceSpec(t *testing.T) {
 							s.Enabled = &tru
 							s.Name = "DifferentTestName"
 							s.RoundUnits = 3
-							rd := uint64(5)
+							rd := uint64(2)
 							s.RoundDelay = &rd
 							s.Points = 5
 							err = sr.Update(&s)
