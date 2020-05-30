@@ -83,9 +83,9 @@ func TestRoundSpec(t *testing.T) {
 					})
 				})
 
-				Convey("Then Updating End to time.Now()", func() {
+				Convey("Then Updating Finish to time.Now()", func() {
 					now := time.Now()
-					newRound := &round.Round{End: &now}
+					newRound := &round.Round{Finish: &now}
 					Convey("For the wrong entry should not update anything", func() {
 						newRound.ID = 5
 						err = rr.Update(newRound)
@@ -93,7 +93,7 @@ func TestRoundSpec(t *testing.T) {
 						ac, err := rr.GetAll()
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
-						So(ac[0].End, ShouldBeNil)
+						So(ac[0].Finish, ShouldBeNil)
 
 					})
 					Convey("For the correct entry should update", func() {
@@ -103,15 +103,15 @@ func TestRoundSpec(t *testing.T) {
 						ac, err := rr.GetAll()
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
-						So((*(ac[0].End)).UnixNano(), ShouldBeBetween, time.Now().Add(time.Second*-1).UnixNano(), time.Now().UnixNano())
+						So((*(ac[0].Finish)).UnixNano(), ShouldBeBetween, time.Now().Add(time.Second*-1).UnixNano(), time.Now().UnixNano())
 					})
 				})
 
 				Convey("Creating more rounds", func() {
 					now := time.Now()
-					r.End = &now
-					r2 := round.Round{ID: 2, End: &now}
-					r3 := round.Round{ID: 3, End: &now}
+					r.Finish = &now
+					r2 := round.Round{ID: 2, Finish: &now}
+					r3 := round.Round{ID: 3, Finish: &now}
 					r4 := round.Round{ID: 4}
 					err = rr.Update(&r)
 					So(err, ShouldBeNil)

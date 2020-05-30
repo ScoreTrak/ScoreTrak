@@ -66,7 +66,7 @@ func (t *roundRepo) Store(tm *round.Round) error {
 
 func (t *roundRepo) Update(tm *round.Round) error {
 	t.log.Debugf("updating the round, with id : %v", tm.ID)
-	err := t.db.Model(&tm).Updates(round.Round{End: tm.End}).Error
+	err := t.db.Model(&tm).Updates(round.Round{Finish: tm.Finish}).Error
 	if err != nil {
 		t.log.Errorf("error while updating the round, reason : %v", err)
 		return err
@@ -76,7 +76,7 @@ func (t *roundRepo) Update(tm *round.Round) error {
 
 func (r *roundRepo) GetLastRound() (*round.Round, error) {
 	rnd := &round.Round{}
-	err := r.db.Where("\"end\" IS NOT NULL").Last(&rnd).Error
+	err := r.db.Where("\"finish\" IS NOT NULL").Last(&rnd).Error
 	//r.db.Raw("SELECT * FROM rounds WHERE end is NOT NULL order by id desc limit 1").Scan(&rnd).Error
 	if err != nil {
 		r.log.Debug("not a single Round found")

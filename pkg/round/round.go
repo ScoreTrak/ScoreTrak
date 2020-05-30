@@ -13,7 +13,7 @@ type Round struct {
 
 	Start time.Time `json:"start,omitempty" gorm:"not null; default:CURRENT_TIMESTAMP"`
 
-	End *time.Time `json:"end,omitempty"`
+	Finish *time.Time `json:"finish,omitempty"`
 
 	Checks []check.Check `json:"-" gorm:"foreignkey:RoundID"`
 }
