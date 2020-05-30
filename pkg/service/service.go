@@ -3,6 +3,8 @@ package service
 import (
 	"ScoreTrak/pkg/check"
 	"ScoreTrak/pkg/property"
+	"errors"
+	"github.com/jinzhu/gorm"
 )
 
 // Service Model represents a service that is being scored for a given host
@@ -35,4 +37,20 @@ type Service struct {
 	Properties []property.Property `json:"-" gorm:"foreignkey:ServiceID"`
 
 	Checks []check.Check `json:"-" gorm:"foreignkey:ServiceID"`
+}
+
+func (s Service) Validate(db *gorm.DB) {
+	if s.RoundDelay != nil && *(s.RoundDelay) != 0 {
+		if s.RoundUnits != 0 {
+			if *(s.RoundDelay) >= s.RoundUnits {
+				db.AddError(errors.New("round delay should not be larger than round unit"))
+			}
+		} else {
+			se := Service{}
+			db.Where("id = ?", s.ID).First(&se)
+			if *(s.RoundDelay) >= s.RoundUnits {
+				db.AddError(errors.New("round delay should not be larger than round unit"))
+			}
+		}
+	}
 }
