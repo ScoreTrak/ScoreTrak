@@ -1,4 +1,4 @@
-package main
+package producer
 
 import (
 	"bytes"
@@ -6,6 +6,11 @@ import (
 	"github.com/nsqio/go-nsq"
 	"log"
 )
+
+type Check_details struct { //MAKE SURE TO USE CAPITAL LETTERS OR VARIABLES WILL NOT BE EXPORTED
+	Round_Number    int
+	Values_to_check []int
+}
 
 func main() {
 	// Instantiate a producer.

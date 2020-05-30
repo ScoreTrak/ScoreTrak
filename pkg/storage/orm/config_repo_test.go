@@ -12,7 +12,7 @@ func TestConfigSpec(t *testing.T) {
 	var c *config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
-		c = NewConfigClone(SetupConfig("../../../configs/test-config.yml.go"))
+		c = NewConfigClone(SetupConfig("../../../configs/test-config.yml"))
 	} else {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
