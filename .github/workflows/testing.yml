@@ -19,6 +19,6 @@ jobs:
       - name: "Start Cockroach DB in background"
         run: cockroach start-single-node --insecure --background
       - name: "Start golang test"
-        run: go test pkg/...
+        run: go test ./pkg/... --race
         env:
           AUTO_TEST: "TRUE"
