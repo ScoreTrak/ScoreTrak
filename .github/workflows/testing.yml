@@ -15,7 +15,7 @@ jobs:
       - name: "Download Cockroach DB"
         run: wget -qO- https://binaries.cockroachdb.com/cockroach-v20.1.1.linux-amd64.tgz | tar  xvz
       - name: "Move Cockroach DB to /usr/local/bin/"
-        run: cp -i cockroach-v20.1.1.linux-amd64/cockroach /usr/local/bin/
+        run: sudo cp -i cockroach-v20.1.1.linux-amd64/cockroach /usr/local/bin/
       - name: "Start Cockroach DB in background"
         run: cockroach start-single-node --insecure --background
       - name: "Start golang test"
