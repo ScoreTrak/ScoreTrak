@@ -11,4 +11,14 @@ jobs:
       - name: "Download golang environment"
         uses: actions/setup-go@v2
       - run: go version
-      - run: ls
+      - run: go mod tidy
+      - name: "Download Cockroach DB"
+        run: wget -qO- https://binaries.cockroachdb.com/cockroach-v20.1.1.linux-amd64.tgz | tar  xvz
+      - name: "Move Cockroach DB to /usr/local/bin/"
+        run: cp -i cockroach-v20.1.1.linux-amd64/cockroach /usr/local/bin/
+      - name: "Start Cockroach DB in background"
+        run: cockroach start-single-node --insecure --background
+      - name: "Start golang test"
+        run: go test pkg/...
+        env:
+          AUTO_TEST: "TRUE"
