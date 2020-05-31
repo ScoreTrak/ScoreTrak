@@ -152,9 +152,8 @@ func DataPreload(db *gorm.DB) {
 	db.Exec("INSERT INTO swarms (id, service_group_id, label) VALUES (1, 1, 'LabelInternal1')")
 	db.Exec("INSERT INTO swarms (id, service_group_id, label) VALUES (2, 2, 'LabelExternal1')")
 	db.Exec("INSERT INTO swarms (id, service_group_id, label) VALUES (3, 3, 'LabelInternal2')")
-	db.Exec("INSERT INTO swarms (id, service_group_id, label) VALUES (4, 4, 'LabelExternal2')")
 	db.Table("swarms").Count(&count)
-	if count != 4 {
+	if count != 3 {
 		panic("There should be 4 entry in swarms")
 	}
 	//Creating Services
