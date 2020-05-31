@@ -1,7 +1,6 @@
 package server
 
 import (
-	"ScoreTrak/pkg/api"
 	"ScoreTrak/pkg/api/handler"
 	"ScoreTrak/pkg/check"
 	"ScoreTrak/pkg/config"
@@ -15,8 +14,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type Route struct {
@@ -62,7 +63,7 @@ func (ds *dserver) MapRoutes() {
 	for _, route := range routes {
 		var hdler http.Handler
 		hdler = route.HandlerFunc
-		hdler = api.Logger(hdler, route.Name) //Default Logger
+		hdler = Logger(hdler, route.Name) //Default Logger
 
 		ds.router.
 			Methods(route.Method).
@@ -85,6 +86,22 @@ func TokenVerify(next http.Handler) http.Handler {
 			return
 		}
 		next.ServeHTTP(w, r)
+	})
+}
+
+func Logger(inner http.Handler, name string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		inner.ServeHTTP(w, r)
+
+		log.Printf(
+			"%s %s %s %s",
+			r.Method,
+			r.RequestURI,
+			name,
+			time.Since(start),
+		)
 	})
 }
 
