@@ -32,7 +32,6 @@ func TestCheckSpec(t *testing.T) {
 		cr := orm.NewTeamRepo(db, l)
 		ctrl := NewTeamController(l, cr)
 		Convey("Retrieving a team by ID", func() {
-			//https://stackoverflow.com/questions/34435185/unit-testing-for-functions-that-use-gorilla-mux-url-parameters
 			r, _ := http.NewRequest("GET", "/team/TeamOne", nil)
 			w := httptest.NewRecorder()
 			vars := map[string]string{
@@ -42,13 +41,102 @@ func TestCheckSpec(t *testing.T) {
 			ctrl.GetByID(w, r)
 			var t team.Team
 			err := json.Unmarshal([]byte(w.Body.String()), &t)
-			Convey("Should return the team, and correct parrameters for that team", func() {
+			So(err, ShouldBeNil)
+			So(w.Code, ShouldEqual, http.StatusOK)
+			So(t.ID, ShouldEqual, "TeamOne")
+			So(*(t.Enabled), ShouldBeTrue)
+		})
+
+		Convey("Retrieving a team by invalid ID", func() {
+			r, _ := http.NewRequest("GET", "/team/WrongTeam", nil)
+			w := httptest.NewRecorder()
+			vars := map[string]string{
+				"id": "WrongTeam",
+			}
+			r = mux.SetURLVars(r, vars)
+			ctrl.GetByID(w, r)
+			So(w.Code, ShouldEqual, http.StatusNotFound)
+		})
+
+		Convey("Retrieving all teams", func() {
+			r, _ := http.NewRequest("GET", "/team", nil)
+			w := httptest.NewRecorder()
+			ctrl.GetAll(w, r)
+			So(w.Code, ShouldEqual, http.StatusOK)
+			var t []team.Team
+			err := json.Unmarshal([]byte(w.Body.String()), &t)
+			So(err, ShouldBeNil)
+			So(w.Code, ShouldEqual, http.StatusOK)
+			So(len(t), ShouldEqual, 4)
+		})
+
+		Convey("Deleting a team by ID (without any dependant hosts)", func() {
+			r, _ := http.NewRequest("DELETE", "/team/TeamOne", nil)
+			w := httptest.NewRecorder()
+			vars := map[string]string{
+				"id": "TeamOne",
+			}
+			r = mux.SetURLVars(r, vars)
+			ctrl.Delete(w, r)
+			So(w.Code, ShouldEqual, http.StatusOK)
+			Convey("Retrieving all teams", func() {
+				r, _ := http.NewRequest("GET", "/team", nil)
+				w := httptest.NewRecorder()
+				ctrl.GetAll(w, r)
+				So(w.Code, ShouldEqual, http.StatusOK)
+				var t []team.Team
+				err := json.Unmarshal([]byte(w.Body.String()), &t)
 				So(err, ShouldBeNil)
 				So(w.Code, ShouldEqual, http.StatusOK)
-				So(t.ID, ShouldEqual, "TeamOne")
-				So(*(t.Enabled), ShouldBeTrue)
+				So(len(t), ShouldEqual, 3)
 			})
 		})
+
+		Convey("Deleting a team by ID without deleting all hosts", func() {
+			r, _ := http.NewRequest("DELETE", "/team/TeamTwo", nil)
+			w := httptest.NewRecorder()
+			vars := map[string]string{
+				"id": "TeamTwo",
+			}
+			r = mux.SetURLVars(r, vars)
+			ctrl.Delete(w, r)
+			So(w.Code, ShouldEqual, http.StatusConflict)
+			Convey("Retrieving all teams", func() {
+				r, _ := http.NewRequest("GET", "/team", nil)
+				w := httptest.NewRecorder()
+				ctrl.GetAll(w, r)
+				So(w.Code, ShouldEqual, http.StatusOK)
+				var t []team.Team
+				err := json.Unmarshal([]byte(w.Body.String()), &t)
+				So(err, ShouldBeNil)
+				So(w.Code, ShouldEqual, http.StatusOK)
+				So(len(t), ShouldEqual, 4)
+			})
+		})
+
+		Convey("Deleting a team by invalid ID", func() {
+			r, _ := http.NewRequest("DELETE", "/team/WrongTeam", nil)
+			w := httptest.NewRecorder()
+			vars := map[string]string{
+				"id": "WrongTeam",
+			}
+			r = mux.SetURLVars(r, vars)
+			ctrl.Delete(w, r)
+			So(w.Code, ShouldEqual, http.StatusNotModified)
+
+			Convey("Retrieving all teams", func() {
+				r, _ := http.NewRequest("GET", "/team", nil)
+				w := httptest.NewRecorder()
+				ctrl.GetAll(w, r)
+				So(w.Code, ShouldEqual, http.StatusOK)
+				var t []team.Team
+				err := json.Unmarshal([]byte(w.Body.String()), &t)
+				So(err, ShouldBeNil)
+				So(w.Code, ShouldEqual, http.StatusOK)
+				So(len(t), ShouldEqual, 4)
+			})
+		})
+
 		Reset(func() {
 			CleanAllTables(db)
 		})

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"ScoreTrak/pkg/logger"
+	"ScoreTrak/pkg/storage/orm"
 	"ScoreTrak/pkg/team"
 	"encoding/json"
 	"github.com/gorilla/mux"
@@ -42,8 +43,12 @@ func (t *teamController) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	params := mux.Vars(r)
 	err := t.svc.Delete(params["id"])
+	_, ok := err.(*orm.NoRowsAffected)
+	if ok {
+		http.Redirect(w, r, "/team", http.StatusNotModified)
+	}
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusConflict)
 		t.log.Error(err)
 		return
 	}
@@ -54,14 +59,9 @@ func (t *teamController) GetByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	params := mux.Vars(r)
 	tm, err := t.svc.GetByID(params["id"])
-
 	if tm == nil {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		t.log.Error(err)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	encoder := json.NewEncoder(w)
