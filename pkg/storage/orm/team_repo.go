@@ -5,7 +5,6 @@ import (
 	"ScoreTrak/pkg/team"
 	"errors"
 	"fmt"
-
 	"github.com/jinzhu/gorm"
 )
 
@@ -21,10 +20,16 @@ func NewTeamRepo(db *gorm.DB, log logger.LogInfoFormat) team.Repo {
 func (t *teamRepo) Delete(id string) error {
 	t.log.Debugf("deleting the team with id : %d", id)
 
-	if t.db.Delete(&team.Team{}, "id = ?", id).Error != nil {
+	result := t.db.Delete(&team.Team{}, "id = ?", id)
+
+	if result.Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the team with id : %s", id)
 		t.log.Errorf(errMsg)
 		return errors.New(errMsg)
+	}
+
+	if result.RowsAffected == 0 {
+		return &NoRowsAffected{"no model found for id"}
 	}
 	return nil
 }

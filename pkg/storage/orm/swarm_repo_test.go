@@ -63,6 +63,13 @@ func TestSwarmSpec(t *testing.T) {
 							So(ss.Label, ShouldEqual, "TestSwarmLabel")
 							So(ss.ServiceGroupID, ShouldEqual, 7)
 						})
+
+						Convey("Then Querying By wrong ID", func() {
+							ss, err := sr.GetByID(s.ID + 1)
+							So(err, ShouldNotBeNil)
+							So(ss, ShouldBeNil)
+						})
+
 						Convey("Then updating to different service_group should not change anything", func() {
 							s.ServiceGroupID = 2
 							err = sr.Update(&s)
@@ -84,6 +91,16 @@ func TestSwarmSpec(t *testing.T) {
 							ac, err = sr.GetAll()
 							So(err, ShouldBeNil)
 							So(len(ac), ShouldEqual, 0)
+						})
+
+						Convey("Then Deleting a wrong entry", func() {
+							err = sr.Delete(s.ID + 1)
+							So(err, ShouldNotBeNil)
+							Convey("Should output one entry", func() {
+								ac, err := sr.GetAll()
+								So(err, ShouldBeNil)
+								So(len(ac), ShouldEqual, 1)
+							})
 						})
 
 						Convey("Then adding swarm with the same Label should be allowed", func() {

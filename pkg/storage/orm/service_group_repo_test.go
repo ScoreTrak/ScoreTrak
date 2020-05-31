@@ -62,7 +62,7 @@ func TestServiceGroupSpec(t *testing.T) {
 
 				Convey("Then Deleting a wrong entry", func() {
 					err = sgr.Delete(s.ID + 1)
-					So(err, ShouldBeNil)
+					So(err, ShouldNotBeNil)
 					Convey("Should output one entry", func() {
 						ac, err := sgr.GetAll()
 						So(err, ShouldBeNil)
@@ -87,6 +87,12 @@ func TestServiceGroupSpec(t *testing.T) {
 						So(sg.Name, ShouldEqual, "TestServiceGroup")
 						So(*(sg.Enabled), ShouldBeFalse)
 					})
+				})
+
+				Convey("Then Querying By wrong ID", func() {
+					ss, err := sgr.GetByID(s.ID + 1)
+					So(err, ShouldNotBeNil)
+					So(ss, ShouldBeNil)
 				})
 
 				Convey("Then Updating Enabled to true", func() {

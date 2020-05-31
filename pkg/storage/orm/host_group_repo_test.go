@@ -57,9 +57,15 @@ func TestHostGroupSpec(t *testing.T) {
 					So(ac.Name, ShouldEqual, "host group")
 				})
 
+				Convey("Then Querying By wrong ID", func() {
+					ss, err := hg.GetByID(h.ID + 1)
+					So(err, ShouldNotBeNil)
+					So(ss, ShouldBeNil)
+				})
+
 				Convey("Then Deleting a wrong entry", func() {
 					err = hg.Delete(2)
-					So(err, ShouldBeNil)
+					So(err, ShouldNotBeNil)
 					Convey("Should output one entry", func() {
 						ac, err := hg.GetAll()
 						So(err, ShouldBeNil)

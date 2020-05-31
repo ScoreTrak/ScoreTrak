@@ -20,10 +20,16 @@ func NewServiceRepo(db *gorm.DB, log logger.LogInfoFormat) service.Repo {
 func (s *serviceRepo) Delete(id uint64) error {
 	s.log.Debugf("deleting the service with id : %d", id)
 
-	if s.db.Delete(&service.Service{}, "id = ?", id).Error != nil {
+	result := s.db.Delete(&service.Service{}, "id = ?", id)
+
+	if result.Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the service with id : %d", id)
 		s.log.Errorf(errMsg)
 		return errors.New(errMsg)
+	}
+
+	if result.RowsAffected == 0 {
+		return &NoRowsAffected{"no model found for id"}
 	}
 	return nil
 }

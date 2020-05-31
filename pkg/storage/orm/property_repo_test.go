@@ -65,6 +65,22 @@ func TestPropertySpec(t *testing.T) {
 							So(ss.Value, ShouldEqual, "TestValue")
 						})
 
+						Convey("Then Querying By wrong ID", func() {
+							ss, err := cr.GetByID(c.ID + 1)
+							So(err, ShouldNotBeNil)
+							So(ss, ShouldBeNil)
+						})
+
+						Convey("Then Deleting a wrong entry", func() {
+							err = cr.Delete(c.ID + 1)
+							So(err, ShouldNotBeNil)
+							Convey("Should output one entry", func() {
+								ac, err := cr.GetAll()
+								So(err, ShouldBeNil)
+								So(len(ac), ShouldEqual, 1)
+							})
+						})
+
 						Convey("Then Deleting the property should be allowed", func() {
 							err = cr.Delete(c.ID)
 							So(err, ShouldBeNil)

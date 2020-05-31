@@ -65,7 +65,7 @@ func TestRoundSpec(t *testing.T) {
 
 				Convey("Then Deleting a wrong entry", func() {
 					err = rr.Delete(3)
-					So(err, ShouldBeNil)
+					So(err, ShouldNotBeNil)
 					Convey("Should output one entry", func() {
 						ac, err := rr.GetAll()
 						So(err, ShouldBeNil)
@@ -89,6 +89,12 @@ func TestRoundSpec(t *testing.T) {
 						So(rnd.ID, ShouldEqual, 1)
 						So(rnd.Start.UnixNano(), ShouldBeBetween, time.Now().Add(time.Second*-1).UnixNano(), time.Now().UnixNano())
 					})
+				})
+
+				Convey("Then Querying By wrong ID", func() {
+					ss, err := rr.GetByID(r.ID + 1)
+					So(err, ShouldNotBeNil)
+					So(ss, ShouldBeNil)
 				})
 
 				Convey("Then Updating Finish to time.Now()", func() {
@@ -143,10 +149,10 @@ func TestRoundSpec(t *testing.T) {
 					db.AutoMigrate(&check.Check{})
 					db.Model(&check.Check{}).AddForeignKey("round_id", "rounds(id)", "CASCADE", "RESTRICT")
 					Convey("Associating a single Check with a Round", func() {
-						db.Exec(fmt.Sprintf("INSERT INTO checks (id, service_id, round_id, log) VALUES (23, 5, %d, 'TestLog')", r.ID))
+						db.Exec(fmt.Sprintf("INSERT INTO checks (id, service_id, round_id, log) VALUES (23, 1, %d, 'TestLog')", r.ID))
 						db.Table("checks").Count(&count)
 						So(count, ShouldEqual, 1)
-						Convey("Delete a round without deleting a check", func() {
+						Convey("Delete a round without deleting a check should cascade all checks", func() {
 							err = rr.Delete(1)
 							So(err, ShouldBeNil)
 							ac, err := rr.GetAll()

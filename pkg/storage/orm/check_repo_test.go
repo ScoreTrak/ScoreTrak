@@ -56,7 +56,6 @@ func TestCheckSpec(t *testing.T) {
 				So(count, ShouldEqual, 2)
 				db.Table("rounds").Count(&count)
 				So(count, ShouldEqual, 2)
-
 				Convey("Creating a sample check and associating with service 5 and round 1", func() {
 					c := check.Check{Log: "TestLog", ServiceID: 5, RoundID: 1}
 					err := cr.Store(&c)
@@ -73,12 +72,28 @@ func TestCheckSpec(t *testing.T) {
 							So(ss.RoundID, ShouldEqual, 1)
 						})
 
+						Convey("Then Querying By wrong ID", func() {
+							ss, err := cr.GetByID(c.ID + 1)
+							So(err, ShouldNotBeNil)
+							So(ss, ShouldBeNil)
+						})
+
 						Convey("Then Deleting the check should be allowed", func() {
 							err = cr.Delete(c.ID)
 							So(err, ShouldBeNil)
 							ac, err = cr.GetAll()
 							So(err, ShouldBeNil)
 							So(len(ac), ShouldEqual, 0)
+						})
+
+						Convey("Then Deleting a wrong entry", func() {
+							err = cr.Delete(c.ID + 1)
+							So(err, ShouldNotBeNil)
+							Convey("Should output one entry", func() {
+								ac, err := cr.GetAll()
+								So(err, ShouldBeNil)
+								So(len(ac), ShouldEqual, 1)
+							})
 						})
 
 						Convey("Then adding more checks. One with similar round, and the other with similar service", func() {

@@ -19,12 +19,18 @@ func NewServiceGroupRepo(db *gorm.DB, log logger.LogInfoFormat) service_group.Re
 
 func (s *serviceGroupRepo) Delete(id uint64) error {
 	s.log.Debugf("deleting the Service Group with id : %d", id)
+	result := s.db.Delete(&service_group.ServiceGroup{}, "id = ?", id)
 
-	if s.db.Delete(&service_group.ServiceGroup{}, "id = ?", id).Error != nil {
+	if result.Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the Service Group with id : %d", id)
 		s.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}
+
+	if result.RowsAffected == 0 {
+		return &NoRowsAffected{"no model found for id"}
+	}
+
 	return nil
 }
 

@@ -60,9 +60,15 @@ func TestHostSpec(t *testing.T) {
 					So(*(ac.Enabled), ShouldBeFalse)
 				})
 
+				Convey("Then Querying By wrong ID", func() {
+					ss, err := hr.GetByID(h.ID + 1)
+					So(err, ShouldNotBeNil)
+					So(ss, ShouldBeNil)
+				})
+
 				Convey("Then Deleting a wrong entry", func() {
 					err = hr.Delete(2)
-					So(err, ShouldBeNil)
+					So(err, ShouldNotBeNil)
 					Convey("Should output one entry", func() {
 						ac, err := hr.GetAll()
 						So(err, ShouldBeNil)

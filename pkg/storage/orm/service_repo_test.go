@@ -77,6 +77,22 @@ func TestServiceSpec(t *testing.T) {
 
 						})
 
+						Convey("Then Querying By wrong ID", func() {
+							ss, err := sr.GetByID(s.ID + 1)
+							So(err, ShouldNotBeNil)
+							So(ss, ShouldBeNil)
+						})
+
+						Convey("Then Deleting a wrong entry", func() {
+							err = sr.Delete(s.ID + 1)
+							So(err, ShouldNotBeNil)
+							Convey("Should output one entry", func() {
+								ac, err := sr.GetAll()
+								So(err, ShouldBeNil)
+								So(len(ac), ShouldEqual, 1)
+							})
+						})
+
 						Convey("Then updating to non existent host should not be allowed", func() {
 							s.HostID = 20
 							err = sr.Update(&s)

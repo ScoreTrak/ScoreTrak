@@ -64,7 +64,7 @@ func TestTeamSpec(t *testing.T) {
 
 				Convey("Then Deleting a wrong entry", func() {
 					err = tr.Delete("TestTeamWRONG")
-					So(err, ShouldBeNil)
+					So(err, ShouldNotBeNil)
 					Convey("Should output one entry", func() {
 						ac, err := tr.GetAll()
 						So(err, ShouldBeNil)
@@ -88,6 +88,12 @@ func TestTeamSpec(t *testing.T) {
 						So(tm.ID, ShouldEqual, "TestTeam")
 						So(*(tm.Enabled), ShouldBeFalse)
 					})
+				})
+
+				Convey("Then Querying By wrong ID", func() {
+					ss, err := tr.GetByID("WrongTeamName")
+					So(err, ShouldNotBeNil)
+					So(ss, ShouldBeNil)
 				})
 
 				Convey("Then Updating Enabled to true", func() {

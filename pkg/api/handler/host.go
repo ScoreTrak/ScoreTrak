@@ -3,6 +3,7 @@ package handler
 import (
 	"ScoreTrak/pkg/host"
 	"ScoreTrak/pkg/logger"
+	"ScoreTrak/pkg/storage/orm"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -47,6 +48,10 @@ func (s *hostController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err = s.svc.Delete(id)
+	_, ok := err.(*orm.NoRowsAffected)
+	if ok {
+		http.Redirect(w, r, "/host", http.StatusNotModified)
+	}
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		s.log.Error(err)

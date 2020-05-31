@@ -19,12 +19,17 @@ func NewHostGroupRepo(db *gorm.DB, log logger.LogInfoFormat) host_group.Repo {
 
 func (h *hostGroupRepo) Delete(id uint64) error {
 	h.log.Debugf("deleting the hostGroup with id : %h", id)
-
-	if h.db.Delete(&host_group.HostGroup{}, "id = ?", id).Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the hostGroup with id : %d", id)
+	result := h.db.Delete(&host_group.HostGroup{}, "id = ?", id)
+	if result.Error != nil {
+		errMsg := fmt.Sprintf("error while deleting the host with id : %d", id)
 		h.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}
+
+	if result.RowsAffected == 0 {
+		return &NoRowsAffected{"no model found for id"}
+	}
+
 	return nil
 }
 

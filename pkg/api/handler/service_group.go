@@ -3,6 +3,7 @@ package handler
 import (
 	"ScoreTrak/pkg/logger"
 	"ScoreTrak/pkg/service_group"
+	"ScoreTrak/pkg/storage/orm"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -47,6 +48,10 @@ func (s *serviceGroupController) Delete(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	err = s.svc.Delete(id)
+	_, ok := err.(*orm.NoRowsAffected)
+	if ok {
+		http.Redirect(w, r, "/service_group", http.StatusNotModified)
+	}
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		s.log.Error(err)

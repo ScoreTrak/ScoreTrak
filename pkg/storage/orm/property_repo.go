@@ -19,13 +19,20 @@ func NewPropertyRepo(db *gorm.DB, log logger.LogInfoFormat) property.Repo {
 
 func (p *propertyRepo) Delete(id uint64) error {
 	p.log.Debugf("deleting the property with id : %d", id)
+	result := p.db.Delete(&property.Property{}, "id = ?", id)
 
-	if p.db.Delete(&property.Property{}, "id = ?", id).Error != nil {
+	if result.Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the property with id : %d", id)
 		p.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}
+
+	if result.RowsAffected == 0 {
+		return &NoRowsAffected{"no model found for id"}
+	}
+
 	return nil
+
 }
 
 func (p *propertyRepo) GetAll() ([]*property.Property, error) {
