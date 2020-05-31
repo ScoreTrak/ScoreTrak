@@ -106,6 +106,29 @@ func TestServiceSpec(t *testing.T) {
 							So(err, ShouldBeNil)
 							So(len(ac), ShouldEqual, 1)
 							So(ac[0].Name, ShouldEqual, "DifferentTestName")
+							So(*(ac[0].RoundDelay), ShouldEqual, 2)
+						})
+						Convey("Then updating Round Delay to something larger than Round Units should not be allowed", func() {
+							rd := uint64(5)
+							s.RoundDelay = &rd
+							Convey("Round Units set", func() {
+								s.RoundUnits = 3
+								err = sr.Update(&s)
+								So(err, ShouldNotBeNil)
+								ac, err = sr.GetAll()
+								So(err, ShouldBeNil)
+								So(len(ac), ShouldEqual, 1)
+								So(*(ac[0].RoundDelay), ShouldEqual, 0)
+							})
+							Convey("Round Units not set", func() {
+								err = sr.Update(&s)
+								So(err, ShouldNotBeNil)
+								ac, err = sr.GetAll()
+								So(err, ShouldBeNil)
+								So(len(ac), ShouldEqual, 1)
+								So(*(ac[0].RoundDelay), ShouldEqual, 0)
+							})
+
 						})
 					})
 				})
