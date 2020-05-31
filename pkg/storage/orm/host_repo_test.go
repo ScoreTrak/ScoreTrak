@@ -3,6 +3,9 @@ package orm
 import (
 	"ScoreTrak/pkg/config"
 	"ScoreTrak/pkg/host"
+	"ScoreTrak/pkg/host_group"
+	"ScoreTrak/pkg/service"
+	"ScoreTrak/pkg/team"
 	. "ScoreTrak/test"
 	"os"
 	"testing"
@@ -29,7 +32,7 @@ func TestHostSpec(t *testing.T) {
 		Reset(func() {
 			db.DropTableIfExists(&host.Host{})
 		})
-		Convey("When the Teams table is empty", func() {
+		Convey("When the Host table is empty", func() {
 			Convey("There should be no entries", func() {
 				ac, err := hr.GetAll()
 				So(err, ShouldBeNil)
@@ -88,10 +91,10 @@ func TestHostSpec(t *testing.T) {
 
 				Convey("Then Updating Enabled to true", func() {
 					b := true
-					newHostGroup := host.Host{Enabled: &b}
+					newHost := host.Host{Enabled: &b}
 					Convey("For the wrong entry should not update anything", func() {
-						newHostGroup.ID = 1
-						err = hr.Update(&newHostGroup)
+						newHost.ID = 1
+						err = hr.Update(&newHost)
 						So(err, ShouldBeNil)
 						ac, err := hr.GetAll()
 						So(err, ShouldBeNil)
@@ -99,13 +102,60 @@ func TestHostSpec(t *testing.T) {
 						So(*(ac[0].Enabled), ShouldBeFalse)
 					})
 					Convey("For the correct entry should update", func() {
-						newHostGroup.ID = 3
-						err = hr.Update(&newHostGroup)
+						newHost.ID = 3
+						err = hr.Update(&newHost)
 						So(err, ShouldBeNil)
 						ac, err := hr.GetAll()
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
 						So(*(ac[0].Enabled), ShouldBeTrue)
+					})
+				})
+
+				Convey("Then add a host group", func() {
+					db.AutoMigrate(&host_group.HostGroup{})
+					db.Model(&host.Host{}).AddForeignKey("host_group_id", "host_groups(id)", "RESTRICT", "RESTRICT")
+					Reset(func() {
+						db.DropTableIfExists(&host.Host{})
+						db.DropTableIfExists(&host_group.HostGroup{})
+					})
+					db.Exec("INSERT INTO host_groups (id, name, enabled) VALUES (1, 'HostGroup1', true)")
+					db.Exec("INSERT INTO host_groups (id, name, enabled) VALUES (2, 'HostGroup2', false)")
+					var count int
+					db.Table("host_groups").Count(&count)
+					So(count, ShouldEqual, 2)
+					Convey("Updating a host with host group foreign key", func() {
+						hostGroupID := uint64(2)
+						newHost := host.Host{ID: 4, HostGroupID: &hostGroupID}
+						err := hr.Store(&newHost)
+						So(err, ShouldBeNil)
+					})
+					Convey("Updating a host with host group foreign key", func() {
+						hostGroupID := uint64(1)
+						h.HostGroupID = &hostGroupID
+						err := hr.Update(&h)
+						So(err, ShouldBeNil)
+					})
+					Convey("Updating a host with an invalid host group foreign key", func() {
+						hostGroupID := uint64(10)
+						h.HostGroupID = &hostGroupID
+						err := hr.Update(&h)
+						So(err, ShouldNotBeNil)
+					})
+				})
+				Convey("Then add a team", func() {
+					db.AutoMigrate(&team.Team{})
+					db.Model(&host.Host{}).AddForeignKey("team_id", "teams(id)", "RESTRICT", "RESTRICT")
+					Reset(func() {
+						db.DropTableIfExists(&host.Host{})
+						db.DropTableIfExists(&team.Team{})
+					})
+				})
+				Convey("Then add a service", func() {
+					db.AutoMigrate(&service.Service{})
+					db.Model(&service.Service{}).AddForeignKey("host_id", "hosts(id)", "RESTRICT", "RESTRICT")
+					Reset(func() {
+						db.DropTableIfExists(&service.Service{})
 					})
 				})
 			})
