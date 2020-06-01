@@ -1,17 +1,16 @@
 package client
 
-import "ScoreTrak/pkg/team"
+import (
+	"net/http"
+)
 
 type ScoretrakClient struct {
-	ip    string
-	port  string
-	token string
+	address    string
+	port       string
+	token      string
+	httpClient *http.Client
 }
 
-func NewScoretrakClient(ip, port, token string) ScoretrakClient {
-	return ScoretrakClient{ip: ip, port: port, token: token}
-}
-
-func (s ScoretrakClient) GetAllTeams() []*team.Team {
-	return nil
+func NewScoretrakClient(address, port, token string, client *http.Client) ScoretrakClient {
+	return ScoretrakClient{address: address, port: port, token: token, httpClient: client}
 }
