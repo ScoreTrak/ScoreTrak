@@ -112,7 +112,6 @@ func TestHostSpec(t *testing.T) {
 				})
 
 				Convey("Then add a host group", func() {
-					db.LogMode(true)
 					db.AutoMigrate(&host_group.HostGroup{})
 					db.Model(&host.Host{}).AddForeignKey("host_group_id", "host_groups(id)", "RESTRICT", "RESTRICT")
 					Reset(func() {
