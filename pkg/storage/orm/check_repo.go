@@ -17,17 +17,17 @@ func NewCheckRepo(db *gorm.DB, log logger.LogInfoFormat) check.Repo {
 	return &checkRepo{db, log}
 }
 
-func (c *checkRepo) GetAllByRoundID(r_id uint64) ([]*check.Check, error) {
+func (c *checkRepo) GetAllByRoundID(rID uint64) ([]*check.Check, error) {
 	c.log.Debug("get all the checks")
 	var checks []*check.Check
-	err := c.db.Where("round_id = ?", r_id).Find(&checks).Error
+	err := c.db.Where("round_id = ?", rID).Find(&checks).Error
 	return checks, err
 }
 
-func (c *checkRepo) GetByRoundServiceID(r_id uint64, s_id uint64) ([]*check.Check, error) {
+func (c *checkRepo) GetByRoundServiceID(rID uint64, sID uint64) ([]*check.Check, error) {
 	c.log.Debug("get all the checks")
 	var checks []*check.Check
-	err := c.db.Where("round_id = ? AND service_id = ?", r_id, s_id).Find(&checks).Error
+	err := c.db.Where("round_id = ? AND service_id = ?", rID, sID).Find(&checks).Error
 	return checks, err
 }
 

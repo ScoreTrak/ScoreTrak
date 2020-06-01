@@ -1,8 +1,8 @@
 package check
 
 type Repo interface {
-	GetAllByRoundID(r_id uint64) ([]*Check, error)
-	GetByRoundServiceID(r_id uint64, s_id uint64) ([]*Check, error)
+	GetAllByRoundID(rID uint64) ([]*Check, error)
+	GetByRoundServiceID(rID uint64, sID uint64) ([]*Check, error)
 	Delete(id uint64) error
 	GetAll() ([]*Check, error)
 	GetByID(id uint64) (*Check, error)
