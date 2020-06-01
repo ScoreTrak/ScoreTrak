@@ -8,7 +8,7 @@ type checkClient struct {
 	s ScoretrakClient
 }
 
-func NewCheckClient(c ScoretrakClient) check.Repo {
+func NewCheckClient(c ScoretrakClient) check.Serv {
 	return &checkClient{c}
 }
 
