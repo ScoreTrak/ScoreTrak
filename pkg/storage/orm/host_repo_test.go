@@ -9,6 +9,7 @@ import (
 	. "ScoreTrak/test"
 	"os"
 	"testing"
+	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -115,6 +116,7 @@ func TestHostSpec(t *testing.T) {
 				Convey("Then add a host group", func() {
 					db.AutoMigrate(&host_group.HostGroup{})
 					db.Model(&host.Host{}).AddForeignKey("host_group_id", "host_groups(id)", "RESTRICT", "RESTRICT")
+					time.Sleep(500 * time.Second)
 					Reset(func() {
 						db.DropTableIfExists(&host.Host{})
 						db.DropTableIfExists(&host_group.HostGroup{})
@@ -124,21 +126,19 @@ func TestHostSpec(t *testing.T) {
 					var count int
 					db.Table("host_groups").Count(&count)
 					So(count, ShouldEqual, 2)
-					Convey("Updating a host with host group foreign key", func() {
-						hostGroupID := uint64(2)
-						newHost := host.Host{ID: 4, HostGroupID: &hostGroupID}
+					Convey("Adding a new host with host group foreign key", func() {
+						address := "127.0.0.1"
+						newHost := host.Host{ID: 4, HostGroupID: 2, Address: &address}
 						err := hr.Store(&newHost)
 						So(err, ShouldBeNil)
 					})
 					Convey("Updating a host with host group foreign key", func() {
-						hostGroupID := uint64(1)
-						h.HostGroupID = &hostGroupID
+						h.HostGroupID = 1
 						err := hr.Update(&h)
 						So(err, ShouldBeNil)
 					})
 					Convey("Updating a host with an invalid host group foreign key", func() {
-						hostGroupID := uint64(10)
-						h.HostGroupID = &hostGroupID
+						h.HostGroupID = 10
 						err := hr.Update(&h)
 						So(err, ShouldNotBeNil)
 					})
