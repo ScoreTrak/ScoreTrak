@@ -2,11 +2,7 @@ package client
 
 import (
 	"ScoreTrak/pkg/team"
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/url"
 )
 
 type teamClient struct {
@@ -18,62 +14,21 @@ func NewTeamClient(c ScoretrakClient) team.Serv {
 }
 
 func (t teamClient) Delete(id string) error {
-	rel := &url.URL{Path: fmt.Sprintf("/team/%s", id)}
-	u := t.s.BaseURL.ResolveReference(rel)
-	req, err := http.NewRequest("DELETE", u.String(), nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Accept", "application/json")
-	resp, err := t.s.httpClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	return err
+	return deleteGeneric(fmt.Sprintf("/team/%s", id), t.s)
 }
 
 func (t teamClient) GetAll() ([]*team.Team, error) {
-	rel := &url.URL{Path: "/team"}
-	u := t.s.BaseURL.ResolveReference(rel)
-	req, err := http.NewRequest("GET", u.String(), nil)
+	var tm []*team.Team
+	err := getGeneric(&tm, "/team", t.s)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Accept", "application/json")
-	resp, err := t.s.httpClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	err = responseValidator(resp)
-	if err != nil {
-		return nil, err
-	}
-	var teams []*team.Team
-	err = json.NewDecoder(resp.Body).Decode(&teams)
-	return teams, err
+	return tm, nil
 }
 
 func (t teamClient) GetByID(id string) (*team.Team, error) {
-	rel := &url.URL{Path: fmt.Sprintf("/team/%s", id)}
-	u := t.s.BaseURL.ResolveReference(rel)
-	req, err := http.NewRequest("GET", u.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Accept", "application/json")
-	resp, err := t.s.httpClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	var tm *team.Team
-	err = responseValidator(resp)
-	if err != nil {
-		return nil, err
-	}
-	err = json.NewDecoder(resp.Body).Decode(&tm)
+	tm := &team.Team{}
+	err := getGeneric(tm, fmt.Sprintf("/team/%s", id), t.s)
 	if err != nil {
 		return nil, err
 	}
@@ -81,43 +36,9 @@ func (t teamClient) GetByID(id string) (*team.Team, error) {
 }
 
 func (t teamClient) Store(ut *team.Team) error {
-	rel := &url.URL{Path: fmt.Sprintf("/team/%s", ut.ID)}
-	u := t.s.BaseURL.ResolveReference(rel)
-	e, err := json.Marshal(ut)
-	if err != nil {
-		return nil
-	}
-	b := bytes.NewBuffer(e)
-	req, err := http.NewRequest("POST", u.String(), b)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Accept", "application/json")
-	resp, err := t.s.httpClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	return responseValidator(resp)
+	return storeGeneric(ut, fmt.Sprintf("/team/%s", ut.ID), t.s)
 }
 
 func (t teamClient) Update(ut *team.Team) error {
-	rel := &url.URL{Path: fmt.Sprintf("/team/%s", ut.ID)}
-	u := t.s.BaseURL.ResolveReference(rel)
-	e, err := json.Marshal(ut)
-	if err != nil {
-		return nil
-	}
-	b := bytes.NewBuffer(e)
-	req, err := http.NewRequest("PATCH", u.String(), b)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Accept", "application/json")
-	resp, err := t.s.httpClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	return responseValidator(resp)
+	return updateGeneric(ut, fmt.Sprintf("/team/%s", ut.ID), t.s)
 }

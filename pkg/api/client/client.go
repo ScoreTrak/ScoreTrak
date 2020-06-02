@@ -1,6 +1,8 @@
 package client
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -31,3 +33,72 @@ type InvalidResponse struct {
 }
 
 func (e *InvalidResponse) Error() string { return e.msg }
+
+func getGeneric(obj interface{}, p string, s ScoretrakClient) error {
+	rel := &url.URL{Path: p}
+	u := s.BaseURL.ResolveReference(rel)
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Accept", "application/json")
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	err = responseValidator(resp)
+	if err != nil {
+		return err
+	}
+	err = json.NewDecoder(resp.Body).Decode(obj)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func updateGeneric(obj interface{}, p string, s ScoretrakClient) error {
+	return putGeneric(obj, p, s, "PATCH")
+}
+
+func storeGeneric(obj interface{}, p string, s ScoretrakClient) error {
+	return putGeneric(obj, p, s, "POST")
+}
+
+func putGeneric(obj interface{}, p string, s ScoretrakClient, m string) error {
+	rel := &url.URL{Path: p}
+	u := s.BaseURL.ResolveReference(rel)
+	e, err := json.Marshal(obj)
+	if err != nil {
+		return nil
+	}
+	b := bytes.NewBuffer(e)
+	req, err := http.NewRequest(m, u.String(), b)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Accept", "application/json")
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return responseValidator(resp)
+}
+
+func deleteGeneric(p string, s ScoretrakClient) error {
+	rel := &url.URL{Path: p}
+	u := s.BaseURL.ResolveReference(rel)
+	req, err := http.NewRequest("DELETE", u.String(), nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Accept", "application/json")
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return err
+}
