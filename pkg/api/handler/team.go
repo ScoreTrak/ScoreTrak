@@ -19,7 +19,6 @@ func NewTeamController(log logger.LogInfoFormat, svc team.Serv) *teamController 
 }
 
 func (t *teamController) Store(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	decoder := json.NewDecoder(r.Body)
 
 	var tm team.Team
@@ -40,7 +39,6 @@ func (t *teamController) Store(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t *teamController) Delete(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	params := mux.Vars(r)
 	err := t.svc.Delete(params["id"])
 	_, ok := err.(*orm.NoRowsAffected)
@@ -56,7 +54,6 @@ func (t *teamController) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t *teamController) GetByID(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	params := mux.Vars(r)
 	tm, err := t.svc.GetByID(params["id"])
 	if tm == nil {
@@ -73,7 +70,6 @@ func (t *teamController) GetByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t *teamController) GetAll(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	teams, err := t.svc.GetAll()
 	if len(teams) == 0 {
 		w.WriteHeader(http.StatusNoContent)
@@ -93,7 +89,6 @@ func (t *teamController) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t *teamController) Update(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	params := mux.Vars(r)
 	decoder := json.NewDecoder(r.Body)
 	var tm team.Team

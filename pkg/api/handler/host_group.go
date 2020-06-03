@@ -20,7 +20,7 @@ func NewHostGroupController(log logger.LogInfoFormat, svc host_group.Serv) *host
 }
 
 func (s *hostGroupController) Store(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	decoder := json.NewDecoder(r.Body)
 	var sg host_group.HostGroup
 	err := decoder.Decode(&sg)
@@ -39,7 +39,7 @@ func (s *hostGroupController) Store(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *hostGroupController) Delete(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	params := mux.Vars(r)
 	id, err := strconv.ParseUint(params["id"], 10, 64)
 	if err != nil {
@@ -62,7 +62,7 @@ func (s *hostGroupController) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *hostGroupController) GetByID(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	params := mux.Vars(r)
 	id, err := strconv.ParseUint(params["id"], 10, 64)
 	if err != nil {
@@ -89,7 +89,7 @@ func (s *hostGroupController) GetByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *hostGroupController) GetAll(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	sgs, err := s.svc.GetAll()
 	if len(sgs) == 0 {
 		w.WriteHeader(http.StatusNoContent)
@@ -110,7 +110,7 @@ func (s *hostGroupController) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *hostGroupController) Update(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	params := mux.Vars(r)
 	decoder := json.NewDecoder(r.Body)
 	var sg host_group.HostGroup

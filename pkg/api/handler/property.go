@@ -20,7 +20,7 @@ func NewPropertyController(log logger.LogInfoFormat, svc property.Serv) *propert
 }
 
 func (s *propertyController) Store(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	decoder := json.NewDecoder(r.Body)
 	var sg property.Property
 	err := decoder.Decode(&sg)
@@ -39,7 +39,7 @@ func (s *propertyController) Store(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *propertyController) Delete(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	params := mux.Vars(r)
 	id, err := strconv.ParseUint(params["id"], 10, 64)
 	if err != nil {
@@ -62,7 +62,7 @@ func (s *propertyController) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *propertyController) GetByID(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	params := mux.Vars(r)
 	id, err := strconv.ParseUint(params["id"], 10, 64)
 	if err != nil {
@@ -89,7 +89,7 @@ func (s *propertyController) GetByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *propertyController) GetAll(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	sgs, err := s.svc.GetAll()
 	if len(sgs) == 0 {
 		w.WriteHeader(http.StatusNoContent)
@@ -110,7 +110,7 @@ func (s *propertyController) GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *propertyController) Update(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	params := mux.Vars(r)
 	decoder := json.NewDecoder(r.Body)
 	var sg property.Property

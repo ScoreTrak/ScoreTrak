@@ -56,7 +56,7 @@ func (ds *dserver) MapRoutes() {
 	routes = append(routes, ds.hostGroupRoutes()...)
 	routes = append(routes, ds.propertyRoutes()...)
 	routes = append(routes, ds.roundRoutes()...)
-	routes = append(routes, ds.scoreRoutes()...)
+	//routes = append(routes, ds.scoreRoutes()...)
 	routes = append(routes, ds.serviceRoutes()...)
 	routes = append(routes, ds.serviceGroupRoutes()...)
 
@@ -71,10 +71,11 @@ func (ds *dserver) MapRoutes() {
 			Name(route.Name).
 			Handler(hdler)
 	}
-	ds.router.Use(TokenVerify)
+	ds.router.Use(jsonHeader)
+	ds.router.Use(tokenVerify)
 }
 
-func TokenVerify(next http.Handler) http.Handler {
+func tokenVerify(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var header = r.Header.Get("x-access-token")
 		json.NewEncoder(w).Encode(r)
@@ -85,6 +86,13 @@ func TokenVerify(next http.Handler) http.Handler {
 			json.NewEncoder(w).Encode("Missing or incorrect auth token")
 			return
 		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func jsonHeader(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		next.ServeHTTP(w, r)
 	})
 }
@@ -365,25 +373,25 @@ func (ds *dserver) roundRoutes() Routes {
 	return roundRoutes
 }
 
-func (ds *dserver) scoreRoutes() Routes {
-	s := handler.NewScoreController(ds.logger)
-	scoreRoutes := Routes{
-		Route{
-			"GetScore",
-			strings.ToUpper("Get"),
-			"/score/{TeamID}",
-			s.GetScore,
-		},
-
-		Route{
-			"GetScores",
-			strings.ToUpper("Get"),
-			"/score",
-			s.GetScores,
-		},
-	}
-	return scoreRoutes
-}
+//func (ds *dserver) scoreRoutes() Routes {
+//	s := handler.NewScoreController(ds.logger)
+//	scoreRoutes := Routes{
+//		Route{
+//			"GetScore",
+//			strings.ToUpper("Get"),
+//			"/score/{TeamID}",
+//			s.GetScore,
+//		},
+//
+//		Route{
+//			"GetScores",
+//			strings.ToUpper("Get"),
+//			"/score",
+//			s.GetScores,
+//		},
+//	}
+//	return scoreRoutes
+//}
 
 func (ds *dserver) serviceRoutes() Routes {
 

@@ -20,7 +20,7 @@ func NewServiceGroupController(log logger.LogInfoFormat, svc service_group.Repo)
 }
 
 func (s *serviceGroupController) Store(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	decoder := json.NewDecoder(r.Body)
 	var sg service_group.ServiceGroup
 	err := decoder.Decode(&sg)
@@ -39,7 +39,7 @@ func (s *serviceGroupController) Store(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *serviceGroupController) Delete(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	params := mux.Vars(r)
 	id, err := strconv.ParseUint(params["id"], 10, 64)
 	if err != nil {
@@ -62,7 +62,7 @@ func (s *serviceGroupController) Delete(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *serviceGroupController) GetByID(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	params := mux.Vars(r)
 	id, err := strconv.ParseUint(params["id"], 10, 64)
 	if err != nil {
@@ -89,7 +89,7 @@ func (s *serviceGroupController) GetByID(w http.ResponseWriter, r *http.Request)
 }
 
 func (s *serviceGroupController) GetAll(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	sgs, err := s.svc.GetAll()
 	if len(sgs) == 0 {
 		w.WriteHeader(http.StatusNoContent)
@@ -110,7 +110,7 @@ func (s *serviceGroupController) GetAll(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *serviceGroupController) Update(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	params := mux.Vars(r)
 	decoder := json.NewDecoder(r.Body)
 	var sg service_group.ServiceGroup

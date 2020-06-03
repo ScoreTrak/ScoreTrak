@@ -17,7 +17,7 @@ func NewConfigController(log logger.LogInfoFormat, svc config.Serv) *configContr
 }
 
 func (c *configController) Update(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	decoder := json.NewDecoder(r.Body)
 	var sg config.DynamicConfig
 	err := decoder.Decode(&sg)
@@ -35,7 +35,7 @@ func (c *configController) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *configController) Get(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	conf, err := c.svc.Get()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

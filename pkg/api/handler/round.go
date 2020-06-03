@@ -17,7 +17,7 @@ func NewRoundController(log logger.LogInfoFormat, svc round.Serv) *roundControll
 }
 
 func (c *roundController) GetLastRound(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 	rnd, err := c.svc.GetLastRound()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
