@@ -9,7 +9,6 @@ import (
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"testing"
 )
@@ -33,7 +32,7 @@ func TestCheckSpec(t *testing.T) {
 		ctrl := NewTeamController(l, cr)
 		Convey("Retrieving a team by ID", func() {
 			r, _ := http.NewRequest("GET", "/team/TeamOne", nil)
-			w := httptest.NewRecorder()
+			w := NewJsonRecorder()
 			vars := map[string]string{
 				"id": "TeamOne",
 			}
@@ -49,7 +48,7 @@ func TestCheckSpec(t *testing.T) {
 
 		Convey("Retrieving a team by invalid ID", func() {
 			r, _ := http.NewRequest("GET", "/team/WrongTeam", nil)
-			w := httptest.NewRecorder()
+			w := NewJsonRecorder()
 			vars := map[string]string{
 				"id": "WrongTeam",
 			}
@@ -60,7 +59,7 @@ func TestCheckSpec(t *testing.T) {
 
 		Convey("Retrieving all teams", func() {
 			r, _ := http.NewRequest("GET", "/team", nil)
-			w := httptest.NewRecorder()
+			w := NewJsonRecorder()
 			ctrl.GetAll(w, r)
 			So(w.Code, ShouldEqual, http.StatusOK)
 			var t []team.Team
@@ -72,7 +71,7 @@ func TestCheckSpec(t *testing.T) {
 
 		Convey("Deleting a team by ID (without any dependant hosts)", func() {
 			r, _ := http.NewRequest("DELETE", "/team/TeamOne", nil)
-			w := httptest.NewRecorder()
+			w := NewJsonRecorder()
 			vars := map[string]string{
 				"id": "TeamOne",
 			}
@@ -81,7 +80,7 @@ func TestCheckSpec(t *testing.T) {
 			So(w.Code, ShouldEqual, http.StatusOK)
 			Convey("Retrieving all teams", func() {
 				r, _ := http.NewRequest("GET", "/team", nil)
-				w := httptest.NewRecorder()
+				w := NewJsonRecorder()
 				ctrl.GetAll(w, r)
 				So(w.Code, ShouldEqual, http.StatusOK)
 				var t []team.Team
@@ -94,7 +93,7 @@ func TestCheckSpec(t *testing.T) {
 
 		Convey("Deleting a team by ID without deleting all hosts", func() {
 			r, _ := http.NewRequest("DELETE", "/team/TeamTwo", nil)
-			w := httptest.NewRecorder()
+			w := NewJsonRecorder()
 			vars := map[string]string{
 				"id": "TeamTwo",
 			}
@@ -103,7 +102,7 @@ func TestCheckSpec(t *testing.T) {
 			So(w.Code, ShouldEqual, http.StatusConflict)
 			Convey("Retrieving all teams", func() {
 				r, _ := http.NewRequest("GET", "/team", nil)
-				w := httptest.NewRecorder()
+				w := NewJsonRecorder()
 				ctrl.GetAll(w, r)
 				So(w.Code, ShouldEqual, http.StatusOK)
 				var t []team.Team
@@ -116,7 +115,7 @@ func TestCheckSpec(t *testing.T) {
 
 		Convey("Deleting a team by invalid ID", func() {
 			r, _ := http.NewRequest("DELETE", "/team/WrongTeam", nil)
-			w := httptest.NewRecorder()
+			w := NewJsonRecorder()
 			vars := map[string]string{
 				"id": "WrongTeam",
 			}
@@ -126,7 +125,7 @@ func TestCheckSpec(t *testing.T) {
 
 			Convey("Retrieving all teams", func() {
 				r, _ := http.NewRequest("GET", "/team", nil)
-				w := httptest.NewRecorder()
+				w := NewJsonRecorder()
 				ctrl.GetAll(w, r)
 				So(w.Code, ShouldEqual, http.StatusOK)
 				var t []team.Team
@@ -136,11 +135,9 @@ func TestCheckSpec(t *testing.T) {
 				So(len(t), ShouldEqual, 4)
 			})
 		})
-
 		Reset(func() {
 			CleanAllTables(db)
 		})
-
 	})
 	DropDB(db, c)
 	db.Close()
