@@ -35,10 +35,10 @@ func (t teamClient) GetByID(id string) (*team.Team, error) {
 	return tm, nil
 }
 
-func (t teamClient) Store(ut *team.Team) error {
-	return genericStore(ut, fmt.Sprintf("/team/%s", ut.ID), t.s)
+func (t teamClient) Store(u *team.Team) error {
+	return genericStore(u, fmt.Sprintf("/team/%s", u.ID), t.s)
 }
 
-func (t teamClient) Update(ut *team.Team) error {
-	return genericUpdate(ut, fmt.Sprintf("/team/%s", ut.ID), t.s)
+func (t teamClient) Update(u *team.Team) error {
+	return genericUpdate(u, fmt.Sprintf("/team/%s", u.ID), t.s)
 }

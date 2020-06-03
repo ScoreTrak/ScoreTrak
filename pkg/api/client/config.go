@@ -2,6 +2,7 @@ package client
 
 import (
 	"ScoreTrak/pkg/config"
+	"fmt"
 )
 
 type configClient struct {
@@ -13,9 +14,14 @@ func NewConfigClient(c ScoretrakClient) config.Serv {
 }
 
 func (c configClient) Get() (*config.DynamicConfig, error) {
-	panic("implement me")
+	conf := &config.DynamicConfig{}
+	err := genericGet(conf, fmt.Sprintf("/config"), c.s)
+	if err != nil {
+		return nil, err
+	}
+	return conf, nil
 }
 
-func (c configClient) Update(dynamicConfig *config.DynamicConfig) error {
-	panic("implement me")
+func (c configClient) Update(d *config.DynamicConfig) error {
+	return genericUpdate(d, fmt.Sprintf("/config"), c.s)
 }
