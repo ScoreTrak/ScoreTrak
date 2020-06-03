@@ -34,7 +34,7 @@ type InvalidResponse struct {
 
 func (e *InvalidResponse) Error() string { return e.msg }
 
-func getGeneric(obj interface{}, p string, s ScoretrakClient) error {
+func genericGet(obj interface{}, p string, s ScoretrakClient) error {
 	rel := &url.URL{Path: p}
 	u := s.BaseURL.ResolveReference(rel)
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -58,15 +58,15 @@ func getGeneric(obj interface{}, p string, s ScoretrakClient) error {
 	return nil
 }
 
-func updateGeneric(obj interface{}, p string, s ScoretrakClient) error {
-	return putGeneric(obj, p, s, "PATCH")
+func genericUpdate(obj interface{}, p string, s ScoretrakClient) error {
+	return genericPut(obj, p, s, "PATCH")
 }
 
-func storeGeneric(obj interface{}, p string, s ScoretrakClient) error {
-	return putGeneric(obj, p, s, "POST")
+func genericStore(obj interface{}, p string, s ScoretrakClient) error {
+	return genericPut(obj, p, s, "POST")
 }
 
-func putGeneric(obj interface{}, p string, s ScoretrakClient, m string) error {
+func genericPut(obj interface{}, p string, s ScoretrakClient, m string) error {
 	rel := &url.URL{Path: p}
 	u := s.BaseURL.ResolveReference(rel)
 	e, err := json.Marshal(obj)
@@ -87,7 +87,7 @@ func putGeneric(obj interface{}, p string, s ScoretrakClient, m string) error {
 	return responseValidator(resp)
 }
 
-func deleteGeneric(p string, s ScoretrakClient) error {
+func genericDelete(p string, s ScoretrakClient) error {
 	rel := &url.URL{Path: p}
 	u := s.BaseURL.ResolveReference(rel)
 	req, err := http.NewRequest("DELETE", u.String(), nil)

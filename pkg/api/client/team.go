@@ -14,12 +14,12 @@ func NewTeamClient(c ScoretrakClient) team.Serv {
 }
 
 func (t teamClient) Delete(id string) error {
-	return deleteGeneric(fmt.Sprintf("/team/%s", id), t.s)
+	return genericDelete(fmt.Sprintf("/team/%s", id), t.s)
 }
 
 func (t teamClient) GetAll() ([]*team.Team, error) {
 	var tm []*team.Team
-	err := getGeneric(&tm, "/team", t.s)
+	err := genericGet(&tm, "/team", t.s)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (t teamClient) GetAll() ([]*team.Team, error) {
 
 func (t teamClient) GetByID(id string) (*team.Team, error) {
 	tm := &team.Team{}
-	err := getGeneric(tm, fmt.Sprintf("/team/%s", id), t.s)
+	err := genericGet(tm, fmt.Sprintf("/team/%s", id), t.s)
 	if err != nil {
 		return nil, err
 	}
@@ -36,9 +36,9 @@ func (t teamClient) GetByID(id string) (*team.Team, error) {
 }
 
 func (t teamClient) Store(ut *team.Team) error {
-	return storeGeneric(ut, fmt.Sprintf("/team/%s", ut.ID), t.s)
+	return genericStore(ut, fmt.Sprintf("/team/%s", ut.ID), t.s)
 }
 
 func (t teamClient) Update(ut *team.Team) error {
-	return updateGeneric(ut, fmt.Sprintf("/team/%s", ut.ID), t.s)
+	return genericUpdate(ut, fmt.Sprintf("/team/%s", ut.ID), t.s)
 }
