@@ -17,22 +17,22 @@ func NewTeamController(log logger.LogInfoFormat, svc team.Serv) *teamController 
 
 func (t *teamController) Store(w http.ResponseWriter, r *http.Request) {
 	tm := &team.Team{}
-	genericStore(t.svc, tm, t.log, w, r)
+	genericStore(t.svc, tm, t.log, "Store", w, r)
 }
 
 func (t *teamController) Delete(w http.ResponseWriter, r *http.Request) {
-	genericDelete(t.svc, t.log, w, r)
+	genericDelete(t.svc, t.log, "Delete", w, r)
 }
 
 func (t *teamController) GetByID(w http.ResponseWriter, r *http.Request) {
-	genericGetByID(t.svc, t.log, w, r)
+	genericGetByID(t.svc, t.log, "GetByID", w, r)
 }
 
 func (t *teamController) GetAll(w http.ResponseWriter, r *http.Request) {
-	genericGetAll(t.svc, t.log, w, r)
+	genericGet(t.svc, t.log, "GetAll", w, r)
 }
 
 func (t *teamController) Update(w http.ResponseWriter, r *http.Request) {
 	tm := &team.Team{}
-	genericUpdate(t.svc, tm, t.log, w, r)
+	genericUpdate(t.svc, tm, t.log, "Update", w, r)
 }

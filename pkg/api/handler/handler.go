@@ -16,7 +16,7 @@ import (
 
 //Generic function passing and assignment
 
-func genericGetByID(svc interface{}, log logger.LogInfoFormat, w http.ResponseWriter, r *http.Request) {
+func genericGetByID(svc interface{}, log logger.LogInfoFormat, m string, w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("panic occurred:", err)
@@ -28,7 +28,7 @@ func genericGetByID(svc interface{}, log logger.LogInfoFormat, w http.ResponseWr
 		log.Error(err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	sg, err := invokeRetMethod(svc, "GetByID", id)
+	sg, err := invokeRetMethod(svc, m, id)
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			w.WriteHeader(http.StatusNotFound)
@@ -46,14 +46,14 @@ func genericGetByID(svc interface{}, log logger.LogInfoFormat, w http.ResponseWr
 	}
 }
 
-func genericGetAll(svc interface{}, log logger.LogInfoFormat, w http.ResponseWriter, r *http.Request) {
+func genericGet(svc interface{}, log logger.LogInfoFormat, m string, w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("panic occurred:", err)
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 	}()
-	sg, err := invokeRetMethod(svc, "GetAll")
+	sg, err := invokeRetMethod(svc, m)
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			w.WriteHeader(http.StatusNotFound)
@@ -71,7 +71,7 @@ func genericGetAll(svc interface{}, log logger.LogInfoFormat, w http.ResponseWri
 	}
 }
 
-func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, w http.ResponseWriter, r *http.Request) {
+func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, m string, w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("panic occurred:", err)
@@ -94,7 +94,7 @@ func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, w h
 	v := reflect.ValueOf(g).Elem()
 	f := reflect.ValueOf(id)
 	v.FieldByName("ID").Set(f)
-	err = invokeNoRetMethod(svc, "Update", g)
+	err = invokeNoRetMethod(svc, m, g)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Error(err)
@@ -102,7 +102,7 @@ func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, w h
 	}
 }
 
-func genericStore(svc interface{}, g interface{}, log logger.LogInfoFormat, w http.ResponseWriter, r *http.Request) {
+func genericStore(svc interface{}, g interface{}, log logger.LogInfoFormat, m string, w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("panic occurred:", err)
@@ -116,7 +116,7 @@ func genericStore(svc interface{}, g interface{}, log logger.LogInfoFormat, w ht
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = invokeNoRetMethod(svc, "Store", g)
+	err = invokeNoRetMethod(svc, m, g)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Error(err)
@@ -124,7 +124,7 @@ func genericStore(svc interface{}, g interface{}, log logger.LogInfoFormat, w ht
 	}
 }
 
-func genericDelete(svc interface{}, log logger.LogInfoFormat, w http.ResponseWriter, r *http.Request) {
+func genericDelete(svc interface{}, log logger.LogInfoFormat, m string, w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("panic occurred:", err)
@@ -136,7 +136,7 @@ func genericDelete(svc interface{}, log logger.LogInfoFormat, w http.ResponseWri
 		log.Error(err)
 		w.WriteHeader(http.StatusBadRequest)
 	}
-	err = invokeNoRetMethod(svc, "Delete", id)
+	err = invokeNoRetMethod(svc, m, id)
 	if err != nil {
 		_, ok := err.(*orm.NoRowsAffected)
 		if ok {
