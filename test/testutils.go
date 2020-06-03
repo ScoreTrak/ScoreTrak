@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"github.com/jinzhu/copier"
 	"github.com/jinzhu/gorm"
+	"net/http/httptest"
 	"time"
 )
 
@@ -206,4 +207,10 @@ func DataPreload(db *gorm.DB) {
 		panic("There should be 4 entry in checks")
 	}
 
+}
+
+func NewJsonRecorder() *httptest.ResponseRecorder {
+	w := httptest.NewRecorder()
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	return w
 }
