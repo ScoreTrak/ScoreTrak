@@ -83,7 +83,7 @@ func genericPut(obj interface{}, p string, s ScoretrakClient, m string) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	resp.Body.Close()
 	return responseValidator(resp)
 }
 
@@ -99,6 +99,6 @@ func genericDelete(p string, s ScoretrakClient) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	return err
+	resp.Body.Close()
+	return nil
 }
