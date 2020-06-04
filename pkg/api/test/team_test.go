@@ -43,7 +43,6 @@ func TestTeamSpec(t *testing.T) {
 	for _, route := range routes {
 		var hdler http.Handler
 		hdler = route.HandlerFunc
-		hdler = server.Logger(hdler, route.Name) //Default Logger
 		rtr.
 			Methods(route.Method).
 			Path(route.Pattern).
@@ -66,7 +65,64 @@ func TestTeamSpec(t *testing.T) {
 			retTeam, err := cli.GetByID("TeamOne")
 			So(err, ShouldBeNil)
 			So(retTeam.ID, ShouldEqual, "TeamOne")
+			So(*(retTeam.Enabled), ShouldBeTrue)
 		})
+		Convey("Retrieving a team by wrong ID", func() {
+			retTeam, err := cli.GetByID("TeamWrong")
+			So(err, ShouldNotBeNil)
+			So(retTeam, ShouldBeNil)
+			seer, ok := err.(*client.InvalidResponse)
+			So(ok, ShouldBeTrue)
+			So(seer.ResponseCode, ShouldHaveSameTypeAs, http.StatusNotFound)
+		})
+
+		Convey("Updating a team by ID", func() {
+			fls := false
+			t := team.Team{ID: "TeamOne", Enabled: &fls}
+			err := cli.Update(&t)
+			So(err, ShouldBeNil)
+			Convey("Retrieving a team by ID", func() {
+				retTeam, err := cli.GetByID("TeamOne")
+				So(err, ShouldBeNil)
+				So(retTeam.ID, ShouldEqual, "TeamOne")
+				So(*(retTeam.Enabled), ShouldBeFalse)
+			})
+		})
+
+		Convey("Getting all teams by ID", func() {
+			teams, err := cli.GetAll()
+			So(err, ShouldBeNil)
+			So(len(teams), ShouldEqual, 4)
+			var IDs []string
+			for _, team := range teams {
+				IDs = append(IDs, team.ID)
+			}
+			So(IDs, ShouldContain, "TeamTwo")
+		})
+
+		Convey("Deleting a team that doesnt have child hosts by ID", func() {
+			err := cli.Delete("TeamOne")
+			So(err, ShouldBeNil)
+			Convey("Getting all teams", func() {
+				teams, err := cli.GetAll()
+				So(err, ShouldBeNil)
+				So(len(teams), ShouldEqual, 3)
+			})
+		})
+
+		Convey("Deleting a team that does have child hosts by ID", func() {
+			err := cli.Delete("TeamTwo")
+			So(err, ShouldNotBeNil)
+			seer, ok := err.(*client.InvalidResponse)
+			So(ok, ShouldBeTrue)
+			So(seer.ResponseCode, ShouldHaveSameTypeAs, http.StatusConflict)
+			Convey("Getting all teams", func() {
+				teams, err := cli.GetAll()
+				So(err, ShouldBeNil)
+				So(len(teams), ShouldEqual, 4)
+			})
+		})
+
 		Reset(func() {
 			CleanAllTables(db)
 		})
