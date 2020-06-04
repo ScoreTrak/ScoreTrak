@@ -29,7 +29,7 @@ func (s *serviceGroupController) GetByID(w http.ResponseWriter, r *http.Request)
 }
 
 func (s *serviceGroupController) GetAll(w http.ResponseWriter, r *http.Request) {
-	genericGet(s.svc, s.log, "GetByID", w, r)
+	genericGet(s.svc, s.log, "GetAll", w, r)
 }
 
 func (s *serviceGroupController) Update(w http.ResponseWriter, r *http.Request) {
