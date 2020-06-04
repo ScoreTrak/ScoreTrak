@@ -33,7 +33,7 @@ func SetupDB(c *config.StaticConfig) *gorm.DB {
 	dbPrep.Exec(fmt.Sprintf("drop database if exists  %s", c.DB.Cockroach.Database))
 	dbPrep.Exec(fmt.Sprintf("create database if not exists  %s", c.DB.Cockroach.Database))
 	dbPrep.Close()
-	db, err := storage.NewDb(c)
+	db, err := storage.NewDB(c)
 	if err != nil {
 		panic(err)
 	}

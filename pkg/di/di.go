@@ -26,7 +26,7 @@ func BuildMasterContainer() (*dig.Container, error) {
 
 	ctr = append(ctr,
 		config.GetStaticConfig,
-		storage.NewDb,
+		storage.LoadDB,
 		logger.NewLogger,
 		orm.NewCheckRepo, check.NewCheckServ,
 		orm.NewHostGroupRepo, host_group.NewHostGroupServ,

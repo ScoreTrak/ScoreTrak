@@ -11,10 +11,22 @@ import (
 	"github.com/qor/validations"
 )
 
-func NewDb(c *config.StaticConfig) (*gorm.DB, error) {
+var db *gorm.DB
+
+func LoadDB(c *config.StaticConfig) (*gorm.DB, error) {
+	var err error
+	if db == nil {
+		db, err = NewDB(c)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return db, nil
+}
+
+func NewDB(c *config.StaticConfig) (*gorm.DB, error) {
 	var db *gorm.DB
 	var err error
-
 	if c.DB.Use == "cockroach" {
 		db, err = newCockroach(c)
 	}
