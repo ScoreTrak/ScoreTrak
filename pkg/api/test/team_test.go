@@ -123,6 +123,23 @@ func TestTeamSpec(t *testing.T) {
 			})
 		})
 
+		Convey("Deleting a non existent team", func() {
+			err := cli.Delete("TeamWrong")
+			So(err, ShouldBeNil)
+		})
+
+		Convey("Storing a new team", func() {
+			fls := false
+			t := team.Team{ID: "TeamFive", Enabled: &fls}
+			err := cli.Store(&t)
+			So(err, ShouldBeNil)
+			Convey("Getting all teams", func() {
+				teams, err := cli.GetAll()
+				So(err, ShouldBeNil)
+				So(len(teams), ShouldEqual, 5)
+			})
+		})
+
 		Reset(func() {
 			CleanAllTables(db)
 		})
