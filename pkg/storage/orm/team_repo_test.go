@@ -19,7 +19,7 @@ func TestTeamSpec(t *testing.T) {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_team"
-	c.Logger.FileName = "team_test_repo.log"
+	c.Logger.FileName = "team_test.log"
 	db := SetupDB(c)
 	l := SetupLogger(c)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
