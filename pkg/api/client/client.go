@@ -9,13 +9,13 @@ import (
 )
 
 type ScoretrakClient struct {
-	BaseURL    *url.URL
+	baseURL    *url.URL
 	token      string
 	httpClient *http.Client
 }
 
 func NewScoretrakClient(url *url.URL, token string, client *http.Client) ScoretrakClient {
-	return ScoretrakClient{BaseURL: url, token: token, httpClient: client}
+	return ScoretrakClient{baseURL: url, token: token, httpClient: client}
 }
 
 //Every Client could be fed directly to resource struct in gobuffalo
@@ -36,7 +36,7 @@ func (e *InvalidResponse) Error() string { return e.msg }
 
 func genericGet(obj interface{}, p string, s ScoretrakClient) error {
 	rel := &url.URL{Path: p}
-	u := s.BaseURL.ResolveReference(rel)
+	u := s.baseURL.ResolveReference(rel)
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return err
@@ -68,7 +68,7 @@ func genericStore(obj interface{}, p string, s ScoretrakClient) error {
 
 func genericPut(obj interface{}, p string, s ScoretrakClient, m string) error {
 	rel := &url.URL{Path: p}
-	u := s.BaseURL.ResolveReference(rel)
+	u := s.baseURL.ResolveReference(rel)
 	e, err := json.Marshal(obj)
 	if err != nil {
 		return nil
@@ -89,7 +89,7 @@ func genericPut(obj interface{}, p string, s ScoretrakClient, m string) error {
 
 func genericDelete(p string, s ScoretrakClient) error {
 	rel := &url.URL{Path: p}
-	u := s.BaseURL.ResolveReference(rel)
+	u := s.baseURL.ResolveReference(rel)
 	req, err := http.NewRequest("DELETE", u.String(), nil)
 	if err != nil {
 		return err
