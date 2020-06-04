@@ -36,7 +36,7 @@ func (s propertyClient) GetByID(id uint64) (*property.Property, error) {
 }
 
 func (s propertyClient) Store(u *property.Property) error {
-	return genericStore(u, fmt.Sprintf("/property/%d", u.ID), s.s)
+	return genericStore(u, fmt.Sprintf("/property"), s.s)
 }
 
 func (s propertyClient) Update(u *property.Property) error {

@@ -36,7 +36,7 @@ func (t teamClient) GetByID(id string) (*team.Team, error) {
 }
 
 func (t teamClient) Store(u *team.Team) error {
-	return genericStore(u, fmt.Sprintf("/team/%s", u.ID), t.s)
+	return genericStore(u, fmt.Sprintf("/team"), t.s)
 }
 
 func (t teamClient) Update(u *team.Team) error {
