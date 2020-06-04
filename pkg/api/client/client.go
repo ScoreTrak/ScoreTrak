@@ -24,12 +24,13 @@ func responseValidator(r *http.Response) error {
 	if r.StatusCode >= 200 && r.StatusCode < 400 {
 		return nil
 	}
-	return &InvalidResponse{fmt.Sprintf("Invalid response code received: %d", r.StatusCode)}
+	return &InvalidResponse{fmt.Sprintf("Invalid response code received: %d", r.StatusCode), r.StatusCode}
 
 }
 
 type InvalidResponse struct {
-	msg string // description of error
+	msg          string // description of error
+	ResponseCode int
 }
 
 func (e *InvalidResponse) Error() string { return e.msg }
@@ -100,5 +101,5 @@ func genericDelete(p string, s ScoretrakClient) error {
 		return err
 	}
 	resp.Body.Close()
-	return nil
+	return responseValidator(resp)
 }
