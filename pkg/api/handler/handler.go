@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	"github.com/qor/validations"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -96,7 +97,12 @@ func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, m s
 	v.FieldByName("ID").Set(f)
 	err = invokeNoRetMethod(svc, m, g)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		_, ok := err.(*validations.Error)
+		if ok {
+			w.WriteHeader(http.StatusPreconditionFailed)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		log.Error(err)
 		return
 	}
@@ -118,7 +124,12 @@ func genericStore(svc interface{}, g interface{}, log logger.LogInfoFormat, m st
 	}
 	err = invokeNoRetMethod(svc, m, g)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		_, ok := err.(*validations.Error)
+		if ok {
+			w.WriteHeader(http.StatusPreconditionFailed)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		log.Error(err)
 		return
 	}
