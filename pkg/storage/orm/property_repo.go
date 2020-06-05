@@ -51,7 +51,7 @@ func (p *propertyRepo) GetByID(id uint64) (*property.Property, error) {
 	p.log.Debugf("get property details by id : %s", id)
 
 	prop := &property.Property{}
-	err := p.db.Where("id = ?", id).First(&prop).Error
+	err := p.db.Where("id = ?", id).First(prop).Error
 	if err != nil {
 		p.log.Errorf("property not found with id : %d, reason : %v", id, err)
 		return nil, err
@@ -62,7 +62,7 @@ func (p *propertyRepo) GetByID(id uint64) (*property.Property, error) {
 func (p *propertyRepo) Store(prop *property.Property) error {
 	p.log.Debugf("creating the property with id : %v", prop.ID)
 
-	err := p.db.Create(&prop).Error
+	err := p.db.Create(prop).Error
 	if err != nil {
 		p.log.Errorf("error while creating the property, reason : %v", err)
 		return err
@@ -72,7 +72,7 @@ func (p *propertyRepo) Store(prop *property.Property) error {
 
 func (p *propertyRepo) Update(prop *property.Property) error {
 	p.log.Debugf("updating the property, id : %v", prop.ID)
-	err := p.db.Model(&prop).Updates(property.Property{Value: prop.Value,
+	err := p.db.Model(prop).Updates(property.Property{Value: prop.Value,
 		Status: prop.Status, Description: prop.Description,
 	}).Error
 	if err != nil {

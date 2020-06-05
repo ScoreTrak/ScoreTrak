@@ -149,7 +149,7 @@ func TestRoundSpec(t *testing.T) {
 					db.AutoMigrate(&check.Check{})
 					db.Model(&check.Check{}).AddForeignKey("round_id", "rounds(id)", "CASCADE", "RESTRICT")
 					Convey("Associating a single Check with a Round", func() {
-						db.Exec(fmt.Sprintf("INSERT INTO checks (id, service_id, round_id, log) VALUES (23, 1, %d, 'TestLog')", r.ID))
+						db.Exec(fmt.Sprintf("INSERT INTO checks (service_id, round_id, log) VALUES (1, %d, 'TestLog')", r.ID))
 						db.Table("checks").Count(&count)
 						So(count, ShouldEqual, 1)
 						Convey("Delete a round without deleting a check should cascade all checks", func() {

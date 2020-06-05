@@ -50,7 +50,7 @@ func (r *roundRepo) GetByID(id uint64) (*round.Round, error) {
 	r.log.Debugf("get round details by id : %s", id)
 
 	tea := &round.Round{}
-	err := r.db.Where("id = ?", id).First(&tea).Error
+	err := r.db.Where("id = ?", id).First(tea).Error
 	if err != nil {
 		r.log.Errorf("round not found with id : %d, reason : %v", id, err)
 		return nil, err
@@ -63,7 +63,7 @@ func (r *roundRepo) Store(tm *round.Round) error {
 		return errors.New("the ID should be provided")
 	}
 	r.log.Debugf("creating the round with id : %v", tm.ID)
-	err := r.db.Create(&tm).Error
+	err := r.db.Create(tm).Error
 	if err != nil {
 		r.log.Errorf("error while creating the round, reason : %v", err)
 		return err
@@ -73,7 +73,7 @@ func (r *roundRepo) Store(tm *round.Round) error {
 
 func (r *roundRepo) Update(tm *round.Round) error {
 	r.log.Debugf("updating the round, with id : %v", tm.ID)
-	err := r.db.Model(&tm).Updates(round.Round{Finish: tm.Finish}).Error
+	err := r.db.Model(tm).Updates(round.Round{Finish: tm.Finish}).Error
 	if err != nil {
 		r.log.Errorf("error while updating the round, reason : %v", err)
 		return err
@@ -83,7 +83,7 @@ func (r *roundRepo) Update(tm *round.Round) error {
 
 func (r *roundRepo) GetLastRound() (*round.Round, error) {
 	rnd := &round.Round{}
-	err := r.db.Where("\"finish\" IS NOT NULL").Last(&rnd).Error
+	err := r.db.Where("\"finish\" IS NOT NULL").Last(rnd).Error
 	//r.db.Raw("SELECT * FROM rounds WHERE end is NOT NULL order by id desc limit 1").Scan(&rnd).Error
 	if err != nil {
 		r.log.Debug("not a single Round found")

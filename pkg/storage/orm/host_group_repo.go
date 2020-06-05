@@ -49,7 +49,7 @@ func (h *hostGroupRepo) GetByID(id uint64) (*host_group.HostGroup, error) {
 	h.log.Debugf("get hostGroup details by id : %h", id)
 
 	hstgrp := &host_group.HostGroup{}
-	err := h.db.Where("id = ?", id).First(&hstgrp).Error
+	err := h.db.Where("id = ?", id).First(hstgrp).Error
 	if err != nil {
 		h.log.Errorf("hostGroup not found with id : %h, reason : %v", id, err)
 		return nil, err
@@ -60,7 +60,7 @@ func (h *hostGroupRepo) GetByID(id uint64) (*host_group.HostGroup, error) {
 func (h *hostGroupRepo) Store(hstgrp *host_group.HostGroup) error {
 	h.log.Debugf("creating the hostGroup with id : %v", hstgrp.ID)
 
-	err := h.db.Create(&hstgrp).Error
+	err := h.db.Create(hstgrp).Error
 	if err != nil {
 		h.log.Errorf("error while creating the hostGroup, reason : %v", err)
 		return err
@@ -71,7 +71,7 @@ func (h *hostGroupRepo) Store(hstgrp *host_group.HostGroup) error {
 
 func (h *hostGroupRepo) Update(hstgrp *host_group.HostGroup) error {
 	h.log.Debugf("updating the hostGroup, id : %v", hstgrp.ID)
-	err := h.db.Model(&hstgrp).Updates(host_group.HostGroup{Name: hstgrp.Name, Enabled: hstgrp.Enabled}).Error
+	err := h.db.Model(hstgrp).Updates(host_group.HostGroup{Name: hstgrp.Name, Enabled: hstgrp.Enabled}).Error
 	if err != nil {
 		h.log.Errorf("error while updating the hostGroup, reason : %v", err)
 		return err

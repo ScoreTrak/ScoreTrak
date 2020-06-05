@@ -60,7 +60,7 @@ func (s *serviceRepo) GetByID(id uint64) (*service.Service, error) {
 
 func (s *serviceRepo) Store(swm *service.Service) error {
 	s.log.Debugf("creating the service with id : %v", swm.ID)
-	err := s.db.Create(&swm).Error
+	err := s.db.Create(swm).Error
 	if err != nil {
 		s.log.Errorf("error while creating the service, reason : %v", err)
 		return err
@@ -70,7 +70,7 @@ func (s *serviceRepo) Store(swm *service.Service) error {
 
 func (s *serviceRepo) Update(swm *service.Service) error {
 	s.log.Debugf("updating the service, id : %v", swm.ID)
-	err := s.db.Model(&swm).Updates(service.Service{Enabled: swm.Enabled,
+	err := s.db.Model(swm).Updates(service.Service{Enabled: swm.Enabled,
 		Name: swm.Name, Points: swm.Points, RoundDelay: swm.RoundDelay,
 		RoundUnits: swm.RoundUnits, ServiceGroupID: swm.ServiceGroupID,
 		HostID: swm.HostID}).Error
