@@ -62,11 +62,100 @@ func TestServiceGroupSpec(t *testing.T) {
 		DataPreload(db)
 		s := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%d", port), Scheme: "http"}, "", http.DefaultClient)
 		cli := client.NewServiceGroupClient(s)
-		Convey("Retrieving a serviceGroup by ID", func() {
+		Convey("Retrieving a Service Group by ID", func() {
 			retServiceGroup, err := cli.GetByID(1)
 			So(err, ShouldBeNil)
 			So(retServiceGroup.ID, ShouldEqual, 1)
+			So(*(retServiceGroup.Enabled), ShouldBeTrue)
 		})
+		Convey("Retrieving a Service Group by wrong ID", func() {
+			retServiceGroup, err := cli.GetByID(5)
+			So(err, ShouldNotBeNil)
+			So(retServiceGroup, ShouldBeNil)
+			seer, ok := err.(*client.InvalidResponse)
+			So(ok, ShouldBeTrue)
+			So(seer.ResponseCode, ShouldHaveSameTypeAs, http.StatusNotFound)
+		})
+
+		Convey("Updating a Service Group by ID", func() {
+			fls := false
+			t := service_group.ServiceGroup{ID: 1, Enabled: &fls}
+			err := cli.Update(&t)
+			So(err, ShouldBeNil)
+			Convey("Retrieving a Service Group by ID", func() {
+				retServiceGroup, err := cli.GetByID(1)
+				So(err, ShouldBeNil)
+				So(retServiceGroup.Name, ShouldEqual, "ServiceGroup1")
+				So(*(retServiceGroup.Enabled), ShouldBeFalse)
+			})
+		})
+
+		Convey("Getting all Service Group", func() {
+			serviceGroups, err := cli.GetAll()
+			So(err, ShouldBeNil)
+			So(len(serviceGroups), ShouldEqual, 4)
+			var IDs []uint64
+			for _, tm := range serviceGroups {
+				IDs = append(IDs, tm.ID)
+			}
+			So(IDs, ShouldContain, uint64(3))
+		})
+
+		Convey("Deleting a Service Group that doesnt have child service by ID", func() {
+			err := cli.Delete(3)
+			So(err, ShouldBeNil)
+			Convey("Getting all serviceGroups", func() {
+				serviceGroups, err := cli.GetAll()
+				So(err, ShouldBeNil)
+				So(len(serviceGroups), ShouldEqual, 3)
+			})
+		})
+
+		Convey("Deleting a Service Group that does have child service by ID", func() {
+			err := cli.Delete(1)
+			So(err, ShouldNotBeNil)
+			seer, ok := err.(*client.InvalidResponse)
+			So(ok, ShouldBeTrue)
+			So(seer.ResponseCode, ShouldHaveSameTypeAs, http.StatusConflict)
+			Convey("Getting all serviceGroups", func() {
+				serviceGroups, err := cli.GetAll()
+				So(err, ShouldBeNil)
+				So(len(serviceGroups), ShouldEqual, 4)
+			})
+		})
+
+		Convey("Deleting a non existent Service Group", func() {
+			err := cli.Delete(6)
+			So(err, ShouldBeNil)
+		})
+
+		Convey("Storing a new Service Group", func() {
+			fls := false
+			t := service_group.ServiceGroup{Enabled: &fls, Name: "ServiceGroup5"}
+			err := cli.Store(&t)
+			So(err, ShouldBeNil)
+			Convey("Getting all Service Group", func() {
+				serviceGroups, err := cli.GetAll()
+				So(err, ShouldBeNil)
+				So(len(serviceGroups), ShouldEqual, 5)
+			})
+		})
+
+		Convey("Storing a new Service Group with the same name", func() {
+			fls := false
+			t := service_group.ServiceGroup{Enabled: &fls, Name: "ServiceGroup1"}
+			err := cli.Store(&t)
+			So(err, ShouldNotBeNil)
+			seer, ok := err.(*client.InvalidResponse)
+			So(ok, ShouldBeTrue)
+			So(seer.ResponseCode, ShouldHaveSameTypeAs, http.StatusPreconditionFailed)
+			Convey("Getting all Service Group", func() {
+				serviceGroups, err := cli.GetAll()
+				So(err, ShouldBeNil)
+				So(len(serviceGroups), ShouldEqual, 4)
+			})
+		})
+
 		Reset(func() {
 			CleanAllTables(db)
 		})
