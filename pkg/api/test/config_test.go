@@ -61,11 +61,27 @@ func TestConfigSpec(t *testing.T) {
 		DataPreload(db)
 		s := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%d", port), Scheme: "http"}, "", http.DefaultClient)
 		cli := client.NewConfigClient(s)
-		Convey("Retrieving a config by ID", func() {
+		Convey("Retrieving a config", func() {
 			retConfig, err := cli.Get()
 			So(err, ShouldBeNil)
 			So(retConfig.ID, ShouldEqual, 1)
+			So(retConfig.RoundDuration, ShouldEqual, uint64(60))
+			So(*(retConfig.Enabled), ShouldBeTrue)
 		})
+		Convey("Update the config", func() {
+			fls := false
+			t := config.DynamicConfig{RoundDuration: 50, Enabled: &fls}
+			err := cli.Update(&t)
+			ShouldNotBeNil(err)
+			Convey("Retrieving a config", func() {
+				retConfig, err := cli.Get()
+				So(err, ShouldBeNil)
+				So(retConfig.ID, ShouldEqual, 1)
+				So(retConfig.RoundDuration, ShouldEqual, uint64(50))
+				So(*(retConfig.Enabled), ShouldBeFalse)
+			})
+		})
+
 		Reset(func() {
 			CleanAllTables(db)
 		})
