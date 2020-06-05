@@ -91,6 +91,7 @@ func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, m s
 	if err != nil {
 		log.Error(err)
 		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 	v := reflect.ValueOf(g).Elem()
 	f := reflect.ValueOf(id)
