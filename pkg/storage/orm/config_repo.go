@@ -17,6 +17,7 @@ func NewConfigRepo(db *gorm.DB, log logger.LogInfoFormat) config.Repo {
 
 func (c *configRepo) Get() (*config.DynamicConfig, error) {
 	cfg := &config.DynamicConfig{}
+	cfg.ID = 1
 	c.db.Take(&cfg)
 	return cfg, nil
 }
