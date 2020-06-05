@@ -62,11 +62,29 @@ func TestCheckSpec(t *testing.T) {
 		DataPreload(db)
 		s := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%d", port), Scheme: "http"}, "", http.DefaultClient)
 		cli := client.NewCheckClient(s)
-		Convey("Retrieving a check by ID", func() {
+		Convey("Retrieving checks by Round ID", func() {
 			retChecks, err := cli.GetAllByRoundID(3)
 			So(err, ShouldBeNil)
 			So(len(retChecks), ShouldEqual, 2)
 		})
+
+		Convey("Retrieving checks by Round ID and Service ID", func() {
+			retChecks, err := cli.GetAllByRoundID(3)
+			So(err, ShouldBeNil)
+			So(len(retChecks), ShouldEqual, 2)
+
+			for _, chck := range retChecks {
+				if chck.ServiceID == 1 {
+					So(chck.Log, ShouldEqual, "Failed because of incorrect password")
+					So(*(chck.Passed), ShouldBeFalse)
+				} else {
+					So(chck.Log, ShouldEqual, "")
+					So(*(chck.Passed), ShouldBeTrue)
+				}
+			}
+
+		})
+
 		Reset(func() {
 			CleanAllTables(db)
 		})

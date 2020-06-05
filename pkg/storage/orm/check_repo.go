@@ -24,24 +24,28 @@ func (c *checkRepo) GetAllByRoundID(rID uint64) ([]*check.Check, error) {
 	return checks, err
 }
 
-func (c *checkRepo) GetByRoundServiceID(rID uint64, sID uint64) ([]*check.Check, error) {
+func (c *checkRepo) GetByRoundServiceID(rID uint64, sID uint64) (*check.Check, error) {
 	c.log.Debug("get all the checks")
-	var checks []*check.Check
-	err := c.db.Where("round_id = ? AND service_id = ?", rID, sID).Find(&checks).Error
-	return checks, err
+	chk := &check.Check{}
+	err := c.db.Where("round_id = ? AND service_id = ?", rID, sID).First(&chk).Error
+	if err != nil {
+		c.log.Errorf("the check with rid, sid : %d, %d not found, reason : %v", rID, sID, err)
+		return nil, err
+	}
+	return chk, err
 }
 
-func (c *checkRepo) Delete(id uint64) error {
-	c.log.Debugf("deleting the check with id : %d", id)
-	result := c.db.Delete(&check.Check{}, "id = ?", id)
+func (c *checkRepo) Delete(rID uint64, sID uint64) error {
+	c.log.Debugf("deleting the check with rid, sid : %d, %d", rID, sID)
+	result := c.db.Delete(&check.Check{}, "round_id = ? AND service_id = ?", rID, sID)
 	if result.Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the check with id : %d", id)
+		errMsg := fmt.Sprintf("error while deleting the check with rid, sid : %d, %d", rID, sID)
 		c.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}
 
 	if result.RowsAffected == 0 {
-		return &NoRowsAffected{"no model found for id"}
+		return &NoRowsAffected{"no model found for round ID, and service id provided"}
 	}
 
 	return nil
@@ -59,22 +63,20 @@ func (c *checkRepo) GetAll() ([]*check.Check, error) {
 	return checks, nil
 }
 
-func (c *checkRepo) GetByID(id uint64) (*check.Check, error) {
-	c.log.Debugf("get check details by id : %s", id)
+func (c *checkRepo) GetByID(rID uint64, sID uint64) (*check.Check, error) {
+	c.log.Debugf("get the check with rid, sid : %d, %d", rID, sID)
 
 	chck := &check.Check{}
-	err := c.db.Where("id = ?", id).First(&chck).Error
+	err := c.db.Where("round_id = ? AND service_id = ?", rID, sID).First(&chck).Error
 	if err != nil {
-		c.log.Errorf("check not found with id : %d, reason : %v", id, err)
+		c.log.Errorf("the check with rid, sid : %d, %d not found, reason : %v", rID, sID, err)
 		return nil, err
 	}
 	return chck, nil
 }
 
 func (c *checkRepo) Store(chck *check.Check) error {
-	c.log.Debugf("creating the check with id : %v", chck.ID)
-
-	err := c.db.Create(&chck).Error
+	err := c.db.Create(chck).Error
 	if err != nil {
 		c.log.Errorf("error while creating the check, reason : %v", err)
 		return err

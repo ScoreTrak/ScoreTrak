@@ -198,10 +198,10 @@ func DataPreload(db *gorm.DB) {
 		panic("There should be 4 entry in rounds")
 	}
 	//Creating Checks
-	db.Exec("INSERT INTO checks (id, round_id, service_id, log, passed) VALUES (1, 1, 1, '',true)")
-	db.Exec("INSERT INTO checks (id, round_id, service_id, log, passed) VALUES (2, 2, 1, '',true)")
-	db.Exec("INSERT INTO checks (id, round_id, service_id, log, passed) VALUES (3, 3, 1, 'Failed because of incorrect password',false)")
-	db.Exec("INSERT INTO checks (id, round_id, service_id, log, passed) VALUES (4, 3, 3, '',true)")
+	db.Exec("INSERT INTO checks (round_id, service_id, log, passed) VALUES (1, 1, '',true)")
+	db.Exec("INSERT INTO checks (round_id, service_id, log, passed) VALUES (2, 1, '',true)")
+	db.Exec("INSERT INTO checks (round_id, service_id, log, passed) VALUES (3, 1, 'Failed because of incorrect password',false)")
+	db.Exec("INSERT INTO checks (round_id, service_id, log, passed) VALUES (3, 3, '',true)")
 	db.Table("checks").Count(&count)
 	if count != 4 {
 		panic("There should be 4 entry in checks")

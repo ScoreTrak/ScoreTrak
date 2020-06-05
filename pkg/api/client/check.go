@@ -22,8 +22,8 @@ func (s checkClient) GetAllByRoundID(rID uint64) ([]*check.Check, error) {
 	return chk, nil
 }
 
-func (s checkClient) GetByRoundServiceID(rID uint64, sID uint64) ([]*check.Check, error) {
-	var chk []*check.Check
+func (s checkClient) GetByRoundServiceID(rID uint64, sID uint64) (*check.Check, error) {
+	var chk *check.Check
 	err := genericGet(&chk, fmt.Sprintf("/check/%d/%d", rID, sID), s.s)
 	if err != nil {
 		return nil, err
