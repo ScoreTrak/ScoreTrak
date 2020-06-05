@@ -89,13 +89,13 @@ func TestTeamSpec(t *testing.T) {
 			})
 		})
 
-		Convey("Getting all teams by ID", func() {
+		Convey("Getting all teams", func() {
 			teams, err := cli.GetAll()
 			So(err, ShouldBeNil)
 			So(len(teams), ShouldEqual, 4)
 			var IDs []string
-			for _, team := range teams {
-				IDs = append(IDs, team.ID)
+			for _, tm := range teams {
+				IDs = append(IDs, tm.ID)
 			}
 			So(IDs, ShouldContain, "TeamTwo")
 		})
