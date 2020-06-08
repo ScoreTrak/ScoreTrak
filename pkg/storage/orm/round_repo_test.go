@@ -6,6 +6,7 @@ import (
 	"ScoreTrak/pkg/round"
 	. "ScoreTrak/test"
 	"fmt"
+	"github.com/lib/pq"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
 	"testing"
@@ -63,6 +64,16 @@ func TestRoundSpec(t *testing.T) {
 					So(ac[0].Start.UnixNano(), ShouldBeBetween, time.Now().Add(time.Second*-1).UnixNano(), time.Now().UnixNano())
 				})
 
+				Convey("Adding an entry with the same ID", func() {
+					var err error
+					r := round.Round{ID: 1}
+					err = rr.Store(&r)
+					So(err, ShouldNotBeNil)
+					serr, ok := err.(*pq.Error)
+					So(ok, ShouldBeTrue)
+					So(serr.Code.Name(), ShouldEqual, "unique_violation")
+				})
+
 				Convey("Then Deleting a wrong entry", func() {
 					err = rr.Delete(3)
 					So(err, ShouldNotBeNil)
@@ -72,6 +83,7 @@ func TestRoundSpec(t *testing.T) {
 						So(len(ac), ShouldEqual, 1)
 					})
 				})
+
 				Convey("Then Deleting the added entry", func() {
 					err = rr.Delete(1)
 					So(err, ShouldBeNil)
