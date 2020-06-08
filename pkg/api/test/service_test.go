@@ -125,10 +125,10 @@ func TestServiceSpec(t *testing.T) {
 		})
 
 		Convey("Storing a new service", func() {
-			t := service.Service{ID: 20, ServiceGroupID: 1, Name: "test-name", DisplayName: "test-display-name"}
+			t := service.Service{ID: 20, ServiceGroupID: 1, Name: "test-name", DisplayName: "test-display-name", HostID: 3}
 			err := cli.Store(&t)
 			So(err, ShouldBeNil)
-			Convey("Getting all properties", func() {
+			Convey("Getting all services", func() {
 				properties, err := cli.GetAll()
 				So(err, ShouldBeNil)
 				So(len(properties), ShouldEqual, 9)
