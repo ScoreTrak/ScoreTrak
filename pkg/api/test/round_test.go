@@ -8,12 +8,13 @@ import (
 	"ScoreTrak/pkg/storage/orm"
 	. "ScoreTrak/test"
 	"fmt"
-	. "github.com/smartystreets/goconvey/convey"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestRoundSpec(t *testing.T) {
@@ -65,6 +66,7 @@ func TestRoundSpec(t *testing.T) {
 		Convey("Retrieving a round by ID", func() {
 			retRound, err := cli.GetLastRound()
 			So(err, ShouldBeNil)
+			So(retRound.ID, ShouldEqual, 3)
 			So(retRound.Finish, ShouldNotBeNil)
 		})
 		Reset(func() {

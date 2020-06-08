@@ -8,12 +8,13 @@ import (
 	"ScoreTrak/pkg/storage/orm"
 	. "ScoreTrak/test"
 	"fmt"
-	. "github.com/smartystreets/goconvey/convey"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestPropertySpec(t *testing.T) {
@@ -66,7 +67,71 @@ func TestPropertySpec(t *testing.T) {
 			retProperty, err := cli.GetByID(1)
 			So(err, ShouldBeNil)
 			So(retProperty.ID, ShouldEqual, 1)
+			So(retProperty.Status, ShouldEqual, "View")
+			So(retProperty.Value, ShouldEqual, "80")
 		})
+		Convey("Retrieving a property by wrong ID", func() {
+			retProperty, err := cli.GetByID(20)
+			So(err, ShouldNotBeNil)
+			So(retProperty, ShouldBeNil)
+			seer, ok := err.(*client.InvalidResponse)
+			So(ok, ShouldBeTrue)
+			So(seer.ResponseCode, ShouldHaveSameTypeAs, http.StatusNotFound)
+		})
+
+		Convey("Updating a property by ID", func() {
+			t := property.Property{ID: 1, Value: "8080", Status: "Edit"}
+			err := cli.Update(&t)
+			So(err, ShouldBeNil)
+			Convey("Retrieving a property by ID", func() {
+				retProperty, err := cli.GetByID(1)
+				So(err, ShouldBeNil)
+				So(retProperty.ID, ShouldEqual, 1)
+				So(retProperty.Value, ShouldEqual, "8080")
+				So(retProperty.Status, ShouldEqual, "Edit")
+			})
+		})
+
+		Convey("Getting all properties", func() {
+			properties, err := cli.GetAll()
+			So(err, ShouldBeNil)
+			So(len(properties), ShouldEqual, 13)
+			var IDs []uint64
+			for _, hst := range properties {
+				IDs = append(IDs, hst.ID)
+			}
+			So(IDs, ShouldContain, uint64(1))
+		})
+
+		Convey("Deleting a non existent property", func() {
+			err := cli.Delete(14)
+			So(err, ShouldBeNil)
+
+			properties, err := cli.GetAll()
+			So(err, ShouldBeNil)
+			So(len(properties), ShouldEqual, 13)
+		})
+
+		Convey("Deleting an existent property", func() {
+			err := cli.Delete(5)
+			So(err, ShouldBeNil)
+
+			properties, err := cli.GetAll()
+			So(err, ShouldBeNil)
+			So(len(properties), ShouldEqual, 12)
+		})
+
+		Convey("Storing a new property", func() {
+			t := property.Property{ID: 20, ServiceID: 2, Status: "Edit", Key: "Port", Value: "3001"}
+			err := cli.Store(&t)
+			So(err, ShouldBeNil)
+			Convey("Getting all properties", func() {
+				properties, err := cli.GetAll()
+				So(err, ShouldBeNil)
+				So(len(properties), ShouldEqual, 14)
+			})
+		})
+
 		Reset(func() {
 			CleanAllTables(db)
 		})
