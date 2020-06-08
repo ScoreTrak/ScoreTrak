@@ -11,9 +11,9 @@ type Round struct {
 	// Round ID can also represent the round number
 	ID uint64 `json:"id,omitempty" gorm:"primary_key"`
 
-	Start time.Time `json:"start,omitempty" gorm:"not null"`
+	Start time.Time `json:"start,omitempty" gorm:"not null; default:CURRENT_TIMESTAMP"`
 
-	End *time.Time `json:"end,omitempty"`
+	Finish *time.Time `json:"finish,omitempty"`
 
 	Checks []check.Check `json:"-" gorm:"foreignkey:RoundID"`
 }

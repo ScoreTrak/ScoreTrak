@@ -19,11 +19,18 @@ func NewHostRepo(db *gorm.DB, log logger.LogInfoFormat) host.Repo {
 
 func (h *hostRepo) Delete(id uint64) error {
 	h.log.Debugf("deleting the host with id : %h", id)
-	if h.db.Delete(&host.Host{}, "id = ?", id).Error != nil {
+
+	result := h.db.Delete(&host.Host{}, "id = ?", id)
+	if result.Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the host with id : %d", id)
 		h.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}
+
+	if result.RowsAffected == 0 {
+		return &NoRowsAffected{"no model found for id"}
+	}
+
 	return nil
 }
 
@@ -42,7 +49,7 @@ func (h *hostRepo) GetByID(id uint64) (*host.Host, error) {
 	h.log.Debugf("get host details by id : %h", id)
 
 	hst := &host.Host{}
-	err := h.db.Where("id = ?", id).First(&hst).Error
+	err := h.db.Where("id = ?", id).First(hst).Error
 	if err != nil {
 		h.log.Errorf("host not found with id : %h, reason : %v", id, err)
 		return nil, err
@@ -52,7 +59,7 @@ func (h *hostRepo) GetByID(id uint64) (*host.Host, error) {
 
 func (h *hostRepo) Store(hst *host.Host) error {
 	h.log.Debugf("creating the host with id : %v", hst.ID)
-	err := h.db.Create(&hst).Error
+	err := h.db.Create(hst).Error
 	if err != nil {
 		h.log.Errorf("error while creating the host, reason : %v", err)
 		return err
@@ -62,7 +69,7 @@ func (h *hostRepo) Store(hst *host.Host) error {
 
 func (h *hostRepo) Update(hst *host.Host) error {
 	h.log.Debugf("updating the host, id : %v", hst.ID)
-	err := h.db.Model(&hst).Updates(host.Host{Enabled: hst.Enabled,
+	err := h.db.Model(hst).Updates(host.Host{Enabled: hst.Enabled,
 		Address: hst.Address, HostGroupID: hst.HostGroupID,
 		TeamID: hst.TeamID, EditHost: hst.EditHost,
 	}).Error

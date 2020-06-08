@@ -19,12 +19,18 @@ func NewServiceGroupRepo(db *gorm.DB, log logger.LogInfoFormat) service_group.Re
 
 func (s *serviceGroupRepo) Delete(id uint64) error {
 	s.log.Debugf("deleting the Service Group with id : %d", id)
+	result := s.db.Delete(&service_group.ServiceGroup{}, "id = ?", id)
 
-	if s.db.Delete(&service_group.ServiceGroup{}, "id = ?", id).Error != nil {
+	if result.Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the Service Group with id : %d", id)
 		s.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}
+
+	if result.RowsAffected == 0 {
+		return &NoRowsAffected{"no model found for id"}
+	}
+
 	return nil
 }
 
@@ -44,7 +50,7 @@ func (s *serviceGroupRepo) GetByID(id uint64) (*service_group.ServiceGroup, erro
 	s.log.Debugf("get Service Group details by id : %s", id)
 
 	sgr := &service_group.ServiceGroup{}
-	err := s.db.Where("id = ?", id).First(&sgr).Error
+	err := s.db.Where("id = ?", id).First(sgr).Error
 	if err != nil {
 		s.log.Errorf("serviceGroup not found with id : %d, reason : %v", id, err)
 		return nil, err
@@ -54,7 +60,7 @@ func (s *serviceGroupRepo) GetByID(id uint64) (*service_group.ServiceGroup, erro
 
 func (s *serviceGroupRepo) Store(sgr *service_group.ServiceGroup) error {
 	s.log.Debugf("creating the Service Group with id : %v", sgr.ID)
-	err := s.db.Create(&sgr).Error
+	err := s.db.Create(sgr).Error
 	if err != nil {
 		s.log.Errorf("error while creating the Service Group, reason : %v", err)
 		return err
@@ -64,7 +70,7 @@ func (s *serviceGroupRepo) Store(sgr *service_group.ServiceGroup) error {
 
 func (s *serviceGroupRepo) Update(sgr *service_group.ServiceGroup) error {
 	s.log.Debugf("updating the Service Group, id : %v", sgr.ID)
-	err := s.db.Model(&sgr).Updates(service_group.ServiceGroup{Name: sgr.Name, Enabled: sgr.Enabled}).Error
+	err := s.db.Model(sgr).Updates(service_group.ServiceGroup{Name: sgr.Name, Enabled: sgr.Enabled}).Error
 	if err != nil {
 		s.log.Errorf("error while updating the Service Group, reason : %v", err)
 		return err

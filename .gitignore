@@ -20,7 +20,8 @@
 # Dependency directories (remove the comment below to include it)
 vendor/
 
-scoretrak.log
+#Log files
+*.log
 
 configs/config.yml
-configs/dev-config.yml
+dev-config.yml

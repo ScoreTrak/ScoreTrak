@@ -4,7 +4,7 @@ import "time"
 
 type ScoringData struct {
 	Service    QService
-	Properties QProperty
+	Properties []QProperty
 	Timeout    time.Duration
 	Host       string
 }

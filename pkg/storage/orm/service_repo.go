@@ -20,10 +20,16 @@ func NewServiceRepo(db *gorm.DB, log logger.LogInfoFormat) service.Repo {
 func (s *serviceRepo) Delete(id uint64) error {
 	s.log.Debugf("deleting the service with id : %d", id)
 
-	if s.db.Delete(&service.Service{}, "id = ?", id).Error != nil {
+	result := s.db.Delete(&service.Service{}, "id = ?", id)
+
+	if result.Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the service with id : %d", id)
 		s.log.Errorf(errMsg)
 		return errors.New(errMsg)
+	}
+
+	if result.RowsAffected == 0 {
+		return &NoRowsAffected{"no model found for id"}
 	}
 	return nil
 }
@@ -54,7 +60,7 @@ func (s *serviceRepo) GetByID(id uint64) (*service.Service, error) {
 
 func (s *serviceRepo) Store(swm *service.Service) error {
 	s.log.Debugf("creating the service with id : %v", swm.ID)
-	err := s.db.Create(&swm).Error
+	err := s.db.Create(swm).Error
 	if err != nil {
 		s.log.Errorf("error while creating the service, reason : %v", err)
 		return err
@@ -64,10 +70,10 @@ func (s *serviceRepo) Store(swm *service.Service) error {
 
 func (s *serviceRepo) Update(swm *service.Service) error {
 	s.log.Debugf("updating the service, id : %v", swm.ID)
-	err := s.db.Model(&swm).Updates(service.Service{Enabled: swm.Enabled,
+	err := s.db.Model(swm).Updates(service.Service{Enabled: swm.Enabled,
 		Name: swm.Name, Points: swm.Points, RoundDelay: swm.RoundDelay,
 		RoundUnits: swm.RoundUnits, ServiceGroupID: swm.ServiceGroupID,
-		HostID: swm.HostID}).Error
+		HostID: swm.HostID, DisplayName: swm.DisplayName}).Error
 	if err != nil {
 		s.log.Errorf("error while updating the service, reason : %v", err)
 		return err

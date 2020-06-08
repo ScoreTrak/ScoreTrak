@@ -1,12 +1,12 @@
 package server
 
 import (
-	"ScoreTrak/pkg/api"
 	"ScoreTrak/pkg/api/handler"
 	"ScoreTrak/pkg/check"
 	"ScoreTrak/pkg/config"
 	"ScoreTrak/pkg/host"
 	"ScoreTrak/pkg/host_group"
+	"ScoreTrak/pkg/logger"
 	"ScoreTrak/pkg/property"
 	"ScoreTrak/pkg/round"
 	"ScoreTrak/pkg/service"
@@ -15,8 +15,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type Route struct {
@@ -55,14 +57,13 @@ func (ds *dserver) MapRoutes() {
 	routes = append(routes, ds.hostGroupRoutes()...)
 	routes = append(routes, ds.propertyRoutes()...)
 	routes = append(routes, ds.roundRoutes()...)
-	routes = append(routes, ds.scoreRoutes()...)
 	routes = append(routes, ds.serviceRoutes()...)
 	routes = append(routes, ds.serviceGroupRoutes()...)
 
 	for _, route := range routes {
 		var hdler http.Handler
 		hdler = route.HandlerFunc
-		hdler = api.Logger(hdler, route.Name) //Default Logger
+		hdler = Logger(hdler, route.Name) //Default Logger
 
 		ds.router.
 			Methods(route.Method).
@@ -70,6 +71,7 @@ func (ds *dserver) MapRoutes() {
 			Name(route.Name).
 			Handler(hdler)
 	}
+	ds.router.Use(JsonHeader)
 	ds.router.Use(TokenVerify)
 }
 
@@ -88,191 +90,176 @@ func TokenVerify(next http.Handler) http.Handler {
 	})
 }
 
-func (ds *dserver) teamRoutes() Routes {
-
-	var teamSvc team.Serv
-
-	ds.cont.Invoke(func(s team.Serv) {
-		teamSvc = s
+func JsonHeader(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		next.ServeHTTP(w, r)
 	})
-	tm := handler.NewTeamController(ds.logger, teamSvc)
+}
 
-	teamRoutes := Routes{
-		Route{
-			"AddTeam",
-			strings.ToUpper("Post"),
-			"/team",
-			tm.Store,
-		},
+func Logger(inner http.Handler, name string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
 
-		Route{
-			"DeleteTeam",
-			strings.ToUpper("Delete"),
-			"/team/{id}",
-			tm.Delete,
-		},
+		inner.ServeHTTP(w, r)
 
-		Route{
-			"GetTeam",
-			strings.ToUpper("Get"),
-			"/team/{id}",
-			tm.GetByID,
-		},
-
-		Route{
-			"GetTeams",
-			strings.ToUpper("Get"),
-			"/team",
-			tm.GetAll,
-		},
-
-		Route{
-			"UpdateTeam",
-			strings.ToUpper("Put"),
-			"/team/{id}",
-			tm.Update,
-		},
-	}
-
-	return teamRoutes
+		log.Printf(
+			"%s %s %s %s",
+			r.Method,
+			r.RequestURI,
+			name,
+			time.Since(start),
+		)
+	})
 }
 
 func (ds *dserver) configRoutes() Routes {
-	var configSvc config.Serv
+	var svc config.Serv
 	ds.cont.Invoke(func(s config.Serv) {
-		configSvc = s
+		svc = s
 	})
+	return ConfigRoutes(ds.logger, svc)
+}
 
-	cfg := handler.NewConfigController(ds.logger, configSvc)
+func ConfigRoutes(l logger.LogInfoFormat, svc config.Serv) Routes {
+	ctrl := handler.NewConfigController(l, svc)
 	configRoutes := Routes{
 		Route{
 			"UpdateConfigProperties",
-			strings.ToUpper("Put"),
+			strings.ToUpper("Patch"),
 			"/config",
-			cfg.Update,
+			ctrl.Update,
 		},
 		Route{
 			"GetEngineProperties",
 			strings.ToUpper("Get"),
 			"/config",
-			cfg.Get,
+			ctrl.Get,
 		},
 	}
 	return configRoutes
 }
 
 func (ds *dserver) checkRoutes() Routes {
-	var checkSvc check.Serv
+	var svc check.Serv
 	ds.cont.Invoke(func(s check.Serv) {
-		checkSvc = s
+		svc = s
 	})
-	chk := handler.NewCheckController(ds.logger, checkSvc)
+	return CheckRoutes(ds.logger, svc)
+}
+
+func CheckRoutes(l logger.LogInfoFormat, svc check.Serv) Routes {
+	ctrl := handler.NewCheckController(l, svc)
 	checkRoutes := Routes{
 		Route{
 			"GetCheck",
 			strings.ToUpper("Get"),
 			"/check/{RoundID}/{ServiceID}",
-			chk.GetAllByRoundID,
+			ctrl.GetByRoundServiceID,
 		},
 		Route{
 			"GetChecks",
 			strings.ToUpper("Get"),
 			"/check/{RoundID}",
-			chk.GetByRoundServiceID,
+			ctrl.GetAllByRoundID,
 		},
 	}
 	return checkRoutes
 }
 
 func (ds *dserver) hostRoutes() Routes {
-
-	var hostSvc host.Serv
+	var svc host.Serv
 	ds.cont.Invoke(func(s host.Serv) {
-		hostSvc = s
+		svc = s
 	})
-	hst := handler.NewHostController(ds.logger, hostSvc)
+	return HostRoutes(ds.logger, svc)
+}
 
+func HostRoutes(l logger.LogInfoFormat, svc host.Serv) Routes {
+	ctrl := handler.NewHostController(l, svc)
 	hostRoutes := Routes{
 		Route{
 			"AddHost",
 			strings.ToUpper("Post"),
 			"/host",
-			hst.Store,
+			ctrl.Store,
 		},
 
 		Route{
 			"DeleteHost",
 			strings.ToUpper("Delete"),
 			"/host/{id}",
-			hst.Delete,
+			ctrl.Delete,
 		},
 
 		Route{
 			"GetHost",
 			strings.ToUpper("Get"),
 			"/host/{id}",
-			hst.GetByID,
+			ctrl.GetByID,
 		},
 
 		Route{
 			"GetHosts",
 			strings.ToUpper("Get"),
 			"/host",
-			hst.GetAll,
+			ctrl.GetAll,
 		},
 
 		Route{
 			"UpdateHost",
-			strings.ToUpper("Put"),
+			strings.ToUpper("Patch"),
 			"/host/{id}",
-			hst.Update,
+			ctrl.Update,
 		},
 	}
-
 	return hostRoutes
 }
 
 func (ds *dserver) hostGroupRoutes() Routes {
-
-	var hostGroupSvc host_group.Serv
+	var svc host_group.Serv
 	ds.cont.Invoke(func(s host_group.Serv) {
-		hostGroupSvc = s
+		svc = s
 	})
-	hstgrp := handler.NewHostGroupController(ds.logger, hostGroupSvc)
+	return HostGroupRoutes(ds.logger, svc)
+}
+
+func HostGroupRoutes(l logger.LogInfoFormat, svc host_group.Serv) Routes {
+	ctrl := handler.NewHostGroupController(l, svc)
 	hostGroupRoutes := Routes{
 		Route{
 			"AddHostGroup",
 			strings.ToUpper("Post"),
 			"/host_group",
-			hstgrp.Store,
+			ctrl.Store,
 		},
 
 		Route{
 			"DeleteHostGroup",
 			strings.ToUpper("Delete"),
 			"/host_group/{id}",
-			hstgrp.Delete,
+			ctrl.Delete,
 		},
 
 		Route{
 			"GetHostGroup",
 			strings.ToUpper("Get"),
 			"/host_group/{id}",
-			hstgrp.GetByID,
+			ctrl.GetByID,
 		},
 
 		Route{
 			"GetHostGroups",
 			strings.ToUpper("Get"),
 			"/host_group",
-			hstgrp.GetAll,
+			ctrl.GetAll,
 		},
 
 		Route{
 			"UpdateHostGroup",
-			strings.ToUpper("Put"),
+			strings.ToUpper("Patch"),
 			"/host_group/{id}",
-			hstgrp.Update,
+			ctrl.Update,
 		},
 	}
 
@@ -280,187 +267,220 @@ func (ds *dserver) hostGroupRoutes() Routes {
 }
 
 func (ds *dserver) propertyRoutes() Routes {
-
-	var propertySvc property.Serv
+	var svc property.Serv
 	ds.cont.Invoke(func(s property.Serv) {
-		propertySvc = s
+		svc = s
 	})
+	return PropertyRoutes(ds.logger, svc)
+}
 
-	prop := handler.NewPropertyController(ds.logger, propertySvc)
-
+func PropertyRoutes(l logger.LogInfoFormat, svc property.Serv) Routes {
+	ctrl := handler.NewPropertyController(l, svc)
 	propertyRoutes := Routes{
 		Route{
-			"AddProprty",
+			"AddProperty",
 			strings.ToUpper("Post"),
 			"/property",
-			prop.Store,
+			ctrl.Store,
 		},
 
 		Route{
 			"DeleteProperty",
 			strings.ToUpper("Delete"),
 			"/property/{id}",
-			prop.Delete,
-		},
-
-		Route{
-			"GetProperties",
-			strings.ToUpper("Get"),
-			"/property",
-			prop.GetAll,
+			ctrl.Delete,
 		},
 
 		Route{
 			"GetProperty",
 			strings.ToUpper("Get"),
 			"/property/{id}",
-			prop.GetByID,
+			ctrl.GetByID,
+		},
+
+		Route{
+			"GetProperties",
+			strings.ToUpper("Get"),
+			"/property",
+			ctrl.GetAll,
 		},
 
 		Route{
 			"UpdateProperty",
-			strings.ToUpper("Put"),
+			strings.ToUpper("Patch"),
 			"/property/{id}",
-			prop.Update,
+			ctrl.Update,
 		},
 	}
-
 	return propertyRoutes
 }
 
 func (ds *dserver) roundRoutes() Routes {
-
-	var roundSvc round.Serv
+	var svc round.Serv
 	ds.cont.Invoke(func(s round.Serv) {
-		roundSvc = s
+		svc = s
 	})
+	return RoundRoutes(ds.logger, svc)
+}
 
-	rnd := handler.NewRoundController(ds.logger, roundSvc)
-
+func RoundRoutes(l logger.LogInfoFormat, svc round.Serv) Routes {
+	ctrl := handler.NewRoundController(l, svc)
 	roundRoutes := Routes{
 		Route{
 			"GetLastRound",
 			strings.ToUpper("Get"),
 			"/round",
-			rnd.GetLastRound,
+			ctrl.GetLastRound,
 		},
 	}
 	return roundRoutes
 }
 
-func (ds *dserver) scoreRoutes() Routes {
-	s := handler.NewScoreController(ds.logger)
-	scoreRoutes := Routes{
-		Route{
-			"GetScore",
-			strings.ToUpper("Get"),
-			"/score/{TeamID}",
-			s.GetScore,
-		},
-
-		Route{
-			"GetScores",
-			strings.ToUpper("Get"),
-			"/score",
-			s.GetScores,
-		},
-	}
-	return scoreRoutes
+func (ds *dserver) serviceRoutes() Routes {
+	var svc service.Serv
+	ds.cont.Invoke(func(s service.Serv) {
+		svc = s
+	})
+	return ServiceRoutes(ds.logger, svc)
 }
 
-func (ds *dserver) serviceRoutes() Routes {
-
-	var serviceSvc service.Serv
-	ds.cont.Invoke(func(s service.Serv) {
-		serviceSvc = s
-	})
-
-	srv := handler.NewServiceController(ds.logger, serviceSvc)
-
+func ServiceRoutes(l logger.LogInfoFormat, svc service.Serv) Routes {
+	ctrl := handler.NewServiceController(l, svc)
 	serviceRoutes := Routes{
 		Route{
 			"AddService",
 			strings.ToUpper("Post"),
 			"/service",
-			srv.Store,
+			ctrl.Store,
 		},
 
 		Route{
 			"DeleteService",
 			strings.ToUpper("Delete"),
 			"/service/{id}",
-			srv.Delete,
+			ctrl.Delete,
 		},
 
 		Route{
 			"GetService",
 			strings.ToUpper("Get"),
 			"/service/{id}",
-			srv.GetByID,
+			ctrl.GetByID,
 		},
 
 		Route{
 			"GetServices",
 			strings.ToUpper("Get"),
 			"/service",
-			srv.GetAll,
+			ctrl.GetAll,
 		},
 
 		Route{
 			"UpdateService",
-			strings.ToUpper("Put"),
+			strings.ToUpper("Patch"),
 			"/service/{id}",
-			srv.Update,
+			ctrl.Update,
 		},
 	}
 	return serviceRoutes
 }
 
 func (ds *dserver) serviceGroupRoutes() Routes {
-
-	var serviceGroupSvc service_group.Serv
+	var svc service_group.Serv
 	ds.cont.Invoke(func(s service_group.Serv) {
-		serviceGroupSvc = s
+		svc = s
 	})
+	return ServiceGroupRoutes(ds.logger, svc)
+}
 
-	servg := handler.NewServiceGroupController(ds.logger, serviceGroupSvc)
-
+func ServiceGroupRoutes(l logger.LogInfoFormat, svc service_group.Serv) Routes {
+	ctrl := handler.NewServiceGroupController(l, svc)
 	serviceGroupRoutes := Routes{
 		Route{
 			"AddServiceGroup",
 			strings.ToUpper("Post"),
 			"/service_group",
-			servg.Store,
+			ctrl.Store,
 		},
 
 		Route{
 			"DeleteServiceGroup",
 			strings.ToUpper("Delete"),
 			"/service_group/{id}",
-			servg.Delete,
+			ctrl.Delete,
 		},
 
 		Route{
 			"GetServiceGroup",
 			strings.ToUpper("Get"),
 			"/service_group/{id}",
-			servg.GetByID,
+			ctrl.GetByID,
 		},
 
 		Route{
 			"GetServiceGroups",
 			strings.ToUpper("Get"),
 			"/service_group",
-			servg.GetAll,
+			ctrl.GetAll,
 		},
 
 		Route{
 			"UpdateServiceGroup",
-			strings.ToUpper("Put"),
+			strings.ToUpper("Patch"),
 			"/service_group/{id}",
-			servg.Update,
+			ctrl.Update,
 		},
 	}
 
 	return serviceGroupRoutes
+}
+
+func (ds *dserver) teamRoutes() Routes {
+	var svc team.Serv
+	ds.cont.Invoke(func(s team.Serv) {
+		svc = s
+	})
+	return TeamRoutes(ds.logger, svc)
+}
+
+func TeamRoutes(l logger.LogInfoFormat, svc team.Serv) Routes {
+	ctrl := handler.NewTeamController(l, svc)
+	teamRoutes := Routes{
+		Route{
+			"AddTeam",
+			strings.ToUpper("Post"),
+			"/team",
+			ctrl.Store,
+		},
+
+		Route{
+			"DeleteTeam",
+			strings.ToUpper("Delete"),
+			"/team/{id}",
+			ctrl.Delete,
+		},
+
+		Route{
+			"GetTeam",
+			strings.ToUpper("Get"),
+			"/team/{id}",
+			ctrl.GetByID,
+		},
+
+		Route{
+			"GetTeams",
+			strings.ToUpper("Get"),
+			"/team",
+			ctrl.GetAll,
+		},
+
+		Route{
+			"UpdateTeam",
+			strings.ToUpper("Patch"),
+			"/team/{id}",
+			ctrl.Update,
+		},
+	}
+
+	return teamRoutes
 }

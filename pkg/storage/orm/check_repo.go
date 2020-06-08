@@ -17,74 +17,80 @@ func NewCheckRepo(db *gorm.DB, log logger.LogInfoFormat) check.Repo {
 	return &checkRepo{db, log}
 }
 
-func (c *checkRepo) GetAllByRoundID(r_id uint64) ([]*check.Check, error) {
+func (c *checkRepo) GetAllByRoundID(rID uint64) ([]*check.Check, error) {
 	c.log.Debug("get all the checks")
 	var checks []*check.Check
-	err := c.db.Where("round_id == ?", r_id).Find(&checks).Error
+	err := c.db.Where("round_id = ?", rID).Find(&checks).Error
 	return checks, err
 }
 
-func (c *checkRepo) GetByRoundServiceID(r_id uint64, s_id uint64) ([]*check.Check, error) {
+func (c *checkRepo) GetByRoundServiceID(rID uint64, sID uint64) (*check.Check, error) {
 	c.log.Debug("get all the checks")
-	var checks []*check.Check
-	err := c.db.Where("round_id = ? AND service_id = ?", r_id, s_id).Find(&checks).Error
-	return checks, err
+	chk := &check.Check{}
+	err := c.db.Where("round_id = ? AND service_id = ?", rID, sID).First(&chk).Error
+	if err != nil {
+		c.log.Errorf("the check with rid, sid : %d, %d not found, reason : %v", rID, sID, err)
+		return nil, err
+	}
+	return chk, err
 }
 
-func (s *checkRepo) Delete(id uint64) error {
-	s.log.Debugf("deleting the check with id : %d", id)
-
-	if s.db.Delete(&check.Check{}, "id = ?", id).Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the check with id : %d", id)
-		s.log.Errorf(errMsg)
+func (c *checkRepo) Delete(rID uint64, sID uint64) error {
+	c.log.Debugf("deleting the check with rid, sid : %d, %d", rID, sID)
+	result := c.db.Delete(&check.Check{}, "round_id = ? AND service_id = ?", rID, sID)
+	if result.Error != nil {
+		errMsg := fmt.Sprintf("error while deleting the check with rid, sid : %d, %d", rID, sID)
+		c.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}
+
+	if result.RowsAffected == 0 {
+		return &NoRowsAffected{"no model found for round ID, and service id provided"}
+	}
+
 	return nil
 }
 
-func (s *checkRepo) GetAll() ([]*check.Check, error) {
-	s.log.Debug("get all the checks")
+func (c *checkRepo) GetAll() ([]*check.Check, error) {
+	c.log.Debug("get all the checks")
 
 	checks := make([]*check.Check, 0)
-	err := s.db.Find(&checks).Error
+	err := c.db.Find(&checks).Error
 	if err != nil {
-		s.log.Debug("not a single check found")
+		c.log.Debug("not a single check found")
 		return nil, err
 	}
 	return checks, nil
 }
 
-func (s *checkRepo) GetByID(id uint64) (*check.Check, error) {
-	s.log.Debugf("get check details by id : %s", id)
+func (c *checkRepo) GetByID(rID uint64, sID uint64) (*check.Check, error) {
+	c.log.Debugf("get the check with rid, sid : %d, %d", rID, sID)
 
 	chck := &check.Check{}
-	err := s.db.Where("id = ?", id).First(&chck).Error
+	err := c.db.Where("round_id = ? AND service_id = ?", rID, sID).First(&chck).Error
 	if err != nil {
-		s.log.Errorf("check not found with id : %d, reason : %v", id, err)
+		c.log.Errorf("the check with rid, sid : %d, %d not found, reason : %v", rID, sID, err)
 		return nil, err
 	}
 	return chck, nil
 }
 
-func (s *checkRepo) Store(chck *check.Check) error {
-	s.log.Debugf("creating the check with id : %v", chck.ID)
-
-	err := s.db.Create(&chck).Error
+func (c *checkRepo) Store(chck *check.Check) error {
+	err := c.db.Create(chck).Error
 	if err != nil {
-		s.log.Errorf("error while creating the check, reason : %v", err)
+		c.log.Errorf("error while creating the check, reason : %v", err)
 		return err
 	}
 	return nil
 }
 
-func (s *checkRepo) Update(chck *check.Check) error {
-	s.log.Debugf("updating the check, id : %v", chck.ID)
-	err := s.db.Model(&chck).Updates(check.Check{ServiceID: chck.ServiceID,
-		RoundID: chck.RoundID, Log: chck.Log, Passed: chck.Passed,
-	}).Error
-	if err != nil {
-		s.log.Errorf("error while updating the check, reason : %v", err)
-		return err
+//This method could allow for optimization as per gorm's https://github.com/jinzhu/gorm/issues/255#issuecomment-590287329
+func (c *checkRepo) StoreMany(chcks []*check.Check) error {
+	for _, chck := range chcks {
+		err := c.Store(chck)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

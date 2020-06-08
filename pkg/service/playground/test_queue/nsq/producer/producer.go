@@ -1,4 +1,4 @@
-package main
+package producer
 
 import (
 	"bytes"
@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-type Check_details struct {
+type Check_details struct { //MAKE SURE TO USE CAPITAL LETTERS OR VARIABLES WILL NOT BE EXPORTED
 	Round_Number    int
 	Values_to_check []int
 }
