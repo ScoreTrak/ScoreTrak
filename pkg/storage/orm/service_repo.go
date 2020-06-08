@@ -73,7 +73,7 @@ func (s *serviceRepo) Update(swm *service.Service) error {
 	err := s.db.Model(swm).Updates(service.Service{Enabled: swm.Enabled,
 		Name: swm.Name, Points: swm.Points, RoundDelay: swm.RoundDelay,
 		RoundUnits: swm.RoundUnits, ServiceGroupID: swm.ServiceGroupID,
-		HostID: swm.HostID}).Error
+		HostID: swm.HostID, DisplayName: swm.DisplayName}).Error
 	if err != nil {
 		s.log.Errorf("error while updating the service, reason : %v", err)
 		return err
