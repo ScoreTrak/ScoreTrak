@@ -1,5 +1,5 @@
 package config
 
 const (
-	MaxRoundDuration = 20
+	MinRoundDuration = 20
 )
