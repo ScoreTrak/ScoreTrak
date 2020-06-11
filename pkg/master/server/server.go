@@ -70,6 +70,6 @@ func (ds *dserver) Start() error {
 	if err := ds.cont.Invoke(func(c *config.StaticConfig) { cfg = c }); err != nil {
 		return err
 	}
-	return http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), ds.router)
-
+	go http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), ds.router)
+	return nil
 }
