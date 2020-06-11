@@ -13,6 +13,10 @@ import (
 
 var db *gorm.DB
 
+func GetGlobalDB() *gorm.DB {
+	return db
+}
+
 func LoadDB(c *config.StaticConfig) (*gorm.DB, error) {
 	var err error
 	if db == nil {
