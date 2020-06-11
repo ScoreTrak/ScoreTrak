@@ -1,12 +1,17 @@
 package config
 
 import (
+	"errors"
+	"fmt"
 	"github.com/jinzhu/configor"
+	"github.com/jinzhu/copier"
+	"github.com/jinzhu/gorm"
+	"reflect"
 	"sync"
 )
 
 var mu sync.RWMutex
-var d DynamicConfig
+var d *DynamicConfig
 
 // Dynamic Config model is a set of columns describing the dynamicConfig of the scoring engine
 type DynamicConfig struct {
@@ -15,6 +20,12 @@ type DynamicConfig struct {
 	RoundDuration uint64 `json:"round_durration,omitempty" default:"60"`
 	// Enables or disables competition globally
 	Enabled *bool `json:"enabled,omitempty" default:"false" gorm:"not null;default: false"`
+}
+
+func (dc DynamicConfig) Validate(db *gorm.DB) {
+	if dc.RoundDuration != 0 && dc.RoundDuration < MaxRoundDuration {
+		db.AddError(errors.New(fmt.Sprintf("Round Duration should not be larger than MaxRoundDuration, which is %d", MaxRoundDuration)))
+	}
 }
 
 func (DynamicConfig) TableName() string {
@@ -29,16 +40,10 @@ func PullConfig() {
 }
 
 //UpdateConfig updates dynamic config variable from provided dc variable
-func UpdateConfig(dc DynamicConfig) {
+func UpdateConfig(dc *DynamicConfig) {
 	mu.Lock()
 	defer mu.Unlock()
-	d.RoundDuration = dc.RoundDuration
-
-	if d.Enabled != nil {
-		*d.Enabled = *dc.Enabled
-	}
-
-	//Updates dynamicConfig in DB
+	copier.Copy(&d, &dc)
 }
 
 func GetRoundDuration() uint64 {
@@ -53,10 +58,29 @@ func GetEnabled() bool {
 	return *d.Enabled
 }
 
+//NewDynamicConfig initializes global config d, but it doesn't need any locking because it is assumed that NewDynamicConfig is ran once at the start of the application
 func NewDynamicConfig(f string) error {
+	if d != nil {
+		return errors.New("you shouldn't be initializing the config twice")
+	}
 	err := configor.Load(&d, f)
 	if err != nil {
 		return err
 	}
+	d.ID = 1
 	return nil
+}
+
+func GetConfigCopy() *DynamicConfig {
+	mu.RLock()
+	defer mu.RUnlock()
+	dc := DynamicConfig{}
+	copier.Copy(&dc, &d)
+	return &dc
+}
+
+func IsEqual(dc *DynamicConfig) bool {
+	mu.RLock()
+	defer mu.RUnlock()
+	return reflect.DeepEqual(&dc, &d)
 }
