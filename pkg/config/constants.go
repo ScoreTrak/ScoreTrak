@@ -1,5 +1,7 @@
 package config
 
+import "time"
+
 const (
-	MinRoundDuration = 20
+	MinRoundDuration = time.Duration(20) * time.Second
 )

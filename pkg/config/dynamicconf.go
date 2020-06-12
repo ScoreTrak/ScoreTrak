@@ -23,8 +23,8 @@ type DynamicConfig struct {
 }
 
 func (dc DynamicConfig) Validate(db *gorm.DB) {
-	if dc.RoundDuration != 0 && dc.RoundDuration < MinRoundDuration {
-		db.AddError(errors.New(fmt.Sprintf("Round Duration should not be larger than MinRoundDuration, which is %d", MinRoundDuration)))
+	if dc.RoundDuration != 0 && dc.RoundDuration < uint64(MinRoundDuration.Seconds()) {
+		db.AddError(errors.New(fmt.Sprintf("Round Duration should not be larger than MinRoundDuration, which is %d", uint64(MinRoundDuration.Seconds()))))
 	}
 }
 
