@@ -16,6 +16,8 @@ func NewRoundServ(repo Repo) Serv {
 
 func (svc *roundServ) GetLastRound() (*Round, error) { return svc.repo.GetLastRound() }
 
+func (svc *roundServ) GetElapsingRound() (*Round, error) { return svc.repo.GetElapsingRound() }
+
 func (svc *roundServ) Delete(id uint64) error { return svc.repo.Delete(id) }
 
 func (svc *roundServ) GetAll() ([]*Round, error) { return svc.repo.GetAll() }

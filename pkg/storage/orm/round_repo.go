@@ -91,3 +91,14 @@ func (r *roundRepo) GetLastRound() (*round.Round, error) {
 	}
 	return rnd, nil
 }
+
+func (r *roundRepo) GetElapsingRound() (*round.Round, error) {
+	rnd := &round.Round{}
+	err := r.db.Where("\"finish\" IS NULL").Last(rnd).Error
+	//r.db.Raw("SELECT * FROM rounds WHERE end is NOT NULL order by id desc limit 1").Scan(&rnd).Error
+	if err != nil {
+		r.log.Debug("not a single Round found")
+		return nil, err
+	}
+	return rnd, nil
+}
