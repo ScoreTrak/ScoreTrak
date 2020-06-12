@@ -37,7 +37,7 @@ func ExecutableByName(s string) Executable {
 	}
 }
 
-func UpdateExecutableProperties(v interface{}, p map[string]string) {
+func UpdateExecutableProperties(v Executable, p map[string]string) {
 	rv := reflect.ValueOf(v).Elem()
 	for key, val := range p {
 		rf := rv.FieldByName(key)
