@@ -52,9 +52,16 @@ func TestRoundSpec(t *testing.T) {
 				})
 			})
 
+			Convey("Last GetLastRound should output last round that has END set", func() {
+				rnd, err := rr.GetLastRound()
+				So(err, ShouldNotBeNil)
+				So(rnd, ShouldBeNil)
+			})
+
 			Convey("Adding a valid entry", func() {
 				var err error
-				r := round.Round{ID: 1}
+				now := time.Now()
+				r := round.Round{ID: 1, Finish: &now}
 				err = rr.Store(&r)
 				So(err, ShouldBeNil)
 				Convey("Should output one entry", func() {
@@ -119,7 +126,6 @@ func TestRoundSpec(t *testing.T) {
 						ac, err := rr.GetAll()
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
-						So(ac[0].Finish, ShouldBeNil)
 
 					})
 					Convey("For the correct entry should update", func() {
@@ -133,9 +139,13 @@ func TestRoundSpec(t *testing.T) {
 					})
 				})
 
+				Convey("Last GetElapsingRound should output last round", func() {
+					rnd, err := rr.GetElapsingRound()
+					So(err, ShouldNotBeNil)
+					So(rnd, ShouldBeNil)
+				})
+
 				Convey("Creating more rounds", func() {
-					now := time.Now()
-					r.Finish = &now
 					r2 := round.Round{ID: 2, Finish: &now}
 					r3 := round.Round{ID: 3, Finish: &now}
 					r4 := round.Round{ID: 4}
@@ -154,6 +164,11 @@ func TestRoundSpec(t *testing.T) {
 						rnd, err := rr.GetLastRound()
 						So(err, ShouldBeNil)
 						So(rnd.ID, ShouldEqual, 3)
+					})
+					Convey("Last GetElapsingRound should output last round", func() {
+						rnd, err := rr.GetElapsingRound()
+						So(err, ShouldBeNil)
+						So(rnd.ID, ShouldEqual, 4)
 					})
 				})
 				Convey("Creating Checks Table", func() {
