@@ -35,21 +35,19 @@ func Run() error {
 	if err := svr.SetupDB(); err != nil {
 		return err
 	}
-
 	dc := config.GetConfigCopy()
 	db := storage.GetGlobalDB()
-	if err := db.Create(dc).Error; err != nil {
-		return err
+	err = db.Create(dc).Error
+	if err != nil {
+		serr, ok := err.(*pq.Error)
+		if ok && serr.Code.Name() == "unique_violation" {
+			dcc := config.DynamicConfig{}
+			db.Take(&dcc)
+			config.UpdateConfig(&dcc)
+		} else {
+			return err
+		}
 	}
-	serr, ok := err.(*pq.Error)
-	if ok && serr.Code.Name() == "unique_violation" {
-		dcc := config.DynamicConfig{}
-		db.Take(&dcc)
-		config.UpdateConfig(&dcc)
-	} else {
-		return err
-	}
-
 	err = svr.Start()
 	if err != nil {
 		return err
