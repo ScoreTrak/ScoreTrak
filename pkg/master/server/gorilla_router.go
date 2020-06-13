@@ -327,10 +327,10 @@ func RoundRoutes(l logger.LogInfoFormat, svc round.Serv) Routes {
 	ctrl := handler.NewRoundController(l, svc)
 	roundRoutes := Routes{
 		Route{
-			"GetLastRound",
+			"GetLastNonElapsingRound",
 			strings.ToUpper("Get"),
 			"/round",
-			ctrl.GetLastRound,
+			ctrl.GetLastNonElapsingRound,
 		},
 	}
 	return roundRoutes
