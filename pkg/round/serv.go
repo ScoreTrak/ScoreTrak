@@ -1,7 +1,7 @@
 package round
 
 type Serv interface {
-	GetLastRound() (*Round, error)
+	GetLastNonElapsingRound() (*Round, error)
 }
 
 type roundServ struct {
@@ -14,9 +14,13 @@ func NewRoundServ(repo Repo) Serv {
 	}
 }
 
-func (svc *roundServ) GetLastRound() (*Round, error) { return svc.repo.GetLastRound() }
+func (svc *roundServ) GetLastNonElapsingRound() (*Round, error) {
+	return svc.repo.GetLastNonElapsingRound()
+}
 
-func (svc *roundServ) GetElapsingRound() (*Round, error) { return svc.repo.GetElapsingRound() }
+func (svc *roundServ) GetLastElapsingRound() (*Round, error) { return svc.repo.GetLastElapsingRound() }
+
+func (svc *roundServ) GetLastRound() (*Round, error) { return svc.repo.GetLastRound() }
 
 func (svc *roundServ) Delete(id uint64) error { return svc.repo.Delete(id) }
 

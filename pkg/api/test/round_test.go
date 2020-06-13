@@ -64,7 +64,7 @@ func TestRoundSpec(t *testing.T) {
 		s := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%d", port), Scheme: "http"}, "", http.DefaultClient)
 		cli := client.NewRoundClient(s)
 		Convey("Retrieving a round by ID", func() {
-			retRound, err := cli.GetLastRound()
+			retRound, err := cli.GetLastNonElapsingRound()
 			So(err, ShouldBeNil)
 			So(retRound.ID, ShouldEqual, 3)
 			So(retRound.Finish, ShouldNotBeNil)

@@ -52,8 +52,8 @@ func TestRoundSpec(t *testing.T) {
 				})
 			})
 
-			Convey("Last GetLastRound should output last round that has END set", func() {
-				rnd, err := rr.GetLastRound()
+			Convey("Last GetLastNonElapsingRound should output last round that has END set", func() {
+				rnd, err := rr.GetLastNonElapsingRound()
 				So(err, ShouldNotBeNil)
 				So(rnd, ShouldBeNil)
 			})
@@ -139,8 +139,8 @@ func TestRoundSpec(t *testing.T) {
 					})
 				})
 
-				Convey("Last GetElapsingRound should output last round", func() {
-					rnd, err := rr.GetElapsingRound()
+				Convey("Last GetLastElapsingRound should output last round", func() {
+					rnd, err := rr.GetLastElapsingRound()
 					So(err, ShouldNotBeNil)
 					So(rnd, ShouldBeNil)
 				})
@@ -160,13 +160,13 @@ func TestRoundSpec(t *testing.T) {
 					var count int
 					db.Table("rounds").Count(&count)
 					So(count, ShouldEqual, 4)
-					Convey("Last GetLastRound should output last round that has END set", func() {
-						rnd, err := rr.GetLastRound()
+					Convey("Last GetLastNonElapsingRound should output last round that has END set", func() {
+						rnd, err := rr.GetLastNonElapsingRound()
 						So(err, ShouldBeNil)
 						So(rnd.ID, ShouldEqual, 3)
 					})
-					Convey("Last GetElapsingRound should output last round", func() {
-						rnd, err := rr.GetElapsingRound()
+					Convey("Last GetLastElapsingRound should output last round", func() {
+						rnd, err := rr.GetLastElapsingRound()
 						So(err, ShouldBeNil)
 						So(rnd.ID, ShouldEqual, 4)
 					})

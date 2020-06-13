@@ -7,5 +7,6 @@ type Repo interface {
 	Store(u *Round) error
 	Update(u *Round) error
 	GetLastRound() (*Round, error)
-	GetElapsingRound() (*Round, error)
+	GetLastNonElapsingRound() (*Round, error)
+	GetLastElapsingRound() (*Round, error)
 }

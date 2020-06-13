@@ -15,6 +15,6 @@ func NewRoundController(log logger.LogInfoFormat, svc round.Serv) *roundControll
 	return &roundController{log, svc}
 }
 
-func (c *roundController) GetLastRound(w http.ResponseWriter, r *http.Request) {
-	genericGet(c.svc, c.log, "GetLastRound", w, r)
+func (c *roundController) GetLastNonElapsingRound(w http.ResponseWriter, r *http.Request) {
+	genericGet(c.svc, c.log, "GetLastNonElapsingRound", w, r)
 }
