@@ -33,10 +33,11 @@ func NewDB(c *config.StaticConfig) (*gorm.DB, error) {
 	var err error
 	if c.DB.Use == "cockroach" {
 		db, err = newCockroach(c)
-	}
-
-	if err != nil {
+	} else {
 		return nil, errors.New("Not supported db")
+	}
+	if err != nil {
+		return nil, err
 	}
 	validations.RegisterCallbacks(db)
 	db.BlockGlobalUpdate(true)
