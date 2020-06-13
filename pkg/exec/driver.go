@@ -1,7 +1,6 @@
 package exec
 
 import (
-	"ScoreTrak/pkg/exec/services"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"reflect"
 	"time"
@@ -23,18 +22,11 @@ func NewExec(t time.Duration, h string, e Executable) *Exec {
 }
 
 func (e Exec) Execute() (passed bool, log string, err error) {
+	//TODO:Terminate based on global timeout logic
 	return e.executable.Execute(e)
 }
 func (e Exec) Validate() error {
 	return e.executable.Validate()
-}
-
-func ExecutableByName(s string) Executable {
-	if s == "FTP" {
-		return &services.FTP{}
-	} else {
-		return nil
-	}
 }
 
 func UpdateExecutableProperties(v Executable, p map[string]string) {
