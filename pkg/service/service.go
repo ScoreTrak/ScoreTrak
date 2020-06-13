@@ -2,8 +2,10 @@ package service
 
 import (
 	"ScoreTrak/pkg/check"
+	"ScoreTrak/pkg/exec/resolver"
 	"ScoreTrak/pkg/property"
 	"errors"
+	"fmt"
 	"github.com/jinzhu/gorm"
 )
 
@@ -61,5 +63,9 @@ func (s Service) Validate(db *gorm.DB) {
 		if *(se.RoundDelay) >= s.RoundUnits {
 			db.AddError(errors.New("round delay should not be larger than round unit"))
 		}
+	}
+
+	if s.Name != "" && resolver.ExecutableByName(s.Name) == nil {
+		db.AddError(errors.New(fmt.Sprintf("name %s doesn't resolve to scorable service", s.Name)))
 	}
 }
