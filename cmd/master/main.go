@@ -18,12 +18,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%v", err)
 		os.Exit(-1)
 	}
-
-	c := config.GetStaticConfig()
-	c.Role = "Master"
-
 	if err := master.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "%v", err)
+		fmt.Fprintf(os.Stderr, "Unable to start due to: %v", err)
 		os.Exit(-1)
 	}
 }

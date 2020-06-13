@@ -4,9 +4,6 @@ import "github.com/jinzhu/configor"
 
 // StaticConfig is a struct of settings that were set at the start of the application
 type StaticConfig struct {
-	//
-	Role string `json:"-" default:""`
-
 	// token specified on init of the staticConfig
 	Token string `json:"-" default:""`
 
@@ -40,9 +37,8 @@ type StaticConfig struct {
 				Host string `default:"nsqd"`
 			}
 			Topic              string `default:"default"`
-			Channel            string `default:"channel"`
 			MaxInFlight        int    `default:"1"`
-			ConcurrentHandlers int
+			ConcurrentHandlers int    `default:"1"`
 			NSQLookupd         struct {
 				Host string `default:"nsqlookupd"`
 				Port string `default:"4161"`
