@@ -39,9 +39,9 @@ func NewNSQConsumer(c *config.StaticConfig) (*nsq.Consumer, error) {
 	return consumer, nil
 }
 
-func (n NSQ) Send(sd []queueing.ScoringData) []queueing.QCheck {
+func (n NSQ) Send(sd []*queueing.ScoringData) []queueing.QCheck {
 	if n.producer == nil {
-		panic("You should not call send if consumer is not defined!")
+		panic("You should not call send if producer is not defined!")
 	}
 	return []queueing.QCheck{}
 }

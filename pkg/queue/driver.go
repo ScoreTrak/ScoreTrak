@@ -8,7 +8,7 @@ import (
 )
 
 type Queue interface {
-	Send([]queueing.ScoringData) []queueing.QCheck
+	Send([]*queueing.ScoringData) []queueing.QCheck
 	Receive() queueing.ScoringData
 	Acknowledge(queueing.QCheck)
 }

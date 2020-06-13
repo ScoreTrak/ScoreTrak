@@ -10,8 +10,9 @@ type ScoringData struct {
 }
 
 type QService struct {
-	ID   uint64
-	Name string
+	ID    uint64
+	Group string
+	Name  string
 }
 
 type QCheck struct {
