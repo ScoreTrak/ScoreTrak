@@ -63,7 +63,8 @@ func NewDynamicConfig(f string) error {
 	if d != nil {
 		return errors.New("you shouldn't be initializing the config twice")
 	}
-	err := configor.Load(&d, f)
+	d = &DynamicConfig{}
+	err := configor.Load(d, f)
 	if err != nil {
 		return err
 	}
