@@ -7,6 +7,7 @@ type ScoringData struct {
 	Properties map[string]string
 	Timeout    time.Duration
 	Host       string
+	RoundID    uint64
 }
 
 type QService struct {
@@ -17,7 +18,8 @@ type QService struct {
 
 type QCheck struct {
 	Service QService
+	RoundID uint64
 	Passed  bool
 	Log     string
-	Err     error
+	Err     string
 }

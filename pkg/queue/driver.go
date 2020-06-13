@@ -8,14 +8,14 @@ import (
 )
 
 type Queue interface {
-	Send([]*queueing.ScoringData) []queueing.QCheck
-	Receive() queueing.ScoringData
+	Send([]*queueing.ScoringData) []*queueing.QCheck
+	Receive()
 	Acknowledge(queueing.QCheck)
 }
 
 func NewQueue(c *config.StaticConfig) (Queue, error) {
 	if c.Queue.Use == "nsq" {
-		return nsq.NewNSQQueue(c)
+		return nsq.NewNSQQueue()
 	}
 	return nil, errors.New("not supported queue")
 }

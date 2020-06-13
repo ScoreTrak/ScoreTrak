@@ -2,79 +2,128 @@ package nsq
 
 import (
 	"ScoreTrak/pkg/config"
+	"ScoreTrak/pkg/exec"
+	"ScoreTrak/pkg/exec/resolver"
 	"ScoreTrak/pkg/queue/queueing"
+	"bytes"
+	"encoding/gob"
 	"fmt"
 	"github.com/nsqio/go-nsq"
+	"strconv"
+	"sync"
 )
 
-type NSQ struct {
-	producer *nsq.Producer
-	consumer *nsq.Consumer
-}
+type NSQ struct{}
 
-func NewNSQProducer(c *config.StaticConfig) (*nsq.Producer, error) {
-	conf := nsq.NewConfig()
-	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", c.Queue.NSQ.NSQD.Host, c.Queue.NSQ.NSQD.Port), conf)
+func (n NSQ) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
+	//TODO: TERMINATION BASED ON TIMEOUT
+	c := config.GetStaticConfig()
+	confp := nsq.NewConfig()
+	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", c.Queue.NSQ.NSQD.Host, c.Queue.NSQ.NSQD.Port), confp)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	return producer, nil
-}
 
-func NewNSQConsumer(c *config.StaticConfig) (*nsq.Consumer, error) {
-	conf := nsq.NewConfig()
-	conf.MaxInFlight = c.Queue.NSQ.MaxInFlight
-	consumer, err := nsq.NewConsumer(c.Queue.NSQ.Topic, c.Queue.NSQ.Channel, conf)
-	if err != nil {
-		return nil, err
+	for _, sd := range sds {
+		buf := &bytes.Buffer{}
+		if err := gob.NewEncoder(buf).Encode(sd); err != nil {
+			panic(err)
+		}
+		err = producer.Publish(sd.Service.Group, buf.Bytes())
+		if err != nil {
+			panic(err)
+		}
 	}
-	// Set the Handler for messages received by this Consumer. Can be called multiple times.
-	// See also AddConcurrentHandlers.
-	consumer.ChangeMaxInFlight(2)
-	consumer.AddConcurrentHandlers(nsq.HandlerFunc(func(m *nsq.Message) error { return nil }), 2)
+	producer.Stop()
+	confc := nsq.NewConfig()
+	confc.LookupdPollInterval = config.MinRoundDuration / 4
+	consumer, err := nsq.NewConsumer(strconv.FormatUint(sds[0].RoundID, 10)+"_ack", "channel", confc)
+	if err != nil {
+		panic(err)
+	}
+	ret := make([]*queueing.QCheck, len(sds))
+	consumer.ChangeMaxInFlight(len(sds))
+	wg := &sync.WaitGroup{}
+	wg.Add(len(sds))
+	consumer.AddConcurrentHandlers(nsq.HandlerFunc(func(m *nsq.Message) error {
+		defer wg.Done()
+		buf := bytes.NewBuffer(m.Body)
+		var qc queueing.QCheck
+		if err := gob.NewDecoder(buf).Decode(&qc); err != nil {
+			panic(err)
+		}
+		for i, sd := range sds {
+			if sd.Service.ID == qc.Service.ID {
+				ret[i] = &qc
+			}
+		}
+		return nil
+	}), len(sds))
 	err = consumer.ConnectToNSQLookupd(fmt.Sprintf("%s:%s", c.Queue.NSQ.NSQLookupd.Host, c.Queue.NSQ.NSQLookupd.Port))
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	return consumer, nil
+	wg.Wait()
+	consumer.Stop()
+	return ret
 }
 
-func (n NSQ) Send(sd []*queueing.ScoringData) []queueing.QCheck {
-	if n.producer == nil {
-		panic("You should not call send if producer is not defined!")
-	}
-	return []queueing.QCheck{}
-}
-
-func (n NSQ) Receive() queueing.ScoringData {
-	if n.consumer == nil {
-		panic("You should not call receive if consumer is not defined!")
-	}
-	return queueing.ScoringData{}
-}
-
-func (n NSQ) Acknowledge(queueing.QCheck) {
-	if n.consumer == nil {
-		panic("You should not call acknowledge if consumer is not defined!")
-	}
-}
-
-func NewNSQQueue(c *config.StaticConfig) (*NSQ, error) {
-	producer, err := NewNSQProducer(c)
-
+func (n NSQ) Receive() {
+	//TODO: TERMINATION BASED ON TIMEOUT
+	c := config.GetConfig()
+	conf := nsq.NewConfig()
+	conf.LookupdPollInterval = config.MinRoundDuration / 4
+	conf.MaxInFlight = c.Queue.NSQ.MaxInFlight
+	consumer, err := nsq.NewConsumer(c.Queue.NSQ.Topic, "channel", conf)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
+	consumer.AddConcurrentHandlers(nsq.HandlerFunc(func(m *nsq.Message) error {
+		buf := bytes.NewBuffer(m.Body)
+		var sd queueing.ScoringData
+		if err := gob.NewDecoder(buf).Decode(&sd); err != nil {
+			panic(err)
+		}
+		executable := resolver.ExecutableByName(sd.Service.Name)
+		exec.UpdateExecutableProperties(executable, sd.Properties)
+		e := exec.NewExec(sd.Timeout, sd.Host, executable)
+		fmt.Println(fmt.Sprintf("Executing a check for service ID %d for round %d", sd.Service.ID, sd.RoundID))
+		passed, log, err := e.Execute()
+		var errstr string
+		if err != nil {
+			errstr = err.Error()
+		}
+		qc := queueing.QCheck{Service: sd.Service, Passed: passed, Log: log, Err: errstr, RoundID: sd.RoundID}
+		n.Acknowledge(qc)
+		return nil
 
-	consumer, err := NewNSQConsumer(c)
-
+	}), c.Queue.NSQ.ConcurrentHandlers)
+	err = consumer.ConnectToNSQLookupd(fmt.Sprintf("%s:%s", c.Queue.NSQ.NSQLookupd.Host, c.Queue.NSQ.NSQLookupd.Port))
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
+	select {}
 
-	return &NSQ{
-		producer,
-		consumer,
-	}, nil
+}
 
+func (n NSQ) Acknowledge(q queueing.QCheck) {
+	c := config.GetStaticConfig()
+	confp := nsq.NewConfig()
+	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", c.Queue.NSQ.NSQD.Host, c.Queue.NSQ.NSQD.Port), confp)
+	if err != nil {
+		panic(err)
+	}
+	buf := &bytes.Buffer{}
+	if err := gob.NewEncoder(buf).Encode(&q); err != nil {
+		panic(err)
+	}
+	err = producer.Publish(strconv.FormatUint(q.RoundID, 10)+"_ack", buf.Bytes())
+	if err != nil {
+		panic(err)
+	}
+	producer.Stop()
+}
+
+func NewNSQQueue() (*NSQ, error) {
+	return &NSQ{}, nil
 }
