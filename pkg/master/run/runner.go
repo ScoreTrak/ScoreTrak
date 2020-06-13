@@ -46,11 +46,14 @@ func NewRunner(db *gorm.DB, l logger.LogInfoFormat, q queue.Queue, r RepoStore) 
 func (d *drunner) MasterRunner() error {
 	var scoringLoop *time.Ticker
 	rnd, _ := d.r.Round.GetLastRound()
-	if rnd != nil {
-		rnd = d.attemptToScore(nil, time.Duration(float64(config.GetRoundDuration())*0.75)*time.Second)
-	}
 	configLoop := time.NewTicker(config.MinRoundDuration)
+
+	if rnd == nil {
+		rnd = &round.Round{ID: 1}
+		d.attemptToScore(rnd, time.Duration(config.GetRoundDuration())*time.Second*3/4)
+	}
 	scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd))
+
 	for {
 		select {
 		case <-configLoop.C:
@@ -59,6 +62,7 @@ func (d *drunner) MasterRunner() error {
 				config.UpdateConfig(cnf)
 			}
 			scoringLoop.Stop()
+			rnd, _ = d.r.Round.GetLastRound()
 			scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd))
 		case <-scoringLoop.C:
 			scoringLoop.Stop()
@@ -67,7 +71,8 @@ func (d *drunner) MasterRunner() error {
 				break
 			}
 			if config.GetEnabled() {
-				rnd = d.attemptToScore(rnd, time.Duration(float64(cnf.RoundDuration)*0.75)*time.Second)
+				rnd = &round.Round{ID: rnd.ID + 1}
+				d.attemptToScore(rnd, time.Duration(config.GetRoundDuration())*time.Second*3/4)
 				scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd))
 			} else {
 				scoringLoop = time.NewTicker(config.MinRoundDuration)
@@ -88,33 +93,24 @@ func (d *drunner) durationUntilNextRound(rnd *round.Round) time.Duration {
 }
 
 //Runs check in the background as a gorutine.
-func (d *drunner) attemptToScore(rnd *round.Round, timeout time.Duration) (NextRound *round.Round) {
-	r := round.Round{}
-	if rnd == nil {
-		r.ID = 1
-	} else {
-		r.ID = rnd.ID + 1
-	}
-	err := d.r.Round.Store(&r)
+func (d *drunner) attemptToScore(rnd *round.Round, timeout time.Duration) {
+	err := d.r.Round.Store(rnd)
 	if err != nil {
 		serr, ok := err.(*pq.Error)
 		if ok && serr.Code.Name() == "unique_violation" {
-			ret, err := d.r.Round.GetByID(r.ID)
-			if err != nil {
-				d.l.Error(err)
-				panic(err)
-			}
-			return ret
+			r, _ := d.r.Round.GetByID(rnd.ID)
+			*rnd = *r
+		} else {
+			d.l.Error(err)
+			panic(err)
 		}
-		d.l.Error(err)
-		panic(err)
+	} else {
+		go d.Score(*rnd, timeout)
 	}
-	go d.Score(r, timeout)
-	return &r
 }
 
 func (d drunner) Score(rnd round.Round, Timeout time.Duration) {
-
+	//TODO: TERMINATION BASED ON TIMEOUT
 	teams, err := d.r.Team.GetAll()
 	if err != nil {
 		d.finalizeRound(&rnd)
@@ -194,6 +190,7 @@ func (d drunner) Score(rnd round.Round, Timeout time.Duration) {
 			Host:       hst,
 			Service:    sq,
 			Properties: params,
+			RoundID:    rnd.ID,
 		}
 		sds = append(sds, sd)
 	}
