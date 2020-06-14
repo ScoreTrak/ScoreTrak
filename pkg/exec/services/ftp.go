@@ -24,6 +24,11 @@ type FTP struct {
 	ExpectedOutput string `json:"expected_output"`
 }
 
+func NewFTP() *FTP {
+	f := FTP{Port: "21"}
+	return &f
+}
+
 func (f *FTP) Validate() error {
 	if f.Password != "" && f.Username != "" {
 		if f.Text != "" || f.ReadFilename != "" {

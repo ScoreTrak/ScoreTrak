@@ -7,7 +7,7 @@ import (
 
 func ExecutableByName(s string) exec.Executable {
 	if s == "FTP" {
-		return &services.FTP{}
+		return services.NewFTP()
 	} else {
 		return nil
 	}
