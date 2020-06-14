@@ -60,7 +60,7 @@ func (s Service) Validate(db *gorm.DB) {
 	if s.RoundUnits != 0 {
 		se := Service{}
 		db.Where("id = ?", s.ID).First(&se)
-		if *(se.RoundDelay) >= s.RoundUnits {
+		if se.RoundDelay != nil && *(se.RoundDelay) >= s.RoundUnits {
 			db.AddError(errors.New("round delay should not be larger than round unit"))
 		}
 	}
