@@ -9,5 +9,7 @@ type Check struct {
 	// Represents an comment/log of a check. This will be helpful for debugging purposes during the competition
 	Log string `json:"log,omitempty"`
 
+	Err string `json:"err,omitempty"`
+
 	Passed *bool `json:"passed,omitempty" gorm:"not null; default: false"`
 }
