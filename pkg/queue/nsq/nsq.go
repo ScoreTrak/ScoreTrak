@@ -89,6 +89,12 @@ func (n NSQ) Receive() {
 		exec.UpdateExecutableProperties(executable, sd.Properties)
 		e := exec.NewExec(sd.Timeout, sd.Host, executable)
 		fmt.Println(fmt.Sprintf("Executing a check for service ID %d for round %d", sd.Service.ID, sd.RoundID))
+		err := e.Validate()
+		if err != nil {
+			qc := queueing.QCheck{Service: sd.Service, Passed: false, Log: "", Err: err.Error(), RoundID: sd.RoundID}
+			n.Acknowledge(qc)
+			return nil
+		}
 		passed, log, err := e.Execute()
 		var errstr string
 		if err != nil {
