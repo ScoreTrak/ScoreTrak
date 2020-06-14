@@ -48,7 +48,7 @@ func (d *drunner) MasterRunner() error {
 	rnd, _ := d.r.Round.GetLastRound()
 	configLoop := time.NewTicker(config.MinRoundDuration)
 
-	if rnd == nil {
+	if rnd == nil && config.GetEnabled() {
 		rnd = &round.Round{ID: 1}
 		d.attemptToScore(rnd, time.Now().Add(time.Duration(config.GetRoundDuration())*time.Second*8/10))
 	}
@@ -110,7 +110,6 @@ func (d *drunner) attemptToScore(rnd *round.Round, timeout time.Time) {
 }
 
 func (d drunner) Score(rnd round.Round, timeout time.Time) {
-	//TODO: TERMINATION BASED ON TIMEOUT
 	teams, err := d.r.Team.GetAll()
 	if err != nil {
 		d.finalizeRound(&rnd)
@@ -218,7 +217,7 @@ func (d drunner) Score(rnd round.Round, timeout time.Time) {
 	}
 	var checks []*check.Check
 	for _, c := range chks {
-		checks = append(checks, &check.Check{Passed: &c.Passed, Log: c.Log, ServiceID: c.Service.ID, RoundID: rnd.ID})
+		checks = append(checks, &check.Check{Passed: &c.Passed, Log: c.Log, ServiceID: c.Service.ID, RoundID: rnd.ID, Err: c.Err})
 	}
 	err = d.r.Check.StoreMany(checks)
 	if err != nil {
