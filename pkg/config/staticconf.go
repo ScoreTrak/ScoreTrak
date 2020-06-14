@@ -27,8 +27,7 @@ type StaticConfig struct {
 	} `json:"-"`
 
 	Queue struct {
-		// IF USE is "" then execute locally
-		Use   string `default:"nsq"`
+		Use   string `default:""`
 		Kafka struct {
 		}
 		NSQ struct {
