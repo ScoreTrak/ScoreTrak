@@ -28,9 +28,30 @@ func (p Property) Validate(db *gorm.DB) {
 	if p.Status != "" {
 		for _, item := range []string{"View", "Edit", "Hide"} {
 			if item == p.Status {
-				return
+				goto NextCheck
 			}
 		}
 		db.AddError(errors.New("property Status should either be View, Edit, or Hide"))
+		return
 	}
+
+NextCheck:
+	if p.Value != "" {
+		var status string
+		if p.Status == "" {
+			pe := Property{}
+			db.Where("id = ?", p.ID).First(&pe)
+			if pe.Status == "" {
+				status = "View"
+			} else {
+				status = pe.Status
+			}
+		} else {
+			status = p.Status
+		}
+		if status != "Edit" {
+			db.AddError(errors.New("you cannot edit value if Status is not Edit"))
+		}
+	}
+	return
 }
