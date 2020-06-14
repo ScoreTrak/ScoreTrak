@@ -50,7 +50,7 @@ func (d *drunner) MasterRunner() error {
 
 	if rnd == nil {
 		rnd = &round.Round{ID: 1}
-		d.attemptToScore(rnd, time.Duration(config.GetRoundDuration())*time.Second*3/4)
+		d.attemptToScore(rnd, time.Now().Add(time.Duration(config.GetRoundDuration())*time.Second*8/10))
 	}
 	scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd))
 
@@ -72,7 +72,7 @@ func (d *drunner) MasterRunner() error {
 			}
 			if config.GetEnabled() {
 				rnd = &round.Round{ID: rnd.ID + 1}
-				d.attemptToScore(rnd, time.Duration(config.GetRoundDuration())*time.Second*3/4)
+				d.attemptToScore(rnd, time.Now().Add(time.Duration(config.GetRoundDuration())*time.Second*8/10))
 				scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd))
 			} else {
 				scoringLoop = time.NewTicker(config.MinRoundDuration)
@@ -93,7 +93,7 @@ func (d *drunner) durationUntilNextRound(rnd *round.Round) time.Duration {
 }
 
 //Runs check in the background as a gorutine.
-func (d *drunner) attemptToScore(rnd *round.Round, timeout time.Duration) {
+func (d *drunner) attemptToScore(rnd *round.Round, timeout time.Time) {
 	err := d.r.Round.Store(rnd)
 	if err != nil {
 		serr, ok := err.(*pq.Error)
@@ -109,7 +109,7 @@ func (d *drunner) attemptToScore(rnd *round.Round, timeout time.Duration) {
 	}
 }
 
-func (d drunner) Score(rnd round.Round, Timeout time.Duration) {
+func (d drunner) Score(rnd round.Round, timeout time.Time) {
 	//TODO: TERMINATION BASED ON TIMEOUT
 	teams, err := d.r.Team.GetAll()
 	if err != nil {
@@ -186,7 +186,7 @@ func (d drunner) Score(rnd round.Round, Timeout time.Duration) {
 			params[p.Key] = p.Value
 		}
 		sd := &queueing.ScoringData{
-			Timeout:    Timeout,
+			Timeout:    timeout,
 			Host:       hst,
 			Service:    sq,
 			Properties: params,
@@ -194,7 +194,23 @@ func (d drunner) Score(rnd round.Round, Timeout time.Duration) {
 		}
 		sds = append(sds, sd)
 	}
-	chks := d.q.Send(sds)
+
+	var chks []*queueing.QCheck
+	completed := make(chan bool, 1)
+
+	go func() {
+		chks = d.q.Send(sds)
+		completed <- true
+	}()
+
+	// Listen on our channel AND a timeout channel - which ever happens first.
+	select {
+	case <-completed:
+		break
+	case <-time.After(time.Until(timeout)):
+		d.finalizeRound(&rnd)
+	}
+
 	r, _ := d.r.Round.GetLastRound()
 	if r.ID != rnd.ID {
 		d.finalizeRound(&rnd)

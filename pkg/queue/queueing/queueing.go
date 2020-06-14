@@ -5,7 +5,7 @@ import "time"
 type ScoringData struct {
 	Service    QService
 	Properties map[string]string
-	Timeout    time.Duration
+	Timeout    time.Time
 	Host       string
 	RoundID    uint64
 }

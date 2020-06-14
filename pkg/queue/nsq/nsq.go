@@ -11,6 +11,7 @@ import (
 	"github.com/nsqio/go-nsq"
 	"strconv"
 	"sync"
+	"time"
 )
 
 type NSQ struct{}
@@ -36,7 +37,7 @@ func (n NSQ) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 	}
 	producer.Stop()
 	confc := nsq.NewConfig()
-	confc.LookupdPollInterval = config.MinRoundDuration / 4
+	confc.LookupdPollInterval = time.Second * 3
 	consumer, err := nsq.NewConsumer(strconv.FormatUint(sds[0].RoundID, 10)+"_ack", "channel", confc)
 	if err != nil {
 		panic(err)
@@ -72,7 +73,7 @@ func (n NSQ) Receive() {
 	//TODO: TERMINATION BASED ON TIMEOUT
 	c := config.GetConfig()
 	conf := nsq.NewConfig()
-	conf.LookupdPollInterval = config.MinRoundDuration / 4
+	conf.LookupdPollInterval = time.Second * 1
 	conf.MaxInFlight = c.Queue.NSQ.MaxInFlight
 	consumer, err := nsq.NewConsumer(c.Queue.NSQ.Topic, "channel", conf)
 	if err != nil {

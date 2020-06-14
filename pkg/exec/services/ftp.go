@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/jlaffaye/ftp"
 	"io/ioutil"
+	"time"
 )
 
 type FTP struct {
@@ -34,7 +35,7 @@ func (f *FTP) Validate() error {
 }
 
 func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {
-	c, err := ftp.Dial(fmt.Sprintf("%s:%s", e.Host, f.Port), ftp.DialWithTimeout(e.Timeout/2)) // For passive FTP allow Data Channel Port Range. In addition, Allow FTP as an APP in windows firewall, and allow port 20, 21, 1024-65535
+	c, err := ftp.Dial(fmt.Sprintf("%s:%s", e.Host, f.Port), ftp.DialWithTimeout(time.Until(e.Timeout))) // For passive FTP allow Data Channel Port Range. In addition, Allow FTP as an APP in windows firewall, and allow port 20, 21, 1024-65535
 	if err != nil {
 		return false, "Unable to dial FTP Server", err
 	}

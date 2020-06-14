@@ -1,6 +1,7 @@
 package exec
 
 import (
+	"errors"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"reflect"
 	"time"
@@ -12,17 +13,27 @@ type Executable interface {
 }
 
 type Exec struct {
-	Timeout    time.Duration
+	Timeout    time.Time
 	Host       string
 	executable Executable
 }
 
-func NewExec(t time.Duration, h string, e Executable) *Exec {
+func NewExec(t time.Time, h string, e Executable) *Exec {
 	return &Exec{Timeout: t, Host: h, executable: e}
 }
 
 func (e Exec) Execute() (passed bool, log string, err error) {
-	//TODO:Terminate based on global timeout logic
+	completed := make(chan bool, 1)
+	go func() {
+		passed, log, err = e.executable.Execute(e)
+		completed <- true
+	}()
+	select {
+	case <-completed:
+		break
+	case <-time.After(time.Until(e.Timeout) * 10 / 16):
+		return false, "", errors.New("check took too long to execute")
+	}
 	return e.executable.Execute(e)
 }
 func (e Exec) Validate() error {
