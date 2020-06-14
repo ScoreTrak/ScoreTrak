@@ -16,7 +16,6 @@ import (
 	"ScoreTrak/pkg/service_group"
 	"ScoreTrak/pkg/storage"
 	"ScoreTrak/pkg/team"
-	"github.com/lib/pq"
 )
 
 func Run() error {
@@ -35,19 +34,7 @@ func Run() error {
 	if err := svr.SetupDB(); err != nil {
 		return err
 	}
-	dc := config.GetConfigCopy()
 	db := storage.GetGlobalDB()
-	err = db.Create(dc).Error
-	if err != nil {
-		serr, ok := err.(*pq.Error)
-		if ok && serr.Code.Name() == "unique_violation" {
-			dcc := config.DynamicConfig{}
-			db.Take(&dcc)
-			config.UpdateConfig(&dcc)
-		} else {
-			return err
-		}
-	}
 	err = svr.Start()
 	if err != nil {
 		return err

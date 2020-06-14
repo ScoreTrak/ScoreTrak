@@ -44,36 +44,50 @@ func NewRunner(db *gorm.DB, l logger.LogInfoFormat, q queue.Queue, r RepoStore) 
 }
 
 func (d *drunner) MasterRunner() error {
+	err, cnf := config.NewDynamicConfig("configs/config.yml")
+	if err != nil {
+		return err
+	}
+	err = d.db.Create(cnf).Error
+	if err != nil {
+		serr, ok := err.(*pq.Error)
+		if ok && serr.Code.Name() == "unique_violation" {
+			dcc := &config.DynamicConfig{}
+			d.db.Take(dcc)
+			cnf.UpdateConfig(dcc)
+		} else {
+			return err
+		}
+	}
 	var scoringLoop *time.Ticker
 	rnd, _ := d.r.Round.GetLastRound()
 	configLoop := time.NewTicker(config.MinRoundDuration)
 
-	if rnd == nil && config.GetEnabled() {
+	if rnd == nil && *(cnf.Enabled) {
 		rnd = &round.Round{ID: 1}
-		d.attemptToScore(rnd, time.Now().Add(time.Duration(config.GetRoundDuration())*time.Second*8/10))
+		d.attemptToScore(rnd, time.Now().Add(time.Duration(cnf.RoundDuration)*time.Second*8/10))
 	}
-	scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd))
-
+	scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
 	for {
 		select {
 		case <-configLoop.C:
-			cnf, _ := d.r.Config.Get()
-			if !config.IsEqual(cnf) {
-				config.UpdateConfig(cnf)
+			dcc, _ := d.r.Config.Get()
+			if !cnf.IsEqual(dcc) {
+				*cnf = *dcc
 			}
 			scoringLoop.Stop()
 			rnd, _ = d.r.Round.GetLastRound()
-			scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd))
+			scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
 		case <-scoringLoop.C:
 			scoringLoop.Stop()
-			cnf, _ := d.r.Config.Get()
-			if !config.IsEqual(cnf) {
-				break
+			dcc, _ := d.r.Config.Get()
+			if !cnf.IsEqual(dcc) {
+				*cnf = *dcc
 			}
-			if config.GetEnabled() {
+			if *cnf.Enabled {
 				rnd = &round.Round{ID: rnd.ID + 1}
-				d.attemptToScore(rnd, time.Now().Add(time.Duration(config.GetRoundDuration())*time.Second*8/10))
-				scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd))
+				d.attemptToScore(rnd, time.Now().Add(time.Duration(cnf.RoundDuration)*time.Second*8/10))
+				scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
 			} else {
 				scoringLoop = time.NewTicker(config.MinRoundDuration)
 			}
@@ -81,11 +95,11 @@ func (d *drunner) MasterRunner() error {
 	}
 }
 
-func (d *drunner) durationUntilNextRound(rnd *round.Round) time.Duration {
+func (d *drunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64) time.Duration {
 	if rnd == nil {
 		return config.MinRoundDuration
 	}
-	dur := rnd.Start.Add(time.Duration(config.GetRoundDuration()) * time.Second).Sub(time.Now())
+	dur := rnd.Start.Add(time.Duration(RoundDuration) * time.Second).Sub(time.Now())
 	if dur <= 1 {
 		return 1
 	}
