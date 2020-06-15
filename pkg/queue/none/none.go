@@ -25,7 +25,7 @@ func (n None) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 			fmt.Println(fmt.Sprintf("Executing a check for service ID %d for round %d", sd.Service.ID, sd.RoundID))
 			err := e.Validate()
 			if err != nil {
-				qc := queueing.QCheck{Service: sd.Service, Passed: false, Log: "", Err: err.Error(), RoundID: sd.RoundID}
+				qc := queueing.QCheck{Service: sd.Service, Passed: false, Log: "Check did not pass parameter validation", Err: err.Error(), RoundID: sd.RoundID}
 				ret[i] = &qc
 				return
 			}

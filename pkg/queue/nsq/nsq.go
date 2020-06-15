@@ -87,11 +87,11 @@ func (n NSQ) Receive() {
 		}
 		executable := resolver.ExecutableByName(sd.Service.Name)
 		exec.UpdateExecutableProperties(executable, sd.Properties)
-		e := exec.NewExec(sd.Timeout.Add(time.Second*5), sd.Host, executable)
+		e := exec.NewExec(sd.Timeout.Add(-time.Second*5), sd.Host, executable)
 		fmt.Println(fmt.Sprintf("Executing a check for service ID %d for round %d", sd.Service.ID, sd.RoundID))
 		err := e.Validate()
 		if err != nil {
-			qc := queueing.QCheck{Service: sd.Service, Passed: false, Log: "", Err: err.Error(), RoundID: sd.RoundID}
+			qc := queueing.QCheck{Service: sd.Service, Passed: false, Log: "Check did not pass parameter validation", Err: err.Error(), RoundID: sd.RoundID}
 			n.Acknowledge(qc)
 			return nil
 		}
