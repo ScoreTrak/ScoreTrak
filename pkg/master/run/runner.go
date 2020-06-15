@@ -147,7 +147,6 @@ func (d drunner) Score(rnd round.Round, timeout time.Time) {
 		return
 	}
 	var sds []*queueing.ScoringData
-
 	for _, t := range teams {
 		if *(t.Enabled) {
 			var hsts []host.Host
@@ -283,8 +282,7 @@ func (d drunner) Score(rnd round.Round, timeout time.Time) {
 								params[p.Key] = p.Value
 							}
 						}
-						ss := report.SimpleService{Passed: *s.Checks[0].Passed, Log: s.Checks[0].Log, Err: s.Checks[0].Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
-						sh.Services[s.ID] = ss
+						sh.Services[s.ID] = report.SimpleService{Passed: *s.Checks[0].Passed, Log: s.Checks[0].Log, Err: s.Checks[0].Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
 					}
 					st.Hosts[h.ID] = sh
 				}
