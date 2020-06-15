@@ -11,7 +11,7 @@ type ServiceGroup struct {
 	// Enables or Disables the service
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: false"`
 
-	Services []service.Service `gorm:"foreignkey:ServiceGroupID"`
+	Services []*service.Service `gorm:"foreignkey:ServiceGroupID"`
 }
 
 func (ServiceGroup) TableName() string {

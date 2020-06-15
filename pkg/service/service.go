@@ -38,7 +38,7 @@ type Service struct {
 	// Enables or Disables the service
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: false"`
 
-	Properties []property.Property `json:"-" gorm:"foreignkey:ServiceID"`
+	Properties []*property.Property `json:"-" gorm:"foreignkey:ServiceID"`
 
 	Checks []*check.Check `json:"-" gorm:"foreignkey:ServiceID"`
 }
