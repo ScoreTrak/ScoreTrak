@@ -169,11 +169,6 @@ func (d *drunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64)
 
 //Runs check in the background as a gorutine.
 func (d *drunner) attemptToScore(rnd *round.Round, timeout time.Time) {
-	defer func() {
-		if err := recover(); err != nil {
-			d.l.Error(err)
-		}
-	}()
 	err := d.r.Round.Store(rnd)
 	if err != nil {
 		serr, ok := err.(*pq.Error)
@@ -192,6 +187,11 @@ func (d *drunner) attemptToScore(rnd *round.Round, timeout time.Time) {
 }
 
 func (d drunner) Score(rnd round.Round, timeout time.Time) {
+	defer func() {
+		if err := recover(); err != nil {
+			d.l.Error(err)
+		}
+	}()
 	d.l.Info("Running check for round %d", rnd.ID)
 	teams, err := d.r.Team.GetAll()
 	if err != nil {
