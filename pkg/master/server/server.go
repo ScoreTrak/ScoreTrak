@@ -13,11 +13,14 @@ import (
 	"ScoreTrak/pkg/service_group"
 	"ScoreTrak/pkg/swarm"
 	"ScoreTrak/pkg/team"
+	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/dig"
+	"math"
 	"net/http"
+	"time"
 )
 
 type dserver struct {
@@ -36,11 +39,25 @@ func NewServer(e *mux.Router, c *dig.Container, l logger.LogInfoFormat) *dserver
 
 func (ds *dserver) SetupDB() error {
 	var db *gorm.DB
-
 	if err := ds.cont.Invoke(func(d *gorm.DB) {
 		db = d
 	}); err != nil {
 		return err
+	}
+
+	var tm time.Time
+	res, err := db.Raw("SELECT current_timestamp;").Rows()
+	if err != nil {
+		panic(err)
+	}
+	defer res.Close()
+	for res.Next() {
+		res.Scan(&tm)
+	}
+	timeDiff := time.Since(tm)
+	if float64(time.Second*2) < math.Abs(float64(timeDiff)) {
+		panic(errors.New(
+			fmt.Sprintf("time difference between master host, and database host are is large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now())))
 	}
 
 	db.AutoMigrate(&team.Team{})

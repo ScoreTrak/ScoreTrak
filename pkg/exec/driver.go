@@ -24,7 +24,7 @@ func NewExec(t time.Time, h string, e Executable) *Exec {
 
 func (e Exec) Execute() (passed bool, log string, err error) {
 	oldTimeout := e.Timeout
-	e.Timeout = e.Timeout.Add(-time.Second)
+	e.Timeout = e.Timeout.Add(-time.Second * 3)
 	completed := make(chan bool, 1)
 	defer close(completed)
 	go func() {
