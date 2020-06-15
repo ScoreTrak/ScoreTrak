@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jinzhu/configor"
-	"github.com/jinzhu/copier"
 	"github.com/jinzhu/gorm"
 	"reflect"
 )
@@ -26,14 +25,6 @@ func (d DynamicConfig) Validate(db *gorm.DB) {
 
 func (d DynamicConfig) TableName() string {
 	return "config"
-}
-
-//UpdateConfig updates dynamic config variable from provided dc variable
-func (d *DynamicConfig) UpdateConfig(dc *DynamicConfig) {
-	err := copier.Copy(d, dc)
-	if err != nil {
-		panic(err)
-	}
 }
 
 //NewDynamicConfig initializes global config d, but it doesn't need any locking because it is assumed that NewDynamicConfig is ran once at the start of the application

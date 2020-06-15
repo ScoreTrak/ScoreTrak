@@ -54,7 +54,7 @@ func CreateAllTables(db *gorm.DB) {
 	db.Model(&check.Check{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
 	db.Model(&check.Check{}).AddForeignKey("round_id", "rounds(id)", "CASCADE", "RESTRICT")
 	db.Model(&host.Host{}).AddForeignKey("host_group_id", "host_groups(id)", "RESTRICT", "RESTRICT")
-	db.Model(&host.Host{}).AddForeignKey("team_id", "teams(id)", "RESTRICT", "RESTRICT")
+	db.Model(&host.Host{}).AddForeignKey("team_name", "teams(name)", "RESTRICT", "RESTRICT")
 	db.Model(&property.Property{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
 	db.Model(&service.Service{}).AddForeignKey("service_group_id", "service_groups(id)", "RESTRICT", "RESTRICT")
 	db.Model(&service.Service{}).AddForeignKey("host_id", "hosts(id)", "RESTRICT", "RESTRICT")
@@ -114,10 +114,10 @@ func DataPreload(db *gorm.DB) {
 		panic("There should be 1 entry in config")
 	}
 	//Creating Teams
-	db.Exec("INSERT INTO teams (id, enabled) VALUES ('TeamOne', true)")
-	db.Exec("INSERT INTO teams (id, enabled) VALUES ('TeamTwo', false)")
-	db.Exec("INSERT INTO teams (id, enabled) VALUES ('TeamThree', true)")
-	db.Exec("INSERT INTO teams (id, enabled) VALUES ('TeamFour', false)")
+	db.Exec("INSERT INTO teams (id, name, enabled) VALUES (1, 'TeamOne', true)")
+	db.Exec("INSERT INTO teams (id, name, enabled) VALUES (2, 'TeamTwo', false)")
+	db.Exec("INSERT INTO teams (id, name, enabled) VALUES (3, 'TeamThree', true)")
+	db.Exec("INSERT INTO teams (id, name, enabled) VALUES (4, 'TeamFour', false)")
 	db.Table("teams").Count(&count)
 	if count != 4 {
 		panic("There should be 4 entry in teams")
@@ -141,10 +141,10 @@ func DataPreload(db *gorm.DB) {
 		panic("There should be 4 entry in service groups")
 	}
 	//Creating Hosts
-	db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id, enabled, edit_host) VALUES (1, '10.0.0.1', NULL, NULL, true, true)")
-	db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id, enabled, edit_host) VALUES (2, '10.0.0.2', 'TeamTwo', NULL, false, true)")
-	db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id, enabled, edit_host) VALUES (3, '10.0.0.3', NULL, 3, true, false)")
-	db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id, enabled, edit_host) VALUES (4, '10.0.0.4', 'TeamFour', 4, false, false)")
+	db.Exec("INSERT INTO hosts (id, address, team_name, host_group_id, enabled, edit_host) VALUES (1, '10.0.0.1', NULL, NULL, true, true)")
+	db.Exec("INSERT INTO hosts (id, address, team_name, host_group_id, enabled, edit_host) VALUES (2, '10.0.0.2', 'TeamTwo', NULL, false, true)")
+	db.Exec("INSERT INTO hosts (id, address, team_name, host_group_id, enabled, edit_host) VALUES (3, '10.0.0.3', NULL, 3, true, false)")
+	db.Exec("INSERT INTO hosts (id, address, team_name, host_group_id, enabled, edit_host) VALUES (4, '10.0.0.4', 'TeamFour', 4, false, false)")
 	db.Table("hosts").Count(&count)
 	if count != 4 {
 		panic("There should be 4 entry in hosts")

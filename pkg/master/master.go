@@ -1,21 +1,13 @@
 package master
 
 import (
-	"ScoreTrak/pkg/check"
 	"ScoreTrak/pkg/config"
 	"ScoreTrak/pkg/di"
-	"ScoreTrak/pkg/host"
-	"ScoreTrak/pkg/host_group"
 	"ScoreTrak/pkg/logger"
 	"ScoreTrak/pkg/master/run"
 	"ScoreTrak/pkg/master/server"
-	"ScoreTrak/pkg/property"
 	"ScoreTrak/pkg/queue"
-	"ScoreTrak/pkg/round"
-	"ScoreTrak/pkg/service"
-	"ScoreTrak/pkg/service_group"
 	"ScoreTrak/pkg/storage"
-	"ScoreTrak/pkg/team"
 )
 
 func Run() error {
@@ -46,57 +38,7 @@ func Run() error {
 		return err
 	}
 
-	var hostGroupRepo host_group.Repo
-	di.Invoke(func(re host_group.Repo) {
-		hostGroupRepo = re
-	})
-	var hostRepo host.Repo
-	di.Invoke(func(re host.Repo) {
-		hostRepo = re
-	})
-	var roundRepo round.Repo
-	di.Invoke(func(re round.Repo) {
-		roundRepo = re
-	})
-	var serviceRepo service.Repo
-	di.Invoke(func(re service.Repo) {
-		serviceRepo = re
-	})
-	var serviceGroupRepo service_group.Repo
-	di.Invoke(func(re service_group.Repo) {
-		serviceGroupRepo = re
-	})
-	var propertyRepo property.Repo
-	di.Invoke(func(re property.Repo) {
-		propertyRepo = re
-	})
-	var checkRepo check.Repo
-	di.Invoke(func(re check.Repo) {
-		checkRepo = re
-	})
-	var teamRepo team.Repo
-	di.Invoke(func(re team.Repo) {
-		teamRepo = re
-	})
-	var configRepo config.Repo
-	di.Invoke(func(re config.Repo) {
-		configRepo = re
-	})
-
-	repoStore := run.RepoStore{
-		Round:        roundRepo,
-		HostGroup:    hostGroupRepo,
-		Host:         hostRepo,
-		Service:      serviceRepo,
-		ServiceGroup: serviceGroupRepo,
-		Property:     propertyRepo,
-		Check:        checkRepo,
-		Team:         teamRepo,
-		Config:       configRepo,
-	}
-
-	dr := run.NewRunner(db, l, q, repoStore)
-
+	dr := run.NewRunner(db, l, q, run.NewRepoStore())
 	return dr.MasterRunner()
 
 }

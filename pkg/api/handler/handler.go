@@ -17,14 +17,14 @@ import (
 
 //Generic function passing and assignment
 
-func genericGetByID(svc interface{}, log logger.LogInfoFormat, m string, w http.ResponseWriter, r *http.Request) {
+func genericGetByID(svc interface{}, log logger.LogInfoFormat, m string, idParam string, w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("panic occurred:", err)
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 	}()
-	id, err := idResolver(svc, r)
+	id, err := idResolver(svc, idParam, r)
 	if err != nil {
 		log.Error(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -72,7 +72,7 @@ func genericGet(svc interface{}, log logger.LogInfoFormat, m string, w http.Resp
 	}
 }
 
-func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, m string, w http.ResponseWriter, r *http.Request) {
+func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, m string, idParam string, w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("panic occurred:", err)
@@ -87,7 +87,7 @@ func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, m s
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	id, err := idResolver(svc, r)
+	id, err := idResolver(svc, idParam, r)
 	if err != nil {
 		log.Error(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -136,14 +136,14 @@ func genericStore(svc interface{}, g interface{}, log logger.LogInfoFormat, m st
 	}
 }
 
-func genericDelete(svc interface{}, log logger.LogInfoFormat, m string, w http.ResponseWriter, r *http.Request) {
+func genericDelete(svc interface{}, log logger.LogInfoFormat, m string, idParam string, w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Error("panic occurred:", err)
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 	}()
-	id, err := idResolver(svc, r)
+	id, err := idResolver(svc, idParam, r)
 	if err != nil {
 		log.Error(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -223,14 +223,17 @@ func preInvoke(i interface{}, methodName string) reflect.Value {
 	return finalMethod
 }
 
-func idResolver(svc interface{}, r *http.Request) (interface{}, error) {
+func idResolver(svc interface{}, idParam string, r *http.Request) (interface{}, error) {
+	if idParam == "" {
+		return 1, nil
+	}
 	var id interface{}
 	params := mux.Vars(r)
 	if _, ok := svc.(team.Serv); ok {
-		id = params["id"]
+		id = params[idParam]
 	} else {
 		var err error
-		id, err = strconv.ParseUint(params["id"], 10, 64)
+		id, err = strconv.ParseUint(params[idParam], 10, 64)
 		if err != nil {
 			return nil, err
 		}

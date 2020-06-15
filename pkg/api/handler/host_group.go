@@ -21,11 +21,11 @@ func (t *hostGroupController) Store(w http.ResponseWriter, r *http.Request) {
 }
 
 func (t *hostGroupController) Delete(w http.ResponseWriter, r *http.Request) {
-	genericDelete(t.svc, t.log, "Delete", w, r)
+	genericDelete(t.svc, t.log, "Delete", "id", w, r)
 }
 
 func (t *hostGroupController) GetByID(w http.ResponseWriter, r *http.Request) {
-	genericGetByID(t.svc, t.log, "GetByID", w, r)
+	genericGetByID(t.svc, t.log, "GetByID", "id", w, r)
 }
 
 func (t *hostGroupController) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -34,5 +34,5 @@ func (t *hostGroupController) GetAll(w http.ResponseWriter, r *http.Request) {
 
 func (t *hostGroupController) Update(w http.ResponseWriter, r *http.Request) {
 	tm := &host_group.HostGroup{}
-	genericUpdate(t.svc, tm, t.log, "Update", w, r)
+	genericUpdate(t.svc, tm, t.log, "Update", "id", w, r)
 }

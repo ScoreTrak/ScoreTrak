@@ -13,8 +13,8 @@ func NewTeamClient(c ScoretrakClient) team.Serv {
 	return &teamClient{c}
 }
 
-func (t teamClient) Delete(id string) error {
-	return genericDelete(fmt.Sprintf("/team/%s", id), t.s)
+func (t teamClient) DeleteByName(name string) error {
+	return genericDelete(fmt.Sprintf("/team/%s", name), t.s)
 }
 
 func (t teamClient) GetAll() ([]*team.Team, error) {
@@ -26,9 +26,9 @@ func (t teamClient) GetAll() ([]*team.Team, error) {
 	return tm, nil
 }
 
-func (t teamClient) GetByID(id string) (*team.Team, error) {
+func (t teamClient) GetByName(name string) (*team.Team, error) {
 	tm := &team.Team{}
-	err := genericGet(tm, fmt.Sprintf("/team/%s", id), t.s)
+	err := genericGet(tm, fmt.Sprintf("/team/%s", name), t.s)
 	if err != nil {
 		return nil, err
 	}

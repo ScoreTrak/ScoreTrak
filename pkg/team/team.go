@@ -8,11 +8,13 @@ import (
 type Team struct {
 
 	// this id refers to ID of a team in web.
-	ID string `json:"id" gorm:"primary_key"`
+	ID uint64 `json:"id" gorm:"primary_key"`
+
+	Name string `json:"name" gorm:"unique;not null;default:null"`
 
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: false"`
 
-	Hosts []host.Host `gorm:"foreignkey:TeamID" json:"-"`
+	Hosts []host.Host `gorm:"foreignkey:TeamName;association_foreignkey:Name" json:"-"`
 }
 
 func (Team) TableName() string {

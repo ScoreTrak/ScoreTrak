@@ -62,13 +62,13 @@ func TestTeamSpec(t *testing.T) {
 		s := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%d", port), Scheme: "http"}, "", http.DefaultClient)
 		cli := client.NewTeamClient(s)
 		Convey("Retrieving a team by ID", func() {
-			retTeam, err := cli.GetByID("TeamOne")
+			retTeam, err := cli.GetByName("TeamOne")
 			So(err, ShouldBeNil)
-			So(retTeam.ID, ShouldEqual, "TeamOne")
+			So(retTeam.Name, ShouldEqual, "TeamOne")
 			So(*(retTeam.Enabled), ShouldBeTrue)
 		})
 		Convey("Retrieving a team by wrong ID", func() {
-			retTeam, err := cli.GetByID("TeamWrong")
+			retTeam, err := cli.GetByName("TeamWrong")
 			So(err, ShouldNotBeNil)
 			So(retTeam, ShouldBeNil)
 			seer, ok := err.(*client.InvalidResponse)
@@ -78,13 +78,13 @@ func TestTeamSpec(t *testing.T) {
 
 		Convey("Updating a team by ID", func() {
 			fls := false
-			t := team.Team{ID: "TeamOne", Enabled: &fls}
+			t := team.Team{Name: "TeamOne", Enabled: &fls}
 			err := cli.Update(&t)
 			So(err, ShouldBeNil)
 			Convey("Retrieving a team by ID", func() {
-				retTeam, err := cli.GetByID("TeamOne")
+				retTeam, err := cli.GetByName("TeamOne")
 				So(err, ShouldBeNil)
-				So(retTeam.ID, ShouldEqual, "TeamOne")
+				So(retTeam.Name, ShouldEqual, "TeamOne")
 				So(*(retTeam.Enabled), ShouldBeFalse)
 			})
 		})
@@ -95,13 +95,13 @@ func TestTeamSpec(t *testing.T) {
 			So(len(teams), ShouldEqual, 4)
 			var IDs []string
 			for _, tm := range teams {
-				IDs = append(IDs, tm.ID)
+				IDs = append(IDs, tm.Name)
 			}
 			So(IDs, ShouldContain, "TeamTwo")
 		})
 
 		Convey("Deleting a team that doesnt have child hosts by ID", func() {
-			err := cli.Delete("TeamOne")
+			err := cli.DeleteByName("TeamOne")
 			So(err, ShouldBeNil)
 			Convey("Getting all teams", func() {
 				teams, err := cli.GetAll()
@@ -111,7 +111,7 @@ func TestTeamSpec(t *testing.T) {
 		})
 
 		Convey("Deleting a team that does have child hosts by ID", func() {
-			err := cli.Delete("TeamTwo")
+			err := cli.DeleteByName("TeamTwo")
 			So(err, ShouldNotBeNil)
 			seer, ok := err.(*client.InvalidResponse)
 			So(ok, ShouldBeTrue)
@@ -124,13 +124,13 @@ func TestTeamSpec(t *testing.T) {
 		})
 
 		Convey("Deleting a non existent team", func() {
-			err := cli.Delete("TeamWrong")
+			err := cli.DeleteByName("TeamWrong")
 			So(err, ShouldBeNil)
 		})
 
 		Convey("Storing a new team", func() {
 			fls := false
-			t := team.Team{ID: "TeamFive", Enabled: &fls}
+			t := team.Team{Name: "TeamFive", Enabled: &fls}
 			err := cli.Store(&t)
 			So(err, ShouldBeNil)
 			Convey("Getting all teams", func() {

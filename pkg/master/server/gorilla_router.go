@@ -8,6 +8,7 @@ import (
 	"ScoreTrak/pkg/host_group"
 	"ScoreTrak/pkg/logger"
 	"ScoreTrak/pkg/property"
+	"ScoreTrak/pkg/report"
 	"ScoreTrak/pkg/round"
 	"ScoreTrak/pkg/service"
 	"ScoreTrak/pkg/service_group"
@@ -111,6 +112,27 @@ func Logger(inner http.Handler, name string) http.Handler {
 			time.Since(start),
 		)
 	})
+}
+
+func (ds *dserver) reportRoutes() Routes {
+	var svc report.Serv
+	ds.cont.Invoke(func(s report.Serv) {
+		svc = s
+	})
+	return ReportRoutes(ds.logger, svc)
+}
+
+func ReportRoutes(l logger.LogInfoFormat, svc report.Serv) Routes {
+	ctrl := handler.NewReportController(l, svc)
+	reportRoutes := Routes{
+		Route{
+			"GetReport",
+			strings.ToUpper("Get"),
+			"/report",
+			ctrl.Get,
+		},
+	}
+	return reportRoutes
 }
 
 func (ds *dserver) configRoutes() Routes {
@@ -454,17 +476,17 @@ func TeamRoutes(l logger.LogInfoFormat, svc team.Serv) Routes {
 		},
 
 		Route{
-			"DeleteTeam",
+			"DeleteByName",
 			strings.ToUpper("Delete"),
-			"/team/{id}",
-			ctrl.Delete,
+			"/team/{name}",
+			ctrl.DeleteByName,
 		},
 
 		Route{
-			"GetTeam",
+			"GetByName",
 			strings.ToUpper("Get"),
-			"/team/{id}",
-			ctrl.GetByID,
+			"/team/{name}",
+			ctrl.GetByName,
 		},
 
 		Route{
@@ -477,7 +499,7 @@ func TeamRoutes(l logger.LogInfoFormat, svc team.Serv) Routes {
 		Route{
 			"UpdateTeam",
 			strings.ToUpper("Patch"),
-			"/team/{id}",
+			"/team/{name}",
 			ctrl.Update,
 		},
 	}

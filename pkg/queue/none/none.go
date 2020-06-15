@@ -26,7 +26,8 @@ func (n None) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 			err := e.Validate()
 			if err != nil {
 				qc := queueing.QCheck{Service: sd.Service, Passed: false, Log: "", Err: err.Error(), RoundID: sd.RoundID}
-				n.Acknowledge(qc)
+				ret[i] = &qc
+				return
 			}
 			passed, log, err := e.Execute()
 			var errstr string

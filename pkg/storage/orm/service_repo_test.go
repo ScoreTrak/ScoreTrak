@@ -14,7 +14,7 @@ import (
 	"testing"
 )
 
-func TestServiceSpec(t *testing.T) {
+func FTPSpec(t *testing.T) {
 	var c *config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
@@ -41,7 +41,7 @@ func TestServiceSpec(t *testing.T) {
 				So(len(gt), ShouldEqual, 0)
 			})
 			Convey("Creating a sample service should not be allowed", func() {
-				s := service.Service{Name: "TestService"}
+				s := service.Service{Name: "FTP"}
 				err := sr.Store(&s)
 				So(err, ShouldNotBeNil)
 				ac, err := sr.GetAll()
@@ -52,15 +52,15 @@ func TestServiceSpec(t *testing.T) {
 				var count int
 				db.Exec("INSERT INTO hosts (id, address) VALUES (5, '192.168.1.2')")
 				db.Exec("INSERT INTO hosts (id, address) VALUES (4, '192.168.1.1')")
-				db.Exec("INSERT INTO service_groups (id, name) VALUES (7, 'TestServiceGroup')")
-				db.Exec("INSERT INTO service_groups (id, name) VALUES (2, 'TestServiceGroup2')")
+				db.Exec("INSERT INTO service_groups (id, name) VALUES (7, 'FTPGroup')")
+				db.Exec("INSERT INTO service_groups (id, name) VALUES (2, 'FTPGroup2')")
 				db.Table("hosts").Count(&count)
 				So(count, ShouldEqual, 2)
 				db.Table("service_groups").Count(&count)
 				So(count, ShouldEqual, 2)
 
 				Convey("Creating a sample service and associating with host id 5, and service group id 2", func() {
-					s := service.Service{Name: "TestService", ServiceGroupID: 2, HostID: 5}
+					s := service.Service{Name: "FTP", ServiceGroupID: 2, HostID: 5}
 					err := sr.Store(&s)
 					Convey("Should be Allowed", func() {
 						So(err, ShouldBeNil)
@@ -71,7 +71,7 @@ func TestServiceSpec(t *testing.T) {
 						Convey("Then Querying By ID", func() {
 							ss, err := sr.GetByID(s.ID)
 							So(err, ShouldBeNil)
-							So(ss.Name, ShouldEqual, "TestService")
+							So(ss.Name, ShouldEqual, "FTP")
 							So(ss.ServiceGroupID, ShouldEqual, 2)
 							So(ss.HostID, ShouldEqual, 5)
 
@@ -104,7 +104,7 @@ func TestServiceSpec(t *testing.T) {
 							So(err, ShouldBeNil)
 						})
 						Convey("Then adding service with the same name should be allowed", func() {
-							s2 := service.Service{Name: "TestService", ServiceGroupID: 7, HostID: 5}
+							s2 := service.Service{Name: "FTP", ServiceGroupID: 7, HostID: 5}
 							err = sr.Store(&s2)
 							So(err, ShouldBeNil)
 						})
@@ -149,8 +149,8 @@ func TestServiceSpec(t *testing.T) {
 					})
 				})
 				Convey("Create Multiple services", func() {
-					s1 := service.Service{Name: "TestService", ServiceGroupID: 2, HostID: 4}
-					s2 := service.Service{Name: "TestService2", ServiceGroupID: 7, HostID: 5}
+					s1 := service.Service{Name: "FTP", ServiceGroupID: 2, HostID: 4}
+					s2 := service.Service{Name: "FTP", ServiceGroupID: 7, HostID: 5}
 					err := sr.Store(&s1)
 					So(err, ShouldBeNil)
 					err = sr.Store(&s2)
@@ -187,7 +187,7 @@ func TestServiceSpec(t *testing.T) {
 				})
 
 				Convey("Creating a sample service with wrong service_group should not be allowed", func() {
-					s := service.Service{Name: "TestService", ServiceGroupID: 88, HostID: 5}
+					s := service.Service{Name: "FTP", ServiceGroupID: 88, HostID: 5}
 					err := sr.Store(&s)
 					So(err, ShouldNotBeNil)
 					ac, err := sr.GetAll()

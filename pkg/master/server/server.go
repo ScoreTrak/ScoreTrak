@@ -7,6 +7,7 @@ import (
 	"ScoreTrak/pkg/host_group"
 	"ScoreTrak/pkg/logger"
 	"ScoreTrak/pkg/property"
+	"ScoreTrak/pkg/report"
 	"ScoreTrak/pkg/round"
 	"ScoreTrak/pkg/service"
 	"ScoreTrak/pkg/service_group"
@@ -52,10 +53,11 @@ func (ds *dserver) SetupDB() error {
 	db.AutoMigrate(&service.Service{})
 	db.AutoMigrate(&service_group.ServiceGroup{})
 	db.AutoMigrate(&swarm.Swarm{})
+	db.AutoMigrate(&report.Report{})
 	db.Model(&check.Check{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
 	db.Model(&check.Check{}).AddForeignKey("round_id", "rounds(id)", "CASCADE", "RESTRICT")
 	db.Model(&host.Host{}).AddForeignKey("host_group_id", "host_groups(id)", "RESTRICT", "RESTRICT")
-	db.Model(&host.Host{}).AddForeignKey("team_id", "teams(id)", "RESTRICT", "RESTRICT")
+	db.Model(&host.Host{}).AddForeignKey("team_name", "teams(name)", "RESTRICT", "RESTRICT")
 	db.Model(&property.Property{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
 	db.Model(&service.Service{}).AddForeignKey("service_group_id", "service_groups(id)", "RESTRICT", "RESTRICT")
 	db.Model(&service.Service{}).AddForeignKey("host_id", "hosts(id)", "RESTRICT", "RESTRICT")

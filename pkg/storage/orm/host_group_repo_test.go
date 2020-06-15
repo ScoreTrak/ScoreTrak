@@ -111,7 +111,7 @@ func TestHostGroupSpec(t *testing.T) {
 					db.AutoMigrate(&host.Host{})
 					db.Model(&host.Host{}).AddForeignKey("host_group_id", "host_groups(id)", "RESTRICT", "RESTRICT")
 					Convey("Associating a single Host with a host group", func() {
-						db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id) VALUES (4, '192.168.1.1', '', 3)")
+						db.Exec("INSERT INTO hosts (id, address, team_name, host_group_id) VALUES (4, '192.168.1.1', '', 3)")
 						db.Table("hosts").Count(&count)
 						So(count, ShouldEqual, 1)
 						Convey("Delete a host group without deleting a host", func() {

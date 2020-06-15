@@ -17,19 +17,33 @@ func NewTeamRepo(db *gorm.DB, log logger.LogInfoFormat) team.Repo {
 	return &teamRepo{db, log}
 }
 
-func (t *teamRepo) Delete(id string) error {
+func (t *teamRepo) Delete(id uint64) error {
 	t.log.Debugf("deleting the team with id : %d", id)
 
 	result := t.db.Delete(&team.Team{}, "id = ?", id)
 
 	if result.Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the team with id : %s", id)
+		errMsg := fmt.Sprintf("error while deleting the team with id : %d", id)
 		t.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}
 
 	if result.RowsAffected == 0 {
-		return &NoRowsAffected{"no model found for id"}
+		return &NoRowsAffected{"no model found"}
+	}
+	return nil
+}
+
+func (t *teamRepo) DeleteByName(name string) error {
+	t.log.Debugf("deleting the team with name : %s", name)
+	result := t.db.Delete(&team.Team{}, "name = ?", name)
+	if result.Error != nil {
+		errMsg := fmt.Sprintf("error while deleting the team with name : %s", name)
+		t.log.Errorf(errMsg)
+		return errors.New(errMsg)
+	}
+	if result.RowsAffected == 0 {
+		return &NoRowsAffected{"no model found"}
 	}
 	return nil
 }
@@ -45,13 +59,25 @@ func (t *teamRepo) GetAll() ([]*team.Team, error) {
 	return teams, nil
 }
 
-func (t *teamRepo) GetByID(id string) (*team.Team, error) {
+func (t *teamRepo) GetByID(id uint64) (*team.Team, error) {
 	t.log.Debugf("get team details by id : %s", id)
 
 	tea := &team.Team{}
 	err := t.db.Where("id = ?", id).First(tea).Error
 	if err != nil {
 		t.log.Errorf("team not found with id : %d, reason : %v", id, err)
+		return nil, err
+	}
+	return tea, nil
+}
+
+func (t *teamRepo) GetByName(name string) (*team.Team, error) {
+	t.log.Debugf("get team details by name : %s", name)
+
+	tea := &team.Team{}
+	err := t.db.Where("name = ?", name).First(tea).Error
+	if err != nil {
+		t.log.Errorf("team not found with id : %d, reason : %v", name, err)
 		return nil, err
 	}
 	return tea, nil
@@ -69,7 +95,7 @@ func (t *teamRepo) Store(tm *team.Team) error {
 
 func (t *teamRepo) Update(tm *team.Team) error {
 	t.log.Debugf("updating the team, with id : %v", tm.ID)
-	err := t.db.Model(tm).Updates(team.Team{Enabled: tm.Enabled}).Error
+	err := t.db.Model(tm).Updates(team.Team{Enabled: tm.Enabled, Name: tm.Name}).Error //Note: Updating team name will break the current implementation of caching. To allow for name changes, BeforeUpdate function will also need to update teamID
 	if err != nil {
 		t.log.Errorf("error while updating the team, reason : %v", err)
 		return err

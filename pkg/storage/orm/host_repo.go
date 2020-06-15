@@ -28,7 +28,7 @@ func (h *hostRepo) Delete(id uint64) error {
 	}
 
 	if result.RowsAffected == 0 {
-		return &NoRowsAffected{"no model found for id"}
+		return &NoRowsAffected{"no model found"}
 	}
 
 	return nil
@@ -71,7 +71,7 @@ func (h *hostRepo) Update(hst *host.Host) error {
 	h.log.Debugf("updating the host, id : %v", hst.ID)
 	err := h.db.Model(hst).Updates(host.Host{Enabled: hst.Enabled,
 		Address: hst.Address, HostGroupID: hst.HostGroupID,
-		TeamID: hst.TeamID, EditHost: hst.EditHost,
+		TeamName: hst.TeamName, EditHost: hst.EditHost,
 	}).Error
 	if err != nil {
 		h.log.Errorf("error while updating the host, reason : %v", err)

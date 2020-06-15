@@ -41,8 +41,9 @@ func TestHostSpec(t *testing.T) {
 			Convey("Adding an valid entry", func() {
 				var err error
 				b := false
+				tr := true
 				s := "127.0.0.1"
-				h := host.Host{ID: 3, Address: &s, Enabled: &b}
+				h := host.Host{ID: 3, Address: &s, Enabled: &b, EditHost: &tr}
 				err = hr.Store(&h)
 				So(err, ShouldBeNil)
 				Convey("Then making sure the entry exists", func() {
@@ -125,7 +126,8 @@ func TestHostSpec(t *testing.T) {
 					So(count, ShouldEqual, 2)
 					Convey("Adding a new host with host group foreign key", func() {
 						address := "127.0.0.1"
-						newHost := host.Host{ID: 4, HostGroupID: 2, Address: &address}
+						tru := true
+						newHost := host.Host{ID: 4, HostGroupID: 2, Address: &address, EditHost: &tru}
 						err := hr.Store(&newHost)
 						So(err, ShouldBeNil)
 					})
@@ -142,7 +144,7 @@ func TestHostSpec(t *testing.T) {
 				})
 				Convey("Then add a team", func() {
 					db.AutoMigrate(&team.Team{})
-					db.Model(&host.Host{}).AddForeignKey("team_id", "teams(id)", "RESTRICT", "RESTRICT")
+					db.Model(&host.Host{}).AddForeignKey("team_name", "teams(name)", "RESTRICT", "RESTRICT")
 					Reset(func() {
 						db.DropTableIfExists(&host.Host{})
 						db.DropTableIfExists(&team.Team{})

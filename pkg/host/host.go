@@ -2,8 +2,6 @@ package host
 
 import (
 	"ScoreTrak/pkg/service"
-	"errors"
-	"github.com/jinzhu/gorm"
 )
 
 // Host model represents a single machine. This could be an IP address or a resolvable hostname
@@ -16,7 +14,7 @@ type Host struct {
 	HostGroupID uint64 `json:"host_group_id,omitempty" gorm:"default: null"`
 
 	// The ID of a team that this host belongs too. This parameter is optional, however is needed to appear on the scoring engine.
-	TeamID string `json:"team_id,omitempty" gorm:"default: null"`
+	TeamName string `json:"team_name,omitempty" gorm:"default: null"`
 
 	// Enables or disables scoring for a single host
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: false"`
@@ -25,25 +23,4 @@ type Host struct {
 	EditHost *bool `json:"edit_host,omitempty" gorm:"not null;default: false"`
 
 	Services []service.Service `gorm:"foreignkey:HostID"`
-}
-
-func (h Host) Validate(db *gorm.DB) {
-	if h.Address != nil {
-		var editHost bool
-		if h.EditHost != nil {
-			editHost = *h.EditHost
-		} else {
-			he := Host{}
-			db.Where("id = ?", h.ID).First(&he)
-			if he.EditHost == nil {
-				editHost = false
-			} else {
-				editHost = *he.EditHost
-			}
-		}
-		if !editHost {
-			db.AddError(errors.New("you can not edit address until EditHost is True"))
-		}
-		return
-	}
 }

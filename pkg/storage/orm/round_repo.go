@@ -28,7 +28,7 @@ func (r *roundRepo) Delete(id uint64) error {
 	}
 
 	if result.RowsAffected == 0 {
-		return &NoRowsAffected{"no model found for id"}
+		return &NoRowsAffected{"no model found"}
 	}
 
 	return nil
@@ -92,13 +92,16 @@ func (r *roundRepo) GetLastNonElapsingRound() (*round.Round, error) {
 }
 
 func (r *roundRepo) GetLastElapsingRound() (*round.Round, error) {
-	rnd := &round.Round{}
-	err := r.db.Where("\"finish\" IS NULL").Last(rnd).Error
+	rnd, err := r.GetLastRound()
 	if err != nil {
 		r.log.Debug("not a single Round found")
 		return nil, err
 	}
-	return rnd, nil
+	if rnd.Finish == nil {
+		return rnd, nil
+	} else {
+		return nil, errors.New("there is no round executing at the moment")
+	}
 }
 
 func (r *roundRepo) GetLastRound() (*round.Round, error) {

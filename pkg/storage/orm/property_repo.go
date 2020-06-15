@@ -28,7 +28,7 @@ func (p *propertyRepo) Delete(id uint64) error {
 	}
 
 	if result.RowsAffected == 0 {
-		return &NoRowsAffected{"no model found for id"}
+		return &NoRowsAffected{"no model found"}
 	}
 
 	return nil

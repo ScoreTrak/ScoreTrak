@@ -21,11 +21,11 @@ func (s *serviceGroupController) Store(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *serviceGroupController) Delete(w http.ResponseWriter, r *http.Request) {
-	genericDelete(s.svc, s.log, "Delete", w, r)
+	genericDelete(s.svc, s.log, "Delete", "id", w, r)
 }
 
 func (s *serviceGroupController) GetByID(w http.ResponseWriter, r *http.Request) {
-	genericGetByID(s.svc, s.log, "GetByID", w, r)
+	genericGetByID(s.svc, s.log, "GetByID", "id", w, r)
 }
 
 func (s *serviceGroupController) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -34,5 +34,5 @@ func (s *serviceGroupController) GetAll(w http.ResponseWriter, r *http.Request) 
 
 func (s *serviceGroupController) Update(w http.ResponseWriter, r *http.Request) {
 	tm := &service_group.ServiceGroup{}
-	genericUpdate(s.svc, tm, s.log, "Update", w, r)
+	genericUpdate(s.svc, tm, s.log, "Update", "id", w, r)
 }

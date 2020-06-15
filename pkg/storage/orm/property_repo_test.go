@@ -50,7 +50,7 @@ func TestPropertySpec(t *testing.T) {
 				So(count, ShouldEqual, 2)
 
 				Convey("Creating a sample property and associating with service 5 and round 1", func() {
-					c := property.Property{Key: "TestKey", ServiceID: 5, Value: "TestValue"}
+					c := property.Property{Key: "TestKey", ServiceID: 5, Value: "TestValue", Status: "Edit"}
 					err := cr.Store(&c)
 					Convey("Should be Allowed", func() {
 						So(err, ShouldBeNil)
@@ -92,6 +92,7 @@ func TestPropertySpec(t *testing.T) {
 						Convey("Then Updating the property Description, Status", func() {
 							c.Status = "Hide"
 							c.Description = "Test Description"
+							c.Value = ""
 							err = cr.Update(&c)
 							So(err, ShouldBeNil)
 							ac, err = cr.GetAll()
@@ -109,7 +110,7 @@ func TestPropertySpec(t *testing.T) {
 							ac, err = cr.GetAll()
 							So(err, ShouldBeNil)
 							So(len(ac), ShouldEqual, 1)
-							So(ac[0].Status, ShouldEqual, "View")
+							So(ac[0].Status, ShouldEqual, "Edit")
 							So(ac[0].Description, ShouldEqual, "")
 						})
 
@@ -121,7 +122,7 @@ func TestPropertySpec(t *testing.T) {
 							So(err, ShouldBeNil)
 							So(len(ac), ShouldEqual, 1)
 							So(ac[0].Value, ShouldEqual, "AnotherValue")
-							So(ac[0].Status, ShouldEqual, "View")
+							So(ac[0].Status, ShouldEqual, "Edit")
 							So(ac[0].Description, ShouldEqual, "")
 						})
 

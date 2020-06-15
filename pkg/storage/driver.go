@@ -34,7 +34,7 @@ func NewDB(c *config.StaticConfig) (*gorm.DB, error) {
 	if c.DB.Use == "cockroach" {
 		db, err = newCockroach(c)
 	} else {
-		return nil, errors.New("Not supported db")
+		return nil, errors.New("not supported db")
 	}
 	if err != nil {
 		return nil, err

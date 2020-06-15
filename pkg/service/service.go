@@ -21,6 +21,8 @@ type Service struct {
 	// Points granted for a successful check
 	Points uint64 `json:"points" gorm:"not null;default: 0"`
 
+	PointsBoost uint64 `json:"points" gorm:"not null;default: 0"`
+
 	// The frequency of a service check. If round_units is 5 and round_delay is 0, then service checks will happen on every 5th round. (5,10, etc)
 	RoundUnits uint64 `json:"round_units,omitempty" gorm:"not null;default:1"`
 
@@ -38,7 +40,7 @@ type Service struct {
 
 	Properties []property.Property `json:"-" gorm:"foreignkey:ServiceID"`
 
-	Checks []check.Check `json:"-" gorm:"foreignkey:ServiceID"`
+	Checks []*check.Check `json:"-" gorm:"foreignkey:ServiceID"`
 }
 
 func (s Service) Validate(db *gorm.DB) {

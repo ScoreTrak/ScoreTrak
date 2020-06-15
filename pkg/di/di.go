@@ -8,6 +8,7 @@ import (
 	"ScoreTrak/pkg/logger"
 	"ScoreTrak/pkg/property"
 	"ScoreTrak/pkg/queue"
+	"ScoreTrak/pkg/report"
 	"ScoreTrak/pkg/round"
 	"ScoreTrak/pkg/service"
 	"ScoreTrak/pkg/service_group"
@@ -36,7 +37,9 @@ func BuildMasterContainer() (*dig.Container, error) {
 		orm.NewRoundRepo, round.NewRoundServ,
 		orm.NewServiceGroupRepo, service_group.NewServiceGroupServ,
 		orm.NewServiceRepo, service.NewServiceServ,
-		orm.NewTeamRepo, team.NewTeamServ, queue.NewQueue,
+		orm.NewTeamRepo, team.NewTeamServ,
+		report.NewReportServ,
+		queue.NewQueue,
 	)
 
 	if cnf.Platform == "swarm" {

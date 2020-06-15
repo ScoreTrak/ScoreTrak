@@ -20,12 +20,12 @@ func (t *teamController) Store(w http.ResponseWriter, r *http.Request) {
 	genericStore(t.svc, tm, t.log, "Store", w, r)
 }
 
-func (t *teamController) Delete(w http.ResponseWriter, r *http.Request) {
-	genericDelete(t.svc, t.log, "Delete", w, r)
+func (t *teamController) DeleteByName(w http.ResponseWriter, r *http.Request) {
+	genericDelete(t.svc, t.log, "DeleteByName", "name", w, r)
 }
 
-func (t *teamController) GetByID(w http.ResponseWriter, r *http.Request) {
-	genericGetByID(t.svc, t.log, "GetByID", w, r)
+func (t *teamController) GetByName(w http.ResponseWriter, r *http.Request) {
+	genericGetByID(t.svc, t.log, "GetByName", "name", w, r)
 }
 
 func (t *teamController) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -34,5 +34,5 @@ func (t *teamController) GetAll(w http.ResponseWriter, r *http.Request) {
 
 func (t *teamController) Update(w http.ResponseWriter, r *http.Request) {
 	tm := &team.Team{}
-	genericUpdate(t.svc, tm, t.log, "Update", w, r)
+	genericUpdate(t.svc, tm, t.log, "Update", "name", w, r)
 }
