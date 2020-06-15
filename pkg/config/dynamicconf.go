@@ -28,14 +28,14 @@ func (d DynamicConfig) TableName() string {
 }
 
 //NewDynamicConfig initializes global config d, but it doesn't need any locking because it is assumed that NewDynamicConfig is ran once at the start of the application
-func NewDynamicConfig(f string) (error, *DynamicConfig) {
+func NewDynamicConfig(f string) (*DynamicConfig, error) {
 	d := &DynamicConfig{}
 	err := configor.Load(d, f)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 	d.ID = 1
-	return nil, d
+	return d, nil
 }
 
 func (d *DynamicConfig) IsEqual(dc *DynamicConfig) bool {
