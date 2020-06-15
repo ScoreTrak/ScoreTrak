@@ -16,6 +16,7 @@ import (
 	"ScoreTrak/pkg/service_group"
 	"ScoreTrak/pkg/team"
 	"encoding/json"
+	"errors"
 	"github.com/jinzhu/gorm"
 	"github.com/lib/pq"
 	"time"
@@ -121,7 +122,7 @@ func (d *drunner) MasterRunner() error {
 	if rnd == nil {
 		rnd = &round.Round{ID: 1}
 		if *(cnf.Enabled) {
-			d.attemptToScore(rnd, time.Now().Add(time.Duration(cnf.RoundDuration)*time.Second*8/10))
+			d.attemptToScore(rnd, time.Now().Add(time.Duration(cnf.RoundDuration)*time.Second*9/10))
 		}
 	}
 	scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
@@ -146,7 +147,7 @@ func (d *drunner) MasterRunner() error {
 			}
 			if *cnf.Enabled {
 				rnd = &round.Round{ID: rnd.ID + 1}
-				d.attemptToScore(rnd, time.Now().Add(time.Duration(cnf.RoundDuration)*time.Second*8/10))
+				d.attemptToScore(rnd, time.Now().Add(time.Duration(cnf.RoundDuration)*time.Second*9/10))
 				scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
 			} else {
 				scoringLoop = time.NewTicker(config.MinRoundDuration)
@@ -168,6 +169,11 @@ func (d *drunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64)
 
 //Runs check in the background as a gorutine.
 func (d *drunner) attemptToScore(rnd *round.Round, timeout time.Time) {
+	defer func() {
+		if err := recover(); err != nil {
+			d.l.Error(err)
+		}
+	}()
 	err := d.r.Round.Store(rnd)
 	if err != nil {
 		serr, ok := err.(*pq.Error)
@@ -200,55 +206,47 @@ func (d drunner) Score(rnd round.Round, timeout time.Time) {
 	}
 	var sds []*queueing.ScoringData
 	for _, t := range teams {
-		if *(t.Enabled) {
-			var hsts []host.Host
-			d.db.Model(&t).Related(&hsts, "Hosts")
-			for _, h := range hsts {
-				var validHost bool
-				if *h.Enabled {
-					if h.HostGroupID != 0 {
-						for _, hG := range hostGroup {
-							if hG.ID == h.HostGroupID && *(hG.Enabled) {
-								validHost = true
+		d.db.Model(&t).Related(&t.Hosts, "Hosts")
+		for _, h := range t.Hosts {
+			d.db.Model(&h).Related(&h.Services)
+			for _, s := range h.Services {
+				d.db.Model(&s).Related(&s.Properties)
+				if *t.Enabled {
+					var validHost bool
+					if *h.Enabled {
+						if h.HostGroupID != 0 {
+							for _, hG := range hostGroup {
+								if hG.ID == h.HostGroupID && *(hG.Enabled) {
+									validHost = true
+								}
 							}
+						} else {
+							validHost = true
 						}
-					} else {
-						validHost = true
 					}
-				}
-				if validHost {
-					t.Hosts = append(t.Hosts, h)
-				}
-			}
-		}
-		for i, _ := range t.Hosts {
-			var serv []service.Service
-			d.db.Model(&(t.Hosts[i])).Related(&serv)
-			for j, _ := range serv {
-				schedule := serv[j].RoundUnits
-				if serv[j].RoundDelay != nil {
-					schedule += *(serv[j].RoundDelay)
-				}
-				if *(serv[j].Enabled) && rnd.ID%schedule == 0 {
-					for _, servGroup := range serviceGroups {
-						if serv[j].ServiceGroupID == servGroup.ID && *(servGroup.Enabled) {
-							t.Hosts[i].Services = append(t.Hosts[i].Services, serv[j])
-							var prop []property.Property
-							d.db.Model(&serv[j]).Related(&prop)
-							serv[j].Properties = prop
-							sq := queueing.QService{ID: serv[j].ID, Group: servGroup.Name, Name: serv[j].Name}
-							params := map[string]string{}
-							for _, p := range prop {
-								params[p.Key] = p.Value
+					if validHost {
+						schedule := s.RoundUnits
+						if s.RoundDelay != nil {
+							schedule += *(s.RoundDelay)
+						}
+						if *(s.Enabled) && rnd.ID%schedule == 0 {
+							for _, servGroup := range serviceGroups {
+								if s.ServiceGroupID == servGroup.ID && *(servGroup.Enabled) {
+									sq := queueing.QService{ID: s.ID, Group: servGroup.Name, Name: s.Name}
+									params := map[string]string{}
+									for _, p := range s.Properties {
+										params[p.Key] = p.Value
+									}
+									sd := &queueing.ScoringData{
+										Timeout:    timeout,
+										Host:       *(h.Address),
+										Service:    sq,
+										Properties: params,
+										RoundID:    rnd.ID,
+									}
+									sds = append(sds, sd)
+								}
 							}
-							sd := &queueing.ScoringData{
-								Timeout:    timeout,
-								Host:       *(t.Hosts[i].Address),
-								Service:    sq,
-								Properties: params,
-								RoundID:    rnd.ID,
-							}
-							sds = append(sds, sd)
 						}
 					}
 				}
@@ -256,6 +254,7 @@ func (d drunner) Score(rnd round.Round, timeout time.Time) {
 		}
 	}
 	if len(sds) == 0 {
+		d.l.Info("No services are currently scorable. Finalizing the round")
 		d.finalizeRound(&rnd)
 		return
 	}
@@ -265,34 +264,31 @@ func (d drunner) Score(rnd round.Round, timeout time.Time) {
 	go func() {
 		chks = d.q.Send(sds)
 		completed <- true
-	}() // ToDO: Find a better way to handle gorutines (Since they potentially may leak if  d.q.Send(sds) never returns). For Example if a queue dies, or
-	//execution takes too long (Say a check that never ends), then we are leaking a gorutine either on a worker side, or on master side.
+	}() // ToDO: Find a better way to handle gorutines (Since they potentially may leak if  d.q.Send(sds) never returns). For Example if a queue dies, or execution takes too long (Say a check that never ends), then we are leaking a gorutine either on a worker side, or on master side.
 
-	// Listen on our channel AND a timeout channel - which ever happens first.
 	select {
 	case <-completed:
 		break
 	case <-time.After(time.Until(timeout)):
-		d.finalizeRound(&rnd)
+		d.l.Error(errors.New("check took too long to execute"))
 		return
 	}
 	r, _ := d.r.Round.GetLastRound()
 	if r.ID != rnd.ID {
-		d.finalizeRound(&rnd)
+		d.l.Error(errors.New("A different round started before current round was able to finish. The scores will not be committed"))
 		return
 	}
+
 	var checks []*check.Check
 	for _, t := range teams {
-		if *(t.Enabled) {
-			for i, _ := range t.Hosts {
-				for j, _ := range t.Hosts[i].Services {
-					for _, c := range chks {
-						if c.Service.ID == t.Hosts[i].Services[j].ID {
-							t.Hosts[i].Services[j].Checks = append(t.Hosts[i].Services[j].Checks, &check.Check{Passed: &c.Passed, Log: c.Log, ServiceID: c.Service.ID, RoundID: rnd.ID, Err: c.Err})
-						}
+		for _, h := range t.Hosts {
+			for _, s := range h.Services {
+				for _, c := range chks {
+					if c.Service.ID == s.ID {
+						s.Checks = append(s.Checks, &check.Check{Passed: &c.Passed, Log: c.Log, ServiceID: c.Service.ID, RoundID: rnd.ID, Err: c.Err})
 					}
-					checks = append(checks, t.Hosts[i].Services[j].Checks...)
 				}
+				checks = append(checks, s.Checks...)
 			}
 		}
 	}
@@ -305,43 +301,41 @@ func (d drunner) Score(rnd round.Round, timeout time.Time) {
 		schOld := report.SimpleReport{}
 		err := json.Unmarshal([]byte(ch.Cache), &schOld)
 		if err != nil {
-			panic(err)
+			return err
 		}
 		schNew := report.SimpleReport{Round: rnd.ID}
 		schNew.Teams = make(map[uint64]report.SimpleTeam)
 		for _, t := range teams {
-			if *(t.Enabled) {
-				st := report.SimpleTeam{}
-				st.Hosts = make(map[uint64]report.SimpleHost)
-				for _, h := range t.Hosts {
-					sh := report.SimpleHost{}
-					sh.Services = make(map[uint64]report.SimpleService)
-					for _, s := range h.Services {
-						var points uint64
-						if rnd.ID != 1 {
-							if t1, ok := schOld.Teams[t.ID]; ok {
-								if h1, ok := t1.Hosts[h.ID]; ok {
-									if s1, ok := h1.Services[s.ID]; ok {
-										points += s1.Points
-									}
+			st := report.SimpleTeam{}
+			st.Hosts = make(map[uint64]report.SimpleHost)
+			for _, h := range t.Hosts {
+				sh := report.SimpleHost{}
+				sh.Services = make(map[uint64]report.SimpleService)
+				for _, s := range h.Services {
+					var points uint64
+					if rnd.ID != 1 {
+						if t1, ok := schOld.Teams[t.ID]; ok {
+							if h1, ok := t1.Hosts[h.ID]; ok {
+								if s1, ok := h1.Services[s.ID]; ok {
+									points += s1.Points
 								}
 							}
 						}
-						if *(s.Checks[0].Passed) {
-							points += s.Points
-						}
-						params := map[string]string{}
-						for _, p := range s.Properties {
-							if p.Status != "Hide" {
-								params[p.Key] = p.Value
-							}
-						}
-						sh.Services[s.ID] = report.SimpleService{Passed: *s.Checks[0].Passed, Log: s.Checks[0].Log, Err: s.Checks[0].Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
 					}
-					st.Hosts[h.ID] = sh
+					if len(s.Checks) != 0 && *(s.Checks[0].Passed) {
+						points += s.Points
+					}
+					params := map[string]string{}
+					for _, p := range s.Properties {
+						if p.Status != "Hide" {
+							params[p.Key] = p.Value
+						}
+					}
+					sh.Services[s.ID] = report.SimpleService{Passed: *s.Checks[0].Passed, Log: s.Checks[0].Log, Err: s.Checks[0].Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
 				}
-				schNew.Teams[t.ID] = st
+				st.Hosts[h.ID] = sh
 			}
+			schNew.Teams[t.ID] = st
 		}
 		bt, err := json.Marshal(&schNew)
 		if err != nil {
@@ -356,12 +350,12 @@ func (d drunner) Score(rnd round.Round, timeout time.Time) {
 	})
 	if err != nil {
 		d.l.Error(err)
-		d.finalizeRound(&rnd)
 		return
 	}
 	err = d.r.Check.StoreMany(checks)
 	if err != nil {
 		d.l.Error(err)
+		return
 	}
 	d.finalizeRound(&rnd)
 }
