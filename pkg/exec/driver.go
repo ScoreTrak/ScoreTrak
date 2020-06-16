@@ -23,6 +23,10 @@ func NewExec(t time.Time, h string, e Executable) *Exec {
 }
 
 func (e Exec) Execute() (passed bool, log string, err error) {
+	err = e.Validate()
+	if err != nil {
+		return false, "Check did not pass parameter validation", err
+	}
 	oldTimeout := e.Timeout
 	e.Timeout = e.Timeout.Add(-time.Second * 3)
 	completed := make(chan bool, 1)

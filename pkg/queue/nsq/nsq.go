@@ -20,6 +20,7 @@ func (n NSQ) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 	//TODO: TERMINATION BASED ON TIMEOUT
 	c := config.GetStaticConfig()
 	confp := nsq.NewConfig()
+	confp.LookupdPollInterval = time.Second * 1
 	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", c.Queue.NSQ.NSQD.Host, c.Queue.NSQ.NSQD.Port), confp)
 	if err != nil {
 		panic(err)
@@ -64,7 +65,7 @@ func (n NSQ) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 	if err != nil {
 		panic(err)
 	}
-	wg.Wait()
+	wg.Wait() //Make waitgroup terminable to not lose gorutine
 	consumer.Stop()
 	return ret
 }
@@ -73,7 +74,7 @@ func (n NSQ) Receive() {
 	//TODO: TERMINATION BASED ON TIMEOUT
 	c := config.GetConfig()
 	conf := nsq.NewConfig()
-	conf.LookupdPollInterval = time.Second * 1
+	conf.LookupdPollInterval = time.Second * 3
 	conf.MaxInFlight = c.Queue.NSQ.MaxInFlight
 	consumer, err := nsq.NewConsumer(c.Queue.NSQ.Topic, "channel", conf)
 	if err != nil {
@@ -89,12 +90,6 @@ func (n NSQ) Receive() {
 		exec.UpdateExecutableProperties(executable, sd.Properties)
 		e := exec.NewExec(sd.Timeout.Add(-time.Second*5), sd.Host, executable)
 		fmt.Println(fmt.Sprintf("Executing a check for service ID %d for round %d", sd.Service.ID, sd.RoundID))
-		err := e.Validate()
-		if err != nil {
-			qc := queueing.QCheck{Service: sd.Service, Passed: false, Log: "Check did not pass parameter validation", Err: err.Error(), RoundID: sd.RoundID}
-			n.Acknowledge(qc)
-			return nil
-		}
 		passed, log, err := e.Execute()
 		var errstr string
 		if err != nil {

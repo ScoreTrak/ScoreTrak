@@ -23,12 +23,6 @@ func (n None) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 			exec.UpdateExecutableProperties(executable, sd.Properties)
 			e := exec.NewExec(sd.Timeout.Add(-time.Second), sd.Host, executable)
 			fmt.Println(fmt.Sprintf("Executing a check for service ID %d for round %d", sd.Service.ID, sd.RoundID))
-			err := e.Validate()
-			if err != nil {
-				qc := queueing.QCheck{Service: sd.Service, Passed: false, Log: "Check did not pass parameter validation", Err: err.Error(), RoundID: sd.RoundID}
-				ret[i] = &qc
-				return
-			}
 			passed, log, err := e.Execute()
 			var errstr string
 			if err != nil {

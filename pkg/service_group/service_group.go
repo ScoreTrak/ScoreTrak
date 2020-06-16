@@ -17,3 +17,5 @@ type ServiceGroup struct {
 func (ServiceGroup) TableName() string {
 	return "service_groups"
 }
+
+//Todo: Place validatinos on name to ensure queues can use ServiceGroup name without a problem.
