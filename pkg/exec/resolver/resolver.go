@@ -19,8 +19,7 @@ func ExecutableByName(s string) exec.Executable {
 		services.NewPing()
 	case "HTTP":
 		services.NewHTTP()
-	default:
-		return nil
 	}
+	return nil
 
 }
