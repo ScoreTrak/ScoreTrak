@@ -1,15 +1,12 @@
 package main
 
 import (
-	"bytes"
 	_ "crypto/tls"
 	_ "github.com/miekg/dns"
 	"net"
 	"net/http"
 	"os"
 
-	//"github.com/stacktitan/smb/smb"
-	_ "crypto/tls"
 	"fmt"
 	"github.com/bogdanovich/dns_resolver"
 	"github.com/emersion/go-imap"
@@ -18,10 +15,6 @@ import (
 	"github.com/hirochachacha/go-smb2"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/jlaffaye/ftp"
-	"github.com/masterzen/winrm"
-	"github.com/sparrc/go-ping"
-	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"log"
 	"time"
@@ -32,135 +25,7 @@ func main() {
 	test_database()
 }
 
-// Global Vars: Timeout
-
-// ALL REQUIRED: Host
-
-// required:
-//	1) USERNAME
-//  2) Password
-// Optional Set:
-// {
-//		independent 1: command to run
-// 			optional: Expected output
-// 		independent 2: port
-// }
-
-func ssh_test() {
-	session, err := func(user, host string) (*ssh.Session, error) { // variables
-		sshConfig := &ssh.ClientConfig{
-			User: user,
-			Auth: []ssh.AuthMethod{ssh.Password("changeme")},
-		}
-		sshConfig.HostKeyCallback = ssh.InsecureIgnoreHostKey()
-		client, err := ssh.Dial("tcp", host, sshConfig)
-		if err != nil {
-			return nil, err
-		}
-		session, err := client.NewSession()
-		if err != nil {
-			return nil, err
-		}
-		return session, nil
-	}("testuser", "172.20.144.187:22")
-
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
-	out, err := session.CombinedOutput("mkdir test")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(string(out))
-}
-
-// required:
-//	1) USERNAME
-//  2) Password
-// Optional Set:
-// {
-//		independent 1: command to run
-// 			optional: Expected output
-// 		independent 2: port
-//		independent 3: SSL/nonSSL
-// }
-func winrm_test() {
-	endpoint := winrm.NewEndpoint("172.17.126.181", 5986, true, true, nil, nil, nil, 5*time.Second)
-	client, err := winrm.NewClient(endpoint, "testuser", "Change.me!")
-	if err != nil {
-		panic(err)
-	}
-	proc_stdout, proc_stderr, return_code, err := client.RunWithString("ipconfig /all", "")
-	if err != nil {
-		panic(err)
-	}
-	if return_code != 0 {
-		panic("STDERR:" + proc_stderr)
-	}
-	fmt.Printf("Stdout:%s\nStderr:%s", proc_stdout, proc_stderr)
-}
-
-// required:
-//	1) USERNAME
-//  2) Password
-// Optional Set:
-// {
-// 		independent 1: text to upload as a file. (Text, and Filename)
-// 		independent 2: file to read
-//			optional: Expected Output
-//		independent 3: Port
-//}
-func ftp_test() {
-	c, err := ftp.Dial("172.17.126.181:21", ftp.DialWithTimeout(10*time.Second)) // For passive FTP allow Data Channel Port Range. In addition, Allow FTP as an APP in windows firewall, and allow port 20, 21, 1024-65535
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = c.Login("testuser", "Change.me!")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	data := bytes.NewBufferString("kek")
-	err = c.Stor("test-file-kek.txt", data)
-	if err != nil {
-		panic(err)
-	}
-
-	r, err := c.Retr("test-file-lol.txt")
-	if err != nil {
-		panic(err)
-	}
-
-	defer r.Close()
-
-	if err := c.Quit(); err != nil {
-		log.Fatal(err)
-	}
-
-	buf, err := ioutil.ReadAll(r)
-	println(string(buf))
-}
-
 // required: None
-func ping_test() {
-	pinger, err := ping.NewPinger("172.17.126.181")
-	if err != nil {
-		panic(err)
-	}
-	pinger.Timeout = time.Second * 5
-	pinger.SetPrivileged(true)
-	pinger.Count = 3
-
-	pinger.Run()                 // blocks until finished
-	stats := pinger.Statistics() // get send/receive/rtt stats
-	fmt.Printf("%d packets transmitted, %d packets received, %v%% packet loss\n",
-		stats.PacketsSent, stats.PacketsRecv, stats.PacketLoss)
-	if stats.PacketLoss == 0 {
-		println("Ping Was Successful!")
-	}
-}
 
 // required:
 //	1) USERNAME
@@ -301,6 +166,7 @@ func test_smb() {
 //}
 
 func http_test() {
+
 	client := http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Get("https://httpbin.org/get")
 	if err != nil {

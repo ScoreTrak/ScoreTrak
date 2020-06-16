@@ -88,7 +88,7 @@ func NewRepoStore() RepoStore {
 	}
 }
 
-type drunner struct {
+type dRunner struct {
 	db *gorm.DB
 	l  logger.LogInfoFormat
 	q  queue.Queue
@@ -98,7 +98,7 @@ type drunner struct {
 var dsync time.Duration
 var mud sync.RWMutex
 
-func (d drunner) refreshDsync() {
+func (d dRunner) refreshDsync() {
 	mud.Lock()
 	defer mud.Unlock()
 	var tm time.Time
@@ -117,19 +117,19 @@ func (d drunner) refreshDsync() {
 	res.Close()
 }
 
-func (d drunner) getDsync() time.Duration {
+func (d dRunner) getDsync() time.Duration {
 	mud.RLock()
 	defer mud.RUnlock()
 	return dsync
 }
 
-func NewRunner(db *gorm.DB, l logger.LogInfoFormat, q queue.Queue, r RepoStore) *drunner {
-	return &drunner{
+func NewRunner(db *gorm.DB, l logger.LogInfoFormat, q queue.Queue, r RepoStore) *dRunner {
+	return &dRunner{
 		db: db, l: l, q: q, r: r,
 	}
 }
 
-func (d *drunner) MasterRunner() error {
+func (d *dRunner) MasterRunner() error {
 	cnf, err := config.NewDynamicConfig("configs/config.yml")
 	if err != nil {
 		return err
@@ -189,7 +189,7 @@ func (d *drunner) MasterRunner() error {
 	}
 }
 
-func (d *drunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64) time.Duration {
+func (d *dRunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64) time.Duration {
 	if rnd == nil || rnd.ID == 0 {
 		return config.MinRoundDuration
 	}
@@ -201,7 +201,7 @@ func (d *drunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64)
 }
 
 //Runs check in the background as a gorutine.
-func (d *drunner) attemptToScore(rnd *round.Round, timeout time.Time) {
+func (d *dRunner) attemptToScore(rnd *round.Round, timeout time.Time) {
 	err := d.r.Round.Store(rnd)
 	if err != nil {
 		serr, ok := err.(*pq.Error)
@@ -219,7 +219,7 @@ func (d *drunner) attemptToScore(rnd *round.Round, timeout time.Time) {
 	}
 }
 
-func (d drunner) Score(rnd round.Round, timeout time.Time) {
+func (d dRunner) Score(rnd round.Round, timeout time.Time) {
 	defer func() {
 		if err := recover(); err != nil {
 			d.l.Error(err)
@@ -378,7 +378,7 @@ func (d drunner) Score(rnd round.Round, timeout time.Time) {
 	d.finalizeRound(&rnd)
 }
 
-func (d drunner) finalizeRound(rnd *round.Round) {
+func (d dRunner) finalizeRound(rnd *round.Round) {
 	now := time.Now().Add(d.getDsync())
 	rnd.Finish = &now
 	err := d.r.Round.Update(rnd)
