@@ -17,8 +17,11 @@ import (
 	"ScoreTrak/pkg/team"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/lib/pq"
+	"math"
+	"sync"
 	"time"
 )
 
@@ -92,6 +95,34 @@ type drunner struct {
 	r  RepoStore
 }
 
+var dsync time.Duration
+var mud sync.RWMutex
+
+func (d drunner) refreshDsync() {
+	mud.Lock()
+	defer mud.Unlock()
+	var tm time.Time
+	res, err := d.db.Raw("SELECT current_timestamp;").Rows()
+	if err != nil {
+		panic(err)
+	}
+	for res.Next() {
+		res.Scan(&tm)
+	}
+	dsync = -time.Since(tm)
+
+	if float64(time.Second*2) < math.Abs(float64(dsync)) {
+		d.l.Error(fmt.Sprintf("time difference between master host, and database host are is large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now()))
+	}
+	res.Close()
+}
+
+func (d drunner) getDsync() time.Duration {
+	mud.RLock()
+	defer mud.RUnlock()
+	return dsync
+}
+
 func NewRunner(db *gorm.DB, l logger.LogInfoFormat, q queue.Queue, r RepoStore) *drunner {
 	return &drunner{
 		db: db, l: l, q: q, r: r,
@@ -122,7 +153,7 @@ func (d *drunner) MasterRunner() error {
 		rnd = &round.Round{ID: 0}
 		if *(cnf.Enabled) {
 			rnd.ID += 1
-			d.attemptToScore(rnd, time.Now().Add(time.Duration(cnf.RoundDuration)*time.Second*9/10))
+			d.attemptToScore(rnd, time.Now().Add(d.getDsync()).Add(time.Duration(cnf.RoundDuration)*time.Second*9/10))
 		}
 	}
 	configLoop := time.NewTicker(config.MinRoundDuration)
@@ -138,6 +169,7 @@ func (d *drunner) MasterRunner() error {
 			if r != nil {
 				rnd = r
 			}
+			d.refreshDsync()
 			scoringLoop.Stop()
 			scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
 		case <-scoringLoop.C:
@@ -148,7 +180,7 @@ func (d *drunner) MasterRunner() error {
 			}
 			if *cnf.Enabled {
 				rnd = &round.Round{ID: rnd.ID + 1}
-				d.attemptToScore(rnd, time.Now().Add(time.Duration(cnf.RoundDuration)*time.Second*9/10))
+				d.attemptToScore(rnd, time.Now().Add(d.getDsync()).Add(time.Duration(cnf.RoundDuration)*time.Second*9/10))
 				scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
 			} else {
 				scoringLoop = time.NewTicker(config.MinRoundDuration)
@@ -161,7 +193,7 @@ func (d *drunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64)
 	if rnd == nil || rnd.ID == 0 {
 		return config.MinRoundDuration
 	}
-	dur := rnd.Start.Add(time.Duration(RoundDuration) * time.Second).Sub(time.Now())
+	dur := rnd.Start.Add(time.Duration(RoundDuration) * time.Second).Sub(time.Now().Add(d.getDsync()))
 	if dur <= 1 {
 		return 1
 	}
@@ -347,7 +379,7 @@ func (d drunner) Score(rnd round.Round, timeout time.Time) {
 }
 
 func (d drunner) finalizeRound(rnd *round.Round) {
-	now := time.Now()
+	now := time.Now().Add(d.getDsync())
 	rnd.Finish = &now
 	err := d.r.Round.Update(rnd)
 	if err != nil {

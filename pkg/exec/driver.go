@@ -28,7 +28,7 @@ func (e Exec) Execute() (passed bool, log string, err error) {
 		return false, "Check did not pass parameter validation", err
 	}
 	oldTimeout := e.Timeout
-	e.Timeout = e.Timeout.Add(-time.Second * 3)
+	e.Timeout = e.Timeout.Add(-time.Second * 2)
 	completed := make(chan bool, 1)
 	defer close(completed)
 	go func() {
