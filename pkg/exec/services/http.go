@@ -63,7 +63,7 @@ func (h *HTTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 		}
 		newStr := buf.String()
 		if !strings.Contains(newStr, h.ExpectedOutput) {
-			return false, "the page output doesn't contain expected output", nil
+			return false, "the page output doesn't contain expected output", nil //TODO: Make a more meaningful output
 		}
 	}
 	return true, "Success!", nil

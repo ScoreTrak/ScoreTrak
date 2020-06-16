@@ -48,7 +48,7 @@ func (s *SSH) Execute(e exec.Exec) (passed bool, log string, err error) {
 		return false, "Unable to execute the command", err
 	}
 	if s.ExpectedOutput != "" && string(out) != s.ExpectedOutput {
-		return false, "The output of the command did not match Expected Output", nil
+		return false, "The output of the command did not match Expected Output", nil //TODO: Make a more meaningful output
 	}
 	return true, "Success!", nil
 }

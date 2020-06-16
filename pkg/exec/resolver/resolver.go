@@ -19,7 +19,16 @@ func ExecutableByName(s string) exec.Executable {
 		services.NewPing()
 	case "HTTP":
 		services.NewHTTP()
+	case "LDAP":
+		services.NewLDAP()
+	case "DNS":
+		services.NewDNS()
+	case "SMB":
+		services.NewSMB()
+	case "IMAP":
+		services.NewIMAP()
 	}
+
 	return nil
 
 }

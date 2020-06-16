@@ -6,6 +6,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
 	github.com/bogdanovich/dns_resolver v0.0.0-20170211073258-a8e42bc6a5b6
 	github.com/denisenkom/go-mssqldb v0.0.0-20191128021309-1d7a30a10f73 // indirect
+	github.com/domainr/dnsr v0.0.0-20200609081351-15b176e7fe33 // indirect
 	github.com/emersion/go-imap v1.0.4
 	github.com/go-ldap/ldap/v3 v3.1.10
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
@@ -16,7 +17,7 @@ require (
 	github.com/jinzhu/gorm v1.9.12
 	github.com/jlaffaye/ftp v0.0.0-20200422224957-b9f3ade29122
 	github.com/kr/pretty v0.2.0 // indirect
-	github.com/lib/pq v1.3.0 // indirect
+	github.com/lib/pq v1.3.0
 	github.com/masterzen/winrm v0.0.0-20190308153735-1d17eaf15943
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/miekg/dns v1.1.29

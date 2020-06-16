@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/masterzen/winrm"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -32,9 +31,7 @@ func (w *Winrm) Validate() error {
 
 func (w *Winrm) Execute(e exec.Exec) (passed bool, log string, err error) {
 	var isHttps bool
-	if strings.ToLower(w.Scheme) == "https" {
-		isHttps = true
-	}
+	isHttps = exec.IsSecure(w.Scheme)
 	if w.Port == "" {
 		if isHttps {
 			w.Port = "5986"
@@ -59,7 +56,7 @@ func (w *Winrm) Execute(e exec.Exec) (passed bool, log string, err error) {
 		return false, "Process returned a non-zero code", errors.New(procStderr)
 	}
 	if w.ExpectedOutput != "" && procStdout != w.ExpectedOutput {
-		return false, "The process did not match ExpectedOutput", nil
+		return false, "The process did not match ExpectedOutput", nil //TODO: Make a more meaningful output
 	}
 	return true, "Success!", nil
 }

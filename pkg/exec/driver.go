@@ -4,6 +4,7 @@ import (
 	"errors"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -53,4 +54,11 @@ func UpdateExecutableProperties(v Executable, p map[string]string) {
 		rf := rv.FieldByName(key)
 		rf.SetString(val)
 	}
+}
+
+func IsSecure(s string) bool {
+	if strings.ToLower(s) == "https" || strings.ToLower(s) == "tls" || strings.ToLower(s) == "ssl" {
+		return true
+	}
+	return false
 }

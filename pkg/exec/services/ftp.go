@@ -48,21 +48,17 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to Login", err
 	}
-
 	if f.Text != "" {
-
 		data := bytes.NewBufferString(f.Text)
-		fn := f.WriteFilename
-		if fn == "" {
-			fn = "test_file.txt"
+		if f.WriteFilename == "" {
+			f.WriteFilename = "test_file.txt"
 		}
 
-		err = c.Stor(fn, data)
+		err = c.Stor(f.WriteFilename, data)
 		if err != nil {
 			return false, "Unable to Store file to FTP server", err
 		}
 	}
-
 	if f.ReadFilename != "" {
 		r, err := c.Retr(f.ReadFilename)
 		defer r.Close()
@@ -78,9 +74,8 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 		buf, err := ioutil.ReadAll(r)
 
 		if f.ExpectedOutput != "" && string(buf) != f.ExpectedOutput {
-			return false, "Fetched file's contents do not match Expected Output", nil
+			return false, "Fetched file's contents do not match Expected Output", nil //TODO: Make a more meaningful output
 		}
-
 	}
 	return true, "Success!", nil
 }
