@@ -118,13 +118,14 @@ func (d *drunner) MasterRunner() error {
 	d.db.Create(rpr)
 	var scoringLoop *time.Ticker
 	rnd, _ := d.r.Round.GetLastRound()
-	configLoop := time.NewTicker(config.MinRoundDuration)
 	if rnd == nil {
-		rnd = &round.Round{ID: 1}
+		rnd = &round.Round{ID: 0}
 		if *(cnf.Enabled) {
+			rnd.ID += 1
 			d.attemptToScore(rnd, time.Now().Add(time.Duration(cnf.RoundDuration)*time.Second*9/10))
 		}
 	}
+	configLoop := time.NewTicker(config.MinRoundDuration)
 	scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
 	for {
 		select {
@@ -133,11 +134,11 @@ func (d *drunner) MasterRunner() error {
 			if !cnf.IsEqual(dcc) {
 				*cnf = *dcc
 			}
-			scoringLoop.Stop()
 			r, _ := d.r.Round.GetLastRound()
 			if r != nil {
 				rnd = r
 			}
+			scoringLoop.Stop()
 			scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
 		case <-scoringLoop.C:
 			scoringLoop.Stop()
@@ -157,7 +158,7 @@ func (d *drunner) MasterRunner() error {
 }
 
 func (d *drunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64) time.Duration {
-	if rnd == nil {
+	if rnd == nil || rnd.ID == 0 {
 		return config.MinRoundDuration
 	}
 	dur := rnd.Start.Add(time.Duration(RoundDuration) * time.Second).Sub(time.Now())
@@ -259,26 +260,8 @@ func (d drunner) Score(rnd round.Round, timeout time.Time) {
 		return
 	}
 	var chks []*queueing.QCheck
-	completed := make(chan bool, 1)
-	defer close(completed)
-	go func() {
-		chks = d.q.Send(sds)
-		completed <- true
-	}() // ToDO: Find a better way to handle gorutines (Since they potentially may leak if  d.q.Send(sds) never returns). For Example if a queue dies, or execution takes too long (Say a check that never ends), then we are leaking a gorutine either on a worker side, or on master side.
-
-	select {
-	case <-completed:
-		break
-	case <-time.After(time.Until(timeout)):
-		d.l.Error(errors.New("check took too long to execute"))
-		return
-	}
-	r, _ := d.r.Round.GetLastRound()
-	if r.ID != rnd.ID {
-		d.l.Error(errors.New("A different round started before current round was able to finish. The scores will not be committed"))
-		return
-	}
-
+	chks = d.q.Send(sds)
+	// ToDO: Find a better way to handle gorutines (Since they potentially may leak if  d.q.Send(sds) never returns). For Example if a queue dies, or execution takes too long (Say a check that never ends), then we are leaking a gorutine either on a worker side, or on master side.
 	var checks []*check.Check
 	for _, t := range teams {
 		for _, h := range t.Hosts {
@@ -286,14 +269,17 @@ func (d drunner) Score(rnd round.Round, timeout time.Time) {
 				for _, c := range chks {
 					if c.Service.ID == s.ID {
 						s.Checks = append(s.Checks, &check.Check{Passed: &c.Passed, Log: c.Log, ServiceID: c.Service.ID, RoundID: rnd.ID, Err: c.Err})
+						checks = append(checks, s.Checks...)
 					}
 				}
-				checks = append(checks, s.Checks...)
 			}
 		}
 	}
-
 	err = d.db.Transaction(func(tx *gorm.DB) error {
+		r, _ := d.r.Round.GetLastRound()
+		if r.ID != rnd.ID {
+			return errors.New("A different round started before current round was able to finish. The scores will not be committed")
+		}
 		ch := report.NewReport()
 		if err := tx.Take(&ch).Error; err != nil {
 			return err
