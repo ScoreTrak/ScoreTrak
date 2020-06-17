@@ -28,10 +28,11 @@ func (s *SSH) Validate() error {
 }
 
 func (s *SSH) Execute(e exec.Exec) (passed bool, log string, err error) {
+
 	sshConfig := &ssh.ClientConfig{
 		User:    s.Username,
 		Auth:    []ssh.AuthMethod{ssh.Password(s.Password)},
-		Timeout: time.Until(e.Timeout),
+		Timeout: time.Until(e.Deadline()),
 	}
 	sshConfig.HostKeyCallback = ssh.InsecureIgnoreHostKey()
 	client, err := ssh.Dial("tcp", e.Host, sshConfig)

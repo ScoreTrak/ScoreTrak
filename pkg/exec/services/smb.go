@@ -9,7 +9,6 @@ import (
 	"net"
 	"os"
 	"strings"
-	"time"
 )
 
 const (
@@ -44,8 +43,8 @@ func (s *SMB) Validate() error {
 }
 
 func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
-	dialer := net.Dialer{Timeout: time.Until(e.Timeout)}
-	conn, err := dialer.Dial(s.TransportProtocol, e.Host+":"+s.Port)
+	var dial net.Dialer
+	conn, err := dial.DialContext(e.Context, s.TransportProtocol, e.Host+":"+s.Port)
 	if err != nil {
 		return false, "Unable to dial the host", err
 	}

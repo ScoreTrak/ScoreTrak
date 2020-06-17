@@ -43,7 +43,7 @@ func (w *Winrm) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to convert port number to integer", err
 	}
-	endpoint := winrm.NewEndpoint(e.Host, i, isHttps, true, nil, nil, nil, time.Until(e.Timeout))
+	endpoint := winrm.NewEndpoint(e.Host, i, isHttps, true, nil, nil, nil, time.Until(e.Deadline()))
 	client, err := winrm.NewClient(endpoint, w.Username, w.Password)
 	if err != nil {
 		return false, "Unable to initialize winrm client", err

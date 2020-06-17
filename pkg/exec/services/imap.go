@@ -7,7 +7,6 @@ import (
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
 	"net"
-	"time"
 )
 
 type IMAP struct {
@@ -40,9 +39,9 @@ func (i *IMAP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	}
 	var c *client.Client
 	if isHttps {
-		c, err = client.DialWithDialerTLS(&net.Dialer{Timeout: time.Until(e.Timeout)}, e.Host+":"+i.Port, &tls.Config{InsecureSkipVerify: true})
+		c, err = client.DialWithDialerTLS(&net.Dialer{Deadline: e.Deadline()}, e.Host+":"+i.Port, &tls.Config{InsecureSkipVerify: true})
 	} else {
-		c, err = client.DialWithDialer(&net.Dialer{Timeout: time.Until(e.Timeout)}, e.Host+":"+i.Port)
+		c, err = client.DialWithDialer(&net.Dialer{Deadline: e.Deadline()}, e.Host+":"+i.Port)
 	}
 	if err != nil {
 		return false, "Unable to pass Dial the remote server", err

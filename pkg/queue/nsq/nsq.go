@@ -7,6 +7,7 @@ import (
 	"ScoreTrak/pkg/logger"
 	"ScoreTrak/pkg/queue/queueing"
 	"bytes"
+	"context"
 	"encoding/gob"
 	"errors"
 	"fmt"
@@ -108,7 +109,10 @@ func (n NSQ) Receive() {
 		}
 		executable := resolver.ExecutableByName(sd.Service.Name)
 		exec.UpdateExecutableProperties(executable, sd.Properties)
-		e := exec.NewExec(sd.Timeout.Add(-time.Second*5), sd.Host, executable)
+		ctx := context.Background()
+		ctx, cancel := context.WithDeadline(ctx, sd.Timeout.Add(-time.Second))
+		defer cancel()
+		e := exec.NewExec(ctx, sd.Host, executable)
 		fmt.Println(fmt.Sprintf("Executing a check for service ID %d for round %d", sd.Service.ID, sd.RoundID))
 		passed, log, err := e.Execute()
 		var errstr string

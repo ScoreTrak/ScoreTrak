@@ -5,6 +5,7 @@ import (
 	"ScoreTrak/pkg/exec/resolver"
 	"ScoreTrak/pkg/logger"
 	"ScoreTrak/pkg/queue/queueing"
+	"context"
 	"errors"
 	"fmt"
 	"sync"
@@ -41,7 +42,11 @@ func (n None) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 			}()
 			executable := resolver.ExecutableByName(sd.Service.Name)
 			exec.UpdateExecutableProperties(executable, sd.Properties)
-			e := exec.NewExec(sd.Timeout.Add(-time.Second), sd.Host, executable)
+
+			ctx := context.Background()
+			ctx, cancel := context.WithDeadline(ctx, sd.Timeout.Add(-time.Second))
+			defer cancel()
+			e := exec.NewExec(ctx, sd.Host, executable)
 			fmt.Println(fmt.Sprintf("Executing a check for service ID %d for round %d", sd.Service.ID, sd.RoundID))
 			passed, log, err := e.Execute()
 			var errstr string

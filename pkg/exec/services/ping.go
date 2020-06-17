@@ -26,7 +26,7 @@ func (p *Ping) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to initialize new pinger", err
 	}
-	pinger.Timeout = time.Until(e.Timeout)
+	pinger.Timeout = time.Until(e.Deadline())
 	pinger.SetPrivileged(true)
 	i, err := strconv.Atoi(p.Count)
 	if err != nil {

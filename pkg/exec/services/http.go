@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 )
 
 type HTTP struct {
@@ -44,8 +43,8 @@ func (h *HTTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Error while crafting the request", err
 	}
+	req.WithContext(e.Context)
 	httpClient := http.DefaultClient
-	httpClient.Timeout = time.Until(e.Timeout)
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		return false, "Error while making the request", err

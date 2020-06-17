@@ -1,6 +1,7 @@
 package exec
 
 import (
+	"context"
 	"errors"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"reflect"
@@ -13,13 +14,14 @@ type Executable interface {
 }
 
 type Exec struct {
-	Timeout    time.Time
+	Context    context.Context
 	Host       string
+	deadline   time.Time
 	executable Executable
 }
 
-func NewExec(t time.Time, h string, e Executable) *Exec {
-	return &Exec{Timeout: t, Host: h, executable: e}
+func NewExec(ctx context.Context, h string, e Executable) *Exec {
+	return &Exec{Context: ctx, Host: h, executable: e}
 }
 
 func (e Exec) Execute() (passed bool, log string, err error) {
@@ -27,24 +29,19 @@ func (e Exec) Execute() (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Check did not pass parameter validation", err
 	}
-	oldTimeout := e.Timeout
-	e.Timeout = e.Timeout.Add(-time.Second * 2)
-	completed := make(chan bool, 1)
-	defer close(completed)
-	go func() {
-		passed, log, err = e.executable.Execute(e)
-		completed <- true
-	}()
-	select {
-	case <-completed:
-		break
-	case <-time.After(time.Until(oldTimeout)):
-		return false, "", errors.New("check took too long to execute")
+	passed, log, err = e.executable.Execute(e)
+	deadline, ok := e.Context.Deadline()
+	if !ok || time.Now().After(deadline) {
+		return false, "Unable to start the check", errors.New("deadline passed to a check wasn't set, or was negative. This is most likely a bug, or a misconfiguration")
 	}
 	return e.executable.Execute(e)
 }
 func (e Exec) Validate() error {
 	return e.executable.Validate()
+}
+
+func (e Exec) Deadline() time.Time {
+	return e.deadline
 }
 
 func UpdateExecutableProperties(v Executable, p map[string]string) {
