@@ -106,6 +106,7 @@ func (d dRunner) refreshDsync() {
 	if err != nil {
 		panic(err)
 	}
+	defer res.Close()
 	for res.Next() {
 		res.Scan(&tm)
 	}
@@ -114,9 +115,7 @@ func (d dRunner) refreshDsync() {
 	if float64(time.Second*2) < math.Abs(float64(dsync)) {
 		d.l.Error(fmt.Sprintf("time difference between master host, and database host are is large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now()))
 	}
-	res.Close()
 }
-
 func (d dRunner) getDsync() time.Duration {
 	mud.RLock()
 	defer mud.RUnlock()
@@ -145,6 +144,7 @@ func (d *dRunner) MasterRunner() error {
 			return err
 		}
 	}
+	d.refreshDsync()
 	rpr := report.NewReport()
 	d.db.Create(rpr)
 	var scoringLoop *time.Ticker
@@ -349,7 +349,13 @@ func (d dRunner) Score(rnd round.Round, timeout time.Time) {
 							params[p.Key] = p.Value
 						}
 					}
-					sh.Services[s.ID] = report.SimpleService{Passed: *s.Checks[0].Passed, Log: s.Checks[0].Log, Err: s.Checks[0].Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
+
+					if len(s.Checks) != 0 {
+						sh.Services[s.ID] = report.SimpleService{Passed: *s.Checks[0].Passed, Log: s.Checks[0].Log, Err: s.Checks[0].Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
+					} else {
+						sh.Services[s.ID] = report.SimpleService{Passed: false, Log: "Service was not checked because it was disabeled", Err: "", Points: points, Properties: params, PointsBoost: s.PointsBoost}
+					}
+
 				}
 				st.Hosts[h.ID] = sh
 			}
