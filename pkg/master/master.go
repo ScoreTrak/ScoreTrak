@@ -32,7 +32,7 @@ func Run() error {
 		return err
 	}
 
-	q, err := queue.NewQueue(config.GetStaticConfig())
+	q, err := queue.NewQueue(config.GetStaticConfig(), l)
 
 	if err != nil {
 		return err
