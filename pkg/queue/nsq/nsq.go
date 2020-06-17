@@ -4,6 +4,7 @@ import (
 	"ScoreTrak/pkg/config"
 	"ScoreTrak/pkg/exec"
 	"ScoreTrak/pkg/exec/resolver"
+	"ScoreTrak/pkg/logger"
 	"ScoreTrak/pkg/queue/queueing"
 	"bytes"
 	"encoding/gob"
@@ -14,7 +15,9 @@ import (
 	"time"
 )
 
-type NSQ struct{}
+type NSQ struct {
+	l logger.LogInfoFormat
+}
 
 func (n NSQ) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 	//TODO: TERMINATION BASED ON TIMEOUT
@@ -25,7 +28,6 @@ func (n NSQ) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 	if err != nil {
 		panic(err)
 	}
-
 	for _, sd := range sds {
 		buf := &bytes.Buffer{}
 		if err := gob.NewEncoder(buf).Encode(sd); err != nil {
@@ -126,6 +128,6 @@ func (n NSQ) Acknowledge(q queueing.QCheck) {
 	producer.Stop()
 }
 
-func NewNSQQueue() (*NSQ, error) {
-	return &NSQ{}, nil
+func NewNSQQueue(l logger.LogInfoFormat) (*NSQ, error) {
+	return &NSQ{l}, nil
 }
