@@ -27,14 +27,14 @@ func genericGetByID(svc interface{}, log logger.LogInfoFormat, m string, idParam
 	id, err := idResolver(svc, idParam, r)
 	if err != nil {
 		log.Error(err)
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 	sg, err := invokeRetMethod(svc, m, id)
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			w.WriteHeader(http.StatusNotFound)
+			http.Error(w, err.Error(), http.StatusNotFound)
 		} else {
-			w.WriteHeader(http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			log.Error(err)
 		}
 		return
@@ -42,7 +42,7 @@ func genericGetByID(svc interface{}, log logger.LogInfoFormat, m string, idParam
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(sg)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Error(err)
 	}
 }
@@ -57,9 +57,9 @@ func genericGet(svc interface{}, log logger.LogInfoFormat, m string, w http.Resp
 	sg, err := invokeRetMethod(svc, m)
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			w.WriteHeader(http.StatusNotFound)
+			http.Error(w, err.Error(), http.StatusNotFound)
 		} else {
-			w.WriteHeader(http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			log.Error(err)
 		}
 		return
@@ -67,7 +67,7 @@ func genericGet(svc interface{}, log logger.LogInfoFormat, m string, w http.Resp
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(sg)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		log.Error(err)
 	}
 }
@@ -84,13 +84,13 @@ func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, m s
 	err := decoder.Decode(g)
 	if err != nil {
 		log.Error(err)
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	id, err := idResolver(svc, idParam, r)
 	if err != nil {
 		log.Error(err)
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	v := reflect.ValueOf(g).Elem()
@@ -100,9 +100,9 @@ func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, m s
 	if err != nil {
 		_, ok := err.(*validations.Error)
 		if ok {
-			w.WriteHeader(http.StatusPreconditionFailed)
+			http.Error(w, err.Error(), http.StatusPreconditionFailed)
 		} else {
-			w.WriteHeader(http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 		log.Error(err)
 		return
@@ -120,16 +120,16 @@ func genericStore(svc interface{}, g interface{}, log logger.LogInfoFormat, m st
 	err := decoder.Decode(g)
 	if err != nil {
 		log.Error(err)
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	err = invokeNoRetMethod(svc, m, g)
 	if err != nil {
 		_, ok := err.(*validations.Error)
 		if ok {
-			w.WriteHeader(http.StatusPreconditionFailed)
+			http.Error(w, err.Error(), http.StatusPreconditionFailed)
 		} else {
-			w.WriteHeader(http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 		log.Error(err)
 		return
@@ -145,8 +145,8 @@ func genericDelete(svc interface{}, log logger.LogInfoFormat, m string, idParam 
 	}()
 	id, err := idResolver(svc, idParam, r)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		log.Error(err)
-		w.WriteHeader(http.StatusBadRequest)
 	}
 	err = invokeNoRetMethod(svc, m, id)
 	if err != nil {
@@ -154,7 +154,7 @@ func genericDelete(svc interface{}, log logger.LogInfoFormat, m string, idParam 
 		if ok {
 			http.Redirect(w, r, "/team", http.StatusNotModified)
 		} else {
-			w.WriteHeader(http.StatusConflict)
+			http.Error(w, err.Error(), http.StatusConflict)
 			log.Error(err)
 			return
 		}
