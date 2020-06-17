@@ -2,6 +2,7 @@ package queue
 
 import (
 	"ScoreTrak/pkg/config"
+	"ScoreTrak/pkg/logger"
 	"ScoreTrak/pkg/queue/none"
 	"ScoreTrak/pkg/queue/nsq"
 	"ScoreTrak/pkg/queue/queueing"
@@ -13,10 +14,10 @@ type Queue interface {
 	Acknowledge(queueing.QCheck)
 }
 
-func NewQueue(c *config.StaticConfig) (Queue, error) {
+func NewQueue(c *config.StaticConfig, l logger.LogInfoFormat) (Queue, error) {
 	if c.Queue.Use == "nsq" {
-		return nsq.NewNSQQueue()
+		return nsq.NewNSQQueue(l)
 	} else {
-		return none.NewNoneQueue()
+		return none.NewNoneQueue(l)
 	}
 }

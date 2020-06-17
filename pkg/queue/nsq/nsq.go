@@ -8,6 +8,7 @@ import (
 	"ScoreTrak/pkg/queue/queueing"
 	"bytes"
 	"encoding/gob"
+	"errors"
 	"fmt"
 	"github.com/nsqio/go-nsq"
 	"strconv"
@@ -85,6 +86,23 @@ func (n NSQ) Receive() {
 	consumer.AddConcurrentHandlers(nsq.HandlerFunc(func(m *nsq.Message) error {
 		buf := bytes.NewBuffer(m.Body)
 		var sd queueing.ScoringData
+		defer func() {
+			if x := recover(); x != nil {
+				var err error
+				switch x := x.(type) {
+				case string:
+					err = errors.New(x)
+				case error:
+					err = x
+				default:
+					err = errors.New("unknown panic")
+				}
+				n.l.Error(err)
+				qc := queueing.QCheck{Service: sd.Service, Passed: false, Log: "Encountered an unexpected error during the check. This is most likely a bug", Err: err.Error(), RoundID: sd.RoundID}
+				n.Acknowledge(qc)
+				return
+			}
+		}()
 		if err := gob.NewDecoder(buf).Decode(&sd); err != nil {
 			panic(err)
 		}
