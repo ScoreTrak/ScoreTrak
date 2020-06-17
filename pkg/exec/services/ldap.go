@@ -38,7 +38,7 @@ func (l *LDAP) Validate() error {
 
 func (l *LDAP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	var ld *ldap.Conn
-	if strings.ToLower(l.ApplicationProtocol) == "tls" || strings.ToLower(l.ApplicationProtocol) == "ssl" || strings.ToLower(l.ApplicationProtocol) == "ldaps" {
+	if exec.IsSecure(l.ApplicationProtocol) {
 		if l.Port == "" {
 			l.Port = "636"
 		}
