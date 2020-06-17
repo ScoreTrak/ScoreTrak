@@ -7,26 +7,25 @@ import (
 )
 
 func ExecutableByName(s string) exec.Executable {
-
 	switch strings.ToLower(s) {
-	case "FTP":
+	case "ftp":
 		return services.NewFTP()
-	case "SSH":
+	case "ssh":
 		return services.NewSSH()
-	case "WINRM":
+	case "winrm":
 		return services.NewWinrm()
-	case "PING":
-		services.NewPing()
-	case "HTTP":
-		services.NewHTTP()
-	case "LDAP":
-		services.NewLDAP()
-	case "DNS":
-		services.NewDNS()
-	case "SMB":
-		services.NewSMB()
-	case "IMAP":
-		services.NewIMAP()
+	case "ping":
+		return services.NewPing()
+	case "http":
+		return services.NewHTTP()
+	case "ldap":
+		return services.NewLDAP()
+	case "dns":
+		return services.NewDNS()
+	case "smb":
+		return services.NewSMB()
+	case "imap":
+		return services.NewIMAP()
 	}
 
 	return nil

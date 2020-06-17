@@ -58,7 +58,7 @@ func BuildMasterContainer() (*dig.Container, error) {
 
 func BuildWorkerContainer() (*dig.Container, error) {
 	var ctr []interface{}
-	ctr = append(ctr, config.GetStaticConfig, queue.NewQueue)
+	ctr = append(ctr, config.GetStaticConfig)
 
 	for _, i := range ctr {
 		err := container.Provide(i)
