@@ -11,7 +11,6 @@ import (
 )
 
 type Ping struct {
-	Count    string `json:"count"`
 	Protocol string `json:"protocol"`
 	Attempts string `json:"attempts"`
 }
@@ -20,7 +19,7 @@ var ipv4opt = []string{"ipv4", "4", "ip4"}
 var ipv6opt = []string{"ipv6", "6", "ip6"}
 
 func NewPing() *Ping {
-	f := Ping{Count: "3", Protocol: "ipv4", Attempts: "3"}
+	f := Ping{Protocol: "ipv4", Attempts: "1"}
 	return &f
 }
 
