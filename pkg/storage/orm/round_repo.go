@@ -58,12 +58,12 @@ func (r *roundRepo) GetByID(id uint64) (*round.Round, error) {
 	return tea, nil
 }
 
-func (r *roundRepo) Store(tm *round.Round) error {
-	if tm.ID == 0 {
+func (r *roundRepo) Store(rn *round.Round) error {
+	if rn.ID == 0 {
 		return errors.New("the ID should be provided")
 	}
-	r.log.Debugf("creating the round with id : %v", tm.ID)
-	err := r.db.Create(tm).Error
+	r.log.Debugf("creating the round with id : %v", rn.ID)
+	err := r.db.Create(rn).Error
 	if err != nil {
 		r.log.Errorf("error while creating the round, reason : %v", err)
 		return err
@@ -71,9 +71,9 @@ func (r *roundRepo) Store(tm *round.Round) error {
 	return nil
 }
 
-func (r *roundRepo) Update(tm *round.Round) error {
-	r.log.Debugf("updating the round, with id : %v", tm.ID)
-	err := r.db.Model(tm).Updates(round.Round{Finish: tm.Finish}).Error
+func (r *roundRepo) Update(rn *round.Round) error {
+	r.log.Debugf("updating the round, with id : %v", rn.ID)
+	err := r.db.Model(rn).Updates(round.Round{Finish: rn.Finish, Note: rn.Note}).Error
 	if err != nil {
 		r.log.Errorf("error while updating the round, reason : %v", err)
 		return err
