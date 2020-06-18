@@ -31,7 +31,6 @@ func (e Exec) Execute() (passed bool, log string, err error) {
 	if time.Now().After(e.Deadline()) {
 		return false, "Unable to start the check", errors.New("deadline passed to a check wasn't set, or was negative. This is most likely a bug, or a misconfiguration")
 	}
-	passed, log, err = e.executable.Execute(e)
 	return e.executable.Execute(e)
 }
 func (e Exec) Validate() error {
