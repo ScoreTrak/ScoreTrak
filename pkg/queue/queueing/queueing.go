@@ -1,6 +1,7 @@
 package queueing
 
 import (
+	"strconv"
 	"sync"
 	"time"
 )
@@ -40,3 +41,10 @@ func WaitTimeout(wg *sync.WaitGroup, deadline time.Time) bool {
 		return true
 	}
 } //https://gist.github.com/r4um/c1ab51b8757fc2d75d30320933cdbdf6
+
+func TopicFromRound(r uint64) string {
+	if r == 0 {
+		return "test_ack"
+	}
+	return strconv.FormatUint(r, 10) + "_ack"
+}
