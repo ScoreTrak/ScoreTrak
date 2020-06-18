@@ -36,14 +36,17 @@ func NewSMB() *SMB {
 }
 
 func (s *SMB) Validate() error {
-	if s.Operation == create || s.Operation == createAndOpen || s.Operation == open {
-		return nil
+	if s.Operation != create && s.Operation != createAndOpen && s.Operation != open {
+		return errors.New(fmt.Sprintf("parameter should Operation be either: %s, %s, or %s", create, open, createAndOpen))
 	}
-	return errors.New(fmt.Sprintf("operation should be either: %s, %s, or %s", create, open, createAndOpen))
+	if s.Share == "" {
+		return errors.New("parameter Share should not be empty")
+	}
+	return nil
 }
 
 func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
-	var dial net.Dialer
+	dial := net.Dialer{}
 	conn, err := dial.DialContext(e.Context, s.TransportProtocol, e.Host+":"+s.Port)
 	if err != nil {
 		return false, "Unable to dial the host", err

@@ -16,7 +16,6 @@ type Executable interface {
 type Exec struct {
 	Context    context.Context
 	Host       string
-	deadline   time.Time
 	executable Executable
 }
 
@@ -29,11 +28,10 @@ func (e Exec) Execute() (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Check did not pass parameter validation", err
 	}
-	passed, log, err = e.executable.Execute(e)
-	deadline, ok := e.Context.Deadline()
-	if !ok || time.Now().After(deadline) {
+	if time.Now().After(e.Deadline()) {
 		return false, "Unable to start the check", errors.New("deadline passed to a check wasn't set, or was negative. This is most likely a bug, or a misconfiguration")
 	}
+	passed, log, err = e.executable.Execute(e)
 	return e.executable.Execute(e)
 }
 func (e Exec) Validate() error {
@@ -41,7 +39,11 @@ func (e Exec) Validate() error {
 }
 
 func (e Exec) Deadline() time.Time {
-	return e.deadline
+	deadline, ok := e.Context.Deadline()
+	if !ok {
+		panic(errors.New("deadline was not set"))
+	}
+	return deadline
 }
 
 func UpdateExecutableProperties(v Executable, p map[string]string) {

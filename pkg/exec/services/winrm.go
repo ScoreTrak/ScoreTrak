@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/masterzen/winrm"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -55,7 +56,7 @@ func (w *Winrm) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if returnCode != 0 {
 		return false, "Process returned a non-zero code", errors.New(procStderr)
 	}
-	if w.ExpectedOutput != "" && procStdout != w.ExpectedOutput {
+	if w.ExpectedOutput != "" && strings.Contains(procStdout, w.ExpectedOutput) {
 		return false, "The process did not match ExpectedOutput", nil //TODO: Make a more meaningful output
 	}
 	return true, "Success!", nil

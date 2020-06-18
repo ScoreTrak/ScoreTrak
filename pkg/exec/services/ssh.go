@@ -35,7 +35,7 @@ func (s *SSH) Execute(e exec.Exec) (passed bool, log string, err error) {
 		Timeout: time.Until(e.Deadline()),
 	}
 	sshConfig.HostKeyCallback = ssh.InsecureIgnoreHostKey()
-	client, err := ssh.Dial("tcp", e.Host, sshConfig)
+	client, err := ssh.Dial("tcp", e.Host+":"+s.Port, sshConfig)
 	if err != nil {
 		return false, "Unable to dial the remote host", err
 	}
@@ -44,7 +44,7 @@ func (s *SSH) Execute(e exec.Exec) (passed bool, log string, err error) {
 		return false, "Unable to establish the session", err
 	}
 	defer session.Close()
-	out, err := session.CombinedOutput("mkdir test")
+	out, err := session.CombinedOutput(s.Command)
 	if err != nil {
 		return false, "Unable to execute the command", err
 	}

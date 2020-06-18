@@ -6,6 +6,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
 	github.com/bogdanovich/dns_resolver v0.0.0-20170211073258-a8e42bc6a5b6
 	github.com/denisenkom/go-mssqldb v0.0.0-20191128021309-1d7a30a10f73 // indirect
+	github.com/digineo/go-ping v1.0.0
 	github.com/domainr/dnsr v0.0.0-20200609081351-15b176e7fe33 // indirect
 	github.com/emersion/go-imap v1.0.4
 	github.com/go-ldap/ldap/v3 v3.1.10
@@ -26,14 +27,14 @@ require (
 	github.com/qor/qor v0.0.0-20200224122013-457d2e3f50e1 // indirect
 	github.com/qor/validations v0.0.0-20171228122639-f364bca61b46
 	github.com/smartystreets/goconvey v1.6.4
-	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
+	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c // indirect
 	github.com/stretchr/testify v1.5.1 // indirect
 	go.uber.org/dig v1.9.0
 	go.uber.org/zap v1.15.0
 	golang.org/x/crypto v0.0.0-20200429183012-4b2356b1ed79
 	golang.org/x/net v0.0.0-20200520182314-0ba52f642ac2 // indirect
 	golang.org/x/sys v0.0.0-20200519105757-fe76b779f299 // indirect
-	golang.org/x/tools v0.0.0-20200308013534-11ec41452d41 // indirect
+	golang.org/x/tools v0.0.0-20200308013534-11ec41452d41
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
