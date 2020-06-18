@@ -42,9 +42,8 @@ func (n None) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 			}()
 			executable := resolver.ExecutableByName(sd.Service.Name)
 			exec.UpdateExecutableProperties(executable, sd.Properties)
-
 			ctx := context.Background()
-			ctx, cancel := context.WithDeadline(ctx, sd.Timeout.Add(-time.Second))
+			ctx, cancel := context.WithDeadline(ctx, sd.Deadline.Add(-time.Second))
 			defer cancel()
 			e := exec.NewExec(ctx, sd.Host, executable)
 			fmt.Println(fmt.Sprintf("Executing a check for service ID %d for round %d", sd.Service.ID, sd.RoundID))
@@ -57,7 +56,9 @@ func (n None) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 			ret[i] = &qc
 		}(sd, i)
 	}
-	wg.Wait()
+	if queueing.WaitTimeout(wg, sds[0].Deadline) {
+		return nil
+	}
 	return ret
 }
 

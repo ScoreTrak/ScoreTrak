@@ -28,15 +28,20 @@ func (n NSQ) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 	confp.LookupdPollInterval = time.Second * 1
 	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", c.Queue.NSQ.NSQD.Host, c.Queue.NSQ.NSQD.Port), confp)
 	if err != nil {
+		n.l.Error(err)
 		panic(err)
 	}
+	var buffers []*bytes.Buffer
 	for _, sd := range sds {
 		buf := &bytes.Buffer{}
 		if err := gob.NewEncoder(buf).Encode(sd); err != nil {
+			n.l.Error(err)
 			panic(err)
 		}
+		buffers = append(buffers)
 		err = producer.Publish(sd.Service.Group, buf.Bytes())
 		if err != nil {
+			n.l.Error(err)
 			panic(err)
 		}
 	}
@@ -47,10 +52,12 @@ func (n NSQ) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 	if err != nil {
 		panic(err)
 	}
+	defer consumer.Stop()
 	ret := make([]*queueing.QCheck, len(sds))
 	consumer.ChangeMaxInFlight(len(sds))
 	wg := &sync.WaitGroup{}
 	wg.Add(len(sds))
+
 	consumer.AddConcurrentHandlers(nsq.HandlerFunc(func(m *nsq.Message) error {
 		defer wg.Done()
 		buf := bytes.NewBuffer(m.Body)
@@ -69,13 +76,15 @@ func (n NSQ) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 	if err != nil {
 		panic(err)
 	}
-	wg.Wait() //Make waitgroup terminable to not lose gorutine
-	consumer.Stop()
+	if queueing.WaitTimeout(wg, sds[0].Deadline) {
+		return nil
+	}
+	//Make waitgroup terminable to not lose gorutine
+
 	return ret
 }
 
 func (n NSQ) Receive() {
-	//TODO: TERMINATION BASED ON TIMEOUT
 	c := config.GetConfig()
 	conf := nsq.NewConfig()
 	conf.LookupdPollInterval = time.Second * 3
@@ -104,13 +113,17 @@ func (n NSQ) Receive() {
 				return
 			}
 		}()
+		if time.Now().After(sd.Deadline) {
+			n.Acknowledge(queueing.QCheck{Service: sd.Service, Passed: false, Log: "", Err: "The check arrived late to the worker", RoundID: sd.RoundID})
+			return nil
+		}
 		if err := gob.NewDecoder(buf).Decode(&sd); err != nil {
 			panic(err)
 		}
 		executable := resolver.ExecutableByName(sd.Service.Name)
 		exec.UpdateExecutableProperties(executable, sd.Properties)
 		ctx := context.Background()
-		ctx, cancel := context.WithDeadline(ctx, sd.Timeout.Add(-time.Second))
+		ctx, cancel := context.WithDeadline(ctx, sd.Deadline.Add(-time.Second))
 		defer cancel()
 		e := exec.NewExec(ctx, sd.Host, executable)
 		fmt.Println(fmt.Sprintf("Executing a check for service ID %d for round %d", sd.Service.ID, sd.RoundID))
