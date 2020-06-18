@@ -7,7 +7,9 @@ import (
 	"ScoreTrak/pkg/host"
 	"ScoreTrak/pkg/host_group"
 	"ScoreTrak/pkg/logger"
+	"ScoreTrak/pkg/master/run"
 	"ScoreTrak/pkg/property"
+	"ScoreTrak/pkg/queue"
 	"ScoreTrak/pkg/report"
 	"ScoreTrak/pkg/round"
 	"ScoreTrak/pkg/service"
@@ -363,11 +365,16 @@ func (ds *dserver) serviceRoutes() Routes {
 	ds.cont.Invoke(func(s service.Serv) {
 		svc = s
 	})
-	return ServiceRoutes(ds.logger, svc)
+	var q queue.Queue
+	ds.cont.Invoke(func(s queue.Queue) {
+		q = s
+	})
+
+	return ServiceRoutes(ds.logger, svc, q, run.NewRepoStore())
 }
 
-func ServiceRoutes(l logger.LogInfoFormat, svc service.Serv) Routes {
-	ctrl := handler.NewServiceController(l, svc)
+func ServiceRoutes(l logger.LogInfoFormat, svc service.Serv, q queue.Queue, repoStore run.RepoStore) Routes {
+	ctrl := handler.NewServiceController(l, svc, q, repoStore)
 	serviceRoutes := Routes{
 		Route{
 			"AddService",
@@ -402,6 +409,12 @@ func ServiceRoutes(l logger.LogInfoFormat, svc service.Serv) Routes {
 			strings.ToUpper("Patch"),
 			"/service/{id}",
 			ctrl.Update,
+		},
+		Route{
+			"TestService",
+			strings.ToUpper("Get"),
+			"/service/test/{id}",
+			ctrl.TestService,
 		},
 	}
 	return serviceRoutes

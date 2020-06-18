@@ -276,10 +276,7 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 							for _, servGroup := range serviceGroups {
 								if s.ServiceGroupID == servGroup.ID && *(servGroup.Enabled) {
 									sq := queueing.QService{ID: s.ID, Group: servGroup.Name, Name: s.Name}
-									params := map[string]string{}
-									for _, p := range s.Properties {
-										params[p.Key] = p.Value
-									}
+									params := PropertyToMap(s.Properties)
 									sd := &queueing.ScoringData{
 										Deadline:   deadline,
 										Host:       *(h.Address),
@@ -407,4 +404,12 @@ func (d dRunner) finalizeRound(rnd *round.Round, Note string) {
 	if err != nil {
 		d.l.Error(err)
 	}
+}
+
+func PropertyToMap(props []*property.Property) map[string]string {
+	params := map[string]string{}
+	for _, p := range props {
+		params[p.Key] = p.Value
+	}
+	return params
 }

@@ -2,17 +2,26 @@ package handler
 
 import (
 	"ScoreTrak/pkg/logger"
+	"ScoreTrak/pkg/master/run"
+	"ScoreTrak/pkg/queue"
+	"ScoreTrak/pkg/queue/queueing"
 	"ScoreTrak/pkg/service"
+	"encoding/json"
+	"github.com/gorilla/mux"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 type serviceController struct {
 	log logger.LogInfoFormat
 	svc service.Serv
+	q   queue.Queue
+	r   run.RepoStore
 }
 
-func NewServiceController(log logger.LogInfoFormat, svc service.Serv) *serviceController {
-	return &serviceController{log, svc}
+func NewServiceController(log logger.LogInfoFormat, svc service.Serv, q queue.Queue, r run.RepoStore) *serviceController {
+	return &serviceController{log, svc, q, r}
 }
 
 func (s *serviceController) Store(w http.ResponseWriter, r *http.Request) {
@@ -35,4 +44,35 @@ func (s *serviceController) GetAll(w http.ResponseWriter, r *http.Request) {
 func (s *serviceController) Update(w http.ResponseWriter, r *http.Request) {
 	tm := &service.Service{}
 	genericUpdate(s.svc, tm, s.log, "Update", "id", w, r)
+}
+
+func (s *serviceController) TestService(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id, err := strconv.ParseUint(params["id"], 10, 64)
+	if err != nil {
+		s.log.Error(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+
+	}
+	ser, err := s.r.Service.GetByID(id)
+	if err != nil {
+		s.log.Error(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
+	}
+	p, _ := s.r.Property.GetAllByServiceID(id)
+	h, _ := s.r.Host.GetByID(ser.HostID)
+	serGrp, _ := s.r.ServiceGroup.GetByID(ser.ServiceGroupID)
+	response := s.q.Send([]*queueing.ScoringData{
+		{Service: queueing.QService{ID: id, Name: ser.Name, Group: serGrp.Name}, Host: *h.Address, Deadline: time.Now().Add(time.Second * 5), RoundID: 0, Properties: run.PropertyToMap(p)},
+	})
+	if response == nil {
+		http.Error(w, "something went wrong, either check took too long to execute, or the workers did not receive the check", http.StatusInternalServerError)
+		return
+	}
+	encoder := json.NewEncoder(w)
+	err = encoder.Encode(response[0])
+	if err != nil {
+		s.log.Error(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

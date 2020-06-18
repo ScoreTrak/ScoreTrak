@@ -39,11 +39,9 @@ func NewServer(e *mux.Router, c *dig.Container, l logger.LogInfoFormat) *dserver
 
 func (ds *dserver) SetupDB() error {
 	var db *gorm.DB
-	if err := ds.cont.Invoke(func(d *gorm.DB) {
+	ds.cont.Invoke(func(d *gorm.DB) {
 		db = d
-	}); err != nil {
-		return err
-	}
+	})
 
 	var tm time.Time
 	res, err := db.Raw("SELECT current_timestamp;").Rows()
@@ -86,9 +84,12 @@ func (ds *dserver) SetupDB() error {
 // Start start serving the application
 func (ds *dserver) Start() error {
 	var cfg *config.StaticConfig
-	if err := ds.cont.Invoke(func(c *config.StaticConfig) { cfg = c }); err != nil {
-		return err
-	}
-	go http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), ds.router)
+	ds.cont.Invoke(func(c *config.StaticConfig) { cfg = c })
+	go func() {
+		err := http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), ds.router)
+		if err != nil {
+			ds.logger.Error(err)
+		}
+	}()
 	return nil
 }
