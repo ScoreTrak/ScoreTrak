@@ -12,7 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/nsqio/go-nsq"
-	"strconv"
+	"net/http"
 	"sync"
 	"time"
 )
@@ -25,20 +25,20 @@ func (n NSQ) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 	//TODO: TERMINATION BASED ON TIMEOUT
 	c := config.GetStaticConfig()
 	confp := nsq.NewConfig()
-	confp.LookupdPollInterval = time.Second * 1
+	//if sds[0].RoundID == 0{
+	//	n.CleanTestQueue(c)
+	//}
 	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", c.Queue.NSQ.NSQD.Host, c.Queue.NSQ.NSQD.Port), confp)
 	if err != nil {
 		n.l.Error(err)
 		panic(err)
 	}
-	var buffers []*bytes.Buffer
 	for _, sd := range sds {
 		buf := &bytes.Buffer{}
 		if err := gob.NewEncoder(buf).Encode(sd); err != nil {
 			n.l.Error(err)
 			panic(err)
 		}
-		buffers = append(buffers)
 		err = producer.Publish(sd.Service.Group, buf.Bytes())
 		if err != nil {
 			n.l.Error(err)
@@ -47,8 +47,8 @@ func (n NSQ) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 	}
 	producer.Stop()
 	confc := nsq.NewConfig()
-	confc.LookupdPollInterval = time.Second * 3
-	consumer, err := nsq.NewConsumer(strconv.FormatUint(sds[0].RoundID, 10)+"_ack", "channel", confc)
+	confc.LookupdPollInterval = time.Second * 1
+	consumer, err := nsq.NewConsumer(queueing.TopicFromRound(sds[0].RoundID), "channel", confc)
 	if err != nil {
 		panic(err)
 	}
@@ -57,7 +57,6 @@ func (n NSQ) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 	consumer.ChangeMaxInFlight(len(sds))
 	wg := &sync.WaitGroup{}
 	wg.Add(len(sds))
-
 	consumer.AddConcurrentHandlers(nsq.HandlerFunc(func(m *nsq.Message) error {
 		defer wg.Done()
 		buf := bytes.NewBuffer(m.Body)
@@ -79,15 +78,13 @@ func (n NSQ) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 	if queueing.WaitTimeout(wg, sds[0].Deadline) {
 		return nil
 	}
-	//Make waitgroup terminable to not lose gorutine
-
 	return ret
 }
 
 func (n NSQ) Receive() {
 	c := config.GetConfig()
 	conf := nsq.NewConfig()
-	conf.LookupdPollInterval = time.Second * 3
+	conf.LookupdPollInterval = time.Second * 2
 	conf.MaxInFlight = c.Queue.NSQ.MaxInFlight
 	consumer, err := nsq.NewConsumer(c.Queue.NSQ.Topic, "channel", conf)
 	if err != nil {
@@ -113,12 +110,12 @@ func (n NSQ) Receive() {
 				return
 			}
 		}()
+		if err := gob.NewDecoder(buf).Decode(&sd); err != nil {
+			panic(err)
+		}
 		if time.Now().After(sd.Deadline) {
 			n.Acknowledge(queueing.QCheck{Service: sd.Service, Passed: false, Log: "", Err: "The check arrived late to the worker", RoundID: sd.RoundID})
 			return nil
-		}
-		if err := gob.NewDecoder(buf).Decode(&sd); err != nil {
-			panic(err)
 		}
 		executable := resolver.ExecutableByName(sd.Service.Name)
 		exec.UpdateExecutableProperties(executable, sd.Properties)
@@ -156,12 +153,21 @@ func (n NSQ) Acknowledge(q queueing.QCheck) {
 	if err := gob.NewEncoder(buf).Encode(&q); err != nil {
 		panic(err)
 	}
-	err = producer.Publish(strconv.FormatUint(q.RoundID, 10)+"_ack", buf.Bytes())
+	err = producer.Publish(queueing.TopicFromRound(q.RoundID), buf.Bytes())
 	if err != nil {
 		panic(err)
 	}
 	producer.Stop()
 }
+
+func (n NSQ) CleanTestQueue(c *config.StaticConfig) { //THis make NSQ node unusable for a while
+	resp, err := http.Post(fmt.Sprintf("http://%s:%s/topic/delete?topic=test_ack", c.Queue.NSQ.NSQLookupd.Host, c.Queue.NSQ.NSQLookupd.Port), "", nil)
+	if err != nil {
+		n.l.Error(err)
+		panic(err)
+	}
+	defer resp.Body.Close()
+} //TODO: Come up with a better solution to priemptively clear a test queue. Otherwise if concurrent handler receives more than 1 response, it may fail (negative waitgroup timer)
 
 func NewNSQQueue(l logger.LogInfoFormat) (*NSQ, error) {
 	return &NSQ{l}, nil
