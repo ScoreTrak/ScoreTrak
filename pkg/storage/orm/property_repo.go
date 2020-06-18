@@ -50,7 +50,7 @@ func (p *propertyRepo) GetAll() ([]*property.Property, error) {
 func (p *propertyRepo) GetAllByServiceID(id uint64) ([]*property.Property, error) {
 	p.log.Debugf("get property details by id : %s", id)
 	properties := make([]*property.Property, 0)
-	err := p.db.Where("service_id = ?", id).First(properties).Error
+	err := p.db.Where("service_id = ?", id).Find(&properties).Error
 	if err != nil {
 		p.log.Errorf("property not found with id : %d, reason : %v", id, err)
 		return nil, err
