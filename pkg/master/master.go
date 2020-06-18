@@ -1,7 +1,6 @@
 package master
 
 import (
-	"ScoreTrak/pkg/config"
 	"ScoreTrak/pkg/di"
 	"ScoreTrak/pkg/logger"
 	"ScoreTrak/pkg/master/run"
@@ -11,7 +10,6 @@ import (
 )
 
 func Run() error {
-
 	r := server.NewRouter()
 	d, err := di.BuildMasterContainer()
 	if err != nil {
@@ -31,13 +29,10 @@ func Run() error {
 	if err != nil {
 		return err
 	}
-
-	q, err := queue.NewQueue(config.GetStaticConfig(), l)
-
-	if err != nil {
-		return err
-	}
-
+	var q queue.Queue
+	di.Invoke(func(qu queue.Queue) {
+		q = qu
+	})
 	dr := run.NewRunner(db, l, q, run.NewRepoStore())
 	return dr.MasterRunner()
 

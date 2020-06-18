@@ -69,6 +69,9 @@ func BuildWorkerContainer() (*dig.Container, error) {
 	return container, nil
 }
 
-func Invoke(i interface{}) error {
-	return container.Invoke(i)
+func Invoke(i interface{}) {
+	err := container.Invoke(i)
+	if err != nil {
+		panic(err)
+	}
 }
