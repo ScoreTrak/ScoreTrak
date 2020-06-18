@@ -6,4 +6,5 @@ type Repo interface {
 	GetByID(id uint64) (*Property, error)
 	Store(u *Property) error
 	Update(u *Property) error
+	GetAllByServiceID(id uint64) ([]*Property, error)
 }
