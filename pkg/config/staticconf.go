@@ -39,8 +39,8 @@ type StaticConfig struct {
 			MaxInFlight        int    `default:"1"`
 			ConcurrentHandlers int    `default:"1"`
 			NSQLookupd         struct {
-				Host string `default:"nsqlookupd"`
-				Port string `default:"4161"`
+				Hosts []string `default:"[\"nsqlookupd\"]"`
+				Port  string   `default:"4161"`
 			}
 		}
 	} `json:"-"`
