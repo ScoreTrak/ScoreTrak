@@ -191,7 +191,7 @@ func (d *dRunner) MasterRunner() error {
 
 func (d *dRunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64) time.Duration {
 	if rnd == nil || rnd.ID == 0 {
-		return config.MinRoundDuration
+		return config.MinRoundDuration / 2
 	}
 	dur := rnd.Start.Add(time.Duration(RoundDuration) * time.Second).Sub(time.Now().Add(d.getDsync()))
 	if dur <= 1 {
@@ -220,6 +220,7 @@ func (d *dRunner) attemptToScore(rnd *round.Round, timeout time.Time) {
 }
 
 func (d dRunner) Score(rnd round.Round, deadline time.Time) {
+	var Note string
 	defer func() {
 		if x := recover(); x != nil {
 			var err error
@@ -232,19 +233,19 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 				err = errors.New("unknown panic")
 			}
 			d.l.Error(err)
-			d.finalizeRound(&rnd, fmt.Sprintf("A panic has occured. Err:%s", err.Error()))
+			d.finalizeRound(&rnd, Note, fmt.Sprintf("A panic has occured. Err:%s", err.Error()))
 		}
 	}()
 	d.l.Info("Running check for round %d", rnd.ID)
 	teams, err := d.r.Team.GetAll()
 	if err != nil {
-		d.finalizeRound(&rnd, "No Teams Detected")
+		d.finalizeRound(&rnd, Note, "No Teams Detected")
 		return
 	}
 	hostGroup, _ := d.r.HostGroup.GetAll()
 	serviceGroups, err := d.r.ServiceGroup.GetAll()
 	if err != nil {
-		d.finalizeRound(&rnd, "No Service Groups Detected")
+		d.finalizeRound(&rnd, Note, "No Service Groups Detected")
 		return
 	}
 	var sds []*queueing.ScoringData
@@ -295,13 +296,20 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 	}
 	if len(sds) == 0 {
 		d.l.Info("No services are currently scorable. Finalizing the round")
-		d.finalizeRound(&rnd, "No scorable services detected")
+		d.finalizeRound(&rnd, Note, "No scorable services detected")
 		return
 	}
 	var chks []*queueing.QCheck
-	chks = d.q.Send(sds)
-	if chks == nil {
-		d.finalizeRound(&rnd, "Round took too long to score. This might be due to many reasons like a worker going down, or the number of rounds being too big for one master.")
+	var bearableErr error
+
+	chks, bearableErr, err = d.q.Send(sds)
+	if bearableErr != nil {
+		Note += bearableErr.Error()
+		d.l.Error(bearableErr)
+	}
+	if err != nil {
+		d.l.Error(err)
+		d.finalizeRound(&rnd, Note, err.Error())
 	}
 	// ToDO: Find a better way to handle gorutines (Since they potentially may leak if  d.q.Send(sds) never returns). For Example if a queue dies, or execution takes too long (Say a check that never ends), then we are leaking a gorutine either on a worker side, or on master side.
 	var checks []*check.Check
@@ -384,22 +392,23 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 	})
 	if err != nil {
 		d.l.Error(err)
-		d.finalizeRound(&rnd, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
+		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
 		return
 	}
 	err = d.r.Check.StoreMany(checks)
 	if err != nil {
 		d.l.Error(err)
-		d.finalizeRound(&rnd, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
+		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
 		return
 	}
-	d.finalizeRound(&rnd, "")
+	d.finalizeRound(&rnd, Note, "")
 }
 
-func (d dRunner) finalizeRound(rnd *round.Round, Note string) {
+func (d dRunner) finalizeRound(rnd *round.Round, Note string, Error string) {
 	now := time.Now().Add(d.getDsync())
 	rnd.Finish = &now
 	rnd.Note = Note
+	rnd.Err = Error
 	err := d.r.Round.Update(rnd)
 	if err != nil {
 		d.l.Error(err)
