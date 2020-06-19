@@ -126,7 +126,7 @@ func (n NSQ) Receive() {
 		executable := resolver.ExecutableByName(sd.Service.Name)
 		exec.UpdateExecutableProperties(executable, sd.Properties)
 		ctx := context.Background()
-		execDeadline := sd.Deadline.Add(-2 * time.Second)
+		execDeadline := sd.Deadline.Add(-3 * time.Second)
 		ctx, cancel := context.WithDeadline(ctx, execDeadline)
 		defer cancel()
 		e := exec.NewExec(ctx, sd.Host, executable, n.l)
