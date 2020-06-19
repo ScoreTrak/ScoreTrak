@@ -42,7 +42,7 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 		if err := gob.NewEncoder(buf).Encode(sd); err != nil {
 			return nil, nil, err
 		}
-		err = producer.DeferredPublish(sd.Service.Group, time.Until(sd.Deadline), buf.Bytes())
+		err = producer.Publish(sd.Service.Group, buf.Bytes())
 		if err != nil {
 			return nil, nil, err
 		}
@@ -113,8 +113,6 @@ func (n NSQ) Receive() {
 					err = errors.New("unknown panic")
 				}
 				n.l.Error(err)
-				qc := queueing.QCheck{Service: sd.Service, Passed: false, Log: "Encountered an unexpected error during the check. This is most likely a bug", Err: err.Error(), RoundID: sd.RoundID}
-				n.Acknowledge(qc)
 				return
 			}
 		}()
@@ -199,7 +197,6 @@ func (n NSQ) DeleteTopic(topic string, nsqAddresses []string) { //THis make NSQ 
 		client := http.Client{
 			Timeout: time.Second / 2,
 		}
-		fmt.Println(fmt.Sprintf("http://%s/topic/delete?topic=%s", a, topic))
 		resp, err := client.Post(fmt.Sprintf("http://%s/topic/delete?topic=%s", a, topic), "", nil)
 		if err == nil {
 			resp.Body.Close()
