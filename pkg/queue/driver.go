@@ -9,7 +9,7 @@ import (
 )
 
 type Queue interface {
-	Send([]*queueing.ScoringData) []*queueing.QCheck
+	Send([]*queueing.ScoringData) (queue []*queueing.QCheck, bearable error, terminatable error)
 	Receive()
 	Acknowledge(queueing.QCheck)
 }

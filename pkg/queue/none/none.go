@@ -16,7 +16,7 @@ type None struct {
 	l logger.LogInfoFormat
 }
 
-func (n None) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
+func (n None) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error) {
 	wg := &sync.WaitGroup{}
 	wg.Add(len(sds))
 	ret := make([]*queueing.QCheck, len(sds))
@@ -43,11 +43,26 @@ func (n None) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 			executable := resolver.ExecutableByName(sd.Service.Name)
 			exec.UpdateExecutableProperties(executable, sd.Properties)
 			ctx := context.Background()
-			ctx, cancel := context.WithDeadline(ctx, sd.Deadline.Add(-time.Second))
+			execDeadline := sd.Deadline.Add(-time.Second * 2)
+			ctx, cancel := context.WithDeadline(ctx, execDeadline)
 			defer cancel()
-			e := exec.NewExec(ctx, sd.Host, executable)
+			e := exec.NewExec(ctx, sd.Host, executable, n.l)
 			fmt.Println(fmt.Sprintf("Executing a check for service ID %d for round %d", sd.Service.ID, sd.RoundID))
-			passed, log, err := e.Execute()
+			wge := sync.WaitGroup{}
+			wge.Add(1)
+			var (
+				passed bool
+				log    string
+				err    error
+			)
+			go func() {
+				passed, log, err = e.Execute()
+				wge.Done()
+			}()
+			if queueing.WaitTimeout(&wge, execDeadline.Add(time.Second)) {
+				panic(errors.New("check timed out, which should not have happened. this is most likely a bug. Please check logs for more info"))
+			}
+
 			var errstr string
 			if err != nil {
 				errstr = err.Error()
@@ -57,9 +72,9 @@ func (n None) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 		}(sd, i)
 	}
 	if queueing.WaitTimeout(wg, sds[0].Deadline) {
-		return nil
+		return nil, nil, errors.New("round took too long to score. this might be due to many reasons like a worker going down, or the number of rounds being too big for one master")
 	}
-	return ret
+	return ret, nil, nil
 }
 
 func (n None) Receive() {

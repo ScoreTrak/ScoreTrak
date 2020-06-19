@@ -62,11 +62,16 @@ func (s *serviceController) TestService(w http.ResponseWriter, r *http.Request) 
 	p, _ := s.r.Property.GetAllByServiceID(id)
 	h, _ := s.r.Host.GetByID(ser.HostID)
 	serGrp, _ := s.r.ServiceGroup.GetByID(ser.ServiceGroupID)
-	response := s.q.Send([]*queueing.ScoringData{
+
+	response, berr, err := s.q.Send([]*queueing.ScoringData{
 		{Service: queueing.QService{ID: id, Name: ser.Name, Group: serGrp.Name}, Host: *h.Address, Deadline: time.Now().Add(time.Second * 5), RoundID: 0, Properties: run.PropertyToMap(p)},
 	})
-	if response == nil {
+	if berr != nil {
+		response[0].Err += berr.Error()
+	}
+	if response == nil || err != nil {
 		http.Error(w, "something went wrong, either check took too long to execute, or the workers did not receive the check", http.StatusInternalServerError)
+		s.log.Error(err)
 		return
 	}
 	encoder := json.NewEncoder(w)

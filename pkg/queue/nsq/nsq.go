@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/nsqio/go-nsq"
@@ -21,48 +22,53 @@ type NSQ struct {
 	l logger.LogInfoFormat
 }
 
-func (n NSQ) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
-	//TODO: TERMINATION BASED ON TIMEOUT
+func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error) {
 	c := config.GetStaticConfig()
+	addresses := n.GenerateNSQLookupdAddresses(c.Queue.NSQ.NSQLookupd.Hosts, c.Queue.NSQ.NSQLookupd.Port)
+	returningTopicName := queueing.TopicFromServiceRound(&sds[0].Service, sds[0].RoundID)
+	bErr, tErr := n.TopicAbsent(returningTopicName, addresses)
+	if tErr != nil {
+		return nil, bErr, tErr
+	}
 	confp := nsq.NewConfig()
-	//if sds[0].RoundID == 0{
-	//	n.CleanTestQueue(c)
-	//}
 	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", c.Queue.NSQ.NSQD.Host, c.Queue.NSQ.NSQD.Port), confp)
 	if err != nil {
-		n.l.Error(err)
-		panic(err)
+		return nil, nil, err
 	}
+	defer producer.Stop()
 	for _, sd := range sds {
+		sd.Service.ReturningTopic = returningTopicName
 		buf := &bytes.Buffer{}
 		if err := gob.NewEncoder(buf).Encode(sd); err != nil {
-			n.l.Error(err)
-			panic(err)
+			return nil, nil, err
 		}
 		err = producer.Publish(sd.Service.Group, buf.Bytes())
 		if err != nil {
-			n.l.Error(err)
-			panic(err)
+			return nil, nil, err
 		}
 	}
-	producer.Stop()
+	defer func(returningTopicName string, addresses []string) {
+		go n.DeleteTopic(returningTopicName, addresses)
+	}(returningTopicName, addresses)
 	confc := nsq.NewConfig()
 	confc.LookupdPollInterval = time.Second * 1
-	consumer, err := nsq.NewConsumer(queueing.TopicFromRound(sds[0].RoundID), "channel", confc)
+	consumer, err := nsq.NewConsumer(returningTopicName, "channel", confc)
 	if err != nil {
-		panic(err)
+		return nil, bErr, tErr
 	}
 	defer consumer.Stop()
 	ret := make([]*queueing.QCheck, len(sds))
 	consumer.ChangeMaxInFlight(len(sds))
 	wg := &sync.WaitGroup{}
 	wg.Add(len(sds))
+	consumer.SetLoggerLevel(nsq.LogLevelError)
 	consumer.AddConcurrentHandlers(nsq.HandlerFunc(func(m *nsq.Message) error {
 		defer wg.Done()
 		buf := bytes.NewBuffer(m.Body)
 		var qc queueing.QCheck
 		if err := gob.NewDecoder(buf).Decode(&qc); err != nil {
-			panic(err)
+			n.l.Error(err)
+			return err
 		}
 		for i, sd := range sds {
 			if sd.Service.ID == qc.Service.ID {
@@ -71,14 +77,15 @@ func (n NSQ) Send(sds []*queueing.ScoringData) []*queueing.QCheck {
 		}
 		return nil
 	}), len(sds))
-	err = consumer.ConnectToNSQLookupd(fmt.Sprintf("%s:%s", c.Queue.NSQ.NSQLookupd.Host, c.Queue.NSQ.NSQLookupd.Port))
+
+	err = consumer.ConnectToNSQLookupds(addresses)
 	if err != nil {
-		panic(err)
+		return nil, bErr, err
 	}
 	if queueing.WaitTimeout(wg, sds[0].Deadline) {
-		return nil
+		return nil, bErr, errors.New("round took too long to score. this might be due to many reasons like a worker going down, or the number of rounds being too big for one master")
 	}
-	return ret
+	return ret, bErr, nil
 }
 
 func (n NSQ) Receive() {
@@ -90,6 +97,7 @@ func (n NSQ) Receive() {
 	if err != nil {
 		panic(err)
 	}
+	consumer.SetLoggerLevel(nsq.LogLevelError)
 	consumer.AddConcurrentHandlers(nsq.HandlerFunc(func(m *nsq.Message) error {
 		buf := bytes.NewBuffer(m.Body)
 		var sd queueing.ScoringData
@@ -120,26 +128,51 @@ func (n NSQ) Receive() {
 		executable := resolver.ExecutableByName(sd.Service.Name)
 		exec.UpdateExecutableProperties(executable, sd.Properties)
 		ctx := context.Background()
-		ctx, cancel := context.WithDeadline(ctx, sd.Deadline.Add(-time.Second))
+		execDeadline := sd.Deadline.Add(-2 * time.Second)
+		ctx, cancel := context.WithDeadline(ctx, execDeadline)
 		defer cancel()
-		e := exec.NewExec(ctx, sd.Host, executable)
-		fmt.Println(fmt.Sprintf("Executing a check for service ID %d for round %d", sd.Service.ID, sd.RoundID))
-		passed, log, err := e.Execute()
+		e := exec.NewExec(ctx, sd.Host, executable, n.l)
+		wg := sync.WaitGroup{}
+		wg.Add(1)
+		var (
+			passed bool
+			log    string
+			err    error
+		)
+		go func() {
+			passed, log, err = e.Execute()
+			wg.Done()
+		}()
+		if queueing.WaitTimeout(&wg, execDeadline.Add(time.Second)) {
+			panic(errors.New("check timed out, which should not have happened. this is most likely a bug. Please check logs for more info"))
+		}
 		var errstr string
 		if err != nil {
 			errstr = err.Error()
 		}
 		qc := queueing.QCheck{Service: sd.Service, Passed: passed, Log: log, Err: errstr, RoundID: sd.RoundID}
+		if time.Now().After(sd.Deadline) {
+			n.l.Error("Service scored late. Please fix the implementation of the following service: ", sd, qc)
+		}
 		n.Acknowledge(qc)
 		return nil
 
 	}), c.Queue.NSQ.ConcurrentHandlers)
-	err = consumer.ConnectToNSQLookupd(fmt.Sprintf("%s:%s", c.Queue.NSQ.NSQLookupd.Host, c.Queue.NSQ.NSQLookupd.Port))
+	addresses := n.GenerateNSQLookupdAddresses(c.Queue.NSQ.NSQLookupd.Hosts, c.Queue.NSQ.NSQLookupd.Port)
+	err = consumer.ConnectToNSQLookupds(addresses)
 	if err != nil {
 		panic(err)
 	}
 	select {}
 
+}
+
+func (n NSQ) GenerateNSQLookupdAddresses(hostNames []string, port string) []string {
+	var addresses []string
+	for _, h := range hostNames {
+		addresses = append(addresses, fmt.Sprintf("%s:%s", h, port))
+	}
+	return addresses
 }
 
 func (n NSQ) Acknowledge(q queueing.QCheck) {
@@ -153,22 +186,59 @@ func (n NSQ) Acknowledge(q queueing.QCheck) {
 	if err := gob.NewEncoder(buf).Encode(&q); err != nil {
 		panic(err)
 	}
-	err = producer.Publish(queueing.TopicFromRound(q.RoundID), buf.Bytes())
+	err = producer.Publish(q.Service.ReturningTopic, buf.Bytes())
 	if err != nil {
 		panic(err)
 	}
 	producer.Stop()
 }
 
-func (n NSQ) CleanTestQueue(c *config.StaticConfig) { //THis make NSQ node unusable for a while
-	resp, err := http.Post(fmt.Sprintf("http://%s:%s/topic/delete?topic=test_ack", c.Queue.NSQ.NSQLookupd.Host, c.Queue.NSQ.NSQLookupd.Port), "", nil)
-	if err != nil {
+func (n NSQ) DeleteTopic(topic string, nsqAddresses []string) { //THis make NSQ node unusable for a while
+	time.Sleep(time.Second * 5)
+	for _, a := range nsqAddresses {
+		client := http.Client{
+			Timeout: time.Second / 2,
+		}
+		fmt.Println(fmt.Sprintf("http://%s/topic/delete?topic=%s", a, topic))
+		resp, err := client.Post(fmt.Sprintf("http://%s/topic/delete?topic=%s", a, topic), "", nil)
+		if err == nil {
+			resp.Body.Close()
+			return
+		}
 		n.l.Error(err)
-		panic(err)
 	}
-	defer resp.Body.Close()
-} //TODO: Come up with a better solution to priemptively clear a test queue. Otherwise if concurrent handler receives more than 1 response, it may fail (negative waitgroup timer)
+}
 
+type topics struct {
+	Topics []string `json:"topics"`
+}
+
+func (n NSQ) TopicAbsent(topic string, nsqAddresses []string) (bErr error, tErr error) {
+	var err error
+	for _, a := range nsqAddresses {
+		client := http.Client{
+			Timeout: time.Second / 2,
+		}
+		resp, err2 := client.Get(fmt.Sprintf("http://%s/topics", a))
+		if err2 != nil {
+			err = err2
+			continue
+		}
+		topics := topics{}
+		errd := json.NewDecoder(resp.Body).Decode(&topics)
+		if errd != nil {
+			return err, errd
+		}
+		for _, val := range topics.Topics {
+			if val == topic {
+				return err, errors.New(fmt.Sprintf("NSQ Topic with the same name as %s exists. Round will be terminated. Please firt clean NSQ queues", topic))
+			}
+		}
+		return err, nil
+		resp.Body.Close()
+	}
+	return err, errors.New("no NSQLookupd instances answered the request")
+}
 func NewNSQQueue(l logger.LogInfoFormat) (*NSQ, error) {
 	return &NSQ{l}, nil
 }

@@ -1,6 +1,7 @@
 package queueing
 
 import (
+	"math/rand"
 	"strconv"
 	"sync"
 	"time"
@@ -15,9 +16,10 @@ type ScoringData struct {
 }
 
 type QService struct {
-	ID    uint64
-	Group string
-	Name  string
+	ID             uint64
+	Group          string
+	Name           string
+	ReturningTopic string
 }
 
 type QCheck struct {
@@ -42,9 +44,10 @@ func WaitTimeout(wg *sync.WaitGroup, deadline time.Time) bool {
 	}
 } //https://gist.github.com/r4um/c1ab51b8757fc2d75d30320933cdbdf6
 
-func TopicFromRound(r uint64) string {
-	if r == 0 {
-		return "test_ack"
+func TopicFromServiceRound(ser *QService, roundID uint64) string {
+	if roundID == 0 {
+		var seededRand *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
+		return "test_" + strconv.FormatUint(ser.ID, 10) + strconv.Itoa(seededRand.Int()) + "_ack"
 	}
-	return strconv.FormatUint(r, 10) + "_ack"
+	return strconv.FormatUint(roundID, 10) + "_ack"
 }
