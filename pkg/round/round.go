@@ -15,6 +15,8 @@ type Round struct {
 
 	Note string `json:"string,omitempty"`
 
+	Err string `json:"string,omitempty"`
+
 	Finish *time.Time `json:"finish,omitempty"`
 
 	Checks []check.Check `json:"-" gorm:"foreignkey:RoundID"`
