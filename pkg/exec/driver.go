@@ -1,6 +1,7 @@
 package exec
 
 import (
+	"ScoreTrak/pkg/logger"
 	"context"
 	"errors"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -17,10 +18,11 @@ type Exec struct {
 	Context    context.Context
 	Host       string
 	executable Executable
+	Logger     logger.LogInfoFormat
 }
 
-func NewExec(ctx context.Context, h string, e Executable) *Exec {
-	return &Exec{Context: ctx, Host: h, executable: e}
+func NewExec(ctx context.Context, h string, e Executable, l logger.LogInfoFormat) *Exec {
+	return &Exec{Context: ctx, Host: h, executable: e, Logger: l}
 }
 
 func (e Exec) Execute() (passed bool, log string, err error) {

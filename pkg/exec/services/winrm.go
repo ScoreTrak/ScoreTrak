@@ -4,6 +4,7 @@ import (
 	"ScoreTrak/pkg/exec"
 	"errors"
 	"github.com/masterzen/winrm"
+	"net"
 	"strconv"
 	"strings"
 	"time"
@@ -44,11 +45,19 @@ func (w *Winrm) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to convert port number to integer", err
 	}
+	conn, err := net.DialTimeout("tcp", net.JoinHostPort(e.Host, w.Port), time.Until(e.Deadline())/3)
+	if err != nil {
+		return false, "Port was not open on a remote host", err
+	}
+	conn.Close()
 	endpoint := winrm.NewEndpoint(e.Host, i, isHttps, true, nil, nil, nil, time.Until(e.Deadline()))
+	//params := winrm.NewParameters(strconv.Itoa(int(time.Until(e.Deadline()).Seconds()))+"S", "en-US", 153600)
 	client, err := winrm.NewClient(endpoint, w.Username, w.Password)
 	if err != nil {
 		return false, "Unable to initialize winrm client", err
 	}
+
+	//This is necessary because: https://github.com/masterzen/winrm/issues/108
 	procStdout, procStderr, returnCode, err := client.RunWithString(w.Command, "")
 	if err != nil {
 		return false, "Unable to execute provided command", err
