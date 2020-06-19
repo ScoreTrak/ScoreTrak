@@ -46,11 +46,11 @@ func (i *IMAP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to pass Dial the remote server", err
 	}
-	defer c.Logout()
+	defer c.Close()
 	if err := c.Login(i.Username, i.Password); err != nil {
 		return false, "Unable to login with the credentials provided", err
 	}
-
+	defer c.Logout()
 	// List mailboxes
 	mailboxes := make(chan *imap.MailboxInfo, 10)
 	done := make(chan error, 1)

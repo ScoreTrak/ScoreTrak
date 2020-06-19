@@ -44,10 +44,12 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to dial FTP Server", err
 	}
+	defer c.Quit()
 	err = c.Login(f.Username, f.Password)
 	if err != nil {
 		return false, "Unable to Login", err
 	}
+	defer c.Logout()
 	if f.Text != "" {
 		data := bytes.NewBufferString(f.Text)
 		if f.WriteFilename == "" {

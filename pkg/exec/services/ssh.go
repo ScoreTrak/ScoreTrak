@@ -39,6 +39,7 @@ func (s *SSH) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to dial the remote host", err
 	}
+	defer client.Close()
 	session, err := client.NewSession()
 	if err != nil {
 		return false, "Unable to establish the session", err

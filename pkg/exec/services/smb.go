@@ -72,7 +72,6 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 	defer fs.Umount()
 	if s.FileName != "" {
 		var f *smb2.RemoteFile
-		defer f.Close()
 		if strings.Contains(s.Operation, create) {
 			f, err = fs.Create(s.FileName)
 			if err != nil {
@@ -91,6 +90,7 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 				return true, "Success!", nil
 			}
 		}
+		defer f.Close()
 		_, err = f.Seek(0, os.SEEK_SET)
 		if err != nil {
 			return false, "Unable to read the file", err
