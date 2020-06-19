@@ -1,6 +1,7 @@
 package client
 
 import (
+	"ScoreTrak/pkg/queue/queueing"
 	"ScoreTrak/pkg/service"
 	"fmt"
 )
@@ -41,4 +42,13 @@ func (s serviceClient) Store(u *service.Service) error {
 
 func (s serviceClient) Update(u *service.Service) error {
 	return genericUpdate(u, fmt.Sprintf("/service/%d", u.ID), s.s)
+}
+
+func (s serviceClient) TestService(id uint64) (*queueing.ScoringData, error) {
+	sd := &queueing.ScoringData{}
+	err := genericGet(sd, fmt.Sprintf("/service/test/%d", id), s.s)
+	if err != nil {
+		return nil, err
+	}
+	return sd, nil
 }
