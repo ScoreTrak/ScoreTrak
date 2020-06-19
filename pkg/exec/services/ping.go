@@ -56,6 +56,7 @@ func (p *Ping) Execute(e exec.Exec) (passed bool, log string, err error) {
 			pinger = p
 		}
 	}
+	defer pinger.Close()
 	i, err := strconv.Atoi(p.Attempts)
 	if err != nil {
 		return false, fmt.Sprintf("Unable to convert %s to int", p.Attempts), err
