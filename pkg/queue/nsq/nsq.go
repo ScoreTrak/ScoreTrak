@@ -42,7 +42,7 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 		if err := gob.NewEncoder(buf).Encode(sd); err != nil {
 			return nil, nil, err
 		}
-		err = producer.Publish(sd.Service.Group, buf.Bytes())
+		err = producer.DeferredPublish(sd.Service.Group, time.Until(sd.Deadline), buf.Bytes())
 		if err != nil {
 			return nil, nil, err
 		}
