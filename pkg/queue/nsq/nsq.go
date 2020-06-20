@@ -2,12 +2,9 @@ package nsq
 
 import (
 	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/exec"
-	"ScoreTrak/pkg/exec/resolver"
 	"ScoreTrak/pkg/logger"
 	"ScoreTrak/pkg/queue/queueing"
 	"bytes"
-	"context"
 	"encoding/gob"
 	"encoding/json"
 	"errors"
@@ -112,6 +109,8 @@ func (n NSQ) Receive() {
 				default:
 					err = errors.New("unknown panic")
 				}
+				qc := queueing.QCheck{Service: sd.Service, Passed: false, Log: "Encountered an unexpected error during the check. This is most likely a bug", Err: err.Error(), RoundID: sd.RoundID}
+				n.Acknowledge(qc)
 				n.l.Error(err)
 				return
 			}
@@ -119,39 +118,7 @@ func (n NSQ) Receive() {
 		if err := gob.NewDecoder(buf).Decode(&sd); err != nil {
 			panic(err)
 		}
-		if time.Now().After(sd.Deadline) {
-			n.Acknowledge(queueing.QCheck{Service: sd.Service, Passed: false, Log: "", Err: "The check arrived late to the worker", RoundID: sd.RoundID})
-			return nil
-		}
-		executable := resolver.ExecutableByName(sd.Service.Name)
-		exec.UpdateExecutableProperties(executable, sd.Properties)
-		ctx := context.Background()
-		execDeadline := sd.Deadline.Add(-3 * time.Second)
-		ctx, cancel := context.WithDeadline(ctx, execDeadline)
-		defer cancel()
-		e := exec.NewExec(ctx, sd.Host, executable, n.l)
-		wg := sync.WaitGroup{}
-		wg.Add(1)
-		var (
-			passed bool
-			log    string
-			err    error
-		)
-		go func() {
-			passed, log, err = e.Execute()
-			wg.Done()
-		}()
-		if queueing.WaitTimeout(&wg, execDeadline.Add(time.Second)) {
-			panic(errors.New("check timed out, which should not have happened. this is most likely a bug. Please check logs for more info"))
-		}
-		var errstr string
-		if err != nil {
-			errstr = err.Error()
-		}
-		qc := queueing.QCheck{Service: sd.Service, Passed: passed, Log: log, Err: errstr, RoundID: sd.RoundID}
-		if time.Now().After(sd.Deadline) {
-			n.l.Error("Service scored late. Please fix the implementation of the following service: ", sd, qc)
-		}
+		qc := queueing.CommonExecute(&sd, sd.Deadline.Add(-3*time.Second), n.l)
 		n.Acknowledge(qc)
 		return nil
 

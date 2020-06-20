@@ -1,13 +1,9 @@
 package none
 
 import (
-	"ScoreTrak/pkg/exec"
-	"ScoreTrak/pkg/exec/resolver"
 	"ScoreTrak/pkg/logger"
 	"ScoreTrak/pkg/queue/queueing"
-	"context"
 	"errors"
-	"fmt"
 	"sync"
 	"time"
 )
@@ -40,34 +36,7 @@ func (n None) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, erro
 					return
 				}
 			}()
-			executable := resolver.ExecutableByName(sd.Service.Name)
-			exec.UpdateExecutableProperties(executable, sd.Properties)
-			ctx := context.Background()
-			execDeadline := sd.Deadline.Add(-time.Second * 2)
-			ctx, cancel := context.WithDeadline(ctx, execDeadline)
-			defer cancel()
-			e := exec.NewExec(ctx, sd.Host, executable, n.l)
-			fmt.Println(fmt.Sprintf("Executing a check for service ID %d for round %d", sd.Service.ID, sd.RoundID))
-			wge := sync.WaitGroup{}
-			wge.Add(1)
-			var (
-				passed bool
-				log    string
-				err    error
-			)
-			go func() {
-				passed, log, err = e.Execute()
-				wge.Done()
-			}()
-			if queueing.WaitTimeout(&wge, execDeadline.Add(time.Second)) {
-				panic(errors.New("check timed out, which should not have happened. this is most likely a bug. Please check logs for more info"))
-			}
-
-			var errstr string
-			if err != nil {
-				errstr = err.Error()
-			}
-			qc := queueing.QCheck{Service: sd.Service, Passed: passed, Log: log, Err: errstr, RoundID: sd.RoundID}
+			qc := queueing.CommonExecute(sd, sd.Deadline.Add(-2*time.Second), n.l)
 			ret[i] = &qc
 		}(sd, i)
 	}
