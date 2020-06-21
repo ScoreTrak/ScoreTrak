@@ -95,7 +95,11 @@ func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, m s
 	}
 	v := reflect.ValueOf(g).Elem()
 	f := reflect.ValueOf(id)
-	v.FieldByName("ID").Set(f)
+	if _, ok := svc.(team.Serv); ok {
+		v.FieldByName("Name").Set(f)
+	} else {
+		v.FieldByName("ID").Set(f)
+	}
 	err = invokeNoRetMethod(svc, m, g)
 	if err != nil {
 		_, ok := err.(*validations.Error)
