@@ -68,7 +68,7 @@ func TestRoundSpec(t *testing.T) {
 					ac, err := rr.GetAll()
 					So(err, ShouldBeNil)
 					So(len(ac), ShouldEqual, 1)
-					So(ac[0].Start.UnixNano(), ShouldBeBetween, time.Now().Add(time.Second*-1).UnixNano(), time.Now().UnixNano())
+					So(ac[0].Start.UnixNano(), ShouldBeBetween, time.Now().Add(time.Second*-1).UnixNano(), time.Now().Add(time.Second*1).UnixNano())
 				})
 
 				Convey("Adding an entry with the same ID", func() {
@@ -106,7 +106,7 @@ func TestRoundSpec(t *testing.T) {
 					So(err, ShouldBeNil)
 					Convey("Should output the inserted entry", func() {
 						So(rnd.ID, ShouldEqual, 1)
-						So(rnd.Start.UnixNano(), ShouldBeBetween, time.Now().Add(time.Second*-1).UnixNano(), time.Now().UnixNano())
+						So(rnd.Start.UnixNano(), ShouldBeBetween, time.Now().Add(time.Second*-1).UnixNano(), time.Now().Add(time.Second*1).UnixNano())
 					})
 				})
 

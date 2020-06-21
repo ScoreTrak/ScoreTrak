@@ -100,7 +100,7 @@ func (t *teamRepo) Store(tm *team.Team) error {
 
 func (t *teamRepo) Update(tm *team.Team) error {
 	t.log.Debugf("updating the team, with id : %v", tm.ID)
-	err := t.db.Model(tm).Updates(team.Team{Enabled: tm.Enabled, Name: tm.Name}).Error //Note: Updating team name will break the current implementation of caching. To allow for name changes, BeforeUpdate function will also need to update teamID
+	err := t.db.Model(tm).Updates(team.Team{Enabled: tm.Enabled, Name: tm.Name}).Error
 	if err != nil {
 		t.log.Errorf("error while updating the team, reason : %v", err)
 		return err
@@ -113,7 +113,7 @@ func (t *teamRepo) UpdateByName(tm *team.Team) error {
 	if tm.Name == "" {
 		return errors.New("you must specify the name of the team you are trying to update")
 	}
-	err := t.db.Model(tm).Where("name = ?", tm.Name).Updates(team.Team{Enabled: tm.Enabled, Name: tm.Name}).Error //Note: Updating team name will break the current implementation of caching. To allow for name changes, BeforeUpdate function will also need to update teamID
+	err := t.db.Model(tm).Where("name = ?", tm.Name).Updates(team.Team{Enabled: tm.Enabled, Name: tm.Name}).Error
 	if err != nil {
 		t.log.Errorf("error while updating the team, reason : %v", err)
 		return err

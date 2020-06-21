@@ -86,7 +86,7 @@ func TestTeamSpec(t *testing.T) {
 					So(err, ShouldBeNil)
 					Convey("Should output the inserted entry", func() {
 						So(tm.Name, ShouldEqual, "TestTeam")
-						So(*(tm.Enabled), ShouldBeFalse)
+						So(*(tm.Enabled), ShouldBeTrue)
 					})
 				})
 
@@ -97,8 +97,8 @@ func TestTeamSpec(t *testing.T) {
 				})
 
 				Convey("Then Updating Enabled to true", func() {
-					tru := true
-					newTeam := &team.Team{Enabled: &tru}
+					fls := false
+					newTeam := &team.Team{Enabled: &fls}
 					Convey("For the wrong entry should not update anything", func() {
 						newTeam.ID = t.ID + 1
 						err = tr.Update(newTeam)
@@ -106,7 +106,7 @@ func TestTeamSpec(t *testing.T) {
 						ac, err := tr.GetAll()
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
-						So(*(ac[0].Enabled), ShouldBeFalse)
+						So(*(ac[0].Enabled), ShouldBeTrue)
 
 					})
 					Convey("For the correct entry should update", func() {
@@ -117,7 +117,7 @@ func TestTeamSpec(t *testing.T) {
 						ac, err := tr.GetAll()
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
-						So(*(ac[0].Enabled), ShouldBeTrue)
+						So(*(ac[0].Enabled), ShouldBeFalse)
 
 					})
 				})
