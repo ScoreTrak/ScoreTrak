@@ -15,7 +15,7 @@ func NewRoundClient(c ScoretrakClient) round.Serv {
 
 func (r roundClient) GetLastNonElapsingRound() (*round.Round, error) {
 	sg := &round.Round{}
-	err := genericGet(sg, fmt.Sprintf("/round"), r.s)
+	err := r.s.genericGet(sg, fmt.Sprintf("/round"))
 	if err != nil {
 		return nil, err
 	}

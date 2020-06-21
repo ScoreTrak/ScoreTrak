@@ -15,12 +15,12 @@ func NewServiceClient(c ScoretrakClient) service.Serv {
 }
 
 func (s serviceClient) Delete(id uint64) error {
-	return genericDelete(fmt.Sprintf("/service/%d", id), s.s)
+	return s.s.genericDelete(fmt.Sprintf("/service/%d", id))
 }
 
 func (s serviceClient) GetAll() ([]*service.Service, error) {
 	var sg []*service.Service
-	err := genericGet(&sg, "/service", s.s)
+	err := s.s.genericGet(&sg, "/service")
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +29,7 @@ func (s serviceClient) GetAll() ([]*service.Service, error) {
 
 func (s serviceClient) GetByID(id uint64) (*service.Service, error) {
 	sg := &service.Service{}
-	err := genericGet(sg, fmt.Sprintf("/service/%d", id), s.s)
+	err := s.s.genericGet(sg, fmt.Sprintf("/service/%d", id))
 	if err != nil {
 		return nil, err
 	}
@@ -37,16 +37,16 @@ func (s serviceClient) GetByID(id uint64) (*service.Service, error) {
 }
 
 func (s serviceClient) Store(u *service.Service) error {
-	return genericStore(u, fmt.Sprintf("/service"), s.s)
+	return s.s.genericStore(u, fmt.Sprintf("/service"))
 }
 
 func (s serviceClient) Update(u *service.Service) error {
-	return genericUpdate(u, fmt.Sprintf("/service/%d", u.ID), s.s)
+	return s.s.genericUpdate(u, fmt.Sprintf("/service/%d", u.ID))
 }
 
 func (s serviceClient) TestService(id uint64) (*queueing.ScoringData, error) {
 	sd := &queueing.ScoringData{}
-	err := genericGet(sd, fmt.Sprintf("/service/test/%d", id), s.s)
+	err := s.s.genericGet(sd, fmt.Sprintf("/service/test/%d", id))
 	if err != nil {
 		return nil, err
 	}

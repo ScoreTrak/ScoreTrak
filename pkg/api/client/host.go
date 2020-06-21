@@ -14,12 +14,12 @@ func NewHostClient(c ScoretrakClient) host.Serv {
 }
 
 func (s hostClient) Delete(id uint64) error {
-	return genericDelete(fmt.Sprintf("/host/%d", id), s.s)
+	return s.s.genericDelete(fmt.Sprintf("/host/%d", id))
 }
 
 func (s hostClient) GetAll() ([]*host.Host, error) {
 	var sg []*host.Host
-	err := genericGet(&sg, "/host", s.s)
+	err := s.s.genericGet(&sg, "/host")
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (s hostClient) GetAll() ([]*host.Host, error) {
 
 func (s hostClient) GetByID(id uint64) (*host.Host, error) {
 	sg := &host.Host{}
-	err := genericGet(sg, fmt.Sprintf("/host/%d", id), s.s)
+	err := s.s.genericGet(sg, fmt.Sprintf("/host/%d", id))
 	if err != nil {
 		return nil, err
 	}
@@ -36,9 +36,9 @@ func (s hostClient) GetByID(id uint64) (*host.Host, error) {
 }
 
 func (s hostClient) Store(u *host.Host) error {
-	return genericStore(u, fmt.Sprintf("/host"), s.s)
+	return s.s.genericStore(u, fmt.Sprintf("/host"))
 }
 
 func (s hostClient) Update(u *host.Host) error {
-	return genericUpdate(u, fmt.Sprintf("/host/%d", u.ID), s.s)
+	return s.s.genericUpdate(u, fmt.Sprintf("/host/%d", u.ID))
 }

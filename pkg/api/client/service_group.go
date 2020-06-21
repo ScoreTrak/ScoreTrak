@@ -14,12 +14,12 @@ func NewServiceGroupClient(c ScoretrakClient) service_group.Serv {
 }
 
 func (s serviceGroupClient) Delete(id uint64) error {
-	return genericDelete(fmt.Sprintf("/service_group/%d", id), s.s)
+	return s.s.genericDelete(fmt.Sprintf("/service_group/%d", id))
 }
 
 func (s serviceGroupClient) GetAll() ([]*service_group.ServiceGroup, error) {
 	var sg []*service_group.ServiceGroup
-	err := genericGet(&sg, "/service_group", s.s)
+	err := s.s.genericGet(&sg, "/service_group")
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (s serviceGroupClient) GetAll() ([]*service_group.ServiceGroup, error) {
 
 func (s serviceGroupClient) GetByID(id uint64) (*service_group.ServiceGroup, error) {
 	sg := &service_group.ServiceGroup{}
-	err := genericGet(sg, fmt.Sprintf("/service_group/%d", id), s.s)
+	err := s.s.genericGet(sg, fmt.Sprintf("/service_group/%d", id))
 	if err != nil {
 		return nil, err
 	}
@@ -36,9 +36,9 @@ func (s serviceGroupClient) GetByID(id uint64) (*service_group.ServiceGroup, err
 }
 
 func (s serviceGroupClient) Store(u *service_group.ServiceGroup) error {
-	return genericStore(u, fmt.Sprintf("/service_group"), s.s)
+	return s.s.genericStore(u, fmt.Sprintf("/service_group"))
 }
 
 func (s serviceGroupClient) Update(u *service_group.ServiceGroup) error {
-	return genericUpdate(u, fmt.Sprintf("/service_group/%d", u.ID), s.s)
+	return s.s.genericUpdate(u, fmt.Sprintf("/service_group/%d", u.ID))
 }

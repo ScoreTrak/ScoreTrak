@@ -15,7 +15,7 @@ func NewReportClient(c ScoretrakClient) report.Serv {
 
 func (c reportClient) Get() (*report.Report, error) {
 	conf := &report.Report{}
-	err := genericGet(conf, fmt.Sprintf("/report"), c.s)
+	err := c.s.genericGet(conf, fmt.Sprintf("/report"))
 	if err != nil {
 		return nil, err
 	}

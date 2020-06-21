@@ -15,7 +15,7 @@ func NewConfigClient(c ScoretrakClient) config.Serv {
 
 func (c configClient) Get() (*config.DynamicConfig, error) {
 	conf := &config.DynamicConfig{}
-	err := genericGet(conf, fmt.Sprintf("/config"), c.s)
+	err := c.s.genericGet(conf, fmt.Sprintf("/config"))
 	if err != nil {
 		return nil, err
 	}
@@ -23,5 +23,5 @@ func (c configClient) Get() (*config.DynamicConfig, error) {
 }
 
 func (c configClient) Update(d *config.DynamicConfig) error {
-	return genericUpdate(d, fmt.Sprintf("/config"), c.s)
+	return c.s.genericUpdate(d, fmt.Sprintf("/config"))
 }

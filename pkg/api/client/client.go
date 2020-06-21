@@ -35,14 +35,15 @@ type InvalidResponse struct {
 
 func (e *InvalidResponse) Error() string { return e.msg }
 
-func genericGet(obj interface{}, p string, s ScoretrakClient) error {
-	rel := &url.URL{Path: p}
-	u := s.baseURL.ResolveReference(rel)
-	req, err := http.NewRequest("GET", u.String(), nil)
+func (s ScoretrakClient) setAuthToken(req *http.Request) {
+	req.Header.Set("x-access-token", s.token)
+}
+
+func (s ScoretrakClient) genericGet(obj interface{}, p string) error {
+	req, err := s.prepareRequest(obj, p, "GET")
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Accept", "application/json")
 	resp, err := s.httpClient.Do(req)
 	if err != nil {
 		return err
@@ -59,47 +60,53 @@ func genericGet(obj interface{}, p string, s ScoretrakClient) error {
 	return nil
 }
 
-func genericUpdate(obj interface{}, p string, s ScoretrakClient) error {
-	return genericPut(obj, p, s, "PATCH")
+func (s ScoretrakClient) genericUpdate(obj interface{}, p string) error {
+	return s.genericPut(obj, p, "PATCH")
 }
 
-func genericStore(obj interface{}, p string, s ScoretrakClient) error {
-	return genericPut(obj, p, s, "POST")
+func (s ScoretrakClient) genericStore(obj interface{}, p string) error {
+	return s.genericPut(obj, p, "POST")
 }
 
-func genericPut(obj interface{}, p string, s ScoretrakClient, m string) error {
+func (s ScoretrakClient) genericPut(obj interface{}, p string, m string) error {
+	req, err := s.prepareRequest(obj, p, m)
+	if err != nil {
+		return err
+	}
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	resp.Body.Close()
+	return responseValidator(resp)
+}
+
+func (s ScoretrakClient) genericDelete(p string) error {
+	req, err := s.prepareRequest(nil, p, "DELETE")
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Accept", "application/json")
+	resp, err := s.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	resp.Body.Close()
+	return responseValidator(resp)
+}
+
+func (s ScoretrakClient) prepareRequest(obj interface{}, p string, m string) (*http.Request, error) {
 	rel := &url.URL{Path: p}
 	u := s.baseURL.ResolveReference(rel)
 	e, err := json.Marshal(obj)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	b := bytes.NewBuffer(e)
 	req, err := http.NewRequest(m, u.String(), b)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	req.Header.Set("Accept", "application/json")
-	resp, err := s.httpClient.Do(req)
-	if err != nil {
-		return err
-	}
-	resp.Body.Close()
-	return responseValidator(resp)
-}
-
-func genericDelete(p string, s ScoretrakClient) error {
-	rel := &url.URL{Path: p}
-	u := s.baseURL.ResolveReference(rel)
-	req, err := http.NewRequest("DELETE", u.String(), nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Accept", "application/json")
-	resp, err := s.httpClient.Do(req)
-	if err != nil {
-		return err
-	}
-	resp.Body.Close()
-	return responseValidator(resp)
+	return req, nil
 }

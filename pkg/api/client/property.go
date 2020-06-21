@@ -14,12 +14,12 @@ func NewPropertyClient(c ScoretrakClient) property.Serv {
 }
 
 func (s propertyClient) Delete(id uint64) error {
-	return genericDelete(fmt.Sprintf("/property/%d", id), s.s)
+	return s.s.genericDelete(fmt.Sprintf("/property/%d", id))
 }
 
 func (s propertyClient) GetAll() ([]*property.Property, error) {
 	var sg []*property.Property
-	err := genericGet(&sg, "/property", s.s)
+	err := s.s.genericGet(&sg, "/property")
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (s propertyClient) GetAll() ([]*property.Property, error) {
 
 func (s propertyClient) GetByID(id uint64) (*property.Property, error) {
 	sg := &property.Property{}
-	err := genericGet(sg, fmt.Sprintf("/property/%d", id), s.s)
+	err := s.s.genericGet(sg, fmt.Sprintf("/property/%d", id))
 	if err != nil {
 		return nil, err
 	}
@@ -36,9 +36,9 @@ func (s propertyClient) GetByID(id uint64) (*property.Property, error) {
 }
 
 func (s propertyClient) Store(u *property.Property) error {
-	return genericStore(u, fmt.Sprintf("/property"), s.s)
+	return s.s.genericStore(u, fmt.Sprintf("/property"))
 }
 
 func (s propertyClient) Update(u *property.Property) error {
-	return genericUpdate(u, fmt.Sprintf("/property/%d", u.ID), s.s)
+	return s.s.genericUpdate(u, fmt.Sprintf("/property/%d", u.ID))
 }
