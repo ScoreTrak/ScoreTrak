@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"

@@ -1,13 +1,13 @@
 package client
 
 import (
-	"ScoreTrak/pkg/api/client"
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/master/server"
-	"ScoreTrak/pkg/storage/orm"
-	"ScoreTrak/pkg/team"
-	. "ScoreTrak/test"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/api/client"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/master/server"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
+	. "github.com/L1ghtman2k/ScoreTrak/test"
 	. "github.com/smartystreets/goconvey/convey"
 	"net"
 	"net/http"

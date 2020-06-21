@@ -1,10 +1,10 @@
 package services
 
 import (
-	"ScoreTrak/pkg/exec"
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/exec"
 	"github.com/go-ldap/ldap/v3"
 	"net"
 	"strings"

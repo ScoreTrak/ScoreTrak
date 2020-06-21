@@ -1,10 +1,10 @@
 package orm
 
 import (
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/host"
-	"ScoreTrak/pkg/host_group"
-	. "ScoreTrak/test"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
+	. "github.com/L1ghtman2k/ScoreTrak/test"
 	"os"
 	"testing"
 

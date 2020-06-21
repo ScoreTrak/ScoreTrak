@@ -1,9 +1,9 @@
 package client
 
 import (
-	"ScoreTrak/pkg/queue/queueing"
-	"ScoreTrak/pkg/service"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 )
 
 type serviceClient struct {

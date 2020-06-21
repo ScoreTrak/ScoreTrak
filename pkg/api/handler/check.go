@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"ScoreTrak/pkg/check"
-	"ScoreTrak/pkg/logger"
 	"encoding/json"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"net/http"

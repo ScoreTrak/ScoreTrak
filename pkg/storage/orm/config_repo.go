@@ -1,8 +1,8 @@
 package orm
 
 import (
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/jinzhu/gorm"
 )
 

@@ -1,8 +1,8 @@
 package report
 
 import (
-	"ScoreTrak/pkg/round"
-	"ScoreTrak/pkg/team"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
 )
 
 type Serv interface {

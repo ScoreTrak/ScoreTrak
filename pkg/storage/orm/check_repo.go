@@ -1,10 +1,10 @@
 package orm
 
 import (
-	"ScoreTrak/pkg/check"
-	"ScoreTrak/pkg/logger"
 	"errors"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/jinzhu/gorm"
 )
 

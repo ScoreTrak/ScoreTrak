@@ -1,9 +1,9 @@
 package none
 
 import (
-	"ScoreTrak/pkg/logger"
-	"ScoreTrak/pkg/queue/queueing"
 	"errors"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
 	"sync"
 	"time"
 )

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

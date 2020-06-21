@@ -1,9 +1,9 @@
 package services
 
 import (
-	"ScoreTrak/pkg/exec"
 	"errors"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/exec"
 	"github.com/digineo/go-ping"
 	"net"
 	"strconv"

@@ -1,8 +1,8 @@
 package logger
 
 import (
-	"ScoreTrak/pkg/config"
 	"errors"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"go.uber.org/zap"
 	"log"
 )

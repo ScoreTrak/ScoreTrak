@@ -1,11 +1,11 @@
 package queueing
 
 import (
-	"ScoreTrak/pkg/exec"
-	"ScoreTrak/pkg/exec/resolver"
-	"ScoreTrak/pkg/logger"
 	"context"
 	"errors"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/exec"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/exec/resolver"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"math/rand"
 	"strconv"
 	"sync"

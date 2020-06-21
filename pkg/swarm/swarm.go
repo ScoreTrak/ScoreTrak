@@ -1,7 +1,7 @@
 package swarm
 
 import (
-	"ScoreTrak/pkg/service_group"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
 )
 
 type Swarm struct {

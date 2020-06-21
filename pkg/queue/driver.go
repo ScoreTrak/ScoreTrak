@@ -1,11 +1,11 @@
 package queue
 
 import (
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/logger"
-	"ScoreTrak/pkg/queue/none"
-	"ScoreTrak/pkg/queue/nsq"
-	"ScoreTrak/pkg/queue/queueing"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/none"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/nsq"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
 )
 
 type Queue interface {

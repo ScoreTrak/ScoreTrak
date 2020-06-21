@@ -1,14 +1,14 @@
 package nsq
 
 import (
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/logger"
-	"ScoreTrak/pkg/queue/queueing"
 	"bytes"
 	"encoding/gob"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
 	"github.com/nsqio/go-nsq"
 	"net/http"
 	"sync"

@@ -1,8 +1,8 @@
 package client
 
 import (
-	"ScoreTrak/pkg/config"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 )
 
 type configClient struct {

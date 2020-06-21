@@ -1,8 +1,8 @@
 package client
 
 import (
-	"ScoreTrak/pkg/host"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
 )
 
 type hostClient struct {

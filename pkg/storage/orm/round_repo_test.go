@@ -1,11 +1,11 @@
 package orm
 
 import (
-	"ScoreTrak/pkg/check"
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/round"
-	. "ScoreTrak/test"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
+	. "github.com/L1ghtman2k/ScoreTrak/test"
 	"github.com/lib/pq"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"

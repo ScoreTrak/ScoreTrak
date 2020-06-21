@@ -1,6 +1,6 @@
 package service_group
 
-import "ScoreTrak/pkg/service"
+import "github.com/L1ghtman2k/ScoreTrak/pkg/service"
 
 // Serv Group model describes a grouping of services.
 type ServiceGroup struct {

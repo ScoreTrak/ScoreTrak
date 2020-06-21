@@ -1,9 +1,9 @@
 package main
 
 import (
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/master"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/master"
 	"os"
 )
 

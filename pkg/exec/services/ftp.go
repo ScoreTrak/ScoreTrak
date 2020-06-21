@@ -1,10 +1,10 @@
 package services
 
 import (
-	"ScoreTrak/pkg/exec"
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/exec"
 	"github.com/jlaffaye/ftp"
 	"io/ioutil"
 )

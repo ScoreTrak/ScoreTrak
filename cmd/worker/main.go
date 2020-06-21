@@ -1,10 +1,10 @@
 package main
 
 import (
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/logger"
-	"ScoreTrak/pkg/queue"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/queue"
 	"os"
 )
 

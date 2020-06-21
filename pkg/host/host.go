@@ -1,7 +1,7 @@
 package host
 
 import (
-	"ScoreTrak/pkg/service"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 )
 
 // Host model represents a single machine. This could be an IP address or a resolvable hostname

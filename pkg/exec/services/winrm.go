@@ -1,8 +1,8 @@
 package services
 
 import (
-	"ScoreTrak/pkg/exec"
 	"errors"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/exec"
 	"github.com/masterzen/winrm"
 	"net"
 	"strconv"

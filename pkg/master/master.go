@@ -1,12 +1,12 @@
 package master
 
 import (
-	"ScoreTrak/pkg/di"
-	"ScoreTrak/pkg/logger"
-	"ScoreTrak/pkg/master/run"
-	"ScoreTrak/pkg/master/server"
-	"ScoreTrak/pkg/queue"
-	"ScoreTrak/pkg/storage"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/di"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/master/run"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/master/server"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/queue"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/storage"
 )
 
 func Run() error {

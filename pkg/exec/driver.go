@@ -1,9 +1,9 @@
 package exec
 
 import (
-	"ScoreTrak/pkg/logger"
 	"context"
 	"errors"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"reflect"
 	"time"

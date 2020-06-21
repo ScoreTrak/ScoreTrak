@@ -45,7 +45,7 @@ type StaticConfig struct {
 		}
 	} `json:"-"`
 
-	Port string `default:"8080" json:"-"`
+	Port string `default:"33333" json:"-"`
 
 	Platform string `default:"swarm" json:"-"`
 }
