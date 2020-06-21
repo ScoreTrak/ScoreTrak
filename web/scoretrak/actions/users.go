@@ -1,15 +1,15 @@
 package actions
 
 import (
-	"scoretrak/models"
-	"github.com/gofrs/uuid"
+	"fmt"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop/v5"
-	"github.com/pkg/errors"
-	"scoretrak/constants"
 	"github.com/gobuffalo/x/responder"
-	"fmt"
+	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"net/http"
+	"scoretrak/constants"
+	"scoretrak/models"
 )
 
 func UsersList(c buffalo.Context) error {
@@ -42,7 +42,6 @@ func UsersList(c buffalo.Context) error {
 		return c.Render(200, r.XML(users))
 	}).Respond(c)
 
-
 }
 
 func UsersShow(c buffalo.Context) error {
@@ -59,7 +58,7 @@ func UsersShow(c buffalo.Context) error {
 	if err := tx.Find(user, c.Param("user_id")); err != nil {
 		return c.Error(http.StatusNotFound, err)
 	}
-	
+
 	return responder.Wants("html", func(c buffalo.Context) error {
 		c.Set("user", user)
 
@@ -71,7 +70,6 @@ func UsersShow(c buffalo.Context) error {
 	}).Respond(c)
 }
 
-
 func UsersEdit(c buffalo.Context) error {
 	// Get the DB connection from the context
 
@@ -82,7 +80,7 @@ func UsersEdit(c buffalo.Context) error {
 
 	// Allocate an empty User
 	user := &models.User{}
-	
+
 	if err := tx.Find(user, c.Param("user_id")); err != nil {
 		return c.Error(http.StatusNotFound, err)
 	}
@@ -91,7 +89,7 @@ func UsersEdit(c buffalo.Context) error {
 	if err := tx.All(&teams); err != nil {
 		return err
 	}
-	m:=teamToIDMap(teams)
+	m := teamToIDMap(teams)
 	c.Set("teams", m)
 
 	return c.Render(http.StatusOK, r.HTML("/users/edit.plush.html"))
@@ -116,7 +114,6 @@ func UsersUpdate(c buffalo.Context) error {
 		return err
 	}
 
-	
 	verrs, err := user.Update(tx)
 	if err != nil {
 		return err
@@ -182,7 +179,6 @@ func UsersDestroy(c buffalo.Context) error {
 
 }
 
-
 //UsersNew renders the users form
 func UsersNew(c buffalo.Context) error {
 	u := models.User{}
@@ -193,7 +189,7 @@ func UsersNew(c buffalo.Context) error {
 	if err := tx.All(&teams); err != nil {
 		return err
 	}
-	m:=teamToIDMap(teams)
+	m := teamToIDMap(teams)
 	c.Set("teams", m)
 	return c.Render(200, r.HTML("users/new.plush.html"))
 }
@@ -205,8 +201,6 @@ func UsersCreate(c buffalo.Context) error {
 	if err := c.Bind(u); err != nil {
 		return errors.WithStack(err)
 	}
-
-	
 
 	tx := c.Value("tx").(*pop.Connection)
 	verrs, err := u.Create(tx)
@@ -223,7 +217,7 @@ func UsersCreate(c buffalo.Context) error {
 		if err := tx.All(&teams); err != nil {
 			return err
 		}
-		m:=teamToIDMap(teams)
+		m := teamToIDMap(teams)
 		c.Set("teams", m)
 
 		return c.Render(200, r.HTML("users/new.plush.html"))
@@ -235,7 +229,7 @@ func UsersCreate(c buffalo.Context) error {
 	return c.Redirect(302, "/users")
 }
 
-func teamToIDMap(teams []models.Team)(map[string]uuid.UUID){
+func teamToIDMap(teams []models.Team) map[string]uuid.UUID {
 	m := make(map[string]uuid.UUID)
 
 	for _, team := range teams {
@@ -260,7 +254,7 @@ func SetCurrentUser(next buffalo.Handler) buffalo.Handler {
 			}
 			c.Set("current_user", u)
 			t := &models.Team{}
-			if u != nil{
+			if u != nil {
 				tx := c.Value("tx").(*pop.Connection)
 				err := tx.Find(t, u.TeamID)
 				if err != nil {

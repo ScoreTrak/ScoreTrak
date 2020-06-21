@@ -1,27 +1,28 @@
 package models
 
 import (
+	b64 "encoding/base64"
 	"encoding/json"
+	"github.com/gobuffalo/buffalo/binding"
 	"github.com/gobuffalo/pop/v5"
 	"github.com/gobuffalo/validate/v3"
-	"github.com/gofrs/uuid"
-	"time"
-	"strings"
-	"github.com/gobuffalo/buffalo/binding"
 	"github.com/gobuffalo/validate/v3/validators"
+	"github.com/gofrs/uuid"
 	"io/ioutil"
 	"net/http"
-	b64 "encoding/base64"
+	"strings"
+	"time"
 )
+
 // Image is used by pop to map your images database table to your go code.
 type Image struct {
-    ID				uuid.UUID 		`json:"id" db:"id"`
-    CreatedAt 		time.Time 		`json:"created_at" db:"created_at"`
-	UpdatedAt 		time.Time 		`json:"updated_at" db:"updated_at"`
-	Image     		[]byte 			`json:"image" db:"image"`
-	ImageType		string			`json:"image_type" db:"image_type"`
-	EncodedImage	string		 	`db:"-"`
-	Avatar 			*binding.File 	`db:"-"`
+	ID           uuid.UUID     `json:"id" db:"id"`
+	CreatedAt    time.Time     `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time     `json:"updated_at" db:"updated_at"`
+	Image        []byte        `json:"image" db:"image"`
+	ImageType    string        `json:"image_type" db:"image_type"`
+	EncodedImage string        `db:"-"`
+	Avatar       *binding.File `db:"-"`
 }
 
 // String is not required by pop and may be deleted

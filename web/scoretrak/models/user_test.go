@@ -1,22 +1,22 @@
 package models
 
 import (
-	"log"
 	"github.com/gofrs/uuid"
+	"log"
 )
 
 func (ms *ModelSuite) Test_User_Create() {
 	defer destroy_Users_And_Teams(ms)
 	ms.LoadFixture("Create a Team")
 	t, terr := GetTeamByName(ms.DB, "Black Team")
-	if terr != nil{
+	if terr != nil {
 		log.Fatal(terr)
 	}
 	u := &User{
 		Username:             "testuser",
 		Password:             "testpass",
 		PasswordConfirmation: "testpass",
-		TeamID:				  t.ID,
+		TeamID:               t.ID,
 	}
 
 	count, err := ms.DB.Count("users")
@@ -60,14 +60,14 @@ func (ms *ModelSuite) Test_User_Create_UserExists() {
 	defer destroy_Users_And_Teams(ms)
 	ms.LoadFixture("Create a Team")
 	t, terr := GetTeamByName(ms.DB, "Black Team")
-	if terr != nil{
+	if terr != nil {
 		log.Fatal(terr)
 	}
 	u := &User{
 		Username:             "testuser",
 		Password:             "testpass",
 		PasswordConfirmation: "testpass",
-		TeamID:				  t.ID,
+		TeamID:               t.ID,
 	}
 
 	count, err := ms.DB.Count("users")
@@ -89,7 +89,7 @@ func (ms *ModelSuite) Test_User_Create_UserExists() {
 		Username:             "testuser",
 		Password:             "testpass",
 		PasswordConfirmation: "testpass",
-		TeamID:				  t.ID,
+		TeamID:               t.ID,
 	}
 
 	verrs, err = u.Create(ms.DB)
@@ -117,7 +117,7 @@ func (ms *ModelSuite) Test_User_Create_NonExistentTeamID() {
 		Username:             "mark@example.com",
 		Password:             "password",
 		PasswordConfirmation: "password",
-		TeamID:				  u3,
+		TeamID:               u3,
 	}
 
 	ms.Zero(u.PasswordHash)
@@ -126,19 +126,18 @@ func (ms *ModelSuite) Test_User_Create_NonExistentTeamID() {
 	ms.True(verrs.HasAny())
 }
 
-
 func (ms *ModelSuite) Test_User_Update_LastBlackTeamUser() {
 	defer destroy_Users_And_Teams(ms)
 	ms.LoadFixture("Create Multiple Teams")
 	t, terr := GetTeamByName(ms.DB, "Black Team")
-	if terr != nil{
+	if terr != nil {
 		log.Fatal(terr)
 	}
 	u := &User{
 		Username:             "testuser",
 		Password:             "testpass",
 		PasswordConfirmation: "testpass",
-		TeamID:				  t.ID,
+		TeamID:               t.ID,
 	}
 
 	count, err := ms.DB.Count("users")
@@ -155,14 +154,14 @@ func (ms *ModelSuite) Test_User_Update_LastBlackTeamUser() {
 	count, err = ms.DB.Count("users")
 	ms.NoError(err)
 	ms.Equal(1, count)
-	
+
 	t, terr = GetTeamByName(ms.DB, "Red Team")
-	if terr != nil{
+	if terr != nil {
 		log.Fatal(terr)
 	}
 
 	t_u, err := GetUserByUsername(ms.DB, "testuser")
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 	t_u.Username = "testusername2"
@@ -177,11 +176,10 @@ func (ms *ModelSuite) Test_User_Update_LastBlackTeamUser() {
 
 }
 
-
-func destroy_Users_And_Teams(ms *ModelSuite){
+func destroy_Users_And_Teams(ms *ModelSuite) {
 	users := []User{}
 	err := ms.DB.All(&users)
-	if err != nil{
+	if err != nil {
 		panic(err)
 	}
 	for i := 0; i < len(users); i++ {
@@ -191,7 +189,7 @@ func destroy_Users_And_Teams(ms *ModelSuite){
 
 	teams := []Team{}
 	err = ms.DB.All(&teams)
-	if err != nil{
+	if err != nil {
 		panic(err)
 	}
 	for i := 0; i < len(teams); i++ {
@@ -199,4 +197,3 @@ func destroy_Users_And_Teams(ms *ModelSuite){
 		ms.DB.Destroy(&team)
 	}
 }
-
