@@ -86,7 +86,7 @@ func TokenVerify(next http.Handler) http.Handler {
 
 		if header != config.GetToken() {
 			w.WriteHeader(http.StatusUnauthorized)
-			json.NewEncoder(w).Encode("Missing or incorrect auth token")
+			json.NewEncoder(w).Encode("The request is either missing or has an incorrect auth token")
 			return
 		}
 		next.ServeHTTP(w, r)
@@ -513,7 +513,7 @@ func TeamRoutes(l logger.LogInfoFormat, svc team.Serv) Routes {
 			"UpdateTeam",
 			strings.ToUpper("Patch"),
 			"/team/{name}",
-			ctrl.Update,
+			ctrl.UpdateByName,
 		},
 	}
 
