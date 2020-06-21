@@ -3,6 +3,7 @@ package client
 import (
 	"ScoreTrak/pkg/api/client"
 	"ScoreTrak/pkg/config"
+	"ScoreTrak/pkg/master/run"
 	"ScoreTrak/pkg/master/server"
 	"ScoreTrak/pkg/service"
 	"ScoreTrak/pkg/storage/orm"
@@ -40,7 +41,7 @@ func TestServiceSpec(t *testing.T) {
 	}
 	cr := orm.NewServiceRepo(db, l)
 	serviceSvc := service.NewServiceServ(cr)
-	routes = append(routes, server.ServiceRoutes(l, serviceSvc)...)
+	routes = append(routes, server.ServiceRoutes(l, serviceSvc, nil, run.RepoStore{})...)
 	for _, route := range routes {
 		var hdler http.Handler
 		hdler = route.HandlerFunc
@@ -67,7 +68,7 @@ func TestServiceSpec(t *testing.T) {
 			retService, err := cli.GetByID(1)
 			So(err, ShouldBeNil)
 			So(retService.ID, ShouldEqual, 1)
-			So(retService.Name, ShouldEqual, "ServiceOne")
+			So(retService.Name, ShouldEqual, "WINRM")
 			So(retService.DisplayName, ShouldEqual, "host1-service1")
 		})
 
@@ -81,15 +82,14 @@ func TestServiceSpec(t *testing.T) {
 		})
 
 		Convey("Updating a service by ID", func() {
-			t := service.Service{ID: 1, Name: "ServiceTwo", DisplayName: "name-change-test", Points: 80}
+			t := service.Service{ID: 1, Name: "SSH", DisplayName: "name-change-test", Points: 80}
 			err := cli.Update(&t)
 			So(err, ShouldBeNil)
 			Convey("Retrieving a service by ID", func() {
 				retService, err := cli.GetByID(1)
 				So(err, ShouldBeNil)
 				So(retService.ID, ShouldEqual, 1)
-				So(retService.Name, ShouldEqual, "ServiceTwo")
-				// Probably a bug here
+				So(retService.Name, ShouldEqual, "SSH")
 				So(retService.DisplayName, ShouldEqual, "name-change-test")
 				So(retService.Points, ShouldEqual, 80)
 			})
@@ -125,7 +125,7 @@ func TestServiceSpec(t *testing.T) {
 		})
 
 		Convey("Storing a new service", func() {
-			t := service.Service{ID: 20, ServiceGroupID: 1, Name: "test-name", DisplayName: "test-display-name", HostID: 3}
+			t := service.Service{ID: 20, ServiceGroupID: 1, Name: "IMAP", DisplayName: "test-display-name", HostID: 3}
 			err := cli.Store(&t)
 			So(err, ShouldBeNil)
 			Convey("Getting all services", func() {

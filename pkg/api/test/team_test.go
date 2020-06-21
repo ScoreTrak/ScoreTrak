@@ -61,7 +61,7 @@ func TestTeamSpec(t *testing.T) {
 		DataPreload(db)
 		s := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%d", port), Scheme: "http"}, "", http.DefaultClient)
 		cli := client.NewTeamClient(s)
-		Convey("Retrieving a team by ID", func() {
+		Convey("Retrieving a team by Name", func() {
 			retTeam, err := cli.GetByName("TeamOne")
 			So(err, ShouldBeNil)
 			So(retTeam.Name, ShouldEqual, "TeamOne")
@@ -76,12 +76,12 @@ func TestTeamSpec(t *testing.T) {
 			So(seer.ResponseCode, ShouldHaveSameTypeAs, http.StatusNotFound)
 		})
 
-		Convey("Updating a team by ID", func() {
+		Convey("Updating a team by Name", func() {
 			fls := false
 			t := team.Team{Name: "TeamOne", Enabled: &fls}
-			err := cli.Update(&t)
+			err := cli.UpdateByName(&t)
 			So(err, ShouldBeNil)
-			Convey("Retrieving a team by ID", func() {
+			Convey("Retrieving a team by Name", func() {
 				retTeam, err := cli.GetByName("TeamOne")
 				So(err, ShouldBeNil)
 				So(retTeam.Name, ShouldEqual, "TeamOne")
@@ -100,7 +100,7 @@ func TestTeamSpec(t *testing.T) {
 			So(IDs, ShouldContain, "TeamTwo")
 		})
 
-		Convey("Deleting a team that doesnt have child hosts by ID", func() {
+		Convey("Deleting a team that doesnt have child hosts by Name", func() {
 			err := cli.DeleteByName("TeamOne")
 			So(err, ShouldBeNil)
 			Convey("Getting all teams", func() {
@@ -110,7 +110,7 @@ func TestTeamSpec(t *testing.T) {
 			})
 		})
 
-		Convey("Deleting a team that does have child hosts by ID", func() {
+		Convey("Deleting a team that does have child hosts by Name", func() {
 			err := cli.DeleteByName("TeamTwo")
 			So(err, ShouldNotBeNil)
 			seer, ok := err.(*client.InvalidResponse)
