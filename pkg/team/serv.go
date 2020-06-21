@@ -6,7 +6,6 @@ type Serv interface {
 	DeleteByName(name string) error
 	Store(u *Team) error
 	UpdateByName(u *Team) error
-	Update(u *Team) error
 }
 
 type teamServ struct {
