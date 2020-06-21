@@ -1,0 +1,1 @@
+cockroach sql --execute="CREATE DATABASE IF NOT EXISTS scoretrak;" --insecure --host cockroach

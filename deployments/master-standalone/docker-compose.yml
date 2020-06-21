@@ -1,0 +1,40 @@
+version: "3.8"
+services:
+  scoretrak:
+    build:
+      context: ../..
+      dockerfile: deployments/master/Dockerfile
+    depends_on:
+      - db-init
+    ports:
+      - "33333:33333"
+
+  node_1:
+    container_name: node_1
+    image: cockroachdb/cockroach:latest
+#    volumes:
+#      - ./data/node_1:/cockroach/cockroach-data
+    command: start --insecure
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+    networks:
+      default:
+        aliases:
+          - cockroach
+
+
+  db-init:
+    depends_on:
+      - node_1
+    image: cockroachdb/cockroach:latest
+    volumes:
+      - ../../scripts:/scripts
+    entrypoint: "/bin/bash"
+    command: /scripts/init_db.sh
+
+networks:
+  default:
+    attachable: yes
+
+
