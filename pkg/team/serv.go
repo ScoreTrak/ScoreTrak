@@ -5,7 +5,7 @@ type Serv interface {
 	GetByName(name string) (*Team, error)
 	DeleteByName(name string) error
 	Store(u *Team) error
-	Update(u *Team) error
+	UpdateByName(u *Team) error
 }
 
 type teamServ struct {
@@ -26,4 +26,4 @@ func (svc *teamServ) GetByName(name string) (*Team, error) { return svc.repo.Get
 
 func (svc *teamServ) Store(u *Team) error { return svc.repo.Store(u) }
 
-func (svc *teamServ) Update(u *Team) error { return svc.repo.Update(u) }
+func (svc *teamServ) UpdateByName(u *Team) error { return svc.repo.UpdateByName(u) }

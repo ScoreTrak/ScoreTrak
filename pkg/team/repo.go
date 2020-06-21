@@ -7,5 +7,5 @@ type Repo interface {
 	GetByName(name string) (*Team, error)
 	DeleteByName(name string) error
 	Store(u *Team) error
-	Update(u *Team) error
+	UpdateByName(u *Team) error
 }

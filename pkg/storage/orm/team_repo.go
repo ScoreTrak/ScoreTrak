@@ -36,6 +36,9 @@ func (t *teamRepo) Delete(id uint64) error {
 
 func (t *teamRepo) DeleteByName(name string) error {
 	t.log.Debugf("deleting the team with name : %s", name)
+	if name == "" {
+		return errors.New("you must specify the name of the team you are trying to update")
+	}
 	result := t.db.Delete(&team.Team{}, "name = ?", name)
 	if result.Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the team with name : %s", name)
@@ -73,7 +76,9 @@ func (t *teamRepo) GetByID(id uint64) (*team.Team, error) {
 
 func (t *teamRepo) GetByName(name string) (*team.Team, error) {
 	t.log.Debugf("get team details by name : %s", name)
-
+	if name == "" {
+		return nil, errors.New("you must specify the name of the team you are trying to update")
+	}
 	tea := &team.Team{}
 	err := t.db.Where("name = ?", name).First(tea).Error
 	if err != nil {
@@ -96,6 +101,19 @@ func (t *teamRepo) Store(tm *team.Team) error {
 func (t *teamRepo) Update(tm *team.Team) error {
 	t.log.Debugf("updating the team, with id : %v", tm.ID)
 	err := t.db.Model(tm).Updates(team.Team{Enabled: tm.Enabled, Name: tm.Name}).Error //Note: Updating team name will break the current implementation of caching. To allow for name changes, BeforeUpdate function will also need to update teamID
+	if err != nil {
+		t.log.Errorf("error while updating the team, reason : %v", err)
+		return err
+	}
+	return nil
+}
+
+func (t *teamRepo) UpdateByName(tm *team.Team) error {
+	t.log.Debugf("updating the team, with id : %v", tm.ID)
+	if tm.Name == "" {
+		return errors.New("you must specify the name of the team you are trying to update")
+	}
+	err := t.db.Where("name = ?", tm.Name).Updates(team.Team{Enabled: tm.Enabled, Name: tm.Name}).Error //Note: Updating team name will break the current implementation of caching. To allow for name changes, BeforeUpdate function will also need to update teamID
 	if err != nil {
 		t.log.Errorf("error while updating the team, reason : %v", err)
 		return err
