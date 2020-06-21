@@ -158,14 +158,14 @@ func DataPreload(db *gorm.DB) {
 		panic("There should be 4 entry in swarms")
 	}
 	//Creating Services
-	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (1, 1, 1, 'ServiceOne', 'host1-service1', 0, 1, 0, true)")
-	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (2, 2, 2, 'ServiceOne', 'host2-service2', 40, 23, 2, true)")
-	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (3, 4, 2, 'ServiceOne', 'host3-service3', 50, 3, 0, true)")
-	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (4, 4, 4, 'ServiceOne', 'host4-service4', 200, 4, 3, true)")
-	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (5, 1, 2, 'ServiceTwo', 'host1-service2', 30, 5, 4, false)")
-	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (6, 2, 1, 'ServiceTwo', 'host2-service1', 2, 5, 2, true)")
-	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (7, 2, 4, 'ServiceTwo', 'host3-service4', 55, 6, 3, false)")
-	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (8, 4, 4, 'ServiceTwo', 'host4-service3', 44, 23, 22, false)")
+	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (1, 1, 1, 'WINRM', 'host1-service1', 0, 1, 0, true)")
+	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (2, 2, 2, 'FTP', 'host2-service2', 40, 23, 2, true)")
+	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (3, 4, 2, 'SSH', 'host3-service3', 50, 3, 0, true)")
+	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (4, 4, 4, 'HTTP', 'host4-service4', 200, 4, 3, true)")
+	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (5, 1, 2, 'SSH', 'host1-service2', 30, 5, 4, false)")
+	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (6, 2, 1, 'SMB', 'host2-service1', 2, 5, 2, true)")
+	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (7, 2, 4, 'FTP', 'host3-service4', 55, 6, 3, false)")
+	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (8, 4, 4, 'IMAP', 'host4-service3', 44, 23, 22, false)")
 	db.Table("services").Count(&count)
 	if count != 8 {
 		panic("There should be 8 entry in services")
