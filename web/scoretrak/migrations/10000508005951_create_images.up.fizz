@@ -1,6 +1,0 @@
-create_table("images") {
-	t.Column("id", "uuid", {primary: true})
-	t.Column("image", "blob", {null: true})
-	t.Column("image_type", "string", {null: true})
-	t.Timestamps()
-}
