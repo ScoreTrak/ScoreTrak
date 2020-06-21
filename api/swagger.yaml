@@ -5,46 +5,39 @@ info:
   version: "1.0.0"
   title: "ScoreTrak Mater API"
 tags:
-- name: "Engine"
-- name: "Score"
-- name: "Team"
-- name: "HostGroup"
-- name: "Host"
-- name: "Service Group"
-- name: "Service"
-- name: "Round"
-- name: "Property"
-- name: "Check"
+  - name: "Config"
+  - name: "Score"
+  - name: "Team"
+  - name: "HostGroup"
+  - name: "Host"
+  - name: "Service Group"
+  - name: "Service"
+  - name: "Round"
+  - name: "Property"
+  - name: "Check"
 schemes:
-- "https"
-- "http"
+  - "https"
+  - "http"
 paths:
-  /check/{TeamId}/{RoundId}:
+  /check/{RoundID}:
     get:
       tags:
-      - "Check"
+        - "Check"
       summary: "Retreive total number of rounds"
       description: "Orders scoring engine to return total number of rounds"
       operationId: "GetChecks"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "TeamId"
-        in: "path"
-        description: "ID of a Team"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "TeamId"
-      - name: "RoundId"
-        in: "path"
-        description: "ID of a Round"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "RoundId"
+        - name: "RoundID"
+          in: "path"
+          description: "ID of a Round"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "RoundID"
       responses:
         "200":
           description: "OK"
@@ -58,40 +51,33 @@ paths:
             WWW_Authenticate:
               type: "string"
       security:
-      - api_key: []
-  /check/{TeamId}/{RoundId}/{ServiceID}:
+        - api_key: []
+  /check/{RoundID}/{id}:
     get:
       tags:
-      - "Check"
+        - "Check"
       summary: "Retreive total number of rounds"
       description: "Orders scoring engine to return total number of rounds"
       operationId: "GetCheck"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "TeamId"
-        in: "path"
-        description: "ID of a Team"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "TeamId"
-      - name: "RoundId"
-        in: "path"
-        description: "ID of a Round"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "RoundId"
-      - name: "ServiceID"
-        in: "path"
-        description: "ID of a ServiceID"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "ServiceID"
+        - name: "RoundID"
+          in: "path"
+          description: "ID of a Round"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "RoundID"
+        - name: "id"
+          in: "path"
+          description: "ID of a Service"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "id"
       responses:
         "200":
           description: "OK"
@@ -103,18 +89,18 @@ paths:
             WWW_Authenticate:
               type: "string"
       security:
-      - api_key: []
+        - api_key: []
   /score:
     get:
       tags:
-      - "Score"
+        - "Score"
       summary: "Retreive all Scores"
       description: "Orders scoring engine to retrive all scores"
       operationId: "GetScores"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters: []
       responses:
         "200":
@@ -129,26 +115,26 @@ paths:
             WWW_Authenticate:
               type: "string"
       security:
-      - api_key: []
-  /score/{teamID}:
+        - api_key: []
+  /score/{TeamID}:
     get:
       tags:
-      - "Score"
+        - "Score"
       summary: "Retreive all Scores for a given team"
       description: "Orders scoring engine to retrive all scores"
       operationId: "GetScore"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "teamID"
-        in: "path"
-        description: "ID of Host to return"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "TeamID"
+        - name: "TeamID"
+          in: "path"
+          description: "ID of Host to return"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "TeamID"
       responses:
         "200":
           description: "OK"
@@ -160,18 +146,18 @@ paths:
             WWW_Authenticate:
               type: "string"
       security:
-      - api_key: []
+        - api_key: []
   /round:
     get:
       tags:
-      - "Round"
+        - "Round"
       summary: "Retreive total number of rounds"
       description: "Orders scoring engine to return total number of rounds"
-      operationId: "GetRoundNumber"
+      operationId: "GetLastNonElapsingRound"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters: []
       responses:
         "200":
@@ -184,49 +170,49 @@ paths:
             WWW_Authenticate:
               type: "string"
       security:
-      - api_key: []
-  /engine:
+        - api_key: []
+  /config:
     get:
       tags:
-      - "Engine"
+        - "Config"
       summary: "Retreive all properties"
-      description: "Orders scoring engine to return all properties"
-      operationId: "GetEngineProperties"
+      description: "Orders scoring engine to return all configuration properties"
+      operationId: "GetConfigProperties"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters: []
       responses:
         "200":
           description: "OK"
           schema:
-            $ref: "#/definitions/engine"
+            $ref: "#/definitions/config"
         "401":
           description: "Authentication token is missing, or incorrect"
           headers:
             WWW_Authenticate:
               type: "string"
       security:
-      - api_key: []
+        - api_key: []
     put:
       tags:
-      - "Engine"
-      summary: "Update Engine properties"
-      description: "Orders scoring engine to update Engine columns in a database"
-      operationId: "AddEngineProperties"
+        - "Config"
+      summary: "Update Engine configuration"
+      description: "Orders scoring engine to update Config columns in a database"
+      operationId: "UpdateConfigProperties"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Engine Properties that needs to be added to the database"
-        required: true
-        schema:
-          $ref: "#/definitions/engine"
-        x-exportParamName: "Body"
+        - in: "body"
+          name: "body"
+          description: "Config Properties that needs to be added to the database"
+          required: true
+          schema:
+            $ref: "#/definitions/config"
+          x-exportParamName: "Body"
       responses:
         "200":
           description: "successful operation"
@@ -238,18 +224,18 @@ paths:
         "405":
           description: "Invalid input"
       security:
-      - api_key: []
+        - api_key: []
   /host:
     get:
       tags:
-      - "Host"
+        - "Host"
       summary: "Retreive all properties"
       description: "Orders scoring engine to return all properties"
       operationId: "GetHosts"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters: []
       responses:
         "200":
@@ -264,25 +250,25 @@ paths:
             WWW_Authenticate:
               type: "string"
       security:
-      - api_key: []
+        - api_key: []
     post:
       tags:
-      - "Host"
+        - "Host"
       summary: "Add a new Host"
       description: "Orders scoring engine to create a host entry in a database"
       operationId: "AddHost"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Host object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/host"
-        x-exportParamName: "Body"
+        - in: "body"
+          name: "body"
+          description: "Host object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/host"
+          x-exportParamName: "Body"
       responses:
         "201":
           description: "Object Created"
@@ -294,26 +280,26 @@ paths:
         "405":
           description: "Invalid input"
       security:
-      - api_key: []
-  /host/{hostId}:
+        - api_key: []
+  /host/{id}:
     get:
       tags:
-      - "Host"
+        - "Host"
       summary: "Get a Host"
       description: "Gets a Host based on ID"
       operationId: "GetHost"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "hostId"
-        in: "path"
-        description: "ID of Host to return"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "HostId"
+        - name: "id"
+          in: "path"
+          description: "ID of Host to return"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "id"
       responses:
         "200":
           description: "successful operation"
@@ -329,32 +315,32 @@ paths:
         "404":
           description: "Host not found"
       security:
-      - api_key: []
+        - api_key: []
     put:
       tags:
-      - "Host"
+        - "Host"
       summary: "Update a Host"
       description: "Updates the Host based on ID"
       operationId: "UpdateHost"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "hostId"
-        in: "path"
-        description: "ID of Host to update"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "HostId"
-      - in: "body"
-        name: "body"
-        description: "Host object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/host"
-        x-exportParamName: "Body"
+        - name: "id"
+          in: "path"
+          description: "ID of Host to update"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "id"
+        - in: "body"
+          name: "body"
+          description: "Host object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/host"
+          x-exportParamName: "Body"
       responses:
         "200":
           description: "successful operation"
@@ -368,25 +354,25 @@ paths:
         "404":
           description: "Host not found"
       security:
-      - api_key: []
+        - api_key: []
     delete:
       tags:
-      - "Host"
+        - "Host"
       summary: "Delete a Host"
       description: "Deletes a Host Group from based on ID"
       operationId: "DeleteHost"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "hostId"
-        in: "path"
-        description: "ID of Host Host to delete"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "HostId"
+        - name: "id"
+          in: "path"
+          description: "ID of Host Host to delete"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "id"
       responses:
         "200":
           description: "successful operation"
@@ -400,18 +386,18 @@ paths:
         "404":
           description: "Host not found"
       security:
-      - api_key: []
+        - api_key: []
   /host_group:
     get:
       tags:
-      - "HostGroup"
+        - "HostGroup"
       summary: "Retreive all properties"
       description: "Orders scoring engine to return all properties"
       operationId: "GetHostGroups"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters: []
       responses:
         "200":
@@ -426,25 +412,25 @@ paths:
             WWW_Authenticate:
               type: "string"
       security:
-      - api_key: []
+        - api_key: []
     post:
       tags:
-      - "HostGroup"
+        - "HostGroup"
       summary: "Add a new Host Group"
       description: "Orders scoring engine to create a host_group entry in a database"
       operationId: "AddHostGroup"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Host Group object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/host_group"
-        x-exportParamName: "Body"
+        - in: "body"
+          name: "body"
+          description: "Host Group object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/host_group"
+          x-exportParamName: "Body"
       responses:
         "201":
           description: "Object Created"
@@ -456,26 +442,26 @@ paths:
         "405":
           description: "Invalid input"
       security:
-      - api_key: []
-  /host_group/{host_groupId}:
+        - api_key: []
+  /host_group/{id}:
     get:
       tags:
-      - "HostGroup"
+        - "HostGroup"
       summary: "Get a Host Group"
       description: "Gets a Host Group based on ID"
       operationId: "GetHostGroup"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "host_groupId"
-        in: "path"
-        description: "ID of Host Group to return"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "HostGroupId"
+        - name: "id"
+          in: "path"
+          description: "ID of Host Group to return"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "HostGroupID"
       responses:
         "200":
           description: "successful operation"
@@ -491,32 +477,32 @@ paths:
         "404":
           description: "HostGroup not found"
       security:
-      - api_key: []
+        - api_key: []
     put:
       tags:
-      - "HostGroup"
+        - "HostGroup"
       summary: "Update a Host Group"
       description: "Updates the Host Group based on ID"
       operationId: "UpdateHostGroup"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "host_groupId"
-        in: "path"
-        description: "ID of Host Group to update"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "HostGroupId"
-      - in: "body"
-        name: "body"
-        description: "HostGroup object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/host_group"
-        x-exportParamName: "Body"
+        - name: "id"
+          in: "path"
+          description: "ID of Host Group to update"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "HostGroupID"
+        - in: "body"
+          name: "body"
+          description: "HostGroup object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/host_group"
+          x-exportParamName: "Body"
       responses:
         "200":
           description: "successful operation"
@@ -530,25 +516,25 @@ paths:
         "404":
           description: "HostGroup not found"
       security:
-      - api_key: []
+        - api_key: []
     delete:
       tags:
-      - "HostGroup"
+        - "HostGroup"
       summary: "Delete a Host Group"
       description: "Deletes a Host Group from based on ID"
       operationId: "DeleteHostGroup"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "host_groupId"
-        in: "path"
-        description: "ID of Host HostGroup to delete"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "HostGroupId"
+        - name: "id"
+          in: "path"
+          description: "ID of Host HostGroup to delete"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "HostGroupID"
       responses:
         "200":
           description: "successful operation"
@@ -562,18 +548,18 @@ paths:
         "404":
           description: "HostGroup not found"
       security:
-      - api_key: []
+        - api_key: []
   /team:
     get:
       tags:
-      - "Team"
+        - "Team"
       summary: "Retreive all Teams"
       description: "Orders scoring engine to return all teams"
       operationId: "GetTeams"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters: []
       responses:
         "200":
@@ -588,25 +574,25 @@ paths:
             WWW_Authenticate:
               type: "string"
       security:
-      - api_key: []
+        - api_key: []
     post:
       tags:
-      - "Team"
+        - "Team"
       summary: "Add a new team"
       description: "Orders scoring engine to create a team entry in a database"
       operationId: "AddTeam"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Team object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/team"
-        x-exportParamName: "Body"
+        - in: "body"
+          name: "body"
+          description: "Team object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/team"
+          x-exportParamName: "Body"
       responses:
         "201":
           description: "Object Created"
@@ -618,26 +604,26 @@ paths:
         "405":
           description: "Invalid input"
       security:
-      - api_key: []
-  /team/{TeamId}:
+        - api_key: []
+  /team/{id}:
     get:
       tags:
-      - "Team"
+        - "Team"
       summary: "Get a team"
       description: "Gets a team based on External ID"
       operationId: "GetTeam"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "TeamId"
-        in: "path"
-        description: "External ID of team to return"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "TeamId"
+        - name: "id"
+          in: "path"
+          description: "External ID of team to return"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "id"
       responses:
         "200":
           description: "successful operation"
@@ -653,32 +639,32 @@ paths:
         "404":
           description: "Team not found"
       security:
-      - api_key: []
+        - api_key: []
     put:
       tags:
-      - "Team"
+        - "Team"
       summary: "Update a team"
       description: "Updates the team based on External ID"
       operationId: "UpdateTeam"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "TeamId"
-        in: "path"
-        description: "External ID of team to update"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "TeamId"
-      - in: "body"
-        name: "body"
-        description: "Team object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/team"
-        x-exportParamName: "Body"
+        - name: "id"
+          in: "path"
+          description: "External ID of team to update"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "id"
+        - in: "body"
+          name: "body"
+          description: "Team object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/team"
+          x-exportParamName: "Body"
       responses:
         "200":
           description: "successful operation"
@@ -692,25 +678,25 @@ paths:
         "404":
           description: "Team not found"
       security:
-      - api_key: []
+        - api_key: []
     delete:
       tags:
-      - "Team"
+        - "Team"
       summary: "Deletes a team"
       description: "Deletes a team from based on External ID"
-      operationId: "DelteTeam"
+      operationId: "DeleteTeam"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "TeamId"
-        in: "path"
-        description: "External ID of team to delete"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "TeamId"
+        - name: "id"
+          in: "path"
+          description: "External ID of team to delete"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "id"
       responses:
         "200":
           description: "successful operation"
@@ -724,18 +710,18 @@ paths:
         "404":
           description: "Team not found"
       security:
-      - api_key: []
+        - api_key: []
   /service_group:
     get:
       tags:
-      - "Service Group"
+        - "Service Group"
       summary: "Retreive all Service Groups"
       description: "Orders scoring engine to return all scoring groups"
       operationId: "GetServiceGroups"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters: []
       responses:
         "200":
@@ -750,25 +736,25 @@ paths:
             WWW_Authenticate:
               type: "string"
       security:
-      - api_key: []
+        - api_key: []
     post:
       tags:
-      - "Service Group"
+        - "Service Group"
       summary: "Add a new service group"
       description: "Orders scoring engine to create a service group entry in a database"
       operationId: "AddServiceGroup"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Service Group object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/service_group"
-        x-exportParamName: "Body"
+        - in: "body"
+          name: "body"
+          description: "Service Group object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/service_group"
+          x-exportParamName: "Body"
       responses:
         "201":
           description: "Object Created"
@@ -780,26 +766,26 @@ paths:
         "405":
           description: "Invalid input"
       security:
-      - api_key: []
-  /service_group/{serviceGroupId}:
+        - api_key: []
+  /service_group/{id}:
     get:
       tags:
-      - "Service Group"
+        - "Service Group"
       summary: "Get a service group"
       description: "Gets a service group from based on ID"
       operationId: "GetServiceGroup"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "serviceGroupId"
-        in: "path"
-        description: "ID of service group to return"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "ServiceGroupId"
+        - name: "id"
+          in: "path"
+          description: "ID of service group to return"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "ServiceGroupID"
       responses:
         "200":
           description: "successful operation"
@@ -815,32 +801,32 @@ paths:
         "404":
           description: "Service group not found"
       security:
-      - api_key: []
+        - api_key: []
     put:
       tags:
-      - "Service Group"
+        - "Service Group"
       summary: "Update a service group"
       description: "Updates the service group based on ID"
       operationId: "UpdateServiceGroup"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "serviceGroupId"
-        in: "path"
-        description: "ID of service group to update"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "ServiceGroupId"
-      - in: "body"
-        name: "body"
-        description: "Service Group object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/service_group"
-        x-exportParamName: "Body"
+        - name: "id"
+          in: "path"
+          description: "ID of service group to update"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "ServiceGroupID"
+        - in: "body"
+          name: "body"
+          description: "Service Group object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/service_group"
+          x-exportParamName: "Body"
       responses:
         "200":
           description: "successful operation"
@@ -854,25 +840,25 @@ paths:
         "404":
           description: "Service group not found"
       security:
-      - api_key: []
+        - api_key: []
     delete:
       tags:
-      - "Service Group"
+        - "Service Group"
       summary: "Deletes a service group"
       description: "Deletes a service group from based on ID"
       operationId: "DeleteServiceGroup"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "serviceGroupId"
-        in: "path"
-        description: "ID of service group to delete"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "ServiceGroupId"
+        - name: "id"
+          in: "path"
+          description: "ID of service group to delete"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "ServiceGroupID"
       responses:
         "200":
           description: "successful operation"
@@ -886,18 +872,18 @@ paths:
         "404":
           description: "Service group not found"
       security:
-      - api_key: []
+        - api_key: []
   /service:
     get:
       tags:
-      - "Service"
+        - "Service"
       summary: "Retreive all Services"
       description: "Orders scoring engine to return all scoring services"
       operationId: "GetServices"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters: []
       responses:
         "200":
@@ -912,25 +898,25 @@ paths:
             WWW_Authenticate:
               type: "string"
       security:
-      - api_key: []
+        - api_key: []
     post:
       tags:
-      - "Service"
+        - "Service"
       summary: "Add a new service"
       description: "Orders scoring engine to create a service entry in a database"
       operationId: "AddService"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Service object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/service"
-        x-exportParamName: "Body"
+        - in: "body"
+          name: "body"
+          description: "Service object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/service"
+          x-exportParamName: "Body"
       responses:
         "201":
           description: "Object Created"
@@ -942,26 +928,26 @@ paths:
         "405":
           description: "Invalid input"
       security:
-      - api_key: []
-  /service/{serviceId}:
+        - api_key: []
+  /service/{id}:
     get:
       tags:
-      - "Service"
+        - "Service"
       summary: "Get a service"
       description: "Gets a service based on ID"
       operationId: "GetService"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "serviceId"
-        in: "path"
-        description: "ID of service to return"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "ServiceId"
+        - name: "id"
+          in: "path"
+          description: "ID of service to return"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "id"
       responses:
         "200":
           description: "successful operation"
@@ -977,32 +963,32 @@ paths:
         "404":
           description: "Service not found"
       security:
-      - api_key: []
+        - api_key: []
     put:
       tags:
-      - "Service"
+        - "Service"
       summary: "Update a service"
       description: "Updates the service based on ID"
       operationId: "UpdateService"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "serviceId"
-        in: "path"
-        description: "ID of service to update"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "ServiceId"
-      - in: "body"
-        name: "body"
-        description: "Service object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/service"
-        x-exportParamName: "Body"
+        - name: "id"
+          in: "path"
+          description: "ID of service to update"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "id"
+        - in: "body"
+          name: "body"
+          description: "Service object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/service"
+          x-exportParamName: "Body"
       responses:
         "200":
           description: "successful operation"
@@ -1016,25 +1002,25 @@ paths:
         "404":
           description: "Service not found"
       security:
-      - api_key: []
+        - api_key: []
     delete:
       tags:
-      - "Service"
+        - "Service"
       summary: "Delete a service"
       description: "Gets a service from based on ID"
       operationId: "DeleteService"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "serviceId"
-        in: "path"
-        description: "ID of service to delete"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "ServiceId"
+        - name: "id"
+          in: "path"
+          description: "ID of service to delete"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "id"
       responses:
         "200":
           description: "successful operation"
@@ -1048,18 +1034,18 @@ paths:
         "404":
           description: "Service not found"
       security:
-      - api_key: []
+        - api_key: []
   /property:
     get:
       tags:
-      - "Property"
+        - "Property"
       summary: "Retreive all properties"
       description: "Orders scoring engine to return all properties"
       operationId: "GetProperties"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters: []
       responses:
         "200":
@@ -1074,25 +1060,25 @@ paths:
             WWW_Authenticate:
               type: "string"
       security:
-      - api_key: []
+        - api_key: []
     post:
       tags:
-      - "Property"
+        - "Property"
       summary: "Add a new property"
       description: "Orders scoring engine to create a property entry in a database"
       operationId: "AddProprty"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - in: "body"
-        name: "body"
-        description: "Property object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/property"
-        x-exportParamName: "Body"
+        - in: "body"
+          name: "body"
+          description: "Property object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/property"
+          x-exportParamName: "Body"
       responses:
         "201":
           description: "Object Created"
@@ -1104,26 +1090,26 @@ paths:
         "405":
           description: "Invalid input"
       security:
-      - api_key: []
-  /property/{propertyId}:
+        - api_key: []
+  /property/{id}:
     get:
       tags:
-      - "Property"
+        - "Property"
       summary: "Get a property"
       description: "Gets a property based on ID"
       operationId: "GetProperty"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "propertyId"
-        in: "path"
-        description: "ID of property to return"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "PropertyId"
+        - name: "id"
+          in: "path"
+          description: "ID of property to return"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "id"
       responses:
         "200":
           description: "successful operation"
@@ -1139,32 +1125,32 @@ paths:
         "404":
           description: "Property not found"
       security:
-      - api_key: []
+        - api_key: []
     put:
       tags:
-      - "Property"
+        - "Property"
       summary: "Update a property"
       description: "Updates the property based on ID"
       operationId: "UpdateProperty"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "propertyId"
-        in: "path"
-        description: "ID of property to update"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "PropertyId"
-      - in: "body"
-        name: "body"
-        description: "Property object that needs to be added to the store"
-        required: true
-        schema:
-          $ref: "#/definitions/property"
-        x-exportParamName: "Body"
+        - name: "id"
+          in: "path"
+          description: "ID of property to update"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "id"
+        - in: "body"
+          name: "body"
+          description: "Property object that needs to be added to the store"
+          required: true
+          schema:
+            $ref: "#/definitions/property"
+          x-exportParamName: "Body"
       responses:
         "200":
           description: "successful operation"
@@ -1178,25 +1164,25 @@ paths:
         "404":
           description: "Property not found"
       security:
-      - api_key: []
+        - api_key: []
     delete:
       tags:
-      - "Property"
+        - "Property"
       summary: "Delete a property"
       description: "Deletes a property from based on ID"
       operationId: "DeleteProperty"
       consumes:
-      - "application/json"
+        - "application/json"
       produces:
-      - "application/json"
+        - "application/json"
       parameters:
-      - name: "propertyId"
-        in: "path"
-        description: "ID of property to delete"
-        required: true
-        type: "integer"
-        format: "int64"
-        x-exportParamName: "PropertyId"
+        - name: "id"
+          in: "path"
+          description: "ID of property to delete"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "id"
       responses:
         "200":
           description: "successful operation"
@@ -1210,14 +1196,14 @@ paths:
         "404":
           description: "HostGroup not found"
       security:
-      - api_key: []
+        - api_key: []
 securityDefinitions:
   api_key:
     type: "apiKey"
     name: "api_key"
     in: "header"
 definitions:
-  engine:
+  config:
     type: "object"
     properties:
       round_durration:
@@ -1228,7 +1214,7 @@ definitions:
           \ This value shuold have a minimum value enforced (something like 20 seconds)"
       enabled:
         type: "boolean"
-        description: "Enables on disables competition globally"
+        description: "Enables or disables competition globally"
     description: "Engine model is a set of columns describing the config of the scoring\
       \ engine"
     example:
@@ -1252,7 +1238,7 @@ definitions:
   team:
     type: "object"
     required:
-    - "id"
+      - "id"
     properties:
       id:
         type: "integer"
@@ -1267,7 +1253,7 @@ definitions:
   host_group:
     type: "object"
     required:
-    - "name"
+      - "name"
     properties:
       id:
         type: "integer"
@@ -1277,7 +1263,7 @@ definitions:
         example: "Web"
       enabled:
         type: "boolean"
-        description: "Enables on disables scoring for a given host group. In case\
+        description: "Enables or disables scoring for a given host group. In case\
           \ you want to stop scoring a set of simalar hosts, you can set this property\
           \ to false"
     description: "Host Group model represents a set of hosts that have a common purpose,\
@@ -1290,7 +1276,7 @@ definitions:
   host:
     type: "object"
     required:
-    - "address"
+      - "address"
     properties:
       id:
         type: "integer"
@@ -1308,7 +1294,7 @@ definitions:
           \ is optional, however is needed to appear on the scoring engine."
       enabled:
         type: "boolean"
-        description: "Enables on disables scoring for a single host"
+        description: "Enables or disables scoring for a single host"
       edit_host:
         type: "boolean"
         example: true
@@ -1327,7 +1313,7 @@ definitions:
   service_group:
     type: "object"
     required:
-    - "name"
+      - "name"
     properties:
       id:
         type: "integer"
@@ -1335,14 +1321,11 @@ definitions:
       name:
         type: "string"
         example: "External Scoring Group"
-      label:
-        type: "string"
-        example: "external"
       enabled:
         type: "boolean"
         description: "Enables or Disables the service"
         default: true
-    description: "Service Group model describes a groupping of services."
+    description: "Service Group model describes a grouping of services."
     example:
       name: "External Scoring Group"
       id: 0
@@ -1351,17 +1334,20 @@ definitions:
   service:
     type: "object"
     required:
-    - "host_id"
-    - "name"
-    - "points"
-    - "service_group_id"
+      - "host_id"
+      - "name"
+      - "points"
+      - "service_group_id"
     properties:
       id:
         type: "integer"
         format: "int64"
       name:
         type: "string"
-        example: "FTP Windows"
+        example: "FTP"
+      display_name:
+        type: "string"
+        example: "FTP Windows 10"
       points:
         type: "integer"
         format: "int64"
@@ -1405,11 +1391,29 @@ definitions:
       host_id: 444
       enabled: true
       points: 20
+
+  swarm:
+    type: "object"
+    required:
+      - "service_id"
+      - "label"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      service_id:
+        type: "integer"
+        format: "int64"
+      label:
+        type: "string"
+        example: "username"
+
   property:
     type: "object"
     required:
-    - "service_id"
-    - "value"
+      - "service_id"
+      - "key"
+      - "value"
     properties:
       id:
         type: "integer"
@@ -1423,6 +1427,9 @@ definitions:
       value:
         type: "string"
         example: "(Encoded username)"
+      description:
+        type: "string"
+        example: "description of the parameter"
       status:
         type: "string"
         example: "View"
@@ -1473,8 +1480,6 @@ definitions:
       end:
         type: "string"
         format: "date-time"
-      passed:
-        type: "boolean"
     description: "Round Model holds the information about all the rounds that have\
       \ passed"
     example:

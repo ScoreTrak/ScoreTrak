@@ -33,7 +33,7 @@ var _ = Namespace("create", func() {
 		err = query.All(&a_t)
 		if err != nil {
 			return err
-		}		
+		}
 		return nil
 	})
 })

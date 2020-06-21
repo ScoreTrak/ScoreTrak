@@ -18,4 +18,14 @@
 .glide/
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+vendor/
+
+cmd/debug_master
+
+cmd/debug_worker
+
+#Log files
+*.log
+
+configs/config.yml
+dev-config.yml

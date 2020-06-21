@@ -7,4 +7,4 @@ const (
 	White = "white"
 )
 
-var Roles = [...]string {Black, White, Blue, Red}
+var Roles = [...]string{Black, White, Blue, Red}
