@@ -1,0 +1,42 @@
+<div class="py-4 mb-2">
+  <h3 class="d-inline-block">Teams</h3>
+  <div class="float-right">
+    <%= linkTo(newTeamsPath(), {class: "btn btn-primary"}) { %>
+      Create New Team
+    <% } %>
+  </div>
+</div>
+
+<table class="table table-hover table-bordered">
+  <thead class="thead-light">
+    <th>Name</th><th>Image</th><th>Role</th>
+    <th>&nbsp;</th>
+  </thead>
+  <tbody>
+    <%= for (team) in teams { %>
+      <tr>
+        <td class="align-middle">
+          <%= team.Name %>
+        </td>
+        <td class="align-middle">
+          <%= if (team.ImageID.Valid) { %>
+            <img src="data:<%= team.Image.ImageType %>;base64, <%= team.Image.EncodedImage %>" alt="Avatar" />
+          <% } %>
+        </td>
+        <td class="align-middle"><%= team.Role %>
+          </td>
+        <td>
+          <div class="float-right">
+            <%= linkTo(teamPath({ team_id: team.ID }), {class: "btn btn-info", body: "View"}) %>
+            <%= linkTo(editTeamPath({ team_id: team.ID }), {class: "btn btn-warning", body: "Edit"}) %>
+            <%= linkTo(teamPath({ team_id: team.ID }), {class: "btn btn-danger", "data-method": "DELETE", "data-confirm": "Are you sure?", body: "Destroy"}) %>
+          </div>
+        </td>
+      </tr>
+    <% } %>
+  </tbody>
+</table>
+
+<div class="text-center">
+  <%= paginator(pagination) %>
+</div>

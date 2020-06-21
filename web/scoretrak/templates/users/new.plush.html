@@ -1,0 +1,26 @@
+<style>
+  .auth-wrapper{
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .auth-wrapper .sign-form{
+    max-width: 350px;
+    width: 100%;
+    padding: 0 20px;
+  }
+
+  .auth-wrapper h1{margin-bottom: 20px;}
+</style>
+  
+<div class="auth-wrapper">
+  <div class="sign-form">
+    <h1>Create a new User</h1>
+    <%= formFor(user, {action: usersPath(), method: "POST"}) { %>
+      <%= partial("users/form.html") %>
+      <%= linkTo(usersPath(), {class: "btn btn-warning", "data-confirm": "Are you sure?", body: "Cancel"}) %>
+    <% } %>
+  </div>
+</div>

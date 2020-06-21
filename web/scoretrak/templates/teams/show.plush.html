@@ -1,0 +1,42 @@
+<div class="py-4 mb-2">
+  <h3 class="d-inline-block">Team Details</h3>
+
+  <div class="float-right">
+    <%= linkTo(teamsPath(), {class: "btn btn-info"}) { %>
+      Back to all Teams
+    <% } %>
+    <%= linkTo(editTeamPath({ team_id: team.ID }), {class: "btn btn-warning", body: "Edit"}) %>
+    <%= linkTo(teamPath({ team_id: team.ID }), {class: "btn btn-danger", "data-method": "DELETE", "data-confirm": "Are you sure?", body: "Destroy"}) %>
+  </div>
+</div>
+
+
+
+<ul class="list-group mb-2 ">
+
+
+  <li class="list-group-item pb-1">
+    <label class="small d-block">Name</label>
+    <p class="d-inline-block"><%= team.Name %></p>
+  </li>
+
+
+  
+  <%= if (team.ImageID.Valid) { %>
+    <li class="list-group-item pb-1">
+      <label class="small d-block"><img src="data:<%= team.Image.ImageType %>;base64, <%= team.Image.EncodedImage %>" alt="Avatar" /></label>
+      <p class="d-inline-block"></p>
+    </li>
+  <% } %>
+
+
+
+
+
+  <li class="list-group-item pb-1">
+    <label class="small d-block">Role</label>
+    <p class="d-inline-block"><%= team.Role %></p>
+  </li>
+
+
+</ul>
