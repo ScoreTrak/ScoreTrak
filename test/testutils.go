@@ -12,7 +12,6 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/swarm"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
 	"github.com/jinzhu/copier"
 	"github.com/jinzhu/gorm"
@@ -50,7 +49,6 @@ func CreateAllTables(db *gorm.DB) {
 	db.AutoMigrate(&round.Round{})
 	db.AutoMigrate(&service.Service{})
 	db.AutoMigrate(&service_group.ServiceGroup{})
-	db.AutoMigrate(&swarm.Swarm{})
 	db.Model(&check.Check{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
 	db.Model(&check.Check{}).AddForeignKey("round_id", "rounds(id)", "CASCADE", "RESTRICT")
 	db.Model(&host.Host{}).AddForeignKey("host_group_id", "host_groups(id)", "RESTRICT", "RESTRICT")
@@ -58,7 +56,6 @@ func CreateAllTables(db *gorm.DB) {
 	db.Model(&property.Property{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
 	db.Model(&service.Service{}).AddForeignKey("service_group_id", "service_groups(id)", "RESTRICT", "RESTRICT")
 	db.Model(&service.Service{}).AddForeignKey("host_id", "hosts(id)", "RESTRICT", "RESTRICT")
-	db.Model(&swarm.Swarm{}).AddForeignKey("service_group_id", "service_groups(id)", "CASCADE", "RESTRICT")
 }
 
 func SetupConfig(f string) *config.StaticConfig {
@@ -82,7 +79,6 @@ func NewConfigClone(c *config.StaticConfig) *config.StaticConfig {
 func CleanAllTables(db *gorm.DB) {
 	db.DropTableIfExists(&check.Check{})
 	db.DropTableIfExists(&property.Property{})
-	db.DropTableIfExists(&swarm.Swarm{})
 	db.DropTableIfExists(&service.Service{})
 	db.DropTableIfExists(&host.Host{})
 	db.DropTableIfExists(&host_group.HostGroup{})

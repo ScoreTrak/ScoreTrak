@@ -1,6 +1,12 @@
 package service_group
 
-import "github.com/L1ghtman2k/ScoreTrak/pkg/service"
+import (
+	"errors"
+	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
+	"github.com/jinzhu/gorm"
+	"regexp"
+)
 
 // Serv Group model describes a grouping of services.
 type ServiceGroup struct {
@@ -19,3 +25,8 @@ func (ServiceGroup) TableName() string {
 }
 
 //Todo: Place validatinos on name to ensure queues can use ServiceGroup name without a problem.
+func (s ServiceGroup) Validate(db *gorm.DB) {
+	if s.Name != "" && len(s.Name) > 1 && len(s.Name) <= 64 && regexp.MustCompile(`^[\.a-zA-Z0-9_-]+(#ephemeral)?$`).MatchString(s.Name) { //https://github.com/nsqio/go-nsq/blob/04552936c57a26026c39e10a8993805e0f5a73d0/protocol.go
+		db.AddError(errors.New(fmt.Sprintf("name %s doesn't resolve to scorable service", s.Name)))
+	}
+}

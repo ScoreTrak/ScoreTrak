@@ -5,7 +5,6 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/swarm"
 	. "github.com/L1ghtman2k/ScoreTrak/test"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
@@ -141,29 +140,29 @@ func TestServiceGroupSpec(t *testing.T) {
 					})
 				})
 
-				Convey("Creating Swarm Table", func() {
-					var count int
-					db.AutoMigrate(&swarm.Swarm{})
-					db.Model(&swarm.Swarm{}).AddForeignKey("service_group_id", "service_groups(id)", "CASCADE", "RESTRICT")
-					Convey("Then associating one swarm with the service group", func() {
-						db.Exec(fmt.Sprintf("INSERT INTO swarms (id, service_group_id, label) VALUES (4, %d, 'TestLabel')", s.ID))
-						db.Table("swarms").Count(&count)
-						So(count, ShouldEqual, 1)
-						Convey("Then Deleting the service group should also delete the swarm label associated", func() {
-							err = sgr.Delete(s.ID)
-							So(err, ShouldBeNil)
-							ac, err := sgr.GetAll()
-							So(err, ShouldBeNil)
-							So(len(ac), ShouldEqual, 0)
-							db.Table("swarms").Count(&count)
-							So(count, ShouldEqual, 0)
-						})
-
-					})
-					Reset(func() {
-						db.DropTableIfExists(&swarm.Swarm{})
-					})
-				})
+				//Convey("Creating Swarm Table", func() {
+				//	var count int
+				//	db.AutoMigrate(&swarm.Swarm{})
+				//	db.Model(&swarm.Swarm{}).AddForeignKey("service_group_id", "service_groups(id)", "CASCADE", "RESTRICT")
+				//	Convey("Then associating one swarm with the service group", func() {
+				//		db.Exec(fmt.Sprintf("INSERT INTO swarms (id, service_group_id, label) VALUES (4, %d, 'TestLabel')", s.ID))
+				//		db.Table("swarms").Count(&count)
+				//		So(count, ShouldEqual, 1)
+				//		Convey("Then Deleting the service group should also delete the swarm label associated", func() {
+				//			err = sgr.Delete(s.ID)
+				//			So(err, ShouldBeNil)
+				//			ac, err := sgr.GetAll()
+				//			So(err, ShouldBeNil)
+				//			So(len(ac), ShouldEqual, 0)
+				//			db.Table("swarms").Count(&count)
+				//			So(count, ShouldEqual, 0)
+				//		})
+				//
+				//	})
+				//	Reset(func() {
+				//		db.DropTableIfExists(&swarm.Swarm{})
+				//	})
+				//})
 			})
 		})
 		Reset(func() {

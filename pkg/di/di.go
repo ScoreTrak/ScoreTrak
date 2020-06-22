@@ -6,6 +6,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/swarm"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/queue"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/report"
@@ -14,7 +15,6 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/swarm"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
 	"go.uber.org/dig"
 )
@@ -41,11 +41,6 @@ func BuildMasterContainer() (*dig.Container, error) {
 		report.NewReportServ,
 		queue.NewQueue,
 	)
-
-	if cnf.Platform == "swarm" {
-		ctr = append(ctr, orm.NewSwarmRepo)
-		ctr = append(ctr, swarm.NewSwarmServ)
-	}
 
 	for _, i := range ctr {
 		err := container.Provide(i)
