@@ -7,13 +7,14 @@ services:
     depends_on:
       - db-init
     ports:
-      - "33333:33333"
+      - "33333:33333" #In case there is a web component for scoretrak, this could be commented out
 
   node_1:
     container_name: node_1
     image: cockroachdb/cockroach:latest
-#    volumes:
+    volumes:
 #      - ./data/node_1:/cockroach/cockroach-data
+      - /var/run/docker.sock:/var/run/docker.sock
     command: start --insecure
     ports:
       - "26257:26257"
