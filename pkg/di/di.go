@@ -6,7 +6,6 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/swarm"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/queue"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/report"
@@ -22,7 +21,6 @@ import (
 var container = dig.New()
 
 func BuildMasterContainer() (*dig.Container, error) {
-	cnf := config.GetStaticConfig()
 	var ctr []interface{}
 
 	ctr = append(ctr,
