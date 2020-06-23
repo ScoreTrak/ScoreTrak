@@ -9,6 +9,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
 	"github.com/nsqio/go-nsq"
 	"net/http"
 	"sync"
@@ -80,7 +81,7 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 		return nil, bErr, err
 	}
 	if queueing.WaitTimeout(wg, sds[0].Deadline) {
-		return nil, bErr, errors.New("round took too long to score. this might be due to many reasons like a worker going down, or the number of rounds being too big for one master")
+		return nil, bErr, &queueing.RoundTookTooLongToExecute{Msg: "round took too long to score. this might be due to many reasons like a worker going down, or the number of rounds being too big for one master"}
 	}
 	return ret, bErr, nil
 }
@@ -129,8 +130,17 @@ func (n NSQ) Receive() {
 		panic(err)
 	}
 	select {}
-
 }
+
+func (n NSQ) Ping(group service_group.ServiceGroup) bool {
+	_, _, err := n.Send([]*queueing.ScoringData{
+		{Service: queueing.QService{ID: 0, Name: "Test", Group: group.Name}, Host: "localhost", Deadline: time.Now().Add(time.Second * 3), RoundID: 0, Properties: map[string]string{}},
+	})
+	if err != nil {
+		return false
+	}
+	return true
+} //Todo: THIS Inherently introduces gorutine leaks
 
 func (n NSQ) GenerateNSQLookupdAddresses(hostNames []string, port string) []string {
 	var addresses []string

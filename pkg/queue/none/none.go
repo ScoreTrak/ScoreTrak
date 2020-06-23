@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
 	"sync"
 	"time"
 )
@@ -52,6 +53,10 @@ func (n None) Receive() {
 
 func (n None) Acknowledge(q queueing.QCheck) {
 	panic(errors.New("you should not call Acknowledge when queue is none"))
+}
+
+func (n None) Ping(group service_group.ServiceGroup) bool {
+	panic(errors.New("you should not call Ping when queue is none"))
 }
 
 func NewNoneQueue(l logger.LogInfoFormat) (*None, error) {

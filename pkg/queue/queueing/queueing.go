@@ -91,3 +91,9 @@ func CommonExecute(sd *ScoringData, execDeadline time.Time, l logger.LogInfoForm
 	}
 	return QCheck{Service: sd.Service, Passed: passed, Log: log, Err: errstr, RoundID: sd.RoundID}
 }
+
+type RoundTookTooLongToExecute struct {
+	Msg string
+}
+
+func (e *RoundTookTooLongToExecute) Error() string { return e.Msg }
