@@ -18,6 +18,7 @@ func NewServiceGroupController(log logger.LogInfoFormat, svc service_group.Serv)
 func (s *serviceGroupController) Store(w http.ResponseWriter, r *http.Request) {
 	tm := &service_group.ServiceGroup{}
 	genericStore(s.svc, tm, s.log, "Store", w, r)
+	//ToDO: Implement checking if queue is accessible (First via docker, then via ping)
 }
 
 func (s *serviceGroupController) Delete(w http.ResponseWriter, r *http.Request) {
@@ -35,4 +36,5 @@ func (s *serviceGroupController) GetAll(w http.ResponseWriter, r *http.Request) 
 func (s *serviceGroupController) Update(w http.ResponseWriter, r *http.Request) {
 	tm := &service_group.ServiceGroup{}
 	genericUpdate(s.svc, tm, s.log, "Update", "id", w, r)
+	//ToDO: Implement checking if queue is accessible (First via docker, then via ping)
 }
