@@ -21,6 +21,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/lib/pq"
 	"math"
+	"strings"
 	"sync"
 	"time"
 )
@@ -392,6 +393,9 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 	})
 	if err != nil {
 		d.l.Error(err)
+		if strings.Contains(err.Error(), "split failed while applying backpressure to") {
+			Note += "\nPossible solution to error: decrease: gc.ttlseconds for database. "
+		}
 		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
 		return
 	}

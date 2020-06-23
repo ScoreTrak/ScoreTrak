@@ -52,9 +52,20 @@ func newCockroach(c *config.StaticConfig) (*gorm.DB, error) {
 		c.DB.Cockroach.Database)
 
 	db, err := gorm.Open("postgres", psqlInfo)
-
 	if err != nil {
 		return nil, err
+	}
+	if c.DB.Cockroach.ConfigureZones {
+		err := db.Exec("ALTER RANGE default CONFIGURE ZONE USING gc.ttlseconds = $1;", c.DB.Cockroach.DefaultZoneConfig.GcTtlseconds).Error
+		if err != nil {
+			return nil, err
+		}
+		err = db.Exec("SET CLUSTER SETTING kv.range.backpressure_range_size_multiplier= $1;", c.DB.Cockroach.DefaultZoneConfig.BackpressureRangeSizeMultiplier).Error
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		fmt.Println("You have chosen not to allow master configure database zones. Make sure you set gc.ttlseconds to something below 1200, so that report generation is not affected")
 	}
 	return db, nil
 }

@@ -10,12 +10,17 @@ type StaticConfig struct {
 	DB struct {
 		Use       string `default:"cockroach"`
 		Cockroach struct {
-			Enabled  bool   `default:"true"`
-			Host     string `default:"cockroach"`
-			Port     string `default:"26257"`
-			UserName string `default:"root"`
-			Password string `default:""`
-			Database string `default:"scoretrak"`
+			Enabled           bool   `default:"true"`
+			Host              string `default:"cockroach"`
+			Port              string `default:"26257"`
+			UserName          string `default:"root"`
+			Password          string `default:""`
+			Database          string `default:"scoretrak"`
+			ConfigureZones    bool   `default:"true"`
+			DefaultZoneConfig struct {
+				GcTtlseconds                    uint64 `default:"600"`
+				BackpressureRangeSizeMultiplier uint64 `default:"0"`
+			}
 		}
 	} `json:"-"`
 
@@ -27,7 +32,7 @@ type StaticConfig struct {
 	} `json:"-"`
 
 	Queue struct {
-		Use   string `default:""`
+		Use   string `default:"none"`
 		Kafka struct {
 		}
 		NSQ struct {
@@ -45,9 +50,16 @@ type StaticConfig struct {
 		}
 	} `json:"-"`
 
-	Port string `default:"33333" json:"-"`
-
-	Platform string `default:"swarm" json:"-"`
+	Port     string `default:"33333" json:"-"`
+	Platform struct {
+		Use    string `default:"none"`
+		Docker struct {
+			Swarm struct {
+				SwarmName string
+			}
+			NetworkName string
+		}
+	} `default:"platform" json:"-"`
 }
 
 var staticConfig StaticConfig
