@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-func SetupDB(c *config.StaticConfig) *gorm.DB {
+func SetupDB(c config.StaticConfig) *gorm.DB {
 	var err error
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s sslmode=disable",
 		c.DB.Cockroach.Host,
@@ -58,22 +58,22 @@ func CreateAllTables(db *gorm.DB) {
 	db.Model(&service.Service{}).AddForeignKey("host_id", "hosts(id)", "RESTRICT", "RESTRICT")
 }
 
-func SetupConfig(f string) *config.StaticConfig {
+func SetupConfig(f string) config.StaticConfig {
 	var err error
 	err = config.NewStaticConfig(f)
 	if err != nil {
 		panic(err)
 	}
-	return config.GetConfig()
+	return config.GetStaticConfig()
 }
 
-func NewConfigClone(c *config.StaticConfig) *config.StaticConfig {
+func NewConfigClone(c config.StaticConfig) config.StaticConfig {
 	cnf := config.StaticConfig{}
 	err := copier.Copy(&cnf, &c)
 	if err != nil {
 		panic(err)
 	}
-	return &cnf
+	return cnf
 }
 
 func CleanAllTables(db *gorm.DB) {
@@ -88,11 +88,11 @@ func CleanAllTables(db *gorm.DB) {
 	db.DropTableIfExists(&config.DynamicConfig{})
 }
 
-func DropDB(db *gorm.DB, c *config.StaticConfig) {
+func DropDB(db *gorm.DB, c config.StaticConfig) {
 	db.Exec(fmt.Sprintf("drop database %s", c.DB.Cockroach.Database))
 }
 
-func SetupLogger(c *config.StaticConfig) logger.LogInfoFormat {
+func SetupLogger(c config.StaticConfig) logger.LogInfoFormat {
 	l, err := logger.NewLogger(c)
 	if err != nil {
 		panic(err)
@@ -144,14 +144,6 @@ func DataPreload(db *gorm.DB) {
 	db.Table("hosts").Count(&count)
 	if count != 4 {
 		panic("There should be 4 entry in hosts")
-	}
-	//Creating Swarms
-	db.Exec("INSERT INTO swarms (id, service_group_id, label) VALUES (1, 1, 'LabelInternal1')")
-	db.Exec("INSERT INTO swarms (id, service_group_id, label) VALUES (2, 2, 'LabelExternal1')")
-	db.Exec("INSERT INTO swarms (id, service_group_id, label) VALUES (3, 3, 'LabelInternal2')")
-	db.Table("swarms").Count(&count)
-	if count != 3 {
-		panic("There should be 4 entry in swarms")
 	}
 	//Creating Services
 	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (1, 1, 1, 'WINRM', 'host1-service1', 0, 1, 0, true)")

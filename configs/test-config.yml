@@ -1,6 +1,0 @@
-db:
-  cockroach:
-    host: localhost
-
-logger:
-  environment: dev
