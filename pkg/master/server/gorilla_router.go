@@ -10,6 +10,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/master/run"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/platform"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/queue"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/report"
@@ -62,6 +63,7 @@ func (ds *dserver) MapRoutes() {
 	routes = append(routes, ds.roundRoutes()...)
 	routes = append(routes, ds.serviceRoutes()...)
 	routes = append(routes, ds.serviceGroupRoutes()...)
+	routes = append(routes, ds.reportRoutes()...)
 
 	for _, route := range routes {
 		var hdler http.Handler
@@ -118,9 +120,12 @@ func Logger(inner http.Handler, name string) http.Handler {
 
 func (ds *dserver) reportRoutes() Routes {
 	var svc report.Serv
-	ds.cont.Invoke(func(s report.Serv) {
+	err := ds.cont.Invoke(func(s report.Serv) {
 		svc = s
 	})
+	if err != nil {
+		panic(err)
+	}
 	return ReportRoutes(ds.logger, svc)
 }
 
@@ -139,9 +144,12 @@ func ReportRoutes(l logger.LogInfoFormat, svc report.Serv) Routes {
 
 func (ds *dserver) configRoutes() Routes {
 	var svc config.Serv
-	ds.cont.Invoke(func(s config.Serv) {
+	err := ds.cont.Invoke(func(s config.Serv) {
 		svc = s
 	})
+	if err != nil {
+		panic(err)
+	}
 	return ConfigRoutes(ds.logger, svc)
 }
 
@@ -166,9 +174,12 @@ func ConfigRoutes(l logger.LogInfoFormat, svc config.Serv) Routes {
 
 func (ds *dserver) checkRoutes() Routes {
 	var svc check.Serv
-	ds.cont.Invoke(func(s check.Serv) {
+	err := ds.cont.Invoke(func(s check.Serv) {
 		svc = s
 	})
+	if err != nil {
+		panic(err)
+	}
 	return CheckRoutes(ds.logger, svc)
 }
 
@@ -193,9 +204,12 @@ func CheckRoutes(l logger.LogInfoFormat, svc check.Serv) Routes {
 
 func (ds *dserver) hostRoutes() Routes {
 	var svc host.Serv
-	ds.cont.Invoke(func(s host.Serv) {
+	err := ds.cont.Invoke(func(s host.Serv) {
 		svc = s
 	})
+	if err != nil {
+		panic(err)
+	}
 	return HostRoutes(ds.logger, svc)
 }
 
@@ -242,9 +256,12 @@ func HostRoutes(l logger.LogInfoFormat, svc host.Serv) Routes {
 
 func (ds *dserver) hostGroupRoutes() Routes {
 	var svc host_group.Serv
-	ds.cont.Invoke(func(s host_group.Serv) {
+	err := ds.cont.Invoke(func(s host_group.Serv) {
 		svc = s
 	})
+	if err != nil {
+		panic(err)
+	}
 	return HostGroupRoutes(ds.logger, svc)
 }
 
@@ -292,9 +309,12 @@ func HostGroupRoutes(l logger.LogInfoFormat, svc host_group.Serv) Routes {
 
 func (ds *dserver) propertyRoutes() Routes {
 	var svc property.Serv
-	ds.cont.Invoke(func(s property.Serv) {
+	err := ds.cont.Invoke(func(s property.Serv) {
 		svc = s
 	})
+	if err != nil {
+		panic(err)
+	}
 	return PropertyRoutes(ds.logger, svc)
 }
 
@@ -341,9 +361,12 @@ func PropertyRoutes(l logger.LogInfoFormat, svc property.Serv) Routes {
 
 func (ds *dserver) roundRoutes() Routes {
 	var svc round.Serv
-	ds.cont.Invoke(func(s round.Serv) {
+	err := ds.cont.Invoke(func(s round.Serv) {
 		svc = s
 	})
+	if err != nil {
+		panic(err)
+	}
 	return RoundRoutes(ds.logger, svc)
 }
 
@@ -362,13 +385,19 @@ func RoundRoutes(l logger.LogInfoFormat, svc round.Serv) Routes {
 
 func (ds *dserver) serviceRoutes() Routes {
 	var svc service.Serv
-	ds.cont.Invoke(func(s service.Serv) {
+	err := ds.cont.Invoke(func(s service.Serv) {
 		svc = s
 	})
+	if err != nil {
+		panic(err)
+	}
 	var q queue.Queue
-	ds.cont.Invoke(func(s queue.Queue) {
+	err = ds.cont.Invoke(func(s queue.Queue) {
 		q = s
 	})
+	if err != nil {
+		panic(err)
+	}
 
 	return ServiceRoutes(ds.logger, svc, q, run.NewRepoStore())
 }
@@ -422,14 +451,25 @@ func ServiceRoutes(l logger.LogInfoFormat, svc service.Serv, q queue.Queue, repo
 
 func (ds *dserver) serviceGroupRoutes() Routes {
 	var svc service_group.Serv
-	ds.cont.Invoke(func(s service_group.Serv) {
+	err := ds.cont.Invoke(func(s service_group.Serv) {
 		svc = s
 	})
-	return ServiceGroupRoutes(ds.logger, svc)
+	if err != nil {
+		panic(err)
+	}
+	var plt platform.Platform
+	err = ds.cont.Invoke(func(p platform.Platform) {
+		plt = p
+	})
+	if err != nil {
+		panic(err)
+	}
+	return ServiceGroupRoutes(ds.logger, svc, plt)
 }
 
-func ServiceGroupRoutes(l logger.LogInfoFormat, svc service_group.Serv) Routes {
-	ctrl := handler.NewServiceGroupController(l, svc)
+func ServiceGroupRoutes(l logger.LogInfoFormat, svc service_group.Serv, platform platform.Platform) Routes {
+
+	ctrl := handler.NewServiceGroupController(l, svc, platform)
 	serviceGroupRoutes := Routes{
 		Route{
 			"AddServiceGroup",
@@ -472,9 +512,12 @@ func ServiceGroupRoutes(l logger.LogInfoFormat, svc service_group.Serv) Routes {
 
 func (ds *dserver) teamRoutes() Routes {
 	var svc team.Serv
-	ds.cont.Invoke(func(s team.Serv) {
+	err := ds.cont.Invoke(func(s team.Serv) {
 		svc = s
 	})
+	if err != nil {
+		panic(err)
+	}
 	return TeamRoutes(ds.logger, svc)
 }
 

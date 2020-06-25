@@ -82,12 +82,12 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 	}
 	if queueing.WaitTimeout(wg, sds[0].Deadline) {
 		return nil, bErr, &queueing.RoundTookTooLongToExecute{Msg: "round took too long to score. this might be due to many reasons like a worker going down, or the number of rounds being too big for one master"}
-	}
+	} //Potentially leaks a goroutine
 	return ret, bErr, nil
 }
 
 func (n NSQ) Receive() {
-	c := config.GetConfig()
+	c := config.GetStaticConfig()
 	conf := nsq.NewConfig()
 	conf.LookupdPollInterval = time.Second * 2
 	conf.MaxInFlight = c.Queue.NSQ.MaxInFlight

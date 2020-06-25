@@ -80,8 +80,8 @@ func (ds *dserver) SetupDB() error {
 
 // Start start serving the application
 func (ds *dserver) Start() error {
-	var cfg *config.StaticConfig
-	ds.cont.Invoke(func(c *config.StaticConfig) { cfg = c })
+	var cfg config.StaticConfig
+	ds.cont.Invoke(func(c config.StaticConfig) { cfg = c })
 	go func() {
 		err := http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), ds.router)
 		if err != nil {

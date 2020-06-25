@@ -4,11 +4,14 @@ services:
     build:
       context: ../..
       dockerfile: deployments/master/Dockerfile
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - db-init
+      - nsqd
     ports:
       - "33333:33333" #In case there is a web component for scoretrak, this could be commented out
-    command: -config deployments/master-standalone/config.yml
+    command: -config deployments/master-nsq/config.yml
   node_1:
     container_name: node_1
     image: cockroachdb/cockroach:latest
@@ -30,6 +33,21 @@ services:
       - ../../scripts:/scripts
     entrypoint: "/bin/bash"
     command: /scripts/init_db.sh
+  nsqlookupd:
+    image: nsqio/nsq
+    command: /nsqlookupd
+  nsqd:
+    image: nsqio/nsq
+    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160
+    depends_on:
+      - nsqlookupd
+  nsqadmin:
+    image: nsqio/nsq
+    command: /nsqadmin --lookupd-http-address=nsqlookupd:4161
+    depends_on:
+      - nsqlookupd
+    ports:
+      - "4171"
 
 networks:
   default:

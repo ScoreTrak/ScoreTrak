@@ -17,7 +17,7 @@ type Queue interface {
 	Ping(group service_group.ServiceGroup) bool
 }
 
-func NewQueue(c *config.StaticConfig, l logger.LogInfoFormat) (Queue, error) {
+func NewQueue(c config.StaticConfig, l logger.LogInfoFormat) (Queue, error) {
 	if c.Queue.Use == "nsq" {
 		return nsq.NewNSQQueue(l)
 	} else if c.Queue.Use == "none" {

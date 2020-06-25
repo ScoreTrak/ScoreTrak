@@ -6,6 +6,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/platform"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/queue"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/report"
@@ -37,7 +38,7 @@ func BuildMasterContainer() (*dig.Container, error) {
 		orm.NewServiceRepo, service.NewServiceServ,
 		orm.NewTeamRepo, team.NewTeamServ,
 		report.NewReportServ,
-		queue.NewQueue,
+		queue.NewQueue, platform.NewPlatform,
 	)
 
 	for _, i := range ctr {

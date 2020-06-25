@@ -38,8 +38,8 @@ type QCheck struct {
 func WaitTimeout(wg *sync.WaitGroup, deadline time.Time) bool {
 	c := make(chan struct{})
 	go func() {
-		defer close(c)
 		wg.Wait()
+		close(c)
 	}()
 	select {
 	case <-c:

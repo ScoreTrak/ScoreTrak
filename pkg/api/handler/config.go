@@ -23,16 +23,16 @@ func (c *configController) Update(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(sg)
 	if err != nil {
 		c.log.Error(err)
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	err = c.svc.Update(sg)
 	if err != nil {
 		_, ok := err.(*validations.Error)
 		if ok {
-			w.WriteHeader(http.StatusPreconditionFailed)
+			http.Error(w, err.Error(), http.StatusPreconditionFailed)
 		} else {
-			w.WriteHeader(http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 		c.log.Error(err)
 		return
