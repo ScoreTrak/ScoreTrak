@@ -52,7 +52,7 @@ func (s *serviceGroupController) Store(w http.ResponseWriter, r *http.Request) {
 		s.log.Error(err)
 		return
 	}
-}
+} //Todo: Use queue to ping the worker to ensure that everything is working
 
 func (s *serviceGroupController) Delete(w http.ResponseWriter, r *http.Request) {
 	genericDelete(s.svc, s.log, "Delete", "id", w, r)
