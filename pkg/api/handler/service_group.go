@@ -33,8 +33,8 @@ func (s *serviceGroupController) Store(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println(tm, config.GetStaticConfig(), s.p)
 	if s.p != nil && (tm.AllowPlatform == nil || *tm.AllowPlatform == true) && config.GetStaticConfig().Queue.Use != "none" {
-		wr := worker.Info{Topic: tm.Name, Label: tm.Name}
-		err := s.p.DeployWorkers(wr)
+		wr := worker.Info{Topic: tm.Name, Label: tm.Name} //ToDo: Separate Topic of service Group away from name, so users are free to assign more than one service group per label
+		err := s.p.DeployWorkers(wr)                      //Todo: Make sure that worker container is not allocated multiple times (Currently workers are duplicated)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			s.log.Error(err)
