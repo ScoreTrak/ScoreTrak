@@ -37,7 +37,7 @@ func BuildMasterContainer() (*dig.Container, error) {
 		orm.NewServiceGroupRepo, service_group.NewServiceGroupServ,
 		orm.NewServiceRepo, service.NewServiceServ,
 		orm.NewTeamRepo, team.NewTeamServ,
-		report.NewReportServ,
+		orm.NewReportRepo, report.NewReportServ,
 		queue.NewQueue, platform.NewPlatform,
 	)
 
