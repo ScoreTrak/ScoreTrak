@@ -36,7 +36,7 @@ type Logger struct {
 	zapSugarLogger *zap.SugaredLogger
 }
 
-func NewLogger(c *config.StaticConfig) (LogInfoFormat, error) {
+func NewLogger(c config.StaticConfig) (LogInfoFormat, error) {
 	if c.Logger.Use == "zapLogger" {
 		z, er := NewZapLogger(c)
 		if er != nil {

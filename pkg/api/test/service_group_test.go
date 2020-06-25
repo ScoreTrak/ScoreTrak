@@ -17,7 +17,7 @@ import (
 )
 
 func TestServiceGroupSpec(t *testing.T) {
-	var c *config.StaticConfig
+	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
 		c = NewConfigClone(SetupConfig("../../../configs/test-config.yml"))
@@ -39,7 +39,7 @@ func TestServiceGroupSpec(t *testing.T) {
 	}
 	cr := orm.NewServiceGroupRepo(db, l)
 	serviceGroupSvc := service_group.NewServiceGroupServ(cr)
-	routes = append(routes, server.ServiceGroupRoutes(l, serviceGroupSvc)...)
+	routes = append(routes, server.ServiceGroupRoutes(l, serviceGroupSvc, nil)...)
 	for _, route := range routes {
 		var hdler http.Handler
 		hdler = route.HandlerFunc

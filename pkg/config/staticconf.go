@@ -1,6 +1,11 @@
 package config
 
-import "github.com/jinzhu/configor"
+import (
+	"github.com/jinzhu/configor"
+	"github.com/jinzhu/copier"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
+)
 
 // StaticConfig is a struct of settings that were set at the start of the application
 type StaticConfig struct {
@@ -41,8 +46,8 @@ type StaticConfig struct {
 				Host string `default:"nsqd"`
 			}
 			Topic              string `default:"default"`
-			MaxInFlight        int    `default:"1"`
-			ConcurrentHandlers int    `default:"1"`
+			MaxInFlight        int    `default:"100"`
+			ConcurrentHandlers int    `default:"100"`
 			NSQLookupd         struct {
 				Hosts []string `default:"[\"nsqlookupd\"]"`
 				Port  string   `default:"4161"`
@@ -54,19 +59,14 @@ type StaticConfig struct {
 	Platform struct {
 		Use    string `default:"none"`
 		Docker struct {
-			Swarm struct {
-				SwarmName string
-			}
-			NetworkName string
+			Name        string `default:"scoretrak"`
+			Host        string `default:"unix:///var/run/docker.sock"`
+			NetworkName string `default:"default"`
 		}
-	} `default:"platform" json:"-"`
+	} `json:"-"`
 }
 
 var staticConfig StaticConfig
-
-func GetConfig() *StaticConfig {
-	return &staticConfig
-}
 
 func GetToken() string {
 	return staticConfig.Token
@@ -80,6 +80,27 @@ func NewStaticConfig(f string) error {
 	return nil
 }
 
-func GetStaticConfig() *StaticConfig {
-	return &staticConfig
+func GetStaticConfig() StaticConfig {
+	return staticConfig
+}
+
+func GetConfigCopy() (StaticConfig, error) {
+	cp := StaticConfig{}
+	err := copier.Copy(&cp, &staticConfig)
+	if err != nil {
+		return cp, err
+	}
+	return cp, nil
+}
+
+func SaveConfigToYamlFile(f string, config StaticConfig) error {
+	b, err := yaml.Marshal(&config)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(f, b, 0600)
+	if err != nil {
+		return err
+	}
+	return nil
 }

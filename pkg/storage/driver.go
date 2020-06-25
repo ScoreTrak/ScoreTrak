@@ -17,7 +17,7 @@ func GetGlobalDB() *gorm.DB {
 	return db
 }
 
-func LoadDB(c *config.StaticConfig) (*gorm.DB, error) {
+func LoadDB(c config.StaticConfig) (*gorm.DB, error) {
 	var err error
 	if db == nil {
 		db, err = NewDB(c)
@@ -28,7 +28,7 @@ func LoadDB(c *config.StaticConfig) (*gorm.DB, error) {
 	return db, nil
 }
 
-func NewDB(c *config.StaticConfig) (*gorm.DB, error) {
+func NewDB(c config.StaticConfig) (*gorm.DB, error) {
 	var db *gorm.DB
 	var err error
 	if c.DB.Use == "cockroach" {
@@ -44,7 +44,7 @@ func NewDB(c *config.StaticConfig) (*gorm.DB, error) {
 	return db, nil
 }
 
-func newCockroach(c *config.StaticConfig) (*gorm.DB, error) {
+func newCockroach(c config.StaticConfig) (*gorm.DB, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable",
 		c.DB.Cockroach.Host,
 		c.DB.Cockroach.Port,
