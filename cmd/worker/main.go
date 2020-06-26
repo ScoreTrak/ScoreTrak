@@ -12,12 +12,9 @@ import (
 func main() {
 	path := flag.String("config", "configs/config.yml", "Please enter a path to config file")
 	flag.Parse()
-	if *path != "configs/config.yml" {
-		_, err := os.Stat(*path)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Provided config was not found")
-			os.Exit(-1)
-		}
+	if !configExists(*path) {
+		fmt.Fprintf(os.Stderr, "You need to provide config!")
+		os.Exit(-1)
 	}
 	if err := config.NewStaticConfig(*path); err != nil {
 		fmt.Fprintf(os.Stderr, "%v", err)
@@ -33,4 +30,12 @@ func main() {
 		panic(err)
 	}
 	q.Receive()
+}
+
+func configExists(f string) bool {
+	file, err := os.Stat(f)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !file.IsDir()
 }
