@@ -83,6 +83,8 @@ docker service create \
 --network name=swarm-master-nsq_nsq,alias=nsqadmin \
 nsqio/nsq:latest /nsqadmin --lookupd-http-address=nsqlookupd:4161
 
+docker config create scoretrak-config - < deployments/swarm-master-nsq/config.yml
+
 docker service create \
 --replicas 3 \
 --publish 33333:33333 \
@@ -90,9 +92,10 @@ docker service create \
 --constraint node.role==manager \
 --hostname scoretrak \
 --mount type=bind,src=/var/run/docker.sock,dst=/var/run/docker.sock \
---mount type=bind,src="$(pwd)"/deployments/,dst=/deployments \
 --network swarm-master-nsq_nsq \
 --network swarm-master-nsq_cockroachdb \
-l1ghtman/scoretrak:latest ./master -config /deployments/swarm-master-nsq/config.yml
+--replicas-max-per-node 1 \
+--config src=scoretrak-config,target=/config.yml \
+l1ghtman/scoretrak:latest ./master -config /config.yml
 
 
