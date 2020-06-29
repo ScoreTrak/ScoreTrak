@@ -19,7 +19,12 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%v", err)
 		os.Exit(-1)
 	}
-	if err := master.Run(); err != nil {
+	cnf, err := config.NewDynamicConfig(*path)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v", err)
+		os.Exit(-1)
+	}
+	if err := master.Run(cnf); err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to start due to: %v", err)
 		os.Exit(-1)
 	}
