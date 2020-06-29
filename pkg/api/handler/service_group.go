@@ -58,6 +58,7 @@ func (s *serviceGroupController) Store(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 } //Todo: Use queue to ping the worker to ensure that everything is working
+//Todo: Somehow notify the user to ensure that workers are up and running (portainer?)
 
 func (s *serviceGroupController) Delete(w http.ResponseWriter, r *http.Request) {
 	id, err := idResolver(s.svc, "id", r)
