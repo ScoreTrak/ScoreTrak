@@ -1206,7 +1206,7 @@ definitions:
   config:
     type: "object"
     properties:
-      round_durration:
+      round_duration:
         type: "integer"
         format: "int64"
         example: 20
@@ -1218,7 +1218,7 @@ definitions:
     description: "Engine model is a set of columns describing the config of the scoring\
       \ engine"
     example:
-      round_durration: 20
+      round_duration: 20
       enabled: true
   score:
     type: "object"
