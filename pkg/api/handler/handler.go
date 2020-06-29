@@ -28,6 +28,7 @@ func genericGetByID(svc interface{}, log logger.LogInfoFormat, m string, idParam
 	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	sg, err := invokeRetMethod(svc, m, id)
 	if err != nil {
@@ -151,12 +152,14 @@ func genericDelete(svc interface{}, log logger.LogInfoFormat, m string, idParam 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		log.Error(err)
+		return
 	}
 	err = invokeNoRetMethod(svc, m, id)
 	if err != nil {
 		_, ok := err.(*orm.NoRowsAffected)
 		if ok {
 			http.Redirect(w, r, "/team", http.StatusNotModified)
+			return
 		} else {
 			http.Error(w, err.Error(), http.StatusConflict)
 			log.Error(err)

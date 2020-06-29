@@ -2,11 +2,13 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/platform"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/worker"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
 	"github.com/qor/validations"
 	"net/http"
 )
@@ -30,7 +32,12 @@ func (s *serviceGroupController) Store(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if s.p != nil && (tm.AllowPlatform == nil || *tm.AllowPlatform == true) && config.GetStaticConfig().Queue.Use != "none" {
+	if s.p != nil && !tm.SkipPlatform && config.GetStaticConfig().Queue.Use != "none" {
+		if *tm.Enabled == true {
+			http.Error(w, "if you are letting scoretrak manage the workers, Enabled can be set to true, only after workers are deployed.", http.StatusPreconditionFailed)
+			s.log.Error(err)
+			return
+		}
 		wr := worker.Info{Topic: tm.Name, Label: tm.Name} //ToDo: Separate Topic of service Group away from name, so users are free to assign more than one service group per label
 		err := s.p.DeployWorkers(wr)                      //Todo: Make sure that worker container is not allocated multiple times (Currently workers are duplicated)
 		if err != nil {
@@ -53,8 +60,46 @@ func (s *serviceGroupController) Store(w http.ResponseWriter, r *http.Request) {
 } //Todo: Use queue to ping the worker to ensure that everything is working
 
 func (s *serviceGroupController) Delete(w http.ResponseWriter, r *http.Request) {
-	genericDelete(s.svc, s.log, "Delete", "id", w, r)
-} // Todo: Implement Removal of service Group
+	id, err := idResolver(s.svc, "id", r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.log.Error(err)
+		return
+	}
+	idUint, ok := id.(uint64)
+	if !ok {
+		err = errors.New("failed to retrieve the id")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.log.Error(err)
+		return
+	}
+	serviceGrp, err := s.svc.GetByID(idUint)
+	if err != nil {
+		err = errors.New("failed to retrieve the object")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.log.Error(err)
+		return
+	}
+	err = s.svc.Delete(idUint)
+	if err != nil {
+		_, ok := err.(*orm.NoRowsAffected)
+		if ok {
+			http.Redirect(w, r, "/team", http.StatusNotModified)
+		} else {
+			http.Error(w, err.Error(), http.StatusConflict)
+			s.log.Error(err)
+		}
+		return
+	}
+	if s.p != nil && config.GetStaticConfig().Queue.Use != "none" {
+		wr := worker.Info{Topic: serviceGrp.Name, Label: serviceGrp.Name}
+		err := s.p.RemoveWorkers(wr)
+		if err != nil {
+			http.Error(w, err.Error()+"\nNote: Element was removed from database", http.StatusInternalServerError)
+			s.log.Error(err)
+		}
+	}
+}
 
 func (s *serviceGroupController) GetByID(w http.ResponseWriter, r *http.Request) {
 	genericGetByID(s.svc, s.log, "GetByID", "id", w, r)

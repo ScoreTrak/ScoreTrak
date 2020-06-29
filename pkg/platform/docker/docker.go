@@ -20,6 +20,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type Docker struct {
@@ -42,6 +43,21 @@ func NewDocker(cnf config.StaticConfig, l logger.LogInfoFormat) (d *Docker, err 
 		return nil, err
 	}
 	return d, nil
+}
+
+//func (d *Docker) GetWorkerServiceStatus(info worker.Info)(status string, err error){
+//	s, err := d.GetServiceByName("worker_"+info.Topic)
+//	if err != nil{
+//		return "", err
+//	}
+//}
+
+func (d *Docker) GetWorkerContainerStatus(info worker.Info) (status string, err error) {
+	ctr, err := d.GetContainerByName("worker_" + info.Topic)
+	if err != nil {
+		return "", err
+	}
+	return ctr.Status, nil
 }
 
 func (d *Docker) DeployWorkers(info worker.Info) (err error) {
@@ -70,7 +86,7 @@ func (d *Docker) DeployWorkers(info worker.Info) (err error) {
 		if err != nil {
 			return err
 		}
-		resp, err := d.CreateWorkerContainer(networkName)
+		resp, err := d.CreateWorkerContainer(networkName, info)
 		if err != nil {
 			d.l.Error(err)
 			return err
@@ -94,6 +110,51 @@ func (d *Docker) DeployWorkers(info worker.Info) (err error) {
 	}
 
 	return nil
+}
+
+func (d *Docker) RemoveWorkers(info worker.Info) error {
+	if d.IsSwarm {
+		s, err := d.GetServiceByName("worker_" + info.Topic)
+		if err != nil {
+			return err
+		}
+		return d.Client.ServiceRemove(d.Context, s.ID)
+	} else {
+		ctr, err := d.GetContainerByName("worker_" + info.Topic)
+		if err != nil {
+			return err
+		}
+		return d.Client.ContainerRemove(d.Context, ctr.ID, types.ContainerRemoveOptions{Force: true})
+	}
+}
+
+func (d *Docker) GetServiceByName(n string) (swarm.Service, error) {
+	services, err := d.Client.ServiceList(d.Context, types.ServiceListOptions{})
+	if err != nil {
+		return swarm.Service{}, err
+	}
+	for _, service := range services {
+		if strings.Contains(service.Spec.Name, n) {
+			return service, nil
+		}
+	}
+
+	return swarm.Service{}, errors.New("unable to find service. The workers might have already been removed")
+}
+
+func (d *Docker) GetContainerByName(n string) (types.Container, error) {
+	containers, err := d.Client.ContainerList(d.Context, types.ContainerListOptions{})
+	if err != nil {
+		return types.Container{}, err
+	}
+	for _, ctr := range containers {
+		for _, name := range ctr.Names {
+			if strings.Contains(name, n) {
+				return ctr, nil
+			}
+		}
+	}
+	return types.Container{}, errors.New("container not found. The worker might have already been removed")
 }
 
 func (d *Docker) CommitWorkerContainerToImage(resp container.ContainerCreateCreatedBody, info worker.Info) (string, error) {
@@ -136,27 +197,6 @@ func (d *Docker) BuildWorkerImage() error {
 	return nil
 }
 
-func (d *Docker) RemoveWorkers(info worker.Info) error {
-	if d.IsSwarm {
-		services, err := d.Client.ServiceList(context.Background(), types.ServiceListOptions{})
-		if err != nil {
-			return err
-		}
-		for _, service := range services {
-			if service.Spec.Name == "worker_"+info.Topic {
-				err := d.Client.ServiceRemove(context.Background(), service.ID)
-				if err != nil {
-					return err
-				}
-			}
-		}
-	} else {
-
-	}
-	return nil
-
-}
-
 func (d *Docker) CreateService(info worker.Info, networkName string, configPath string) (types.ServiceCreateResponse, error) {
 	content, err := ioutil.ReadFile(configPath)
 	if err != nil {
@@ -191,11 +231,11 @@ func (d *Docker) CreateService(info worker.Info, networkName string, configPath 
 	return createResponse, nil
 }
 
-func (d *Docker) CreateWorkerContainer(networkName string) (container.ContainerCreateCreatedBody, error) {
+func (d *Docker) CreateWorkerContainer(networkName string, info worker.Info) (container.ContainerCreateCreatedBody, error) {
 	resp, err := d.Client.ContainerCreate(d.Context, &container.Config{
 		Image: "l1ghtman/scoretrak:latest",
 		Tty:   true,
-	}, nil, &network.NetworkingConfig{EndpointsConfig: map[string]*network.EndpointSettings{networkName: {}}}, "")
+	}, nil, &network.NetworkingConfig{EndpointsConfig: map[string]*network.EndpointSettings{networkName: {}}}, "worker_"+info.Topic)
 	if err != nil {
 		return container.ContainerCreateCreatedBody{}, err
 	}
