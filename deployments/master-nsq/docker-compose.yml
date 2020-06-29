@@ -1,22 +1,20 @@
 version: "3.8"
 services:
   scoretrak:
-    build:
-      context: ../..
-      dockerfile: deployments/master/Dockerfile
+    image: l1ghtman/scoretrak:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ../../deployments/:/deployments
     depends_on:
       - db-init
       - nsqd
     ports:
-      - "33333:33333" #In case there is a web component for scoretrak, this could be commented out
-    command: -config deployments/master-nsq/config.yml
-  node_1:
-    container_name: node_1
+      - "33333:33333"
+    command: ./master -config /deployments/master-nsq/config.yml
+
+  cockroachdb-1:
+    container_name: cockroachdb-1
     image: cockroachdb/cockroach:latest
-#    volumes:
-#      - ./data/node_1:/cockroach/cockroach-data
     command: start --insecure
     ports:
       - "26257:26257"
@@ -25,14 +23,14 @@ services:
       default:
         aliases:
           - cockroach
+
   db-init:
     depends_on:
-      - node_1
+      - cockroachdb-1
     image: cockroachdb/cockroach:latest
-    volumes:
-      - ../../scripts:/scripts
-    entrypoint: "/bin/bash"
-    command: /scripts/init_db.sh
+    command: sql --execute="CREATE DATABASE IF NOT EXISTS scoretrak;" --insecure --host cockroach
+
+
   nsqlookupd:
     image: nsqio/nsq
     command: /nsqlookupd

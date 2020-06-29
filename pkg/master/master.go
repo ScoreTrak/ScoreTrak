@@ -1,6 +1,7 @@
 package master
 
 import (
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/di"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/master/run"
@@ -9,7 +10,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage"
 )
 
-func Run() error {
+func Run(cnf *config.DynamicConfig) error {
 	r := server.NewRouter()
 	d, err := di.BuildMasterContainer()
 	if err != nil {
@@ -34,6 +35,6 @@ func Run() error {
 		q = qu
 	})
 	dr := run.NewRunner(db, l, q, run.NewRepoStore())
-	return dr.MasterRunner()
+	return dr.MasterRunner(cnf)
 
 }

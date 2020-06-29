@@ -1,6 +1,7 @@
 queue:
   use: nsq
 platform:
-  use: docker
+  use: swarm
   docker:
-    name: master-nsq
+    name: swarm-master-nsq
+    network: nsq

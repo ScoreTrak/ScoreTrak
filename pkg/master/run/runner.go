@@ -129,11 +129,7 @@ func NewRunner(db *gorm.DB, l logger.LogInfoFormat, q queue.Queue, r RepoStore) 
 	}
 }
 
-func (d *dRunner) MasterRunner() error {
-	cnf, err := config.NewDynamicConfig("configs/config.yml")
-	if err != nil {
-		return err
-	}
+func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 	err = d.db.Create(cnf).Error
 	if err != nil {
 		serr, ok := err.(*pq.Error)
