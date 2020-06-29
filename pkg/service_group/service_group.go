@@ -17,7 +17,7 @@ type ServiceGroup struct {
 	// Enables or Disables the service
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: false"`
 
-	AllowPlatform *bool `json:"allow_platform,omitempty" gorm:"not null;default: true"`
+	SkipPlatform bool `json:"skip_platform,omitempty" gorm:"-"`
 
 	Services []*service.Service `json:"omitempty" gorm:"foreignkey:ServiceGroupID"`
 }
