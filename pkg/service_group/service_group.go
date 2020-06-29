@@ -19,7 +19,7 @@ type ServiceGroup struct {
 
 	AllowPlatform *bool `json:"allow_platform,omitempty" gorm:"not null;default: true"`
 
-	Services []*service.Service `gorm:"foreignkey:ServiceGroupID"`
+	Services []*service.Service `json:"omitempty" gorm:"foreignkey:ServiceGroupID"`
 }
 
 func (ServiceGroup) TableName() string {
