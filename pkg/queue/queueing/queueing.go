@@ -8,7 +8,6 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"math/rand"
 	"strconv"
-	"sync"
 	"time"
 )
 
@@ -35,19 +34,24 @@ type QCheck struct {
 	Err     string
 }
 
-func WaitTimeout(wg *sync.WaitGroup, deadline time.Time) bool {
-	c := make(chan struct{})
-	go func() {
-		wg.Wait()
-		close(c)
-	}()
-	select {
-	case <-c:
-		return false
-	case <-time.After(time.Until(deadline)):
-		return true
-	}
-} //https://gist.github.com/r4um/c1ab51b8757fc2d75d30320933cdbdf6
+type IndexedQueue struct {
+	Q *QCheck
+	I int
+}
+
+//func WaitTimeout(wg *sync.WaitGroup, deadline time.Time) bool {
+//	c := make(chan struct{})
+//	go func() {
+//		wg.Wait()
+//		close(c)
+//	}()
+//	select {
+//	case <-c:
+//		return false
+//	case <-time.After(time.Until(deadline)):
+//		return true
+//	}
+//} //https://gist.github.com/r4um/c1ab51b8757fc2d75d30320933cdbdf6
 
 func TopicFromServiceRound(ser *QService, roundID uint64) string {
 	if roundID == 0 {
@@ -68,28 +72,26 @@ func CommonExecute(sd *ScoringData, execDeadline time.Time, l logger.LogInfoForm
 	defer cancel()
 
 	e := exec.NewExec(ctx, sd.Host, executable, l)
-	wg := sync.WaitGroup{}
-	wg.Add(1)
-	var (
+	type checkRet struct {
 		passed bool
 		log    string
 		err    error
-	)
+	}
+	cq := make(chan checkRet)
 	go func() {
-		passed, log, err = e.Execute()
-		wg.Done()
+		passed, log, err := e.Execute()
+		cq <- checkRet{passed: passed, log: log, err: err}
 	}()
-	if WaitTimeout(&wg, execDeadline.Add(time.Second)) {
+	select {
+	case res := <-cq:
+		var errstr string
+		if res.err != nil {
+			errstr = res.err.Error()
+		}
+		return QCheck{Service: sd.Service, Passed: res.passed, Log: res.log, Err: errstr, RoundID: sd.RoundID}
+	case <-time.After(time.Until(execDeadline.Add(time.Second))):
 		panic(errors.New("check timed out, which should not have happened. this is most likely a bug. Please check logs for more info"))
 	}
-	var errstr string
-	if err != nil {
-		errstr = err.Error()
-	}
-	if time.Now().After(sd.Deadline) {
-		l.Error("Service scored late. Please fix the implementation of the following service: ", sd)
-	}
-	return QCheck{Service: sd.Service, Passed: passed, Log: log, Err: errstr, RoundID: sd.RoundID}
 }
 
 type RoundTookTooLongToExecute struct {

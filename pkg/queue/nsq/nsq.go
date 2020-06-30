@@ -12,7 +12,6 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
 	"github.com/nsqio/go-nsq"
 	"net/http"
-	"sync"
 	"time"
 )
 
@@ -57,11 +56,9 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 	defer consumer.Stop()
 	ret := make([]*queueing.QCheck, len(sds))
 	consumer.ChangeMaxInFlight(len(sds))
-	wg := &sync.WaitGroup{}
-	wg.Add(len(sds))
+	cq := make(chan queueing.IndexedQueue, 1)
 	consumer.SetLoggerLevel(nsq.LogLevelError)
 	consumer.AddConcurrentHandlers(nsq.HandlerFunc(func(m *nsq.Message) error {
-		defer wg.Done()
 		buf := bytes.NewBuffer(m.Body)
 		var qc queueing.QCheck
 		if err := gob.NewDecoder(buf).Decode(&qc); err != nil {
@@ -70,20 +67,30 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 		}
 		for i, sd := range sds {
 			if sd.Service.ID == qc.Service.ID {
-				ret[i] = &qc
+				cq <- queueing.IndexedQueue{Q: &qc, I: i}
+				break
 			}
 		}
 		return nil
 	}), len(sds))
-
 	err = consumer.ConnectToNSQLookupds(addresses)
 	if err != nil {
 		return nil, bErr, err
 	}
-	if queueing.WaitTimeout(wg, sds[0].Deadline) {
-		return nil, bErr, &queueing.RoundTookTooLongToExecute{Msg: "round took too long to score. this might be due to many reasons like a worker going down, or the number of rounds being too big for one master"}
-	} //Potentially leaks a goroutine
-	return ret, bErr, nil
+	counter := len(sds)
+	for {
+		select {
+		case res := <-cq:
+			ret[res.I] = res.Q
+			counter--
+			if counter == 0 {
+				return ret, bErr, nil
+			}
+		case <-time.After(time.Until(sds[0].Deadline)):
+			return nil, bErr, &queueing.RoundTookTooLongToExecute{Msg: "Round took too long to score. This might be due to many reasons like a worker going down, or the number of rounds being too big for one master, etc."}
+		} //Todo: Add switch statement to allow for returning all-or-nothing results vs returning-partial results
+		//Note: This might require redesigning of queues (a little), to ensure that we can allow for this setting on a per-group basis
+	}
 }
 
 func (n NSQ) Receive() {
