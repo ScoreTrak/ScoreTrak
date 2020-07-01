@@ -309,15 +309,19 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 		d.finalizeRound(&rnd, Note, err.Error())
 		return
 	}
-	// ToDO: Find a better way to handle gorutines (Since they potentially may leak if  d.q.Send(sds) never returns). For Example if a queue dies, or execution takes too long (Say a check that never ends), then we are leaking a gorutine either on a worker side, or on master side.
 	var checks []*check.Check
 	for _, t := range teams {
 		for _, h := range t.Hosts {
 			for _, s := range h.Services {
-				for _, c := range chks {
+				for i, c := range sds {
 					if c.Service.ID == s.ID {
-						s.Checks = append(s.Checks, &check.Check{Passed: &c.Passed, Log: c.Log, ServiceID: c.Service.ID, RoundID: rnd.ID, Err: c.Err})
-						checks = append(checks, s.Checks...)
+						if chks[i] == nil {
+							fls := false
+							s.Checks = append(s.Checks, &check.Check{Passed: &fls, Log: "", ServiceID: c.Service.ID, RoundID: rnd.ID, Err: "Unable to hear back from the worker that was responsible for performing the check. Make sure worker is able to connect back to scoretrak"})
+						} else {
+							s.Checks = append(s.Checks, &check.Check{Passed: &chks[i].Passed, Log: chks[i].Log, ServiceID: c.Service.ID, RoundID: rnd.ID, Err: chks[i].Err})
+							checks = append(checks, s.Checks...)
+						}
 					}
 				}
 			}

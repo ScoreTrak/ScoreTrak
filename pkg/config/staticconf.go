@@ -45,10 +45,11 @@ type StaticConfig struct {
 				Port string `default:"4150"`
 				Host string `default:"nsqd"`
 			}
-			Topic              string `default:"default"`
-			MaxInFlight        int    `default:"100"`
-			ConcurrentHandlers int    `default:"100"`
-			NSQLookupd         struct {
+			IgnoreAllScoresIfWorkerFails bool   `default:"true"`
+			Topic                        string `default:"default"`
+			MaxInFlight                  int    `default:"100"`
+			ConcurrentHandlers           int    `default:"100"`
+			NSQLookupd                   struct {
 				Hosts []string `default:"[\"nsqlookupd\"]"`
 				Port  string   `default:"4161"`
 			}
