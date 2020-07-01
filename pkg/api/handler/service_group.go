@@ -7,6 +7,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/platform"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/worker"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/queue"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
 	"github.com/qor/validations"
@@ -17,10 +18,11 @@ type serviceGroupController struct {
 	log logger.LogInfoFormat
 	svc service_group.Serv
 	p   platform.Platform
+	q   queue.Queue
 }
 
-func NewServiceGroupController(log logger.LogInfoFormat, svc service_group.Serv, p platform.Platform) *serviceGroupController {
-	return &serviceGroupController{log, svc, p}
+func NewServiceGroupController(log logger.LogInfoFormat, svc service_group.Serv, p platform.Platform, q queue.Queue) *serviceGroupController {
+	return &serviceGroupController{log, svc, p, q}
 }
 
 func (s *serviceGroupController) Store(w http.ResponseWriter, r *http.Request) {
@@ -110,6 +112,43 @@ func (s *serviceGroupController) GetAll(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *serviceGroupController) Update(w http.ResponseWriter, r *http.Request) {
-	tm := &service_group.ServiceGroup{}
+	tm := service_group.ServiceGroup{}
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&tm)
+	if err != nil {
+		s.log.Error(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	id, err := idResolver(s.svc, "id", r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.log.Error(err)
+		return
+	}
+	idUint, ok := id.(uint64)
+	if !ok {
+		err = errors.New("failed to retrieve the id")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.log.Error(err)
+		return
+	}
+	serviceGrp, err := s.svc.GetByID(idUint)
+	if err != nil {
+		err = errors.New("failed to retrieve the object")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.log.Error(err)
+		return
+	}
+	if s.p != nil && !tm.SkipPlatform && config.GetStaticConfig().Queue.Use != "none" {
+		if (tm.Enabled != nil && *tm.Enabled == true) || (tm.Enabled == nil && *serviceGrp.Enabled == true) {
+			if !s.q.Ping(tm) {
+				err = errors.New("failed to ping the worker queue, ensure that workers are up and running")
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				s.log.Error(err)
+				return
+			}
+		}
+	}
 	genericUpdate(s.svc, tm, s.log, "Update", "id", w, r)
-} //Todo: On Enabled = True, try to ping queue
+}

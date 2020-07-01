@@ -464,12 +464,18 @@ func (ds *dserver) serviceGroupRoutes() Routes {
 	if err != nil {
 		panic(err)
 	}
-	return ServiceGroupRoutes(ds.logger, svc, plt)
+	var q queue.Queue
+	err = ds.cont.Invoke(func(s queue.Queue) {
+		q = s
+	})
+	if err != nil {
+		panic(err)
+	}
+	return ServiceGroupRoutes(ds.logger, svc, plt, q)
 }
 
-func ServiceGroupRoutes(l logger.LogInfoFormat, svc service_group.Serv, platform platform.Platform) Routes {
-
-	ctrl := handler.NewServiceGroupController(l, svc, platform)
+func ServiceGroupRoutes(l logger.LogInfoFormat, svc service_group.Serv, platform platform.Platform, q queue.Queue) Routes {
+	ctrl := handler.NewServiceGroupController(l, svc, platform, q)
 	serviceGroupRoutes := Routes{
 		Route{
 			"AddServiceGroup",
