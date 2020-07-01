@@ -307,6 +307,7 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 	if err != nil {
 		d.l.Error(err)
 		d.finalizeRound(&rnd, Note, err.Error())
+		return
 	}
 	// ToDO: Find a better way to handle gorutines (Since they potentially may leak if  d.q.Send(sds) never returns). For Example if a queue dies, or execution takes too long (Say a check that never ends), then we are leaking a gorutine either on a worker side, or on master side.
 	var checks []*check.Check
