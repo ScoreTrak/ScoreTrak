@@ -141,7 +141,7 @@ func (n NSQ) Receive() {
 
 func (n NSQ) Ping(group service_group.ServiceGroup) bool {
 	_, _, err := n.Send([]*queueing.ScoringData{
-		{Service: queueing.QService{ID: 0, Name: "Test", Group: group.Name}, Host: "localhost", Deadline: time.Now().Add(time.Second * 3), RoundID: 0, Properties: map[string]string{}},
+		{Service: queueing.QService{ID: 0, Name: "Test", Group: group.Name}, Host: "localhost", Deadline: time.Now().Add(time.Second * 4), RoundID: 0, Properties: map[string]string{}},
 	})
 	if err != nil {
 		return false
