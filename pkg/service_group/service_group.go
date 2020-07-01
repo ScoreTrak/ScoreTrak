@@ -19,7 +19,7 @@ type ServiceGroup struct {
 
 	SkipPlatform bool `json:"skip_platform,omitempty" gorm:"-"`
 
-	Services []*service.Service `json:"omitempty" gorm:"foreignkey:ServiceGroupID"`
+	Services []*service.Service `json:"services,omitempty" gorm:"foreignkey:ServiceGroupID"`
 }
 
 func (ServiceGroup) TableName() string {
