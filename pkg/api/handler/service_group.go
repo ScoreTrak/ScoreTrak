@@ -33,7 +33,7 @@ func (s *serviceGroupController) Store(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if s.p != nil && !tm.SkipPlatform && config.GetStaticConfig().Queue.Use != "none" {
-		if *tm.Enabled == true {
+		if tm.Enabled != nil && *tm.Enabled == true {
 			http.Error(w, "if you are letting scoretrak manage the workers, Enabled can be set to true, only after workers are deployed.", http.StatusPreconditionFailed)
 			s.log.Error(err)
 			return
