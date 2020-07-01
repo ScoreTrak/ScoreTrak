@@ -147,7 +147,7 @@ func (n NSQ) Ping(group service_group.ServiceGroup) bool {
 		return false
 	}
 	return true
-} //Todo: THIS Inherently introduces gorutine leaks
+}
 
 func (n NSQ) GenerateNSQLookupdAddresses(hostNames []string, port string) []string {
 	var addresses []string
