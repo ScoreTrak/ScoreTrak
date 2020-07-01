@@ -13,9 +13,9 @@ type Round struct {
 
 	Start time.Time `json:"start,omitempty" gorm:"not null; default:CURRENT_TIMESTAMP"`
 
-	Note string `json:"string,omitempty"`
+	Note string `json:"note,omitempty"`
 
-	Err string `json:"string,omitempty"`
+	Err string `json:"err,omitempty"`
 
 	Finish *time.Time `json:"finish,omitempty"`
 
