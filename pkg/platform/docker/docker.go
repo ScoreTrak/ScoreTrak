@@ -82,16 +82,7 @@ func (d *Docker) DeployWorkers(info worker.Info) (err error) {
 		return err
 	}
 	if !d.IsSwarm {
-		err = d.PullImage()
-		if err != nil {
-			return err
-		}
-		resp, err := d.CreateWorkerContainer(networkName, info)
-		if err != nil {
-			d.l.Error(err)
-			return err
-		}
-		err = d.UploadConfigToContainer(resp, path)
+		resp, err := d.CreateWorkerContainer(networkName, info, path)
 		if err != nil {
 			d.l.Error(err)
 			return err
@@ -231,10 +222,17 @@ func (d *Docker) CreateService(info worker.Info, networkName string, configPath 
 	return createResponse, nil
 }
 
-func (d *Docker) CreateWorkerContainer(networkName string, info worker.Info) (container.ContainerCreateCreatedBody, error) {
+func (d *Docker) CreateWorkerContainer(networkName string, info worker.Info, configPath string) (container.ContainerCreateCreatedBody, error) {
+	content, err := ioutil.ReadFile(configPath)
+	if err != nil {
+		return container.ContainerCreateCreatedBody{}, err
+	}
+	cEnc := base64.StdEncoding.EncodeToString(content)
+
 	resp, err := d.Client.ContainerCreate(d.Context, &container.Config{
 		Image: "l1ghtman/scoretrak:latest",
 		Tty:   true,
+		Cmd:   []string{"./worker", "-encoded-config", cEnc},
 	}, nil, &network.NetworkingConfig{EndpointsConfig: map[string]*network.EndpointSettings{networkName: {}}}, "worker_"+info.Topic)
 	if err != nil {
 		return container.ContainerCreateCreatedBody{}, err
