@@ -14,10 +14,14 @@ type ServiceGroup struct {
 
 	Name string `json:"name" gorm:"not null;unique;default:null"`
 
+	DisplayName string `json:"display_name" gorm:"default:null"`
+
 	// Enables or Disables the service
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: false"`
 
 	SkipPlatform bool `json:"skip_platform,omitempty" gorm:"-"`
+
+	Label string `json:"label,omitempty" gorm:"-"`
 
 	Services []*service.Service `json:"services,omitempty" gorm:"foreignkey:ServiceGroupID"`
 }

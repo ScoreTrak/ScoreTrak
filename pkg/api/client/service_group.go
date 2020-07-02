@@ -42,3 +42,11 @@ func (s serviceGroupClient) Store(u *service_group.ServiceGroup) error {
 func (s serviceGroupClient) Update(u *service_group.ServiceGroup) error {
 	return s.s.genericUpdate(u, fmt.Sprintf("/service_group/%d", u.ID))
 }
+
+func (s serviceGroupClient) Redeploy(id uint64) error {
+	err := s.s.genericGet(nil, fmt.Sprintf("/service_group/%d/redeploy", id))
+	if err != nil {
+		return err
+	}
+	return nil
+}

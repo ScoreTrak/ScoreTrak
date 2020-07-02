@@ -70,7 +70,7 @@ func (s *serviceGroupRepo) Store(sgr *service_group.ServiceGroup) error {
 
 func (s *serviceGroupRepo) Update(sgr *service_group.ServiceGroup) error {
 	s.log.Debugf("updating the Service Group, id : %v", sgr.ID)
-	err := s.db.Model(sgr).Updates(service_group.ServiceGroup{Enabled: sgr.Enabled}).Error //Updating service group names is not supported because service group name tightly coupled with platform operations
+	err := s.db.Model(sgr).Updates(service_group.ServiceGroup{Enabled: sgr.Enabled, DisplayName: sgr.DisplayName}).Error //Updating service group names is not supported because service group name tightly coupled with platform operations
 	if err != nil {
 		s.log.Errorf("error while updating the Service Group, reason : %v", err)
 		return err

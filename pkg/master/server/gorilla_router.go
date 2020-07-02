@@ -511,6 +511,12 @@ func ServiceGroupRoutes(l logger.LogInfoFormat, svc service_group.Serv, platform
 			"/service_group/{id}",
 			ctrl.Update,
 		},
+		Route{
+			"RedeployWorkers",
+			strings.ToUpper("GET"),
+			"/service_group/{id}/redeploy",
+			ctrl.Redeploy,
+		},
 	}
 
 	return serviceGroupRoutes

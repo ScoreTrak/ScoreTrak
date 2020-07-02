@@ -64,9 +64,11 @@ func (s ScoretrakClient) genericGet(obj interface{}, p string) error {
 	if err != nil {
 		return err
 	}
-	err = json.NewDecoder(resp.Body).Decode(obj)
-	if err != nil {
-		return err
+	if obj != nil {
+		err = json.NewDecoder(resp.Body).Decode(obj)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

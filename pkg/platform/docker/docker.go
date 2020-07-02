@@ -93,6 +93,9 @@ func (d *Docker) DeployWorkers(info worker.Info) (err error) {
 			return err
 		}
 	} else {
+		if info.Label == "" {
+			return errors.New("label should not be empty when creating a service on swarm platform")
+		}
 		_, err := d.CreateService(info, networkName, path)
 		if err != nil {
 			d.l.Error(err)
@@ -209,7 +212,7 @@ func (d *Docker) CreateService(info worker.Info, networkName string, configPath 
 			},
 			Networks: []swarm.NetworkAttachmentConfig{{Target: networkName}},
 			Placement: &swarm.Placement{
-				Constraints: []string{fmt.Sprintf("node.labels.%s == true", info.Topic)},
+				Constraints: []string{fmt.Sprintf("node.labels.%s == true", info.Label)},
 			},
 		},
 	}
