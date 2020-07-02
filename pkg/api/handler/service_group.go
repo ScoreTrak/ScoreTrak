@@ -181,7 +181,7 @@ func (s *serviceGroupController) Update(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	if s.p != nil && !tm.SkipPlatform && config.GetStaticConfig().Queue.Use != "none" {
-		if (tm.Enabled != nil && *tm.Enabled == true) || (tm.Enabled == nil && *serviceGrp.Enabled == true) {
+		if tm.Enabled != nil && *tm.Enabled == true && *serviceGrp.Enabled == false {
 			if !s.q.Ping(tm) {
 				err = errors.New("failed to ping the worker queue, ensure that workers are up and running")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
