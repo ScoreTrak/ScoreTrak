@@ -93,8 +93,7 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 				return ret, errors.New("some workers failed to receive the checks. Make sure that is by design"), nil
 			}
 
-		} //Todo: Add switch statement to allow for returning all-or-nothing results vs returning-partial results
-		//Note: This might require redesigning of queues (a little), to ensure that we can allow for this setting on a per-group basis
+		}
 	}
 }
 

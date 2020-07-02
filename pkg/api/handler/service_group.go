@@ -40,8 +40,8 @@ func (s *serviceGroupController) Store(w http.ResponseWriter, r *http.Request) {
 			s.log.Error(err)
 			return
 		}
-		wr := worker.Info{Topic: tm.Name, Label: tm.Label} //ToDo: Separate Topic of service Group away from name, so users are free to assign more than one service group per label
-		err := s.p.DeployWorkers(wr)                       //Todo: Make sure that worker container is not allocated multiple times (Currently workers are duplicated)
+		wr := worker.Info{Topic: tm.Name, Label: tm.Label}
+		err := s.p.DeployWorkers(wr) //Todo: Make sure that worker container is not allocated multiple times (Currently workers are duplicated)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			s.log.Error(err)

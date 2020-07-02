@@ -206,5 +206,3 @@ func FTPSpec(t *testing.T) {
 	DropDB(db, c)
 	db.Close()
 }
-
-//TODO: Test that only available services can be set. Ex: FTP, HTTP, etc
