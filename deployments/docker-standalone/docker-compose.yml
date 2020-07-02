@@ -8,7 +8,7 @@ services:
       - db-init
     ports:
       - "33333:33333"
-    command: ./master -config /deployments/master-nsq/config.yml
+    command: ./master -config /deployments/docker-standalone/config.yml
 
   cockroachdb-1:
     container_name: cockroachdb-1

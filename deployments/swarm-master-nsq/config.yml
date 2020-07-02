@@ -3,5 +3,5 @@ queue:
 platform:
   use: swarm
   docker:
-    name: swarm-master-nsq
+    name: swarm-nsq
     network: nsq

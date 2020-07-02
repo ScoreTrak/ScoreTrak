@@ -1,4 +1,4 @@
 platform:
   use: docker
   docker:
-    name: master-standalone
+    name: docker-standalone

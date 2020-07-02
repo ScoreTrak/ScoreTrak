@@ -3,4 +3,4 @@ queue:
 platform:
   use: docker
   docker:
-    name: master-nsq
+    name: docker-nsq
