@@ -34,7 +34,7 @@ func (s *serviceGroupController) Store(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if s.p != nil && !tm.SkipPlatform && config.GetStaticConfig().Queue.Use != "none" {
+	if s.p != nil && !tm.SkipHelper && config.GetStaticConfig().Queue.Use != "none" {
 		if tm.Enabled != nil && *tm.Enabled == true {
 			http.Error(w, "if you are letting scoretrak manage the workers, Enabled can be set to true, only after workers are deployed.", http.StatusPreconditionFailed)
 			s.log.Error(err)
@@ -180,7 +180,7 @@ func (s *serviceGroupController) Update(w http.ResponseWriter, r *http.Request) 
 		s.log.Error(err)
 		return
 	}
-	if s.p != nil && !tm.SkipPlatform && config.GetStaticConfig().Queue.Use != "none" {
+	if !tm.SkipHelper && config.GetStaticConfig().Queue.Use != "none" {
 		if tm.Enabled != nil && *tm.Enabled == true && *serviceGrp.Enabled == false {
 			if !s.q.Ping(tm) {
 				err = errors.New("failed to ping the worker queue, ensure that workers are up and running")
