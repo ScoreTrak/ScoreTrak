@@ -19,7 +19,7 @@ type ServiceGroup struct {
 	// Enables or Disables the service
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: false"`
 
-	SkipHelper bool `json:"helper,omitempty" gorm:"-"`
+	SkipHelper bool `json:"skip_helper,omitempty" gorm:"-"`
 
 	Label string `json:"label,omitempty" gorm:"-"`
 
