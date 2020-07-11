@@ -6,7 +6,7 @@ info:
   title: "ScoreTrak Mater API"
 tags:
   - name: "Config"
-  - name: "Score"
+  - name: "Report"
   - name: "Team"
   - name: "HostGroup"
   - name: "Host"
@@ -23,8 +23,8 @@ paths:
     get:
       tags:
         - "Check"
-      summary: "Retreive total number of rounds"
-      description: "Orders scoring engine to return total number of rounds"
+      summary: "Retrieve all checks for a given round"
+      description: "Orders scoring engine retrieve all checks for a given round"
       operationId: "GetChecks"
       consumes:
         - "application/json"
@@ -52,12 +52,12 @@ paths:
               type: "string"
       security:
         - api_key: []
-  /check/{RoundID}/{id}:
+  /check/{RoundID}/{ServiceID}:
     get:
       tags:
         - "Check"
-      summary: "Retreive total number of rounds"
-      description: "Orders scoring engine to return total number of rounds"
+      summary: "Retreive a single check for a given round and service"
+      description: "Orders scoring engine to retreive a single check for a given round and service"
       operationId: "GetCheck"
       consumes:
         - "application/json"
@@ -71,13 +71,12 @@ paths:
           type: "integer"
           format: "int64"
           x-exportParamName: "RoundID"
-        - name: "id"
+        - name: "ServiceID"
           in: "path"
           description: "ID of a Service"
           required: true
           type: "integer"
           format: "int64"
-          x-exportParamName: "id"
       responses:
         "200":
           description: "OK"
@@ -90,13 +89,13 @@ paths:
               type: "string"
       security:
         - api_key: []
-  /score:
+  /report:
     get:
       tags:
-        - "Score"
-      summary: "Retreive all Scores"
-      description: "Orders scoring engine to retrive all scores"
-      operationId: "GetScores"
+        - "Report"
+      summary: "Retreive a summary for the last round"
+      description: "Orders scoring engine to retreive a summary for the last round"
+      operationId: "GetReport"
       consumes:
         - "application/json"
       produces:
@@ -106,40 +105,7 @@ paths:
         "200":
           description: "OK"
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/score"
-        "401":
-          description: "Authentication token is missing, or incorrect"
-          headers:
-            WWW_Authenticate:
-              type: "string"
-      security:
-        - api_key: []
-  /score/{TeamID}:
-    get:
-      tags:
-        - "Score"
-      summary: "Retreive all Scores for a given team"
-      description: "Orders scoring engine to retrive all scores"
-      operationId: "GetScore"
-      consumes:
-        - "application/json"
-      produces:
-        - "application/json"
-      parameters:
-        - name: "TeamID"
-          in: "path"
-          description: "ID of Host to return"
-          required: true
-          type: "integer"
-          format: "int64"
-          x-exportParamName: "TeamID"
-      responses:
-        "200":
-          description: "OK"
-          schema:
-            $ref: "#/definitions/score"
+            $ref: "#/definitions/report"
         "401":
           description: "Authentication token is missing, or incorrect"
           headers:
@@ -195,7 +161,7 @@ paths:
               type: "string"
       security:
         - api_key: []
-    put:
+    patch:
       tags:
         - "Config"
       summary: "Update Engine configuration"
@@ -316,7 +282,7 @@ paths:
           description: "Host not found"
       security:
         - api_key: []
-    put:
+    patch:
       tags:
         - "Host"
       summary: "Update a Host"
@@ -478,7 +444,7 @@ paths:
           description: "HostGroup not found"
       security:
         - api_key: []
-    put:
+    patch:
       tags:
         - "HostGroup"
       summary: "Update a Host Group"
@@ -640,7 +606,7 @@ paths:
           description: "Team not found"
       security:
         - api_key: []
-    put:
+    patch:
       tags:
         - "Team"
       summary: "Update a team"
@@ -802,7 +768,7 @@ paths:
           description: "Service group not found"
       security:
         - api_key: []
-    put:
+    patch:
       tags:
         - "Service Group"
       summary: "Update a service group"
@@ -873,6 +839,41 @@ paths:
           description: "Service group not found"
       security:
         - api_key: []
+  /service_group/{id}/redeploy:
+    get:
+      tags:
+        - "Service Group"
+      summary: "Redeploys service group workers"
+      operationId: "RedeployServiceGroup"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "ID of service group to return"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "ServiceGroupID"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/service_group"
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Service group not found"
+      security:
+        - api_key: []
+
   /service:
     get:
       tags:
@@ -964,7 +965,7 @@ paths:
           description: "Service not found"
       security:
         - api_key: []
-    put:
+    patch:
       tags:
         - "Service"
       summary: "Update a service"
@@ -1035,6 +1036,44 @@ paths:
           description: "Service not found"
       security:
         - api_key: []
+  /service/{id}/test:
+    get:
+      tags:
+        - "Service"
+      summary: "Test a service"
+      description: "Tests weather or not a given service is up and running"
+      operationId: "TestService"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "ID of service"
+          required: true
+          type: "integer"
+          format: "int64"
+          x-exportParamName: "id"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: object
+
+        "400":
+          description: "Invalid ID supplied"
+        "401":
+          description: "Authentication token is missing, or incorrect"
+          headers:
+            WWW_Authenticate:
+              type: "string"
+        "404":
+          description: "Service not found"
+      security:
+        - api_key: []
+
+
   /property:
     get:
       tags:
@@ -1126,7 +1165,7 @@ paths:
           description: "Property not found"
       security:
         - api_key: []
-    put:
+    patch:
       tags:
         - "Property"
       summary: "Update a property"
@@ -1220,21 +1259,73 @@ definitions:
     example:
       round_duration: 20
       enabled: true
-  score:
+  report:
     type: "object"
     properties:
-      team_id:
+      round:
         type: "integer"
         format: "int64"
         example: 20
-      score:
-        type: "integer"
-        format: "int64"
-        example: 1000
+      team_id:
+        type: "object"
+        properties:
+          host_id:
+            type: "object"
+            properties:
+              service_id:
+                type: "object"
+                properties:
+                  Name:
+                    type: string
+                  DisplayName:
+                    type: string
+                  Passed:
+                    type: boolean
+                  Log:
+                    type: string
+                  Err:
+                    type: string
+                  Points:
+                    type: string
+                  PointsBoost:
+                    type: integer
+                  Properties:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                      value:
+                        type: string
+
     description: "Score object shows scores for a given team"
     example:
-      score: 1000
-      team_id: 20
+      round: 29
+      5: {
+
+      }
+      6: {
+        123:
+          {},
+        321:
+          {
+            5:{
+              "name": "FTP",
+              "display_name": "FTPCore",
+              "passed": false,
+              "log": "Unable to download a file",
+              "err": "Failed to due blablabal",
+              "pints": 145,
+              "points_boost": 20,
+              "properties":
+                {
+                  "username": "root",
+                  "password": "fake_password"
+                }
+
+            }
+          }
+      }
+
   team:
     type: "object"
     required:
@@ -1244,6 +1335,9 @@ definitions:
         type: "integer"
         format: "int64"
         description: "this id refers to ID of a team in web."
+      name:
+        type: "string"
+        description: "Team Name that is mappable to the web-app's Team object"
       enabled:
         type: "boolean"
     description: "Team model represents internal team model of the scoring engine."
@@ -1287,10 +1381,9 @@ definitions:
         type: "integer"
         format: "int64"
         description: "The ID of a host group that the host belongs to."
-      team_id:
-        type: "integer"
-        format: "int64"
-        description: "The ID of a team that this host belongs too. This parameter\
+      team_name:
+        type: "string"
+        description: "The Name of a team that this host belongs too. This parameter\
           \ is optional, however is needed to appear on the scoring engine."
       enabled:
         type: "boolean"
@@ -1320,14 +1413,25 @@ definitions:
         format: "int64"
       name:
         type: "string"
-        example: "External Scoring Group"
+        example: "external_worker"
+      skip_helper:
+        type: "boolean"
+        description: "Tells scoring engine should verify user requests when creating scoring group. In addition this flag tells scoring engine weather or not utilize platform to deploy workers."
+      label:
+        type: "string"
+        description: "Label parameter is directly passed to the platform module. This helps scoring engine to identify where to deploy the workers."
+      display_name:
+        type: "string"
+        example: "External Scoring Engine"
+
       enabled:
         type: "boolean"
         description: "Enables or Disables the service"
         default: true
     description: "Service Group model describes a grouping of services."
     example:
-      name: "External Scoring Group"
+      name: "external_worker"
+      display_name: "External Scoring Engine"
       id: 0
       label: "external"
       enabled: true
@@ -1392,22 +1496,6 @@ definitions:
       enabled: true
       points: 20
 
-  swarm:
-    type: "object"
-    required:
-      - "service_id"
-      - "label"
-    properties:
-      id:
-        type: "integer"
-        format: "int64"
-      service_id:
-        type: "integer"
-        format: "int64"
-      label:
-        type: "string"
-        example: "username"
-
   property:
     type: "object"
     required:
@@ -1457,6 +1545,9 @@ definitions:
         type: "string"
         description: "Represents an comment/log of a check. This will be helpful for\
           \ debugging purposes during the competition"
+      err:
+        type: "string"
+        description: "Represents fatal errors"
       passed:
         type: "boolean"
     description: "Check model contains an instance of a single check performed on\
