@@ -64,6 +64,9 @@ type StaticConfig struct {
 			Host    string `default:"unix:///var/run/docker.sock"`
 			Network string `default:"default"`
 		}
+		Kubernetes struct {
+			Namespace string `default:"default"`
+		}
 	} `json:"-"`
 }
 
