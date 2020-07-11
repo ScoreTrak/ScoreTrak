@@ -182,13 +182,24 @@ func (s *serviceGroupController) Update(w http.ResponseWriter, r *http.Request) 
 	}
 	if !tm.SkipHelper && config.GetStaticConfig().Queue.Use != "none" {
 		if tm.Enabled != nil && *tm.Enabled == true && *serviceGrp.Enabled == false {
-			if !s.q.Ping(tm) {
-				err = errors.New("failed to ping the worker queue, ensure that workers are up and running")
+			err = s.q.Ping(serviceGrp)
+			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				s.log.Error(err)
 				return
 			}
 		}
 	}
-	genericUpdate(s.svc, tm, s.log, "Update", "id", w, r)
+	tm.ID = idUint
+	err = s.svc.Update(&tm)
+	if err != nil {
+		_, ok := err.(*validations.Error)
+		if ok {
+			http.Error(w, err.Error(), http.StatusPreconditionFailed)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		s.log.Error(err)
+		return
+	}
 }
