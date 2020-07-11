@@ -371,9 +371,9 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 					}
 
 					if len(s.Checks) != 0 {
-						sh.Services[s.ID] = report.SimpleService{Passed: *s.Checks[0].Passed, Log: s.Checks[0].Log, Err: s.Checks[0].Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
+						sh.Services[s.ID] = report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Passed: *s.Checks[0].Passed, Log: s.Checks[0].Log, Err: s.Checks[0].Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
 					} else {
-						sh.Services[s.ID] = report.SimpleService{Passed: false, Log: "Service was not checked because it was disabled", Err: "", Points: points, Properties: params, PointsBoost: s.PointsBoost}
+						sh.Services[s.ID] = report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Passed: false, Log: "Service was not checked because it was disabled", Err: "", Points: points, Properties: params, PointsBoost: s.PointsBoost}
 					}
 
 				}

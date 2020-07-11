@@ -35,6 +35,8 @@ type SimpleHost struct {
 }
 
 type SimpleService struct {
+	Name        string
+	DisplayName string
 	Passed      bool
 	Log         string
 	Err         string
