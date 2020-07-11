@@ -143,14 +143,16 @@ func (n NSQ) Receive() {
 	select {}
 }
 
-func (n NSQ) Ping(group service_group.ServiceGroup) bool {
+func (n NSQ) Ping(group *service_group.ServiceGroup) error {
 	_, _, err := n.Send([]*queueing.ScoringData{
-		{Service: queueing.QService{ID: 0, Name: "PING", Group: group.Name}, Host: "localhost", Deadline: time.Now().Add(time.Second * 4), RoundID: 0, Properties: map[string]string{}},
+		{
+			Service: queueing.QService{ID: 0, Name: "PING", Group: group.Name}, Host: "localhost", Deadline: time.Now().Add(time.Second * 4), RoundID: 0, Properties: map[string]string{},
+		},
 	})
 	if err != nil {
-		return false
+		return err
 	}
-	return true
+	return nil
 }
 
 func (n NSQ) GenerateNSQLookupdAddresses(hostNames []string, port string) []string {

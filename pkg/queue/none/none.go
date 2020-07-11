@@ -61,8 +61,8 @@ func (n None) Acknowledge(q queueing.QCheck) {
 	panic(errors.New("you should not call Acknowledge when queue is none"))
 }
 
-func (n None) Ping(group service_group.ServiceGroup) bool {
-	panic(errors.New("you should not call Ping when queue is none"))
+func (n None) Ping(group *service_group.ServiceGroup) error {
+	return errors.New("you should not call Ping when queue is none")
 }
 
 func NewNoneQueue(l logger.LogInfoFormat) (*None, error) {

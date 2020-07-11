@@ -14,7 +14,7 @@ type Queue interface {
 	Send([]*queueing.ScoringData) (queue []*queueing.QCheck, bearable error, terminatable error)
 	Receive()
 	Acknowledge(queueing.QCheck)
-	Ping(group service_group.ServiceGroup) bool
+	Ping(group *service_group.ServiceGroup) error
 }
 
 func NewQueue(c config.StaticConfig, l logger.LogInfoFormat) (Queue, error) {
