@@ -67,17 +67,7 @@ func (d *Docker) DeployWorkers(info worker.Info) (err error) {
 	if err != nil {
 		return err
 	}
-	cnf, err := config.GetConfigCopy()
-	if err != nil {
-		return err
-	}
-	if cnf.Queue.Use == "nsq" {
-		cnf.Queue.NSQ.Topic = info.Topic
-	} else {
-		return errors.New("selected queue is not yet supported with platform Docker")
-	}
-	path := fmt.Sprintf("tmp/config_worker_%s", info.Topic)
-	err = config.SaveConfigToYamlFile(path, cnf)
+	path, err := util.GenerateConfigFile(info)
 	if err != nil {
 		return err
 	}
@@ -192,11 +182,10 @@ func (d *Docker) BuildWorkerImage() error {
 }
 
 func (d *Docker) CreateService(info worker.Info, networkName string, configPath string) (types.ServiceCreateResponse, error) {
-	content, err := ioutil.ReadFile(configPath)
+	cEnc, err := util.EncodeConfigFile(configPath)
 	if err != nil {
 		return types.ServiceCreateResponse{}, err
 	}
-	cEnc := base64.StdEncoding.EncodeToString(content)
 	maxAttempts := uint64(1)
 	spec := swarm.ServiceSpec{
 		Annotations: swarm.Annotations{Name: "worker_" + info.Topic},
@@ -207,7 +196,7 @@ func (d *Docker) CreateService(info worker.Info, networkName string, configPath 
 				Condition:   swarm.RestartPolicyConditionOnFailure,
 			},
 			ContainerSpec: swarm.ContainerSpec{
-				Image:   "l1ghtman/scoretrak:latest",
+				Image:   util.Image,
 				Command: []string{"./worker", "-encoded-config", cEnc},
 			},
 			Networks: []swarm.NetworkAttachmentConfig{{Target: networkName}},
@@ -233,7 +222,7 @@ func (d *Docker) CreateWorkerContainer(networkName string, info worker.Info, con
 	cEnc := base64.StdEncoding.EncodeToString(content)
 
 	resp, err := d.Client.ContainerCreate(d.Context, &container.Config{
-		Image: "l1ghtman/scoretrak:latest",
+		Image: util.Image,
 		Tty:   true,
 		Cmd:   []string{"./worker", "-encoded-config", cEnc},
 	}, nil, &network.NetworkingConfig{EndpointsConfig: map[string]*network.EndpointSettings{networkName: {}}}, "worker_"+info.Topic)
@@ -296,7 +285,7 @@ func (d *Docker) StartContainer(resp container.ContainerCreateCreatedBody) error
 }
 
 func (d *Docker) PullImage() error {
-	reader, err := d.Client.ImagePull(d.Context, "docker.io/l1ghtman/scoretrak:latest", types.ImagePullOptions{})
+	reader, err := d.Client.ImagePull(d.Context, util.Image, types.ImagePullOptions{})
 	if err != nil {
 		return err
 	}
