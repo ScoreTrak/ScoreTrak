@@ -39,7 +39,7 @@ func TestServiceGroupSpec(t *testing.T) {
 	}
 	cr := orm.NewServiceGroupRepo(db, l)
 	serviceGroupSvc := service_group.NewServiceGroupServ(cr)
-	routes = append(routes, server.ServiceGroupRoutes(l, serviceGroupSvc, nil)...)
+	routes = append(routes, server.ServiceGroupRoutes(l, serviceGroupSvc, nil, nil)...)
 	for _, route := range routes {
 		var hdler http.Handler
 		hdler = route.HandlerFunc

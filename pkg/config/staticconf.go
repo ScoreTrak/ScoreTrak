@@ -10,7 +10,7 @@ import (
 // StaticConfig is a struct of settings that were set at the start of the application
 type StaticConfig struct {
 	// token specified on init of the staticConfig
-	Token string `json:"-" default:""`
+	Token string `default:""`
 
 	DB struct {
 		Use       string `default:"cockroach"`
@@ -27,14 +27,14 @@ type StaticConfig struct {
 				BackpressureRangeSizeMultiplier uint64 `default:"0"`
 			}
 		}
-	} `json:"-"`
+	}
 
 	Logger struct {
 		Use         string `default:"zapLogger"`
 		Environment string `default:"prod"`
 		LogLevel    string `default:"info"`
 		FileName    string `default:"scoretrak.log"`
-	} `json:"-"`
+	}
 
 	Queue struct {
 		Use   string `default:"none"`
@@ -54,9 +54,9 @@ type StaticConfig struct {
 				Port  string   `default:"4161"`
 			}
 		}
-	} `json:"-"`
+	}
 
-	Port     string `default:"33333" json:"-"`
+	Port     string `default:"33333"`
 	Platform struct {
 		Use    string `default:"none"`
 		Docker struct {
@@ -67,7 +67,7 @@ type StaticConfig struct {
 		Kubernetes struct {
 			Namespace string `default:"default"`
 		}
-	} `json:"-"`
+	}
 }
 
 var staticConfig StaticConfig

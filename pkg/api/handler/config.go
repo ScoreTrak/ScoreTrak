@@ -42,3 +42,16 @@ func (c *configController) Update(w http.ResponseWriter, r *http.Request) {
 func (c *configController) Get(w http.ResponseWriter, r *http.Request) {
 	genericGet(c.svc, c.log, "Get", w, r)
 }
+
+type staticConfigController struct {
+	log logger.LogInfoFormat
+	svc config.StaticServ
+}
+
+func NewStaticConfigController(log logger.LogInfoFormat, svc config.StaticServ) *staticConfigController {
+	return &staticConfigController{log, svc}
+}
+
+func (c staticConfigController) Get(w http.ResponseWriter, r *http.Request) {
+	genericGet(c.svc, c.log, "Get", w, r)
+}

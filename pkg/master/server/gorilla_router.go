@@ -55,6 +55,7 @@ func (ds *dserver) MapRoutes() {
 	}
 
 	routes = append(routes, ds.configRoutes()...)
+	routes = append(routes, ds.staticConfigRoutes()...)
 	routes = append(routes, ds.teamRoutes()...)
 	routes = append(routes, ds.checkRoutes()...)
 	routes = append(routes, ds.hostRoutes()...)
@@ -166,6 +167,30 @@ func ConfigRoutes(l logger.LogInfoFormat, svc config.Serv) Routes {
 			"GetEngineProperties",
 			strings.ToUpper("Get"),
 			"/config",
+			ctrl.Get,
+		},
+	}
+	return configRoutes
+}
+
+func (ds *dserver) staticConfigRoutes() Routes {
+	var svc config.StaticServ
+	err := ds.cont.Invoke(func(s config.StaticServ) {
+		svc = s
+	})
+	if err != nil {
+		panic(err)
+	}
+	return StaticConfigRoutes(ds.logger, svc)
+}
+
+func StaticConfigRoutes(l logger.LogInfoFormat, svc config.StaticServ) Routes {
+	ctrl := handler.NewStaticConfigController(l, svc)
+	configRoutes := Routes{
+		Route{
+			"GetStaticEngineProperties",
+			strings.ToUpper("Get"),
+			"/static_config",
 			ctrl.Get,
 		},
 	}

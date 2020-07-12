@@ -31,7 +31,7 @@ func BuildMasterContainer() (*dig.Container, error) {
 		orm.NewCheckRepo, check.NewCheckServ,
 		orm.NewHostGroupRepo, host_group.NewHostGroupServ,
 		orm.NewPropertyRepo, property.NewPropertyServ,
-		orm.NewConfigRepo, config.NewConfigServ,
+		orm.NewConfigRepo, config.NewConfigServ, config.NewStaticConfigServ,
 		orm.NewHostRepo, host.NewHostServ,
 		orm.NewRoundRepo, round.NewRoundServ,
 		orm.NewServiceGroupRepo, service_group.NewServiceGroupServ,

@@ -38,7 +38,9 @@ func TestConfigSpec(t *testing.T) {
 	}
 	cr := orm.NewConfigRepo(db, l)
 	configSvc := config.NewConfigServ(cr)
+	staticConfigSvc := config.NewStaticConfigServ()
 	routes = append(routes, server.ConfigRoutes(l, configSvc)...)
+	routes = append(routes, server.StaticConfigRoutes(l, staticConfigSvc)...)
 	for _, route := range routes {
 		var hdler http.Handler
 		hdler = route.HandlerFunc
@@ -61,6 +63,7 @@ func TestConfigSpec(t *testing.T) {
 		DataPreload(db)
 		s := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%d", port), Scheme: "http"}, "", http.DefaultClient)
 		cli := client.NewConfigClient(s)
+		cliStatic := client.NewStaticConfigClient(s)
 		Convey("Retrieving a config", func() {
 			retConfig, err := cli.Get()
 			So(err, ShouldBeNil)
@@ -68,6 +71,13 @@ func TestConfigSpec(t *testing.T) {
 			So(retConfig.RoundDuration, ShouldEqual, uint64(60))
 			So(*(retConfig.Enabled), ShouldBeTrue)
 		})
+
+		Convey("Retrieving a static config", func() {
+			retConfig, err := cliStatic.Get()
+			So(err, ShouldBeNil)
+			So(retConfig.DB.Use, ShouldEqual, "cockroach")
+		})
+
 		Convey("Update the config", func() {
 			fls := false
 			t := config.DynamicConfig{RoundDuration: 50, Enabled: &fls}
