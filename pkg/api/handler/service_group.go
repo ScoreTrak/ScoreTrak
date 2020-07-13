@@ -76,9 +76,7 @@ func (s *serviceGroupController) Delete(w http.ResponseWriter, r *http.Request) 
 	}
 	serviceGrp, err := s.svc.GetByID(idUint)
 	if err != nil {
-		err = errors.New("failed to retrieve the object")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		s.log.Error(err)
+		http.Redirect(w, r, "/team", http.StatusNotModified)
 		return
 	}
 	err = s.svc.Delete(idUint)
