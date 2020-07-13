@@ -2,10 +2,16 @@ package main
 
 import (
 	"encoding/base64"
+	"errors"
 	"flag"
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/master"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/di"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/master/run"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/master/server"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/queue"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/storage"
 	"os"
 )
 
@@ -15,43 +21,47 @@ func main() {
 	flag.Parse()
 	if *encodedConfig != "" {
 		dec, err := base64.StdEncoding.DecodeString(*encodedConfig)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%v", err)
-			os.Exit(-1)
-		}
+		handleErr(err)
 		*path = "config.yml"
 		f, err := os.Create(*path)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%v", err)
-			os.Exit(-1)
-		}
+		handleErr(err)
 		defer f.Close()
-
-		if _, err := f.Write(dec); err != nil {
-			fmt.Fprintf(os.Stderr, "%v", err)
-			os.Exit(-1)
-		}
-		if err := f.Sync(); err != nil {
-			fmt.Fprintf(os.Stderr, "%v", err)
-			os.Exit(-1)
-		}
+		_, err = f.Write(dec)
+		handleErr(err)
+		handleErr(f.Sync())
 	} else if !configExists(*path) {
-		fmt.Fprintf(os.Stderr, "You need to provide config!")
-		os.Exit(-1)
+		handleErr(errors.New("you need to provide config"))
 	}
-
-	if err := config.NewStaticConfig(*path); err != nil {
-		fmt.Fprintf(os.Stderr, "%v", err)
-		os.Exit(-1)
-	}
+	handleErr(config.NewStaticConfig(*path))
 	cnf, err := config.NewDynamicConfig(*path)
+	if err != nil {
+		handleErr(err)
+	}
+	r := server.NewRouter()
+	d, err := di.BuildMasterContainer()
+	handleErr(err)
+	var l logger.LogInfoFormat
+	di.Invoke(func(log logger.LogInfoFormat) {
+		l = log
+	})
+	svr := server.NewServer(r, d, l)
+	svr.MapRoutes()
+	handleErr(svr.SetupDB())
+	db := storage.GetGlobalDB()
+	handleErr(svr.Start())
+	var q queue.Queue
+	di.Invoke(func(qu queue.Queue) {
+		q = qu
+	})
+	dr := run.NewRunner(db, l, q, run.NewRepoStore())
+	handleErr(dr.MasterRunner(cnf))
+}
+func handleErr(err error) {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v", err)
 		os.Exit(-1)
-	}
-	if err := master.Run(cnf); err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to start due to: %v", err)
-		os.Exit(-1)
+	} else {
+		return
 	}
 }
 
