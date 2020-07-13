@@ -1,17 +1,17 @@
 package nsq
 
 import (
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/logger"
-	"ScoreTrak/pkg/queue/queueing"
 	"bytes"
 	"encoding/gob"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
 	"github.com/nsqio/go-nsq"
 	"net/http"
-	"sync"
 	"time"
 )
 
@@ -56,11 +56,9 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 	defer consumer.Stop()
 	ret := make([]*queueing.QCheck, len(sds))
 	consumer.ChangeMaxInFlight(len(sds))
-	wg := &sync.WaitGroup{}
-	wg.Add(len(sds))
+	cq := make(chan queueing.IndexedQueue, 1)
 	consumer.SetLoggerLevel(nsq.LogLevelError)
 	consumer.AddConcurrentHandlers(nsq.HandlerFunc(func(m *nsq.Message) error {
-		defer wg.Done()
 		buf := bytes.NewBuffer(m.Body)
 		var qc queueing.QCheck
 		if err := gob.NewDecoder(buf).Decode(&qc); err != nil {
@@ -69,24 +67,38 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 		}
 		for i, sd := range sds {
 			if sd.Service.ID == qc.Service.ID {
-				ret[i] = &qc
+				cq <- queueing.IndexedQueue{Q: &qc, I: i}
+				break
 			}
 		}
 		return nil
 	}), len(sds))
-
 	err = consumer.ConnectToNSQLookupds(addresses)
 	if err != nil {
 		return nil, bErr, err
 	}
-	if queueing.WaitTimeout(wg, sds[0].Deadline) {
-		return nil, bErr, errors.New("round took too long to score. this might be due to many reasons like a worker going down, or the number of rounds being too big for one master")
+	counter := len(sds)
+	for {
+		select {
+		case res := <-cq:
+			ret[res.I] = res.Q
+			counter--
+			if counter == 0 {
+				return ret, bErr, nil
+			}
+		case <-time.After(time.Until(sds[0].Deadline)):
+			if c.Queue.NSQ.IgnoreAllScoresIfWorkerFails {
+				return nil, bErr, &queueing.RoundTookTooLongToExecute{Msg: "Round took too long to score. This might be due to many reasons like a worker going down, or the number of rounds being too big for workers"}
+			} else {
+				return ret, errors.New("some workers failed to receive the checks. Make sure that is by design"), nil
+			}
+
+		}
 	}
-	return ret, bErr, nil
 }
 
 func (n NSQ) Receive() {
-	c := config.GetConfig()
+	c := config.GetStaticConfig()
 	conf := nsq.NewConfig()
 	conf.LookupdPollInterval = time.Second * 2
 	conf.MaxInFlight = c.Queue.NSQ.MaxInFlight
@@ -129,7 +141,18 @@ func (n NSQ) Receive() {
 		panic(err)
 	}
 	select {}
+}
 
+func (n NSQ) Ping(group *service_group.ServiceGroup) error {
+	_, _, err := n.Send([]*queueing.ScoringData{
+		{
+			Service: queueing.QService{ID: 0, Name: "PING", Group: group.Name}, Host: "localhost", Deadline: time.Now().Add(time.Second * 4), RoundID: 0, Properties: map[string]string{},
+		},
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (n NSQ) GenerateNSQLookupdAddresses(hostNames []string, port string) []string {

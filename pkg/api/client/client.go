@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 )
@@ -24,13 +25,23 @@ func responseValidator(r *http.Response) error {
 	if r.StatusCode >= 200 && r.StatusCode < 400 {
 		return nil
 	}
-	return &InvalidResponse{fmt.Sprintf("Invalid response code received: %d", r.StatusCode), r.StatusCode}
+	bodyBytes, err := ioutil.ReadAll(r.Body)
+	var body string
+	if err == nil {
+		body = string(bodyBytes)
+	}
+	msg := fmt.Sprintf("Invalid response code received: %d", r.StatusCode)
+	if body != "" {
+		msg += fmt.Sprintf("\nResponse body: %s", body)
+	}
+	return &InvalidResponse{msg, r.StatusCode, body}
 
 }
 
 type InvalidResponse struct {
 	msg          string // description of error
 	ResponseCode int
+	ResponseBody string
 }
 
 func (e *InvalidResponse) Error() string { return e.msg }
@@ -53,9 +64,11 @@ func (s ScoretrakClient) genericGet(obj interface{}, p string) error {
 	if err != nil {
 		return err
 	}
-	err = json.NewDecoder(resp.Body).Decode(obj)
-	if err != nil {
-		return err
+	if obj != nil {
+		err = json.NewDecoder(resp.Body).Decode(obj)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

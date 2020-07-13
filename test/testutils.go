@@ -1,37 +1,36 @@
 package test
 
 import (
-	"ScoreTrak/pkg/check"
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/host"
-	"ScoreTrak/pkg/host_group"
-	"ScoreTrak/pkg/logger"
-	"ScoreTrak/pkg/property"
-	"ScoreTrak/pkg/round"
-	"ScoreTrak/pkg/service"
-	"ScoreTrak/pkg/service_group"
-	"ScoreTrak/pkg/storage"
-	"ScoreTrak/pkg/swarm"
-	"ScoreTrak/pkg/team"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/storage"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
 	"github.com/jinzhu/copier"
 	"github.com/jinzhu/gorm"
 	"net/http/httptest"
 	"time"
 )
 
-func SetupDB(c *config.StaticConfig) *gorm.DB {
+func SetupDB(c config.DB) *gorm.DB {
 	var err error
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s sslmode=disable",
-		c.DB.Cockroach.Host,
-		c.DB.Cockroach.Port,
-		c.DB.Cockroach.UserName)
+		c.Cockroach.Host,
+		c.Cockroach.Port,
+		c.Cockroach.UserName)
 	dbPrep, err := gorm.Open("postgres", psqlInfo)
 	if err != nil {
 		panic(err)
 	}
-	dbPrep.Exec(fmt.Sprintf("drop database if exists  %s", c.DB.Cockroach.Database))
-	dbPrep.Exec(fmt.Sprintf("create database if not exists  %s", c.DB.Cockroach.Database))
+	dbPrep.Exec(fmt.Sprintf("drop database if exists  %s", c.Cockroach.Database))
+	dbPrep.Exec(fmt.Sprintf("create database if not exists  %s", c.Cockroach.Database))
 	dbPrep.Close()
 	db, err := storage.NewDB(c)
 	if err != nil {
@@ -50,7 +49,6 @@ func CreateAllTables(db *gorm.DB) {
 	db.AutoMigrate(&round.Round{})
 	db.AutoMigrate(&service.Service{})
 	db.AutoMigrate(&service_group.ServiceGroup{})
-	db.AutoMigrate(&swarm.Swarm{})
 	db.Model(&check.Check{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
 	db.Model(&check.Check{}).AddForeignKey("round_id", "rounds(id)", "CASCADE", "RESTRICT")
 	db.Model(&host.Host{}).AddForeignKey("host_group_id", "host_groups(id)", "RESTRICT", "RESTRICT")
@@ -58,31 +56,29 @@ func CreateAllTables(db *gorm.DB) {
 	db.Model(&property.Property{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
 	db.Model(&service.Service{}).AddForeignKey("service_group_id", "service_groups(id)", "RESTRICT", "RESTRICT")
 	db.Model(&service.Service{}).AddForeignKey("host_id", "hosts(id)", "RESTRICT", "RESTRICT")
-	db.Model(&swarm.Swarm{}).AddForeignKey("service_group_id", "service_groups(id)", "CASCADE", "RESTRICT")
 }
 
-func SetupConfig(f string) *config.StaticConfig {
+func SetupConfig(f string) config.StaticConfig {
 	var err error
 	err = config.NewStaticConfig(f)
 	if err != nil {
 		panic(err)
 	}
-	return config.GetConfig()
+	return config.GetStaticConfig()
 }
 
-func NewConfigClone(c *config.StaticConfig) *config.StaticConfig {
+func NewConfigClone(c config.StaticConfig) config.StaticConfig {
 	cnf := config.StaticConfig{}
 	err := copier.Copy(&cnf, &c)
 	if err != nil {
 		panic(err)
 	}
-	return &cnf
+	return cnf
 }
 
 func CleanAllTables(db *gorm.DB) {
 	db.DropTableIfExists(&check.Check{})
 	db.DropTableIfExists(&property.Property{})
-	db.DropTableIfExists(&swarm.Swarm{})
 	db.DropTableIfExists(&service.Service{})
 	db.DropTableIfExists(&host.Host{})
 	db.DropTableIfExists(&host_group.HostGroup{})
@@ -92,11 +88,11 @@ func CleanAllTables(db *gorm.DB) {
 	db.DropTableIfExists(&config.DynamicConfig{})
 }
 
-func DropDB(db *gorm.DB, c *config.StaticConfig) {
+func DropDB(db *gorm.DB, c config.StaticConfig) {
 	db.Exec(fmt.Sprintf("drop database %s", c.DB.Cockroach.Database))
 }
 
-func SetupLogger(c *config.StaticConfig) logger.LogInfoFormat {
+func SetupLogger(c config.Logger) logger.LogInfoFormat {
 	l, err := logger.NewLogger(c)
 	if err != nil {
 		panic(err)
@@ -148,14 +144,6 @@ func DataPreload(db *gorm.DB) {
 	db.Table("hosts").Count(&count)
 	if count != 4 {
 		panic("There should be 4 entry in hosts")
-	}
-	//Creating Swarms
-	db.Exec("INSERT INTO swarms (id, service_group_id, label) VALUES (1, 1, 'LabelInternal1')")
-	db.Exec("INSERT INTO swarms (id, service_group_id, label) VALUES (2, 2, 'LabelExternal1')")
-	db.Exec("INSERT INTO swarms (id, service_group_id, label) VALUES (3, 3, 'LabelInternal2')")
-	db.Table("swarms").Count(&count)
-	if count != 3 {
-		panic("There should be 4 entry in swarms")
 	}
 	//Creating Services
 	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, points, round_units, round_delay, enabled) VALUES (1, 1, 1, 'WINRM', 'host1-service1', 0, 1, 0, true)")

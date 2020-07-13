@@ -1,26 +1,27 @@
 package run
 
 import (
-	"ScoreTrak/pkg/check"
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/di"
-	"ScoreTrak/pkg/host"
-	"ScoreTrak/pkg/host_group"
-	"ScoreTrak/pkg/logger"
-	"ScoreTrak/pkg/property"
-	"ScoreTrak/pkg/queue"
-	"ScoreTrak/pkg/queue/queueing"
-	"ScoreTrak/pkg/report"
-	"ScoreTrak/pkg/round"
-	"ScoreTrak/pkg/service"
-	"ScoreTrak/pkg/service_group"
-	"ScoreTrak/pkg/team"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/di"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/queue"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/report"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
 	"github.com/jinzhu/gorm"
 	"github.com/lib/pq"
 	"math"
+	"strings"
 	"sync"
 	"time"
 )
@@ -128,11 +129,7 @@ func NewRunner(db *gorm.DB, l logger.LogInfoFormat, q queue.Queue, r RepoStore) 
 	}
 }
 
-func (d *dRunner) MasterRunner() error {
-	cnf, err := config.NewDynamicConfig("configs/config.yml")
-	if err != nil {
-		return err
-	}
+func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 	err = d.db.Create(cnf).Error
 	if err != nil {
 		serr, ok := err.(*pq.Error)
@@ -310,16 +307,21 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 	if err != nil {
 		d.l.Error(err)
 		d.finalizeRound(&rnd, Note, err.Error())
+		return
 	}
-	// ToDO: Find a better way to handle gorutines (Since they potentially may leak if  d.q.Send(sds) never returns). For Example if a queue dies, or execution takes too long (Say a check that never ends), then we are leaking a gorutine either on a worker side, or on master side.
 	var checks []*check.Check
 	for _, t := range teams {
 		for _, h := range t.Hosts {
 			for _, s := range h.Services {
-				for _, c := range chks {
+				for i, c := range sds {
 					if c.Service.ID == s.ID {
-						s.Checks = append(s.Checks, &check.Check{Passed: &c.Passed, Log: c.Log, ServiceID: c.Service.ID, RoundID: rnd.ID, Err: c.Err})
-						checks = append(checks, s.Checks...)
+						if chks[i] == nil {
+							fls := false
+							s.Checks = append(s.Checks, &check.Check{Passed: &fls, Log: "", ServiceID: c.Service.ID, RoundID: rnd.ID, Err: "Unable to hear back from the worker that was responsible for performing the check. Make sure worker is able to connect back to scoretrak"})
+						} else {
+							s.Checks = append(s.Checks, &check.Check{Passed: &chks[i].Passed, Log: chks[i].Log, ServiceID: c.Service.ID, RoundID: rnd.ID, Err: chks[i].Err})
+							checks = append(checks, s.Checks...)
+						}
 					}
 				}
 			}
@@ -369,9 +371,9 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 					}
 
 					if len(s.Checks) != 0 {
-						sh.Services[s.ID] = report.SimpleService{Passed: *s.Checks[0].Passed, Log: s.Checks[0].Log, Err: s.Checks[0].Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
+						sh.Services[s.ID] = report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Passed: *s.Checks[0].Passed, Log: s.Checks[0].Log, Err: s.Checks[0].Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
 					} else {
-						sh.Services[s.ID] = report.SimpleService{Passed: false, Log: "Service was not checked because it was disabled", Err: "", Points: points, Properties: params, PointsBoost: s.PointsBoost}
+						sh.Services[s.ID] = report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Passed: false, Log: "Service was not checked because it was disabled", Err: "", Points: points, Properties: params, PointsBoost: s.PointsBoost}
 					}
 
 				}
@@ -392,6 +394,9 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 	})
 	if err != nil {
 		d.l.Error(err)
+		if strings.Contains(err.Error(), "split failed while applying backpressure to") {
+			Note += "\nPossible solution to error: decrease: gc.ttlseconds for database. "
+		}
 		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
 		return
 	}

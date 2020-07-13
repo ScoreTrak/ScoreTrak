@@ -1,7 +1,7 @@
 package host
 
 import (
-	"ScoreTrak/pkg/service"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 )
 
 // Host model represents a single machine. This could be an IP address or a resolvable hostname
@@ -22,5 +22,5 @@ type Host struct {
 	// Enables to Edit the hostname. If a single host needs to be eddited for one service, and kept only visible for other service, you can make 2 services that point to same address, and have different edit_host properties.
 	EditHost *bool `json:"edit_host,omitempty" gorm:"not null;default: false"`
 
-	Services []*service.Service `gorm:"foreignkey:HostID"`
+	Services []*service.Service `json:"omitempty" gorm:"foreignkey:HostID"`
 }

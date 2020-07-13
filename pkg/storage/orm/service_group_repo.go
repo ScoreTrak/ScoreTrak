@@ -1,10 +1,10 @@
 package orm
 
 import (
-	"ScoreTrak/pkg/logger"
-	"ScoreTrak/pkg/service_group"
 	"errors"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
 	"github.com/jinzhu/gorm"
 )
 
@@ -70,7 +70,7 @@ func (s *serviceGroupRepo) Store(sgr *service_group.ServiceGroup) error {
 
 func (s *serviceGroupRepo) Update(sgr *service_group.ServiceGroup) error {
 	s.log.Debugf("updating the Service Group, id : %v", sgr.ID)
-	err := s.db.Model(sgr).Updates(service_group.ServiceGroup{Name: sgr.Name, Enabled: sgr.Enabled}).Error
+	err := s.db.Model(sgr).Updates(service_group.ServiceGroup{Enabled: sgr.Enabled, DisplayName: sgr.DisplayName}).Error //Updating service group names is not supported because service group name tightly coupled with platform operations
 	if err != nil {
 		s.log.Errorf("error while updating the Service Group, reason : %v", err)
 		return err

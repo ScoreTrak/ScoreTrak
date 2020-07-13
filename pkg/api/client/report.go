@@ -1,8 +1,8 @@
 package client
 
 import (
-	"ScoreTrak/pkg/report"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/report"
 )
 
 type reportClient struct {

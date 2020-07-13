@@ -18,3 +18,15 @@ func NewConfigServ(repo Repo) Serv {
 func (svc *configServ) Get() (*DynamicConfig, error) { return svc.repo.Get() }
 
 func (svc *configServ) Update(cfg *DynamicConfig) error { return svc.repo.Update(cfg) }
+
+type StaticServ interface {
+	Get() (*StaticConfig, error)
+}
+
+type configStaticServ struct{}
+
+func NewStaticConfigServ() StaticServ {
+	return &configStaticServ{}
+}
+
+func (svc *configStaticServ) Get() (*StaticConfig, error) { sc := GetStaticConfig(); return &sc, nil }

@@ -1,0 +1,4 @@
+platform:
+  use: docker
+  docker:
+    name: docker-standalone

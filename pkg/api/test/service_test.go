@@ -1,14 +1,14 @@
 package client
 
 import (
-	"ScoreTrak/pkg/api/client"
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/master/run"
-	"ScoreTrak/pkg/master/server"
-	"ScoreTrak/pkg/service"
-	"ScoreTrak/pkg/storage/orm"
-	. "ScoreTrak/test"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/api/client"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/master/run"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/master/server"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
+	. "github.com/L1ghtman2k/ScoreTrak/test"
 	"net"
 	"net/http"
 	"net/url"
@@ -19,7 +19,7 @@ import (
 )
 
 func TestServiceSpec(t *testing.T) {
-	var c *config.StaticConfig
+	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
 		c = NewConfigClone(SetupConfig("../../../configs/test-config.yml"))
@@ -28,8 +28,8 @@ func TestServiceSpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_api_service"
 	c.Logger.FileName = "service_test.log"
-	db := SetupDB(c)
-	l := SetupLogger(c)
+	db := SetupDB(c.DB)
+	l := SetupLogger(c.Logger)
 	rtr := server.NewRouter()
 	routes := server.Routes{
 		server.Route{

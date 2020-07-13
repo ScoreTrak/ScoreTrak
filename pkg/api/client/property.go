@@ -1,8 +1,8 @@
 package client
 
 import (
-	"ScoreTrak/pkg/property"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
 )
 
 type propertyClient struct {

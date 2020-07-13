@@ -1,21 +1,64 @@
 package main
 
 import (
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/master"
+	"encoding/base64"
+	"flag"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/master"
 	"os"
 )
 
 func main() {
+	path := flag.String("config", "configs/config.yml", "Please enter a path to config file")
+	encodedConfig := flag.String("encoded-config", "", "Please enter encoded config")
+	flag.Parse()
+	if *encodedConfig != "" {
+		dec, err := base64.StdEncoding.DecodeString(*encodedConfig)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v", err)
+			os.Exit(-1)
+		}
+		*path = "config.yml"
+		f, err := os.Create(*path)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v", err)
+			os.Exit(-1)
+		}
+		defer f.Close()
 
-	if err := config.NewStaticConfig("configs/config.yml"); err != nil {
+		if _, err := f.Write(dec); err != nil {
+			fmt.Fprintf(os.Stderr, "%v", err)
+			os.Exit(-1)
+		}
+		if err := f.Sync(); err != nil {
+			fmt.Fprintf(os.Stderr, "%v", err)
+			os.Exit(-1)
+		}
+	} else if !configExists(*path) {
+		fmt.Fprintf(os.Stderr, "You need to provide config!")
+		os.Exit(-1)
+	}
+
+	if err := config.NewStaticConfig(*path); err != nil {
 		fmt.Fprintf(os.Stderr, "%v", err)
 		os.Exit(-1)
 	}
-
-	if err := master.Run(); err != nil {
+	cnf, err := config.NewDynamicConfig(*path)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%v", err)
+		os.Exit(-1)
+	}
+	if err := master.Run(cnf); err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to start due to: %v", err)
 		os.Exit(-1)
 	}
+}
+
+func configExists(f string) bool {
+	file, err := os.Stat(f)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !file.IsDir()
 }

@@ -1,9 +1,9 @@
 package services
 
 import (
-	"ScoreTrak/pkg/exec"
 	"bytes"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/exec"
 	"net/http"
 	"net/url"
 	"strings"

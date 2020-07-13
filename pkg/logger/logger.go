@@ -1,8 +1,8 @@
 package logger
 
 import (
-	"ScoreTrak/pkg/config"
 	"errors"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"go.uber.org/zap"
 	"log"
 )
@@ -36,8 +36,8 @@ type Logger struct {
 	zapSugarLogger *zap.SugaredLogger
 }
 
-func NewLogger(c *config.StaticConfig) (LogInfoFormat, error) {
-	if c.Logger.Use == "zapLogger" {
+func NewLogger(c config.Logger) (LogInfoFormat, error) {
+	if c.Use == "zapLogger" {
 		z, er := NewZapLogger(c)
 		if er != nil {
 			log.Fatalf("can't initialize zap logger: %v", er)
@@ -46,7 +46,7 @@ func NewLogger(c *config.StaticConfig) (LogInfoFormat, error) {
 		return &Logger{zapSugarLogger: z}, nil
 
 	}
-	return nil, errors.New("logger not supported : " + c.Logger.Use)
+	return nil, errors.New("logger not supported : " + c.Use)
 }
 
 func (l *Logger) Debug(args ...interface{}) {

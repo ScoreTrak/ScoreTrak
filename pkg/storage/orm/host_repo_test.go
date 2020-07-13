@@ -1,19 +1,19 @@
 package orm
 
 import (
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/host"
-	"ScoreTrak/pkg/host_group"
-	"ScoreTrak/pkg/service"
-	"ScoreTrak/pkg/team"
-	. "ScoreTrak/test"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
+	. "github.com/L1ghtman2k/ScoreTrak/test"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
 	"testing"
 )
 
 func TestHostSpec(t *testing.T) {
-	var c *config.StaticConfig
+	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
 		c = NewConfigClone(SetupConfig("../../../configs/test-config.yml"))
@@ -22,8 +22,8 @@ func TestHostSpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_host"
 	c.Logger.FileName = "host_test.log"
-	db := SetupDB(c)
-	l := SetupLogger(c)
+	db := SetupDB(c.DB)
+	l := SetupLogger(c.Logger)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Host Table", t, func() {
 		db.AutoMigrate(&host.Host{})

@@ -1,9 +1,9 @@
 package orm
 
 import (
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/report"
-	. "ScoreTrak/test"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/report"
+	. "github.com/L1ghtman2k/ScoreTrak/test"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
 	"testing"
@@ -11,7 +11,7 @@ import (
 )
 
 func TestConfigSpec(t *testing.T) {
-	var c *config.StaticConfig
+	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
 		c = NewConfigClone(SetupConfig("../../../configs/test-config.yml"))
@@ -20,8 +20,8 @@ func TestConfigSpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_config"
 	c.Logger.FileName = "config_test.log"
-	db := SetupDB(c)
-	l := SetupLogger(c)
+	db := SetupDB(c.DB)
+	l := SetupLogger(c.Logger)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Config Table and Insert sample config", t, func() {
 		db.AutoMigrate(&config.DynamicConfig{})

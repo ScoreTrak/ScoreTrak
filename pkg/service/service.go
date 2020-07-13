@@ -1,11 +1,11 @@
 package service
 
 import (
-	"ScoreTrak/pkg/check"
-	"ScoreTrak/pkg/exec/resolver"
-	"ScoreTrak/pkg/property"
 	"errors"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/exec/resolver"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
 	"github.com/jinzhu/gorm"
 )
 

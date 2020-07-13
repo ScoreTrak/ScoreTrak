@@ -1,20 +1,19 @@
 package server
 
 import (
-	"ScoreTrak/pkg/check"
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/host"
-	"ScoreTrak/pkg/host_group"
-	"ScoreTrak/pkg/logger"
-	"ScoreTrak/pkg/property"
-	"ScoreTrak/pkg/report"
-	"ScoreTrak/pkg/round"
-	"ScoreTrak/pkg/service"
-	"ScoreTrak/pkg/service_group"
-	"ScoreTrak/pkg/swarm"
-	"ScoreTrak/pkg/team"
 	"errors"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/report"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"go.uber.org/dig"
@@ -67,7 +66,6 @@ func (ds *dserver) SetupDB() error {
 	db.AutoMigrate(&round.Round{})
 	db.AutoMigrate(&service.Service{})
 	db.AutoMigrate(&service_group.ServiceGroup{})
-	db.AutoMigrate(&swarm.Swarm{})
 	db.AutoMigrate(&report.Report{})
 	db.Model(&check.Check{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
 	db.Model(&check.Check{}).AddForeignKey("round_id", "rounds(id)", "CASCADE", "RESTRICT")
@@ -76,15 +74,14 @@ func (ds *dserver) SetupDB() error {
 	db.Model(&property.Property{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
 	db.Model(&service.Service{}).AddForeignKey("service_group_id", "service_groups(id)", "RESTRICT", "RESTRICT")
 	db.Model(&service.Service{}).AddForeignKey("host_id", "hosts(id)", "RESTRICT", "RESTRICT")
-	db.Model(&swarm.Swarm{}).AddForeignKey("service_group_id", "service_groups(id)", "CASCADE", "RESTRICT")
 
 	return nil
 }
 
 // Start start serving the application
 func (ds *dserver) Start() error {
-	var cfg *config.StaticConfig
-	ds.cont.Invoke(func(c *config.StaticConfig) { cfg = c })
+	var cfg config.StaticConfig
+	ds.cont.Invoke(func(c config.StaticConfig) { cfg = c })
 	go func() {
 		err := http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), ds.router)
 		if err != nil {

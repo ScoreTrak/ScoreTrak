@@ -1,21 +1,21 @@
 package orm
 
 import (
-	"ScoreTrak/pkg/check"
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/host"
-	"ScoreTrak/pkg/property"
-	"ScoreTrak/pkg/service"
-	"ScoreTrak/pkg/service_group"
-	. "ScoreTrak/test"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
+	. "github.com/L1ghtman2k/ScoreTrak/test"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
 	"testing"
 )
 
 func FTPSpec(t *testing.T) {
-	var c *config.StaticConfig
+	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
 		c = NewConfigClone(SetupConfig("../../../configs/test-config.yml"))
@@ -24,8 +24,8 @@ func FTPSpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_service"
 	c.Logger.FileName = "service_test.log"
-	db := SetupDB(c)
-	l := SetupLogger(c)
+	db := SetupDB(c.DB)
+	l := SetupLogger(c.Logger)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Service, Service Group, Host Tables along with their foreign keys", t, func() {
 		db.AutoMigrate(&service.Service{})
@@ -206,5 +206,3 @@ func FTPSpec(t *testing.T) {
 	DropDB(db, c)
 	db.Close()
 }
-
-//TODO: Test that only available services can be set. Ex: FTP, HTTP, etc

@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"ScoreTrak/pkg/check"
-	"ScoreTrak/pkg/logger"
 	"encoding/json"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"net/http"
@@ -28,21 +28,21 @@ func (c *checkController) GetByRoundServiceID(w http.ResponseWriter, r *http.Req
 	rID, err := strconv.ParseUint(params["RoundID"], 10, 64)
 	if err != nil {
 		c.log.Error(err)
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	sID, err := strconv.ParseUint(params["ServiceID"], 10, 64)
 	if err != nil {
 		c.log.Error(err)
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	sg, err := c.svc.GetByRoundServiceID(rID, sID)
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			w.WriteHeader(http.StatusNotFound)
+			http.Error(w, err.Error(), http.StatusNotFound)
 		} else {
-			w.WriteHeader(http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			c.log.Error(err)
 		}
 		return
@@ -50,7 +50,7 @@ func (c *checkController) GetByRoundServiceID(w http.ResponseWriter, r *http.Req
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(sg)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		c.log.Error(err)
 	}
 }

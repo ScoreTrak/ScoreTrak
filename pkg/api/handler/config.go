@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/logger"
 	"encoding/json"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/qor/validations"
 	"net/http"
 )
@@ -23,16 +23,16 @@ func (c *configController) Update(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(sg)
 	if err != nil {
 		c.log.Error(err)
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	err = c.svc.Update(sg)
 	if err != nil {
 		_, ok := err.(*validations.Error)
 		if ok {
-			w.WriteHeader(http.StatusPreconditionFailed)
+			http.Error(w, err.Error(), http.StatusPreconditionFailed)
 		} else {
-			w.WriteHeader(http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 		c.log.Error(err)
 		return
@@ -40,5 +40,18 @@ func (c *configController) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *configController) Get(w http.ResponseWriter, r *http.Request) {
+	genericGet(c.svc, c.log, "Get", w, r)
+}
+
+type staticConfigController struct {
+	log logger.LogInfoFormat
+	svc config.StaticServ
+}
+
+func NewStaticConfigController(log logger.LogInfoFormat, svc config.StaticServ) *staticConfigController {
+	return &staticConfigController{log, svc}
+}
+
+func (c staticConfigController) Get(w http.ResponseWriter, r *http.Request) {
 	genericGet(c.svc, c.log, "Get", w, r)
 }

@@ -1,7 +1,7 @@
 package team
 
 import (
-	"ScoreTrak/pkg/host"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
 )
 
 // Team model represents internal team model of the scoring engine.

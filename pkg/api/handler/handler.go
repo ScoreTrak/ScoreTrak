@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"ScoreTrak/pkg/logger"
-	"ScoreTrak/pkg/storage/orm"
-	"ScoreTrak/pkg/team"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/qor/validations"
@@ -28,6 +28,7 @@ func genericGetByID(svc interface{}, log logger.LogInfoFormat, m string, idParam
 	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 	sg, err := invokeRetMethod(svc, m, id)
 	if err != nil {
@@ -151,12 +152,14 @@ func genericDelete(svc interface{}, log logger.LogInfoFormat, m string, idParam 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		log.Error(err)
+		return
 	}
 	err = invokeNoRetMethod(svc, m, id)
 	if err != nil {
 		_, ok := err.(*orm.NoRowsAffected)
 		if ok {
 			http.Redirect(w, r, "/team", http.StatusNotModified)
+			return
 		} else {
 			http.Error(w, err.Error(), http.StatusConflict)
 			log.Error(err)

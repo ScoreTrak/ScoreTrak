@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"ScoreTrak/pkg/logger"
-	"ScoreTrak/pkg/report"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/report"
 	"net/http"
 )
 

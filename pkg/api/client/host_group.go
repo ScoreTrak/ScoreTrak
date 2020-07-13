@@ -1,8 +1,8 @@
 package client
 
 import (
-	"ScoreTrak/pkg/host_group"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
 )
 
 type hostGroupClient struct {

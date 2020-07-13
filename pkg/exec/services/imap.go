@@ -1,9 +1,9 @@
 package services
 
 import (
-	"ScoreTrak/pkg/exec"
 	"crypto/tls"
 	"errors"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/exec"
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
 	"net"

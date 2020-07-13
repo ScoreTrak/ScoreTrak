@@ -12,7 +12,7 @@ import (
 type DynamicConfig struct {
 	ID uint64 `json:"id,omitempty"`
 	// Describes how long each round unit takes to execute in seconds. This value shuold have a minimum value enforced (something like 20 seconds)
-	RoundDuration uint64 `json:"round_durration,omitempty" default:"60"`
+	RoundDuration uint64 `json:"round_duration,omitempty" default:"60"`
 	// Enables or disables competition globally
 	Enabled *bool `json:"enabled,omitempty" default:"false" gorm:"not null;default: false"`
 }

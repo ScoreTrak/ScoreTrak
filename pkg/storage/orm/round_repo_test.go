@@ -1,11 +1,11 @@
 package orm
 
 import (
-	"ScoreTrak/pkg/check"
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/round"
-	. "ScoreTrak/test"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
+	. "github.com/L1ghtman2k/ScoreTrak/test"
 	"github.com/lib/pq"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
@@ -14,7 +14,7 @@ import (
 )
 
 func TestRoundSpec(t *testing.T) {
-	var c *config.StaticConfig
+	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
 		c = NewConfigClone(SetupConfig("../../../configs/test-config.yml"))
@@ -23,8 +23,8 @@ func TestRoundSpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_round"
 	c.Logger.FileName = "round_test.log"
-	db := SetupDB(c)
-	l := SetupLogger(c)
+	db := SetupDB(c.DB)
+	l := SetupLogger(c.Logger)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Round Tables", t, func() {
 		db.AutoMigrate(&round.Round{})
@@ -68,7 +68,7 @@ func TestRoundSpec(t *testing.T) {
 					ac, err := rr.GetAll()
 					So(err, ShouldBeNil)
 					So(len(ac), ShouldEqual, 1)
-					So(ac[0].Start.UnixNano(), ShouldBeBetween, time.Now().Add(time.Second*-1).UnixNano(), time.Now().Add(time.Second*1).UnixNano())
+					So(ac[0].Start.UnixNano(), ShouldBeBetween, time.Now().Add(time.Second*-2).UnixNano(), time.Now().Add(time.Second*2).UnixNano())
 				})
 
 				Convey("Adding an entry with the same ID", func() {
@@ -106,7 +106,7 @@ func TestRoundSpec(t *testing.T) {
 					So(err, ShouldBeNil)
 					Convey("Should output the inserted entry", func() {
 						So(rnd.ID, ShouldEqual, 1)
-						So(rnd.Start.UnixNano(), ShouldBeBetween, time.Now().Add(time.Second*-1).UnixNano(), time.Now().Add(time.Second*1).UnixNano())
+						So(rnd.Start.UnixNano(), ShouldBeBetween, time.Now().Add(time.Second*-2).UnixNano(), time.Now().Add(time.Second*2).UnixNano())
 					})
 				})
 

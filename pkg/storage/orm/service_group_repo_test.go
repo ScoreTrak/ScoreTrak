@@ -1,19 +1,18 @@
 package orm
 
 import (
-	"ScoreTrak/pkg/config"
-	"ScoreTrak/pkg/service"
-	"ScoreTrak/pkg/service_group"
-	"ScoreTrak/pkg/swarm"
-	. "ScoreTrak/test"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
+	. "github.com/L1ghtman2k/ScoreTrak/test"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
 	"testing"
 )
 
 func TestServiceGroupSpec(t *testing.T) {
-	var c *config.StaticConfig
+	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
 		c = NewConfigClone(SetupConfig("../../../configs/test-config.yml"))
@@ -22,8 +21,8 @@ func TestServiceGroupSpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_service_group"
 	c.Logger.FileName = "service_group_test.log"
-	db := SetupDB(c)
-	l := SetupLogger(c)
+	db := SetupDB(c.DB)
+	l := SetupLogger(c.Logger)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Service Group Tables", t, func() {
 		db.AutoMigrate(&service_group.ServiceGroup{})
@@ -141,29 +140,29 @@ func TestServiceGroupSpec(t *testing.T) {
 					})
 				})
 
-				Convey("Creating Swarm Table", func() {
-					var count int
-					db.AutoMigrate(&swarm.Swarm{})
-					db.Model(&swarm.Swarm{}).AddForeignKey("service_group_id", "service_groups(id)", "CASCADE", "RESTRICT")
-					Convey("Then associating one swarm with the service group", func() {
-						db.Exec(fmt.Sprintf("INSERT INTO swarms (id, service_group_id, label) VALUES (4, %d, 'TestLabel')", s.ID))
-						db.Table("swarms").Count(&count)
-						So(count, ShouldEqual, 1)
-						Convey("Then Deleting the service group should also delete the swarm label associated", func() {
-							err = sgr.Delete(s.ID)
-							So(err, ShouldBeNil)
-							ac, err := sgr.GetAll()
-							So(err, ShouldBeNil)
-							So(len(ac), ShouldEqual, 0)
-							db.Table("swarms").Count(&count)
-							So(count, ShouldEqual, 0)
-						})
-
-					})
-					Reset(func() {
-						db.DropTableIfExists(&swarm.Swarm{})
-					})
-				})
+				//Convey("Creating Swarm Table", func() {
+				//	var count int
+				//	db.AutoMigrate(&swarm.Swarm{})
+				//	db.Model(&swarm.Swarm{}).AddForeignKey("service_group_id", "service_groups(id)", "CASCADE", "RESTRICT")
+				//	Convey("Then associating one swarm with the service group", func() {
+				//		db.Exec(fmt.Sprintf("INSERT INTO swarms (id, service_group_id, label) VALUES (4, %d, 'TestLabel')", s.ID))
+				//		db.Table("swarms").Count(&count)
+				//		So(count, ShouldEqual, 1)
+				//		Convey("Then Deleting the service group should also delete the swarm label associated", func() {
+				//			err = sgr.Delete(s.ID)
+				//			So(err, ShouldBeNil)
+				//			ac, err := sgr.GetAll()
+				//			So(err, ShouldBeNil)
+				//			So(len(ac), ShouldEqual, 0)
+				//			db.Table("swarms").Count(&count)
+				//			So(count, ShouldEqual, 0)
+				//		})
+				//
+				//	})
+				//	Reset(func() {
+				//		db.DropTableIfExists(&swarm.Swarm{})
+				//	})
+				//})
 			})
 		})
 		Reset(func() {

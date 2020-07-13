@@ -1,33 +1,23 @@
 package config
 
-import "github.com/jinzhu/configor"
+import (
+	"github.com/jinzhu/configor"
+	"github.com/jinzhu/copier"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
+)
 
 // StaticConfig is a struct of settings that were set at the start of the application
 type StaticConfig struct {
 	// token specified on init of the staticConfig
-	Token string `json:"-" default:""`
+	Token string `default:""`
 
-	DB struct {
-		Use       string `default:"cockroach"`
-		Cockroach struct {
-			Enabled  bool   `default:"true"`
-			Host     string `default:"cockroach"`
-			Port     string `default:"26257"`
-			UserName string `default:"root"`
-			Password string `default:""`
-			Database string `default:"scoretrak"`
-		}
-	} `json:"-"`
+	DB DB
 
-	Logger struct {
-		Use         string `default:"zapLogger"`
-		Environment string `default:"prod"`
-		LogLevel    string `default:"info"`
-		FileName    string `default:"scoretrak.log"`
-	} `json:"-"`
+	Logger Logger
 
 	Queue struct {
-		Use   string `default:""`
+		Use   string `default:"none"`
 		Kafka struct {
 		}
 		NSQ struct {
@@ -35,29 +25,67 @@ type StaticConfig struct {
 				Port string `default:"4150"`
 				Host string `default:"nsqd"`
 			}
-			Topic              string `default:"default"`
-			MaxInFlight        int    `default:"1"`
-			ConcurrentHandlers int    `default:"1"`
-			NSQLookupd         struct {
+			IgnoreAllScoresIfWorkerFails bool   `default:"true"`
+			Topic                        string `default:"default"`
+			MaxInFlight                  int    `default:"200"`
+			ConcurrentHandlers           int    `default:"200"`
+			NSQLookupd                   struct {
 				Hosts []string `default:"[\"nsqlookupd\"]"`
 				Port  string   `default:"4161"`
 			}
 		}
-	} `json:"-"`
+	}
 
-	Port string `default:"8080" json:"-"`
+	Port     string `default:"33333"`
+	Platform struct {
+		Use    string `default:"none"`
+		Docker struct {
+			Name    string `default:"scoretrak"`
+			Host    string `default:"unix:///var/run/docker.sock"`
+			Network string `default:"default"`
+		}
+		Kubernetes struct {
+			Namespace string `default:"default"`
+		}
+	}
+}
 
-	Platform string `default:"swarm" json:"-"`
+type DB struct {
+	Use       string `default:"cockroach"`
+	Cockroach struct {
+		Enabled           bool   `default:"true"`
+		Host              string `default:"cockroach"`
+		Port              string `default:"26257"`
+		UserName          string `default:"root"`
+		Password          string `default:""`
+		Database          string `default:"scoretrak"`
+		ConfigureZones    bool   `default:"true"`
+		DefaultZoneConfig struct {
+			GcTtlseconds                    uint64 `default:"600"`
+			BackpressureRangeSizeMultiplier uint64 `default:"0"`
+		}
+	}
+}
+
+type Logger struct {
+	Use         string `default:"zapLogger"`
+	Environment string `default:"prod"`
+	LogLevel    string `default:"info"`
+	FileName    string `default:"scoretrak.log"`
 }
 
 var staticConfig StaticConfig
 
-func GetConfig() *StaticConfig {
-	return &staticConfig
-}
-
 func GetToken() string {
 	return staticConfig.Token
+}
+
+func GetLoggerConfig() Logger {
+	return staticConfig.Logger
+}
+
+func GetDBConfig() DB {
+	return staticConfig.DB
 }
 
 func NewStaticConfig(f string) error {
@@ -68,6 +96,27 @@ func NewStaticConfig(f string) error {
 	return nil
 }
 
-func GetStaticConfig() *StaticConfig {
-	return &staticConfig
+func GetStaticConfig() StaticConfig {
+	return staticConfig
+}
+
+func GetConfigCopy() (StaticConfig, error) {
+	cp := StaticConfig{}
+	err := copier.Copy(&cp, &staticConfig)
+	if err != nil {
+		return cp, err
+	}
+	return cp, nil
+}
+
+func SaveConfigToYamlFile(f string, config StaticConfig) error {
+	b, err := yaml.Marshal(&config)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(f, b, 0600)
+	if err != nil {
+		return err
+	}
+	return nil
 }
