@@ -25,7 +25,7 @@ func BuildMasterContainer() (*dig.Container, error) {
 	var ctr []interface{}
 
 	ctr = append(ctr,
-		config.GetStaticConfig,
+		config.GetStaticConfig, config.GetLoggerConfig, config.GetDBConfig,
 		storage.LoadDB,
 		logger.NewLogger,
 		orm.NewCheckRepo, check.NewCheckServ,
@@ -52,7 +52,7 @@ func BuildMasterContainer() (*dig.Container, error) {
 
 func BuildWorkerContainer() (*dig.Container, error) {
 	var ctr []interface{}
-	ctr = append(ctr, config.GetStaticConfig)
+	ctr = append(ctr, config.GetStaticConfig, config.GetLoggerConfig)
 
 	for _, i := range ctr {
 		err := container.Provide(i)

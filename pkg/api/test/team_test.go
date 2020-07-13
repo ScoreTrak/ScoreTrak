@@ -26,8 +26,8 @@ func TestTeamSpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_api_team"
 	c.Logger.FileName = "team_test.log"
-	db := SetupDB(c)
-	l := SetupLogger(c)
+	db := SetupDB(c.DB)
+	l := SetupLogger(c.Logger)
 	rtr := server.NewRouter()
 	routes := server.Routes{
 		server.Route{

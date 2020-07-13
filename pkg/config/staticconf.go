@@ -80,6 +80,14 @@ func GetToken() string {
 	return staticConfig.Token
 }
 
+func GetLoggerConfig() Logger {
+	return staticConfig.Logger
+}
+
+func GetDBConfig() DB {
+	return staticConfig.DB
+}
+
 func NewStaticConfig(f string) error {
 	err := configor.Load(&staticConfig, f)
 	if err != nil {

@@ -23,8 +23,8 @@ func TestRoundSpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_round"
 	c.Logger.FileName = "round_test.log"
-	db := SetupDB(c)
-	l := SetupLogger(c)
+	db := SetupDB(c.DB)
+	l := SetupLogger(c.Logger)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Round Tables", t, func() {
 		db.AutoMigrate(&round.Round{})

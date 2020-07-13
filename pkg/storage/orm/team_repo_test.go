@@ -20,8 +20,8 @@ func TestTeamSpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_team"
 	c.Logger.FileName = "team_test.log"
-	db := SetupDB(c)
-	l := SetupLogger(c)
+	db := SetupDB(c.DB)
+	l := SetupLogger(c.Logger)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Team Tables", t, func() {
 		db.AutoMigrate(&team.Team{})

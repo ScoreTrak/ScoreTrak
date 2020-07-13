@@ -22,8 +22,8 @@ func TestCheckSpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_check"
 	c.Logger.FileName = "check_test.log"
-	db := SetupDB(c)
-	l := SetupLogger(c)
+	db := SetupDB(c.DB)
+	l := SetupLogger(c.Logger)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Round, Service and Check tables along with their foreign keys", t, func() {
 		db.AutoMigrate(&service.Service{})

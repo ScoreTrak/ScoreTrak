@@ -26,8 +26,8 @@ func TestServiceGroupSpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_api_service_group"
 	c.Logger.FileName = "service_group_test.log"
-	db := SetupDB(c)
-	l := SetupLogger(c)
+	db := SetupDB(c.DB)
+	l := SetupLogger(c.Logger)
 	rtr := server.NewRouter()
 	routes := server.Routes{
 		server.Route{

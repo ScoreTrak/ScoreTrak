@@ -46,7 +46,7 @@ func main() {
 		os.Exit(-1)
 	}
 
-	l, err := logger.NewLogger(config.GetStaticConfig())
+	l, err := logger.NewLogger(config.GetStaticConfig().Logger)
 	if err != nil {
 		panic(err)
 	}

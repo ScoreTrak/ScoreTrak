@@ -26,8 +26,8 @@ func TestHostGroupSpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_api_host_group"
 	c.Logger.FileName = "host_group_test.log"
-	db := SetupDB(c)
-	l := SetupLogger(c)
+	db := SetupDB(c.DB)
+	l := SetupLogger(c.Logger)
 	rtr := server.NewRouter()
 	routes := server.Routes{
 		server.Route{

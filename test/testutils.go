@@ -19,18 +19,18 @@ import (
 	"time"
 )
 
-func SetupDB(c config.StaticConfig) *gorm.DB {
+func SetupDB(c config.DB) *gorm.DB {
 	var err error
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s sslmode=disable",
-		c.DB.Cockroach.Host,
-		c.DB.Cockroach.Port,
-		c.DB.Cockroach.UserName)
+		c.Cockroach.Host,
+		c.Cockroach.Port,
+		c.Cockroach.UserName)
 	dbPrep, err := gorm.Open("postgres", psqlInfo)
 	if err != nil {
 		panic(err)
 	}
-	dbPrep.Exec(fmt.Sprintf("drop database if exists  %s", c.DB.Cockroach.Database))
-	dbPrep.Exec(fmt.Sprintf("create database if not exists  %s", c.DB.Cockroach.Database))
+	dbPrep.Exec(fmt.Sprintf("drop database if exists  %s", c.Cockroach.Database))
+	dbPrep.Exec(fmt.Sprintf("create database if not exists  %s", c.Cockroach.Database))
 	dbPrep.Close()
 	db, err := storage.NewDB(c)
 	if err != nil {
@@ -92,7 +92,7 @@ func DropDB(db *gorm.DB, c config.StaticConfig) {
 	db.Exec(fmt.Sprintf("drop database %s", c.DB.Cockroach.Database))
 }
 
-func SetupLogger(c config.StaticConfig) logger.LogInfoFormat {
+func SetupLogger(c config.Logger) logger.LogInfoFormat {
 	l, err := logger.NewLogger(c)
 	if err != nil {
 		panic(err)
