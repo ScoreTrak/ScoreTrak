@@ -5,7 +5,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/api/client"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/master/server"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/master/server/gorilla"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
 	. "github.com/L1ghtman2k/ScoreTrak/test"
 	. "github.com/smartystreets/goconvey/convey"
@@ -28,29 +28,29 @@ func TestHostGroupSpec(t *testing.T) {
 	c.Logger.FileName = "host_group_test.log"
 	db := SetupDB(c.DB)
 	l := SetupLogger(c.Logger)
-	rtr := server.NewRouter()
-	routes := server.Routes{
-		server.Route{
+	rtr := gorilla.NewRouter()
+	routes := gorilla.Routes{
+		gorilla.Route{
 			Name:        "Index",
 			Method:      "GET",
 			Pattern:     "/",
-			HandlerFunc: server.Index,
+			HandlerFunc: gorilla.Index,
 		},
 	}
 	cr := orm.NewHostGroupRepo(db, l)
 	hostGroupSvc := host_group.NewHostGroupServ(cr)
-	routes = append(routes, server.HostGroupRoutes(l, hostGroupSvc)...)
+	routes = append(routes, gorilla.HostGroupRoutes(l, hostGroupSvc)...)
 	for _, route := range routes {
 		var hdler http.Handler
 		hdler = route.HandlerFunc
-		hdler = server.Logger(hdler, route.Name) //Default Logger
+		hdler = gorilla.Logger(hdler, route.Name) //Default Logger
 		rtr.
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(hdler)
 	}
-	rtr.Use(server.JsonHeader)
+	rtr.Use(gorilla.JsonHeader)
 	listener, err := net.Listen("tcp", ":0")
 	if err != nil {
 		panic(err)
