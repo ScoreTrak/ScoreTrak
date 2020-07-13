@@ -29,29 +29,29 @@ func TestRoundSpec(t *testing.T) {
 	c.Logger.FileName = "round_test.log"
 	db := SetupDB(c.DB)
 	l := SetupLogger(c.Logger)
-	rtr := server.NewRouter()
-	routes := server.Routes{
-		server.Route{
+	rtr := gorilla.NewRouter()
+	routes := gorilla.Routes{
+		gorilla.Route{
 			Name:        "Index",
 			Method:      "GET",
 			Pattern:     "/",
-			HandlerFunc: server.Index,
+			HandlerFunc: gorilla.Index,
 		},
 	}
 	cr := orm.NewRoundRepo(db, l)
 	roundSvc := round.NewRoundServ(cr)
-	routes = append(routes, server.RoundRoutes(l, roundSvc)...)
+	routes = append(routes, gorilla.RoundRoutes(l, roundSvc)...)
 	for _, route := range routes {
 		var hdler http.Handler
 		hdler = route.HandlerFunc
-		hdler = server.Logger(hdler, route.Name) //Default Logger
+		hdler = gorilla.Logger(hdler, route.Name) //Default Logger
 		rtr.
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(hdler)
 	}
-	rtr.Use(server.JsonHeader)
+	rtr.Use(gorilla.JsonHeader)
 	listener, err := net.Listen("tcp", ":0")
 	if err != nil {
 		panic(err)

@@ -9,7 +9,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/di"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/master/run"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/master/server"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/master/server/gorilla"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/queue"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage"
 	"os"
@@ -37,14 +37,14 @@ func main() {
 	if err != nil {
 		handleErr(err)
 	}
-	r := server.NewRouter()
+	r := gorilla.NewRouter()
 	d, err := di.BuildMasterContainer()
 	handleErr(err)
 	var l logger.LogInfoFormat
 	di.Invoke(func(log logger.LogInfoFormat) {
 		l = log
 	})
-	svr := server.NewServer(r, d, l)
+	svr := gorilla.NewServer(r, d, l)
 	svr.MapRoutes()
 	handleErr(svr.SetupDB())
 	db := storage.GetGlobalDB()

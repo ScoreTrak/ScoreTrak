@@ -27,31 +27,31 @@ func TestConfigSpec(t *testing.T) {
 	c.Logger.FileName = "config_test.log"
 	db := SetupDB(c.DB)
 	l := SetupLogger(c.Logger)
-	rtr := server.NewRouter()
-	routes := server.Routes{
-		server.Route{
+	rtr := gorilla.NewRouter()
+	routes := gorilla.Routes{
+		gorilla.Route{
 			Name:        "Index",
 			Method:      "GET",
 			Pattern:     "/",
-			HandlerFunc: server.Index,
+			HandlerFunc: gorilla.Index,
 		},
 	}
 	cr := orm.NewConfigRepo(db, l)
 	configSvc := config.NewConfigServ(cr)
 	staticConfigSvc := config.NewStaticConfigServ()
-	routes = append(routes, server.ConfigRoutes(l, configSvc)...)
-	routes = append(routes, server.StaticConfigRoutes(l, staticConfigSvc)...)
+	routes = append(routes, gorilla.ConfigRoutes(l, configSvc)...)
+	routes = append(routes, gorilla.StaticConfigRoutes(l, staticConfigSvc)...)
 	for _, route := range routes {
 		var hdler http.Handler
 		hdler = route.HandlerFunc
-		hdler = server.Logger(hdler, route.Name) //Default Logger
+		hdler = gorilla.Logger(hdler, route.Name) //Default Logger
 		rtr.
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(hdler)
 	}
-	rtr.Use(server.JsonHeader)
+	rtr.Use(gorilla.JsonHeader)
 	listener, err := net.Listen("tcp", ":0")
 	if err != nil {
 		panic(err)
