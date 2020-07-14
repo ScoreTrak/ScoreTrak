@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-func SetupDB(c config.DB) *gorm.DB {
+func SetupDB(c storage.Config) *gorm.DB {
 	var err error
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s sslmode=disable",
 		c.Cockroach.Host,
@@ -92,7 +92,7 @@ func DropDB(db *gorm.DB, c config.StaticConfig) {
 	db.Exec(fmt.Sprintf("drop database %s", c.DB.Cockroach.Database))
 }
 
-func SetupLogger(c config.Logger) logger.LogInfoFormat {
+func SetupLogger(c logger.Config) logger.LogInfoFormat {
 	l, err := logger.NewLogger(c)
 	if err != nil {
 		panic(err)
