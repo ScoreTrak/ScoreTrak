@@ -1,6 +1,10 @@
 package config
 
 import (
+	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/platforming"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/storage"
 	"github.com/jinzhu/configor"
 	"github.com/jinzhu/copier"
 	"gopkg.in/yaml.v2"
@@ -12,66 +16,15 @@ type StaticConfig struct {
 	// token specified on init of the staticConfig
 	Token string `default:""`
 
-	DB DB
+	DB storage.Config
 
-	Logger Logger
+	Logger logger.Config
 
-	Queue struct {
-		Use   string `default:"none"`
-		Kafka struct {
-		}
-		NSQ struct {
-			NSQD struct {
-				Port string `default:"4150"`
-				Host string `default:"nsqd"`
-			}
-			IgnoreAllScoresIfWorkerFails bool   `default:"true"`
-			Topic                        string `default:"default"`
-			MaxInFlight                  int    `default:"200"`
-			ConcurrentHandlers           int    `default:"200"`
-			NSQLookupd                   struct {
-				Hosts []string `default:"[\"nsqlookupd\"]"`
-				Port  string   `default:"4161"`
-			}
-		}
-	}
+	Queue queueing.Config
 
-	Port     string `default:"33333"`
-	Platform struct {
-		Use    string `default:"none"`
-		Docker struct {
-			Name    string `default:"scoretrak"`
-			Host    string `default:"unix:///var/run/docker.sock"`
-			Network string `default:"default"`
-		}
-		Kubernetes struct {
-			Namespace string `default:"default"`
-		}
-	}
-}
+	Platform platforming.Config
 
-type DB struct {
-	Use       string `default:"cockroach"`
-	Cockroach struct {
-		Enabled           bool   `default:"true"`
-		Host              string `default:"cockroach"`
-		Port              string `default:"26257"`
-		UserName          string `default:"root"`
-		Password          string `default:""`
-		Database          string `default:"scoretrak"`
-		ConfigureZones    bool   `default:"true"`
-		DefaultZoneConfig struct {
-			GcTtlseconds                    uint64 `default:"600"`
-			BackpressureRangeSizeMultiplier uint64 `default:"0"`
-		}
-	}
-}
-
-type Logger struct {
-	Use         string `default:"zapLogger"`
-	Environment string `default:"prod"`
-	LogLevel    string `default:"info"`
-	FileName    string `default:"scoretrak.log"`
+	Port string `default:"33333"`
 }
 
 var staticConfig StaticConfig
@@ -80,11 +33,19 @@ func GetToken() string {
 	return staticConfig.Token
 }
 
-func GetLoggerConfig() Logger {
+func GetLoggerConfig() logger.Config {
 	return staticConfig.Logger
 }
 
-func GetDBConfig() DB {
+func GetPlatformConfig() platforming.Config {
+	return staticConfig.Platform
+}
+
+func GetQueueConfig() queueing.Config {
+	return staticConfig.Queue
+}
+
+func GetDBConfig() storage.Config {
 	return staticConfig.DB
 }
 

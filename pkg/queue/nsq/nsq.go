@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
@@ -16,19 +15,19 @@ import (
 )
 
 type NSQ struct {
-	l logger.LogInfoFormat
+	l      logger.LogInfoFormat
+	config queueing.Config
 }
 
 func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error) {
-	c := config.GetStaticConfig()
-	addresses := n.GenerateNSQLookupdAddresses(c.Queue.NSQ.NSQLookupd.Hosts, c.Queue.NSQ.NSQLookupd.Port)
+	addresses := n.GenerateNSQLookupdAddresses(n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port)
 	returningTopicName := queueing.TopicFromServiceRound(&sds[0].Service, sds[0].RoundID)
 	bErr, tErr := n.TopicAbsent(returningTopicName, addresses)
 	if tErr != nil {
 		return nil, bErr, tErr
 	}
 	confp := nsq.NewConfig()
-	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", c.Queue.NSQ.NSQD.Host, c.Queue.NSQ.NSQD.Port), confp)
+	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", n.config.NSQ.NSQD.Host, n.config.NSQ.NSQD.Port), confp)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -87,7 +86,7 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 				return ret, bErr, nil
 			}
 		case <-time.After(time.Until(sds[0].Deadline)):
-			if c.Queue.NSQ.IgnoreAllScoresIfWorkerFails {
+			if n.config.NSQ.IgnoreAllScoresIfWorkerFails {
 				return nil, bErr, &queueing.RoundTookTooLongToExecute{Msg: "Round took too long to score. This might be due to many reasons like a worker going down, or the number of rounds being too big for workers"}
 			} else {
 				return ret, errors.New("some workers failed to receive the checks. Make sure that is by design"), nil
@@ -98,11 +97,10 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 }
 
 func (n NSQ) Receive() {
-	c := config.GetStaticConfig()
 	conf := nsq.NewConfig()
 	conf.LookupdPollInterval = time.Second * 2
-	conf.MaxInFlight = c.Queue.NSQ.MaxInFlight
-	consumer, err := nsq.NewConsumer(c.Queue.NSQ.Topic, "channel", conf)
+	conf.MaxInFlight = n.config.NSQ.MaxInFlight
+	consumer, err := nsq.NewConsumer(n.config.NSQ.Topic, "channel", conf)
 	if err != nil {
 		panic(err)
 	}
@@ -134,8 +132,8 @@ func (n NSQ) Receive() {
 		n.Acknowledge(qc)
 		return nil
 
-	}), c.Queue.NSQ.ConcurrentHandlers)
-	addresses := n.GenerateNSQLookupdAddresses(c.Queue.NSQ.NSQLookupd.Hosts, c.Queue.NSQ.NSQLookupd.Port)
+	}), n.config.NSQ.ConcurrentHandlers)
+	addresses := n.GenerateNSQLookupdAddresses(n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port)
 	err = consumer.ConnectToNSQLookupds(addresses)
 	if err != nil {
 		panic(err)
@@ -164,9 +162,8 @@ func (n NSQ) GenerateNSQLookupdAddresses(hostNames []string, port string) []stri
 }
 
 func (n NSQ) Acknowledge(q queueing.QCheck) {
-	c := config.GetStaticConfig()
 	confp := nsq.NewConfig()
-	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", c.Queue.NSQ.NSQD.Host, c.Queue.NSQ.NSQD.Port), confp)
+	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", n.config.NSQ.NSQD.Host, n.config.NSQ.NSQD.Port), confp)
 	if err != nil {
 		panic(err)
 	}
@@ -226,6 +223,6 @@ func (n NSQ) TopicAbsent(topic string, nsqAddresses []string) (bErr error, tErr 
 	}
 	return err, errors.New("no NSQLookupd instances answered the request")
 }
-func NewNSQQueue(l logger.LogInfoFormat) (*NSQ, error) {
-	return &NSQ{l}, nil
+func NewNSQQueue(l logger.LogInfoFormat, config queueing.Config) (*NSQ, error) {
+	return &NSQ{l, config}, nil
 }

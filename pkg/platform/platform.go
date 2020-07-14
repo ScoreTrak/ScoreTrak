@@ -2,10 +2,10 @@ package platform
 
 import (
 	"errors"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/docker"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/kubernetes"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/platforming"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/worker"
 )
 
@@ -14,12 +14,12 @@ type Platform interface {
 	RemoveWorkers(info worker.Info) error
 }
 
-func NewPlatform(config config.StaticConfig, l logger.LogInfoFormat) (Platform, error) {
-	if config.Platform.Use == "docker" || config.Platform.Use == "swarm" {
+func NewPlatform(config platforming.Config, l logger.LogInfoFormat) (Platform, error) {
+	if config.Use == "docker" || config.Use == "swarm" {
 		return docker.NewDocker(config, l)
-	} else if config.Platform.Use == "kubernetes" {
+	} else if config.Use == "kubernetes" {
 		return kubernetes.NewKubernetes(config, l)
-	} else if config.Platform.Use == "none" {
+	} else if config.Use == "none" {
 		return nil, nil
 	}
 	return nil, errors.New("invalid platform specified")

@@ -31,7 +31,7 @@ func main() {
 	handleErr(config.NewStaticConfig(*path))
 	l, err := logger.NewLogger(config.GetStaticConfig().Logger)
 	handleErr(err)
-	q, err := queue.NewQueue(config.GetStaticConfig(), l)
+	q, err := queue.NewQueue(config.GetStaticConfig().Queue, l)
 	handleErr(err)
 	q.Receive()
 }

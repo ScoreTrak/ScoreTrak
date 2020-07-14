@@ -2,8 +2,8 @@ package kubernetes
 
 import (
 	"context"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/platforming"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/util"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/worker"
 	appv1 "k8s.io/api/apps/v1"
@@ -20,7 +20,7 @@ type Kubernetes struct {
 	ctx       context.Context
 }
 
-func NewKubernetes(cnf config.StaticConfig, l logger.LogInfoFormat) (d *Kubernetes, err error) {
+func NewKubernetes(cnf platforming.Config, l logger.LogInfoFormat) (d *Kubernetes, err error) {
 	c, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func NewKubernetes(cnf config.StaticConfig, l logger.LogInfoFormat) (d *Kubernet
 	if err != nil {
 		return nil, err
 	}
-	return &Kubernetes{l, clientset, cnf.Platform.Kubernetes.Namespace, context.Background()}, nil
+	return &Kubernetes{l, clientset, cnf.Kubernetes.Namespace, context.Background()}, nil
 }
 
 func (k *Kubernetes) DeployWorkers(info worker.Info) error {

@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
-
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/qor/validations"
@@ -17,7 +15,7 @@ func GetGlobalDB() *gorm.DB {
 	return db
 }
 
-func LoadDB(c config.DB) (*gorm.DB, error) {
+func LoadDB(c Config) (*gorm.DB, error) {
 	var err error
 	if db == nil {
 		db, err = NewDB(c)
@@ -28,7 +26,7 @@ func LoadDB(c config.DB) (*gorm.DB, error) {
 	return db, nil
 }
 
-func NewDB(c config.DB) (*gorm.DB, error) {
+func NewDB(c Config) (*gorm.DB, error) {
 	var db *gorm.DB
 	var err error
 	if c.Use == "cockroach" {
@@ -44,7 +42,7 @@ func NewDB(c config.DB) (*gorm.DB, error) {
 	return db, nil
 }
 
-func newCockroach(c config.DB) (*gorm.DB, error) {
+func newCockroach(c Config) (*gorm.DB, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable",
 		c.Cockroach.Host,
 		c.Cockroach.Port,
@@ -68,4 +66,21 @@ func newCockroach(c config.DB) (*gorm.DB, error) {
 		fmt.Println("You have chosen not to allow master configure database zones. Make sure you set gc.ttlseconds to something below 1200, so that report generation is not affected")
 	}
 	return db, nil
+}
+
+type Config struct {
+	Use       string `default:"cockroach"`
+	Cockroach struct {
+		Enabled           bool   `default:"true"`
+		Host              string `default:"cockroach"`
+		Port              string `default:"26257"`
+		UserName          string `default:"root"`
+		Password          string `default:""`
+		Database          string `default:"scoretrak"`
+		ConfigureZones    bool   `default:"true"`
+		DefaultZoneConfig struct {
+			GcTtlseconds                    uint64 `default:"600"`
+			BackpressureRangeSizeMultiplier uint64 `default:"0"`
+		}
+	}
 }
