@@ -2,15 +2,12 @@ package logger
 
 import (
 	"errors"
-	"strings"
-
-	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
-
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"strings"
 )
 
-func NewZapLogger(config config.Logger) (*zap.SugaredLogger, error) {
+func NewZapLogger(config Config) (*zap.SugaredLogger, error) {
 	var cfg zap.Config
 
 	switch strings.ToLower(config.Environment) {

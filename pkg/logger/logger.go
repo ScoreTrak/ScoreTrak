@@ -2,7 +2,6 @@ package logger
 
 import (
 	"errors"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"go.uber.org/zap"
 	"log"
 )
@@ -32,11 +31,18 @@ type (
 	}
 )
 
+type Config struct {
+	Use         string `default:"zapLogger"`
+	Environment string `default:"prod"`
+	LogLevel    string `default:"info"`
+	FileName    string `default:"scoretrak.log"`
+}
+
 type Logger struct {
 	zapSugarLogger *zap.SugaredLogger
 }
 
-func NewLogger(c config.Logger) (LogInfoFormat, error) {
+func NewLogger(c Config) (LogInfoFormat, error) {
 	if c.Use == "zapLogger" {
 		z, er := NewZapLogger(c)
 		if er != nil {

@@ -39,19 +39,25 @@ type IndexedQueue struct {
 	I int
 }
 
-//func WaitTimeout(wg *sync.WaitGroup, deadline time.Time) bool {
-//	c := make(chan struct{})
-//	go func() {
-//		wg.Wait()
-//		close(c)
-//	}()
-//	select {
-//	case <-c:
-//		return false
-//	case <-time.After(time.Until(deadline)):
-//		return true
-//	}
-//} //https://gist.github.com/r4um/c1ab51b8757fc2d75d30320933cdbdf6
+type Config struct {
+	Use   string `default:"none"`
+	Kafka struct {
+	}
+	NSQ struct {
+		NSQD struct {
+			Port string `default:"4150"`
+			Host string `default:"nsqd"`
+		}
+		IgnoreAllScoresIfWorkerFails bool   `default:"true"`
+		Topic                        string `default:"default"`
+		MaxInFlight                  int    `default:"200"`
+		ConcurrentHandlers           int    `default:"200"`
+		NSQLookupd                   struct {
+			Hosts []string `default:"[\"nsqlookupd\"]"`
+			Port  string   `default:"4161"`
+		}
+	}
+}
 
 func TopicFromServiceRound(ser *QService, roundID uint64) string {
 	if roundID == 0 {

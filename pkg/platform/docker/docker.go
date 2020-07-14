@@ -7,8 +7,8 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/platforming"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/util"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/worker"
 	"github.com/docker/docker/api/types"
@@ -32,13 +32,13 @@ type Docker struct {
 	Context     context.Context
 }
 
-func NewDocker(cnf config.StaticConfig, l logger.LogInfoFormat) (d *Docker, err error) {
-	d = &Docker{NetworkName: cnf.Platform.Docker.Network, Name: cnf.Platform.Docker.Name, Context: context.Background(), l: l}
-	if cnf.Platform.Use == "swarm" { //https://github.com/openbaton/go-docker-vnfm/blob/8d0a99b48e57d4b94fa14cdb377abe07eaa6c0aa/handler/docker_utils.go#L113
+func NewDocker(cnf platforming.Config, l logger.LogInfoFormat) (d *Docker, err error) {
+	d = &Docker{NetworkName: cnf.Docker.Network, Name: cnf.Docker.Name, Context: context.Background(), l: l}
+	if cnf.Use == "swarm" { //https://github.com/openbaton/go-docker-vnfm/blob/8d0a99b48e57d4b94fa14cdb377abe07eaa6c0aa/handler/docker_utils.go#L113
 		d.IsSwarm = true
 	}
 	defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
-	d.Client, err = client.NewClient(cnf.Platform.Docker.Host, "v1.40", nil, defaultHeaders)
+	d.Client, err = client.NewClient(cnf.Docker.Host, "v1.40", nil, defaultHeaders)
 	if err != nil {
 		return nil, err
 	}
