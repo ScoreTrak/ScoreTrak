@@ -236,7 +236,7 @@ func idResolver(svc interface{}, idParam string, r *http.Request) (interface{}, 
 	}
 	var id interface{}
 	params := mux.Vars(r)
-	if _, ok := svc.(team.Serv); ok {
+	if _, ok := svc.(team.Serv); ok && idParam == "name" {
 		id = params[idParam]
 	} else {
 		var err error

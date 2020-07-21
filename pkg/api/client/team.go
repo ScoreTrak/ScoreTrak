@@ -40,5 +40,5 @@ func (t TeamClient) Store(u *team.Team) error {
 }
 
 func (t TeamClient) Update(u *team.Team) error {
-	return t.s.genericUpdate(u, fmt.Sprintf("/team/%s", u.Name))
+	return t.s.genericUpdate(u, fmt.Sprintf("/team/%d", u.ID))
 }
