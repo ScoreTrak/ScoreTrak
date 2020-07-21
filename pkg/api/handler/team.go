@@ -32,7 +32,7 @@ func (t *teamController) GetAll(w http.ResponseWriter, r *http.Request) {
 	genericGet(t.svc, t.log, "GetAll", w, r)
 }
 
-func (t *teamController) UpdateByName(w http.ResponseWriter, r *http.Request) {
+func (t *teamController) Update(w http.ResponseWriter, r *http.Request) {
 	tm := &team.Team{}
-	genericUpdate(t.svc, tm, t.log, "UpdateByName", "name", w, r)
+	genericUpdate(t.svc, tm, t.log, "Update", "id", w, r)
 }
