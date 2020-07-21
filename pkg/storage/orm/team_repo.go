@@ -113,7 +113,7 @@ func (t *teamRepo) UpdateByName(tm *team.Team) error {
 	if tm.Name == "" {
 		return errors.New("you must specify the name of the team you are trying to update")
 	}
-	err := t.db.Model(tm).Where("name = ?", tm.Name).Updates(team.Team{Enabled: tm.Enabled, Name: tm.Name}).Error
+	err := t.db.Model(tm).Where("name = ?", tm.Name).Updates(team.Team{Enabled: tm.Enabled}).Error
 	if err != nil {
 		t.log.Errorf("error while updating the team, reason : %v", err)
 		return err

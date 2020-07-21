@@ -592,8 +592,8 @@ func TeamRoutes(l logger.LogInfoFormat, svc team.Serv) Routes {
 		Route{
 			"UpdateTeam",
 			strings.ToUpper("Patch"),
-			"/team/{name}",
-			ctrl.UpdateByName,
+			"/team/{id}",
+			ctrl.Update,
 		},
 	}
 

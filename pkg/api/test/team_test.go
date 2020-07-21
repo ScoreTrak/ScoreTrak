@@ -78,8 +78,8 @@ func TestTeamSpec(t *testing.T) {
 
 		Convey("Updating a team by Name", func() {
 			fls := false
-			t := team.Team{Name: "TeamOne", Enabled: &fls}
-			err := cli.UpdateByName(&t)
+			t := team.Team{ID: 1, Name: "TeamOne", Enabled: &fls}
+			err := cli.Update(&t)
 			So(err, ShouldBeNil)
 			Convey("Retrieving a team by Name", func() {
 				retTeam, err := cli.GetByName("TeamOne")
