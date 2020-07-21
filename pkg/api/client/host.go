@@ -5,19 +5,19 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
 )
 
-type hostClient struct {
+type HostClient struct {
 	s ScoretrakClient
 }
 
 func NewHostClient(c ScoretrakClient) host.Serv {
-	return &hostClient{c}
+	return &HostClient{c}
 }
 
-func (s hostClient) Delete(id uint64) error {
+func (s HostClient) Delete(id uint64) error {
 	return s.s.genericDelete(fmt.Sprintf("/host/%d", id))
 }
 
-func (s hostClient) GetAll() ([]*host.Host, error) {
+func (s HostClient) GetAll() ([]*host.Host, error) {
 	var sg []*host.Host
 	err := s.s.genericGet(&sg, "/host")
 	if err != nil {
@@ -26,7 +26,7 @@ func (s hostClient) GetAll() ([]*host.Host, error) {
 	return sg, nil
 }
 
-func (s hostClient) GetByID(id uint64) (*host.Host, error) {
+func (s HostClient) GetByID(id uint64) (*host.Host, error) {
 	sg := &host.Host{}
 	err := s.s.genericGet(sg, fmt.Sprintf("/host/%d", id))
 	if err != nil {
@@ -35,10 +35,10 @@ func (s hostClient) GetByID(id uint64) (*host.Host, error) {
 	return sg, nil
 }
 
-func (s hostClient) Store(u *host.Host) error {
+func (s HostClient) Store(u *host.Host) error {
 	return s.s.genericStore(u, fmt.Sprintf("/host"))
 }
 
-func (s hostClient) Update(u *host.Host) error {
+func (s HostClient) Update(u *host.Host) error {
 	return s.s.genericUpdate(u, fmt.Sprintf("/host/%d", u.ID))
 }

@@ -5,19 +5,19 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
 )
 
-type teamClient struct {
+type TeamClient struct {
 	s ScoretrakClient
 }
 
 func NewTeamClient(c ScoretrakClient) team.Serv {
-	return &teamClient{c}
+	return &TeamClient{c}
 }
 
-func (t teamClient) DeleteByName(name string) error {
+func (t TeamClient) DeleteByName(name string) error {
 	return t.s.genericDelete(fmt.Sprintf("/team/%s", name))
 }
 
-func (t teamClient) GetAll() ([]*team.Team, error) {
+func (t TeamClient) GetAll() ([]*team.Team, error) {
 	var tm []*team.Team
 	err := t.s.genericGet(&tm, "/team")
 	if err != nil {
@@ -26,7 +26,7 @@ func (t teamClient) GetAll() ([]*team.Team, error) {
 	return tm, nil
 }
 
-func (t teamClient) GetByName(name string) (*team.Team, error) {
+func (t TeamClient) GetByName(name string) (*team.Team, error) {
 	tm := &team.Team{}
 	err := t.s.genericGet(tm, fmt.Sprintf("/team/%s", name))
 	if err != nil {
@@ -35,10 +35,10 @@ func (t teamClient) GetByName(name string) (*team.Team, error) {
 	return tm, nil
 }
 
-func (t teamClient) Store(u *team.Team) error {
+func (t TeamClient) Store(u *team.Team) error {
 	return t.s.genericStore(u, fmt.Sprintf("/team"))
 }
 
-func (t teamClient) UpdateByName(u *team.Team) error {
+func (t TeamClient) UpdateByName(u *team.Team) error {
 	return t.s.genericUpdate(u, fmt.Sprintf("/team/%s", u.Name))
 }

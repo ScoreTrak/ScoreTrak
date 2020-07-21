@@ -5,19 +5,19 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
 )
 
-type propertyClient struct {
+type PropertyClient struct {
 	s ScoretrakClient
 }
 
 func NewPropertyClient(c ScoretrakClient) property.Serv {
-	return &propertyClient{c}
+	return &PropertyClient{c}
 }
 
-func (s propertyClient) Delete(id uint64) error {
+func (s PropertyClient) Delete(id uint64) error {
 	return s.s.genericDelete(fmt.Sprintf("/property/%d", id))
 }
 
-func (s propertyClient) GetAll() ([]*property.Property, error) {
+func (s PropertyClient) GetAll() ([]*property.Property, error) {
 	var sg []*property.Property
 	err := s.s.genericGet(&sg, "/property")
 	if err != nil {
@@ -26,7 +26,7 @@ func (s propertyClient) GetAll() ([]*property.Property, error) {
 	return sg, nil
 }
 
-func (s propertyClient) GetByID(id uint64) (*property.Property, error) {
+func (s PropertyClient) GetByID(id uint64) (*property.Property, error) {
 	sg := &property.Property{}
 	err := s.s.genericGet(sg, fmt.Sprintf("/property/%d", id))
 	if err != nil {
@@ -35,10 +35,10 @@ func (s propertyClient) GetByID(id uint64) (*property.Property, error) {
 	return sg, nil
 }
 
-func (s propertyClient) Store(u *property.Property) error {
+func (s PropertyClient) Store(u *property.Property) error {
 	return s.s.genericStore(u, fmt.Sprintf("/property"))
 }
 
-func (s propertyClient) Update(u *property.Property) error {
+func (s PropertyClient) Update(u *property.Property) error {
 	return s.s.genericUpdate(u, fmt.Sprintf("/property/%d", u.ID))
 }

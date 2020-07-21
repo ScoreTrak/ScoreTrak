@@ -5,15 +5,15 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
 )
 
-type roundClient struct {
+type RoundClient struct {
 	s ScoretrakClient
 }
 
 func NewRoundClient(c ScoretrakClient) round.Serv {
-	return &roundClient{c}
+	return &RoundClient{c}
 }
 
-func (r roundClient) GetLastNonElapsingRound() (*round.Round, error) {
+func (r RoundClient) GetLastNonElapsingRound() (*round.Round, error) {
 	sg := &round.Round{}
 	err := r.s.genericGet(sg, fmt.Sprintf("/round"))
 	if err != nil {
