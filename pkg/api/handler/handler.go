@@ -96,7 +96,7 @@ func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, m s
 	}
 	v := reflect.ValueOf(g).Elem()
 	f := reflect.ValueOf(id)
-	if _, ok := svc.(team.Serv); ok {
+	if _, ok := svc.(team.Serv); ok && idParam == "name" {
 		v.FieldByName("Name").Set(f)
 	} else {
 		v.FieldByName("ID").Set(f)
