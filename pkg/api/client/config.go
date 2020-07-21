@@ -5,15 +5,15 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 )
 
-type configClient struct {
+type ConfigClient struct {
 	s ScoretrakClient
 }
 
 func NewConfigClient(c ScoretrakClient) config.Serv {
-	return &configClient{c}
+	return &ConfigClient{c}
 }
 
-func (c configClient) Get() (*config.DynamicConfig, error) {
+func (c ConfigClient) Get() (*config.DynamicConfig, error) {
 	conf := &config.DynamicConfig{}
 	err := c.s.genericGet(conf, fmt.Sprintf("/config"))
 	if err != nil {
@@ -22,7 +22,7 @@ func (c configClient) Get() (*config.DynamicConfig, error) {
 	return conf, nil
 }
 
-func (c configClient) Update(d *config.DynamicConfig) error {
+func (c ConfigClient) Update(d *config.DynamicConfig) error {
 	return c.s.genericUpdate(d, fmt.Sprintf("/config"))
 }
 
