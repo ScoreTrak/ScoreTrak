@@ -29,8 +29,6 @@ func TestCheckSpec(t *testing.T) {
 		db.AutoMigrate(&service.Service{})
 		db.AutoMigrate(&round.Round{})
 		db.AutoMigrate(&check.Check{})
-		db.Model(&check.Check{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
-		db.Model(&check.Check{}).AddForeignKey("round_id", "rounds(id)", "CASCADE", "RESTRICT")
 		cr := NewCheckRepo(db, l)
 		Convey("When all tables are empty", func() {
 			Convey("Should output no entry", func() {
@@ -47,11 +45,11 @@ func TestCheckSpec(t *testing.T) {
 				So(len(ac), ShouldEqual, 0)
 			})
 			Convey("Load sample services and rounds", func() {
-				var count int
+				var count int64
 				db.Exec("INSERT INTO services (id, service_group_id, host_id, name) VALUES (5, 999, 999, 'TestService')")
 				db.Exec("INSERT INTO services (id, service_group_id, host_id, name) VALUES (6, 999, 999, 'TestService')")
-				db.Exec("INSERT INTO rounds (id, start) VALUES (1, $1)", time.Now())
-				db.Exec("INSERT INTO rounds (id, start) VALUES (2, $1)", time.Now())
+				db.Exec("INSERT INTO rounds (id, start) VALUES (1, ?)", time.Now())
+				db.Exec("INSERT INTO rounds (id, start) VALUES (2, ?)", time.Now())
 				db.Table("services").Count(&count)
 				So(count, ShouldEqual, 2)
 				db.Table("rounds").Count(&count)
@@ -162,11 +160,11 @@ func TestCheckSpec(t *testing.T) {
 			})
 		})
 		Reset(func() {
-			db.DropTableIfExists(&check.Check{})
-			db.DropTableIfExists(&round.Round{})
-			db.DropTableIfExists(&service.Service{})
+			db.Migrator().DropTable(&check.Check{})
+			db.Migrator().DropTable(&round.Round{})
+			db.Migrator().DropTable(&service.Service{})
 		})
 	})
 	DropDB(db, c)
-	db.Close()
+
 }

@@ -29,7 +29,7 @@ func TestHostSpec(t *testing.T) {
 		db.AutoMigrate(&host.Host{})
 		hr := NewHostRepo(db, l)
 		Reset(func() {
-			db.DropTableIfExists(&host.Host{})
+			db.Migrator().DropTable(&host.Host{})
 		})
 		Convey("When the Host table is empty", func() {
 			Convey("There should be no entries", func() {
@@ -114,14 +114,13 @@ func TestHostSpec(t *testing.T) {
 
 				Convey("Then add a host group", func() {
 					db.AutoMigrate(&host_group.HostGroup{})
-					db.Model(&host.Host{}).AddForeignKey("host_group_id", "host_groups(id)", "RESTRICT", "RESTRICT")
 					Reset(func() {
-						db.DropTableIfExists(&host.Host{})
-						db.DropTableIfExists(&host_group.HostGroup{})
+						db.Migrator().DropTable(&host.Host{})
+						db.Migrator().DropTable(&host_group.HostGroup{})
 					})
 					db.Exec("INSERT INTO host_groups (id, name, enabled) VALUES (1, 'HostGroup1', true)")
 					db.Exec("INSERT INTO host_groups (id, name, enabled) VALUES (2, 'HostGroup2', false)")
-					var count int
+					var count int64
 					db.Table("host_groups").Count(&count)
 					So(count, ShouldEqual, 2)
 					Convey("Adding a new host with host group foreign key", func() {
@@ -144,22 +143,20 @@ func TestHostSpec(t *testing.T) {
 				})
 				Convey("Then add a team", func() {
 					db.AutoMigrate(&team.Team{})
-					db.Model(&host.Host{}).AddForeignKey("team_name", "teams(name)", "RESTRICT", "RESTRICT")
 					Reset(func() {
-						db.DropTableIfExists(&host.Host{})
-						db.DropTableIfExists(&team.Team{})
+						db.Migrator().DropTable(&host.Host{})
+						db.Migrator().DropTable(&team.Team{})
 					})
 				})
 				Convey("Then add a service", func() {
 					db.AutoMigrate(&service.Service{})
-					db.Model(&service.Service{}).AddForeignKey("host_id", "hosts(id)", "RESTRICT", "RESTRICT")
 					Reset(func() {
-						db.DropTableIfExists(&service.Service{})
+						db.Migrator().DropTable(&service.Service{})
 					})
 				})
 			})
 		})
 	})
 	DropDB(db, c)
-	db.Close()
+
 }

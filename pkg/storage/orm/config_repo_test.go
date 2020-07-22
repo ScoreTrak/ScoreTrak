@@ -27,8 +27,8 @@ func TestConfigSpec(t *testing.T) {
 		db.AutoMigrate(&config.DynamicConfig{})
 		db.AutoMigrate(&report.Report{})
 		db.Exec("INSERT INTO config (id, round_duration, enabled) VALUES (1, 60, true)")
-		db.Exec("INSERT INTO report (id, cache, updated_at) VALUES (1, '{}', $1)", time.Now())
-		var count int
+		db.Exec("INSERT INTO report (id, cache, updated_at) VALUES (1, '{}', ?)", time.Now())
+		var count int64
 		db.Table("config").Count(&count)
 		So(count, ShouldEqual, 1)
 
@@ -53,9 +53,9 @@ func TestConfigSpec(t *testing.T) {
 		})
 
 		Reset(func() {
-			db.DropTableIfExists(&config.DynamicConfig{})
+			db.Migrator().DropTable(&config.DynamicConfig{})
 		})
 	})
 	DropDB(db, c)
-	db.Close()
+
 }

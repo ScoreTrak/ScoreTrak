@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type checkRepo struct {
@@ -86,11 +86,10 @@ func (c *checkRepo) Store(chck *check.Check) error {
 
 //This method could allow for optimization as per gorm's https://github.com/jinzhu/gorm/issues/255#issuecomment-590287329
 func (c *checkRepo) StoreMany(chcks []*check.Check) error {
-	for _, chck := range chcks {
-		err := c.Store(chck)
-		if err != nil {
-			return err
-		}
+	err := c.db.Create(chcks).Error
+	if err != nil {
+		c.log.Errorf("error while creating the check, reason : %v", err)
+		return err
 	}
 	return nil
 }

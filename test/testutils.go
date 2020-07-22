@@ -14,7 +14,8 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
 	"github.com/jinzhu/copier"
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"net/http/httptest"
 	"time"
 )
@@ -25,13 +26,12 @@ func SetupDB(c storage.Config) *gorm.DB {
 		c.Cockroach.Host,
 		c.Cockroach.Port,
 		c.Cockroach.UserName)
-	dbPrep, err := gorm.Open("postgres", psqlInfo)
+	dbPrep, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
 	dbPrep.Exec(fmt.Sprintf("drop database if exists  %s", c.Cockroach.Database))
 	dbPrep.Exec(fmt.Sprintf("create database if not exists  %s", c.Cockroach.Database))
-	dbPrep.Close()
 	db, err := storage.NewDB(c)
 	if err != nil {
 		panic(err)
@@ -49,13 +49,6 @@ func CreateAllTables(db *gorm.DB) {
 	db.AutoMigrate(&round.Round{})
 	db.AutoMigrate(&service.Service{})
 	db.AutoMigrate(&service_group.ServiceGroup{})
-	db.Model(&check.Check{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
-	db.Model(&check.Check{}).AddForeignKey("round_id", "rounds(id)", "CASCADE", "RESTRICT")
-	db.Model(&host.Host{}).AddForeignKey("host_group_id", "host_groups(id)", "RESTRICT", "RESTRICT")
-	db.Model(&host.Host{}).AddForeignKey("team_name", "teams(name)", "RESTRICT", "RESTRICT")
-	db.Model(&property.Property{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
-	db.Model(&service.Service{}).AddForeignKey("service_group_id", "service_groups(id)", "RESTRICT", "RESTRICT")
-	db.Model(&service.Service{}).AddForeignKey("host_id", "hosts(id)", "RESTRICT", "RESTRICT")
 }
 
 func SetupConfig(f string) config.StaticConfig {
@@ -77,15 +70,16 @@ func NewConfigClone(c config.StaticConfig) config.StaticConfig {
 }
 
 func CleanAllTables(db *gorm.DB) {
-	db.DropTableIfExists(&check.Check{})
-	db.DropTableIfExists(&property.Property{})
-	db.DropTableIfExists(&service.Service{})
-	db.DropTableIfExists(&host.Host{})
-	db.DropTableIfExists(&host_group.HostGroup{})
-	db.DropTableIfExists(&round.Round{})
-	db.DropTableIfExists(&service_group.ServiceGroup{})
-	db.DropTableIfExists(&team.Team{})
-	db.DropTableIfExists(&config.DynamicConfig{})
+	db.Migrator().DropTable(&check.Check{})
+	db.Migrator().DropTable(&check.Check{})
+	db.Migrator().DropTable(&property.Property{})
+	db.Migrator().DropTable(&service.Service{})
+	db.Migrator().DropTable(&host.Host{})
+	db.Migrator().DropTable(&host_group.HostGroup{})
+	db.Migrator().DropTable(&round.Round{})
+	db.Migrator().DropTable(&service_group.ServiceGroup{})
+	db.Migrator().DropTable(&team.Team{})
+	db.Migrator().DropTable(&config.DynamicConfig{})
 }
 
 func DropDB(db *gorm.DB, c config.StaticConfig) {
@@ -101,7 +95,7 @@ func SetupLogger(c logger.Config) logger.LogInfoFormat {
 }
 
 func DataPreload(db *gorm.DB) {
-	var count int
+	var count int64
 	CreateAllTables(db)
 	//Creating Config
 	db.Exec("INSERT INTO config (id, round_duration, enabled) VALUES (1, 60, true)")
@@ -177,10 +171,10 @@ func DataPreload(db *gorm.DB) {
 		panic("There should be 13 entry in properties")
 	}
 	//Creating Rounds
-	db.Exec("INSERT INTO rounds (id, start, finish) VALUES (1, $1, $2)", time.Now().Add(-time.Second*60*3), time.Now().Add(-time.Second*60*3+time.Second*30))
-	db.Exec("INSERT INTO rounds (id, start, finish) VALUES (2, $1, $2)", time.Now().Add(-time.Second*60*2), time.Now().Add(-time.Second*60*2+time.Second*20))
-	db.Exec("INSERT INTO rounds (id, start, finish) VALUES (3, $1, $2)", time.Now().Add(-time.Second*60), time.Now().Add(-time.Second*60+time.Second*40))
-	db.Exec("INSERT INTO rounds (id, start) VALUES (4, $1)", time.Now())
+	db.Exec("INSERT INTO rounds (id, start, finish) VALUES (1, ?, ?)", time.Now().Add(-time.Second*60*3), time.Now().Add(-time.Second*60*3+time.Second*30))
+	db.Exec("INSERT INTO rounds (id, start, finish) VALUES (2, ?, ?)", time.Now().Add(-time.Second*60*2), time.Now().Add(-time.Second*60*2+time.Second*20))
+	db.Exec("INSERT INTO rounds (id, start, finish) VALUES (3, ?, ?)", time.Now().Add(-time.Second*60), time.Now().Add(-time.Second*60+time.Second*40))
+	db.Exec("INSERT INTO rounds (id, start) VALUES (4, ?)", time.Now())
 	db.Table("rounds").Count(&count)
 	if count != 4 {
 		panic("There should be 4 entry in rounds")

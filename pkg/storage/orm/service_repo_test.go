@@ -31,8 +31,6 @@ func FTPSpec(t *testing.T) {
 		db.AutoMigrate(&service.Service{})
 		db.AutoMigrate(&service_group.ServiceGroup{})
 		db.AutoMigrate(&host.Host{})
-		db.Model(&service.Service{}).AddForeignKey("service_group_id", "service_groups(id)", "RESTRICT", "RESTRICT")
-		db.Model(&service.Service{}).AddForeignKey("host_id", "hosts(id)", "RESTRICT", "RESTRICT")
 		sr := NewServiceRepo(db, l)
 		Convey("When all tables are empty", func() {
 			Convey("Should output no entry", func() {
@@ -49,7 +47,7 @@ func FTPSpec(t *testing.T) {
 				So(len(ac), ShouldEqual, 0)
 			})
 			Convey("Load Sample Service Group, And Host Data", func() {
-				var count int
+				var count int64
 				db.Exec("INSERT INTO hosts (id, address) VALUES (5, '192.168.1.2')")
 				db.Exec("INSERT INTO hosts (id, address) VALUES (4, '192.168.1.1')")
 				db.Exec("INSERT INTO service_groups (id, name) VALUES (7, 'FTPGroup')")
@@ -158,8 +156,6 @@ func FTPSpec(t *testing.T) {
 					Convey("Loading Checks And Properties Tables with sample data", func() {
 						db.AutoMigrate(&property.Property{})
 						db.AutoMigrate(&check.Check{})
-						db.Model(&check.Check{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
-						db.Model(&property.Property{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
 						db.Exec(fmt.Sprintf("INSERT INTO checks (service_id, round_id, passed) VALUES (%d, 999, false)", s1.ID))
 						db.Exec(fmt.Sprintf("INSERT INTO checks (service_id, round_id, passed) VALUES (%d, 333, false)", s2.ID))
 						db.Exec(fmt.Sprintf("INSERT INTO properties (id, service_id, key, value) VALUES (5, %d, 'sample_key', 'sample_value')", s1.ID))
@@ -172,7 +168,7 @@ func FTPSpec(t *testing.T) {
 							err = sr.Delete(s1.ID)
 							So(err, ShouldBeNil)
 							Convey("Should also delete checks and properties associated with the deleted service", func() {
-								var count int
+								var count int64
 								db.Table("properties").Count(&count)
 								So(count, ShouldEqual, 1)
 								db.Table("checks").Count(&count)
@@ -180,8 +176,8 @@ func FTPSpec(t *testing.T) {
 							})
 						})
 						Reset(func() {
-							db.DropTableIfExists(&property.Property{})
-							db.DropTableIfExists(&check.Check{})
+							db.Migrator().DropTable(&property.Property{})
+							db.Migrator().DropTable(&check.Check{})
 						})
 					})
 				})
@@ -198,11 +194,11 @@ func FTPSpec(t *testing.T) {
 			})
 		})
 		Reset(func() {
-			db.DropTableIfExists(&service.Service{})
-			db.DropTableIfExists(&host.Host{})
-			db.DropTableIfExists(&service_group.ServiceGroup{})
+			db.Migrator().DropTable(&service.Service{})
+			db.Migrator().DropTable(&host.Host{})
+			db.Migrator().DropTable(&service_group.ServiceGroup{})
 		})
 	})
 	DropDB(db, c)
-	db.Close()
+
 }

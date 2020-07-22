@@ -2,10 +2,11 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 )
@@ -39,7 +40,7 @@ func (c *checkController) GetByRoundServiceID(w http.ResponseWriter, r *http.Req
 	}
 	sg, err := c.svc.GetByRoundServiceID(rID, sID)
 	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			http.Error(w, err.Error(), http.StatusNotFound)
 		} else {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

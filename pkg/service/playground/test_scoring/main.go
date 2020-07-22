@@ -4,7 +4,7 @@ import (
 	_ "crypto/tls"
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
-	"github.com/jinzhu/gorm"
+	//"gorm.io/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/miekg/dns"
 	"log"
@@ -12,7 +12,7 @@ import (
 
 func main() {
 
-	test_database()
+	//test_database()
 }
 
 // required:
@@ -111,13 +111,13 @@ func imap_test() {
 
 //notes IMPORT CODE FOR SIDE EFFECT.
 // MORE CUSTOMIZATION REQUIRED
-func test_database() {
-	db, err := gorm.Open("mysql", "root:changeme@tcp(172.17.120.203:3306)/testdb")
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-}
+//func test_database() {
+//	db, err := gorm.Open("mysql", "root:changeme@tcp(172.17.120.203:3306)/testdb")
+//	if err != nil {
+//		panic(err)
+//	}
+//	defer db.Close()
+//}
 
 //func rdp_test(){ //NOTE TESTED YET. //Make sure not to kick out existing user sessions. // Make sure to increase overall cap of users logged into the server
 //	client := grdp.NewClient("172.17.126.181:3389", glog.NONE) //USE XRDP???

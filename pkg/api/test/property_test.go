@@ -2,9 +2,9 @@ package client
 
 import (
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/cmd/master/server/gorilla"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/api/client"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/master/server/gorilla"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
 	. "github.com/L1ghtman2k/ScoreTrak/test"
@@ -137,5 +137,5 @@ func TestPropertySpec(t *testing.T) {
 		})
 	})
 	DropDB(db, c)
-	db.Close()
+
 }

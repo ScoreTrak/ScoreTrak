@@ -28,7 +28,7 @@ func TestHostGroupSpec(t *testing.T) {
 		db.AutoMigrate(&host_group.HostGroup{})
 		hg := NewHostGroupRepo(db, l)
 		Reset(func() {
-			db.DropTableIfExists(&host_group.HostGroup{})
+			db.Migrator().DropTable(&host_group.HostGroup{})
 		})
 		Convey("When the Teams table is empty", func() {
 			Convey("There should be no entries", func() {
@@ -107,9 +107,8 @@ func TestHostGroupSpec(t *testing.T) {
 				})
 
 				Convey("Creating Hosts Table", func() {
-					var count int
+					var count int64
 					db.AutoMigrate(&host.Host{})
-					db.Model(&host.Host{}).AddForeignKey("host_group_id", "host_groups(id)", "RESTRICT", "RESTRICT")
 					Convey("Associating a single Host with a host group", func() {
 						db.Exec("INSERT INTO hosts (id, address, team_name, host_group_id) VALUES (4, '192.168.1.1', '', 3)")
 						db.Table("hosts").Count(&count)
@@ -138,7 +137,7 @@ func TestHostGroupSpec(t *testing.T) {
 						})
 
 						Reset(func() {
-							db.DropTableIfExists(&host.Host{})
+							db.Migrator().DropTable(&host.Host{})
 						})
 					})
 				})
@@ -146,5 +145,5 @@ func TestHostGroupSpec(t *testing.T) {
 		})
 	})
 	DropDB(db, c)
-	db.Close()
+
 }

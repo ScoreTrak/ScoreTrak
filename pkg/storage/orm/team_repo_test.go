@@ -27,7 +27,7 @@ func TestTeamSpec(t *testing.T) {
 		db.AutoMigrate(&team.Team{})
 		tr := NewTeamRepo(db, l)
 		Reset(func() {
-			db.DropTableIfExists(&team.Team{})
+			db.Migrator().DropTable(&team.Team{})
 		})
 		Convey("When the Teams table is empty", func() {
 			Convey("There should be no entries", func() {
@@ -123,9 +123,8 @@ func TestTeamSpec(t *testing.T) {
 				})
 
 				Convey("Creating Hosts Table", func() {
-					var count int
+					var count int64
 					db.AutoMigrate(&host.Host{})
-					db.Model(&host.Host{}).AddForeignKey("team_name", "teams(name)", "RESTRICT", "RESTRICT")
 					Convey("Associating a single Host with a team", func() {
 						db.Exec("INSERT INTO hosts (id, address, team_name) VALUES (4, '192.168.1.1', 'TestTeam')")
 						db.Table("hosts").Count(&count)
@@ -154,7 +153,7 @@ func TestTeamSpec(t *testing.T) {
 						})
 
 						Reset(func() {
-							db.DropTableIfExists(&host.Host{})
+							db.Migrator().DropTable(&host.Host{})
 						})
 					})
 				})
@@ -162,5 +161,5 @@ func TestTeamSpec(t *testing.T) {
 		})
 	})
 	DropDB(db, c)
-	db.Close()
+
 }

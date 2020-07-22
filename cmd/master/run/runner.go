@@ -6,94 +6,26 @@ import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/di"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/queue"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/report"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
-	"github.com/jinzhu/gorm"
-	"github.com/lib/pq"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/util"
+	"github.com/jackc/pgconn"
+	"gorm.io/gorm"
 	"math"
 	"strings"
 	"sync"
 	"time"
 )
 
-type RepoStore struct {
-	Round        round.Repo
-	Host         host.Repo
-	HostGroup    host_group.Repo
-	Service      service.Repo
-	ServiceGroup service_group.Repo
-	Team         team.Repo
-	Check        check.Repo
-	Property     property.Repo
-	Config       config.Repo
-}
-
-func NewRepoStore() RepoStore {
-	var hostGroupRepo host_group.Repo
-	di.Invoke(func(re host_group.Repo) {
-		hostGroupRepo = re
-	})
-	var hostRepo host.Repo
-	di.Invoke(func(re host.Repo) {
-		hostRepo = re
-	})
-	var roundRepo round.Repo
-	di.Invoke(func(re round.Repo) {
-		roundRepo = re
-	})
-	var serviceRepo service.Repo
-	di.Invoke(func(re service.Repo) {
-		serviceRepo = re
-	})
-	var serviceGroupRepo service_group.Repo
-	di.Invoke(func(re service_group.Repo) {
-		serviceGroupRepo = re
-	})
-	var propertyRepo property.Repo
-	di.Invoke(func(re property.Repo) {
-		propertyRepo = re
-	})
-	var checkRepo check.Repo
-	di.Invoke(func(re check.Repo) {
-		checkRepo = re
-	})
-	var teamRepo team.Repo
-	di.Invoke(func(re team.Repo) {
-		teamRepo = re
-	})
-	var configRepo config.Repo
-	di.Invoke(func(re config.Repo) {
-		configRepo = re
-	})
-
-	return RepoStore{
-		Round:        roundRepo,
-		HostGroup:    hostGroupRepo,
-		Host:         hostRepo,
-		Service:      serviceRepo,
-		ServiceGroup: serviceGroupRepo,
-		Property:     propertyRepo,
-		Check:        checkRepo,
-		Team:         teamRepo,
-		Config:       configRepo,
-	}
-}
-
 type dRunner struct {
 	db *gorm.DB
 	l  logger.LogInfoFormat
 	q  queue.Queue
-	r  RepoStore
+	r  util.RepoStore
 }
 
 var dsync time.Duration
@@ -123,7 +55,7 @@ func (d dRunner) getDsync() time.Duration {
 	return dsync
 }
 
-func NewRunner(db *gorm.DB, l logger.LogInfoFormat, q queue.Queue, r RepoStore) *dRunner {
+func NewRunner(db *gorm.DB, l logger.LogInfoFormat, q queue.Queue, r util.RepoStore) *dRunner {
 	return &dRunner{
 		db: db, l: l, q: q, r: r,
 	}
@@ -132,8 +64,8 @@ func NewRunner(db *gorm.DB, l logger.LogInfoFormat, q queue.Queue, r RepoStore) 
 func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 	err = d.db.Create(cnf).Error
 	if err != nil {
-		serr, ok := err.(*pq.Error)
-		if ok && serr.Code.Name() == "unique_violation" {
+		serr, ok := err.(*pgconn.PgError)
+		if ok && serr.Code == "23505" {
 			dcc := &config.DynamicConfig{}
 			d.db.Take(dcc)
 			*cnf = *dcc
@@ -201,8 +133,8 @@ func (d *dRunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64)
 func (d *dRunner) attemptToScore(rnd *round.Round, timeout time.Time) {
 	err := d.r.Round.Store(rnd)
 	if err != nil {
-		serr, ok := err.(*pq.Error)
-		if ok && serr.Code.Name() == "unique_violation" {
+		serr, ok := err.(*pgconn.PgError)
+		if ok && serr.Code == "23505" {
 			r, _ := d.r.Round.GetByID(rnd.ID)
 			if r != nil {
 				*rnd = *r
@@ -247,11 +179,20 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 	}
 	var sds []*queueing.ScoringData
 	for _, t := range teams {
-		d.db.Model(&t).Related(&t.Hosts, "Hosts")
+		err = d.db.Model(&t).Association("Hosts").Find(&t.Hosts)
+		if err != nil {
+			panic(err)
+		}
 		for _, h := range t.Hosts {
-			d.db.Model(&h).Related(&h.Services)
+			err = d.db.Model(&h).Association("Services").Find(&h.Services)
+			if err != nil {
+				panic(err)
+			}
 			for _, s := range h.Services {
-				d.db.Model(&s).Related(&s.Properties)
+				err = d.db.Model(&s).Association("Properties").Find(&s.Properties)
+				if err != nil {
+					panic(err)
+				}
 				if *t.Enabled {
 					var validHost bool
 					if *h.Enabled {

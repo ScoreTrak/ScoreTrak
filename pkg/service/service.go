@@ -6,7 +6,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/exec/resolver"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // Service Model represents a service that is being scored for a given host
@@ -38,9 +38,9 @@ type Service struct {
 	// Enables or Disables the service
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: true"`
 
-	Properties []*property.Property `json:"-" gorm:"foreignkey:ServiceID"`
+	Properties []*property.Property `json:"-" gorm:"foreignkey:ServiceID; constraint:OnUpdate:RESTRICT,OnDelete:CASCADE"`
 
-	Checks []*check.Check `json:"-" gorm:"foreignkey:ServiceID"`
+	Checks []*check.Check `json:"-" gorm:"foreignkey:ServiceID; constraint:OnUpdate:RESTRICT,OnDelete:CASCADE"`
 }
 
 func (s Service) Validate(db *gorm.DB) {

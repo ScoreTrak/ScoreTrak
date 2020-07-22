@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 	"regexp"
 )
 
@@ -23,7 +23,7 @@ type ServiceGroup struct {
 
 	Label string `json:"label,omitempty" gorm:"-"`
 
-	Services []*service.Service `json:"services,omitempty" gorm:"foreignkey:ServiceGroupID"`
+	Services []*service.Service `json:"services,omitempty" gorm:"foreignkey:ServiceGroupID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT"`
 }
 
 func (ServiceGroup) TableName() string {

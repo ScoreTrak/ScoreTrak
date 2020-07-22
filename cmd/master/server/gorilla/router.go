@@ -9,7 +9,6 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/master/run"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/platform"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/queue"
@@ -17,6 +16,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/util"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
 	"github.com/gorilla/mux"
 	"log"
@@ -424,10 +424,10 @@ func (ds *dserver) serviceRoutes() Routes {
 		panic(err)
 	}
 
-	return ServiceRoutes(ds.logger, svc, q, run.NewRepoStore())
+	return ServiceRoutes(ds.logger, svc, q, util.NewRepoStore())
 }
 
-func ServiceRoutes(l logger.LogInfoFormat, svc service.Serv, q queue.Queue, repoStore run.RepoStore) Routes {
+func ServiceRoutes(l logger.LogInfoFormat, svc service.Serv, q queue.Queue, repoStore util.RepoStore) Routes {
 	ctrl := handler.NewServiceController(l, svc, q, repoStore)
 	serviceRoutes := Routes{
 		Route{

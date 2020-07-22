@@ -5,13 +5,14 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/cmd/master/run"
+	"github.com/L1ghtman2k/ScoreTrak/cmd/master/server/gorilla"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/di"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/master/run"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/master/server/gorilla"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/queue"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/util"
 	"os"
 )
 
@@ -53,7 +54,7 @@ func main() {
 	di.Invoke(func(qu queue.Queue) {
 		q = qu
 	})
-	dr := run.NewRunner(db, l, q, run.NewRepoStore())
+	dr := run.NewRunner(db, l, q, util.NewRepoStore())
 	handleErr(dr.MasterRunner(cnf))
 }
 func handleErr(err error) {

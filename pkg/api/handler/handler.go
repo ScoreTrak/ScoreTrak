@@ -8,8 +8,8 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 	"github.com/qor/validations"
+	"gorm.io/gorm"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -32,7 +32,7 @@ func genericGetByID(svc interface{}, log logger.LogInfoFormat, m string, idParam
 	}
 	sg, err := invokeRetMethod(svc, m, id)
 	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			http.Error(w, err.Error(), http.StatusNotFound)
 		} else {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -57,7 +57,7 @@ func genericGet(svc interface{}, log logger.LogInfoFormat, m string, w http.Resp
 	}()
 	sg, err := invokeRetMethod(svc, m)
 	if err != nil {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			http.Error(w, err.Error(), http.StatusNotFound)
 		} else {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

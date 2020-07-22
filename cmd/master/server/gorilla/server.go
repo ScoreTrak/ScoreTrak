@@ -15,8 +15,8 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 	"go.uber.org/dig"
+	"gorm.io/gorm"
 	"math"
 	"net/http"
 	"time"
@@ -57,23 +57,46 @@ func (ds *dserver) SetupDB() error {
 			fmt.Sprintf("time difference between master host, and database host are is large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now())))
 	}
 
-	db.AutoMigrate(&team.Team{})
-	db.AutoMigrate(&check.Check{})
-	db.AutoMigrate(&config.DynamicConfig{})
-	db.AutoMigrate(&host.Host{})
-	db.AutoMigrate(&host_group.HostGroup{})
-	db.AutoMigrate(&property.Property{})
-	db.AutoMigrate(&round.Round{})
-	db.AutoMigrate(&service.Service{})
-	db.AutoMigrate(&service_group.ServiceGroup{})
-	db.AutoMigrate(&report.Report{})
-	db.Model(&check.Check{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
-	db.Model(&check.Check{}).AddForeignKey("round_id", "rounds(id)", "CASCADE", "RESTRICT")
-	db.Model(&host.Host{}).AddForeignKey("host_group_id", "host_groups(id)", "RESTRICT", "RESTRICT")
-	db.Model(&host.Host{}).AddForeignKey("team_name", "teams(name)", "RESTRICT", "RESTRICT")
-	db.Model(&property.Property{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
-	db.Model(&service.Service{}).AddForeignKey("service_group_id", "service_groups(id)", "RESTRICT", "RESTRICT")
-	db.Model(&service.Service{}).AddForeignKey("host_id", "hosts(id)", "RESTRICT", "RESTRICT")
+	err = db.AutoMigrate(&team.Team{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&check.Check{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&config.DynamicConfig{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&host.Host{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&host_group.HostGroup{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&property.Property{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&round.Round{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&service.Service{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&service_group.ServiceGroup{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&report.Report{})
+	if err != nil {
+		panic(err)
+	}
 
 	return nil
 }

@@ -2,7 +2,7 @@ package property
 
 import (
 	"errors"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // Property model describes a single key value pair for a service(parameters). An example could be a port for HTTP checking

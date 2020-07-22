@@ -2,10 +2,9 @@ package client
 
 import (
 	"fmt"
+	"github.com/L1ghtman2k/ScoreTrak/cmd/master/server/gorilla"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/api/client"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/master/run"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/master/server/gorilla"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
 	. "github.com/L1ghtman2k/ScoreTrak/test"
@@ -41,7 +40,7 @@ func TestServiceSpec(t *testing.T) {
 	}
 	cr := orm.NewServiceRepo(db, l)
 	serviceSvc := service.NewServiceServ(cr)
-	routes = append(routes, gorilla.ServiceRoutes(l, serviceSvc, nil, run.RepoStore{})...)
+	routes = append(routes, gorilla.ServiceRoutes(l, serviceSvc, nil, util.RepoStore{})...)
 	for _, route := range routes {
 		var hdler http.Handler
 		hdler = route.HandlerFunc
@@ -140,5 +139,5 @@ func TestServiceSpec(t *testing.T) {
 		})
 	})
 	DropDB(db, c)
-	db.Close()
+
 }

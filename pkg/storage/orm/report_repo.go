@@ -3,7 +3,7 @@ package orm
 import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/report"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type reportRepo struct {
