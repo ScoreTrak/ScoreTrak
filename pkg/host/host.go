@@ -11,10 +11,10 @@ type Host struct {
 	Address *string `json:"address" gorm:"not null;default:null" valid:"host,optional"`
 
 	// The ID of a host group that the host belongs to.
-	HostGroupID uint64 `json:"host_group_id,omitempty" gorm:"default: null"`
+	HostGroupID *uint64 `json:"host_group_id,omitempty"`
 
-	// The ID of a team that this host belongs too. This parameter is optional, however is needed to appear on the scoring engine.
-	TeamName string `json:"team_name,omitempty"`
+	// The ID of a team that this host belongs too.
+	TeamID uint64 `json:"team_name,omitempty"`
 
 	// Enables or disables scoring for a single host
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: true"`
