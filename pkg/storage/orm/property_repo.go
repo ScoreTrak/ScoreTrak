@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type propertyRepo struct {

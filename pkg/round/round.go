@@ -19,5 +19,5 @@ type Round struct {
 
 	Finish *time.Time `json:"finish,omitempty"`
 
-	Checks []check.Check `json:"-" gorm:"foreignkey:RoundID"`
+	Checks []check.Check `json:"-" gorm:"foreignkey:RoundID; constraint:OnUpdate:RESTRICT,OnDelete:CASCADE"`
 }

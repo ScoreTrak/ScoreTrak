@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type teamRepo struct {

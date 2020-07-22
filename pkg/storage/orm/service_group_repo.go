@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type serviceGroupRepo struct {

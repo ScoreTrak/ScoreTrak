@@ -14,9 +14,5 @@ type Team struct {
 
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: true"`
 
-	Hosts []*host.Host `gorm:"foreignkey:TeamName;association_foreignkey:Name" json:"-"`
-}
-
-func (Team) TableName() string {
-	return "teams"
+	Hosts []*host.Host `gorm:"foreignkey:TeamName;association_foreignkey:Name; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT" json:"-"`
 }

@@ -25,7 +25,7 @@ func BuildMasterContainer() (*dig.Container, error) {
 	var ctr []interface{}
 
 	ctr = append(ctr,
-		config.GetStaticConfig, config.GetLoggerConfig, config.GetDBConfig,
+		config.GetStaticConfig, config.GetLoggerConfig, config.GetDBConfig, config.GetQueueConfig, config.GetPlatformConfig,
 		storage.LoadDB,
 		logger.NewLogger,
 		orm.NewCheckRepo, check.NewCheckServ,

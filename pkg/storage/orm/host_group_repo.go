@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type hostGroupRepo struct {

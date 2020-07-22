@@ -6,7 +6,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
 	. "github.com/L1ghtman2k/ScoreTrak/test"
-	"github.com/lib/pq"
+	"github.com/jackc/pgconn"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
 	"testing"
@@ -30,7 +30,7 @@ func TestRoundSpec(t *testing.T) {
 		db.AutoMigrate(&round.Round{})
 		rr := NewRoundRepo(db, l)
 		Reset(func() {
-			db.DropTableIfExists(&round.Round{})
+			db.Migrator().DropTable(&round.Round{})
 		})
 		Convey("When the Rounds table is empty", func() {
 			Convey("There should be no entries", func() {
@@ -76,9 +76,9 @@ func TestRoundSpec(t *testing.T) {
 					r := round.Round{ID: 1}
 					err = rr.Store(&r)
 					So(err, ShouldNotBeNil)
-					serr, ok := err.(*pq.Error)
+					serr, ok := err.(*pgconn.PgError)
 					So(ok, ShouldBeTrue)
-					So(serr.Code.Name(), ShouldEqual, "unique_violation")
+					So(serr.Code, ShouldEqual, "23505")
 				})
 
 				Convey("Then Deleting a wrong entry", func() {
@@ -157,7 +157,7 @@ func TestRoundSpec(t *testing.T) {
 					So(err, ShouldBeNil)
 					err = rr.Store(&r4)
 					So(err, ShouldBeNil)
-					var count int
+					var count int64
 					db.Table("rounds").Count(&count)
 					So(count, ShouldEqual, 4)
 					Convey("Last GetLastNonElapsingRound should output last round that has END set", func() {
@@ -172,9 +172,8 @@ func TestRoundSpec(t *testing.T) {
 					})
 				})
 				Convey("Creating Checks Table", func() {
-					var count int
+					var count int64
 					db.AutoMigrate(&check.Check{})
-					db.Model(&check.Check{}).AddForeignKey("round_id", "rounds(id)", "CASCADE", "RESTRICT")
 					Convey("Associating a single Check with a Round", func() {
 						db.Exec(fmt.Sprintf("INSERT INTO checks (service_id, round_id, log) VALUES (1, %d, 'TestLog')", r.ID))
 						db.Table("checks").Count(&count)
@@ -190,7 +189,7 @@ func TestRoundSpec(t *testing.T) {
 						})
 
 						Reset(func() {
-							db.DropTableIfExists(&check.Check{})
+							db.Migrator().DropTable(&check.Check{})
 						})
 					})
 				})
@@ -198,5 +197,5 @@ func TestRoundSpec(t *testing.T) {
 		})
 	})
 	DropDB(db, c)
-	db.Close()
+
 }

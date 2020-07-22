@@ -118,9 +118,8 @@ func TestServiceGroupSpec(t *testing.T) {
 					})
 				})
 				Convey("Creating Service Table", func() {
-					var count int
+					var count int64
 					db.AutoMigrate(&service.Service{})
-					db.Model(&service.Service{}).AddForeignKey("service_group_id", "service_groups(id)", "RESTRICT", "RESTRICT")
 					Convey("Then associating one service with the service group", func() {
 						db.Exec(fmt.Sprintf("INSERT INTO services (id, service_group_id, host_id, name) VALUES (5, %d, 999, 'TestService')", s.ID))
 						db.Table("services").Count(&count)
@@ -136,7 +135,7 @@ func TestServiceGroupSpec(t *testing.T) {
 						})
 					})
 					Reset(func() {
-						db.DropTableIfExists(&service.Service{})
+						db.Migrator().DropTable(&service.Service{})
 					})
 				})
 
@@ -160,15 +159,15 @@ func TestServiceGroupSpec(t *testing.T) {
 				//
 				//	})
 				//	Reset(func() {
-				//		db.DropTableIfExists(&swarm.Swarm{})
+				//		db.Migrator().DropTable(&swarm.Swarm{})
 				//	})
 				//})
 			})
 		})
 		Reset(func() {
-			db.DropTableIfExists(&service_group.ServiceGroup{})
+			db.Migrator().DropTable(&service_group.ServiceGroup{})
 		})
 	})
 	DropDB(db, c)
-	db.Close()
+
 }

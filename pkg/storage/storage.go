@@ -3,10 +3,10 @@ package storage
 import (
 	"errors"
 	"fmt"
+	"gorm.io/gorm/schema"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/qor/validations"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 var db *gorm.DB
@@ -37,8 +37,7 @@ func NewDB(c Config) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	validations.RegisterCallbacks(db)
-	db.BlockGlobalUpdate(true)
+	//validations.RegisterCallbacks(db)
 	return db, nil
 }
 
@@ -49,16 +48,18 @@ func newCockroach(c Config) (*gorm.DB, error) {
 		c.Cockroach.UserName,
 		c.Cockroach.Database)
 
-	db, err := gorm.Open("postgres", psqlInfo)
+	db, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{NamingStrategy: schema.NamingStrategy{
+		TablePrefix: c.Prefix,
+	}})
 	if err != nil {
 		return nil, err
 	}
 	if c.Cockroach.ConfigureZones {
-		err := db.Exec("ALTER RANGE default CONFIGURE ZONE USING gc.ttlseconds = $1;", c.Cockroach.DefaultZoneConfig.GcTtlseconds).Error
+		err := db.Exec("ALTER RANGE default CONFIGURE ZONE USING gc.ttlseconds = ?;", c.Cockroach.DefaultZoneConfig.GcTtlseconds).Error
 		if err != nil {
 			return nil, err
 		}
-		err = db.Exec("SET CLUSTER SETTING kv.range.backpressure_range_size_multiplier= $1;", c.Cockroach.DefaultZoneConfig.BackpressureRangeSizeMultiplier).Error
+		err = db.Exec("SET CLUSTER SETTING kv.range.backpressure_range_size_multiplier= ?;", c.Cockroach.DefaultZoneConfig.BackpressureRangeSizeMultiplier).Error
 		if err != nil {
 			return nil, err
 		}
@@ -70,6 +71,7 @@ func newCockroach(c Config) (*gorm.DB, error) {
 
 type Config struct {
 	Use       string `default:"cockroach"`
+	Prefix    string `default:""`
 	Cockroach struct {
 		Enabled           bool   `default:"true"`
 		Host              string `default:"cockroach"`

@@ -2,11 +2,12 @@ package handler
 
 import (
 	"encoding/json"
+	"github.com/L1ghtman2k/ScoreTrak/cmd/master/run"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/master/run"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/queue"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/util"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
@@ -17,10 +18,10 @@ type serviceController struct {
 	log logger.LogInfoFormat
 	svc service.Serv
 	q   queue.Queue
-	r   run.RepoStore
+	r   util.RepoStore
 }
 
-func NewServiceController(log logger.LogInfoFormat, svc service.Serv, q queue.Queue, r run.RepoStore) *serviceController {
+func NewServiceController(log logger.LogInfoFormat, svc service.Serv, q queue.Queue, r util.RepoStore) *serviceController {
 	return &serviceController{log, svc, q, r}
 }
 

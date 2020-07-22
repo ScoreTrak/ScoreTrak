@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
@@ -8,6 +9,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
 	"testing"
+	"time"
 )
 
 func TestPropertySpec(t *testing.T) {
@@ -26,7 +28,6 @@ func TestPropertySpec(t *testing.T) {
 	Convey("Creating Property and Property tables along with their foreign keys", t, func() {
 		db.AutoMigrate(&service.Service{})
 		db.AutoMigrate(&property.Property{})
-		db.Model(&property.Property{}).AddForeignKey("service_id", "services(id)", "CASCADE", "RESTRICT")
 		cr := NewPropertyRepo(db, l)
 		Convey("When all tables are empty", func() {
 			Convey("Should output no entry", func() {
@@ -43,7 +44,7 @@ func TestPropertySpec(t *testing.T) {
 				So(len(ac), ShouldEqual, 0)
 			})
 			Convey("Load sample services and rounds", func() {
-				var count int
+				var count int64
 				db.Exec("INSERT INTO services (id, service_group_id, host_id, name) VALUES (5, 999, 999, 'TestService')")
 				db.Exec("INSERT INTO services (id, service_group_id, host_id, name) VALUES (6, 999, 999, 'TestService')")
 				db.Table("services").Count(&count)
@@ -106,6 +107,8 @@ func TestPropertySpec(t *testing.T) {
 							c.Status = "SomeBadStatus"
 							c.Description = "Test Description"
 							err = cr.Update(&c)
+							fmt.Printf("%T", err)
+							time.Sleep(time.Second * 300)
 							So(err, ShouldNotBeNil)
 							ac, err = cr.GetAll()
 							So(err, ShouldBeNil)
@@ -139,10 +142,10 @@ func TestPropertySpec(t *testing.T) {
 			})
 		})
 		Reset(func() {
-			db.DropTableIfExists(&property.Property{})
-			db.DropTableIfExists(&service.Service{})
+			db.Migrator().DropTable(&property.Property{})
+			db.Migrator().DropTable(&service.Service{})
 		})
 	})
 	DropDB(db, c)
-	db.Close()
+
 }
