@@ -126,17 +126,20 @@ func TestHostSpec(t *testing.T) {
 					Convey("Adding a new host with host group foreign key", func() {
 						address := "127.0.0.1"
 						tru := true
-						newHost := host.Host{ID: 4, HostGroupID: 2, Address: &address, EditHost: &tru}
+						hstg2 := uint64(2)
+						newHost := host.Host{ID: 4, HostGroupID: &hstg2, Address: &address, EditHost: &tru}
 						err := hr.Store(&newHost)
 						So(err, ShouldBeNil)
 					})
 					Convey("Updating a host with host group foreign key", func() {
-						h.HostGroupID = 1
+						hstg1 := uint64(1)
+						h.HostGroupID = &hstg1
 						err := hr.Update(&h)
 						So(err, ShouldBeNil)
 					})
 					SkipConvey("Updating a host with an invalid host group foreign key(Skipping this for now since foreign keys dont behave in a same way in prod, and in testing)", func() {
-						h.HostGroupID = 10
+						hstg10 := uint64(10)
+						h.HostGroupID = &hstg10
 						err := hr.Update(&h)
 						So(err, ShouldNotBeNil)
 					})
