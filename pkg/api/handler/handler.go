@@ -18,12 +18,6 @@ import (
 //Generic function passing and assignment
 
 func genericGetByID(svc interface{}, log logger.LogInfoFormat, m string, idParam string, w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error("panic occurred:", err)
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-	}()
 	id, err := idResolver(svc, idParam, r)
 	if err != nil {
 		log.Error(err)
@@ -49,12 +43,6 @@ func genericGetByID(svc interface{}, log logger.LogInfoFormat, m string, idParam
 }
 
 func genericGet(svc interface{}, log logger.LogInfoFormat, m string, w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error("panic occurred:", err)
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-	}()
 	sg, err := invokeRetMethod(svc, m)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -74,13 +62,6 @@ func genericGet(svc interface{}, log logger.LogInfoFormat, m string, w http.Resp
 }
 
 func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, m string, idParam string, w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error("panic occurred:", err)
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-	}()
-
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(g)
 	if err != nil {
@@ -115,12 +96,6 @@ func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, m s
 }
 
 func genericStore(svc interface{}, g interface{}, log logger.LogInfoFormat, m string, w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error("panic occurred:", err)
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-	}()
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(g)
 	if err != nil {
@@ -142,12 +117,6 @@ func genericStore(svc interface{}, g interface{}, log logger.LogInfoFormat, m st
 }
 
 func genericDelete(svc interface{}, log logger.LogInfoFormat, m string, idParam string, w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if err := recover(); err != nil {
-			log.Error("panic occurred:", err)
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-	}()
 	id, err := idResolver(svc, idParam, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
