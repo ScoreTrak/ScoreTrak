@@ -18,13 +18,13 @@ import (
 //Generic function passing and assignment
 
 func genericGetByID(svc interface{}, log logger.LogInfoFormat, m string, idParam string, w http.ResponseWriter, r *http.Request) {
-	id, err := idResolver(svc, idParam, r)
+	id, err := IdResolver(svc, idParam, r)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	sg, err := invokeRetMethod(svc, m, id)
+	sg, err := InvokeRetMethod(svc, m, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			http.Error(w, err.Error(), http.StatusNotFound)
@@ -43,7 +43,7 @@ func genericGetByID(svc interface{}, log logger.LogInfoFormat, m string, idParam
 }
 
 func genericGet(svc interface{}, log logger.LogInfoFormat, m string, w http.ResponseWriter, r *http.Request) {
-	sg, err := invokeRetMethod(svc, m)
+	sg, err := InvokeRetMethod(svc, m)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			http.Error(w, err.Error(), http.StatusNotFound)
@@ -69,7 +69,7 @@ func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, m s
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	id, err := idResolver(svc, idParam, r)
+	id, err := IdResolver(svc, idParam, r)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -82,7 +82,7 @@ func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, m s
 	} else {
 		v.FieldByName("ID").Set(f)
 	}
-	err = invokeNoRetMethod(svc, m, g)
+	err = InvokeNoRetMethod(svc, m, g)
 	if err != nil {
 		_, ok := err.(*validations.Error)
 		if ok {
@@ -103,7 +103,7 @@ func genericStore(svc interface{}, g interface{}, log logger.LogInfoFormat, m st
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	err = invokeNoRetMethod(svc, m, g)
+	err = InvokeNoRetMethod(svc, m, g)
 	if err != nil {
 		_, ok := err.(*validations.Error)
 		if ok {
@@ -117,13 +117,13 @@ func genericStore(svc interface{}, g interface{}, log logger.LogInfoFormat, m st
 }
 
 func genericDelete(svc interface{}, log logger.LogInfoFormat, m string, idParam string, w http.ResponseWriter, r *http.Request) {
-	id, err := idResolver(svc, idParam, r)
+	id, err := IdResolver(svc, idParam, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		log.Error(err)
 		return
 	}
-	err = invokeNoRetMethod(svc, m, id)
+	err = InvokeNoRetMethod(svc, m, id)
 	if err != nil {
 		_, ok := err.(*orm.NoRowsAffected)
 		if ok {
@@ -140,8 +140,8 @@ func genericDelete(svc interface{}, log logger.LogInfoFormat, m string, idParam 
 //Credit to:
 // https://stackoverflow.com/questions/14116840/dynamically-call-method-on-interface-regardless-of-receiver-type
 // https://stackoverflow.com/questions/8103617/call-a-struct-and-its-method-by-name-in-go
-func invokeRetMethod(i interface{}, methodName string, args ...interface{}) (interface{}, error) {
-	finalMethod := preInvoke(i, methodName)
+func InvokeRetMethod(i interface{}, methodName string, args ...interface{}) (interface{}, error) {
+	finalMethod := PreInvoke(i, methodName)
 	if finalMethod.IsValid() {
 		inputs := make([]reflect.Value, len(args))
 		for i, _ := range args {
@@ -157,8 +157,8 @@ func invokeRetMethod(i interface{}, methodName string, args ...interface{}) (int
 	return nil, errors.New(fmt.Sprintf("The method name %s does not exist in %s", methodName, reflect.TypeOf(i).Name()))
 }
 
-func invokeNoRetMethod(i interface{}, methodName string, args ...interface{}) error {
-	finalMethod := preInvoke(i, methodName)
+func InvokeNoRetMethod(i interface{}, methodName string, args ...interface{}) error {
+	finalMethod := PreInvoke(i, methodName)
 	if finalMethod.IsValid() {
 		inputs := make([]reflect.Value, len(args))
 		for i, _ := range args {
@@ -174,7 +174,7 @@ func invokeNoRetMethod(i interface{}, methodName string, args ...interface{}) er
 	return errors.New(fmt.Sprintf("The method name %s does not exist in %s", methodName, reflect.TypeOf(i).Name()))
 }
 
-func preInvoke(i interface{}, methodName string) reflect.Value {
+func PreInvoke(i interface{}, methodName string) reflect.Value {
 	var ptr reflect.Value
 	var value reflect.Value
 	var finalMethod reflect.Value
@@ -199,7 +199,7 @@ func preInvoke(i interface{}, methodName string) reflect.Value {
 	return finalMethod
 }
 
-func idResolver(svc interface{}, idParam string, r *http.Request) (interface{}, error) {
+func IdResolver(svc interface{}, idParam string, r *http.Request) (interface{}, error) {
 	if idParam == "" {
 		return 1, nil
 	}

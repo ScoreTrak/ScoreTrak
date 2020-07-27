@@ -62,7 +62,7 @@ func (s *serviceGroupController) Store(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *serviceGroupController) Delete(w http.ResponseWriter, r *http.Request) {
-	id, err := idResolver(s.svc, "id", r)
+	id, err := IdResolver(s.svc, "id", r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		s.log.Error(err)
@@ -114,7 +114,7 @@ func (s *serviceGroupController) Redeploy(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	id, err := idResolver(s.svc, "id", r)
+	id, err := IdResolver(s.svc, "id", r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		s.log.Error(err)
@@ -159,7 +159,7 @@ func (s *serviceGroupController) Update(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	id, err := idResolver(s.svc, "id", r)
+	id, err := IdResolver(s.svc, "id", r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		s.log.Error(err)
