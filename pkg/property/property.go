@@ -5,6 +5,12 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	View = "View"
+	Edit = "Edit"
+	Hide = "Hide"
+)
+
 // Property model describes a single key value pair for a service(parameters). An example could be a port for HTTP checking
 type Property struct {
 	ID uint64 `json:"id,omitempty"`
@@ -26,7 +32,7 @@ func (Property) TableName() string {
 
 func (p Property) Validate(db *gorm.DB) {
 	if p.Status != "" {
-		for _, item := range []string{"View", "Edit", "Hide"} {
+		for _, item := range []string{View, Edit, Hide} {
 			if item == p.Status {
 				return
 			}

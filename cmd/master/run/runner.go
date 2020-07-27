@@ -306,9 +306,7 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 					}
 					params := map[string]string{}
 					for _, p := range s.Properties {
-						if p.Status != "Hide" {
-							params[p.Key] = p.Value
-						}
+						params[p.Key] = p.Value
 					}
 
 					if len(s.Checks) != 0 {
