@@ -196,9 +196,9 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 				if *t.Enabled {
 					var validHost bool
 					if *h.Enabled {
-						if h.HostGroupID != 0 {
+						if h.HostGroupID != nil {
 							for _, hG := range hostGroup {
-								if hG.ID == h.HostGroupID && *(hG.Enabled) {
+								if hG.ID == *h.HostGroupID && *(hG.Enabled) {
 									validHost = true
 								}
 							}

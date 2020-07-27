@@ -401,8 +401,20 @@ func RoundRoutes(l logger.LogInfoFormat, svc round.Serv) Routes {
 		Route{
 			"GetLastNonElapsingRound",
 			strings.ToUpper("Get"),
-			"/round",
+			"/round/last_non_elapsing",
 			ctrl.GetLastNonElapsingRound,
+		},
+		Route{
+			"GetRounds",
+			strings.ToUpper("Get"),
+			"/round",
+			ctrl.GetAll,
+		},
+		Route{
+			"GetRoundByID",
+			strings.ToUpper("Get"),
+			"/round/{id}",
+			ctrl.GetByID,
 		},
 	}
 	return roundRoutes

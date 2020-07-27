@@ -19,8 +19,6 @@ func NewScoretrakClient(url *url.URL, token string, client *http.Client) Scoretr
 	return ScoretrakClient{baseURL: url, token: token, httpClient: client}
 }
 
-//Every Client could be fed directly to resource struct in gobuffalo
-
 func responseValidator(r *http.Response) error {
 	if r.StatusCode >= 200 && r.StatusCode < 400 {
 		return nil
@@ -39,12 +37,12 @@ func responseValidator(r *http.Response) error {
 }
 
 type InvalidResponse struct {
-	msg          string // description of error
+	Msg          string
 	ResponseCode int
 	ResponseBody string
 }
 
-func (e *InvalidResponse) Error() string { return e.msg }
+func (e *InvalidResponse) Error() string { return e.Msg }
 
 func (s ScoretrakClient) setAuthToken(req *http.Request) {
 	req.Header.Set("x-access-token", s.token)

@@ -11,10 +11,10 @@ type Host struct {
 	Address *string `json:"address" gorm:"not null;default:null" valid:"host,optional"`
 
 	// The ID of a host group that the host belongs to.
-	HostGroupID uint64 `json:"host_group_id,omitempty" gorm:"default: null"`
+	HostGroupID *uint64 `json:"host_group_id,omitempty"`
 
-	// The ID of a team that this host belongs too. This parameter is optional, however is needed to appear on the scoring engine.
-	TeamName string `json:"team_name,omitempty"`
+	// The ID of a team that this host belongs too.
+	TeamID uint64 `json:"team_id,omitempty" gorm:"not null"`
 
 	// Enables or disables scoring for a single host
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: true"`
@@ -22,5 +22,5 @@ type Host struct {
 	// Enables to Edit the hostname. If a single host needs to be eddited for one service, and kept only visible for other service, you can make 2 services that point to same address, and have different edit_host properties.
 	EditHost *bool `json:"edit_host,omitempty" gorm:"not null;default: false"`
 
-	Services []*service.Service `json:"omitempty" gorm:"foreignkey:HostID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT"`
+	Services []*service.Service `json:"services,omitempty" gorm:"foreignkey:HostID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT"`
 }

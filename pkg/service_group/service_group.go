@@ -14,7 +14,7 @@ type ServiceGroup struct {
 
 	Name string `json:"name" gorm:"not null;unique;default:null"`
 
-	DisplayName string `json:"display_name" gorm:"default:null"`
+	DisplayName string `json:"display_name,omitempty" gorm:"default:null"`
 
 	// Enables or Disables the service
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: false"`
