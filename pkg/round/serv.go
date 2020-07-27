@@ -2,6 +2,8 @@ package round
 
 type Serv interface {
 	GetLastNonElapsingRound() (*Round, error)
+	GetAll() ([]*Round, error)
+	GetByID(id uint64) (*Round, error)
 }
 
 type roundServ struct {

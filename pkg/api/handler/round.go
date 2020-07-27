@@ -19,4 +19,10 @@ func (c *roundController) GetLastNonElapsingRound(w http.ResponseWriter, r *http
 	genericGet(c.svc, c.log, "GetLastNonElapsingRound", w, r)
 }
 
-//ToDO: Expose regular API calls like GetAll, and getbyID to allow for debugging
+func (c *roundController) GetAll(w http.ResponseWriter, r *http.Request) {
+	genericGet(c.svc, c.log, "GetAll", w, r)
+}
+
+func (c *roundController) GetByID(w http.ResponseWriter, r *http.Request) {
+	genericGetByID(c.svc, c.log, "GetByID", "id", w, r)
+}
