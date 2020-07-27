@@ -18,3 +18,5 @@ func NewRoundController(log logger.LogInfoFormat, svc round.Serv) *roundControll
 func (c *roundController) GetLastNonElapsingRound(w http.ResponseWriter, r *http.Request) {
 	genericGet(c.svc, c.log, "GetLastNonElapsingRound", w, r)
 }
+
+//ToDO: Expose regular API calls like GetAll, and getbyID to allow for debugging
