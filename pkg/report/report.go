@@ -23,15 +23,15 @@ func NewReport() *Report {
 
 type SimpleReport struct {
 	Round uint64
-	Teams map[uint64]SimpleTeam
+	Teams map[uint64]*SimpleTeam
 }
 
 type SimpleTeam struct {
-	Hosts map[uint64]SimpleHost
+	Hosts map[uint64]*SimpleHost
 }
 
 type SimpleHost struct {
-	Services map[uint64]SimpleService
+	Services map[uint64]*SimpleService
 }
 
 type SimpleService struct {

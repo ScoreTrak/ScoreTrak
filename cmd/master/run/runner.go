@@ -283,13 +283,13 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 			return err
 		}
 		schNew := report.SimpleReport{Round: rnd.ID}
-		schNew.Teams = make(map[uint64]report.SimpleTeam)
+		schNew.Teams = make(map[uint64]*report.SimpleTeam)
 		for _, t := range teams {
 			st := report.SimpleTeam{}
-			st.Hosts = make(map[uint64]report.SimpleHost)
+			st.Hosts = make(map[uint64]*report.SimpleHost)
 			for _, h := range t.Hosts {
 				sh := report.SimpleHost{}
-				sh.Services = make(map[uint64]report.SimpleService)
+				sh.Services = make(map[uint64]*report.SimpleService)
 				for _, s := range h.Services {
 					var points uint64
 					if rnd.ID != 1 {
@@ -310,15 +310,15 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 					}
 
 					if len(s.Checks) != 0 {
-						sh.Services[s.ID] = report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Passed: *s.Checks[0].Passed, Log: s.Checks[0].Log, Err: s.Checks[0].Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
+						sh.Services[s.ID] = &report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Passed: *s.Checks[0].Passed, Log: s.Checks[0].Log, Err: s.Checks[0].Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
 					} else {
-						sh.Services[s.ID] = report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Passed: false, Log: "Service was not checked because it was disabled", Err: "", Points: points, Properties: params, PointsBoost: s.PointsBoost}
+						sh.Services[s.ID] = &report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Passed: false, Log: "Service was not checked because it was disabled", Err: "", Points: points, Properties: params, PointsBoost: s.PointsBoost}
 					}
 
 				}
-				st.Hosts[h.ID] = sh
+				st.Hosts[h.ID] = &sh
 			}
-			schNew.Teams[t.ID] = st
+			schNew.Teams[t.ID] = &st
 		}
 		bt, err := json.Marshal(&schNew)
 		if err != nil {
