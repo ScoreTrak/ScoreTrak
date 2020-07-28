@@ -19,6 +19,10 @@ func (c *roundController) GetLastNonElapsingRound(w http.ResponseWriter, r *http
 	genericGet(c.svc, c.log, "GetLastNonElapsingRound", w, r)
 }
 
+func (c *roundController) GetLastRound(w http.ResponseWriter, r *http.Request) {
+	genericGet(c.svc, c.log, "GetLastRound", w, r)
+}
+
 func (c *roundController) GetAll(w http.ResponseWriter, r *http.Request) {
 	genericGet(c.svc, c.log, "GetAll", w, r)
 }

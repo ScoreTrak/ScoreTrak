@@ -65,6 +65,15 @@ func (ds *dserver) MapRoutes() {
 	routes = append(routes, ds.serviceRoutes()...)
 	routes = append(routes, ds.serviceGroupRoutes()...)
 	routes = append(routes, ds.reportRoutes()...)
+	routes = append(routes, Route{
+		"Time",
+		strings.ToUpper("Get"),
+		"/time",
+		func(w http.ResponseWriter, r *http.Request) {
+			json.NewEncoder(w).Encode(time.Now())
+			return
+		},
+	})
 
 	for _, route := range routes {
 		var hdler http.Handler
@@ -403,6 +412,12 @@ func RoundRoutes(l logger.LogInfoFormat, svc round.Serv) Routes {
 			strings.ToUpper("Get"),
 			"/round/last_non_elapsing",
 			ctrl.GetLastNonElapsingRound,
+		},
+		Route{
+			"GetLastRound",
+			strings.ToUpper("Get"),
+			"/round/last",
+			ctrl.GetLastRound,
 		},
 		Route{
 			"GetRounds",
