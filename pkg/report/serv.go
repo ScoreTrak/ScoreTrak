@@ -24,10 +24,10 @@ func (svc *reportServ) RecalculateReport(team []*team.Team, round round.Round) (
 	simpleTeams = make(map[uint64]SimpleTeam)
 	for _, t := range team {
 		st := SimpleTeam{}
-		st.Hosts = make(map[uint64]SimpleHost)
+		st.Hosts = make(map[uint64]*SimpleHost)
 		for _, h := range t.Hosts {
 			sh := SimpleHost{}
-			sh.Services = make(map[uint64]SimpleService)
+			sh.Services = make(map[uint64]*SimpleService)
 			for _, s := range h.Services {
 				var points uint64
 				for _, c := range s.Checks {
@@ -44,13 +44,13 @@ func (svc *reportServ) RecalculateReport(team []*team.Team, round round.Round) (
 				if len(s.Checks) != 0 {
 					lastCheck := s.Checks[len(s.Checks)-1]
 					if lastCheck.RoundID == round.ID {
-						sh.Services[s.ID] = SimpleService{Passed: *lastCheck.Passed, Log: lastCheck.Log, Err: lastCheck.Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
+						sh.Services[s.ID] = &SimpleService{Passed: *lastCheck.Passed, Log: lastCheck.Log, Err: lastCheck.Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
 					} else {
-						sh.Services[s.ID] = SimpleService{Passed: false, Log: "Service was not checked because it was disabled", Err: "", Points: points, Properties: params, PointsBoost: s.PointsBoost}
+						sh.Services[s.ID] = &SimpleService{Passed: false, Log: "Service was not checked because it was disabled", Err: "", Points: points, Properties: params, PointsBoost: s.PointsBoost}
 					}
 				}
 			}
-			st.Hosts[h.ID] = sh
+			st.Hosts[h.ID] = &sh
 		}
 		simpleTeams[t.ID] = st
 	}
