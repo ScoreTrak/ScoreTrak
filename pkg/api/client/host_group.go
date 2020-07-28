@@ -14,12 +14,12 @@ func NewHostGroupClient(c ScoretrakClient) host_group.Serv {
 }
 
 func (s HostGroupClient) Delete(id uint64) error {
-	return s.s.genericDelete(fmt.Sprintf("/host_group/%d", id))
+	return s.s.GenericDelete(fmt.Sprintf("/host_group/%d", id))
 }
 
 func (s HostGroupClient) GetAll() ([]*host_group.HostGroup, error) {
 	var sg []*host_group.HostGroup
-	err := s.s.genericGet(&sg, "/host_group")
+	err := s.s.GenericGet(&sg, "/host_group")
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (s HostGroupClient) GetAll() ([]*host_group.HostGroup, error) {
 
 func (s HostGroupClient) GetByID(id uint64) (*host_group.HostGroup, error) {
 	sg := &host_group.HostGroup{}
-	err := s.s.genericGet(sg, fmt.Sprintf("/host_group/%d", id))
+	err := s.s.GenericGet(sg, fmt.Sprintf("/host_group/%d", id))
 	if err != nil {
 		return nil, err
 	}
@@ -36,9 +36,9 @@ func (s HostGroupClient) GetByID(id uint64) (*host_group.HostGroup, error) {
 }
 
 func (s HostGroupClient) Store(u *host_group.HostGroup) error {
-	return s.s.genericStore(u, fmt.Sprintf("/host_group"))
+	return s.s.GenericStore(u, fmt.Sprintf("/host_group"))
 }
 
 func (s HostGroupClient) Update(u *host_group.HostGroup) error {
-	return s.s.genericUpdate(u, fmt.Sprintf("/host_group/%d", u.ID))
+	return s.s.GenericUpdate(u, fmt.Sprintf("/host_group/%d", u.ID))
 }
