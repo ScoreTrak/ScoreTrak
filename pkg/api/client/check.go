@@ -15,7 +15,7 @@ func NewCheckClient(c ScoretrakClient) check.Serv {
 
 func (s CheckClient) GetAllByRoundID(rID uint64) ([]*check.Check, error) {
 	var chk []*check.Check
-	err := s.s.genericGet(&chk, fmt.Sprintf("/check/%d", rID))
+	err := s.s.GenericGet(&chk, fmt.Sprintf("/check/%d", rID))
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (s CheckClient) GetAllByRoundID(rID uint64) ([]*check.Check, error) {
 
 func (s CheckClient) GetByRoundServiceID(rID uint64, sID uint64) (*check.Check, error) {
 	var chk *check.Check
-	err := s.s.genericGet(&chk, fmt.Sprintf("/check/%d/%d", rID, sID))
+	err := s.s.GenericGet(&chk, fmt.Sprintf("/check/%d/%d", rID, sID))
 	if err != nil {
 		return nil, err
 	}
