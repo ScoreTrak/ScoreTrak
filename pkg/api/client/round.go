@@ -13,7 +13,7 @@ func NewRoundClient(c ScoretrakClient) round.Serv {
 	return &RoundClient{c}
 }
 
-func (r RoundClient) GetLastNonElapsingRound() (*round.Round, error) {
+func (r *RoundClient) GetLastNonElapsingRound() (*round.Round, error) {
 	sg := &round.Round{}
 	err := r.s.genericGet(sg, fmt.Sprintf("/round/last_non_elapsing"))
 	if err != nil {
@@ -22,7 +22,7 @@ func (r RoundClient) GetLastNonElapsingRound() (*round.Round, error) {
 	return sg, nil
 }
 
-func (r RoundClient) GetAll() ([]*round.Round, error) {
+func (r *RoundClient) GetAll() ([]*round.Round, error) {
 	var sg []*round.Round
 	err := r.s.genericGet(&sg, fmt.Sprintf("/round"))
 	if err != nil {
@@ -31,9 +31,18 @@ func (r RoundClient) GetAll() ([]*round.Round, error) {
 	return sg, nil
 }
 
-func (r RoundClient) GetByID(id uint64) (*round.Round, error) {
+func (r *RoundClient) GetByID(id uint64) (*round.Round, error) {
 	sg := &round.Round{}
 	err := r.s.genericGet(sg, fmt.Sprintf("/round/%d", id))
+	if err != nil {
+		return nil, err
+	}
+	return sg, nil
+}
+
+func (r *RoundClient) GetLastRound() (*round.Round, error) {
+	sg := &round.Round{}
+	err := r.s.genericGet(sg, fmt.Sprintf("/round/last"))
 	if err != nil {
 		return nil, err
 	}
