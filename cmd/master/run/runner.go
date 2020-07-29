@@ -118,7 +118,7 @@ func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 	}
 }
 
-func (d *dRunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64) time.Duration {
+func (d *dRunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint32) time.Duration {
 	if rnd == nil || rnd.ID == 0 {
 		return config.MinRoundDuration / 2
 	}
@@ -283,15 +283,15 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 			return err
 		}
 		schNew := report.SimpleReport{Round: rnd.ID}
-		schNew.Teams = make(map[uint64]*report.SimpleTeam)
+		schNew.Teams = make(map[uint32]*report.SimpleTeam)
 		for _, t := range teams {
 			st := report.SimpleTeam{}
-			st.Hosts = make(map[uint64]*report.SimpleHost)
+			st.Hosts = make(map[uint32]*report.SimpleHost)
 			for _, h := range t.Hosts {
 				sh := report.SimpleHost{}
-				sh.Services = make(map[uint64]*report.SimpleService)
+				sh.Services = make(map[uint32]*report.SimpleService)
 				for _, s := range h.Services {
-					var points uint64
+					var points uint32
 					if rnd.ID != 1 {
 						if t1, ok := schOld.Teams[t.ID]; ok {
 							if h1, ok := t1.Hosts[h.ID]; ok {

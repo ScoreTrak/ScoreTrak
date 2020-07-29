@@ -10,16 +10,16 @@ import (
 
 // Dynamic Config model is a set of columns describing the dynamicConfig of the scoring engine
 type DynamicConfig struct {
-	ID uint64 `json:"id,omitempty"`
+	ID uint32 `json:"id,omitempty"`
 	// Describes how long each round unit takes to execute in seconds. This value shuold have a minimum value enforced (something like 20 seconds)
-	RoundDuration uint64 `json:"round_duration,omitempty" default:"60"`
+	RoundDuration uint32 `json:"round_duration,omitempty" default:"60"`
 	// Enables or disables competition globally
 	Enabled *bool `json:"enabled,omitempty" default:"false" gorm:"not null;default: false"`
 }
 
 func (d DynamicConfig) Validate(db *gorm.DB) {
-	if d.RoundDuration != 0 && d.RoundDuration < uint64(MinRoundDuration.Seconds()) {
-		db.AddError(errors.New(fmt.Sprintf("Round Duration should not be larger than MinRoundDuration, which is %d", uint64(MinRoundDuration.Seconds()))))
+	if d.RoundDuration != 0 && d.RoundDuration < uint32(MinRoundDuration.Seconds()) {
+		db.AddError(errors.New(fmt.Sprintf("Round Duration should not be larger than MinRoundDuration, which is %d", uint32(MinRoundDuration.Seconds()))))
 	}
 }
 

@@ -17,7 +17,7 @@ func NewPropertyRepo(db *gorm.DB, log logger.LogInfoFormat) property.Repo {
 	return &propertyRepo{db, log}
 }
 
-func (p *propertyRepo) Delete(id uint64) error {
+func (p *propertyRepo) Delete(id uint32) error {
 	p.log.Debugf("deleting the property with id : %d", id)
 	result := p.db.Delete(&property.Property{}, "id = ?", id)
 
@@ -47,7 +47,7 @@ func (p *propertyRepo) GetAll() ([]*property.Property, error) {
 	return properties, nil
 }
 
-func (p *propertyRepo) GetAllByServiceID(id uint64) ([]*property.Property, error) {
+func (p *propertyRepo) GetAllByServiceID(id uint32) ([]*property.Property, error) {
 	p.log.Debugf("get property details by id : %s", id)
 	properties := make([]*property.Property, 0)
 	err := p.db.Where("service_id = ?", id).Find(&properties).Error
@@ -58,7 +58,7 @@ func (p *propertyRepo) GetAllByServiceID(id uint64) ([]*property.Property, error
 	return properties, nil
 }
 
-func (p *propertyRepo) GetByID(id uint64) (*property.Property, error) {
+func (p *propertyRepo) GetByID(id uint32) (*property.Property, error) {
 	p.log.Debugf("get property details by id : %s", id)
 
 	prop := &property.Property{}

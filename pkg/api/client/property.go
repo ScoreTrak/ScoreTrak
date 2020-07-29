@@ -13,7 +13,7 @@ func NewPropertyClient(c ScoretrakClient) property.Serv {
 	return &PropertyClient{c}
 }
 
-func (s PropertyClient) Delete(id uint64) error {
+func (s PropertyClient) Delete(id uint32) error {
 	return s.s.GenericDelete(fmt.Sprintf("/property/%d", id))
 }
 
@@ -26,7 +26,7 @@ func (s PropertyClient) GetAll() ([]*property.Property, error) {
 	return sg, nil
 }
 
-func (s PropertyClient) GetByID(id uint64) (*property.Property, error) {
+func (s PropertyClient) GetByID(id uint32) (*property.Property, error) {
 	sg := &property.Property{}
 	err := s.s.GenericGet(sg, fmt.Sprintf("/property/%d", id))
 	if err != nil {

@@ -209,10 +209,11 @@ func IdResolver(svc interface{}, idParam string, r *http.Request) (interface{}, 
 		id = params[idParam]
 	} else {
 		var err error
-		id, err = strconv.ParseUint(params[idParam], 10, 64)
+		id, err = strconv.ParseUint(params[idParam], 10, 32)
 		if err != nil {
 			return nil, err
 		}
+		id = id.(uint32)
 	}
 	return id, nil
 }

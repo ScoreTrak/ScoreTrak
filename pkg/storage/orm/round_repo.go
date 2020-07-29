@@ -17,7 +17,7 @@ func NewRoundRepo(db *gorm.DB, log logger.LogInfoFormat) round.Repo {
 	return &roundRepo{db, log}
 }
 
-func (r *roundRepo) Delete(id uint64) error {
+func (r *roundRepo) Delete(id uint32) error {
 	r.log.Debugf("deleting the round with id : %d", id)
 	result := r.db.Delete(&round.Round{}, "id = ?", id)
 
@@ -46,7 +46,7 @@ func (r *roundRepo) GetAll() ([]*round.Round, error) {
 	return rounds, nil
 }
 
-func (r *roundRepo) GetByID(id uint64) (*round.Round, error) {
+func (r *roundRepo) GetByID(id uint32) (*round.Round, error) {
 	r.log.Debugf("get round details by id : %s", id)
 
 	tea := &round.Round{}
