@@ -46,7 +46,7 @@ func (d dRunner) refreshDsync() {
 	dsync = -time.Since(tm)
 
 	if float64(time.Second*2) < math.Abs(float64(dsync)) {
-		d.l.Error(fmt.Sprintf("time difference between master host, and database host are is large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now()))
+		d.l.Error(fmt.Sprintf("time difference between master host, and database host is too large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now()))
 	}
 }
 func (d dRunner) getDsync() time.Duration {
