@@ -17,7 +17,7 @@ func NewServiceGroupRepo(db *gorm.DB, log logger.LogInfoFormat) service_group.Re
 	return &serviceGroupRepo{db, log}
 }
 
-func (s *serviceGroupRepo) Delete(id uint32) error {
+func (s *serviceGroupRepo) Delete(id uint64) error {
 	s.log.Debugf("deleting the Service Group with id : %d", id)
 	result := s.db.Delete(&service_group.ServiceGroup{}, "id = ?", id)
 
@@ -46,7 +46,7 @@ func (s *serviceGroupRepo) GetAll() ([]*service_group.ServiceGroup, error) {
 	return serviceGroups, nil
 }
 
-func (s *serviceGroupRepo) GetByID(id uint32) (*service_group.ServiceGroup, error) {
+func (s *serviceGroupRepo) GetByID(id uint64) (*service_group.ServiceGroup, error) {
 	s.log.Debugf("get Service Group details by id : %s", id)
 
 	sgr := &service_group.ServiceGroup{}

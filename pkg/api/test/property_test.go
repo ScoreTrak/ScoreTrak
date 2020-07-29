@@ -96,11 +96,11 @@ func TestPropertySpec(t *testing.T) {
 			properties, err := cli.GetAll()
 			So(err, ShouldBeNil)
 			So(len(properties), ShouldEqual, 13)
-			var IDs []uint32
+			var IDs []uint64
 			for _, hst := range properties {
 				IDs = append(IDs, hst.ID)
 			}
-			So(IDs, ShouldContain, uint32(1))
+			So(IDs, ShouldContain, uint64(1))
 		})
 
 		Convey("Deleting a non existent property", func() {

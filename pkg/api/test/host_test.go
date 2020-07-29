@@ -113,11 +113,11 @@ func TestHostSpec(t *testing.T) {
 			hosts, err := cli.GetAll()
 			So(err, ShouldBeNil)
 			So(len(hosts), ShouldEqual, 4)
-			var IDs []uint32
+			var IDs []uint64
 			for _, hst := range hosts {
 				IDs = append(IDs, hst.ID)
 			}
-			So(IDs, ShouldContain, uint32(1))
+			So(IDs, ShouldContain, uint64(1))
 		})
 
 		Convey("Deleting a host that doesnt have child hosts by ID", func() {

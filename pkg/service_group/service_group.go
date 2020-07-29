@@ -10,7 +10,7 @@ import (
 
 // Serv Group model describes a grouping of services.
 type ServiceGroup struct {
-	ID uint32 `json:"id,omitempty"`
+	ID uint64 `json:"id,omitempty"`
 
 	Name string `json:"name" gorm:"not null;unique;default:null"`
 

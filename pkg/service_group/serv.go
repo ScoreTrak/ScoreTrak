@@ -1,9 +1,9 @@
 package service_group
 
 type Serv interface {
-	Delete(id uint32) error
+	Delete(id uint64) error
 	GetAll() ([]*ServiceGroup, error)
-	GetByID(id uint32) (*ServiceGroup, error)
+	GetByID(id uint64) (*ServiceGroup, error)
 	Store(u *ServiceGroup) error
 	Update(u *ServiceGroup) error
 }
@@ -18,11 +18,11 @@ func NewServiceGroupServ(repo Repo) Serv {
 	}
 }
 
-func (svc *serviceGroupServ) Delete(id uint32) error { return svc.repo.Delete(id) }
+func (svc *serviceGroupServ) Delete(id uint64) error { return svc.repo.Delete(id) }
 
 func (svc *serviceGroupServ) GetAll() ([]*ServiceGroup, error) { return svc.repo.GetAll() }
 
-func (svc *serviceGroupServ) GetByID(id uint32) (*ServiceGroup, error) { return svc.repo.GetByID(id) }
+func (svc *serviceGroupServ) GetByID(id uint64) (*ServiceGroup, error) { return svc.repo.GetByID(id) }
 
 func (svc *serviceGroupServ) Store(u *ServiceGroup) error { return svc.repo.Store(u) }
 

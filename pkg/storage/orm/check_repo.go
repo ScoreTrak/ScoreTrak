@@ -17,14 +17,14 @@ func NewCheckRepo(db *gorm.DB, log logger.LogInfoFormat) check.Repo {
 	return &checkRepo{db, log}
 }
 
-func (c *checkRepo) GetAllByRoundID(rID uint32) ([]*check.Check, error) {
+func (c *checkRepo) GetAllByRoundID(rID uint64) ([]*check.Check, error) {
 	c.log.Debug("get all the checks")
 	var checks []*check.Check
 	err := c.db.Where("round_id = ?", rID).Find(&checks).Error
 	return checks, err
 }
 
-func (c *checkRepo) GetByRoundServiceID(rID uint32, sID uint32) (*check.Check, error) {
+func (c *checkRepo) GetByRoundServiceID(rID uint64, sID uint64) (*check.Check, error) {
 	c.log.Debug("get all the checks")
 	chk := &check.Check{}
 	err := c.db.Where("round_id = ? AND service_id = ?", rID, sID).First(&chk).Error
@@ -35,7 +35,7 @@ func (c *checkRepo) GetByRoundServiceID(rID uint32, sID uint32) (*check.Check, e
 	return chk, err
 }
 
-func (c *checkRepo) Delete(rID uint32, sID uint32) error {
+func (c *checkRepo) Delete(rID uint64, sID uint64) error {
 	c.log.Debugf("deleting the check with rid, sid : %d, %d", rID, sID)
 	result := c.db.Delete(&check.Check{}, "round_id = ? AND service_id = ?", rID, sID)
 	if result.Error != nil {
@@ -63,7 +63,7 @@ func (c *checkRepo) GetAll() ([]*check.Check, error) {
 	return checks, nil
 }
 
-func (c *checkRepo) GetByID(rID uint32, sID uint32) (*check.Check, error) {
+func (c *checkRepo) GetByID(rID uint64, sID uint64) (*check.Check, error) {
 	c.log.Debugf("get the check with rid, sid : %d, %d", rID, sID)
 
 	chck := &check.Check{}
