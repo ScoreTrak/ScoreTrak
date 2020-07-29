@@ -8,7 +8,7 @@ import (
 type Team struct {
 
 	// this id refers to ID of a team in web.
-	ID uint32 `json:"id" gorm:"primary_key"`
+	ID uint64 `json:"id" gorm:"primary_key"`
 
 	Name string `json:"name" gorm:"unique;not null;default:null"`
 

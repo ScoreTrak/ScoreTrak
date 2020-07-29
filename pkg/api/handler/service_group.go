@@ -68,7 +68,7 @@ func (s *serviceGroupController) Delete(w http.ResponseWriter, r *http.Request) 
 		s.log.Error(err)
 		return
 	}
-	idUint, ok := id.(uint32)
+	idUint, ok := id.(uint64)
 	if !ok {
 		http.Error(w, "failed to retrieve the id", http.StatusInternalServerError)
 		s.log.Error(err)
@@ -120,7 +120,7 @@ func (s *serviceGroupController) Redeploy(w http.ResponseWriter, r *http.Request
 		s.log.Error(err)
 		return
 	}
-	idUint, ok := id.(uint32)
+	idUint, ok := id.(uint64)
 	if !ok {
 		http.Error(w, "failed to retrieve the id", http.StatusInternalServerError)
 		return
@@ -165,7 +165,7 @@ func (s *serviceGroupController) Update(w http.ResponseWriter, r *http.Request) 
 		s.log.Error(err)
 		return
 	}
-	idUint, ok := id.(uint32)
+	idUint, ok := id.(uint64)
 	if !ok {
 		http.Error(w, "failed to retrieve the id", http.StatusInternalServerError)
 		s.log.Error(err)

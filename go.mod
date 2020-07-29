@@ -18,13 +18,12 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/gorilla/mux v1.7.4
 	github.com/hirochachacha/go-smb2 v0.0.0-20200509054601-823d9b854690
-	github.com/jackc/pgconn v1.6.1
 	github.com/jinzhu/configor v1.2.0
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
 	github.com/jinzhu/gorm v1.9.12
 	github.com/jlaffaye/ftp v0.0.0-20200422224957-b9f3ade29122
 	github.com/kr/pretty v0.2.0 // indirect
-	github.com/lib/pq v1.3.0 // indirect
+	github.com/lib/pq v1.3.0
 	github.com/masterzen/winrm v0.0.0-20190308153735-1d17eaf15943
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/miekg/dns v1.1.29

@@ -49,24 +49,23 @@ func (s *serviceController) Update(w http.ResponseWriter, r *http.Request) {
 
 func (s *serviceController) TestService(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	id64, err := strconv.ParseUint(params["id"], 10, 32)
+	id, err := strconv.ParseUint(params["id"], 10, 64)
 	if err != nil {
 		s.log.Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 
 	}
-	id32 := uint32(id64)
-	ser, err := s.r.Service.GetByID(id32)
+	ser, err := s.r.Service.GetByID(id)
 	if err != nil {
 		s.log.Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}
-	p, _ := s.r.Property.GetAllByServiceID(id32)
+	p, _ := s.r.Property.GetAllByServiceID(id)
 	h, _ := s.r.Host.GetByID(ser.HostID)
 	serGrp, _ := s.r.ServiceGroup.GetByID(ser.ServiceGroupID)
 
 	response, berr, err := s.q.Send([]*queueing.ScoringData{
-		{Service: queueing.QService{ID: id32, Name: ser.Name, Group: serGrp.Name}, Host: *h.Address, Deadline: time.Now().Add(time.Second * 5), RoundID: 0, Properties: run.PropertyToMap(p)},
+		{Service: queueing.QService{ID: id, Name: ser.Name, Group: serGrp.Name}, Host: *h.Address, Deadline: time.Now().Add(time.Second * 5), RoundID: 0, Properties: run.PropertyToMap(p)},
 	})
 	if berr != nil {
 		response[0].Err += berr.Error()
