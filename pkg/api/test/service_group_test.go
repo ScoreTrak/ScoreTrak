@@ -94,11 +94,11 @@ func TestServiceGroupSpec(t *testing.T) {
 			serviceGroups, err := cli.GetAll()
 			So(err, ShouldBeNil)
 			So(len(serviceGroups), ShouldEqual, 4)
-			var IDs []uint64
+			var IDs []uint32
 			for _, tm := range serviceGroups {
 				IDs = append(IDs, tm.ID)
 			}
-			So(IDs, ShouldContain, uint64(3))
+			So(IDs, ShouldContain, uint32(3))
 		})
 
 		Convey("Deleting a Service Group that doesnt have child service by ID", func() {
