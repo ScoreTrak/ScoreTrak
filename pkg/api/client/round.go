@@ -31,7 +31,7 @@ func (r *RoundClient) GetAll() ([]*round.Round, error) {
 	return sg, nil
 }
 
-func (r *RoundClient) GetByID(id uint64) (*round.Round, error) {
+func (r *RoundClient) GetByID(id uint32) (*round.Round, error) {
 	sg := &round.Round{}
 	err := r.s.GenericGet(sg, fmt.Sprintf("/round/%d", id))
 	if err != nil {

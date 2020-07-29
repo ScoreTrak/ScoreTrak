@@ -17,7 +17,7 @@ func NewTeamRepo(db *gorm.DB, log logger.LogInfoFormat) team.Repo {
 	return &teamRepo{db, log}
 }
 
-func (t *teamRepo) Delete(id uint64) error {
+func (t *teamRepo) Delete(id uint32) error {
 	t.log.Debugf("deleting the team with id : %d", id)
 
 	result := t.db.Delete(&team.Team{}, "id = ?", id)
@@ -62,7 +62,7 @@ func (t *teamRepo) GetAll() ([]*team.Team, error) {
 	return teams, nil
 }
 
-func (t *teamRepo) GetByID(id uint64) (*team.Team, error) {
+func (t *teamRepo) GetByID(id uint32) (*team.Team, error) {
 	t.log.Debugf("get team details by id : %s", id)
 
 	tea := &team.Team{}
