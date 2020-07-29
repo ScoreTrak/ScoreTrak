@@ -111,7 +111,7 @@ func FTPSpec(t *testing.T) {
 							s.Enabled = &tru
 							s.Name = "DifferentTestName"
 							s.RoundUnits = 3
-							rd := uint64(2)
+							rd := uint32(2)
 							s.RoundDelay = &rd
 							s.Points = 5
 							err = sr.Update(&s)
@@ -123,7 +123,7 @@ func FTPSpec(t *testing.T) {
 							So(*(ac[0].RoundDelay), ShouldEqual, 2)
 						})
 						Convey("Then updating Round Delay to something larger than Round Units should not be allowed", func() {
-							rd := uint64(5)
+							rd := uint32(5)
 							s.RoundDelay = &rd
 							Convey("Round Units set", func() {
 								s.RoundUnits = 3

@@ -26,19 +26,21 @@ func (c *checkController) GetAllByRoundID(w http.ResponseWriter, r *http.Request
 
 func (c *checkController) GetByRoundServiceID(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	rID, err := strconv.ParseUint(params["RoundID"], 10, 64)
+	rID, err := strconv.ParseUint(params["RoundID"], 10, 32)
 	if err != nil {
 		c.log.Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	sID, err := strconv.ParseUint(params["ServiceID"], 10, 64)
+	sID, err := strconv.ParseUint(params["ServiceID"], 10, 32)
 	if err != nil {
 		c.log.Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	sg, err := c.svc.GetByRoundServiceID(rID, sID)
+	rID32 := uint32(rID)
+	sID32 := uint32(sID)
+	sg, err := c.svc.GetByRoundServiceID(rID32, sID32)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			http.Error(w, err.Error(), http.StatusNotFound)

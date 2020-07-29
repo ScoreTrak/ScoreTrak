@@ -81,8 +81,8 @@ type Config struct {
 		Database          string `default:"scoretrak"`
 		ConfigureZones    bool   `default:"true"`
 		DefaultZoneConfig struct {
-			GcTtlseconds                    uint64 `default:"600"`
-			BackpressureRangeSizeMultiplier uint64 `default:"0"`
+			GcTtlseconds                    uint32 `default:"600"`
+			BackpressureRangeSizeMultiplier uint32 `default:"0"`
 		}
 	}
 }

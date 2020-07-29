@@ -4,7 +4,7 @@ import "github.com/L1ghtman2k/ScoreTrak/pkg/host"
 
 // Host Group model represents a set of hosts that have a common purpose, but are in different teams. For instance team 1 web, and team 2 web would bellong to a host group Web
 type HostGroup struct {
-	ID uint64 `json:"id,omitempty"`
+	ID uint32 `json:"id,omitempty"`
 
 	Name string `json:"name" gorm:"not null; unique"`
 

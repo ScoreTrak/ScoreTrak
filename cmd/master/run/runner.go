@@ -46,7 +46,7 @@ func (d dRunner) refreshDsync() {
 	dsync = -time.Since(tm)
 
 	if float64(time.Second*2) < math.Abs(float64(dsync)) {
-		d.l.Error(fmt.Sprintf("time difference between master host, and database host are is large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now()))
+		d.l.Error(fmt.Sprintf("time difference between master host, and database host is too large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now()))
 	}
 }
 func (d dRunner) getDsync() time.Duration {
@@ -118,7 +118,7 @@ func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 	}
 }
 
-func (d *dRunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64) time.Duration {
+func (d *dRunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint32) time.Duration {
 	if rnd == nil || rnd.ID == 0 {
 		return config.MinRoundDuration / 2
 	}
@@ -283,15 +283,15 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 			return err
 		}
 		schNew := report.SimpleReport{Round: rnd.ID}
-		schNew.Teams = make(map[uint64]*report.SimpleTeam)
+		schNew.Teams = make(map[uint32]*report.SimpleTeam)
 		for _, t := range teams {
 			st := report.SimpleTeam{}
-			st.Hosts = make(map[uint64]*report.SimpleHost)
+			st.Hosts = make(map[uint32]*report.SimpleHost)
 			for _, h := range t.Hosts {
 				sh := report.SimpleHost{}
-				sh.Services = make(map[uint64]*report.SimpleService)
+				sh.Services = make(map[uint32]*report.SimpleService)
 				for _, s := range h.Services {
-					var points uint64
+					var points uint32
 					if rnd.ID != 1 {
 						if t1, ok := schOld.Teams[t.ID]; ok {
 							if h1, ok := t1.Hosts[h.ID]; ok {

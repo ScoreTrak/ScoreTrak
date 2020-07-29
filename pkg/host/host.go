@@ -6,15 +6,15 @@ import (
 
 // Host model represents a single machine. This could be an IP address or a resolvable hostname
 type Host struct {
-	ID uint64 `json:"id,omitempty"`
+	ID uint32 `json:"id,omitempty"`
 
 	Address *string `json:"address" gorm:"not null;default:null" valid:"host,optional"`
 
 	// The ID of a host group that the host belongs to.
-	HostGroupID *uint64 `json:"host_group_id,omitempty"`
+	HostGroupID *uint32 `json:"host_group_id,omitempty"`
 
 	// The ID of a team that this host belongs too.
-	TeamID uint64 `json:"team_id,omitempty" gorm:"not null"`
+	TeamID uint32 `json:"team_id,omitempty" gorm:"not null"`
 
 	// Enables or disables scoring for a single host
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: true"`

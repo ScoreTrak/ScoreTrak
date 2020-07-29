@@ -98,11 +98,11 @@ func TestServiceSpec(t *testing.T) {
 			services, err := cli.GetAll()
 			So(err, ShouldBeNil)
 			So(len(services), ShouldEqual, 8)
-			var IDs []uint64
+			var IDs []uint32
 			for _, hst := range services {
 				IDs = append(IDs, hst.ID)
 			}
-			So(IDs, ShouldContain, uint64(1))
+			So(IDs, ShouldContain, uint32(1))
 		})
 
 		Convey("Deleting a non existent service", func() {

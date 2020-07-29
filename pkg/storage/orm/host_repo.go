@@ -17,7 +17,7 @@ func NewHostRepo(db *gorm.DB, log logger.LogInfoFormat) host.Repo {
 	return &hostRepo{db, log}
 }
 
-func (h *hostRepo) Delete(id uint64) error {
+func (h *hostRepo) Delete(id uint32) error {
 	h.log.Debugf("deleting the host with id : %h", id)
 
 	result := h.db.Delete(&host.Host{}, "id = ?", id)
@@ -45,7 +45,7 @@ func (h *hostRepo) GetAll() ([]*host.Host, error) {
 	return hosts, nil
 }
 
-func (h *hostRepo) GetByID(id uint64) (*host.Host, error) {
+func (h *hostRepo) GetByID(id uint32) (*host.Host, error) {
 	h.log.Debugf("get host details by id : %h", id)
 
 	hst := &host.Host{}
