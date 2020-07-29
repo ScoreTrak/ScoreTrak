@@ -13,7 +13,7 @@ func NewHostClient(c ScoretrakClient) host.Serv {
 	return &HostClient{c}
 }
 
-func (s HostClient) Delete(id uint64) error {
+func (s HostClient) Delete(id uint32) error {
 	return s.s.GenericDelete(fmt.Sprintf("/host/%d", id))
 }
 
@@ -26,7 +26,7 @@ func (s HostClient) GetAll() ([]*host.Host, error) {
 	return sg, nil
 }
 
-func (s HostClient) GetByID(id uint64) (*host.Host, error) {
+func (s HostClient) GetByID(id uint32) (*host.Host, error) {
 	sg := &host.Host{}
 	err := s.s.GenericGet(sg, fmt.Sprintf("/host/%d", id))
 	if err != nil {

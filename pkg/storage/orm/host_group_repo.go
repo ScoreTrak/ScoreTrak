@@ -17,7 +17,7 @@ func NewHostGroupRepo(db *gorm.DB, log logger.LogInfoFormat) host_group.Repo {
 	return &hostGroupRepo{db, log}
 }
 
-func (h *hostGroupRepo) Delete(id uint64) error {
+func (h *hostGroupRepo) Delete(id uint32) error {
 	h.log.Debugf("deleting the hostGroup with id : %h", id)
 	result := h.db.Delete(&host_group.HostGroup{}, "id = ?", id)
 	if result.Error != nil {
@@ -45,7 +45,7 @@ func (h *hostGroupRepo) GetAll() ([]*host_group.HostGroup, error) {
 	return hostGroups, nil
 }
 
-func (h *hostGroupRepo) GetByID(id uint64) (*host_group.HostGroup, error) {
+func (h *hostGroupRepo) GetByID(id uint32) (*host_group.HostGroup, error) {
 	h.log.Debugf("get hostGroup details by id : %h", id)
 
 	hstgrp := &host_group.HostGroup{}

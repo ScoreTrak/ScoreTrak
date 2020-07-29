@@ -68,7 +68,7 @@ func TestConfigSpec(t *testing.T) {
 			retConfig, err := cli.Get()
 			So(err, ShouldBeNil)
 			So(retConfig.ID, ShouldEqual, 1)
-			So(retConfig.RoundDuration, ShouldEqual, uint64(60))
+			So(retConfig.RoundDuration, ShouldEqual, uint32(60))
 			So(*(retConfig.Enabled), ShouldBeTrue)
 		})
 
@@ -87,7 +87,7 @@ func TestConfigSpec(t *testing.T) {
 				retConfig, err := cli.Get()
 				So(err, ShouldBeNil)
 				So(retConfig.ID, ShouldEqual, 1)
-				So(retConfig.RoundDuration, ShouldEqual, uint64(50))
+				So(retConfig.RoundDuration, ShouldEqual, uint32(50))
 				So(*(retConfig.Enabled), ShouldBeFalse)
 			})
 		})

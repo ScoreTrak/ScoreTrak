@@ -16,11 +16,11 @@ type ScoringData struct {
 	Properties map[string]string
 	Deadline   time.Time
 	Host       string
-	RoundID    uint64
+	RoundID    uint32
 }
 
 type QService struct {
-	ID             uint64
+	ID             uint32
 	Group          string
 	Name           string
 	ReturningTopic string
@@ -28,7 +28,7 @@ type QService struct {
 
 type QCheck struct {
 	Service QService
-	RoundID uint64
+	RoundID uint32
 	Passed  bool
 	Log     string
 	Err     string
@@ -59,12 +59,12 @@ type Config struct {
 	}
 }
 
-func TopicFromServiceRound(ser *QService, roundID uint64) string {
+func TopicFromServiceRound(ser *QService, roundID uint32) string {
 	if roundID == 0 {
 		var seededRand *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
-		return "test_" + strconv.FormatUint(ser.ID, 10) + strconv.Itoa(seededRand.Int()) + "_ack"
+		return "test_" + strconv.FormatUint(uint64(ser.ID), 10) + strconv.Itoa(seededRand.Int()) + "_ack"
 	}
-	return strconv.FormatUint(roundID, 10) + "_ack"
+	return strconv.FormatUint(uint64(ser.ID), 10) + "_ack"
 }
 
 func CommonExecute(sd *ScoringData, execDeadline time.Time, l logger.LogInfoFormat) QCheck {
