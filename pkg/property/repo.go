@@ -1,10 +1,10 @@
 package property
 
 type Repo interface {
-	Delete(id uint32) error
+	Delete(id uint64) error
 	GetAll() ([]*Property, error)
-	GetByID(id uint32) (*Property, error)
+	GetByID(id uint64) (*Property, error)
 	Store(u *Property) error
 	Update(u *Property) error
-	GetAllByServiceID(id uint32) ([]*Property, error)
+	GetAllByServiceID(id uint64) ([]*Property, error)
 }

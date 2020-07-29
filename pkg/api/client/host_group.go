@@ -13,7 +13,7 @@ func NewHostGroupClient(c ScoretrakClient) host_group.Serv {
 	return &HostGroupClient{c}
 }
 
-func (s HostGroupClient) Delete(id uint32) error {
+func (s HostGroupClient) Delete(id uint64) error {
 	return s.s.GenericDelete(fmt.Sprintf("/host_group/%d", id))
 }
 
@@ -26,7 +26,7 @@ func (s HostGroupClient) GetAll() ([]*host_group.HostGroup, error) {
 	return sg, nil
 }
 
-func (s HostGroupClient) GetByID(id uint32) (*host_group.HostGroup, error) {
+func (s HostGroupClient) GetByID(id uint64) (*host_group.HostGroup, error) {
 	sg := &host_group.HostGroup{}
 	err := s.s.GenericGet(sg, fmt.Sprintf("/host_group/%d", id))
 	if err != nil {

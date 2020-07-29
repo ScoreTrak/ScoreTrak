@@ -20,16 +20,16 @@ func NewReportServ(repo Repo) Serv {
 }
 func (svc *reportServ) Get() (*Report, error) { return svc.repo.Get() }
 
-func (svc *reportServ) RecalculateReport(team []*team.Team, round round.Round) (simpleTeams map[uint32]SimpleTeam, err error) {
-	simpleTeams = make(map[uint32]SimpleTeam)
+func (svc *reportServ) RecalculateReport(team []*team.Team, round round.Round) (simpleTeams map[uint64]SimpleTeam, err error) {
+	simpleTeams = make(map[uint64]SimpleTeam)
 	for _, t := range team {
 		st := SimpleTeam{}
-		st.Hosts = make(map[uint32]*SimpleHost)
+		st.Hosts = make(map[uint64]*SimpleHost)
 		for _, h := range t.Hosts {
 			sh := SimpleHost{}
-			sh.Services = make(map[uint32]*SimpleService)
+			sh.Services = make(map[uint64]*SimpleService)
 			for _, s := range h.Services {
-				var points uint32
+				var points uint64
 				for _, c := range s.Checks {
 					if *c.Passed {
 						points += s.Points

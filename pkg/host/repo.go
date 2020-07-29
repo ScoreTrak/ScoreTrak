@@ -1,9 +1,9 @@
 package host
 
 type Repo interface {
-	Delete(id uint32) error
+	Delete(id uint64) error
 	GetAll() ([]*Host, error)
-	GetByID(id uint32) (*Host, error)
+	GetByID(id uint64) (*Host, error)
 	Store(u *Host) error
 	Update(u *Host) error
 }

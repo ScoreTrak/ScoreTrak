@@ -1,9 +1,9 @@
 package property
 
 type Serv interface {
-	Delete(id uint32) error
+	Delete(id uint64) error
 	GetAll() ([]*Property, error)
-	GetByID(id uint32) (*Property, error)
+	GetByID(id uint64) (*Property, error)
 	Store(u *Property) error
 	Update(u *Property) error
 }
@@ -18,11 +18,11 @@ func NewPropertyServ(repo Repo) Serv {
 	}
 }
 
-func (svc *propertyServ) Delete(id uint32) error { return svc.repo.Delete(id) }
+func (svc *propertyServ) Delete(id uint64) error { return svc.repo.Delete(id) }
 
 func (svc *propertyServ) GetAll() ([]*Property, error) { return svc.repo.GetAll() }
 
-func (svc *propertyServ) GetByID(id uint32) (*Property, error) { return svc.repo.GetByID(id) }
+func (svc *propertyServ) GetByID(id uint64) (*Property, error) { return svc.repo.GetByID(id) }
 
 func (svc *propertyServ) Store(u *Property) error { return svc.repo.Store(u) }
 
