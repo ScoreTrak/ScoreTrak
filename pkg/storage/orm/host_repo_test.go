@@ -142,7 +142,7 @@ func TestHostSpec(t *testing.T) {
 						err := hr.Update(h[0])
 						So(err, ShouldBeNil)
 					})
-					SkipConvey("Updating a host with an invalid host group foreign key(Skipping this for now since foreign keys dont behave in a same way in prod, and in testing)", func() {
+					Convey("Updating a host with an invalid host group foreign key(Skipping this for now since foreign keys dont behave in a same way in prod, and in testing)", func() {
 						hstg10 := uuid.FromStringOrNil("444333333-3333-3333-3333-333333333333")
 						h[0].HostGroupID = &hstg10
 						err := hr.Update(h[0])
