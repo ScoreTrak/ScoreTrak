@@ -46,11 +46,13 @@ type Service struct {
 
 // BeforeCreate will set a UUID rather than numeric ID.
 func (s *Service) BeforeCreate(tx *gorm.DB) (err error) {
-	u, err := uuid.NewV4()
-	if err != nil {
-		return err
+	if s.ID == uuid.Nil {
+		u, err := uuid.NewV4()
+		if err != nil {
+			return err
+		}
+		s.ID = u
 	}
-	s.ID = u
 	return nil
 }
 

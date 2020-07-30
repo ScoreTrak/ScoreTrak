@@ -25,10 +25,12 @@ func (t *Team) BeforeCreate(tx *gorm.DB) (err error) {
 	if t.Name == "" {
 		return errors.New("field Name is a mandatory parameter")
 	}
-	u, err := uuid.NewV4()
-	if err != nil {
-		return err
+	if t.ID == uuid.Nil {
+		u, err := uuid.NewV4()
+		if err != nil {
+			return err
+		}
+		t.ID = u
 	}
-	t.ID = u
 	return nil
 }
