@@ -42,10 +42,15 @@ func (s ServiceGroup) Validate(db *gorm.DB) {
 
 // BeforeCreate will set a UUID rather than numeric ID.
 func (s *ServiceGroup) BeforeCreate(tx *gorm.DB) (err error) {
-	u, err := uuid.NewV4()
-	if err != nil {
-		return err
+	if s.Name == "" {
+		return errors.New("field Name is a mandatory parameter")
 	}
-	s.ID = u
+	if s.ID == uuid.Nil {
+		u, err := uuid.NewV4()
+		if err != nil {
+			return err
+		}
+		s.ID = u
+	}
 	return nil
 }

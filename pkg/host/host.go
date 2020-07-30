@@ -3,6 +3,7 @@ package host
 import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 	"github.com/gofrs/uuid"
+	"gorm.io/gorm"
 )
 
 // Host model represents a single machine. This could be an IP address or a resolvable hostname
@@ -24,4 +25,15 @@ type Host struct {
 	EditHost *bool `json:"edit_host,omitempty" gorm:"not null;default: false"`
 
 	Services []*service.Service `json:"services,omitempty" gorm:"foreignkey:HostID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT"`
+}
+
+func (p *Host) BeforeCreate(tx *gorm.DB) (err error) {
+	if p.ID == uuid.Nil {
+		u, err := uuid.NewV4()
+		if err != nil {
+			return err
+		}
+		p.ID = u
+	}
+	return nil
 }

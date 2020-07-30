@@ -44,10 +44,12 @@ func (p Property) Validate(db *gorm.DB) {
 }
 
 func (p *Property) BeforeCreate(tx *gorm.DB) (err error) {
-	u, err := uuid.NewV4()
-	if err != nil {
-		return err
+	if p.ID == uuid.Nil {
+		u, err := uuid.NewV4()
+		if err != nil {
+			return err
+		}
+		p.ID = u
 	}
-	p.ID = u
 	return nil
 }
