@@ -1,10 +1,12 @@
 package property
 
+import "github.com/gofrs/uuid"
+
 type Serv interface {
-	Delete(id uint32) error
+	Delete(id uuid.UUID) error
 	GetAll() ([]*Property, error)
-	GetByID(id uint32) (*Property, error)
-	Store(u *Property) error
+	GetByID(id uuid.UUID) (*Property, error)
+	Store(u []*Property) error
 	Update(u *Property) error
 }
 
@@ -18,12 +20,12 @@ func NewPropertyServ(repo Repo) Serv {
 	}
 }
 
-func (svc *propertyServ) Delete(id uint32) error { return svc.repo.Delete(id) }
+func (svc *propertyServ) Delete(id uuid.UUID) error { return svc.repo.Delete(id) }
 
 func (svc *propertyServ) GetAll() ([]*Property, error) { return svc.repo.GetAll() }
 
-func (svc *propertyServ) GetByID(id uint32) (*Property, error) { return svc.repo.GetByID(id) }
+func (svc *propertyServ) GetByID(id uuid.UUID) (*Property, error) { return svc.repo.GetByID(id) }
 
-func (svc *propertyServ) Store(u *Property) error { return svc.repo.Store(u) }
+func (svc *propertyServ) Store(u []*Property) error { return svc.repo.Store(u) }
 
 func (svc *propertyServ) Update(u *Property) error { return svc.repo.Update(u) }

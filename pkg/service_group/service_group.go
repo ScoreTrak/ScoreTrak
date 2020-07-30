@@ -4,13 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
+	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"regexp"
 )
 
 // Serv Group model describes a grouping of services.
 type ServiceGroup struct {
-	ID uint32 `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty" gorm:"type:uuid;primary_key;"`
 
 	Name string `json:"name" gorm:"not null;unique;default:null"`
 
@@ -37,4 +38,14 @@ func (s ServiceGroup) Validate(db *gorm.DB) {
 		}
 		db.AddError(errors.New(fmt.Sprintf("name %s doesn't resolve to scorable service", s.Name)))
 	}
+}
+
+// BeforeCreate will set a UUID rather than numeric ID.
+func (s *ServiceGroup) BeforeCreate(tx *gorm.DB) (err error) {
+	u, err := uuid.NewV4()
+	if err != nil {
+		return err
+	}
+	s.ID = u
+	return nil
 }

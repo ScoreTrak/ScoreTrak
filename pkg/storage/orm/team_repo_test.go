@@ -1,10 +1,12 @@
 package orm
 
 import (
+	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
 	. "github.com/L1ghtman2k/ScoreTrak/test"
+	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
 	"testing"
@@ -39,8 +41,8 @@ func TestTeamSpec(t *testing.T) {
 			Convey("Adding an entry with empty name", func() {
 				var err error
 				tru := true
-				t := team.Team{Name: "", Enabled: &tru}
-				err = tr.Store(&t)
+				t := []*team.Team{{Name: "", Enabled: &tru}}
+				err = tr.Store(t)
 				So(err, ShouldNotBeNil)
 
 				Convey("Should output no entry", func() {
@@ -52,8 +54,9 @@ func TestTeamSpec(t *testing.T) {
 
 			Convey("Adding a valid entry", func() {
 				var err error
-				t := team.Team{Name: "TestTeam"}
-				err = tr.Store(&t)
+				tru := true
+				t := []*team.Team{{Name: "TestTeam", Enabled: &tru}}
+				err = tr.Store(t)
 				So(err, ShouldBeNil)
 				Convey("Should output one entry", func() {
 					ac, err := tr.GetAll()
@@ -100,7 +103,7 @@ func TestTeamSpec(t *testing.T) {
 					fls := false
 					newTeam := &team.Team{Enabled: &fls}
 					Convey("For the wrong entry should not update anything", func() {
-						newTeam.ID = t.ID + 1
+						newTeam.ID = uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")
 						err = tr.Update(newTeam)
 						So(err, ShouldBeNil)
 						ac, err := tr.GetAll()
@@ -111,7 +114,7 @@ func TestTeamSpec(t *testing.T) {
 					})
 					Convey("For the correct entry should update", func() {
 						newTeam.Name = "TestTeam"
-						newTeam.ID = t.ID
+						newTeam.ID = t[0].ID
 						err = tr.Update(newTeam)
 						So(err, ShouldBeNil)
 						ac, err := tr.GetAll()
@@ -126,7 +129,7 @@ func TestTeamSpec(t *testing.T) {
 					var count int64
 					db.AutoMigrate(&host.Host{})
 					Convey("Associating a single Host with a team", func() {
-						db.Exec("INSERT INTO hosts (id, address, team_name) VALUES (4, '192.168.1.1', 'TestTeam')")
+						db.Exec(fmt.Sprintf("INSERT INTO hosts (id, address, team_id) VALUES ('44444444-4444-4444-4444-444444444444', '192.168.1.1', '%s')", t[0].ID.String()))
 						db.Table("hosts").Count(&count)
 						So(count, ShouldEqual, 1)
 						Convey("DeleteByName a team without deleting a host", func() {
@@ -137,7 +140,7 @@ func TestTeamSpec(t *testing.T) {
 							So(len(ac), ShouldEqual, 1)
 						})
 						Convey("Deleting a host then deleting a team", func() {
-							db.Exec("DELETE FROM hosts WHERE id=4")
+							db.Exec("DELETE FROM hosts WHERE id='44444444-4444-4444-4444-444444444444'")
 							err = tr.DeleteByName("TestTeam")
 							So(err, ShouldBeNil)
 							ac, err := tr.GetAll()
@@ -147,8 +150,8 @@ func TestTeamSpec(t *testing.T) {
 
 						Convey("Updating a team enabled without deleting a host should not yield error", func() {
 							tru := true
-							t.Enabled = &tru
-							err = tr.Update(&t)
+							t[0].Enabled = &tru
+							err = tr.Update(t[0])
 							So(err, ShouldBeNil)
 						})
 

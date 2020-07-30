@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"encoding/json"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/qor/validations"
 	"net/http"
 )
 
@@ -16,8 +18,25 @@ func NewHostGroupController(log logger.LogInfoFormat, svc host_group.Serv) *host
 }
 
 func (t *hostGroupController) Store(w http.ResponseWriter, r *http.Request) {
-	tm := &host_group.HostGroup{}
-	genericStore(t.svc, tm, t.log, "Store", w, r)
+	var tm []*host_group.HostGroup
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&tm)
+	if err != nil {
+		t.log.Error(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = t.svc.Store(tm)
+	if err != nil {
+		_, ok := err.(*validations.Error)
+		if ok {
+			http.Error(w, err.Error(), http.StatusPreconditionFailed)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		t.log.Error(err)
+		return
+	}
 }
 
 func (t *hostGroupController) Delete(w http.ResponseWriter, r *http.Request) {

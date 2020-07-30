@@ -175,7 +175,7 @@ func TestRoundSpec(t *testing.T) {
 					var count int64
 					db.AutoMigrate(&check.Check{})
 					Convey("Associating a single Check with a Round", func() {
-						db.Exec(fmt.Sprintf("INSERT INTO checks (service_id, round_id, log) VALUES (1, %d, 'TestLog')", r.ID))
+						db.Exec(fmt.Sprintf("INSERT INTO checks (service_id, round_id, log) VALUES ('11111111-1111-1111-1111-111111111111', %d, 'TestLog')", r.ID))
 						db.Table("checks").Count(&count)
 						So(count, ShouldEqual, 1)
 						Convey("Delete a round without deleting a check should cascade all checks", func() {

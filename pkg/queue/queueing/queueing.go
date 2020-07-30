@@ -6,6 +6,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/exec"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/exec/resolver"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/gofrs/uuid"
 	"math/rand"
 	"strconv"
 	"time"
@@ -16,11 +17,11 @@ type ScoringData struct {
 	Properties map[string]string
 	Deadline   time.Time
 	Host       string
-	RoundID    uint32
+	RoundID    uint
 }
 
 type QService struct {
-	ID             uint32
+	ID             uuid.UUID
 	Group          string
 	Name           string
 	ReturningTopic string
@@ -28,7 +29,7 @@ type QService struct {
 
 type QCheck struct {
 	Service QService
-	RoundID uint32
+	RoundID uint
 	Passed  bool
 	Log     string
 	Err     string
@@ -59,12 +60,12 @@ type Config struct {
 	}
 }
 
-func TopicFromServiceRound(ser *QService, roundID uint32) string {
+func TopicFromServiceRound(ser *QService, roundID uint) string {
 	if roundID == 0 {
 		var seededRand *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
-		return "test_" + strconv.FormatUint(uint64(ser.ID), 10) + strconv.Itoa(seededRand.Int()) + "_ack"
+		return "test_" + ser.ID.String() + strconv.Itoa(seededRand.Int()) + "_ack"
 	}
-	return strconv.FormatUint(uint64(ser.ID), 10) + "_ack"
+	return ser.ID.String() + "_ack"
 }
 
 func CommonExecute(sd *ScoringData, execDeadline time.Time, l logger.LogInfoFormat) QCheck {

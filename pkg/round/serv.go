@@ -3,7 +3,7 @@ package round
 type Serv interface {
 	GetLastNonElapsingRound() (*Round, error)
 	GetAll() ([]*Round, error)
-	GetByID(id uint32) (*Round, error)
+	GetByID(id uint) (*Round, error)
 	GetLastRound() (*Round, error)
 }
 
@@ -25,11 +25,11 @@ func (svc *roundServ) GetLastElapsingRound() (*Round, error) { return svc.repo.G
 
 func (svc *roundServ) GetLastRound() (*Round, error) { return svc.repo.GetLastRound() }
 
-func (svc *roundServ) Delete(id uint32) error { return svc.repo.Delete(id) }
+func (svc *roundServ) Delete(id uint) error { return svc.repo.Delete(id) }
 
 func (svc *roundServ) GetAll() ([]*Round, error) { return svc.repo.GetAll() }
 
-func (svc *roundServ) GetByID(id uint32) (*Round, error) { return svc.repo.GetByID(id) }
+func (svc *roundServ) GetByID(id uint) (*Round, error) { return svc.repo.GetByID(id) }
 
 func (svc *roundServ) Store(u *Round) error { return svc.repo.Store(u) }
 

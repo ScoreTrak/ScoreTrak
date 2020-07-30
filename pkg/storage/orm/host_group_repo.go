@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +18,7 @@ func NewHostGroupRepo(db *gorm.DB, log logger.LogInfoFormat) host_group.Repo {
 	return &hostGroupRepo{db, log}
 }
 
-func (h *hostGroupRepo) Delete(id uint32) error {
+func (h *hostGroupRepo) Delete(id uuid.UUID) error {
 	h.log.Debugf("deleting the hostGroup with id : %h", id)
 	result := h.db.Delete(&host_group.HostGroup{}, "id = ?", id)
 	if result.Error != nil {
@@ -45,7 +46,7 @@ func (h *hostGroupRepo) GetAll() ([]*host_group.HostGroup, error) {
 	return hostGroups, nil
 }
 
-func (h *hostGroupRepo) GetByID(id uint32) (*host_group.HostGroup, error) {
+func (h *hostGroupRepo) GetByID(id uuid.UUID) (*host_group.HostGroup, error) {
 	h.log.Debugf("get hostGroup details by id : %h", id)
 
 	hstgrp := &host_group.HostGroup{}
@@ -57,8 +58,7 @@ func (h *hostGroupRepo) GetByID(id uint32) (*host_group.HostGroup, error) {
 	return hstgrp, nil
 }
 
-func (h *hostGroupRepo) Store(hstgrp *host_group.HostGroup) error {
-	h.log.Debugf("creating the hostGroup with id : %v", hstgrp.ID)
+func (h *hostGroupRepo) Store(hstgrp []*host_group.HostGroup) error {
 
 	err := h.db.Create(hstgrp).Error
 	if err != nil {

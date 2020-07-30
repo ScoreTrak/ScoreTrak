@@ -7,6 +7,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
 	. "github.com/L1ghtman2k/ScoreTrak/test"
+	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
 	"testing"
@@ -27,6 +28,9 @@ func TestHostSpec(t *testing.T) {
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Host Table", t, func() {
 		db.AutoMigrate(&host.Host{})
+		db.AutoMigrate(&team.Team{})
+		db.Exec("INSERT INTO teams (id, name, enabled) VALUES ('11111111-1111-1111-1111-111111111111', 'HostGroup1', true)")
+		db.Exec("INSERT INTO teams (id, name, enabled) VALUES ('22222222-2222-2222-2222-222222222222', 'HostGroup2', false)")
 		hr := NewHostRepo(db, l)
 		Reset(func() {
 			db.Migrator().DropTable(&host.Host{})
@@ -43,34 +47,34 @@ func TestHostSpec(t *testing.T) {
 				b := false
 				tr := true
 				s := "127.0.0.1"
-				h := host.Host{ID: 3, Address: &s, Enabled: &b, EditHost: &tr}
-				err = hr.Store(&h)
+				h := []*host.Host{{ID: uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"), Address: &s, Enabled: &b, EditHost: &tr, TeamID: uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")}}
+				err = hr.Store(h)
 				So(err, ShouldBeNil)
 				Convey("Then making sure the entry exists", func() {
 					ac, err := hr.GetAll()
 					So(err, ShouldBeNil)
 					So(len(ac), ShouldEqual, 1)
-					So(ac[0].ID, ShouldEqual, 3)
+					So(ac[0].ID, ShouldEqual, uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 					So(*(ac[0].Address), ShouldEqual, "127.0.0.1")
 					So(*(ac[0].Enabled), ShouldBeFalse)
 				})
 
 				Convey("Then getting entry by id", func() {
-					ac, err := hr.GetByID(3)
+					ac, err := hr.GetByID(uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 					So(err, ShouldBeNil)
-					So(ac.ID, ShouldEqual, 3)
+					So(ac.ID, ShouldEqual, uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 					So(*(ac.Address), ShouldEqual, "127.0.0.1")
 					So(*(ac.Enabled), ShouldBeFalse)
 				})
 
 				Convey("Then Querying By wrong ID", func() {
-					ss, err := hr.GetByID(h.ID + 1)
+					ss, err := hr.GetByID(uuid.FromStringOrNil("23333333-3333-3333-3333-333333333333"))
 					So(err, ShouldNotBeNil)
 					So(ss, ShouldBeNil)
 				})
 
 				Convey("Then Deleting a wrong entry", func() {
-					err = hr.Delete(2)
+					err = hr.Delete(uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222"))
 					So(err, ShouldNotBeNil)
 					Convey("Should output one entry", func() {
 						ac, err := hr.GetAll()
@@ -80,7 +84,7 @@ func TestHostSpec(t *testing.T) {
 				})
 
 				Convey("Then Deleting the added entry", func() {
-					err = hr.Delete(3)
+					err = hr.Delete(uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 					So(err, ShouldBeNil)
 					Convey("Should output no entries", func() {
 						ac, err := hr.GetAll()
@@ -93,7 +97,7 @@ func TestHostSpec(t *testing.T) {
 					b := true
 					newHost := host.Host{Enabled: &b}
 					Convey("For the wrong entry should not update anything", func() {
-						newHost.ID = 1
+						newHost.ID = uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")
 						err = hr.Update(&newHost)
 						So(err, ShouldBeNil)
 						ac, err := hr.GetAll()
@@ -102,7 +106,7 @@ func TestHostSpec(t *testing.T) {
 						So(*(ac[0].Enabled), ShouldBeFalse)
 					})
 					Convey("For the correct entry should update", func() {
-						newHost.ID = 3
+						newHost.ID = uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333")
 						err = hr.Update(&newHost)
 						So(err, ShouldBeNil)
 						ac, err := hr.GetAll()
@@ -118,29 +122,30 @@ func TestHostSpec(t *testing.T) {
 						db.Migrator().DropTable(&host.Host{})
 						db.Migrator().DropTable(&host_group.HostGroup{})
 					})
-					db.Exec("INSERT INTO host_groups (id, name, enabled) VALUES (1, 'HostGroup1', true)")
-					db.Exec("INSERT INTO host_groups (id, name, enabled) VALUES (2, 'HostGroup2', false)")
+					uuid.FromStringOrNil("")
+					db.Exec("INSERT INTO host_groups (id, name, enabled) VALUES ('11111111-1111-1111-1111-111111111111', 'HostGroup1', true)")
+					db.Exec("INSERT INTO host_groups (id, name, enabled) VALUES ('22222222-2222-2222-2222-222222222222', 'HostGroup2', false)")
 					var count int64
 					db.Table("host_groups").Count(&count)
 					So(count, ShouldEqual, 2)
 					Convey("Adding a new host with host group foreign key", func() {
 						address := "127.0.0.1"
 						tru := true
-						hstg2 := uint32(2)
-						newHost := host.Host{ID: 4, HostGroupID: &hstg2, Address: &address, EditHost: &tru}
-						err := hr.Store(&newHost)
+						hstg2 := uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333")
+						newHost := []*host.Host{{ID: uuid.FromStringOrNil("44444444-4444-4444-4444-444444444444"), HostGroupID: &hstg2, Address: &address, EditHost: &tru, TeamID: uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222")}}
+						err := hr.Store(newHost)
 						So(err, ShouldBeNil)
 					})
 					Convey("Updating a host with host group foreign key", func() {
-						hstg1 := uint32(1)
-						h.HostGroupID = &hstg1
-						err := hr.Update(&h)
+						hstg1 := uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")
+						h[0].HostGroupID = &hstg1
+						err := hr.Update(h[0])
 						So(err, ShouldBeNil)
 					})
 					SkipConvey("Updating a host with an invalid host group foreign key(Skipping this for now since foreign keys dont behave in a same way in prod, and in testing)", func() {
-						hstg10 := uint32(10)
-						h.HostGroupID = &hstg10
-						err := hr.Update(&h)
+						hstg10 := uuid.FromStringOrNil("444333333-3333-3333-3333-333333333333")
+						h[0].HostGroupID = &hstg10
+						err := hr.Update(h[0])
 						So(err, ShouldNotBeNil)
 					})
 				})

@@ -8,6 +8,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
 	. "github.com/L1ghtman2k/ScoreTrak/test"
+	"github.com/gofrs/uuid"
 	"net"
 	"net/http"
 	"net/url"
@@ -64,14 +65,14 @@ func TestPropertySpec(t *testing.T) {
 		s := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%d", port), Scheme: "http"}, "", http.DefaultClient)
 		cli := client.NewPropertyClient(s)
 		Convey("Retrieving a property by ID", func() {
-			retProperty, err := cli.GetByID(1)
+			retProperty, err := cli.GetByID(uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 			So(err, ShouldBeNil)
-			So(retProperty.ID, ShouldEqual, 1)
+			So(retProperty.ID, ShouldEqual, uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 			So(retProperty.Status, ShouldEqual, "View")
 			So(retProperty.Value, ShouldEqual, "80")
 		})
 		Convey("Retrieving a property by wrong ID", func() {
-			retProperty, err := cli.GetByID(20)
+			retProperty, err := cli.GetByID(uuid.FromStringOrNil("20202020-2020-2020-2020-202020202020"))
 			So(err, ShouldNotBeNil)
 			So(retProperty, ShouldBeNil)
 			seer, ok := err.(*client.InvalidResponse)
@@ -80,13 +81,13 @@ func TestPropertySpec(t *testing.T) {
 		})
 
 		Convey("Updating a property by ID", func() {
-			t := property.Property{ID: 1, Value: "8080", Status: "Edit"}
+			t := property.Property{ID: uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"), Value: "8080", Status: "Edit"}
 			err := cli.Update(&t)
 			So(err, ShouldBeNil)
 			Convey("Retrieving a property by ID", func() {
-				retProperty, err := cli.GetByID(1)
+				retProperty, err := cli.GetByID(uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 				So(err, ShouldBeNil)
-				So(retProperty.ID, ShouldEqual, 1)
+				So(retProperty.ID, ShouldEqual, uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 				So(retProperty.Value, ShouldEqual, "8080")
 				So(retProperty.Status, ShouldEqual, "Edit")
 			})
@@ -96,15 +97,15 @@ func TestPropertySpec(t *testing.T) {
 			properties, err := cli.GetAll()
 			So(err, ShouldBeNil)
 			So(len(properties), ShouldEqual, 13)
-			var IDs []uint32
+			var IDs []uuid.UUID
 			for _, hst := range properties {
 				IDs = append(IDs, hst.ID)
 			}
-			So(IDs, ShouldContain, uint32(1))
+			So(IDs, ShouldContain, uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 		})
 
 		Convey("Deleting a non existent property", func() {
-			err := cli.Delete(14)
+			err := cli.Delete(uuid.FromStringOrNil("11211111-1111-1111-1111-111111111333"))
 			So(err, ShouldBeNil)
 
 			properties, err := cli.GetAll()
@@ -113,7 +114,7 @@ func TestPropertySpec(t *testing.T) {
 		})
 
 		Convey("Deleting an existent property", func() {
-			err := cli.Delete(5)
+			err := cli.Delete(uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555"))
 			So(err, ShouldBeNil)
 
 			properties, err := cli.GetAll()
@@ -122,8 +123,8 @@ func TestPropertySpec(t *testing.T) {
 		})
 
 		Convey("Storing a new property", func() {
-			t := property.Property{ID: 20, ServiceID: 2, Status: "Edit", Key: "Port", Value: "3001"}
-			err := cli.Store(&t)
+			t := []*property.Property{{ID: uuid.FromStringOrNil("20202020-2020-2020-2020-202020202020"), ServiceID: uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222"), Status: "Edit", Key: "Port", Value: "3001"}}
+			err := cli.Store(t)
 			So(err, ShouldBeNil)
 			Convey("Getting all properties", func() {
 				properties, err := cli.GetAll()

@@ -70,7 +70,7 @@ func imap_test() {
 	//log.Println("Flags for INBOX:", mbox.Flags)
 	//
 	//// Get the last 4 messages
-	//from := uint32(1)
+	//from := uuid.UUID(1)
 	//to := mbox.Messages
 	//if mbox.Messages > 3 {
 	//	// We're using unsigned integers here, only substract if the result is > 0

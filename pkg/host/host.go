@@ -2,19 +2,20 @@ package host
 
 import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
+	"github.com/gofrs/uuid"
 )
 
 // Host model represents a single machine. This could be an IP address or a resolvable hostname
 type Host struct {
-	ID uint32 `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty" gorm:"type:uuid;primary_key;"`
 
 	Address *string `json:"address" gorm:"not null;default:null" valid:"host,optional"`
 
 	// The ID of a host group that the host belongs to.
-	HostGroupID *uint32 `json:"host_group_id,omitempty"`
+	HostGroupID *uuid.UUID `json:"host_group_id,omitempty" gorm:"type:uuid"`
 
 	// The ID of a team that this host belongs too.
-	TeamID uint32 `json:"team_id,omitempty" gorm:"not null"`
+	TeamID uuid.UUID `json:"team_id,omitempty" gorm:"type:uuid;not null"`
 
 	// Enables or disables scoring for a single host
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: true"`

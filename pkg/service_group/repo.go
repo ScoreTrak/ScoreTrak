@@ -1,9 +1,11 @@
 package service_group
 
+import "github.com/gofrs/uuid"
+
 type Repo interface {
-	Delete(id uint32) error
+	Delete(id uuid.UUID) error
 	GetAll() ([]*ServiceGroup, error)
-	GetByID(id uint32) (*ServiceGroup, error)
+	GetByID(id uuid.UUID) (*ServiceGroup, error)
 	Store(u *ServiceGroup) error
 	Update(u *ServiceGroup) error
 }

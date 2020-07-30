@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
+	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +18,7 @@ func NewServiceGroupRepo(db *gorm.DB, log logger.LogInfoFormat) service_group.Re
 	return &serviceGroupRepo{db, log}
 }
 
-func (s *serviceGroupRepo) Delete(id uint32) error {
+func (s *serviceGroupRepo) Delete(id uuid.UUID) error {
 	s.log.Debugf("deleting the Service Group with id : %d", id)
 	result := s.db.Delete(&service_group.ServiceGroup{}, "id = ?", id)
 
@@ -46,7 +47,7 @@ func (s *serviceGroupRepo) GetAll() ([]*service_group.ServiceGroup, error) {
 	return serviceGroups, nil
 }
 
-func (s *serviceGroupRepo) GetByID(id uint32) (*service_group.ServiceGroup, error) {
+func (s *serviceGroupRepo) GetByID(id uuid.UUID) (*service_group.ServiceGroup, error) {
 	s.log.Debugf("get Service Group details by id : %s", id)
 
 	sgr := &service_group.ServiceGroup{}
@@ -59,7 +60,6 @@ func (s *serviceGroupRepo) GetByID(id uint32) (*service_group.ServiceGroup, erro
 }
 
 func (s *serviceGroupRepo) Store(sgr *service_group.ServiceGroup) error {
-	s.log.Debugf("creating the Service Group with id : %v", sgr.ID)
 	err := s.db.Create(sgr).Error
 	if err != nil {
 		s.log.Errorf("error while creating the Service Group, reason : %v", err)

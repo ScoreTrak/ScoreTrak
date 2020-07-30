@@ -8,6 +8,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
 	. "github.com/L1ghtman2k/ScoreTrak/test"
+	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"net"
 	"net/http"
@@ -63,13 +64,13 @@ func TestServiceGroupSpec(t *testing.T) {
 		s := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%d", port), Scheme: "http"}, "", http.DefaultClient)
 		cli := client.NewServiceGroupClient(s)
 		Convey("Retrieving a Service Group by ID", func() {
-			retServiceGroup, err := cli.GetByID(1)
+			retServiceGroup, err := cli.GetByID(uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 			So(err, ShouldBeNil)
-			So(retServiceGroup.ID, ShouldEqual, 1)
+			So(retServiceGroup.ID, ShouldEqual, uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 			So(*(retServiceGroup.Enabled), ShouldBeTrue)
 		})
 		Convey("Retrieving a Service Group by wrong ID", func() {
-			retServiceGroup, err := cli.GetByID(5)
+			retServiceGroup, err := cli.GetByID(uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555"))
 			So(err, ShouldNotBeNil)
 			So(retServiceGroup, ShouldBeNil)
 			seer, ok := err.(*client.InvalidResponse)
@@ -79,11 +80,11 @@ func TestServiceGroupSpec(t *testing.T) {
 
 		Convey("Updating a Service Group by ID", func() {
 			fls := false
-			t := service_group.ServiceGroup{ID: 1, Enabled: &fls}
+			t := service_group.ServiceGroup{ID: uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"), Enabled: &fls}
 			err := cli.Update(&t)
 			So(err, ShouldBeNil)
 			Convey("Retrieving a Service Group by ID", func() {
-				retServiceGroup, err := cli.GetByID(1)
+				retServiceGroup, err := cli.GetByID(uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 				So(err, ShouldBeNil)
 				So(retServiceGroup.Name, ShouldEqual, "ServiceGroup1")
 				So(*(retServiceGroup.Enabled), ShouldBeFalse)
@@ -94,15 +95,15 @@ func TestServiceGroupSpec(t *testing.T) {
 			serviceGroups, err := cli.GetAll()
 			So(err, ShouldBeNil)
 			So(len(serviceGroups), ShouldEqual, 4)
-			var IDs []uint32
+			var IDs []uuid.UUID
 			for _, tm := range serviceGroups {
 				IDs = append(IDs, tm.ID)
 			}
-			So(IDs, ShouldContain, uint32(3))
+			So(IDs, ShouldContain, uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 		})
 
 		Convey("Deleting a Service Group that doesnt have child service by ID", func() {
-			err := cli.Delete(3)
+			err := cli.Delete(uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 			So(err, ShouldBeNil)
 			Convey("Getting all serviceGroups", func() {
 				serviceGroups, err := cli.GetAll()
@@ -112,7 +113,7 @@ func TestServiceGroupSpec(t *testing.T) {
 		})
 
 		Convey("Deleting a Service Group that does have child service by ID", func() {
-			err := cli.Delete(1)
+			err := cli.Delete(uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 			So(err, ShouldNotBeNil)
 			seer, ok := err.(*client.InvalidResponse)
 			So(ok, ShouldBeTrue)
@@ -125,7 +126,7 @@ func TestServiceGroupSpec(t *testing.T) {
 		})
 
 		Convey("Deleting a non existent Service Group", func() {
-			err := cli.Delete(6)
+			err := cli.Delete(uuid.FromStringOrNil("66666666-6666-6666-6666-666666666666"))
 			So(err, ShouldBeNil)
 		})
 

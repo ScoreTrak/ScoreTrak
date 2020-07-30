@@ -1,11 +1,12 @@
 package report
 
 import (
+	"github.com/gofrs/uuid"
 	"time"
 )
 
 type Report struct {
-	ID        uint32    `json:"id,omitempty"`
+	ID        uint      `json:"id,omitempty"`
 	Cache     string    `json:"cache,omitempty" gorm:"not null;default:'{}'"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -22,16 +23,16 @@ func NewReport() *Report {
 }
 
 type SimpleReport struct {
-	Round uint32
-	Teams map[uint32]*SimpleTeam
+	Round uint
+	Teams map[uuid.UUID]*SimpleTeam
 }
 
 type SimpleTeam struct {
-	Hosts map[uint32]*SimpleHost
+	Hosts map[uuid.UUID]*SimpleHost
 }
 
 type SimpleHost struct {
-	Services map[uint32]*SimpleService
+	Services map[uuid.UUID]*SimpleService
 }
 
 type SimpleService struct {
@@ -40,7 +41,7 @@ type SimpleService struct {
 	Passed      bool
 	Log         string
 	Err         string
-	Points      uint32
-	PointsBoost uint32
+	Points      uint
+	PointsBoost uint
 	Properties  map[string]string
 }
