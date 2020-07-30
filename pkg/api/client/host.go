@@ -3,6 +3,7 @@ package client
 import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
+	"github.com/gofrs/uuid"
 )
 
 type HostClient struct {
@@ -13,8 +14,8 @@ func NewHostClient(c ScoretrakClient) host.Serv {
 	return &HostClient{c}
 }
 
-func (s HostClient) Delete(id uint32) error {
-	return s.s.GenericDelete(fmt.Sprintf("/host/%d", id))
+func (s HostClient) Delete(id uuid.UUID) error {
+	return s.s.GenericDelete(fmt.Sprintf("/host/%s", id.String()))
 }
 
 func (s HostClient) GetAll() ([]*host.Host, error) {
@@ -26,19 +27,19 @@ func (s HostClient) GetAll() ([]*host.Host, error) {
 	return sg, nil
 }
 
-func (s HostClient) GetByID(id uint32) (*host.Host, error) {
+func (s HostClient) GetByID(id uuid.UUID) (*host.Host, error) {
 	sg := &host.Host{}
-	err := s.s.GenericGet(sg, fmt.Sprintf("/host/%d", id))
+	err := s.s.GenericGet(sg, fmt.Sprintf("/host/%s", id.String()))
 	if err != nil {
 		return nil, err
 	}
 	return sg, nil
 }
 
-func (s HostClient) Store(u *host.Host) error {
+func (s HostClient) Store(u []*host.Host) error {
 	return s.s.GenericStore(u, fmt.Sprintf("/host"))
 }
 
 func (s HostClient) Update(u *host.Host) error {
-	return s.s.GenericUpdate(u, fmt.Sprintf("/host/%d", u.ID))
+	return s.s.GenericUpdate(u, fmt.Sprintf("/host/%s", u.ID.String()))
 }

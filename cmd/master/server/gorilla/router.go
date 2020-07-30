@@ -598,15 +598,15 @@ func TeamRoutes(l logger.LogInfoFormat, svc team.Serv) Routes {
 		Route{
 			"DeleteByName",
 			strings.ToUpper("Delete"),
-			"/team/{name}",
-			ctrl.DeleteByName,
+			"/team/{id}",
+			ctrl.Delete,
 		},
 
 		Route{
 			"GetByName",
 			strings.ToUpper("Get"),
-			"/team/{name}",
-			ctrl.GetByName,
+			"/team/{id}",
+			ctrl.GetByID,
 		},
 
 		Route{

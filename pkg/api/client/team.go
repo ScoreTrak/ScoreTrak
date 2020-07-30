@@ -3,6 +3,7 @@ package client
 import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
+	"github.com/gofrs/uuid"
 )
 
 type TeamClient struct {
@@ -13,8 +14,8 @@ func NewTeamClient(c ScoretrakClient) team.Serv {
 	return &TeamClient{c}
 }
 
-func (t TeamClient) Delete(id uint32) error {
-	return t.s.GenericDelete(fmt.Sprintf("/team/%d", id))
+func (t TeamClient) Delete(id uuid.UUID) error {
+	return t.s.GenericDelete(fmt.Sprintf("/team/%s", id.String()))
 }
 
 func (t TeamClient) GetAll() ([]*team.Team, error) {
@@ -26,19 +27,19 @@ func (t TeamClient) GetAll() ([]*team.Team, error) {
 	return tm, nil
 }
 
-func (t TeamClient) GetByID(id uint32) (*team.Team, error) {
+func (t TeamClient) GetByID(id uuid.UUID) (*team.Team, error) {
 	tm := &team.Team{}
-	err := t.s.GenericGet(tm, fmt.Sprintf("/team/%d", id))
+	err := t.s.GenericGet(tm, fmt.Sprintf("/team/%s", id.String()))
 	if err != nil {
 		return nil, err
 	}
 	return tm, nil
 }
 
-func (t TeamClient) Store(u *team.Team) error {
+func (t TeamClient) Store(u []*team.Team) error {
 	return t.s.GenericStore(u, fmt.Sprintf("/team"))
 }
 
 func (t TeamClient) Update(u *team.Team) error {
-	return t.s.GenericUpdate(u, fmt.Sprintf("/team/%d", u.ID))
+	return t.s.GenericUpdate(u, fmt.Sprintf("/team/%s", u.ID.String()))
 }

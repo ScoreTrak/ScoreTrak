@@ -2,6 +2,7 @@ package property
 
 import (
 	"errors"
+	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )
 
@@ -13,9 +14,9 @@ const (
 
 // Property model describes a single key value pair for a service(parameters). An example could be a port for HTTP checking
 type Property struct {
-	ID uint32 `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty" gorm:"type:uuid;primary_key;"`
 
-	ServiceID uint32 `json:"service_id" gorm:"not null"`
+	ServiceID uuid.UUID `json:"service_id" gorm:"type:uuid;not null"`
 
 	Key string `json:"key" gorm:"not null; default: null"`
 
@@ -40,4 +41,13 @@ func (p Property) Validate(db *gorm.DB) {
 		db.AddError(errors.New("property Status should either be View, Edit, or Hide"))
 		return
 	}
+}
+
+func (p *Property) BeforeCreate(tx *gorm.DB) (err error) {
+	u, err := uuid.NewV4()
+	if err != nil {
+		return err
+	}
+	p.ID = u
+	return nil
 }

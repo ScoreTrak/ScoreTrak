@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
+	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +18,7 @@ func NewServiceRepo(db *gorm.DB, log logger.LogInfoFormat) service.Repo {
 	return &serviceRepo{db, log}
 }
 
-func (s *serviceRepo) Delete(id uint32) error {
+func (s *serviceRepo) Delete(id uuid.UUID) error {
 	s.log.Debugf("deleting the service with id : %d", id)
 
 	result := s.db.Delete(&service.Service{}, "id = ?", id)
@@ -46,7 +47,7 @@ func (s *serviceRepo) GetAll() ([]*service.Service, error) {
 	return services, nil
 }
 
-func (s *serviceRepo) GetByID(id uint32) (*service.Service, error) {
+func (s *serviceRepo) GetByID(id uuid.UUID) (*service.Service, error) {
 	s.log.Debugf("get service details by id : %s", id)
 
 	ser := &service.Service{}
@@ -58,8 +59,7 @@ func (s *serviceRepo) GetByID(id uint32) (*service.Service, error) {
 	return ser, nil
 }
 
-func (s *serviceRepo) Store(swm *service.Service) error {
-	s.log.Debugf("creating the service with id : %v", swm.ID)
+func (s *serviceRepo) Store(swm []*service.Service) error {
 	err := s.db.Create(swm).Error
 	if err != nil {
 		s.log.Errorf("error while creating the service, reason : %v", err)

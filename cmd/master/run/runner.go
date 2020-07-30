@@ -13,6 +13,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/report"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/util"
+	"github.com/gofrs/uuid"
 	"github.com/jackc/pgconn"
 	"gorm.io/gorm"
 	"math"
@@ -118,7 +119,7 @@ func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 	}
 }
 
-func (d *dRunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint32) time.Duration {
+func (d *dRunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint) time.Duration {
 	if rnd == nil || rnd.ID == 0 {
 		return config.MinRoundDuration / 2
 	}
@@ -283,15 +284,15 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 			return err
 		}
 		schNew := report.SimpleReport{Round: rnd.ID}
-		schNew.Teams = make(map[uint32]*report.SimpleTeam)
+		schNew.Teams = make(map[uuid.UUID]*report.SimpleTeam)
 		for _, t := range teams {
 			st := report.SimpleTeam{}
-			st.Hosts = make(map[uint32]*report.SimpleHost)
+			st.Hosts = make(map[uuid.UUID]*report.SimpleHost)
 			for _, h := range t.Hosts {
 				sh := report.SimpleHost{}
-				sh.Services = make(map[uint32]*report.SimpleService)
+				sh.Services = make(map[uuid.UUID]*report.SimpleService)
 				for _, s := range h.Services {
-					var points uint32
+					var points uint
 					if rnd.ID != 1 {
 						if t1, ok := schOld.Teams[t.ID]; ok {
 							if h1, ok := t1.Hosts[h.ID]; ok {
@@ -339,7 +340,7 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
 		return
 	}
-	err = d.r.Check.StoreMany(checks)
+	err = d.r.Check.Store(checks)
 	if err != nil {
 		d.l.Error(err)
 		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))

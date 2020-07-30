@@ -6,6 +6,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
 	. "github.com/L1ghtman2k/ScoreTrak/test"
+	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
 	"testing"
@@ -60,7 +61,7 @@ func TestServiceGroupSpec(t *testing.T) {
 				})
 
 				Convey("Then Deleting a wrong entry", func() {
-					err = sgr.Delete(s.ID + 1)
+					err = sgr.Delete(uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 					So(err, ShouldNotBeNil)
 					Convey("Should output one entry", func() {
 						ac, err := sgr.GetAll()
@@ -89,7 +90,7 @@ func TestServiceGroupSpec(t *testing.T) {
 				})
 
 				Convey("Then Querying By wrong ID", func() {
-					ss, err := sgr.GetByID(s.ID + 1)
+					ss, err := sgr.GetByID(uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 					So(err, ShouldNotBeNil)
 					So(ss, ShouldBeNil)
 				})
@@ -98,7 +99,7 @@ func TestServiceGroupSpec(t *testing.T) {
 					tru := true
 					newSgr := &service_group.ServiceGroup{Enabled: &tru}
 					Convey("For the wrong entry should not update anything", func() {
-						newSgr.ID = s.ID + 1
+						newSgr.ID = uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")
 						err = sgr.Update(newSgr)
 						So(err, ShouldBeNil)
 						ac, err := sgr.GetAll()
@@ -121,7 +122,7 @@ func TestServiceGroupSpec(t *testing.T) {
 					var count int64
 					db.AutoMigrate(&service.Service{})
 					Convey("Then associating one service with the service group", func() {
-						db.Exec(fmt.Sprintf("INSERT INTO services (id, service_group_id, host_id, name) VALUES (5, %d, 999, 'TestService')", s.ID))
+						db.Exec(fmt.Sprintf("INSERT INTO services (id, service_group_id, host_id, name) VALUES ('55555555-5555-5555-5555-555555555555', '%s', '55555555-5555-5555-5555-555555555555', 'TestService')", s.ID.String()))
 						db.Table("services").Count(&count)
 						So(count, ShouldEqual, 1)
 						Convey("Then Deleting the service group should be restricted", func() {
@@ -138,30 +139,6 @@ func TestServiceGroupSpec(t *testing.T) {
 						db.Migrator().DropTable(&service.Service{})
 					})
 				})
-
-				//Convey("Creating Swarm Table", func() {
-				//	var count int
-				//	db.AutoMigrate(&swarm.Swarm{})
-				//	db.Model(&swarm.Swarm{}).AddForeignKey("service_group_id", "service_groups(id)", "CASCADE", "RESTRICT")
-				//	Convey("Then associating one swarm with the service group", func() {
-				//		db.Exec(fmt.Sprintf("INSERT INTO swarms (id, service_group_id, label) VALUES (4, %d, 'TestLabel')", s.ID))
-				//		db.Table("swarms").Count(&count)
-				//		So(count, ShouldEqual, 1)
-				//		Convey("Then Deleting the service group should also delete the swarm label associated", func() {
-				//			err = sgr.Delete(s.ID)
-				//			So(err, ShouldBeNil)
-				//			ac, err := sgr.GetAll()
-				//			So(err, ShouldBeNil)
-				//			So(len(ac), ShouldEqual, 0)
-				//			db.Table("swarms").Count(&count)
-				//			So(count, ShouldEqual, 0)
-				//		})
-				//
-				//	})
-				//	Reset(func() {
-				//		db.Migrator().DropTable(&swarm.Swarm{})
-				//	})
-				//})
 			})
 		})
 		Reset(func() {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +18,7 @@ func NewHostRepo(db *gorm.DB, log logger.LogInfoFormat) host.Repo {
 	return &hostRepo{db, log}
 }
 
-func (h *hostRepo) Delete(id uint32) error {
+func (h *hostRepo) Delete(id uuid.UUID) error {
 	h.log.Debugf("deleting the host with id : %h", id)
 
 	result := h.db.Delete(&host.Host{}, "id = ?", id)
@@ -45,9 +46,8 @@ func (h *hostRepo) GetAll() ([]*host.Host, error) {
 	return hosts, nil
 }
 
-func (h *hostRepo) GetByID(id uint32) (*host.Host, error) {
+func (h *hostRepo) GetByID(id uuid.UUID) (*host.Host, error) {
 	h.log.Debugf("get host details by id : %h", id)
-
 	hst := &host.Host{}
 	err := h.db.Where("id = ?", id).First(hst).Error
 	if err != nil {
@@ -57,8 +57,7 @@ func (h *hostRepo) GetByID(id uint32) (*host.Host, error) {
 	return hst, nil
 }
 
-func (h *hostRepo) Store(hst *host.Host) error {
-	h.log.Debugf("creating the host with id : %v", hst.ID)
+func (h *hostRepo) Store(hst []*host.Host) error {
 	err := h.db.Create(hst).Error
 	if err != nil {
 		h.log.Errorf("error while creating the host, reason : %v", err)

@@ -7,7 +7,9 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/util"
 	. "github.com/L1ghtman2k/ScoreTrak/test"
+	"github.com/gofrs/uuid"
 	"net"
 	"net/http"
 	"net/url"
@@ -64,15 +66,15 @@ func TestServiceSpec(t *testing.T) {
 		s := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%d", port), Scheme: "http"}, "", http.DefaultClient)
 		cli := client.NewServiceClient(s)
 		Convey("Retrieving a service by ID", func() {
-			retService, err := cli.GetByID(1)
+			retService, err := cli.GetByID(uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 			So(err, ShouldBeNil)
-			So(retService.ID, ShouldEqual, 1)
+			So(retService.ID, ShouldEqual, uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 			So(retService.Name, ShouldEqual, "WINRM")
 			So(retService.DisplayName, ShouldEqual, "host1-service1")
 		})
 
 		Convey("Retrieving a service by wrong ID", func() {
-			retService, err := cli.GetByID(20)
+			retService, err := cli.GetByID(uuid.FromStringOrNil("11111111-1111-1111-1111-111111111333"))
 			So(err, ShouldNotBeNil)
 			So(retService, ShouldBeNil)
 			seer, ok := err.(*client.InvalidResponse)
@@ -81,13 +83,13 @@ func TestServiceSpec(t *testing.T) {
 		})
 
 		Convey("Updating a service by ID", func() {
-			t := service.Service{ID: 1, Name: "SSH", DisplayName: "name-change-test", Points: 80}
+			t := service.Service{ID: uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"), Name: "SSH", DisplayName: "name-change-test", Points: 80}
 			err := cli.Update(&t)
 			So(err, ShouldBeNil)
 			Convey("Retrieving a service by ID", func() {
-				retService, err := cli.GetByID(1)
+				retService, err := cli.GetByID(uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 				So(err, ShouldBeNil)
-				So(retService.ID, ShouldEqual, 1)
+				So(retService.ID, ShouldEqual, uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 				So(retService.Name, ShouldEqual, "SSH")
 				So(retService.DisplayName, ShouldEqual, "name-change-test")
 				So(retService.Points, ShouldEqual, 80)
@@ -98,15 +100,15 @@ func TestServiceSpec(t *testing.T) {
 			services, err := cli.GetAll()
 			So(err, ShouldBeNil)
 			So(len(services), ShouldEqual, 8)
-			var IDs []uint32
+			var IDs []uuid.UUID
 			for _, hst := range services {
 				IDs = append(IDs, hst.ID)
 			}
-			So(IDs, ShouldContain, uint32(1))
+			So(IDs, ShouldContain, uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 		})
 
 		Convey("Deleting a non existent service", func() {
-			err := cli.Delete(14)
+			err := cli.Delete(uuid.FromStringOrNil("11111111-1111-1111-1111-111111111333"))
 			So(err, ShouldBeNil)
 
 			services, err := cli.GetAll()
@@ -114,8 +116,8 @@ func TestServiceSpec(t *testing.T) {
 			So(len(services), ShouldEqual, 8)
 		})
 
-		Convey("Deleting an existent service", func() {
-			err := cli.Delete(5)
+		Convey("Deleting a service that exists", func() {
+			err := cli.Delete(uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555"))
 			So(err, ShouldBeNil)
 
 			services, err := cli.GetAll()
@@ -124,8 +126,8 @@ func TestServiceSpec(t *testing.T) {
 		})
 
 		Convey("Storing a new service", func() {
-			t := service.Service{ID: 20, ServiceGroupID: 1, Name: "IMAP", DisplayName: "test-display-name", HostID: 3}
-			err := cli.Store(&t)
+			t := []*service.Service{{ID: uuid.FromStringOrNil("20202020-2020-2020-2020-202020202020"), ServiceGroupID: uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"), Name: "IMAP", DisplayName: "test-display-name", HostID: uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333")}}
+			err := cli.Store(t)
 			So(err, ShouldBeNil)
 			Convey("Getting all services", func() {
 				properties, err := cli.GetAll()

@@ -3,6 +3,7 @@ package report
 import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
+	"github.com/gofrs/uuid"
 )
 
 type Serv interface {
@@ -20,16 +21,16 @@ func NewReportServ(repo Repo) Serv {
 }
 func (svc *reportServ) Get() (*Report, error) { return svc.repo.Get() }
 
-func (svc *reportServ) RecalculateReport(team []*team.Team, round round.Round) (simpleTeams map[uint32]SimpleTeam, err error) {
-	simpleTeams = make(map[uint32]SimpleTeam)
+func (svc *reportServ) RecalculateReport(team []*team.Team, round round.Round) (simpleTeams map[uuid.UUID]SimpleTeam, err error) {
+	simpleTeams = make(map[uuid.UUID]SimpleTeam)
 	for _, t := range team {
 		st := SimpleTeam{}
-		st.Hosts = make(map[uint32]*SimpleHost)
+		st.Hosts = make(map[uuid.UUID]*SimpleHost)
 		for _, h := range t.Hosts {
 			sh := SimpleHost{}
-			sh.Services = make(map[uint32]*SimpleService)
+			sh.Services = make(map[uuid.UUID]*SimpleService)
 			for _, s := range h.Services {
-				var points uint32
+				var points uint
 				for _, c := range s.Checks {
 					if *c.Passed {
 						points += s.Points

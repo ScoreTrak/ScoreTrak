@@ -8,6 +8,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
 	. "github.com/L1ghtman2k/ScoreTrak/test"
+	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"net"
 	"net/http"
@@ -63,13 +64,13 @@ func TestHostGroupSpec(t *testing.T) {
 		s := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%d", port), Scheme: "http"}, "", http.DefaultClient)
 		cli := client.NewHostGroupClient(s)
 		Convey("Retrieving a Host Group by ID", func() {
-			retHostGroup, err := cli.GetByID(1)
+			retHostGroup, err := cli.GetByID(uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 			So(err, ShouldBeNil)
-			So(retHostGroup.ID, ShouldEqual, 1)
+			So(retHostGroup.ID, ShouldEqual, uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 			So(*(retHostGroup.Enabled), ShouldBeTrue)
 		})
 		Convey("Retrieving a Host Group by wrong ID", func() {
-			retHostGroup, err := cli.GetByID(5)
+			retHostGroup, err := cli.GetByID(uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555"))
 			So(err, ShouldNotBeNil)
 			So(retHostGroup, ShouldBeNil)
 			seer, ok := err.(*client.InvalidResponse)
@@ -79,11 +80,11 @@ func TestHostGroupSpec(t *testing.T) {
 
 		Convey("Updating a Host Group by ID", func() {
 			fls := false
-			t := host_group.HostGroup{ID: 1, Enabled: &fls}
+			t := host_group.HostGroup{ID: uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"), Enabled: &fls}
 			err := cli.Update(&t)
 			So(err, ShouldBeNil)
 			Convey("Retrieving a Host Group by ID", func() {
-				retHostGroup, err := cli.GetByID(1)
+				retHostGroup, err := cli.GetByID(uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 				So(err, ShouldBeNil)
 				So(retHostGroup.Name, ShouldEqual, "HostGroup1")
 				So(*(retHostGroup.Enabled), ShouldBeFalse)
@@ -94,15 +95,15 @@ func TestHostGroupSpec(t *testing.T) {
 			hostGroups, err := cli.GetAll()
 			So(err, ShouldBeNil)
 			So(len(hostGroups), ShouldEqual, 4)
-			var IDs []uint32
+			var IDs []uuid.UUID
 			for _, tm := range hostGroups {
 				IDs = append(IDs, tm.ID)
 			}
-			So(IDs, ShouldContain, uint32(3))
+			So(IDs, ShouldContain, uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 		})
 
 		Convey("Deleting a Host Group that doesnt have child hosts by ID", func() {
-			err := cli.Delete(1)
+			err := cli.Delete(uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 			So(err, ShouldBeNil)
 			Convey("Getting all hostGroups", func() {
 				hostGroups, err := cli.GetAll()
@@ -112,7 +113,7 @@ func TestHostGroupSpec(t *testing.T) {
 		})
 
 		Convey("Deleting a Host Group that does have child hosts by ID", func() {
-			err := cli.Delete(3)
+			err := cli.Delete(uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 			So(err, ShouldNotBeNil)
 			seer, ok := err.(*client.InvalidResponse)
 			So(ok, ShouldBeTrue)
@@ -125,14 +126,14 @@ func TestHostGroupSpec(t *testing.T) {
 		})
 
 		Convey("Deleting a non existent Host Group", func() {
-			err := cli.Delete(6)
+			err := cli.Delete(uuid.FromStringOrNil("66666666-6666-6666-6666-666666666666"))
 			So(err, ShouldBeNil)
 		})
 
 		Convey("Storing a new Host Group", func() {
 			fls := false
-			t := host_group.HostGroup{Enabled: &fls, Name: "HostGroup5"}
-			err := cli.Store(&t)
+			t := []*host_group.HostGroup{{Enabled: &fls, Name: "HostGroup5"}}
+			err := cli.Store(t)
 			So(err, ShouldBeNil)
 			Convey("Getting all Host Group", func() {
 				hostGroups, err := cli.GetAll()
@@ -143,8 +144,8 @@ func TestHostGroupSpec(t *testing.T) {
 
 		Convey("Storing a new Host Group with the same name", func() {
 			fls := false
-			t := host_group.HostGroup{Enabled: &fls, Name: "HostGroup1"}
-			err := cli.Store(&t)
+			t := []*host_group.HostGroup{{Enabled: &fls, Name: "HostGroup1"}}
+			err := cli.Store(t)
 			So(err, ShouldNotBeNil)
 			seer, ok := err.(*client.InvalidResponse)
 			So(ok, ShouldBeTrue)

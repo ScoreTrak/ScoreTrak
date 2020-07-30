@@ -8,9 +8,8 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/util"
-	"github.com/gorilla/mux"
+	"github.com/qor/validations"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -26,8 +25,25 @@ func NewServiceController(log logger.LogInfoFormat, svc service.Serv, q queue.Qu
 }
 
 func (s *serviceController) Store(w http.ResponseWriter, r *http.Request) {
-	tm := &service.Service{}
-	genericStore(s.svc, tm, s.log, "Store", w, r)
+	var tm []*service.Service
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&tm)
+	if err != nil {
+		s.log.Error(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = s.svc.Store(tm)
+	if err != nil {
+		_, ok := err.(*validations.Error)
+		if ok {
+			http.Error(w, err.Error(), http.StatusPreconditionFailed)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		s.log.Error(err)
+		return
+	}
 }
 
 func (s *serviceController) Delete(w http.ResponseWriter, r *http.Request) {
@@ -48,25 +64,23 @@ func (s *serviceController) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *serviceController) TestService(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	id64, err := strconv.ParseUint(params["id"], 10, 32)
+	id, err := uuidResolver("id", r)
 	if err != nil {
 		s.log.Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 
 	}
-	id32 := uint32(id64)
-	ser, err := s.r.Service.GetByID(id32)
+	ser, err := s.r.Service.GetByID(id)
 	if err != nil {
 		s.log.Error(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}
-	p, _ := s.r.Property.GetAllByServiceID(id32)
+	p, _ := s.r.Property.GetAllByServiceID(id)
 	h, _ := s.r.Host.GetByID(ser.HostID)
 	serGrp, _ := s.r.ServiceGroup.GetByID(ser.ServiceGroupID)
 
 	response, berr, err := s.q.Send([]*queueing.ScoringData{
-		{Service: queueing.QService{ID: id32, Name: ser.Name, Group: serGrp.Name}, Host: *h.Address, Deadline: time.Now().Add(time.Second * 5), RoundID: 0, Properties: run.PropertyToMap(p)},
+		{Service: queueing.QService{ID: id, Name: ser.Name, Group: serGrp.Name}, Host: *h.Address, Deadline: time.Now().Add(time.Second * 5), RoundID: 0, Properties: run.PropertyToMap(p)},
 	})
 	if berr != nil {
 		response[0].Err += berr.Error()

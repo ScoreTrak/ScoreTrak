@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
+	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +18,7 @@ func NewPropertyRepo(db *gorm.DB, log logger.LogInfoFormat) property.Repo {
 	return &propertyRepo{db, log}
 }
 
-func (p *propertyRepo) Delete(id uint32) error {
+func (p *propertyRepo) Delete(id uuid.UUID) error {
 	p.log.Debugf("deleting the property with id : %d", id)
 	result := p.db.Delete(&property.Property{}, "id = ?", id)
 
@@ -47,7 +48,7 @@ func (p *propertyRepo) GetAll() ([]*property.Property, error) {
 	return properties, nil
 }
 
-func (p *propertyRepo) GetAllByServiceID(id uint32) ([]*property.Property, error) {
+func (p *propertyRepo) GetAllByServiceID(id uuid.UUID) ([]*property.Property, error) {
 	p.log.Debugf("get property details by id : %s", id)
 	properties := make([]*property.Property, 0)
 	err := p.db.Where("service_id = ?", id).Find(&properties).Error
@@ -58,7 +59,7 @@ func (p *propertyRepo) GetAllByServiceID(id uint32) ([]*property.Property, error
 	return properties, nil
 }
 
-func (p *propertyRepo) GetByID(id uint32) (*property.Property, error) {
+func (p *propertyRepo) GetByID(id uuid.UUID) (*property.Property, error) {
 	p.log.Debugf("get property details by id : %s", id)
 
 	prop := &property.Property{}
@@ -70,9 +71,7 @@ func (p *propertyRepo) GetByID(id uint32) (*property.Property, error) {
 	return prop, nil
 }
 
-func (p *propertyRepo) Store(prop *property.Property) error {
-	p.log.Debugf("creating the property with id : %v", prop.ID)
-
+func (p *propertyRepo) Store(prop []*property.Property) error {
 	err := p.db.Create(prop).Error
 	if err != nil {
 		p.log.Errorf("error while creating the property, reason : %v", err)

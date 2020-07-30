@@ -62,24 +62,18 @@ func (s *serviceGroupController) Store(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *serviceGroupController) Delete(w http.ResponseWriter, r *http.Request) {
-	id, err := IdResolver(s.svc, "id", r)
+	id, err := uuidResolver("id", r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		s.log.Error(err)
 		return
 	}
-	idUint, ok := id.(uint32)
-	if !ok {
-		http.Error(w, "failed to retrieve the id", http.StatusInternalServerError)
-		s.log.Error(err)
-		return
-	}
-	serviceGrp, err := s.svc.GetByID(idUint)
+	serviceGrp, err := s.svc.GetByID(id)
 	if err != nil {
 		http.Redirect(w, r, "/team", http.StatusNotModified)
 		return
 	}
-	err = s.svc.Delete(idUint)
+	err = s.svc.Delete(id)
 	if err != nil {
 		_, ok := err.(*orm.NoRowsAffected)
 		if ok {
@@ -114,18 +108,13 @@ func (s *serviceGroupController) Redeploy(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	id, err := IdResolver(s.svc, "id", r)
+	id, err := uuidResolver("id", r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		s.log.Error(err)
 		return
 	}
-	idUint, ok := id.(uint32)
-	if !ok {
-		http.Error(w, "failed to retrieve the id", http.StatusInternalServerError)
-		return
-	}
-	serGrp, err := s.svc.GetByID(idUint)
+	serGrp, err := s.svc.GetByID(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		s.log.Error(err)
@@ -159,19 +148,13 @@ func (s *serviceGroupController) Update(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	id, err := IdResolver(s.svc, "id", r)
+	id, err := uuidResolver("id", r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		s.log.Error(err)
 		return
 	}
-	idUint, ok := id.(uint32)
-	if !ok {
-		http.Error(w, "failed to retrieve the id", http.StatusInternalServerError)
-		s.log.Error(err)
-		return
-	}
-	serviceGrp, err := s.svc.GetByID(idUint)
+	serviceGrp, err := s.svc.GetByID(id)
 	if err != nil {
 		err = errors.New("failed to retrieve the object")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -188,7 +171,7 @@ func (s *serviceGroupController) Update(w http.ResponseWriter, r *http.Request) 
 			}
 		}
 	}
-	tm.ID = idUint
+	tm.ID = id
 	err = s.svc.Update(&tm)
 	if err != nil {
 		_, ok := err.(*validations.Error)

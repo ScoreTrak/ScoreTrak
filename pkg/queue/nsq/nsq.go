@@ -9,6 +9,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
+	"github.com/gofrs/uuid"
 	"github.com/nsqio/go-nsq"
 	"net/http"
 	"time"
@@ -144,7 +145,7 @@ func (n NSQ) Receive() {
 func (n NSQ) Ping(group *service_group.ServiceGroup) error {
 	_, _, err := n.Send([]*queueing.ScoringData{
 		{
-			Service: queueing.QService{ID: 0, Name: "PING", Group: group.Name}, Host: "localhost", Deadline: time.Now().Add(time.Second * 4), RoundID: 0, Properties: map[string]string{},
+			Service: queueing.QService{ID: uuid.Nil, Name: "PING", Group: group.Name}, Host: "localhost", Deadline: time.Now().Add(time.Second * 4), RoundID: 0, Properties: map[string]string{},
 		},
 	})
 	if err != nil {

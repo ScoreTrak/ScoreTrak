@@ -8,6 +8,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
 	. "github.com/L1ghtman2k/ScoreTrak/test"
+	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"net"
 	"net/http"
@@ -74,7 +75,7 @@ func TestCheckSpec(t *testing.T) {
 			So(len(retChecks), ShouldEqual, 2)
 
 			for _, chck := range retChecks {
-				if chck.ServiceID == 1 {
+				if chck.ServiceID == uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111") {
 					So(chck.Log, ShouldEqual, "Failed because of incorrect password")
 					So(*(chck.Passed), ShouldBeFalse)
 				} else {

@@ -3,6 +3,7 @@ package client
 import (
 	"fmt"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
+	"github.com/gofrs/uuid"
 )
 
 type ServiceGroupClient struct {
@@ -13,8 +14,8 @@ func NewServiceGroupClient(c ScoretrakClient) service_group.Serv {
 	return &ServiceGroupClient{c}
 }
 
-func (s ServiceGroupClient) Delete(id uint32) error {
-	return s.s.GenericDelete(fmt.Sprintf("/service_group/%d", id))
+func (s ServiceGroupClient) Delete(id uuid.UUID) error {
+	return s.s.GenericDelete(fmt.Sprintf("/service_group/%s", id.String()))
 }
 
 func (s ServiceGroupClient) GetAll() ([]*service_group.ServiceGroup, error) {
@@ -26,9 +27,9 @@ func (s ServiceGroupClient) GetAll() ([]*service_group.ServiceGroup, error) {
 	return sg, nil
 }
 
-func (s ServiceGroupClient) GetByID(id uint32) (*service_group.ServiceGroup, error) {
+func (s ServiceGroupClient) GetByID(id uuid.UUID) (*service_group.ServiceGroup, error) {
 	sg := &service_group.ServiceGroup{}
-	err := s.s.GenericGet(sg, fmt.Sprintf("/service_group/%d", id))
+	err := s.s.GenericGet(sg, fmt.Sprintf("/service_group/%s", id.String()))
 	if err != nil {
 		return nil, err
 	}
@@ -40,11 +41,11 @@ func (s ServiceGroupClient) Store(u *service_group.ServiceGroup) error {
 }
 
 func (s ServiceGroupClient) Update(u *service_group.ServiceGroup) error {
-	return s.s.GenericUpdate(u, fmt.Sprintf("/service_group/%d", u.ID))
+	return s.s.GenericUpdate(u, fmt.Sprintf("/service_group/%s", u.ID.String()))
 }
 
-func (s ServiceGroupClient) Redeploy(id uint32) error {
-	err := s.s.GenericGet(nil, fmt.Sprintf("/service_group/%d/redeploy", id))
+func (s ServiceGroupClient) Redeploy(id uuid.UUID) error {
+	err := s.s.GenericGet(nil, fmt.Sprintf("/service_group/%s/redeploy", id.String()))
 	if err != nil {
 		return err
 	}

@@ -8,13 +8,15 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
 	. "github.com/L1ghtman2k/ScoreTrak/test"
+	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
 	"testing"
 )
 
-func FTPSpec(t *testing.T) {
+func TestServiceSpec(t *testing.T) {
 	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
@@ -30,6 +32,7 @@ func FTPSpec(t *testing.T) {
 	Convey("Creating Service, Service Group, Host Tables along with their foreign keys", t, func() {
 		db.AutoMigrate(&service.Service{})
 		db.AutoMigrate(&service_group.ServiceGroup{})
+		db.AutoMigrate(&team.Team{})
 		db.AutoMigrate(&host.Host{})
 		sr := NewServiceRepo(db, l)
 		Convey("When all tables are empty", func() {
@@ -39,8 +42,8 @@ func FTPSpec(t *testing.T) {
 				So(len(gt), ShouldEqual, 0)
 			})
 			Convey("Creating a sample service should not be allowed", func() {
-				s := service.Service{Name: "FTP"}
-				err := sr.Store(&s)
+				s := []*service.Service{{Name: "FTP"}}
+				err := sr.Store(s)
 				So(err, ShouldNotBeNil)
 				ac, err := sr.GetAll()
 				So(err, ShouldBeNil)
@@ -48,18 +51,20 @@ func FTPSpec(t *testing.T) {
 			})
 			Convey("Load Sample Service Group, And Host Data", func() {
 				var count int64
-				db.Exec("INSERT INTO hosts (id, address) VALUES (5, '192.168.1.2')")
-				db.Exec("INSERT INTO hosts (id, address) VALUES (4, '192.168.1.1')")
-				db.Exec("INSERT INTO service_groups (id, name) VALUES (7, 'FTPGroup')")
-				db.Exec("INSERT INTO service_groups (id, name) VALUES (2, 'FTPGroup2')")
+				db.Exec("INSERT INTO teams (id, name, enabled) VALUES ('11111111-1111-1111-1111-111111111111', 'TeamOne', true)")
+				db.Exec("INSERT INTO teams (id, name, enabled) VALUES ('22222222-2222-2222-2222-222222222222', 'TeamTwo', false)")
+				db.Exec("INSERT INTO hosts (id, address, team_id) VALUES ('55555555-5555-5555-5555-555555555555', '192.168.1.2', '11111111-1111-1111-1111-111111111111')")
+				db.Exec("INSERT INTO hosts (id, address, team_id) VALUES ('44444444-4444-4444-4444-444444444444', '192.168.1.1', '22222222-2222-2222-2222-222222222222')")
+				db.Exec("INSERT INTO service_groups (id, name) VALUES ('77777777-7777-7777-7777-777777777777', 'FTPGroup')")
+				db.Exec("INSERT INTO service_groups (id, name) VALUES ('22222222-2222-2222-2222-222222222222', 'FTPGroup2')")
 				db.Table("hosts").Count(&count)
 				So(count, ShouldEqual, 2)
 				db.Table("service_groups").Count(&count)
 				So(count, ShouldEqual, 2)
 
 				Convey("Creating a sample service and associating with host id 5, and service group id 2", func() {
-					s := service.Service{Name: "FTP", ServiceGroupID: 2, HostID: 5}
-					err := sr.Store(&s)
+					s := []*service.Service{{Name: "FTP", ServiceGroupID: uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222"), HostID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555")}}
+					err := sr.Store(s)
 					Convey("Should be Allowed", func() {
 						So(err, ShouldBeNil)
 						ac, err := sr.GetAll()
@@ -67,22 +72,22 @@ func FTPSpec(t *testing.T) {
 						So(len(ac), ShouldEqual, 1)
 
 						Convey("Then Querying By ID", func() {
-							ss, err := sr.GetByID(s.ID)
+							ss, err := sr.GetByID(s[0].ID)
 							So(err, ShouldBeNil)
 							So(ss.Name, ShouldEqual, "FTP")
-							So(ss.ServiceGroupID, ShouldEqual, 2)
-							So(ss.HostID, ShouldEqual, 5)
+							So(ss.ServiceGroupID, ShouldEqual, uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222"))
+							So(ss.HostID, ShouldEqual, uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555"))
 
 						})
 
 						Convey("Then Querying By wrong ID", func() {
-							ss, err := sr.GetByID(s.ID + 1)
+							ss, err := sr.GetByID(uuid.FromStringOrNil("24422222-2222-2222-2222-222222222222"))
 							So(err, ShouldNotBeNil)
 							So(ss, ShouldBeNil)
 						})
 
 						Convey("Then Deleting a wrong entry", func() {
-							err = sr.Delete(s.ID + 1)
+							err = sr.Delete(uuid.FromStringOrNil("24422222-2222-2222-2222-222222222222"))
 							So(err, ShouldNotBeNil)
 							Convey("Should output one entry", func() {
 								ac, err := sr.GetAll()
@@ -92,29 +97,29 @@ func FTPSpec(t *testing.T) {
 						})
 
 						Convey("Then updating to non existent host should not be allowed", func() {
-							s.HostID = 20
-							err = sr.Update(&s)
+							s[0].HostID = uuid.FromStringOrNil("22222233-2222-2222-2222-222222222222")
+							err = sr.Update(s[0])
 							So(err, ShouldNotBeNil)
 						})
 						Convey("Then updating to different existent host/service_group should be allowed", func() {
-							s.HostID = 4
-							err = sr.Update(&s)
+							s[0].HostID = uuid.FromStringOrNil("44444444-4444-4444-4444-444444444444")
+							err = sr.Update(s[0])
 							So(err, ShouldBeNil)
 						})
 						Convey("Then adding service with the same name should be allowed", func() {
-							s2 := service.Service{Name: "FTP", ServiceGroupID: 7, HostID: 5}
-							err = sr.Store(&s2)
+							s2 := []*service.Service{{Name: "FTP", ServiceGroupID: uuid.FromStringOrNil("77777777-7777-7777-7777-777777777777"), HostID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555")}}
+							err = sr.Store(s2)
 							So(err, ShouldBeNil)
 						})
 						Convey("Then updating regular fields should be allowed", func() {
 							tru := true
-							s.Enabled = &tru
-							s.Name = "DifferentTestName"
-							s.RoundUnits = 3
-							rd := uint32(2)
-							s.RoundDelay = &rd
-							s.Points = 5
-							err = sr.Update(&s)
+							s[0].Enabled = &tru
+							s[0].Name = "DifferentTestName"
+							s[0].RoundUnits = 3
+							rd := uint(2)
+							s[0].RoundDelay = &rd
+							s[0].Points = 5
+							err = sr.Update(s[0])
 							So(err, ShouldBeNil)
 							ac, err = sr.GetAll()
 							So(err, ShouldBeNil)
@@ -122,12 +127,12 @@ func FTPSpec(t *testing.T) {
 							So(ac[0].Name, ShouldEqual, "DifferentTestName")
 							So(*(ac[0].RoundDelay), ShouldEqual, 2)
 						})
-						Convey("Then updating Round Delay to something larger than Round Units should not be allowed", func() {
-							rd := uint32(5)
-							s.RoundDelay = &rd
+						SkipConvey("Then updating Round Delay to something larger than Round Units should not be allowed", func() { //TODO: Change this to Convey once govalidations are enabled
+							rd := uint(5)
+							s[0].RoundDelay = &rd
 							Convey("Round Units set", func() {
-								s.RoundUnits = 3
-								err = sr.Update(&s)
+								s[0].RoundUnits = 3
+								err = sr.Update(s[0])
 								So(err, ShouldNotBeNil)
 								ac, err = sr.GetAll()
 								So(err, ShouldBeNil)
@@ -135,7 +140,7 @@ func FTPSpec(t *testing.T) {
 								So(*(ac[0].RoundDelay), ShouldEqual, 0)
 							})
 							Convey("Round Units not set", func() {
-								err = sr.Update(&s)
+								err = sr.Update(s[0])
 								So(err, ShouldNotBeNil)
 								ac, err = sr.GetAll()
 								So(err, ShouldBeNil)
@@ -147,25 +152,25 @@ func FTPSpec(t *testing.T) {
 					})
 				})
 				Convey("Create Multiple services", func() {
-					s1 := service.Service{Name: "FTP", ServiceGroupID: 2, HostID: 4}
-					s2 := service.Service{Name: "FTP", ServiceGroupID: 7, HostID: 5}
-					err := sr.Store(&s1)
+					s1 := []*service.Service{{Name: "FTP", ServiceGroupID: uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222"), HostID: uuid.FromStringOrNil("44444444-4444-4444-4444-444444444444")}}
+					s2 := []*service.Service{{Name: "FTP", ServiceGroupID: uuid.FromStringOrNil("77777777-7777-7777-7777-777777777777"), HostID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555")}}
+					err := sr.Store(s1)
 					So(err, ShouldBeNil)
-					err = sr.Store(&s2)
+					err = sr.Store(s2)
 					So(err, ShouldBeNil)
 					Convey("Loading Checks And Properties Tables with sample data", func() {
 						db.AutoMigrate(&property.Property{})
 						db.AutoMigrate(&check.Check{})
-						db.Exec(fmt.Sprintf("INSERT INTO checks (service_id, round_id, passed) VALUES (%d, 999, false)", s1.ID))
-						db.Exec(fmt.Sprintf("INSERT INTO checks (service_id, round_id, passed) VALUES (%d, 333, false)", s2.ID))
-						db.Exec(fmt.Sprintf("INSERT INTO properties (id, service_id, key, value) VALUES (5, %d, 'sample_key', 'sample_value')", s1.ID))
-						db.Exec(fmt.Sprintf("INSERT INTO properties (id, service_id, key, value) VALUES (33, %d, 'sample_key', 'sample_value')", s2.ID))
+						db.Exec(fmt.Sprintf("INSERT INTO checks (service_id, round_id, passed) VALUES ('%s', 999, false)", s1[0].ID.String()))
+						db.Exec(fmt.Sprintf("INSERT INTO checks (service_id, round_id, passed) VALUES ('%s', 333, false)", s2[0].ID.String()))
+						db.Exec(fmt.Sprintf("INSERT INTO properties (id, service_id, key, value) VALUES ('55555555-5555-5555-5555-555555555555', '%s', 'sample_key', 'sample_value')", s1[0].ID.String()))
+						db.Exec(fmt.Sprintf("INSERT INTO properties (id, service_id, key, value) VALUES ('55555555-5555-5555-5555-555555555522', '%s', 'sample_key', 'sample_value')", s2[0].ID.String()))
 						db.Table("checks").Count(&count)
 						So(count, ShouldEqual, 2)
 						db.Table("properties").Count(&count)
 						So(count, ShouldEqual, 2)
 						Convey("Deleting the service", func() {
-							err = sr.Delete(s1.ID)
+							err = sr.Delete(s1[0].ID)
 							So(err, ShouldBeNil)
 							Convey("Should also delete checks and properties associated with the deleted service", func() {
 								var count int64
@@ -183,8 +188,8 @@ func FTPSpec(t *testing.T) {
 				})
 
 				Convey("Creating a sample service with wrong service_group should not be allowed", func() {
-					s := service.Service{Name: "FTP", ServiceGroupID: 88, HostID: 5}
-					err := sr.Store(&s)
+					s := []*service.Service{{Name: "FTP", ServiceGroupID: uuid.FromStringOrNil("77777777-7777-7777-7777-777777777557"), HostID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555")}}
+					err := sr.Store(s)
 					So(err, ShouldNotBeNil)
 					ac, err := sr.GetAll()
 					So(err, ShouldBeNil)

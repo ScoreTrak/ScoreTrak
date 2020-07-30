@@ -32,15 +32,14 @@ func (c *checkController) GetByRoundServiceID(w http.ResponseWriter, r *http.Req
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	sID, err := strconv.ParseUint(params["ServiceID"], 10, 32)
+	sID, err := uuidResolver("ServiceID", r)
 	if err != nil {
 		c.log.Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	rID32 := uint32(rID)
-	sID32 := uint32(sID)
-	sg, err := c.svc.GetByRoundServiceID(rID32, sID32)
+	rID32 := uint(rID)
+	sg, err := c.svc.GetByRoundServiceID(rID32, sID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			http.Error(w, err.Error(), http.StatusNotFound)

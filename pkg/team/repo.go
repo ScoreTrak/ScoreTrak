@@ -1,12 +1,14 @@
 package team
 
+import "github.com/gofrs/uuid"
+
 type Repo interface {
-	Delete(id uint32) error
+	Delete(id uuid.UUID) error
 	GetAll() ([]*Team, error)
-	GetByID(id uint32) (*Team, error)
+	GetByID(id uuid.UUID) (*Team, error)
 	GetByName(name string) (*Team, error)
 	DeleteByName(name string) error
-	Store(u *Team) error
+	Store(u []*Team) error
 	UpdateByName(u *Team) error
 	Update(u *Team) error
 }

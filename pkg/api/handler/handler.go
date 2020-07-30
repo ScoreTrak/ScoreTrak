@@ -7,6 +7,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
+	"github.com/gofrs/uuid"
 	"github.com/gorilla/mux"
 	"github.com/qor/validations"
 	"gorm.io/gorm"
@@ -18,7 +19,7 @@ import (
 //Generic function passing and assignment
 
 func genericGetByID(svc interface{}, log logger.LogInfoFormat, m string, idParam string, w http.ResponseWriter, r *http.Request) {
-	id, err := IdResolver(svc, idParam, r)
+	id, err := uuidResolver(idParam, r)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -69,7 +70,7 @@ func genericUpdate(svc interface{}, g interface{}, log logger.LogInfoFormat, m s
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	id, err := IdResolver(svc, idParam, r)
+	id, err := uuidResolver(idParam, r)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -117,7 +118,7 @@ func genericStore(svc interface{}, g interface{}, log logger.LogInfoFormat, m st
 }
 
 func genericDelete(svc interface{}, log logger.LogInfoFormat, m string, idParam string, w http.ResponseWriter, r *http.Request) {
-	id, err := IdResolver(svc, idParam, r)
+	id, err := uuidResolver(idParam, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		log.Error(err)
@@ -199,21 +200,20 @@ func PreInvoke(i interface{}, methodName string) reflect.Value {
 	return finalMethod
 }
 
-func IdResolver(svc interface{}, idParam string, r *http.Request) (interface{}, error) {
-	if idParam == "" {
-		return 1, nil
-	}
-	var id interface{}
+func uuidResolver(idParam string, r *http.Request) (uuid.UUID, error) {
 	params := mux.Vars(r)
-	if _, ok := svc.(team.Serv); ok && idParam == "name" {
-		id = params[idParam]
-	} else {
-		var err error
-		id, err = strconv.ParseUint(params[idParam], 10, 32)
-		if err != nil {
-			return nil, err
-		}
-		id = id.(uint32)
+	id := params[idParam]
+	if id == "" {
+		return uuid.Nil, errors.New("id was not found")
 	}
-	return id, nil
+	return uuid.FromString(id)
+}
+
+func uintResolver(idParam string, r *http.Request) (uint, error) {
+	params := mux.Vars(r)
+	id, err := strconv.ParseUint(params[idParam], 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return uint(id), nil
 }

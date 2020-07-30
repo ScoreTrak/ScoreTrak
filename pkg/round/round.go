@@ -9,7 +9,7 @@ import (
 type Round struct {
 
 	// Round ID can also represent the round number
-	ID uint32 `json:"id,omitempty" gorm:"primary_key"`
+	ID uint `json:"id,omitempty" gorm:"primary_key"`
 
 	Start time.Time `json:"start,omitempty" gorm:"not null; default:CURRENT_TIMESTAMP"`
 
