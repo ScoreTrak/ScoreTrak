@@ -39,9 +39,9 @@ type Service struct {
 	// Enables or Disables the service
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: true"`
 
-	Properties []*property.Property `json:"-" gorm:"foreignkey:ServiceID; constraint:OnUpdate:RESTRICT,OnDelete:CASCADE"`
+	Properties []*property.Property `json:"properties,omitempty" gorm:"foreignkey:ServiceID; constraint:OnUpdate:RESTRICT,OnDelete:CASCADE"`
 
-	Checks []*check.Check `json:"-" gorm:"foreignkey:ServiceID; constraint:OnUpdate:RESTRICT,OnDelete:CASCADE"`
+	Checks []*check.Check `json:"checks,omitempty" gorm:"foreignkey:ServiceID; constraint:OnUpdate:RESTRICT,OnDelete:CASCADE"`
 }
 
 // BeforeCreate will set a UUID rather than numeric ID.
