@@ -61,7 +61,7 @@ func (ds *dserver) SetupDB() error {
 	if err != nil {
 		panic(err)
 	}
-	err = db.AutoMigrate(&check.Check{})
+	err = db.AutoMigrate(&report.Report{})
 	if err != nil {
 		panic(err)
 	}
@@ -69,15 +69,15 @@ func (ds *dserver) SetupDB() error {
 	if err != nil {
 		panic(err)
 	}
-	err = db.AutoMigrate(&host.Host{})
-	if err != nil {
-		panic(err)
-	}
 	err = db.AutoMigrate(&host_group.HostGroup{})
 	if err != nil {
 		panic(err)
 	}
-	err = db.AutoMigrate(&property.Property{})
+	err = db.AutoMigrate(&service_group.ServiceGroup{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&host.Host{})
 	if err != nil {
 		panic(err)
 	}
@@ -89,11 +89,11 @@ func (ds *dserver) SetupDB() error {
 	if err != nil {
 		panic(err)
 	}
-	err = db.AutoMigrate(&service_group.ServiceGroup{})
+	err = db.AutoMigrate(&check.Check{})
 	if err != nil {
 		panic(err)
 	}
-	err = db.AutoMigrate(&report.Report{})
+	err = db.AutoMigrate(&property.Property{})
 	if err != nil {
 		panic(err)
 	}

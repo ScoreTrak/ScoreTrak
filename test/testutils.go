@@ -8,6 +8,7 @@ import (
 	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
+	"github.com/L1ghtman2k/ScoreTrak/pkg/report"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
 	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
@@ -40,15 +41,48 @@ func SetupDB(c storage.Config) *gorm.DB {
 }
 
 func CreateAllTables(db *gorm.DB) {
-	db.AutoMigrate(&team.Team{})
-	db.AutoMigrate(&check.Check{})
-	db.AutoMigrate(&config.DynamicConfig{})
-	db.AutoMigrate(&host.Host{})
-	db.AutoMigrate(&host_group.HostGroup{})
-	db.AutoMigrate(&property.Property{})
-	db.AutoMigrate(&round.Round{})
-	db.AutoMigrate(&service.Service{})
-	db.AutoMigrate(&service_group.ServiceGroup{})
+	var err error
+	err = db.AutoMigrate(&team.Team{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&report.Report{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&config.DynamicConfig{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&host_group.HostGroup{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&service_group.ServiceGroup{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&host.Host{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&round.Round{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&service.Service{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&check.Check{})
+	if err != nil {
+		panic(err)
+	}
+	err = db.AutoMigrate(&property.Property{})
+	if err != nil {
+		panic(err)
+	}
+
 }
 
 func SetupConfig(f string) config.StaticConfig {

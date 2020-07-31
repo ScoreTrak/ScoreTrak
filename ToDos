@@ -1,3 +1,1 @@
 TODO: Return Validations once https://github.com/go-gorm/gorm/issues/3180 is answered
-
-TODO: Create a more elegant solution for Automigration error checkin in server.go

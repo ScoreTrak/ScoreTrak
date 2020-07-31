@@ -17,7 +17,7 @@ type Team struct {
 
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: true"`
 
-	Hosts []*host.Host `gorm:"foreignkey:TeamID;association_foreignkey:ID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT" json:"-"`
+	Hosts []*host.Host `gorm:"foreignkey:TeamID;association_foreignkey:ID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT" json:"hosts,omitempty"`
 }
 
 // BeforeCreate will set a UUID rather than numeric ID.
