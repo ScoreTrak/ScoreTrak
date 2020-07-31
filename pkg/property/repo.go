@@ -9,6 +9,4 @@ type Repo interface {
 	Store(u []*Property) error
 	Update(u *Property) error
 	GetAllByServiceID(id uuid.UUID) ([]*Property, error)
-	GetAllByTeamID(TeamID uuid.UUID) ([]*Property, error)
-	GetAllByHostID(TeamID uuid.UUID) ([]*Property, error)
 }

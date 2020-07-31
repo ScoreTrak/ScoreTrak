@@ -8,8 +8,6 @@ type Serv interface {
 	GetByID(id uuid.UUID) (*Property, error)
 	Store(u []*Property) error
 	Update(u *Property) error
-	GetAllByTeamID(TeamID uuid.UUID) ([]*Property, error)
-	GetAllByHostID(HostID uuid.UUID) ([]*Property, error)
 }
 
 type propertyServ struct {
@@ -31,10 +29,3 @@ func (svc *propertyServ) GetByID(id uuid.UUID) (*Property, error) { return svc.r
 func (svc *propertyServ) Store(u []*Property) error { return svc.repo.Store(u) }
 
 func (svc *propertyServ) Update(u *Property) error { return svc.repo.Update(u) }
-
-func (svc *propertyServ) GetAllByTeamID(TeamID uuid.UUID) ([]*Property, error) {
-	return svc.repo.GetAllByTeamID(TeamID)
-}
-func (svc *propertyServ) GetAllByHostID(HostID uuid.UUID) ([]*Property, error) {
-	return svc.repo.GetAllByTeamHostID(HostID)
-}
