@@ -21,7 +21,29 @@ func NewCheckController(log logger.LogInfoFormat, svc check.Serv) *checkControll
 }
 
 func (c *checkController) GetAllByRoundID(w http.ResponseWriter, r *http.Request) {
-	genericGetByID(c.svc, c.log, "GetAllByRoundID", "RoundID", w, r)
+	params := mux.Vars(r)
+	rID, err := strconv.ParseUint(params["RoundID"], 10, 32)
+	if err != nil {
+		c.log.Error(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	sg, err := c.svc.GetAllByRoundID(uint(rID))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			c.log.Error(err)
+		}
+		return
+	}
+	encoder := json.NewEncoder(w)
+	err = encoder.Encode(sg)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.log.Error(err)
+	}
 }
 
 func (c *checkController) GetByRoundServiceID(w http.ResponseWriter, r *http.Request) {
@@ -38,8 +60,7 @@ func (c *checkController) GetByRoundServiceID(w http.ResponseWriter, r *http.Req
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	rID32 := uint(rID)
-	sg, err := c.svc.GetByRoundServiceID(rID32, sID)
+	sg, err := c.svc.GetByRoundServiceID(uint(rID), sID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			http.Error(w, err.Error(), http.StatusNotFound)
