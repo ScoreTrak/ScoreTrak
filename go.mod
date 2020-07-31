@@ -16,8 +16,9 @@ require (
 	github.com/emersion/go-sasl v0.0.0-20200509203442-7bfe0ed36a21 // indirect
 	github.com/go-ldap/ldap/v3 v3.2.3
 	github.com/gofrs/uuid v3.3.0+incompatible
+	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/google/go-cmp v0.5.1 // indirect
-	github.com/googleapis/gnostic v0.5.1 // indirect
+	github.com/googleapis/gnostic v0.3.1 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
 	github.com/gorilla/mux v1.7.4
 	github.com/hirochachacha/go-smb2 v0.0.0-20200618112446-579efc4c6c8a
@@ -56,11 +57,12 @@ require (
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.3.0
+	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 	gorm.io/driver/postgres v0.2.6
 	gorm.io/gorm v0.2.26
 	honnef.co/go/tools v0.0.1-2020.1.5 // indirect
 	k8s.io/api v0.18.6
 	k8s.io/apimachinery v0.18.6
-	k8s.io/client-go v0.17.0
+	k8s.io/client-go v0.18.6
 	k8s.io/utils v0.0.0-20200731180307-f00132d28269 // indirect
 )
