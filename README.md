@@ -1,9 +1,5 @@
 ![Alt text](./images/logo.svg "Logo")
 
-<p align="center">
-  <img src="./images/logo.svg" width="350" title="Logo">
-</p>
-
 <h4 align="center">A distributed scoring engine</h4>
 
 ## Key Features
@@ -13,7 +9,7 @@
 * Supports Integrations with platforms like docker, docker swarm, and kubernetes(in dev).
     * Automatically Spawns/Removes Workers.
 * Supports running checks from workers and on masters directly
-
+* And More!
 # Getting Started
 
 ## 1. Clone the repo and install the dependencies
@@ -59,3 +55,7 @@ Note:
 ```bash
 $ go run ./cmd/master/main.go 
 ```
+
+## 5. Get to know ScoreTrak
+
+Check out `./docs` directory for more docs!
