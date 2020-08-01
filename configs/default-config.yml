@@ -4,7 +4,7 @@ enabled: False
 
 db:
   cockroach:
-    host: cockroach
+    host: localhost
     username: root
     password: ""
 
