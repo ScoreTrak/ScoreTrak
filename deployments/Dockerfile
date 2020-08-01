@@ -11,3 +11,4 @@ RUN rm -rf *
 RUN mv /tmp/master master
 RUN mv /tmp/worker worker
 
+#Set Context Path as ScoreTrak directory
