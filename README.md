@@ -1,6 +1,6 @@
 ![Alt text](./images/logo.svg "Logo")
 
-<h4 align="center">A distributed scoring engine</h4>
+<h1 align="center">A distributed scoring engine</h1>
 
 ## Key Features
 
