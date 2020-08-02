@@ -2,7 +2,7 @@ package client
 
 import (
 	"fmt"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 )
 
 type ConfigClient struct {

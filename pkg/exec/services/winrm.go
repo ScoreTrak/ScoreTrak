@@ -2,7 +2,7 @@ package services
 
 import (
 	"errors"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/exec"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/masterzen/winrm"
 	"net"
 	"strconv"

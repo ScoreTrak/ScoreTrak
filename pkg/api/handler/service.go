@@ -2,12 +2,12 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/L1ghtman2k/ScoreTrak/cmd/master/run"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/queue"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/util"
+	"github.com/ScoreTrak/ScoreTrak/cmd/master/run"
+	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
+	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/qor/validations"
 	"net/http"
 	"time"

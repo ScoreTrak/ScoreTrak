@@ -1,8 +1,8 @@
 package resolver
 
 import (
-	"github.com/L1ghtman2k/ScoreTrak/pkg/exec"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/exec/services"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec/services"
 	"strings"
 )
 

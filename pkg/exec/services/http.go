@@ -3,7 +3,7 @@ package services
 import (
 	"bytes"
 	"fmt"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/exec"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"net/http"
 	"net/url"
 	"strings"

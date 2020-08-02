@@ -2,7 +2,7 @@ package team
 
 import (
 	"errors"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
+	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )

@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/exec"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/go-ldap/ldap/v3"
 	"net"
 	"strings"

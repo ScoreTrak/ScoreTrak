@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/exec"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/jlaffaye/ftp"
 	"io/ioutil"
 )

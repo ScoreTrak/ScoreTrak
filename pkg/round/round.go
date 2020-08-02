@@ -1,7 +1,7 @@
 package round
 
 import (
-	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
+	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"time"
 )
 

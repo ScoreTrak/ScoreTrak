@@ -1,10 +1,10 @@
 package orm
 
 import (
-	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
-	. "github.com/L1ghtman2k/ScoreTrak/test"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/ScoreTrak/ScoreTrak/pkg/property"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service"
+	. "github.com/ScoreTrak/ScoreTrak/test"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"

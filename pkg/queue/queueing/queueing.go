@@ -3,9 +3,9 @@ package queueing
 import (
 	"context"
 	"errors"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/exec"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/exec/resolver"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec/resolver"
+	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/gofrs/uuid"
 	"math/rand"
 	"strconv"

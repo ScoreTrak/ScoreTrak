@@ -3,7 +3,7 @@ package exec
 import (
 	"context"
 	"errors"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"reflect"
 	"time"
 )

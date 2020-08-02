@@ -2,8 +2,8 @@ package client
 
 import (
 	"fmt"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/gofrs/uuid"
 )
 

@@ -2,10 +2,10 @@ package kubernetes
 
 import (
 	"context"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/platforming"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/util"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/worker"
+	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 	appv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

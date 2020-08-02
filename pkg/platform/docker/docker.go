@@ -7,10 +7,10 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/platforming"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/util"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/worker"
+	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
@@ -261,7 +261,7 @@ func (d *Docker) UploadConfigToContainer(resp container.ContainerCreateCreatedBo
 		return err
 	}
 	dockerFileTarReader := bytes.NewReader(buf.Bytes())
-	err = d.Client.CopyToContainer(d.Context, resp.ID, "/go/src/github.com/L1ghtman2k/ScoreTrak", dockerFileTarReader, types.CopyToContainerOptions{AllowOverwriteDirWithFile: true})
+	err = d.Client.CopyToContainer(d.Context, resp.ID, "/go/src/github.com/ScoreTrak/ScoreTrak", dockerFileTarReader, types.CopyToContainerOptions{AllowOverwriteDirWithFile: true})
 	if err != nil {
 		return err
 	}

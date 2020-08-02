@@ -4,8 +4,8 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/worker"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 	"io/ioutil"
 )
 
