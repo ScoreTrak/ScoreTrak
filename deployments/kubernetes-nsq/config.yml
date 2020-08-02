@@ -1,6 +1,0 @@
-queue:
-  use: nsq
-platform:
-  use: kubernetes
-  docker:
-    name: kubernetes-nsq

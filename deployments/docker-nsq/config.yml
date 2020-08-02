@@ -1,6 +1,0 @@
-queue:
-  use: nsq
-platform:
-  use: docker
-  docker:
-    name: docker-nsq
