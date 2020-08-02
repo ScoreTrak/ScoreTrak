@@ -9,6 +9,7 @@
 * Supports Integrations with platforms like docker, docker swarm, and kubernetes(in dev).
     * Automatically Spawns/Removes Workers.
 * Supports running checks from workers and on masters directly
+* Editing Service and Host configurations at runtime
 * And More!
 # Getting Started
 
