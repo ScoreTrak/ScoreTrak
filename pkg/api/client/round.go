@@ -2,7 +2,7 @@ package client
 
 import (
 	"fmt"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
+	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 )
 
 type RoundClient struct {

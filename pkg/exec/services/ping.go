@@ -3,7 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/exec"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/digineo/go-ping"
 	"net"
 	"strconv"

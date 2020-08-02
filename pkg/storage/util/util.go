@@ -1,16 +1,16 @@
 package util
 
 import (
-	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/di"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/host_group"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/service_group"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
+	"github.com/ScoreTrak/ScoreTrak/pkg/check"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/ScoreTrak/ScoreTrak/pkg/di"
+	"github.com/ScoreTrak/ScoreTrak/pkg/host"
+	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/property"
+	"github.com/ScoreTrak/ScoreTrak/pkg/round"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 )
 
 type RepoStore struct {

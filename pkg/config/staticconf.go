@@ -1,10 +1,10 @@
 package config
 
 import (
-	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/platforming"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/queue/queueing"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/storage"
+	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
+	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	"github.com/jinzhu/configor"
 	"github.com/jinzhu/copier"
 	"gopkg.in/yaml.v2"

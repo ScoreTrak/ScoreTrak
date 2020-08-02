@@ -1,7 +1,7 @@
 package host
 
 import (
-	"github.com/L1ghtman2k/ScoreTrak/pkg/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )

@@ -3,9 +3,9 @@ package service
 import (
 	"errors"
 	"fmt"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/exec/resolver"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
+	"github.com/ScoreTrak/ScoreTrak/pkg/check"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec/resolver"
+	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )

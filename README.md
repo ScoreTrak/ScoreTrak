@@ -15,7 +15,7 @@
 ## 1. Clone the repo and install the dependencies
 ```bash
 # Clone ScoreTrak repository
-$ git clone https://github.com/L1ghtman2k/ScoreTrak
+$ git clone https://github.com/ScoreTrak/ScoreTrak
 
 $ cd ScoreTrak
 

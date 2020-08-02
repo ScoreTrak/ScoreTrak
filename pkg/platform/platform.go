@@ -2,11 +2,11 @@ package platform
 
 import (
 	"errors"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/docker"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/kubernetes"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/platforming"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/platform/worker"
+	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/docker"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/kubernetes"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 )
 
 type Platform interface {

@@ -2,8 +2,8 @@ package handler
 
 import (
 	"encoding/json"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/property"
+	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/qor/validations"
 	"net/http"
 )

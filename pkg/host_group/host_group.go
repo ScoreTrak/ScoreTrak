@@ -1,7 +1,7 @@
 package host_group
 
 import (
-	"github.com/L1ghtman2k/ScoreTrak/pkg/host"
+	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )

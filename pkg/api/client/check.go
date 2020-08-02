@@ -2,7 +2,7 @@ package client
 
 import (
 	"fmt"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
+	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/gofrs/uuid"
 )
 

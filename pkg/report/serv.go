@@ -1,8 +1,8 @@
 package report
 
 import (
-	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/team"
+	"github.com/ScoreTrak/ScoreTrak/pkg/round"
+	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/gofrs/uuid"
 )
 

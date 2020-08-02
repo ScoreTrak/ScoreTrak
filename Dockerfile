@@ -1,5 +1,5 @@
 FROM golang:latest
-WORKDIR /go/src/github.com/L1ghtman2k/ScoreTrak
+WORKDIR /go/src/github.com/ScoreTrak/ScoreTrak
 COPY pkg/ pkg/
 COPY cmd/ cmd/
 COPY go.mod go.mod

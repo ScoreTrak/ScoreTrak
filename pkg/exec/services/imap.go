@@ -3,7 +3,7 @@ package services
 import (
 	"crypto/tls"
 	"errors"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/exec"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
 	"net"

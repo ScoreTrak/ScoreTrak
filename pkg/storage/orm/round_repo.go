@@ -3,8 +3,8 @@ package orm
 import (
 	"errors"
 	"fmt"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
+	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"gorm.io/gorm"
 )
 

@@ -3,8 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"errors"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/check"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/check"
+	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 	"net/http"

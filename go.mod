@@ -1,4 +1,4 @@
-module github.com/L1ghtman2k/ScoreTrak
+module github.com/ScoreTrak/ScoreTrak
 
 go 1.14
 

@@ -1,9 +1,9 @@
 package orm
 
 import (
-	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/report"
-	. "github.com/L1ghtman2k/ScoreTrak/test"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/ScoreTrak/ScoreTrak/pkg/report"
+	. "github.com/ScoreTrak/ScoreTrak/test"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
 	"testing"

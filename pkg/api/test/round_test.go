@@ -2,12 +2,12 @@ package client
 
 import (
 	"fmt"
-	"github.com/L1ghtman2k/ScoreTrak/cmd/master/server/gorilla"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/api/client"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/config"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/round"
-	"github.com/L1ghtman2k/ScoreTrak/pkg/storage/orm"
-	. "github.com/L1ghtman2k/ScoreTrak/test"
+	"github.com/ScoreTrak/ScoreTrak/cmd/master/server/gorilla"
+	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/ScoreTrak/ScoreTrak/pkg/round"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm"
+	. "github.com/ScoreTrak/ScoreTrak/test"
 	"net"
 	"net/http"
 	"net/url"
