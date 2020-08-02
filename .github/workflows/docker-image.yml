@@ -22,4 +22,4 @@ jobs:
       - name: Build the Docker image
         run: docker build . --file Dockerfile --tag l1ghtman/scoretrak:latest
       - name: Push the Docker image
-        run: docker push -t l1ghtman/scoretrak:latest
+        run: docker push l1ghtman/scoretrak:latest
