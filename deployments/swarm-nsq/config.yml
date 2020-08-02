@@ -1,7 +1,0 @@
-queue:
-  use: nsq
-platform:
-  use: swarm
-  docker:
-    name: swarm-nsq
-    network: nsq

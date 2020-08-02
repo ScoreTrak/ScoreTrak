@@ -1,0 +1,5 @@
+**/.git
+**/.idea
+configs/
+**/*.log
+**/dev-config.yml
