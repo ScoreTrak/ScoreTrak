@@ -6,8 +6,10 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/di/repo"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 
@@ -31,7 +33,7 @@ func TestServiceSpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_api_service"
 	c.Logger.FileName = "service_test.log"
-	db := SetupDB(c.DB)
+	db := storage.SetupDB(c.DB)
 	l := SetupLogger(c.Logger)
 	rtr := gorilla.NewRouter()
 	routes := gorilla.Routes{
@@ -44,7 +46,7 @@ func TestServiceSpec(t *testing.T) {
 	}
 	cr := orm.NewServiceRepo(db, l)
 	serviceSvc := service.NewServiceServ(cr)
-	routes = append(routes, gorilla.ServiceRoutes(l, serviceSvc, nil, RepoStore{})...)
+	routes = append(routes, gorilla.ServiceRoutes(l, serviceSvc, nil, repo.Store{})...)
 	for _, route := range routes {
 		var hdler http.Handler
 		hdler = route.HandlerFunc

@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/ScoreTrak/ScoreTrak/pkg/di/repo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/gofrs/uuid"
 	"github.com/jackc/pgconn"
 	"gorm.io/gorm"
@@ -26,7 +26,7 @@ type dRunner struct {
 	db *gorm.DB
 	l  logger.LogInfoFormat
 	q  queue.Queue
-	r  util.RepoStore
+	r  repo.Store
 }
 
 var dsync time.Duration
@@ -56,7 +56,7 @@ func (d dRunner) getDsync() time.Duration {
 	return dsync
 }
 
-func NewRunner(db *gorm.DB, l logger.LogInfoFormat, q queue.Queue, r util.RepoStore) *dRunner {
+func NewRunner(db *gorm.DB, l logger.LogInfoFormat, q queue.Queue, r repo.Store) *dRunner {
 	return &dRunner{
 		db: db, l: l, q: q, r: r,
 	}

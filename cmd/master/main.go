@@ -8,6 +8,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	cutil "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/di"
+	"github.com/ScoreTrak/ScoreTrak/pkg/di/repo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
@@ -41,7 +42,7 @@ func main() {
 	di.Invoke(func(qu queue.Queue) {
 		q = qu
 	})
-	dr := run.NewRunner(db, l, q, sutil.NewRepoStore())
+	dr := run.NewRunner(db, l, q, repo.NewStore())
 	var count int64
 	db.Table("config").Count(&count)
 	err = sutil.LoadConfig(db, cnf)

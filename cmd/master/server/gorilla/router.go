@@ -6,6 +6,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/api/handler"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/ScoreTrak/ScoreTrak/pkg/di/repo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
@@ -16,7 +17,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/gorilla/mux"
 	"log"
@@ -451,10 +451,10 @@ func (ds *dserver) serviceRoutes() Routes {
 		panic(err)
 	}
 
-	return ServiceRoutes(ds.logger, svc, q, util.NewRepoStore())
+	return ServiceRoutes(ds.logger, svc, q, repo.NewStore())
 }
 
-func ServiceRoutes(l logger.LogInfoFormat, svc service.Serv, q queue.Queue, repoStore util.RepoStore) Routes {
+func ServiceRoutes(l logger.LogInfoFormat, svc service.Serv, q queue.Queue, repoStore repo.Store) Routes {
 	ctrl := handler.NewServiceController(l, svc, q, repoStore)
 	serviceRoutes := Routes{
 		Route{

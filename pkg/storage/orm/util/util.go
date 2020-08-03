@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/di"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
@@ -12,76 +11,11 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/jackc/pgconn"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"time"
 )
-
-type RepoStore struct {
-	Round        round.Repo
-	Host         host.Repo
-	HostGroup    host_group.Repo
-	Service      service.Repo
-	ServiceGroup service_group.Repo
-	Team         team.Repo
-	Check        check.Repo
-	Property     property.Repo
-	Config       config.Repo
-}
-
-func NewRepoStore() RepoStore {
-	var hostGroupRepo host_group.Repo
-	di.Invoke(func(re host_group.Repo) {
-		hostGroupRepo = re
-	})
-	var hostRepo host.Repo
-	di.Invoke(func(re host.Repo) {
-		hostRepo = re
-	})
-	var roundRepo round.Repo
-	di.Invoke(func(re round.Repo) {
-		roundRepo = re
-	})
-	var serviceRepo service.Repo
-	di.Invoke(func(re service.Repo) {
-		serviceRepo = re
-	})
-	var serviceGroupRepo service_group.Repo
-	di.Invoke(func(re service_group.Repo) {
-		serviceGroupRepo = re
-	})
-	var propertyRepo property.Repo
-	di.Invoke(func(re property.Repo) {
-		propertyRepo = re
-	})
-	var checkRepo check.Repo
-	di.Invoke(func(re check.Repo) {
-		checkRepo = re
-	})
-	var teamRepo team.Repo
-	di.Invoke(func(re team.Repo) {
-		teamRepo = re
-	})
-	var configRepo config.Repo
-	di.Invoke(func(re config.Repo) {
-		configRepo = re
-	})
-
-	return RepoStore{
-		Round:        roundRepo,
-		HostGroup:    hostGroupRepo,
-		Host:         hostRepo,
-		Service:      serviceRepo,
-		ServiceGroup: serviceGroupRepo,
-		Property:     propertyRepo,
-		Check:        checkRepo,
-		Team:         teamRepo,
-		Config:       configRepo,
-	}
-}
 
 func CleanAllTables(db *gorm.DB) {
 	db.Migrator().DropTable(&check.Check{})
@@ -237,25 +171,6 @@ func DataPreload(db *gorm.DB) {
 
 func DropDB(db *gorm.DB, c config.StaticConfig) {
 	db.Exec(fmt.Sprintf("drop database %s", c.DB.Cockroach.Database))
-}
-
-func SetupDB(c storage.Config) *gorm.DB {
-	var err error
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s sslmode=disable",
-		c.Cockroach.Host,
-		c.Cockroach.Port,
-		c.Cockroach.UserName)
-	dbPrep, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{})
-	if err != nil {
-		panic(err)
-	}
-	dbPrep.Exec(fmt.Sprintf("drop database if exists  %s", c.Cockroach.Database))
-	dbPrep.Exec(fmt.Sprintf("create database if not exists  %s", c.Cockroach.Database))
-	db, err := storage.NewDB(c)
-	if err != nil {
-		panic(err)
-	}
-	return db
 }
 
 func LoadConfig(db *gorm.DB, cnf *config.DynamicConfig) error {

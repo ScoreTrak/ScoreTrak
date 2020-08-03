@@ -31,7 +31,7 @@ func TestPropertySpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_api_property"
 	c.Logger.FileName = "property_test.log"
-	db := SetupDB(c.DB)
+	db := storage.SetupDB(c.DB)
 	l := SetupLogger(c.Logger)
 	rtr := gorilla.NewRouter()
 	routes := gorilla.Routes{

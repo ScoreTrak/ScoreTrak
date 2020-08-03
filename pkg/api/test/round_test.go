@@ -30,7 +30,7 @@ func TestRoundSpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_api_round"
 	c.Logger.FileName = "round_test.log"
-	db := SetupDB(c.DB)
+	db := storage.SetupDB(c.DB)
 	l := SetupLogger(c.Logger)
 	rtr := gorilla.NewRouter()
 	routes := gorilla.Routes{

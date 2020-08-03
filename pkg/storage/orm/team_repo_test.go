@@ -6,6 +6,7 @@ import (
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 
@@ -25,7 +26,7 @@ func TestTeamSpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_team"
 	c.Logger.FileName = "team_test.log"
-	db := SetupDB(c.DB)
+	db := storage.SetupDB(c.DB)
 	l := SetupLogger(c.Logger)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Team Tables", t, func() {
