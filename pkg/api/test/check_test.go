@@ -6,8 +6,11 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm"
-	. "github.com/ScoreTrak/ScoreTrak/test"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
+
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"net"
@@ -60,6 +63,7 @@ func TestCheckSpec(t *testing.T) {
 	go http.Serve(listener, rtr)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Initializing check repo and controller", t, func() {
+		CreateAllTables(db)
 		DataPreload(db)
 		s := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%d", port), Scheme: "http"}, "", http.DefaultClient)
 		cli := client.NewCheckClient(s)

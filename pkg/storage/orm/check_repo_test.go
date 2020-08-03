@@ -3,9 +3,12 @@ package orm
 import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
-	. "github.com/ScoreTrak/ScoreTrak/test"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
+
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"

@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
-	. "github.com/ScoreTrak/ScoreTrak/test"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
+
 	"github.com/jackc/pgconn"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"

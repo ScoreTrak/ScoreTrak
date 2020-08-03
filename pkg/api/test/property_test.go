@@ -5,9 +5,12 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/cmd/master/server/gorilla"
 	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm"
-	. "github.com/ScoreTrak/ScoreTrak/test"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
+
 	"github.com/gofrs/uuid"
 	"net"
 	"net/http"
@@ -61,6 +64,7 @@ func TestPropertySpec(t *testing.T) {
 	go http.Serve(listener, rtr)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Initializing property repo and controller", t, func() {
+		CreateAllTables(db)
 		DataPreload(db)
 		s := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%d", port), Scheme: "http"}, "", http.DefaultClient)
 		cli := client.NewPropertyClient(s)
