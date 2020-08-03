@@ -37,6 +37,7 @@ func main() {
 	svr.MapRoutes()
 	handleErr(svr.SetupDB())
 	db := storage.GetGlobalDB()
+	handleErr(svr.LoadTables(db))
 	handleErr(svr.Start())
 	var q queue.Queue
 	di.Invoke(func(qu queue.Queue) {

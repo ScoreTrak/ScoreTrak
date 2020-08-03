@@ -47,6 +47,10 @@ func (ds *dserver) SetupDB() error {
 		panic(errors.New(
 			fmt.Sprintf("time difference between master host, and database host are is large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now())))
 	}
+	return nil
+}
+
+func (ds *dserver) LoadTables(db *gorm.DB) (err error) {
 	err = sutil.CreateAllTables(db)
 	if err != nil {
 		return err
