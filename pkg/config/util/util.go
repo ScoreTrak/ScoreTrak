@@ -35,7 +35,7 @@ func ConfigFlagParser() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		path = "config.yml"
+		path = "configs/config-encoded.yml"
 		f, err := os.Create(path)
 		if err != nil {
 			return "", err
