@@ -36,14 +36,6 @@ func main() {
 	svr.MapRoutes()
 	handleErr(svr.SetupDB())
 	db := storage.GetGlobalDB()
-
-	dataPreload := os.Getenv("DATA_PRELOAD_ONLY")
-	if dataPreload == "TRUE" {
-		handleErr(sutil.CreateAllTables(db))
-		sutil.DataPreload(db)
-		return
-	}
-
 	handleErr(svr.Start())
 	var q queue.Queue
 	di.Invoke(func(qu queue.Queue) {
