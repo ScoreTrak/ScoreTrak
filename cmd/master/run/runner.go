@@ -12,7 +12,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/gofrs/uuid"
 	"github.com/jackc/pgconn"
 	"gorm.io/gorm"
@@ -63,20 +63,7 @@ func NewRunner(db *gorm.DB, l logger.LogInfoFormat, q queue.Queue, r util.RepoSt
 }
 
 func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
-	err = d.db.Create(cnf).Error
-	if err != nil {
-		serr, ok := err.(*pgconn.PgError)
-		if ok && serr.Code == "23505" {
-			dcc := &config.DynamicConfig{}
-			d.db.Take(dcc)
-			*cnf = *dcc
-		} else {
-			return err
-		}
-	}
 	d.refreshDsync()
-	rpr := report.NewReport()
-	d.db.Create(rpr)
 	var scoringLoop *time.Ticker
 	rnd, _ := d.r.Round.GetLastRound()
 	if rnd == nil {

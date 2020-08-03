@@ -16,7 +16,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/gorilla/mux"
 	"log"
