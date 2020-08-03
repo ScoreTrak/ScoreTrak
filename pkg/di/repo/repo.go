@@ -1,4 +1,4 @@
-package util
+package repo
 
 import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
@@ -13,19 +13,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 )
 
-type RepoStore struct {
-	Round        round.Repo
-	Host         host.Repo
-	HostGroup    host_group.Repo
-	Service      service.Repo
-	ServiceGroup service_group.Repo
-	Team         team.Repo
-	Check        check.Repo
-	Property     property.Repo
-	Config       config.Repo
-}
-
-func NewRepoStore() RepoStore {
+func NewStore() Store {
 	var hostGroupRepo host_group.Repo
 	di.Invoke(func(re host_group.Repo) {
 		hostGroupRepo = re
@@ -63,7 +51,7 @@ func NewRepoStore() RepoStore {
 		configRepo = re
 	})
 
-	return RepoStore{
+	return Store{
 		Round:        roundRepo,
 		HostGroup:    hostGroupRepo,
 		Host:         hostRepo,
@@ -74,4 +62,16 @@ func NewRepoStore() RepoStore {
 		Team:         teamRepo,
 		Config:       configRepo,
 	}
+}
+
+type Store struct {
+	Round        round.Repo
+	Host         host.Repo
+	HostGroup    host_group.Repo
+	Service      service.Repo
+	ServiceGroup service_group.Repo
+	Team         team.Repo
+	Check        check.Repo
+	Property     property.Repo
+	Config       config.Repo
 }

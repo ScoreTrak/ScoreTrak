@@ -4,12 +4,16 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
-	. "github.com/ScoreTrak/ScoreTrak/test"
+
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
@@ -26,7 +30,7 @@ func TestServiceSpec(t *testing.T) {
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_service"
 	c.Logger.FileName = "service_test.log"
-	db := SetupDB(c.DB)
+	db := storage.SetupDB(c.DB)
 	l := SetupLogger(c.Logger)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Service, Service Group, Host Tables along with their foreign keys", t, func() {

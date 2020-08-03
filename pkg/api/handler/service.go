@@ -3,11 +3,11 @@ package handler
 import (
 	"encoding/json"
 	"github.com/ScoreTrak/ScoreTrak/cmd/master/run"
+	"github.com/ScoreTrak/ScoreTrak/pkg/di/repo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/qor/validations"
 	"net/http"
 	"time"
@@ -17,10 +17,10 @@ type serviceController struct {
 	log logger.LogInfoFormat
 	svc service.Serv
 	q   queue.Queue
-	r   util.RepoStore
+	r   repo.Store
 }
 
-func NewServiceController(log logger.LogInfoFormat, svc service.Serv, q queue.Queue, r util.RepoStore) *serviceController {
+func NewServiceController(log logger.LogInfoFormat, svc service.Serv, q queue.Queue, r repo.Store) *serviceController {
 	return &serviceController{log, svc, q, r}
 }
 

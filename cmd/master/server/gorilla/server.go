@@ -3,17 +3,9 @@ package gorilla
 import (
 	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
-	"github.com/ScoreTrak/ScoreTrak/pkg/property"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report"
-	"github.com/ScoreTrak/ScoreTrak/pkg/round"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/team"
+	sutil "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/gorilla/mux"
 	"go.uber.org/dig"
 	"gorm.io/gorm"
@@ -41,7 +33,6 @@ func (ds *dserver) SetupDB() error {
 	ds.cont.Invoke(func(d *gorm.DB) {
 		db = d
 	})
-
 	var tm time.Time
 	res, err := db.Raw("SELECT current_timestamp;").Rows()
 	if err != nil {
@@ -56,48 +47,10 @@ func (ds *dserver) SetupDB() error {
 		panic(errors.New(
 			fmt.Sprintf("time difference between master host, and database host are is large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now())))
 	}
-
-	err = db.AutoMigrate(&team.Team{})
+	err = sutil.CreateAllTables(db)
 	if err != nil {
-		panic(err)
+		return err
 	}
-	err = db.AutoMigrate(&report.Report{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&config.DynamicConfig{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&host_group.HostGroup{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&service_group.ServiceGroup{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&host.Host{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&round.Round{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&service.Service{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&check.Check{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&property.Property{})
-	if err != nil {
-		panic(err)
-	}
-
 	return nil
 }
 

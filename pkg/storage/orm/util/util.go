@@ -1,4 +1,4 @@
-package test
+package util
 
 import (
 	"fmt"
@@ -6,102 +6,16 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
-	"github.com/jinzhu/copier"
-	"gorm.io/driver/postgres"
+	"github.com/jackc/pgconn"
 	"gorm.io/gorm"
-	"net/http/httptest"
 	"time"
 )
-
-func SetupDB(c storage.Config) *gorm.DB {
-	var err error
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s sslmode=disable",
-		c.Cockroach.Host,
-		c.Cockroach.Port,
-		c.Cockroach.UserName)
-	dbPrep, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{})
-	if err != nil {
-		panic(err)
-	}
-	dbPrep.Exec(fmt.Sprintf("drop database if exists  %s", c.Cockroach.Database))
-	dbPrep.Exec(fmt.Sprintf("create database if not exists  %s", c.Cockroach.Database))
-	db, err := storage.NewDB(c)
-	if err != nil {
-		panic(err)
-	}
-	return db
-}
-
-func CreateAllTables(db *gorm.DB) {
-	var err error
-	err = db.AutoMigrate(&team.Team{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&report.Report{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&config.DynamicConfig{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&host_group.HostGroup{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&service_group.ServiceGroup{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&host.Host{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&round.Round{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&service.Service{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&check.Check{})
-	if err != nil {
-		panic(err)
-	}
-	err = db.AutoMigrate(&property.Property{})
-	if err != nil {
-		panic(err)
-	}
-
-}
-
-func SetupConfig(f string) config.StaticConfig {
-	var err error
-	err = config.NewStaticConfig(f)
-	if err != nil {
-		panic(err)
-	}
-	return config.GetStaticConfig()
-}
-
-func NewConfigClone(c config.StaticConfig) config.StaticConfig {
-	cnf := config.StaticConfig{}
-	err := copier.Copy(&cnf, &c)
-	if err != nil {
-		panic(err)
-	}
-	return cnf
-}
 
 func CleanAllTables(db *gorm.DB) {
 	db.Migrator().DropTable(&check.Check{})
@@ -116,21 +30,52 @@ func CleanAllTables(db *gorm.DB) {
 	db.Migrator().DropTable(&config.DynamicConfig{})
 }
 
-func DropDB(db *gorm.DB, c config.StaticConfig) {
-	db.Exec(fmt.Sprintf("drop database %s", c.DB.Cockroach.Database))
-}
-
-func SetupLogger(c logger.Config) logger.LogInfoFormat {
-	l, err := logger.NewLogger(c)
+func CreateAllTables(db *gorm.DB) (err error) {
+	err = db.AutoMigrate(&team.Team{})
 	if err != nil {
-		panic(err)
+		return
 	}
-	return l
+	err = db.AutoMigrate(&report.Report{})
+	if err != nil {
+		return
+	}
+	err = db.AutoMigrate(&config.DynamicConfig{})
+	if err != nil {
+		return
+	}
+	err = db.AutoMigrate(&host_group.HostGroup{})
+	if err != nil {
+		return
+	}
+	err = db.AutoMigrate(&service_group.ServiceGroup{})
+	if err != nil {
+		return
+	}
+	err = db.AutoMigrate(&host.Host{})
+	if err != nil {
+		return
+	}
+	err = db.AutoMigrate(&round.Round{})
+	if err != nil {
+		return
+	}
+	err = db.AutoMigrate(&service.Service{})
+	if err != nil {
+		return
+	}
+	err = db.AutoMigrate(&check.Check{})
+	if err != nil {
+		return
+	}
+	err = db.AutoMigrate(&property.Property{})
+	if err != nil {
+		return
+	}
+	return
 }
 
 func DataPreload(db *gorm.DB) {
 	var count int64
-	CreateAllTables(db)
 	//Creating Config
 	db.Exec("INSERT INTO config (id, round_duration, enabled) VALUES (1, 60, true)")
 	db.Table("config").Count(&count)
@@ -222,11 +167,41 @@ func DataPreload(db *gorm.DB) {
 	if count != 4 {
 		panic("There should be 4 entry in checks")
 	}
-
 }
 
-func NewJsonRecorder() *httptest.ResponseRecorder {
-	w := httptest.NewRecorder()
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	return w
+func DropDB(db *gorm.DB, c config.StaticConfig) {
+	db.Exec(fmt.Sprintf("drop database %s", c.DB.Cockroach.Database))
+}
+
+func LoadConfig(db *gorm.DB, cnf *config.DynamicConfig) error {
+	var count int64
+	db.Table("config").Count(&count)
+	if count != 1 {
+		err := db.Create(cnf).Error
+		if err != nil {
+			serr, ok := err.(*pgconn.PgError)
+			if ok && serr.Code == "23505" {
+				dcc := &config.DynamicConfig{}
+				db.Take(dcc)
+				*cnf = *dcc
+			} else {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func LoadReport(db *gorm.DB) error {
+	var count int64
+	if count != 1 {
+		err := db.Create(report.NewReport()).Error
+		if err != nil {
+			serr, ok := err.(*pgconn.PgError)
+			if !ok || serr.Code != "23505" {
+				return err
+			}
+		}
+	}
+	return nil
 }
