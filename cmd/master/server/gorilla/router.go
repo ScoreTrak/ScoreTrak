@@ -178,6 +178,18 @@ func ConfigRoutes(l logger.LogInfoFormat, svc config.Serv) Routes {
 			"/config",
 			ctrl.Get,
 		},
+		Route{
+			"ResetCompetition",
+			strings.ToUpper("Delete"),
+			"/reset_competition",
+			ctrl.ResetCompetition,
+		},
+		Route{
+			"DeleteCompetition",
+			strings.ToUpper("Delete"),
+			"/delete_competition",
+			ctrl.DeleteCompetition,
+		},
 	}
 	return configRoutes
 }

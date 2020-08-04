@@ -43,6 +43,50 @@ func (c *configController) Get(w http.ResponseWriter, r *http.Request) {
 	genericGet(c.svc, c.log, "Get", w, r)
 }
 
+func (c configController) ResetCompetition(w http.ResponseWriter, r *http.Request) {
+	cnf, err := c.svc.Get()
+	if err != nil {
+		c.log.Error(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if cnf.Enabled != nil && *cnf.Enabled == false {
+		err := c.svc.ResetCompetition()
+		if err != nil {
+			c.log.Error(err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	} else {
+		c.log.Error(err)
+		http.Error(w, "Competition must be disabled first", http.StatusPreconditionFailed)
+		return
+	}
+
+}
+
+func (c configController) DeleteCompetition(w http.ResponseWriter, r *http.Request) {
+	cnf, err := c.svc.Get()
+	if err != nil {
+		c.log.Error(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if cnf.Enabled != nil && *cnf.Enabled == false {
+		err := c.svc.DeleteCompetition()
+		if err != nil {
+			c.log.Error(err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	} else {
+		c.log.Error(err)
+		http.Error(w, "Competition must be disabled first", http.StatusPreconditionFailed)
+		return
+	}
+
+}
+
 type staticConfigController struct {
 	log logger.LogInfoFormat
 	svc config.StaticServ
