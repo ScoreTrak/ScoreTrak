@@ -26,6 +26,14 @@ func (c ConfigClient) Update(d *config.DynamicConfig) error {
 	return c.s.GenericUpdate(d, fmt.Sprintf("/config"))
 }
 
+func (c ConfigClient) DeleteCompetition() error {
+	return c.s.GenericDelete(fmt.Sprintf("/config/delete_competition"))
+}
+
+func (c ConfigClient) ResetCompetition() error {
+	return c.s.GenericDelete(fmt.Sprintf("/config/reset_competition"))
+}
+
 func NewStaticConfigClient(c ScoretrakClient) config.StaticServ {
 	return &staticConfigClient{c}
 }

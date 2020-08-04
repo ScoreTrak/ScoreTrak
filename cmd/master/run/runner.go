@@ -258,7 +258,7 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 	}
 	err = d.db.Transaction(func(tx *gorm.DB) error {
 		r, _ := d.r.Round.GetLastRound()
-		if r.ID != rnd.ID {
+		if r == nil || r.ID != rnd.ID {
 			return errors.New("A different round started before current round was able to finish. The scores will not be committed")
 		}
 		ch := report.NewReport()

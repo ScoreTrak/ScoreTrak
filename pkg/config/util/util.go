@@ -35,7 +35,7 @@ func ConfigFlagParser() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		path = "config.yml"
+		path = "configs/config-encoded.yml"
 		f, err := os.Create(path)
 		if err != nil {
 			return "", err
@@ -50,7 +50,10 @@ func ConfigFlagParser() (string, error) {
 			return "", err
 		}
 	} else if !ConfigExists(path) {
-		return "", errors.New("you need to provide config")
+		err := CreateFile(path)
+		if err != nil {
+			return "", errors.New("unable to create the config file")
+		}
 	}
 	return path, nil
 }
@@ -61,4 +64,12 @@ func ConfigExists(f string) bool {
 		return false
 	}
 	return !file.IsDir()
+}
+
+func CreateFile(name string) error {
+	file, err := os.OpenFile(name, os.O_RDONLY|os.O_CREATE, 0666)
+	if err != nil {
+		return err
+	}
+	return file.Close()
 }
