@@ -1,10 +1,10 @@
 ![Alt text](./images/logo.svg "Logo")
 
-<h1 align="center">A distributed scoring engine</h1>
+<h1 align="center">A scoring engine written in Golang</h1>
 
 ## Key Features
 
-* Fault Tolerant
+* Fault Tolerant(Supports multiple scoring masters)
 * Written in Golang
 * Supports Integrations with platforms like docker, docker swarm, and kubernetes(in dev).
     * Automatically Spawns/Removes Workers.
