@@ -38,7 +38,7 @@ type SimpleHostGroup struct {
 }
 
 type SimpleHost struct {
-	HostGroup SimpleHostGroup
+	HostGroup *SimpleHostGroup
 	Address   string
 	Services  map[uuid.UUID]*SimpleService
 }
