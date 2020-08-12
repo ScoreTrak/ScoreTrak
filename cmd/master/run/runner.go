@@ -277,6 +277,15 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 			st.Hosts = make(map[uuid.UUID]*report.SimpleHost)
 			for _, h := range t.Hosts {
 				sh := report.SimpleHost{}
+				sh.Address = *h.Address
+				if h.HostGroupID != nil {
+					for _, hG := range hostGroup {
+						if hG.ID == *h.HostGroupID {
+							sh.HostGroup.ID = hG.ID
+							sh.HostGroup.Name = hG.Name
+						}
+					}
+				}
 				sh.Services = make(map[uuid.UUID]*report.SimpleService)
 				for _, s := range h.Services {
 					var points uint
