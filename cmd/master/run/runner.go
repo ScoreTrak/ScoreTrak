@@ -279,6 +279,7 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 			for _, h := range t.Hosts {
 				sh := report.SimpleHost{}
 				sh.Address = *h.Address
+				sh.HostGroup = &report.SimpleHostGroup{}
 				if h.HostGroupID != nil {
 					for _, hG := range hostGroup {
 						if hG.ID == *h.HostGroupID {
