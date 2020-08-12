@@ -274,6 +274,7 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 		schNew.Teams = make(map[uuid.UUID]*report.SimpleTeam)
 		for _, t := range teams {
 			st := report.SimpleTeam{}
+			st.Name = t.Name
 			st.Hosts = make(map[uuid.UUID]*report.SimpleHost)
 			for _, h := range t.Hosts {
 				sh := report.SimpleHost{}

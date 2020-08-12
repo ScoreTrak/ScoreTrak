@@ -29,6 +29,7 @@ type SimpleReport struct {
 
 type SimpleTeam struct {
 	Hosts map[uuid.UUID]*SimpleHost
+	Name  string
 }
 
 type SimpleHostGroup struct {
