@@ -31,8 +31,15 @@ type SimpleTeam struct {
 	Hosts map[uuid.UUID]*SimpleHost
 }
 
+type SimpleHostGroup struct {
+	ID   uuid.UUID
+	Name string
+}
+
 type SimpleHost struct {
-	Services map[uuid.UUID]*SimpleService
+	HostGroup SimpleHostGroup
+	Address   string
+	Services  map[uuid.UUID]*SimpleService
 }
 
 type SimpleService struct {
