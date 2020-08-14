@@ -3,7 +3,6 @@ package client
 import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/competition"
-	"github.com/gofrs/uuid"
 )
 
 type CompetitionClient struct {
@@ -12,10 +11,6 @@ type CompetitionClient struct {
 
 func NewCompetitionClient(c ScoretrakClient) competition.Serv {
 	return &CompetitionClient{c}
-}
-
-func (s CompetitionClient) Delete(id uuid.UUID) error {
-	return s.s.GenericDelete(fmt.Sprintf("/competition/%s", id.String()))
 }
 
 func (s CompetitionClient) FetchCoreCompetition() (*competition.Competition, error) {
