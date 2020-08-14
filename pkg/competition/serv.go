@@ -3,6 +3,7 @@ package competition
 import (
 	"errors"
 	"github.com/ScoreTrak/ScoreTrak/pkg/di/repo"
+	"github.com/jackc/pgconn"
 )
 
 type Serv interface {
@@ -41,7 +42,10 @@ func (svc *configServ) LoadCompetition(c *Competition) error {
 	errStr := ""
 	for i, _ := range errAgr {
 		if errAgr[i] != nil {
-			errStr += errAgr[i].Error() + "\n"
+			serr, ok := errAgr[i].(*pgconn.PgError)
+			if !ok || serr.Code != "23505" {
+				errStr += errAgr[i].Error() + "\n"
+			}
 		}
 	}
 	if errStr != "" {
