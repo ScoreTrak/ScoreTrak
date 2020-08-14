@@ -43,7 +43,7 @@ func (c *configController) Get(w http.ResponseWriter, r *http.Request) {
 	genericGet(c.svc, c.log, "Get", w, r)
 }
 
-func (c configController) ResetCompetition(w http.ResponseWriter, r *http.Request) {
+func (c configController) ResetScores(w http.ResponseWriter, r *http.Request) {
 	cnf, err := c.svc.Get()
 	if err != nil {
 		c.log.Error(err)
@@ -51,7 +51,7 @@ func (c configController) ResetCompetition(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	if cnf.Enabled != nil && *cnf.Enabled == false {
-		err := c.svc.ResetCompetition()
+		err := c.svc.ResetScores()
 		if err != nil {
 			c.log.Error(err)
 			http.Error(w, err.Error(), http.StatusBadRequest)

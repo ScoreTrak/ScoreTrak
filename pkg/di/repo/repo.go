@@ -7,6 +7,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
+	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
@@ -50,6 +51,10 @@ func NewStore() Store {
 	di.Invoke(func(re config.Repo) {
 		configRepo = re
 	})
+	var reportRepo report.Repo
+	di.Invoke(func(re report.Repo) {
+		reportRepo = re
+	})
 
 	return Store{
 		Round:        roundRepo,
@@ -61,6 +66,7 @@ func NewStore() Store {
 		Check:        checkRepo,
 		Team:         teamRepo,
 		Config:       configRepo,
+		Report:       reportRepo,
 	}
 }
 
@@ -74,4 +80,5 @@ type Store struct {
 	Check        check.Repo
 	Property     property.Repo
 	Config       config.Repo
+	Report       report.Repo
 }

@@ -71,6 +71,15 @@ func (r *roundRepo) Store(rn *round.Round) error {
 	return nil
 }
 
+func (r *roundRepo) StoreMany(rn []*round.Round) error {
+	err := r.db.Create(rn).Error
+	if err != nil {
+		r.log.Errorf("error while creating the round, reason : %v", err)
+		return err
+	}
+	return nil
+}
+
 func (r *roundRepo) Update(rn *round.Round) error {
 	r.log.Debugf("updating the round, with id : %v", rn.ID)
 	err := r.db.Model(rn).Updates(round.Round{Finish: rn.Finish, Note: rn.Note, Err: rn.Err}).Error

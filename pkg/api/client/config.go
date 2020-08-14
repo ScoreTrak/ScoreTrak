@@ -30,7 +30,7 @@ func (c ConfigClient) DeleteCompetition() error {
 	return c.s.GenericDelete(fmt.Sprintf("/config/delete_competition"))
 }
 
-func (c ConfigClient) ResetCompetition() error {
+func (c ConfigClient) ResetScores() error {
 	return c.s.GenericDelete(fmt.Sprintf("/config/reset_competition"))
 }
 
