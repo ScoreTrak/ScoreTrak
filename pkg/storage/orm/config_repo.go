@@ -30,7 +30,7 @@ func (c *configRepo) Get() (*config.DynamicConfig, error) {
 	return cfg, nil
 }
 
-func (c *configRepo) ResetCompetition() error {
+func (c *configRepo) ResetScores() error {
 	err := c.db.Where("1 = 1").Delete(&check.Check{}).Error
 	if err != nil {
 		return err

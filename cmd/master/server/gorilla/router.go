@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/api/handler"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
+	"github.com/ScoreTrak/ScoreTrak/pkg/competition"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/di/repo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
@@ -65,6 +66,7 @@ func (ds *dserver) MapRoutes() {
 	routes = append(routes, ds.serviceRoutes()...)
 	routes = append(routes, ds.serviceGroupRoutes()...)
 	routes = append(routes, ds.reportRoutes()...)
+	routes = append(routes, ds.competitionRoutes()...)
 	routes = append(routes, Route{
 		"Time",
 		strings.ToUpper("Get"),
@@ -179,10 +181,10 @@ func ConfigRoutes(l logger.LogInfoFormat, svc config.Serv) Routes {
 			ctrl.Get,
 		},
 		Route{
-			"ResetCompetition",
+			"ResetScores",
 			strings.ToUpper("Delete"),
 			"/reset_competition",
-			ctrl.ResetCompetition,
+			ctrl.ResetScores,
 		},
 		Route{
 			"DeleteCompetition",
@@ -445,6 +447,38 @@ func RoundRoutes(l logger.LogInfoFormat, svc round.Serv) Routes {
 		},
 	}
 	return roundRoutes
+}
+
+func (ds *dserver) competitionRoutes() Routes {
+	svc := competition.NewCompetitionServ(repo.NewStore())
+	return CompetitionRoutes(ds.logger, svc)
+}
+
+func CompetitionRoutes(l logger.LogInfoFormat, svc competition.Serv) Routes {
+	ctrl := handler.NewCompetitionController(l, svc)
+	competitionRoutes := Routes{
+		Route{
+			"LoadCompetition",
+			strings.ToUpper("Post"),
+			"/competition/upload",
+			ctrl.LoadCompetition,
+		},
+
+		Route{
+			"FetchEntireCompetition",
+			strings.ToUpper("Get"),
+			"/competition/export_all",
+			ctrl.FetchEntireCompetition,
+		},
+
+		Route{
+			"FetchCoreCompetition",
+			strings.ToUpper("Get"),
+			"/competition/export_core",
+			ctrl.FetchCoreCompetition,
+		},
+	}
+	return competitionRoutes
 }
 
 func (ds *dserver) serviceRoutes() Routes {

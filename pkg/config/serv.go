@@ -3,7 +3,7 @@ package config
 type Serv interface {
 	Get() (*DynamicConfig, error)
 	Update(*DynamicConfig) error
-	ResetCompetition() error
+	ResetScores() error
 	DeleteCompetition() error
 }
 
@@ -21,7 +21,7 @@ func (svc *configServ) Get() (*DynamicConfig, error) { return svc.repo.Get() }
 
 func (svc *configServ) Update(cfg *DynamicConfig) error { return svc.repo.Update(cfg) }
 
-func (svc *configServ) ResetCompetition() error { return svc.repo.ResetCompetition() }
+func (svc *configServ) ResetScores() error { return svc.repo.ResetScores() }
 
 func (svc *configServ) DeleteCompetition() error { return svc.repo.DeleteCompetition() }
 
