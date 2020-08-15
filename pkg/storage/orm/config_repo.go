@@ -7,9 +7,11 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
+	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"gorm.io/gorm"
 )
@@ -39,15 +41,19 @@ func (c *configRepo) ResetScores() error {
 	if err != nil {
 		return err
 	}
+	err = c.db.Where("1 = 1").Delete(&report.Report{}).Error
+	if err != nil {
+		return err
+	}
+	err = util.LoadReport(c.db)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (c *configRepo) DeleteCompetition() error {
-	err := c.db.Where("1 = 1").Delete(&check.Check{}).Error
-	if err != nil {
-		return err
-	}
-	err = c.db.Where("1 = 1").Delete(&round.Round{}).Error
+	err := c.ResetScores()
 	if err != nil {
 		return err
 	}
