@@ -38,6 +38,7 @@ func (svc *configServ) LoadCompetition(c *Competition) error {
 	errAgr = append(errAgr, svc.Store.Property.Store(c.Properties))
 	errAgr = append(errAgr, svc.Store.Round.StoreMany(c.Rounds))
 	errAgr = append(errAgr, svc.Store.Check.Store(c.Checks))
+	errAgr = append(errAgr, svc.Store.Report.Update(c.Report))
 
 	errStr := ""
 	for i, _ := range errAgr {
