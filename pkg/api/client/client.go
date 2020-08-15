@@ -88,8 +88,12 @@ func (s ScoretrakClient) genericPut(obj interface{}, p string, m string) error {
 	if err != nil {
 		return err
 	}
-	resp.Body.Close()
-	return ResponseValidator(resp)
+	defer resp.Body.Close()
+	err = ResponseValidator(resp)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s ScoretrakClient) GenericDelete(p string) error {
@@ -102,8 +106,12 @@ func (s ScoretrakClient) GenericDelete(p string) error {
 	if err != nil {
 		return err
 	}
-	resp.Body.Close()
-	return ResponseValidator(resp)
+	defer resp.Body.Close()
+	err = ResponseValidator(resp)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s ScoretrakClient) PrepareRequest(obj interface{}, p string, m string) (*http.Request, error) {
