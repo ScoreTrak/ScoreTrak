@@ -58,7 +58,6 @@ func (c configController) ResetScores(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		c.log.Error(err)
 		http.Error(w, "Competition must be disabled first", http.StatusPreconditionFailed)
 		return
 	}
@@ -80,7 +79,6 @@ func (c configController) DeleteCompetition(w http.ResponseWriter, r *http.Reque
 			return
 		}
 	} else {
-		c.log.Error(err)
 		http.Error(w, "Competition must be disabled first", http.StatusPreconditionFailed)
 		return
 	}
