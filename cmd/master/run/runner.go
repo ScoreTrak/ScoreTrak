@@ -275,10 +275,12 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 		for _, t := range teams {
 			st := report.SimpleTeam{}
 			st.Name = t.Name
+			st.Enabled = *t.Enabled
 			st.Hosts = make(map[uuid.UUID]*report.SimpleHost)
 			for _, h := range t.Hosts {
 				sh := report.SimpleHost{}
 				sh.Address = *h.Address
+				sh.Enabled = *h.Enabled
 				if h.HostGroupID != nil {
 					for _, hG := range hostGroup {
 						if hG.ID == *h.HostGroupID {
@@ -307,9 +309,9 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 					}
 
 					if len(s.Checks) != 0 {
-						sh.Services[s.ID] = &report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Passed: *s.Checks[0].Passed, Log: s.Checks[0].Log, Err: s.Checks[0].Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
+						sh.Services[s.ID] = &report.SimpleService{Enabled: *s.Enabled, Name: s.Name, DisplayName: s.DisplayName, Passed: *s.Checks[0].Passed, Log: s.Checks[0].Log, Err: s.Checks[0].Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
 					} else {
-						sh.Services[s.ID] = &report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Passed: false, Log: "Service was not checked because it was disabled", Err: "", Points: points, Properties: params, PointsBoost: s.PointsBoost}
+						sh.Services[s.ID] = &report.SimpleService{Enabled: *s.Enabled, Name: s.Name, DisplayName: s.DisplayName, Passed: false, Log: "Service was not checked because it was disabled", Err: "", Points: points, Properties: params, PointsBoost: s.PointsBoost}
 					}
 
 				}
