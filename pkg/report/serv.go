@@ -24,10 +24,10 @@ func (svc *reportServ) Get() (*Report, error) { return svc.repo.Get() }
 func (svc *reportServ) RecalculateReport(team []*team.Team, round round.Round) (simpleTeams map[uuid.UUID]SimpleTeam, err error) {
 	simpleTeams = make(map[uuid.UUID]SimpleTeam)
 	for _, t := range team {
-		st := SimpleTeam{}
+		st := SimpleTeam{Name: t.Name, Enabled: *t.Enabled}
 		st.Hosts = make(map[uuid.UUID]*SimpleHost)
 		for _, h := range t.Hosts {
-			sh := SimpleHost{}
+			sh := SimpleHost{Address: *h.Address, Enabled: *h.Enabled}
 			sh.Services = make(map[uuid.UUID]*SimpleService)
 			for _, s := range h.Services {
 				var points uint
@@ -45,9 +45,9 @@ func (svc *reportServ) RecalculateReport(team []*team.Team, round round.Round) (
 				if len(s.Checks) != 0 {
 					lastCheck := s.Checks[len(s.Checks)-1]
 					if lastCheck.RoundID == round.ID {
-						sh.Services[s.ID] = &SimpleService{Passed: *lastCheck.Passed, Log: lastCheck.Log, Err: lastCheck.Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
+						sh.Services[s.ID] = &SimpleService{Enabled: *s.Enabled, Passed: *lastCheck.Passed, Log: lastCheck.Log, Err: lastCheck.Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
 					} else {
-						sh.Services[s.ID] = &SimpleService{Passed: false, Log: "Service was not checked because it was disabled", Err: "", Points: points, Properties: params, PointsBoost: s.PointsBoost}
+						sh.Services[s.ID] = &SimpleService{Enabled: *s.Enabled, Passed: false, Log: "Service was not checked because it was disabled", Err: "", Points: points, Properties: params, PointsBoost: s.PointsBoost}
 					}
 				}
 			}

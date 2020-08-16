@@ -28,8 +28,9 @@ type SimpleReport struct {
 }
 
 type SimpleTeam struct {
-	Hosts map[uuid.UUID]*SimpleHost
-	Name  string
+	Hosts   map[uuid.UUID]*SimpleHost
+	Name    string
+	Enabled bool
 }
 
 type SimpleHostGroup struct {
@@ -41,9 +42,11 @@ type SimpleHost struct {
 	HostGroup *SimpleHostGroup
 	Address   string
 	Services  map[uuid.UUID]*SimpleService
+	Enabled   bool
 }
 
 type SimpleService struct {
+	Enabled     bool
 	Name        string
 	DisplayName string
 	Passed      bool
