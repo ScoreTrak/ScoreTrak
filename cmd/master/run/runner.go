@@ -96,6 +96,10 @@ func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 				*cnf = *dcc
 			}
 			if *cnf.Enabled {
+				r, _ := d.r.Round.GetLastRound()
+				if r != nil {
+					rnd = r
+				}
 				rnd = &round.Round{ID: rnd.ID + 1}
 				d.attemptToScore(rnd, time.Now().Add(d.getDsync()).Add(time.Duration(cnf.RoundDuration)*time.Second*9/10))
 				scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
