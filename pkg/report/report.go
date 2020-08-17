@@ -34,8 +34,9 @@ type SimpleTeam struct {
 }
 
 type SimpleHostGroup struct {
-	ID   uuid.UUID
-	Name string
+	ID      uuid.UUID
+	Name    string
+	Enabled bool
 }
 
 type SimpleHost struct {
@@ -45,16 +46,23 @@ type SimpleHost struct {
 	Enabled   bool
 }
 
+type SimpleServiceGroup struct {
+	ID      uuid.UUID
+	Name    string
+	Enabled bool
+}
+
 type SimpleService struct {
-	Enabled     bool
-	Name        string
-	DisplayName string
-	Passed      bool
-	Log         string
-	Err         string
-	Points      uint
-	PointsBoost uint
-	Properties  map[string]*SimpleProperty
+	Enabled            bool
+	Name               string
+	DisplayName        string
+	Passed             bool
+	Log                string
+	Err                string
+	Points             uint
+	PointsBoost        uint
+	Properties         map[string]*SimpleProperty
+	SimpleServiceGroup *SimpleServiceGroup
 }
 
 type SimpleProperty struct {
