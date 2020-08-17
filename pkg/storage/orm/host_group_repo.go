@@ -7,6 +7,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type hostGroupRepo struct {
@@ -66,6 +67,15 @@ func (h *hostGroupRepo) Store(hstgrp []*host_group.HostGroup) error {
 		return err
 	}
 
+	return nil
+}
+
+func (h *hostGroupRepo) Upsert(hstgrp []*host_group.HostGroup) error {
+	err := h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(hstgrp).Error
+	if err != nil {
+		h.log.Errorf("error while creating the user, reason : %v", err)
+		return err
+	}
 	return nil
 }
 

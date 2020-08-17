@@ -5,6 +5,7 @@ type Repo interface {
 	GetAll() ([]*Round, error)
 	GetByID(id uint) (*Round, error)
 	Store(u *Round) error
+	Upsert(u []*Round) error
 	StoreMany(u []*Round) error
 	Update(u *Round) error
 	GetLastRound() (*Round, error)

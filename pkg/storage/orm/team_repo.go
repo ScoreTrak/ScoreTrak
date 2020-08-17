@@ -7,6 +7,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type teamRepo struct {
@@ -93,6 +94,15 @@ func (t *teamRepo) Store(tm []*team.Team) error {
 	err := t.db.Create(tm).Error
 	if err != nil {
 		t.log.Errorf("error while creating the team, reason : %v", err)
+		return err
+	}
+	return nil
+}
+
+func (t *teamRepo) Upsert(usr []*team.Team) error {
+	err := t.db.Clauses(clause.OnConflict{DoNothing: true}).Create(usr).Error
+	if err != nil {
+		t.log.Errorf("error while creating the user, reason : %v", err)
 		return err
 	}
 	return nil

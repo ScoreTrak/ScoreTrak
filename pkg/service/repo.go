@@ -7,5 +7,6 @@ type Repo interface {
 	GetAll() ([]*Service, error)
 	GetByID(id uuid.UUID) (*Service, error)
 	Store(u []*Service) error
+	Upsert(u []*Service) error
 	Update(u *Service) error
 }
