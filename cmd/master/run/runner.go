@@ -284,9 +284,9 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 		return
 	}
 	reportServ := report.NewReportCalculator(d.r.Report)
-	rep, err := reportServ.RecalculateReport(teams, hostGroup, serviceGroups, rnd)
+	simpTeams, err := reportServ.RecalculateReport(teams, hostGroup, serviceGroups, rnd)
 	ch := report.NewReport()
-	bt, err := json.Marshal(&rep)
+	bt, err := json.Marshal(&report.SimpleReport{Teams: simpTeams, Round: rnd.ID})
 	if err != nil {
 		d.l.Error(err)
 		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving report. Err: %s", err.Error()))

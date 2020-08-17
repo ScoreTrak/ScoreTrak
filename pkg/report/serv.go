@@ -34,10 +34,10 @@ func NewReportCalculator(repo Repo) *reportCalculator {
 
 func (svc *reportServ) Get() (*Report, error) { return svc.repo.Get() }
 
-func (svc *reportCalculator) RecalculateReport(team []*team.Team, hostGroup []*host_group.HostGroup, serviceGroups []*service_group.ServiceGroup, round round.Round) (simpleTeams map[uuid.UUID]SimpleTeam, err error) {
-	simpleTeams = make(map[uuid.UUID]SimpleTeam)
+func (svc *reportCalculator) RecalculateReport(team []*team.Team, hostGroup []*host_group.HostGroup, serviceGroups []*service_group.ServiceGroup, round round.Round) (simpleTeams map[uuid.UUID]*SimpleTeam, err error) {
+	simpleTeams = make(map[uuid.UUID]*SimpleTeam)
 	for _, t := range team {
-		st := SimpleTeam{Name: t.Name, Enabled: *t.Enabled}
+		st := &SimpleTeam{Name: t.Name, Enabled: *t.Enabled}
 		st.Hosts = make(map[uuid.UUID]*SimpleHost)
 		for _, h := range t.Hosts {
 			sh := SimpleHost{Address: *h.Address, Enabled: *h.Enabled}
