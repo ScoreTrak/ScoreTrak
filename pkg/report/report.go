@@ -54,5 +54,10 @@ type SimpleService struct {
 	Err         string
 	Points      uint
 	PointsBoost uint
-	Properties  map[string]string
+	Properties  map[string]*SimpleProperty
+}
+
+type SimpleProperty struct {
+	Value  string
+	Status string
 }

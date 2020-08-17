@@ -13,7 +13,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
-	"github.com/gofrs/uuid"
 	"github.com/jackc/pgconn"
 	"gorm.io/gorm"
 	"math"
@@ -65,9 +64,14 @@ func NewRunner(db *gorm.DB, l logger.LogInfoFormat, q queue.Queue, r repo.Store)
 func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 	d.refreshDsync()
 	var scoringLoop *time.Ticker
-	rnd := &round.Round{}
+	r, _ := d.r.Round.GetLastNonElapsingRound()
+	if r != nil {
+		scoringLoop = time.NewTicker(d.durationUntilNextRound(r, cnf.RoundDuration))
+	} else {
+		scoringLoop = time.NewTicker(time.Second)
+	}
 	configLoop := time.NewTicker(config.MinRoundDuration)
-	scoringLoop = time.NewTicker(time.Second)
+
 	for {
 		select {
 		case <-configLoop.C:
@@ -76,20 +80,18 @@ func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 				*cnf = *dcc
 			}
 			r, _ := d.r.Round.GetLastRound()
-			if r != nil {
-				rnd = r
-			}
 			d.refreshDsync()
 			scoringLoop.Stop()
-			scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
+			scoringLoop = time.NewTicker(d.durationUntilNextRound(r, cnf.RoundDuration))
 		case <-scoringLoop.C:
 			scoringLoop.Stop()
 			dcc, _ := d.r.Config.Get()
 			if !cnf.IsEqual(dcc) {
 				*cnf = *dcc
 			}
+			rnd := &round.Round{}
 			if *cnf.Enabled {
-				r, _ := d.r.Round.GetLastRound()
+				r, _ := d.r.Round.GetLastNonElapsingRound()
 				if r != nil {
 					rnd = &round.Round{ID: r.ID + 1}
 				} else {
@@ -179,6 +181,11 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 				if err != nil {
 					panic(err)
 				}
+				err = d.db.Model(&s).Association("Checks").Find(&s.Checks)
+				if err != nil {
+					panic(err)
+				}
+
 				if *t.Enabled {
 					var validHost bool
 					if *h.Enabled {
@@ -247,99 +254,44 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 							s.Checks = append(s.Checks, &check.Check{Passed: &fls, Log: "", ServiceID: c.Service.ID, RoundID: rnd.ID, Err: "Unable to hear back from the worker that was responsible for performing the check. Make sure worker is able to connect back to scoretrak"})
 						} else {
 							s.Checks = append(s.Checks, &check.Check{Passed: &chks[i].Passed, Log: chks[i].Log, ServiceID: c.Service.ID, RoundID: rnd.ID, Err: chks[i].Err})
-							checks = append(checks, s.Checks...)
 						}
+						checks = append(checks, s.Checks...)
 					}
 				}
 			}
 		}
 	}
-	err = d.db.Transaction(func(tx *gorm.DB) error {
-		r, _ := d.r.Round.GetLastRound()
-		if r == nil || r.ID != rnd.ID {
-			return errors.New("A different round started before current round was able to finish. The scores will not be committed")
-		}
-		ch := report.NewReport()
-		if err := tx.Take(&ch).Error; err != nil {
-			return err
-		}
-		schOld := report.SimpleReport{}
-		err := json.Unmarshal([]byte(ch.Cache), &schOld)
-		if err != nil {
-			return err
-		}
-		schNew := report.SimpleReport{Round: rnd.ID}
-		schNew.Teams = make(map[uuid.UUID]*report.SimpleTeam)
-		for _, t := range teams {
-			st := report.SimpleTeam{}
-			st.Name = t.Name
-			st.Enabled = *t.Enabled
-			st.Hosts = make(map[uuid.UUID]*report.SimpleHost)
-			for _, h := range t.Hosts {
-				sh := report.SimpleHost{}
-				sh.Address = *h.Address
-				sh.Enabled = *h.Enabled
-				if h.HostGroupID != nil {
-					for _, hG := range hostGroup {
-						if hG.ID == *h.HostGroupID {
-							sh.HostGroup = &report.SimpleHostGroup{ID: hG.ID, Name: hG.Name}
-						}
-					}
-				}
-				sh.Services = make(map[uuid.UUID]*report.SimpleService)
-				for _, s := range h.Services {
-					var points uint
-					if rnd.ID != 1 {
-						if t1, ok := schOld.Teams[t.ID]; ok {
-							if h1, ok := t1.Hosts[h.ID]; ok {
-								if s1, ok := h1.Services[s.ID]; ok {
-									points += s1.Points
-								}
-							}
-						}
-					}
-					if len(s.Checks) != 0 && *(s.Checks[0].Passed) {
-						points += s.Points
-					}
-					params := map[string]string{}
-					for _, p := range s.Properties {
-						params[p.Key] = p.Value
-					}
 
-					if len(s.Checks) != 0 {
-						sh.Services[s.ID] = &report.SimpleService{Enabled: *s.Enabled, Name: s.Name, DisplayName: s.DisplayName, Passed: *s.Checks[0].Passed, Log: s.Checks[0].Log, Err: s.Checks[0].Err, Points: points, Properties: params, PointsBoost: s.PointsBoost}
-					} else {
-						sh.Services[s.ID] = &report.SimpleService{Enabled: *s.Enabled, Name: s.Name, DisplayName: s.DisplayName, Passed: false, Log: "Service was not checked because it was disabled", Err: "", Points: points, Properties: params, PointsBoost: s.PointsBoost}
-					}
-
-				}
-				st.Hosts[h.ID] = &sh
-			}
-			schNew.Teams[t.ID] = &st
-		}
-		bt, err := json.Marshal(&schNew)
-		if err != nil {
-			return err
-		}
-		ch.Cache = string(bt)
-		err = tx.Model(ch).Updates(report.Report{Cache: ch.Cache}).Error
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+	err = d.r.Check.Store(checks)
+	if err != nil {
+		d.l.Error(err)
+		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
+		return
+	}
+	r, _ := d.r.Round.GetLastRound()
+	if r == nil || r.ID != rnd.ID {
+		err = errors.New("A different round started before current round was able to finish. The scores will not be committed")
+		d.l.Error(err)
+		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
+		return
+	}
+	reportServ := report.NewReportCalculator(d.r.Report)
+	rep, err := reportServ.RecalculateReport(teams, rnd)
+	ch := report.NewReport()
+	bt, err := json.Marshal(&rep)
+	if err != nil {
+		d.l.Error(err)
+		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving report. Err: %s", err.Error()))
+		return
+	}
+	ch.Cache = string(bt)
+	err = d.r.Report.Update(ch)
 	if err != nil {
 		d.l.Error(err)
 		if strings.Contains(err.Error(), "split failed while applying backpressure to") {
 			Note += "\nPossible solution to error: decrease: gc.ttlseconds for database. "
 		}
-		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
-		return
-	}
-	err = d.r.Check.Store(checks)
-	if err != nil {
-		d.l.Error(err)
-		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
+		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving report. Err: %s", err.Error()))
 		return
 	}
 	d.finalizeRound(&rnd, Note, "")
