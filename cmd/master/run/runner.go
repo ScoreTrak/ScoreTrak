@@ -276,7 +276,7 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 		return
 	}
 	reportServ := report.NewReportCalculator(d.r.Report)
-	rep, err := reportServ.RecalculateReport(teams, rnd)
+	rep, err := reportServ.RecalculateReport(teams, hostGroup, serviceGroups, rnd)
 	ch := report.NewReport()
 	bt, err := json.Marshal(&rep)
 	if err != nil {
