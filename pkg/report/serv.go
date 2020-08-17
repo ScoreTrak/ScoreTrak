@@ -14,14 +14,25 @@ type reportServ struct {
 	repo Repo
 }
 
+type reportCalculator struct {
+	repo Repo
+}
+
 func NewReportServ(repo Repo) Serv {
 	return &reportServ{
 		repo: repo,
 	}
 }
+
+func NewReportCalculator(repo Repo) *reportCalculator {
+	return &reportCalculator{
+		repo: repo,
+	}
+}
+
 func (svc *reportServ) Get() (*Report, error) { return svc.repo.Get() }
 
-func (svc *reportServ) RecalculateReport(team []*team.Team, round round.Round) (simpleTeams map[uuid.UUID]SimpleTeam, err error) {
+func (svc *reportCalculator) RecalculateReport(team []*team.Team, round round.Round) (simpleTeams map[uuid.UUID]SimpleTeam, err error) {
 	simpleTeams = make(map[uuid.UUID]SimpleTeam)
 	for _, t := range team {
 		st := SimpleTeam{Name: t.Name, Enabled: *t.Enabled}
@@ -36,11 +47,10 @@ func (svc *reportServ) RecalculateReport(team []*team.Team, round round.Round) (
 						points += s.Points
 					}
 				}
-				params := map[string]string{}
+				params := map[string]*SimpleProperty{}
+
 				for _, p := range s.Properties {
-					if p.Status != "Hide" {
-						params[p.Key] = p.Value
-					}
+					params[p.Key] = &SimpleProperty{Value: p.Value, Status: p.Status}
 				}
 				if len(s.Checks) != 0 {
 					lastCheck := s.Checks[len(s.Checks)-1]
