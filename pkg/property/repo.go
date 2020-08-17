@@ -7,6 +7,7 @@ type Repo interface {
 	GetAll() ([]*Property, error)
 	GetByID(id uuid.UUID) (*Property, error)
 	Store(u []*Property) error
+	Upsert(u []*Property) error
 	Update(u *Property) error
 	GetAllByServiceID(id uuid.UUID) ([]*Property, error)
 }

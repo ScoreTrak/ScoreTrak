@@ -7,6 +7,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type propertyRepo struct {
@@ -75,6 +76,15 @@ func (p *propertyRepo) Store(prop []*property.Property) error {
 	err := p.db.Create(prop).Error
 	if err != nil {
 		p.log.Errorf("error while creating the property, reason : %v", err)
+		return err
+	}
+	return nil
+}
+
+func (p *propertyRepo) Upsert(prop []*property.Property) error {
+	err := p.db.Clauses(clause.OnConflict{DoNothing: true}).Create(prop).Error
+	if err != nil {
+		p.log.Errorf("error while creating the user, reason : %v", err)
 		return err
 	}
 	return nil

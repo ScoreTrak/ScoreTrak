@@ -28,16 +28,16 @@ func (svc *configServ) LoadCompetition(c *Competition) error {
 	if err != nil {
 		return err
 	}
-	errAgr = append(errAgr, svc.Store.Team.Store(c.Teams))
-	errAgr = append(errAgr, svc.Store.HostGroup.Store(c.HostGroups))
-	errAgr = append(errAgr, svc.Store.Host.Store(c.Hosts))
+	errAgr = append(errAgr, svc.Store.Team.Upsert(c.Teams))
+	errAgr = append(errAgr, svc.Store.HostGroup.Upsert(c.HostGroups))
+	errAgr = append(errAgr, svc.Store.Host.Upsert(c.Hosts))
 	for i, _ := range c.ServiceGroups {
-		errAgr = append(errAgr, svc.Store.ServiceGroup.Store(c.ServiceGroups[i]))
+		errAgr = append(errAgr, svc.Store.ServiceGroup.Upsert(c.ServiceGroups[i]))
 	}
-	errAgr = append(errAgr, svc.Store.Service.Store(c.Services))
-	errAgr = append(errAgr, svc.Store.Property.Store(c.Properties))
-	errAgr = append(errAgr, svc.Store.Round.StoreMany(c.Rounds))
-	errAgr = append(errAgr, svc.Store.Check.Store(c.Checks))
+	errAgr = append(errAgr, svc.Store.Service.Upsert(c.Services))
+	errAgr = append(errAgr, svc.Store.Property.Upsert(c.Properties))
+	errAgr = append(errAgr, svc.Store.Round.Upsert(c.Rounds))
+	errAgr = append(errAgr, svc.Store.Check.Upsert(c.Checks))
 	errAgr = append(errAgr, svc.Store.Report.Update(c.Report))
 
 	errStr := ""
@@ -60,6 +60,8 @@ func (svc *configServ) FetchCoreCompetition() (*Competition, error) {
 	if err != nil {
 		return nil, err
 	}
+	fls := false
+	cnf.Enabled = &fls
 	teams, err := svc.Store.Team.GetAll()
 	if err != nil {
 		return nil, err

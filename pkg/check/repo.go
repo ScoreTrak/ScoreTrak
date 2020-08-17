@@ -8,4 +8,5 @@ type Repo interface {
 	Delete(rID uint, sID uuid.UUID) error
 	GetAll() ([]*Check, error)
 	Store(u []*Check) error
+	Upsert(u []*Check) error
 }

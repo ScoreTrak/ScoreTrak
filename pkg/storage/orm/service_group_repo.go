@@ -7,6 +7,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type serviceGroupRepo struct {
@@ -63,6 +64,15 @@ func (s *serviceGroupRepo) Store(sgr *service_group.ServiceGroup) error {
 	err := s.db.Create(sgr).Error
 	if err != nil {
 		s.log.Errorf("error while creating the Service Group, reason : %v", err)
+		return err
+	}
+	return nil
+}
+
+func (s *serviceGroupRepo) Upsert(sgr *service_group.ServiceGroup) error {
+	err := s.db.Clauses(clause.OnConflict{DoNothing: true}).Create(sgr).Error
+	if err != nil {
+		s.log.Errorf("error while creating the user, reason : %v", err)
 		return err
 	}
 	return nil

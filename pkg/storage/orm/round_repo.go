@@ -6,6 +6,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type roundRepo struct {
@@ -66,6 +67,15 @@ func (r *roundRepo) Store(rn *round.Round) error {
 	err := r.db.Create(rn).Error
 	if err != nil {
 		r.log.Errorf("error while creating the round, reason : %v", err)
+		return err
+	}
+	return nil
+}
+
+func (r *roundRepo) Upsert(rn []*round.Round) error {
+	err := r.db.Clauses(clause.OnConflict{DoNothing: true}).Create(rn).Error
+	if err != nil {
+		r.log.Errorf("error while creating the user, reason : %v", err)
 		return err
 	}
 	return nil
