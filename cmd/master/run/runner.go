@@ -91,11 +91,19 @@ func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 			}
 			rnd := &round.Round{}
 			if *cnf.Enabled {
-				r, _ := d.r.Round.GetLastNonElapsingRound()
-				if r != nil {
-					rnd = &round.Round{ID: r.ID + 1}
+				rNoneElapsing, _ := d.r.Round.GetLastNonElapsingRound()
+				if rNoneElapsing != nil {
+					rnd = &round.Round{ID: rNoneElapsing.ID + 1}
 				} else {
 					rnd = &round.Round{ID: 1}
+				}
+
+				lastRnd, _ := d.r.Round.GetLastRound()
+
+				if lastRnd != nil && rnd.ID <= lastRnd.ID && lastRnd.Finish == nil {
+					if time.Now().After(lastRnd.Start.Add(time.Duration(cnf.RoundDuration) * time.Second).Add(time.Second * 3)) {
+						d.r.Round.Delete(lastRnd.ID)
+					} //This is indicative of a scoring master dying. In this case we delete the last round
 				}
 				d.attemptToScore(rnd, time.Now().Add(d.getDsync()).Add(time.Duration(cnf.RoundDuration)*time.Second*9/10))
 				scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
@@ -255,7 +263,7 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 						} else {
 							s.Checks = append(s.Checks, &check.Check{Passed: &chks[i].Passed, Log: chks[i].Log, ServiceID: c.Service.ID, RoundID: rnd.ID, Err: chks[i].Err})
 						}
-						checks = append(checks, s.Checks...)
+						checks = append(checks, s.Checks[len(s.Checks)-1])
 					}
 				}
 			}
@@ -276,9 +284,9 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 		return
 	}
 	reportServ := report.NewReportCalculator(d.r.Report)
-	rep, err := reportServ.RecalculateReport(teams, hostGroup, serviceGroups, rnd)
+	simpTeams, err := reportServ.RecalculateReport(teams, hostGroup, serviceGroups, rnd)
 	ch := report.NewReport()
-	bt, err := json.Marshal(&rep)
+	bt, err := json.Marshal(&report.SimpleReport{Teams: simpTeams, Round: rnd.ID})
 	if err != nil {
 		d.l.Error(err)
 		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving report. Err: %s", err.Error()))

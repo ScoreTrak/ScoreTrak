@@ -34,10 +34,10 @@ func NewReportCalculator(repo Repo) *reportCalculator {
 
 func (svc *reportServ) Get() (*Report, error) { return svc.repo.Get() }
 
-func (svc *reportCalculator) RecalculateReport(team []*team.Team, hostGroup []*host_group.HostGroup, serviceGroups []*service_group.ServiceGroup, round round.Round) (simpleTeams map[uuid.UUID]SimpleTeam, err error) {
-	simpleTeams = make(map[uuid.UUID]SimpleTeam)
+func (svc *reportCalculator) RecalculateReport(team []*team.Team, hostGroup []*host_group.HostGroup, serviceGroups []*service_group.ServiceGroup, round round.Round) (simpleTeams map[uuid.UUID]*SimpleTeam, err error) {
+	simpleTeams = make(map[uuid.UUID]*SimpleTeam)
 	for _, t := range team {
-		st := SimpleTeam{Name: t.Name, Enabled: *t.Enabled}
+		st := &SimpleTeam{Name: t.Name, Enabled: *t.Enabled}
 		st.Hosts = make(map[uuid.UUID]*SimpleHost)
 		for _, h := range t.Hosts {
 			sh := SimpleHost{Address: *h.Address, Enabled: *h.Enabled}
@@ -63,15 +63,20 @@ func (svc *reportCalculator) RecalculateReport(team []*team.Team, hostGroup []*h
 				var simpSgr *SimpleServiceGroup
 				for _, sG := range serviceGroups {
 					if sG.ID == s.ServiceGroupID {
-						simpSgr = &SimpleServiceGroup{s.ServiceGroupID, s.Name, *sG.Enabled}
+						simpSgr = &SimpleServiceGroup{sG.ID, sG.Name, *sG.Enabled}
 					}
 				}
 				if len(s.Checks) != 0 {
 					lastCheck := s.Checks[len(s.Checks)-1]
+					sh.Services[s.ID] = &SimpleService{Name: s.Name, DisplayName: s.DisplayName, Enabled: *s.Enabled, Points: points, Properties: params, PointsBoost: s.PointsBoost, SimpleServiceGroup: simpSgr}
 					if lastCheck.RoundID == round.ID {
-						sh.Services[s.ID] = &SimpleService{Enabled: *s.Enabled, Passed: *lastCheck.Passed, Log: lastCheck.Log, Err: lastCheck.Err, Points: points, Properties: params, PointsBoost: s.PointsBoost, SimpleServiceGroup: simpSgr}
+						sh.Services[s.ID].Passed = *lastCheck.Passed
+						sh.Services[s.ID].Log = lastCheck.Log
+						sh.Services[s.ID].Err = lastCheck.Err
 					} else {
-						sh.Services[s.ID] = &SimpleService{Enabled: *s.Enabled, Passed: false, Log: "Service was not checked because it was disabled", Err: "", Points: points, Properties: params, PointsBoost: s.PointsBoost, SimpleServiceGroup: simpSgr}
+						sh.Services[s.ID].Passed = false
+						sh.Services[s.ID].Log = "Service was not checked because it was disabled"
+						sh.Services[s.ID].Err = ""
 					}
 				}
 			}
