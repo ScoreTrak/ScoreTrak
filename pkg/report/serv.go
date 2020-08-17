@@ -63,12 +63,12 @@ func (svc *reportCalculator) RecalculateReport(team []*team.Team, hostGroup []*h
 				var simpSgr *SimpleServiceGroup
 				for _, sG := range serviceGroups {
 					if sG.ID == s.ServiceGroupID {
-						simpSgr = &SimpleServiceGroup{s.ServiceGroupID, s.Name, *sG.Enabled}
+						simpSgr = &SimpleServiceGroup{sG.ID, sG.Name, *sG.Enabled}
 					}
 				}
 				if len(s.Checks) != 0 {
 					lastCheck := s.Checks[len(s.Checks)-1]
-					sh.Services[s.ID] = &SimpleService{DisplayName: s.DisplayName, Enabled: *s.Enabled, Points: points, Properties: params, PointsBoost: s.PointsBoost, SimpleServiceGroup: simpSgr}
+					sh.Services[s.ID] = &SimpleService{Name: s.Name, DisplayName: s.DisplayName, Enabled: *s.Enabled, Points: points, Properties: params, PointsBoost: s.PointsBoost, SimpleServiceGroup: simpSgr}
 					if lastCheck.RoundID == round.ID {
 						sh.Services[s.ID].Passed = *lastCheck.Passed
 						sh.Services[s.ID].Log = lastCheck.Log
