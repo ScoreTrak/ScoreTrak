@@ -65,16 +65,9 @@ func NewRunner(db *gorm.DB, l logger.LogInfoFormat, q queue.Queue, r repo.Store)
 func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 	d.refreshDsync()
 	var scoringLoop *time.Ticker
-	rnd, _ := d.r.Round.GetLastRound()
-	if rnd == nil {
-		rnd = &round.Round{ID: 0}
-		if *(cnf.Enabled) {
-			rnd.ID += 1
-			d.attemptToScore(rnd, time.Now().Add(d.getDsync()).Add(time.Duration(cnf.RoundDuration)*time.Second*9/10))
-		}
-	}
+	rnd := &round.Round{}
 	configLoop := time.NewTicker(config.MinRoundDuration)
-	scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
+	scoringLoop = time.NewTicker(time.Second)
 	for {
 		select {
 		case <-configLoop.C:
@@ -98,9 +91,10 @@ func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 			if *cnf.Enabled {
 				r, _ := d.r.Round.GetLastRound()
 				if r != nil {
-					rnd = r
+					rnd = &round.Round{ID: r.ID + 1}
+				} else {
+					rnd = &round.Round{ID: 1}
 				}
-				rnd = &round.Round{ID: rnd.ID + 1}
 				d.attemptToScore(rnd, time.Now().Add(d.getDsync()).Add(time.Duration(cnf.RoundDuration)*time.Second*9/10))
 				scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
 			} else {
