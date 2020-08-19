@@ -28,18 +28,32 @@ func (svc *configServ) LoadCompetition(c *Competition) error {
 	if err != nil {
 		return err
 	}
-	errAgr = append(errAgr, svc.Store.Team.Upsert(c.Teams))
-	errAgr = append(errAgr, svc.Store.HostGroup.Upsert(c.HostGroups))
-	errAgr = append(errAgr, svc.Store.Host.Upsert(c.Hosts))
+	if len(c.Teams) != 0 {
+		errAgr = append(errAgr, svc.Store.Team.Upsert(c.Teams))
+	}
+	if len(c.HostGroups) != 0 {
+		errAgr = append(errAgr, svc.Store.HostGroup.Upsert(c.HostGroups))
+	}
+
+	if len(c.Hosts) != 0 {
+		errAgr = append(errAgr, svc.Store.Host.Upsert(c.Hosts))
+	}
 	for i, _ := range c.ServiceGroups {
 		errAgr = append(errAgr, svc.Store.ServiceGroup.Upsert(c.ServiceGroups[i]))
 	}
-	errAgr = append(errAgr, svc.Store.Service.Upsert(c.Services))
-	errAgr = append(errAgr, svc.Store.Property.Upsert(c.Properties))
-	errAgr = append(errAgr, svc.Store.Round.Upsert(c.Rounds))
-	errAgr = append(errAgr, svc.Store.Check.Upsert(c.Checks))
+	if len(c.Services) != 0 {
+		errAgr = append(errAgr, svc.Store.Service.Upsert(c.Services))
+	}
+	if len(c.Properties) != 0 {
+		errAgr = append(errAgr, svc.Store.Property.Upsert(c.Properties))
+	}
+	if len(c.Rounds) != 0 {
+		errAgr = append(errAgr, svc.Store.Round.Upsert(c.Rounds))
+	}
+	if len(c.Checks) != 0 {
+		errAgr = append(errAgr, svc.Store.Check.Upsert(c.Checks))
+	}
 	errAgr = append(errAgr, svc.Store.Report.Update(c.Report))
-
 	errStr := ""
 	for i, _ := range errAgr {
 		if errAgr[i] != nil {

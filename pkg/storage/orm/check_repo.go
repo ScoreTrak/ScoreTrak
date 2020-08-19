@@ -89,7 +89,7 @@ func (c *checkRepo) Store(chck []*check.Check) error {
 func (c *checkRepo) Upsert(chck []*check.Check) error {
 	err := c.db.Clauses(clause.OnConflict{DoNothing: true}).Create(chck).Error
 	if err != nil {
-		c.log.Errorf("error while creating the user, reason : %v", err)
+		c.log.Errorf("error while creating the check, reason : %v", err)
 		return err
 	}
 	return nil
