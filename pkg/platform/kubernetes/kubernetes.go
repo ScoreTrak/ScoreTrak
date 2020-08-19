@@ -34,7 +34,7 @@ func NewKubernetes(cnf platforming.Config, l logger.LogInfoFormat) (d *Kubernete
 
 func (k *Kubernetes) DeployWorkers(info worker.Info) error {
 	name := info.Label + "_" + info.Topic
-	labels := map[string]string{"name": name}
+	labels := map[string]string{"scoretrak_worker": info.Label}
 	path, err := util.GenerateConfigFile(info)
 	if err != nil {
 		return err
