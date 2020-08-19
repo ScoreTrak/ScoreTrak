@@ -124,7 +124,7 @@ func (s *serviceGroupController) Redeploy(w http.ResponseWriter, r *http.Request
 		http.Error(w, "service group must first be disabled", http.StatusPreconditionFailed)
 		return
 	}
-	wr := worker.Info{Topic: serGrp.Name, Label: serGrp.Name}
+	wr := worker.Info{Topic: serGrp.Name, Label: serGrp.Label}
 	err = s.p.RemoveWorkers(wr)
 	if err != nil {
 		http.Error(w, "scoretrak encountered an error while removing the workers. Please delete the workers manually. Details:\n"+err.Error(), http.StatusPreconditionFailed)
