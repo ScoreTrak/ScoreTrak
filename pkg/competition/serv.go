@@ -53,7 +53,9 @@ func (svc *configServ) LoadCompetition(c *Competition) error {
 	if len(c.Checks) != 0 {
 		errAgr = append(errAgr, svc.Store.Check.Upsert(c.Checks))
 	}
-	errAgr = append(errAgr, svc.Store.Report.Update(c.Report))
+	if c.Report != nil {
+		errAgr = append(errAgr, svc.Store.Report.Update(c.Report))
+	}
 	errStr := ""
 	for i, _ := range errAgr {
 		if errAgr[i] != nil {
