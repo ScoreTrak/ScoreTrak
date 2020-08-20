@@ -11,7 +11,7 @@ type ServiceClient struct {
 	s ScoretrakClient
 }
 
-func NewServiceClient(c ScoretrakClient) service.Serv {
+func NewServiceClient(c ScoretrakClient) *ServiceClient {
 	return &ServiceClient{c}
 }
 

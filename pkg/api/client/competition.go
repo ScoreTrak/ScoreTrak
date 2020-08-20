@@ -9,7 +9,7 @@ type CompetitionClient struct {
 	s ScoretrakClient
 }
 
-func NewCompetitionClient(c ScoretrakClient) competition.Serv {
+func NewCompetitionClient(c ScoretrakClient) *CompetitionClient {
 	return &CompetitionClient{c}
 }
 

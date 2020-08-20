@@ -10,7 +10,7 @@ type PropertyClient struct {
 	s ScoretrakClient
 }
 
-func NewPropertyClient(c ScoretrakClient) property.Serv {
+func NewPropertyClient(c ScoretrakClient) *PropertyClient {
 	return &PropertyClient{c}
 }
 

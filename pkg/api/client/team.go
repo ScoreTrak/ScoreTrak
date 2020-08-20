@@ -10,7 +10,7 @@ type TeamClient struct {
 	s ScoretrakClient
 }
 
-func NewTeamClient(c ScoretrakClient) team.Serv {
+func NewTeamClient(c ScoretrakClient) *TeamClient {
 	return &TeamClient{c}
 }
 
