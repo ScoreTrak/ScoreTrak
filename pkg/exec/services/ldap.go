@@ -33,7 +33,7 @@ func (l *LDAP) Validate() error {
 	if l.Password != "" && l.Username != "" && l.Domain != "" {
 		return nil
 	}
-	return errors.New("LDAP service needs password, username, and baseDN to operate")
+	return errors.New("LDAP service needs password, username, and Domain to operate")
 }
 
 func (l *LDAP) Execute(e exec.Exec) (passed bool, log string, err error) {
