@@ -35,14 +35,14 @@ func (c ConfigClient) ResetScores() error {
 }
 
 func NewStaticConfigClient(c ScoretrakClient) config.StaticServ {
-	return &staticConfigClient{c}
+	return &StaticConfigClient{c}
 }
 
-type staticConfigClient struct {
+type StaticConfigClient struct {
 	s ScoretrakClient
 }
 
-func (c staticConfigClient) Get() (*config.StaticConfig, error) {
+func (c StaticConfigClient) Get() (*config.StaticConfig, error) {
 	conf := &config.StaticConfig{}
 	err := c.s.GenericGet(conf, fmt.Sprintf("/static_config"))
 	if err != nil {
