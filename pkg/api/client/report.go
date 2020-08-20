@@ -9,7 +9,7 @@ type ReportClient struct {
 	s ScoretrakClient
 }
 
-func NewReportClient(c ScoretrakClient) report.Serv {
+func NewReportClient(c ScoretrakClient) *ReportClient {
 	return &ReportClient{c}
 }
 

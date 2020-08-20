@@ -9,7 +9,7 @@ type ConfigClient struct {
 	s ScoretrakClient
 }
 
-func NewConfigClient(c ScoretrakClient) config.Serv {
+func NewConfigClient(c ScoretrakClient) *ConfigClient {
 	return &ConfigClient{c}
 }
 
@@ -34,7 +34,7 @@ func (c ConfigClient) ResetScores() error {
 	return c.s.GenericDelete(fmt.Sprintf("/config/reset_competition"))
 }
 
-func NewStaticConfigClient(c ScoretrakClient) config.StaticServ {
+func NewStaticConfigClient(c ScoretrakClient) *StaticConfigClient {
 	return &StaticConfigClient{c}
 }
 

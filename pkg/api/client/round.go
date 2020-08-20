@@ -9,7 +9,7 @@ type RoundClient struct {
 	s ScoretrakClient
 }
 
-func NewRoundClient(c ScoretrakClient) round.Serv {
+func NewRoundClient(c ScoretrakClient) *RoundClient {
 	return &RoundClient{c}
 }
 

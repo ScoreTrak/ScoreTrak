@@ -10,7 +10,7 @@ type CheckClient struct {
 	s ScoretrakClient
 }
 
-func NewCheckClient(c ScoretrakClient) check.Serv {
+func NewCheckClient(c ScoretrakClient) *CheckClient {
 	return &CheckClient{c}
 }
 

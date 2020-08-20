@@ -10,7 +10,7 @@ type ServiceGroupClient struct {
 	s ScoretrakClient
 }
 
-func NewServiceGroupClient(c ScoretrakClient) service_group.Serv {
+func NewServiceGroupClient(c ScoretrakClient) *ServiceGroupClient {
 	return &ServiceGroupClient{c}
 }
 

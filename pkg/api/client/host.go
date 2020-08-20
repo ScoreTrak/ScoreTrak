@@ -10,7 +10,7 @@ type HostClient struct {
 	s ScoretrakClient
 }
 
-func NewHostClient(c ScoretrakClient) host.Serv {
+func NewHostClient(c ScoretrakClient) *HostClient {
 	return &HostClient{c}
 }
 
