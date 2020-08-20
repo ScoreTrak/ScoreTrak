@@ -7,7 +7,7 @@ import (
 )
 
 type DNS struct {
-	Lookup         string `json:"count"`
+	Lookup         string `json:"lookup"`
 	ExpectedOutput string `json:"expected_output"`
 }
 
