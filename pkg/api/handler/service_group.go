@@ -85,7 +85,7 @@ func (s *serviceGroupController) Delete(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	if s.p != nil && config.GetStaticConfig().Queue.Use != "none" {
-		wr := worker.Info{Topic: serviceGrp.Name}
+		wr := worker.Info{Topic: serviceGrp.Name, Label: serviceGrp.Label}
 		err := s.p.RemoveWorkers(wr)
 		if err != nil {
 			http.Error(w, err.Error()+"\nNote: Element was removed from database", http.StatusInternalServerError)
