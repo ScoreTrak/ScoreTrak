@@ -9,6 +9,8 @@ import (
 	"github.com/jinzhu/copier"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 )
 
 // StaticConfig is a struct of settings that were set at the start of the application
@@ -75,6 +77,8 @@ func SaveConfigToYamlFile(f string, config StaticConfig) error {
 	if err != nil {
 		return err
 	}
+	tmpPath := filepath.Join(".", "public")
+	os.MkdirAll(tmpPath, os.ModePerm)
 	err = ioutil.WriteFile(f, b, 0600)
 	if err != nil {
 		return err
