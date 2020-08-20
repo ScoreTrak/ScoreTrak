@@ -7,6 +7,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/jinzhu/copier"
 	"os"
+	"path/filepath"
 )
 
 func SetupConfig(f string) config.StaticConfig {
@@ -35,6 +36,8 @@ func ConfigFlagParser() (string, error) {
 		if err != nil {
 			return "", err
 		}
+		tmpPath := filepath.Join(".", "configs")
+		os.MkdirAll(tmpPath, os.ModePerm)
 		path = "configs/config-encoded.yml"
 		f, err := os.Create(path)
 		if err != nil {
