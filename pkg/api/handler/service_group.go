@@ -12,6 +12,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm"
 	"github.com/qor/validations"
 	"net/http"
+	"strings"
 )
 
 type serviceGroupController struct {
@@ -126,7 +127,7 @@ func (s *serviceGroupController) Redeploy(w http.ResponseWriter, r *http.Request
 	}
 	wr := worker.Info{Topic: serGrp.Name, Label: serGrp.Label}
 	err = s.p.RemoveWorkers(wr)
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "not found") {
 		http.Error(w, "scoretrak encountered an error while removing the workers. Please delete the workers manually. Details:\n"+err.Error(), http.StatusPreconditionFailed)
 		s.log.Error(err)
 		return
