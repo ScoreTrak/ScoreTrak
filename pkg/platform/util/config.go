@@ -7,6 +7,8 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 )
 
 func GenerateConfigFile(info worker.Info) (path string, err error) {
@@ -19,6 +21,8 @@ func GenerateConfigFile(info worker.Info) (path string, err error) {
 	} else {
 		return "", errors.New("selected queue is not yet supported with platform Docker")
 	}
+	tmpPath := filepath.Join(".", "tmp")
+	os.MkdirAll(tmpPath, os.ModePerm)
 	path = fmt.Sprintf("tmp/config_worker_%s", info.Topic)
 	err = config.SaveConfigToYamlFile(path, cnf)
 	if err != nil {
