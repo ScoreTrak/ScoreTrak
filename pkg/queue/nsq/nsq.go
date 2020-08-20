@@ -51,7 +51,7 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 	confc.LookupdPollInterval = time.Second * 1
 	consumer, err := nsq.NewConsumer(returningTopicName, "channel", confc)
 	if err != nil {
-		return nil, bErr, tErr
+		return nil, bErr, err
 	}
 	defer consumer.Stop()
 	ret := make([]*queueing.QCheck, len(sds))
