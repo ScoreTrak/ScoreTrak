@@ -2,6 +2,7 @@ package competition
 
 import (
 	"errors"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/di/repo"
 	"github.com/jackc/pgconn"
 )
@@ -53,7 +54,9 @@ func (svc *configServ) LoadCompetition(c *Competition) error {
 	if len(c.Checks) != 0 {
 		errAgr = append(errAgr, svc.Store.Check.Upsert(c.Checks))
 	}
-	errAgr = append(errAgr, svc.Store.Report.Update(c.Report))
+	if c.Report != nil {
+		errAgr = append(errAgr, svc.Store.Report.Update(c.Report))
+	}
 	errStr := ""
 	for i, _ := range errAgr {
 		if errAgr[i] != nil {
@@ -70,11 +73,11 @@ func (svc *configServ) LoadCompetition(c *Competition) error {
 }
 
 func (svc *configServ) FetchCoreCompetition() (*Competition, error) {
+	fls := false
 	cnf, err := svc.Store.Config.Get()
 	if err != nil {
 		return nil, err
 	}
-	fls := false
 	cnf.Enabled = &fls
 	teams, err := svc.Store.Team.GetAll()
 	if err != nil {
@@ -89,6 +92,11 @@ func (svc *configServ) FetchCoreCompetition() (*Competition, error) {
 		return nil, err
 	}
 	serviceGroups, err := svc.Store.ServiceGroup.GetAll()
+	if config.GetStaticConfig().Queue.Use != "none" {
+		for i := range serviceGroups {
+			serviceGroups[i].Enabled = &fls
+		}
+	}
 	if err != nil {
 		return nil, err
 	}

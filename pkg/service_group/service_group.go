@@ -22,7 +22,7 @@ type ServiceGroup struct {
 
 	SkipHelper bool `json:"skip_helper,omitempty" gorm:"-"`
 
-	Label string `json:"label,omitempty" gorm:"-"`
+	Label string `json:"label,omitempty"`
 
 	Services []*service.Service `json:"services,omitempty" gorm:"foreignkey:ServiceGroupID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT"`
 }

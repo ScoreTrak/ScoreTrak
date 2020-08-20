@@ -33,8 +33,8 @@ func NewKubernetes(cnf platforming.Config, l logger.LogInfoFormat) (d *Kubernete
 }
 
 func (k *Kubernetes) DeployWorkers(info worker.Info) error {
-	name := info.Label + "_" + info.Topic
-	labels := map[string]string{"name": name}
+	name := info.Label + "-" + info.Topic
+	labels := map[string]string{"scoretrak_worker": info.Label}
 	path, err := util.GenerateConfigFile(info)
 	if err != nil {
 		return err
@@ -74,5 +74,5 @@ func (k *Kubernetes) DeployWorkers(info worker.Info) error {
 }
 
 func (k *Kubernetes) RemoveWorkers(info worker.Info) error {
-	return k.Client.AppsV1().DaemonSets(k.Namespace).Delete(k.ctx, info.Label+"_"+info.Topic, metav1.DeleteOptions{})
+	return k.Client.AppsV1().DaemonSets(k.Namespace).Delete(k.ctx, info.Label+"-"+info.Topic, metav1.DeleteOptions{})
 }

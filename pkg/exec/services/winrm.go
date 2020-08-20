@@ -17,11 +17,11 @@ type Winrm struct {
 	Command        string `json:"command"`
 	ExpectedOutput string `json:"expected_output"`
 	Scheme         string `json:"scheme"`
+	ClientType     string `json:"client_type"`
 }
 
 func NewWinrm() *Winrm {
-	f := Winrm{Command: "whoami", Scheme: "http"}
-	return &f
+	return &Winrm{Command: "whoami", Scheme: "http", ClientType: "NTLM"}
 }
 
 func (w *Winrm) Validate() error {
@@ -55,6 +55,9 @@ func (w *Winrm) Execute(e exec.Exec) (passed bool, log string, err error) {
 	params.Dial = (&net.Dialer{
 		Timeout: time.Until(e.Deadline()),
 	}).Dial
+	if strings.ToLower(w.ClientType) == "ntlm" {
+		params.TransportDecorator = func() winrm.Transporter { return &winrm.ClientNTLM{} }
+	}
 	client, err := winrm.NewClientWithParameters(endpoint, w.Username, w.Password, params)
 	if err != nil {
 		return false, "Unable to initialize winrm client", err
