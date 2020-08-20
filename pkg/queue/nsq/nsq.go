@@ -88,7 +88,7 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 			}
 		case <-time.After(time.Until(sds[0].Deadline)):
 			if n.config.NSQ.IgnoreAllScoresIfWorkerFails {
-				return nil, bErr, &queueing.RoundTookTooLongToExecute{Msg: "Round took too long to score. This might be due to many reasons like a worker going down, or the number of rounds being too big for workers"}
+				return nil, bErr, &queueing.RoundTookTooLongToExecute{Msg: "Round took too long to score. This might be due to many reasons like a worker going down, or the number of rounds being too big for workers to handle"}
 			} else {
 				return ret, errors.New("some workers failed to receive the checks. Make sure that is by design"), nil
 			}
