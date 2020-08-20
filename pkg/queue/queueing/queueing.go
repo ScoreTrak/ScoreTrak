@@ -61,11 +61,11 @@ type Config struct {
 }
 
 func TopicFromServiceRound(ser *QService, roundID uint) string {
+	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	if roundID == 0 {
-		var seededRand *rand.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
-		return "test_" + ser.ID.String() + strconv.Itoa(seededRand.Int()) + "_ack"
+		return "test_" + ser.ID.String() + "_" + strconv.Itoa(seededRand.Int()) + "_ack"
 	}
-	return ser.ID.String() + "_ack"
+	return "round_" + strconv.FormatUint(uint64(roundID), 10) + "_" + strconv.Itoa(seededRand.Int()) + "_ack"
 }
 
 func CommonExecute(sd *ScoringData, execDeadline time.Time, l logger.LogInfoFormat) QCheck {
