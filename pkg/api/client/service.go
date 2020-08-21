@@ -45,8 +45,8 @@ func (s ServiceClient) Update(u *service.Service) error {
 	return s.s.GenericUpdate(u, fmt.Sprintf("/service/%s", u.ID.String()))
 }
 
-func (s ServiceClient) TestService(id uuid.UUID) (*queueing.ScoringData, error) {
-	sd := &queueing.ScoringData{}
+func (s ServiceClient) TestService(id uuid.UUID) (*queueing.QCheck, error) {
+	sd := &queueing.QCheck{}
 	err := s.s.GenericGet(sd, fmt.Sprintf("/service/test/%s", id.String()))
 	if err != nil {
 		return nil, err
