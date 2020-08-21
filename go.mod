@@ -14,7 +14,7 @@ require (
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/emersion/go-imap v1.0.5
 	github.com/emersion/go-sasl v0.0.0-20200509203442-7bfe0ed36a21 // indirect
-	github.com/go-errors/errors v1.1.1
+	github.com/go-errors/errors v1.1.1 // indirect
 	github.com/go-ldap/ldap/v3 v3.2.3
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/golang/protobuf v1.4.2 // indirect
@@ -29,7 +29,7 @@ require (
 	github.com/jinzhu/configor v1.2.0
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
 	github.com/jinzhu/gorm v1.9.15
-	github.com/jlaffaye/ftp v0.0.0-20200730135723-c2ee4fa2503b
+	github.com/jlaffaye/ftp v0.0.0-20200812143550-39e3779af0db
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/masterzen/simplexml v0.0.0-20190410153822-31eea3082786 // indirect
