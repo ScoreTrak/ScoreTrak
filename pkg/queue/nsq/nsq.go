@@ -51,7 +51,7 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 	confc.LookupdPollInterval = time.Second * 1
 	consumer, err := nsq.NewConsumer(returningTopicName, "channel", confc)
 	if err != nil {
-		return nil, bErr, tErr
+		return nil, bErr, err
 	}
 	defer consumer.Stop()
 	ret := make([]*queueing.QCheck, len(sds))
@@ -88,7 +88,7 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 			}
 		case <-time.After(time.Until(sds[0].Deadline)):
 			if n.config.NSQ.IgnoreAllScoresIfWorkerFails {
-				return nil, bErr, &queueing.RoundTookTooLongToExecute{Msg: "Round took too long to score. This might be due to many reasons like a worker going down, or the number of rounds being too big for workers"}
+				return nil, bErr, &queueing.RoundTookTooLongToExecute{Msg: "Round took too long to score. This might be due to many reasons like a worker going down, or the number of rounds being too big for workers to handle"}
 			} else {
 				return ret, errors.New("some workers failed to receive the checks. Make sure that is by design"), nil
 			}
@@ -143,13 +143,16 @@ func (n NSQ) Receive() {
 }
 
 func (n NSQ) Ping(group *service_group.ServiceGroup) error {
-	_, _, err := n.Send([]*queueing.ScoringData{
+	_, bErr, err := n.Send([]*queueing.ScoringData{
 		{
 			Service: queueing.QService{ID: uuid.Nil, Name: "PING", Group: group.Name}, Host: "localhost", Deadline: time.Now().Add(time.Second * 4), RoundID: 0, Properties: map[string]string{},
 		},
 	})
 	if err != nil {
 		return err
+	}
+	if bErr != nil {
+		return bErr
 	}
 	return nil
 }

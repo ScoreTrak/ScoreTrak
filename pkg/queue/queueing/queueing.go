@@ -62,9 +62,6 @@ type Config struct {
 
 func TopicFromServiceRound(ser *QService, roundID uint) string {
 	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
-	if roundID == 0 {
-		return "test_" + ser.ID.String() + "_" + strconv.Itoa(seededRand.Int()) + "_ack"
-	}
 	return "round_" + strconv.FormatUint(uint64(roundID), 10) + "_" + strconv.Itoa(seededRand.Int()) + "_ack"
 }
 
