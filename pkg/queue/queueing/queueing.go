@@ -94,7 +94,8 @@ func CommonExecute(sd *ScoringData, execDeadline time.Time, l logger.LogInfoForm
 		}
 		return QCheck{Service: sd.Service, Passed: res.passed, Log: res.log, Err: errstr, RoundID: sd.RoundID}
 	case <-time.After(time.Until(execDeadline.Add(time.Second))):
-		panic(errors.New("check timed out, which should not have happened. this is most likely a bug. Please check logs for more info"))
+		l.Error("Check is possible causing resource leaking", sd.Service, execDeadline)
+		panic(errors.New("check timed out. this is most likely due to services timing out"))
 	}
 }
 
