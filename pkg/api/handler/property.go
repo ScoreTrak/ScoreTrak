@@ -47,6 +47,10 @@ func (t *propertyController) GetByID(w http.ResponseWriter, r *http.Request) {
 	genericGetByID(t.svc, t.log, "GetByID", "id", w, r)
 }
 
+func (t *propertyController) GetAllByServiceID(w http.ResponseWriter, r *http.Request) {
+	genericGetByID(t.svc, t.log, "GetAllByServiceID", "id", w, r)
+}
+
 func (t *propertyController) GetAll(w http.ResponseWriter, r *http.Request) {
 	genericGet(t.svc, t.log, "GetAll", w, r)
 }

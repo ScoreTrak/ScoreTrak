@@ -398,6 +398,13 @@ func PropertyRoutes(l logger.LogInfoFormat, svc property.Serv) Routes {
 		},
 
 		Route{
+			"GetPropertiesByID",
+			strings.ToUpper("Get"),
+			"/property_service/{id}",
+			ctrl.GetAllByServiceID,
+		},
+
+		Route{
 			"UpdateProperty",
 			strings.ToUpper("Patch"),
 			"/property/{id}",
