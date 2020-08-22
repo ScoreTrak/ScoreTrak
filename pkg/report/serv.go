@@ -56,9 +56,9 @@ func (svc *reportCalculator) RecalculateReport(team []*team.Team, hostGroup []*h
 						points += s.Points
 					}
 				}
-				params := map[uuid.UUID]*SimpleProperty{}
+				params := map[string]*SimpleProperty{}
 				for _, p := range s.Properties {
-					params[p.ID] = &SimpleProperty{Value: p.Value, Status: p.Status, Key: p.Key}
+					params[p.Key] = &SimpleProperty{Value: p.Value, Status: p.Status}
 				}
 				var simpSgr *SimpleServiceGroup
 				for _, sG := range serviceGroups {

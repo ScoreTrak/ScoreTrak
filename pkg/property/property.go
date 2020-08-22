@@ -14,11 +14,9 @@ const (
 
 // Property model describes a single key value pair for a service(parameters). An example could be a port for HTTP checking
 type Property struct {
-	ID uuid.UUID `json:"id,omitempty" gorm:"type:uuid;primary_key;"`
+	ServiceID uuid.UUID `json:"service_id" gorm:"type:uuid;not null;primary_key"`
 
-	ServiceID uuid.UUID `json:"service_id" gorm:"type:uuid;not null"`
-
-	Key string `json:"key" gorm:"not null; primary_key"`
+	Key string `json:"key" gorm:"not null;primary_key"`
 
 	Value string `json:"value" gorm:"not null; default: null"`
 
@@ -41,15 +39,4 @@ func (p Property) Validate(db *gorm.DB) {
 		db.AddError(errors.New("property Status should either be View, Edit, or Hide"))
 		return
 	}
-}
-
-func (p *Property) BeforeCreate(tx *gorm.DB) (err error) {
-	if p.ID == uuid.Nil {
-		u, err := uuid.NewV4()
-		if err != nil {
-			return err
-		}
-		p.ID = u
-	}
-	return nil
 }

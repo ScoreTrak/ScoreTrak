@@ -62,7 +62,7 @@ func TestPropertySpec(t *testing.T) {
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
 						Convey("Then Querying By ID", func() {
-							ss, err := cr.GetByID(c[0].ID)
+							ss, err := cr.GetByServiceIDKey(uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555"), "TestKey")
 							So(err, ShouldBeNil)
 							So(ss.Key, ShouldEqual, "TestKey")
 							So(ss.ServiceID, ShouldEqual, uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555"))
@@ -70,13 +70,13 @@ func TestPropertySpec(t *testing.T) {
 						})
 
 						Convey("Then Querying By wrong ID", func() {
-							ss, err := cr.GetByID(uuid.FromStringOrNil("55555555-5555-5555-5555-555555555522"))
+							ss, err := cr.GetByServiceIDKey(uuid.FromStringOrNil("55555555-5555-5555-5555-555555555522"), "TestKey")
 							So(err, ShouldNotBeNil)
 							So(ss, ShouldBeNil)
 						})
 
 						Convey("Then Deleting a wrong entry", func() {
-							err = cr.Delete(uuid.FromStringOrNil("55555555-5555-5555-5555-555555555522"))
+							err = cr.Delete(uuid.FromStringOrNil("55555555-5555-5555-5555-555555555522"), "TestKey")
 							So(err, ShouldNotBeNil)
 							Convey("Should output one entry", func() {
 								ac, err := cr.GetAll()
@@ -86,7 +86,7 @@ func TestPropertySpec(t *testing.T) {
 						})
 
 						Convey("Then Deleting the property should be allowed", func() {
-							err = cr.Delete(c[0].ID)
+							err = cr.Delete(uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555"), "TestKey")
 							So(err, ShouldBeNil)
 							ac, err = cr.GetAll()
 							So(err, ShouldBeNil)
