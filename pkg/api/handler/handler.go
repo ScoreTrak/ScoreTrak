@@ -128,7 +128,7 @@ func genericDelete(svc interface{}, log logger.LogInfoFormat, m string, idParam 
 	if err != nil {
 		_, ok := err.(*orm.NoRowsAffected)
 		if ok {
-			http.Redirect(w, r, "/team", http.StatusNotModified)
+			http.Redirect(w, r, "/", http.StatusNotModified)
 			return
 		} else {
 			http.Error(w, err.Error(), http.StatusConflict)

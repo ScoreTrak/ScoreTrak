@@ -61,12 +61,11 @@ type SimpleService struct {
 	Err                string
 	Points             uint
 	PointsBoost        uint
-	Properties         map[uuid.UUID]*SimpleProperty
+	Properties         map[string]*SimpleProperty
 	SimpleServiceGroup *SimpleServiceGroup
 }
 
 type SimpleProperty struct {
-	Key    string
 	Value  string
 	Status string
 }

@@ -132,21 +132,20 @@ func DataPreload(db *gorm.DB) {
 		panic("There should be 8 entry in services")
 	}
 	//Creating Properties
-	db.Exec("INSERT INTO properties (id, service_id, key, value, description, status) VALUES (	'11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111', 'Port','80','Port to which connect','View')")
-	db.Exec("INSERT INTO properties (id, service_id, key, value, description, status) VALUES (	'22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111', 'Username','root','Username of the service','Edit')")
-	db.Exec("INSERT INTO properties (id, service_id, key, value, description, status) VALUES (	'33333333-3333-3333-3333-333333333333', '22222222-2222-2222-2222-222222222222', 'Port','53','Port to which connect','View')")
-	db.Exec("INSERT INTO properties (id, service_id, key, value, description, status) VALUES (	'44444444-4444-4444-4444-444444444444', '22222222-2222-2222-2222-222222222222', 'Password','changeme','Password for the account','Hide')")
-	db.Exec("INSERT INTO properties (id, service_id, key, value, description, status) VALUES (	'55555555-5555-5555-5555-555555555555', '22222222-2222-2222-2222-222222222222', 'Username','root','Username of the service','Hide')")
-	db.Exec("INSERT INTO properties (id, service_id, key, value, description, status) VALUES (	'66666666-6666-6666-6666-666666666666', '33333333-3333-3333-3333-333333333333', 'Password','changeme','Password for the account','Hide')")
-	db.Exec("INSERT INTO properties (id, service_id, key, value, description, status) VALUES (	'77777777-7777-7777-7777-777777777777', '44444444-4444-4444-4444-444444444444', 'Port','443','Port to which connect','Edit')")
-	db.Exec("INSERT INTO properties (id, service_id, key, value, description, status) VALUES (	'88888888-8888-8888-8888-888888888888', '55555555-5555-5555-5555-555555555555', 'Username','admin','Username of the service','Edit')")
-	db.Exec("INSERT INTO properties (id, service_id, key, value, description, status) VALUES (	'99999999-9999-9999-9999-999999999999', '66666666-6666-6666-6666-666666666666', 'Password','Change.me!','Password for the account','View')")
-	db.Exec("INSERT INTO properties (id, service_id, key, value, status) VALUES (				'11111111-1111-1111-1111-111111111110', '66666666-6666-6666-6666-666666666666', 'Content','Sample Content!', 'Hide')")
-	db.Exec("INSERT INTO properties (id, service_id, key, value, description, status) VALUES (	'11111111-1111-1111-1111-111111111100', '66666666-6666-6666-6666-666666666666', 'EncodedContent', 'RW5jb2RlZENvbnRlbnQ=', 'Encoded content!', 'Edit')")
-	db.Exec("INSERT INTO properties (id, service_id, key, value, status) VALUES (				'11111111-1111-1111-1111-111111111000', '66666666-6666-6666-6666-666666666666', 'domain', 'sample.com', 'View')")
-	db.Exec("INSERT INTO properties (id, service_id, key, value, status) VALUES (				'11111111-1111-1111-1111-111111110000', '66666666-6666-6666-6666-666666666666', 'domain', 'ad.sample.com', 'View')")
+	db.Exec("INSERT INTO properties (service_id, key, value, description, status) VALUES ( '11111111-1111-1111-1111-111111111111', 'Port','80','Port to which connect','View')")
+	db.Exec("INSERT INTO properties (service_id, key, value, description, status) VALUES ( '11111111-1111-1111-1111-111111111111', 'Username','root','Username of the service','Edit')")
+	db.Exec("INSERT INTO properties (service_id, key, value, description, status) VALUES ( '22222222-2222-2222-2222-222222222222', 'Port','53','Port to which connect','View')")
+	db.Exec("INSERT INTO properties (service_id, key, value, description, status) VALUES ( '22222222-2222-2222-2222-222222222222', 'Password','changeme','Password for the account','Hide')")
+	db.Exec("INSERT INTO properties (service_id, key, value, description, status) VALUES ( '22222222-2222-2222-2222-222222222222', 'Username','root','Username of the service','Hide')")
+	db.Exec("INSERT INTO properties (service_id, key, value, description, status) VALUES ( '33333333-3333-3333-3333-333333333333', 'Password','changeme','Password for the account','Hide')")
+	db.Exec("INSERT INTO properties (service_id, key, value, description, status) VALUES ( '44444444-4444-4444-4444-444444444444', 'Port','443','Port to which connect','Edit')")
+	db.Exec("INSERT INTO properties (service_id, key, value, description, status) VALUES ( '55555555-5555-5555-5555-555555555555', 'Username','admin','Username of the service','Edit')")
+	db.Exec("INSERT INTO properties (service_id, key, value, description, status) VALUES ( '66666666-6666-6666-6666-666666666666', 'Password','Change.me!','Password for the account','View')")
+	db.Exec("INSERT INTO properties (service_id, key, value, status) VALUES (			 '66666666-6666-6666-6666-666666666666', 'Content','Sample Content!', 'Hide')")
+	db.Exec("INSERT INTO properties (service_id, key, value, description, status) VALUES ( '66666666-6666-6666-6666-666666666666', 'EncodedContent', 'RW5jb2RlZENvbnRlbnQ=', 'Encoded content!', 'Edit')")
+	db.Exec("INSERT INTO properties (service_id, key, value, status) VALUES (			 '66666666-6666-6666-6666-666666666666', 'domain', 'sample.com', 'View')")
 	db.Table("properties").Count(&count)
-	if count != 13 {
+	if count != 12 {
 		panic("There should be 13 entry in properties")
 	}
 	//Creating Rounds

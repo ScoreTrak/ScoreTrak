@@ -370,27 +370,6 @@ func PropertyRoutes(l logger.LogInfoFormat, svc property.Serv) Routes {
 	ctrl := handler.NewPropertyController(l, svc)
 	propertyRoutes := Routes{
 		Route{
-			"AddProperty",
-			strings.ToUpper("Post"),
-			"/property",
-			ctrl.Store,
-		},
-
-		Route{
-			"DeleteProperty",
-			strings.ToUpper("Delete"),
-			"/property/{id}",
-			ctrl.Delete,
-		},
-
-		Route{
-			"GetProperty",
-			strings.ToUpper("Get"),
-			"/property/{id}",
-			ctrl.GetByID,
-		},
-
-		Route{
 			"GetProperties",
 			strings.ToUpper("Get"),
 			"/property",
@@ -398,16 +377,37 @@ func PropertyRoutes(l logger.LogInfoFormat, svc property.Serv) Routes {
 		},
 
 		Route{
+			"AddProperty",
+			strings.ToUpper("Post"),
+			"/property",
+			ctrl.Store,
+		},
+
+		Route{
 			"GetPropertiesByID",
 			strings.ToUpper("Get"),
-			"/property_service/{id}",
+			"/property/{ServiceID}",
 			ctrl.GetAllByServiceID,
+		},
+
+		Route{
+			"DeleteProperty",
+			strings.ToUpper("Delete"),
+			"/property/{ServiceID}/{Key}",
+			ctrl.Delete,
+		},
+
+		Route{
+			"GetProperty",
+			strings.ToUpper("Get"),
+			"/property/{ServiceID}/{Key}",
+			ctrl.GetByServiceIDKey,
 		},
 
 		Route{
 			"UpdateProperty",
 			strings.ToUpper("Patch"),
-			"/property/{id}",
+			"/property/{ServiceID}/{Key}",
 			ctrl.Update,
 		},
 	}
