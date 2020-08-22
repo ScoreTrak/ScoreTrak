@@ -40,3 +40,10 @@ func (p Property) Validate(db *gorm.DB) {
 		return
 	}
 }
+
+func (p *Property) BeforeCreate(tx *gorm.DB) (err error) {
+	if p.Key == "" {
+		return errors.New("key should not be empty")
+	}
+	return nil
+}
