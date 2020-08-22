@@ -38,7 +38,7 @@ func (s PropertyClient) GetByServiceIDKey(id uuid.UUID, key string) (*property.P
 
 func (s PropertyClient) GetAllByServiceID(id uuid.UUID) ([]*property.Property, error) {
 	var sg []*property.Property
-	err := s.s.GenericGet(sg, fmt.Sprintf("/property/%s", id.String()))
+	err := s.s.GenericGet(&sg, fmt.Sprintf("/property/%s", id.String()))
 	if err != nil {
 		return nil, err
 	}

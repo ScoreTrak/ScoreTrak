@@ -117,7 +117,7 @@ func (t *propertyController) GetAllByServiceID(w http.ResponseWriter, r *http.Re
 		return
 	}
 	encoder := json.NewEncoder(w)
-	err = encoder.Encode(sg)
+	err = encoder.Encode(&sg)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		t.log.Error(err)
