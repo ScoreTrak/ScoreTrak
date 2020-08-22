@@ -30,7 +30,7 @@ func (e Exec) Execute() (passed bool, log string, err error) {
 		return false, "Check did not pass parameter validation", err
 	}
 	if time.Now().After(e.Deadline()) {
-		return false, "Unable to start the check", errors.New("deadline passed to a check wasn't set, or was negative. This is most likely a bug, or a misconfiguration")
+		return false, "Unable to start the check", errors.New("deadline passed to a check wasn't set, or was negative. This is most likely a misconfiguration(round_duration too small)")
 	}
 	return e.executable.Execute(e)
 }
