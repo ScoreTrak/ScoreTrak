@@ -35,6 +35,7 @@ type QCheck struct {
 	Err     string
 }
 
+// Todo: Implement Round error to indicate that something went wrong with scoring a service (for instance, round duration too small)
 type IndexedQueue struct {
 	Q *QCheck
 	I int
