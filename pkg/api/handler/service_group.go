@@ -128,13 +128,13 @@ func (s *serviceGroupController) Redeploy(w http.ResponseWriter, r *http.Request
 	wr := worker.Info{Topic: serGrp.Name, Label: serGrp.Label}
 	err = s.p.RemoveWorkers(wr)
 	if err != nil && !strings.Contains(err.Error(), "not found") {
-		http.Error(w, "scoretrak encountered an error while removing the workers. Please delete the workers manually. Details:\n"+err.Error(), http.StatusPreconditionFailed)
+		http.Error(w, "scoretrak encountered an error while removing the workers. Please, delete the workers manually. Details:\n"+err.Error(), http.StatusPreconditionFailed)
 		s.log.Error(err)
 		return
 	}
 	err = s.p.DeployWorkers(wr)
 	if err != nil {
-		http.Error(w, "scoretrak encountered an error while deploying the workers. Please create the workers manually. Details:\n"+err.Error(), http.StatusPreconditionFailed)
+		http.Error(w, "scoretrak encountered an error while deploying the workers. Please, investigate the issue, or create the workers manually. Details:\n"+err.Error(), http.StatusPreconditionFailed)
 		s.log.Error(err)
 		return
 	}
