@@ -237,14 +237,20 @@ func CheckRoutes(l logger.LogInfoFormat, svc check.Serv) Routes {
 		Route{
 			"GetCheck",
 			strings.ToUpper("Get"),
-			"/check/{RoundID}/{ServiceID}",
+			"/check/round/{RoundID}/service/{ServiceID}",
 			ctrl.GetByRoundServiceID,
 		},
 		Route{
-			"GetChecks",
+			"GetChecksByRound",
 			strings.ToUpper("Get"),
-			"/check/{RoundID}",
+			"/check/round/{RoundID}",
 			ctrl.GetAllByRoundID,
+		},
+		Route{
+			"GetChecksByService",
+			strings.ToUpper("Get"),
+			"/check/service/{ServiceID}",
+			ctrl.GetAllByServiceID,
 		},
 	}
 	return checkRoutes
