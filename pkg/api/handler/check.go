@@ -39,7 +39,32 @@ func (c *checkController) GetAllByRoundID(w http.ResponseWriter, r *http.Request
 		return
 	}
 	encoder := json.NewEncoder(w)
-	err = encoder.Encode(sg)
+	err = encoder.Encode(&sg)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		c.log.Error(err)
+	}
+}
+
+func (c *checkController) GetAllByServiceID(w http.ResponseWriter, r *http.Request) {
+	sID, err := uuidResolver("ServiceID", r)
+	if err != nil {
+		c.log.Error(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	sg, err := c.svc.GetAllByServiceID(sID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			c.log.Error(err)
+		}
+		return
+	}
+	encoder := json.NewEncoder(w)
+	err = encoder.Encode(&sg)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		c.log.Error(err)

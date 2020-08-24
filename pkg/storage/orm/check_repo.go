@@ -26,6 +26,13 @@ func (c *checkRepo) GetAllByRoundID(rID uint) ([]*check.Check, error) {
 	return checks, err
 }
 
+func (c *checkRepo) GetAllByServiceID(sID uuid.UUID) ([]*check.Check, error) {
+	c.log.Debug("get all the checks")
+	var checks []*check.Check
+	err := c.db.Where("service_id = ?", sID).Find(&checks).Error
+	return checks, err
+}
+
 func (c *checkRepo) GetByRoundServiceID(rID uint, sID uuid.UUID) (*check.Check, error) {
 	c.log.Debug("get all the checks")
 	chk := &check.Check{}
