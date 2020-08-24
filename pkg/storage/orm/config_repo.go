@@ -52,6 +52,8 @@ func (c *configRepo) ResetScores() error {
 	return nil
 }
 
+//Todo: Utilize AllowGlobalUpdate to delete tables. For Check table utilize TRUNCATE operation
+
 func (c *configRepo) DeleteCompetition() error {
 	err := c.ResetScores()
 	if err != nil {
