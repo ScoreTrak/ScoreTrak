@@ -12,7 +12,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
-	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"gorm.io/gorm"
 )
 
@@ -74,10 +73,6 @@ func (c *configRepo) DeleteCompetition() error {
 		return err
 	}
 	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&host_group.HostGroup{}).Error
-	if err != nil {
-		return err
-	}
-	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&team.Team{}).Error
 	if err != nil {
 		return err
 	}
