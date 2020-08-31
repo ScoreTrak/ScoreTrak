@@ -33,15 +33,15 @@ func (c *configRepo) Get() (*config.DynamicConfig, error) {
 }
 
 func (c *configRepo) ResetScores() error {
-	err := c.db.Where("1 = 1").Delete(&check.Check{}).Error
+	err := c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&check.Check{}).Error
 	if err != nil {
 		return err
 	}
-	err = c.db.Where("1 = 1").Delete(&round.Round{}).Error
+	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&round.Round{}).Error
 	if err != nil {
 		return err
 	}
-	err = c.db.Where("1 = 1").Delete(&report.Report{}).Error
+	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&report.Report{}).Error
 	if err != nil {
 		return err
 	}
@@ -52,34 +52,32 @@ func (c *configRepo) ResetScores() error {
 	return nil
 }
 
-//Todo: Utilize AllowGlobalUpdate to delete tables. For Check table utilize TRUNCATE operation
-
 func (c *configRepo) DeleteCompetition() error {
 	err := c.ResetScores()
 	if err != nil {
 		return err
 	}
-	err = c.db.Where("1 = 1").Delete(&property.Property{}).Error
+	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&property.Property{}).Error
 	if err != nil {
 		return err
 	}
-	err = c.db.Where("1 = 1").Delete(&service.Service{}).Error
+	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&service.Service{}).Error
 	if err != nil {
 		return err
 	}
-	err = c.db.Where("1 = 1").Delete(&service_group.ServiceGroup{}).Error
+	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&service_group.ServiceGroup{}).Error
 	if err != nil {
 		return err
 	}
-	err = c.db.Where("1 = 1").Delete(&host.Host{}).Error
+	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&host.Host{}).Error
 	if err != nil {
 		return err
 	}
-	err = c.db.Where("1 = 1").Delete(&host_group.HostGroup{}).Error
+	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&host_group.HostGroup{}).Error
 	if err != nil {
 		return err
 	}
-	err = c.db.Where("1 = 1").Delete(&team.Team{}).Error
+	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&team.Team{}).Error
 	if err != nil {
 		return err
 	}
