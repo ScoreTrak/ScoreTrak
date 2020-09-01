@@ -98,7 +98,7 @@ func TestHostGroupSpec(t *testing.T) {
 						ac, err := hg.GetAll()
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
-						So(*(ac[0].Enabled), ShouldBeFalse)
+						So(*(ac[0].Enabled), ShouldBeTrue)
 					})
 					Convey("For the correct entry should update", func() {
 						newHostGroup.ID = uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333")

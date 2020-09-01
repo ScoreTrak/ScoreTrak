@@ -17,7 +17,6 @@ type LDAP struct {
 	Domain              string `json:"domain"`
 	Port                string `json:"port"`
 	BaseDN              string `json:"base_dn"`
-	Scheme              string `json:"scheme"`
 	TransportProtocol   string `json:"transport_protocol"`
 	ApplicationProtocol string `json:"application_protocol"`
 	Filter              string `json:"filter"`

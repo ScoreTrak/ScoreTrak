@@ -10,7 +10,7 @@ import (
 )
 
 type HTTP struct {
-	ExpectedOutput string `json:"text"`
+	ExpectedOutput string `json:"expected_output"`
 	Scheme         string `json:"scheme"`
 	Port           string `json:"port"`
 	Path           string `json:"path"`

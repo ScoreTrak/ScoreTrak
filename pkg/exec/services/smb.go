@@ -26,7 +26,7 @@ type SMB struct {
 	Share             string `json:"share"`
 	FileName          string `json:"file_name"`
 	Text              string `json:"text"`
-	Operation         string `json:"text"`
+	Operation         string `json:"operation"`
 	ExpectedOutput    string `json:"expected_output"`
 }
 
