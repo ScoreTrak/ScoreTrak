@@ -14,7 +14,7 @@ type DynamicConfig struct {
 	// Describes how long each round unit takes to execute in seconds. This value shuold have a minimum value enforced (something like 20 seconds)
 	RoundDuration uint `json:"round_duration,omitempty" default:"60"`
 	// Enables or disables competition globally
-	Enabled *bool `json:"enabled,omitempty" default:"false" gorm:"not null;default: false"`
+	Enabled *bool `json:"enabled,omitempty" default:"false" gorm:"not null;default:false"`
 }
 
 func (d DynamicConfig) Validate(db *gorm.DB) {

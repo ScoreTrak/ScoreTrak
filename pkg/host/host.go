@@ -19,7 +19,7 @@ type Host struct {
 	TeamID uuid.UUID `json:"team_id,omitempty" gorm:"type:uuid;not null"`
 
 	// Enables or disables scoring for a single host
-	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default: true"`
+	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default:true"`
 
 	// Enables to Edit the hostname. If a single host needs to be eddited for one service, and kept only visible for other service, you can make 2 services that point to same address, and have different edit_host properties.
 	EditHost *bool `json:"edit_host,omitempty" gorm:"not null;default: false"`
