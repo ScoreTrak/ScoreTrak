@@ -18,7 +18,7 @@ type Property struct {
 
 	Key string `json:"key" gorm:"not null;primary_key"`
 
-	Value string `json:"value" gorm:"not null; default: null"`
+	Value string `json:"value" gorm:"not null;default:''"`
 
 	Description string `json:"description"` //Todo: Description of a property could be moved to a separate table
 
