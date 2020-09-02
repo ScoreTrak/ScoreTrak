@@ -13,5 +13,5 @@ type Check struct {
 
 	Err string `json:"err,omitempty"`
 
-	Passed *bool `json:"passed,omitempty" gorm:"not null; default: false"`
+	Passed *bool `json:"passed,omitempty" gorm:"not null;default:false"`
 }

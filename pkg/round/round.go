@@ -11,7 +11,7 @@ type Round struct {
 	// Round ID can also represent the round number
 	ID uint `json:"id,omitempty" gorm:"primary_key"`
 
-	Start time.Time `json:"start,omitempty" gorm:"not null; default:CURRENT_TIMESTAMP"`
+	Start time.Time `json:"start,omitempty" gorm:"not null;default:CURRENT_TIMESTAMP"`
 
 	Note string `json:"note,omitempty"`
 
