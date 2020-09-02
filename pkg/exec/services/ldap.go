@@ -12,15 +12,15 @@ import (
 )
 
 type LDAP struct {
-	Username            string `json:"username"`
-	Password            string `json:"password"`
-	Domain              string `json:"domain"`
-	Port                string `json:"port"`
-	BaseDN              string `json:"base_dn"`
-	TransportProtocol   string `json:"transport_protocol"`
-	ApplicationProtocol string `json:"application_protocol"`
-	Filter              string `json:"filter"`
-	Attributes          string `json:"attributes"`
+	Username            string
+	Password            string
+	Domain              string
+	Port                string
+	BaseDN              string
+	TransportProtocol   string
+	ApplicationProtocol string
+	Filter              string
+	Attributes          string
 }
 
 func NewLDAP() *LDAP {

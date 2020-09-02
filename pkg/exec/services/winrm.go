@@ -11,13 +11,13 @@ import (
 )
 
 type Winrm struct {
-	Username       string `json:"username"`
-	Password       string `json:"password"`
-	Port           string `json:"port"`
-	Command        string `json:"command"`
-	ExpectedOutput string `json:"expected_output"`
-	Scheme         string `json:"scheme"`
-	ClientType     string `json:"client_type"`
+	Username       string
+	Password       string
+	Port           string
+	Command        string
+	ExpectedOutput string
+	Scheme         string
+	ClientType     string
 }
 
 func NewWinrm() *Winrm {

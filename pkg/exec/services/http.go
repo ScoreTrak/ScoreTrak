@@ -10,11 +10,11 @@ import (
 )
 
 type HTTP struct {
-	ExpectedOutput string `json:"expected_output"`
-	Scheme         string `json:"scheme"`
-	Port           string `json:"port"`
-	Path           string `json:"path"`
-	Subdomain      string `json:"subdomain"`
+	ExpectedOutput string
+	Scheme         string
+	Port           string
+	Path           string
+	Subdomain      string
 }
 
 func NewHTTP() *HTTP {

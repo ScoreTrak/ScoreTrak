@@ -10,10 +10,10 @@ import (
 )
 
 type IMAP struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Port     string `json:"port"`
-	Scheme   string `json:"scheme"`
+	Username string
+	Password string
+	Port     string
+	Scheme   string
 }
 
 func NewIMAP() *IMAP {
