@@ -59,6 +59,7 @@ require (
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.3.0
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
+	gorm.io/driver/mysql v1.0.1
 	gorm.io/driver/postgres v0.2.6
 	gorm.io/gorm v1.20.0
 	honnef.co/go/tools v0.0.1-2020.1.5 // indirect
