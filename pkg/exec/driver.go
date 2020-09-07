@@ -46,10 +46,24 @@ func (e Exec) Deadline() time.Time {
 	return deadline
 }
 
-func UpdateExecutableProperties(v Executable, p map[string]string) {
+func UpdateExecutableProperties(v Executable, p map[string]string) (err error) {
+	defer func() {
+		if x := recover(); x != nil {
+			switch x := x.(type) {
+			case string:
+				err = errors.New(x)
+			case error:
+				err = x
+			default:
+				err = errors.New("unknown panic")
+			}
+		}
+	}()
+
 	rv := reflect.ValueOf(v).Elem()
 	for key, val := range p {
 		rf := rv.FieldByName(key)
 		rf.SetString(val)
 	}
+	return nil
 }
