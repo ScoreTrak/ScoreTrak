@@ -10,17 +10,17 @@ import (
 )
 
 type FTP struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Port     string `json:"port"`
+	Username string
+	Password string
+	Port     string
 	//Text to upload to remote computer
-	Text string `json:"text"`
+	Text string
 	//Name of the file to which write the parameter
-	WriteFilename string `json:"write_file"`
+	WriteFilename string
 	//Filename to find on a remote computer
-	ReadFilename string `json:"read_file"`
+	ReadFilename string
 	//Check expected output of the file
-	ExpectedOutput string `json:"expected_output"`
+	ExpectedOutput string
 }
 
 func NewFTP() *FTP {

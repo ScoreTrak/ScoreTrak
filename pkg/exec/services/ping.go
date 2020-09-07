@@ -11,8 +11,8 @@ import (
 )
 
 type Ping struct {
-	Protocol string `json:"protocol"`
-	Attempts string `json:"attempts"`
+	Protocol string
+	Attempts string
 }
 
 var ipv4opt = []string{"ipv4", "4", "ip4"}

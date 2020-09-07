@@ -18,16 +18,16 @@ const (
 )
 
 type SMB struct {
-	Username          string `json:"username"`
-	Password          string `json:"password"`
-	Domain            string `json:"domain"`
-	Port              string `json:"port"`
-	TransportProtocol string `json:"transport_protocol"`
-	Share             string `json:"share"`
-	FileName          string `json:"file_name"`
-	Text              string `json:"text"`
-	Operation         string `json:"operation"`
-	ExpectedOutput    string `json:"expected_output"`
+	Username          string
+	Password          string
+	Domain            string
+	Port              string
+	TransportProtocol string
+	Share             string
+	FileName          string
+	Text              string
+	Operation         string
+	ExpectedOutput    string
 }
 
 func NewSMB() *SMB {

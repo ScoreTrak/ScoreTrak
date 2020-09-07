@@ -7,8 +7,8 @@ import (
 )
 
 type DNS struct {
-	Lookup         string `json:"lookup"`
-	ExpectedOutput string `json:"expected_output"`
+	Lookup         string
+	ExpectedOutput string
 }
 
 func NewDNS() *DNS {

@@ -20,8 +20,6 @@ type Property struct {
 
 	Value string `json:"value" gorm:"not null;default:''"`
 
-	Description string `json:"description"` //Todo: Description of a property could be moved to a separate table
-
 	Status string `json:"status,omitempty" gorm:"not null;default:'View'"`
 }
 

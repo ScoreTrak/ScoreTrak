@@ -3,6 +3,7 @@ package queueing
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec/resolver"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
@@ -71,7 +72,14 @@ func CommonExecute(sd *ScoringData, execDeadline time.Time, l logger.LogInfoForm
 		return QCheck{Service: sd.Service, Passed: false, Log: "", Err: "The check arrived late to the worker", RoundID: sd.RoundID}
 	}
 	executable := resolver.ExecutableByName(sd.Service.Name)
-	exec.UpdateExecutableProperties(executable, sd.Properties)
+
+	err := exec.UpdateExecutableProperties(executable, sd.Properties)
+	if err != nil {
+		errLog := fmt.Sprintf("Failed to set properties for %v. Properties provided %v. See Error details for additional information", sd.Service, sd.Properties)
+		l.Error(errLog, err.Error())
+		return QCheck{Service: sd.Service, Passed: false, Log: errLog, Err: err.Error(), RoundID: sd.RoundID}
+	}
+
 	ctx := context.Background()
 	ctx, cancel := context.WithDeadline(ctx, execDeadline)
 	defer cancel()
