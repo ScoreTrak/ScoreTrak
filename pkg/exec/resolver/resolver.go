@@ -26,8 +26,9 @@ func ExecutableByName(s string) exec.Executable {
 		return services.NewSMB()
 	case "imap":
 		return services.NewIMAP()
+	case "sql":
+		return services.NewSql()
 	}
-
 	return nil
 
 }
