@@ -95,7 +95,7 @@ func (w *Sql) Execute(e exec.Exec) (passed bool, log string, err error) {
 	}
 	defer sqlDB.Close()
 
-	result := db.Exec(w.Command)
+	result := db.WithContext(e.Context).Exec(w.Command)
 
 	if result.Error != nil {
 		return false, "Unable to execute the provided command", result.Error
