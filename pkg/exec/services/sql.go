@@ -95,15 +95,24 @@ func (w *Sql) Execute(e exec.Exec) (passed bool, log string, err error) {
 	}
 	defer sqlDB.Close()
 
-	result := db.WithContext(e.Context).Exec(w.Command)
+	result := db.WithContext(e.Context).Raw(w.Command)
 
 	if result.Error != nil {
 		return false, "Unable to execute the provided command", result.Error
 	}
 
+	rows, err := result.Rows()
+	if err != nil {
+		return false, "Encountered a problem when retrieving Rows", err
+	}
+
+	var count int64
+	for rows.Next() {
+		count++
+	}
+
 	if w.MaxExpectedRows != "" {
 		num, _ := strconv.ParseInt(w.MaxExpectedRows, 10, 64)
-		var count int64
 		result.Count(&count)
 		if num <= count {
 			return false, fmt.Sprintf("Number of rows was more than expected (%d <= %d)", num, count), nil
@@ -112,7 +121,6 @@ func (w *Sql) Execute(e exec.Exec) (passed bool, log string, err error) {
 
 	if w.MinExpectedRows != "" {
 		num, _ := strconv.ParseInt(w.MinExpectedRows, 10, 64)
-		var count int64
 		result.Count(&count)
 		if num >= count {
 			return false, fmt.Sprintf("Number of rows was less than expected (%d >= %d)", num, count), nil
