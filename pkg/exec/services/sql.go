@@ -114,7 +114,7 @@ func (w *Sql) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if w.MaxExpectedRows != "" {
 		num, _ := strconv.ParseInt(w.MaxExpectedRows, 10, 64)
 		result.Count(&count)
-		if num <= count {
+		if num < count {
 			return false, fmt.Sprintf("Number of rows was more than expected (%d <= %d)", num, count), nil
 		}
 	}
@@ -122,7 +122,7 @@ func (w *Sql) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if w.MinExpectedRows != "" {
 		num, _ := strconv.ParseInt(w.MinExpectedRows, 10, 64)
 		result.Count(&count)
-		if num >= count {
+		if num > count {
 			return false, fmt.Sprintf("Number of rows was less than expected (%d >= %d)", num, count), nil
 		}
 	}
