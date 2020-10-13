@@ -54,7 +54,8 @@ func TestPropertySpec(t *testing.T) {
 				So(count, ShouldEqual, 2)
 
 				Convey("Creating a sample property and associating with service 5 and round 1", func() {
-					c := []*property.Property{{Key: "TestKey", ServiceID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555"), Value: "TestValue", Status: "Edit"}}
+					str := "TestValue"
+					c := []*property.Property{{Key: "TestKey", ServiceID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555"), Value: &str, Status: "Edit"}}
 					err := cr.Store(c)
 					Convey("Should be Allowed", func() {
 						So(err, ShouldBeNil)
@@ -95,7 +96,8 @@ func TestPropertySpec(t *testing.T) {
 
 						Convey("Then Updating the property Description, Status", func() {
 							c[0].Status = "Hide"
-							c[0].Value = ""
+							str := ""
+							c[0].Value = &str
 							err = cr.Update(c[0])
 							So(err, ShouldBeNil)
 							ac, err = cr.GetAll()
@@ -115,7 +117,8 @@ func TestPropertySpec(t *testing.T) {
 						})
 
 						Convey("Then Updating the property Value", func() {
-							c[0].Value = "AnotherValue"
+							str := "AnotherValue"
+							c[0].Value = &str
 							err = cr.Update(c[0])
 							So(err, ShouldBeNil)
 							ac, err = cr.GetAll()
@@ -128,7 +131,8 @@ func TestPropertySpec(t *testing.T) {
 					})
 				})
 				Convey("Creating a property with wrong service should not be allowed", func() {
-					s := []*property.Property{{Key: "TestKey", ServiceID: uuid.FromStringOrNil("55521555-5555-5555-5555-555555555555"), Value: "TestValue"}}
+					str := "TestValue"
+					s := []*property.Property{{Key: "TestKey", ServiceID: uuid.FromStringOrNil("55521555-5555-5555-5555-555555555555"), Value: &str}}
 					err := cr.Store(s)
 					So(err, ShouldNotBeNil)
 					ac, err := cr.GetAll()
