@@ -67,7 +67,7 @@ func TestPropertySpec(t *testing.T) {
 							So(err, ShouldBeNil)
 							So(ss.Key, ShouldEqual, "TestKey")
 							So(ss.ServiceID, ShouldEqual, uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555"))
-							So(ss.Value, ShouldEqual, "TestValue")
+							So(*ss.Value, ShouldEqual, "TestValue")
 						})
 
 						Convey("Then Querying By wrong ID", func() {
@@ -124,7 +124,7 @@ func TestPropertySpec(t *testing.T) {
 							ac, err = cr.GetAll()
 							So(err, ShouldBeNil)
 							So(len(ac), ShouldEqual, 1)
-							So(ac[0].Value, ShouldEqual, "AnotherValue")
+							So(*ac[0].Value, ShouldEqual, "AnotherValue")
 							So(ac[0].Status, ShouldEqual, "Edit")
 						})
 
