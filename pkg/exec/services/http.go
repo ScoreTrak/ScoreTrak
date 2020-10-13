@@ -43,7 +43,7 @@ func (h *HTTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Error while crafting the request", err
 	}
-	req.WithContext(e.Context)
+	req = req.WithContext(e.Context)
 	httpClient := http.DefaultClient
 	resp, err := httpClient.Do(req)
 	if err != nil {
@@ -52,7 +52,7 @@ func (h *HTTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	defer resp.Body.Close()
 
 	if !(resp.StatusCode >= 200 && resp.StatusCode < 400) {
-		return false, fmt.Sprintf(fmt.Sprintf("Invalid response code received: %d", resp.StatusCode)), nil
+		return false, fmt.Sprintf("Invalid response code received: %d", resp.StatusCode), nil
 	}
 	if h.ExpectedOutput != "" {
 		buf := new(bytes.Buffer)

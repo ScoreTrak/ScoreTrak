@@ -50,7 +50,7 @@ func (c configController) ResetScores(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if cnf.Enabled != nil && *cnf.Enabled == false {
+	if cnf.Enabled != nil && !*cnf.Enabled {
 		err := c.svc.ResetScores()
 		if err != nil {
 			c.log.Error(err)
@@ -71,7 +71,7 @@ func (c configController) DeleteCompetition(w http.ResponseWriter, r *http.Reque
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if cnf.Enabled != nil && *cnf.Enabled == false {
+	if cnf.Enabled != nil && !*cnf.Enabled {
 		err := c.svc.DeleteCompetition()
 		if err != nil {
 			c.log.Error(err)

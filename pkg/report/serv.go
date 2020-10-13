@@ -34,7 +34,7 @@ func NewReportCalculator(repo Repo) *reportCalculator {
 
 func (svc *reportServ) Get() (*Report, error) { return svc.repo.Get() }
 
-func (svc *reportCalculator) RecalculateReport(team []*team.Team, hostGroup []*host_group.HostGroup, serviceGroups []*service_group.ServiceGroup, round round.Round) (simpleTeams map[uuid.UUID]*SimpleTeam, err error) {
+func (svc *reportCalculator) RecalculateReport(team []*team.Team, hostGroup []*host_group.HostGroup, serviceGroups []*service_group.ServiceGroup, round round.Round) (simpleTeams map[uuid.UUID]*SimpleTeam) {
 	simpleTeams = make(map[uuid.UUID]*SimpleTeam)
 	for _, t := range team {
 		st := &SimpleTeam{Name: t.Name, Enabled: *t.Enabled}
@@ -84,5 +84,5 @@ func (svc *reportCalculator) RecalculateReport(team []*team.Team, hostGroup []*h
 		}
 		simpleTeams[t.ID] = st
 	}
-	return simpleTeams, nil
+	return simpleTeams
 }

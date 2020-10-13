@@ -1,7 +1,6 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"github.com/jinzhu/configor"
 	"gorm.io/gorm"
@@ -19,7 +18,7 @@ type DynamicConfig struct {
 
 func (d DynamicConfig) Validate(db *gorm.DB) {
 	if d.RoundDuration != 0 && d.RoundDuration < uint(MinRoundDuration.Seconds()) {
-		db.AddError(errors.New(fmt.Sprintf("Round Duration should not be larger than MinRoundDuration, which is %d", uint(MinRoundDuration.Seconds()))))
+		db.AddError(fmt.Errorf("round Duration should not be larger than MinRoundDuration, which is %d", uint(MinRoundDuration.Seconds())))
 	}
 }
 

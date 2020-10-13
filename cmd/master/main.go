@@ -21,6 +21,9 @@ func main() {
 	flag.String("encoded-config", "", "Please enter encoded config")
 	flag.Parse()
 	path, err := cutil.ConfigFlagParser()
+	if err != nil {
+		handleErr(err)
+	}
 	handleErr(config.NewStaticConfig(path))
 	cnf, err := config.NewDynamicConfig(path)
 	if err != nil {

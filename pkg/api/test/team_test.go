@@ -46,8 +46,7 @@ func TestTeamSpec(t *testing.T) {
 	teamSvc := team.NewTeamServ(cr)
 	routes = append(routes, gorilla.TeamRoutes(l, teamSvc)...)
 	for _, route := range routes {
-		var hdler http.Handler
-		hdler = route.HandlerFunc
+		hdler := route.HandlerFunc
 		rtr.
 			Methods(route.Method).
 			Path(route.Pattern).

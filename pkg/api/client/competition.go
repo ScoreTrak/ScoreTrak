@@ -1,7 +1,6 @@
 package client
 
 import (
-	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/competition"
 )
 
@@ -32,5 +31,5 @@ func (s CompetitionClient) FetchEntireCompetition() (*competition.Competition, e
 }
 
 func (s CompetitionClient) LoadCompetition(u *competition.Competition) error {
-	return s.s.GenericStore(u, fmt.Sprintf("/competition/upload"))
+	return s.s.GenericStore(u, "/competition/upload")
 }

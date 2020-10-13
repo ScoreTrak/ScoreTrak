@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/hirochachacha/go-smb2"
+	"io"
 	"io/ioutil"
 	"net"
-	"os"
 	"strings"
 )
 
@@ -37,7 +37,7 @@ func NewSMB() *SMB {
 
 func (s *SMB) Validate() error {
 	if s.Operation != create && s.Operation != createAndOpen && s.Operation != open {
-		return errors.New(fmt.Sprintf("parameter should Operation be either: %s, %s, or %s", create, open, createAndOpen))
+		return fmt.Errorf("parameter should Operation be either: %s, %s, or %s", create, open, createAndOpen)
 	}
 	if s.Share == "" {
 		return errors.New("parameter Share should not be empty")
@@ -91,7 +91,7 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 			}
 		}
 		defer f.Close()
-		_, err = f.Seek(0, os.SEEK_SET)
+		_, err = f.Seek(0, io.SeekStart)
 		if err != nil {
 			return false, "Unable to read the file", err
 		}

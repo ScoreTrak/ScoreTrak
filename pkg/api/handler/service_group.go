@@ -36,7 +36,7 @@ func (s *serviceGroupController) Store(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if s.p != nil && !tm.SkipHelper && config.GetStaticConfig().Queue.Use != "none" {
-		if tm.Enabled != nil && *tm.Enabled == true {
+		if tm.Enabled != nil && *tm.Enabled {
 			http.Error(w, "if you are letting scoretrak manage the workers, 'Enabled' can be set to true, only after workers are deployed.", http.StatusPreconditionFailed)
 			s.log.Error(err)
 			return
@@ -121,7 +121,7 @@ func (s *serviceGroupController) Redeploy(w http.ResponseWriter, r *http.Request
 		s.log.Error(err)
 		return
 	}
-	if *serGrp.Enabled == true {
+	if *serGrp.Enabled {
 		http.Error(w, "service group must first be disabled", http.StatusPreconditionFailed)
 		return
 	}
@@ -163,7 +163,7 @@ func (s *serviceGroupController) Update(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	if !tm.SkipHelper && config.GetStaticConfig().Queue.Use != "none" {
-		if tm.Enabled != nil && *tm.Enabled == true && *serviceGrp.Enabled == false {
+		if tm.Enabled != nil && *tm.Enabled && !*serviceGrp.Enabled {
 			err = s.q.Ping(serviceGrp)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)

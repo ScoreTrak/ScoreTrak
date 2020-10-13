@@ -1,7 +1,6 @@
 package gorilla
 
 import (
-	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
@@ -44,8 +43,7 @@ func (ds *dserver) SetupDB() error {
 	}
 	timeDiff := time.Since(tm)
 	if float64(time.Second*2) < math.Abs(float64(timeDiff)) {
-		panic(errors.New(
-			fmt.Sprintf("time difference between master host, and database host are is large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now())))
+		panic(fmt.Errorf("time difference between master host, and database host are is large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now()))
 	}
 	return nil
 }

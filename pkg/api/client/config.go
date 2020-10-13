@@ -1,7 +1,6 @@
 package client
 
 import (
-	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 )
 
@@ -15,7 +14,7 @@ func NewConfigClient(c ScoretrakClient) *ConfigClient {
 
 func (c ConfigClient) Get() (*config.DynamicConfig, error) {
 	conf := &config.DynamicConfig{}
-	err := c.s.GenericGet(conf, fmt.Sprintf("/config"))
+	err := c.s.GenericGet(conf, "/config")
 	if err != nil {
 		return nil, err
 	}
@@ -23,15 +22,15 @@ func (c ConfigClient) Get() (*config.DynamicConfig, error) {
 }
 
 func (c ConfigClient) Update(d *config.DynamicConfig) error {
-	return c.s.GenericUpdate(d, fmt.Sprintf("/config"))
+	return c.s.GenericUpdate(d, "/config")
 }
 
 func (c ConfigClient) DeleteCompetition() error {
-	return c.s.GenericDelete(fmt.Sprintf("/config/delete_competition"))
+	return c.s.GenericDelete("/config/delete_competition")
 }
 
 func (c ConfigClient) ResetScores() error {
-	return c.s.GenericDelete(fmt.Sprintf("/config/reset_competition"))
+	return c.s.GenericDelete("/config/reset_competition")
 }
 
 func NewStaticConfigClient(c ScoretrakClient) *StaticConfigClient {
@@ -44,7 +43,7 @@ type StaticConfigClient struct {
 
 func (c StaticConfigClient) Get() (*config.StaticConfig, error) {
 	conf := &config.StaticConfig{}
-	err := c.s.GenericGet(conf, fmt.Sprintf("/static_config"))
+	err := c.s.GenericGet(conf, "/static_config")
 	if err != nil {
 		return nil, err
 	}

@@ -37,7 +37,7 @@ func (s HostGroupClient) GetByID(id uuid.UUID) (*host_group.HostGroup, error) {
 }
 
 func (s HostGroupClient) Store(u []*host_group.HostGroup) error {
-	return s.s.GenericStore(u, fmt.Sprintf("/host_group"))
+	return s.s.GenericStore(u, "/host_group")
 }
 
 func (s HostGroupClient) Update(u *host_group.HostGroup) error {

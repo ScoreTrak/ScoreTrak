@@ -81,6 +81,6 @@ func (s Service) Validate(db *gorm.DB) {
 	}
 
 	if s.Name != "" && resolver.ExecutableByName(s.Name) == nil {
-		db.AddError(errors.New(fmt.Sprintf("name %s doesn't resolve to scorable service", s.Name)))
+		db.AddError(fmt.Errorf("name %s doesn't resolve to scorable service", s.Name))
 	}
 }

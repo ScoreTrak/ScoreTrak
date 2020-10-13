@@ -39,7 +39,7 @@ func (svc *configServ) LoadCompetition(c *Competition) error {
 	if len(c.Hosts) != 0 {
 		errAgr = append(errAgr, svc.Store.Host.Upsert(c.Hosts))
 	}
-	for i, _ := range c.ServiceGroups {
+	for i := range c.ServiceGroups {
 		errAgr = append(errAgr, svc.Store.ServiceGroup.Upsert(c.ServiceGroups[i]))
 	}
 	if len(c.Services) != 0 {
@@ -58,7 +58,7 @@ func (svc *configServ) LoadCompetition(c *Competition) error {
 		errAgr = append(errAgr, svc.Store.Report.Update(c.Report))
 	}
 	errStr := ""
-	for i, _ := range errAgr {
+	for i := range errAgr {
 		if errAgr[i] != nil {
 			serr, ok := errAgr[i].(*pgconn.PgError)
 			if !ok || serr.Code != "23505" {

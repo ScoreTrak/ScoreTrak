@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/digineo/go-ping"
@@ -27,7 +26,7 @@ func (p *Ping) Validate() error {
 	if exec.ContainsString(ipv4opt, p.Protocol) || exec.ContainsString(ipv6opt, p.Protocol) {
 		return nil
 	}
-	return errors.New(fmt.Sprintf("protocol parameter should either be '%s' '%s' '%s' for ipv4, or '%s' '%s' '%s' for ipv6", ipv4opt[0], ipv4opt[1], ipv4opt[2], ipv6opt[0], ipv6opt[1], ipv4opt[2]))
+	return fmt.Errorf("protocol parameter should either be '%s' '%s' '%s' for ipv4, or '%s' '%s' '%s' for ipv6", ipv4opt[0], ipv4opt[1], ipv4opt[2], ipv6opt[0], ipv6opt[1], ipv4opt[2])
 }
 
 func (p *Ping) Execute(e exec.Exec) (passed bool, log string, err error) {

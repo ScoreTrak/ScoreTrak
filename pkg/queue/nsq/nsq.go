@@ -219,7 +219,7 @@ func (n NSQ) TopicAbsent(topic string, nsqAddresses []string) (bErr error, tErr 
 		}
 		for _, val := range topics.Topics {
 			if val == topic {
-				return err, errors.New(fmt.Sprintf("NSQ Topic with the same name as %s exists. Round will be terminated. Please firt clean NSQ queues", topic))
+				return err, fmt.Errorf("NSQ Topic with the same name as %s exists. Round will be terminated. Please firt clean NSQ queues", topic)
 			}
 		}
 		return err, nil
