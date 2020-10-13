@@ -94,7 +94,7 @@ func TestPropertySpec(t *testing.T) {
 				retProperty, err := cli.GetByServiceIDKey(uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"), "Port")
 				So(err, ShouldBeNil)
 				So(retProperty.ServiceID, ShouldEqual, uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
-				So(retProperty.Value, ShouldEqual, "8080")
+				So(*retProperty.Value, ShouldEqual, "8080")
 				So(retProperty.Status, ShouldEqual, "Edit")
 			})
 		})
