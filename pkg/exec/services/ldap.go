@@ -3,7 +3,6 @@ package services
 import (
 	"crypto/tls"
 	"errors"
-	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/go-ldap/ldap/v3"
 	"net"
@@ -79,7 +78,7 @@ func (l *LDAP) Execute(e exec.Exec) (passed bool, log string, err error) {
 			return false, "Unable to search based on the parameters provided", err
 		}
 		for _, entry := range sr.Entries {
-			log += "\n" + fmt.Sprintf("%s", entry.DN)
+			log += "\n" + entry.DN
 		}
 	}
 	return true, log, nil

@@ -36,7 +36,7 @@ func (s ServiceGroup) Validate(db *gorm.DB) {
 		if len(s.Name) > 1 && len(s.Name) <= 64 && regexp.MustCompile(`^[\.a-zA-Z0-9_-]+(#ephemeral)?$`).MatchString(s.Name) {
 			return
 		}
-		db.AddError(errors.New(fmt.Sprintf("name %s doesn't resolve to scorable service", s.Name)))
+		db.AddError(fmt.Errorf("name %s doesn't resolve to scorable service", s.Name))
 	}
 }
 

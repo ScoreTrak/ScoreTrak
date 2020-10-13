@@ -13,7 +13,6 @@ import (
 	"gorm.io/gorm"
 	"net/http"
 	"reflect"
-	"strconv"
 )
 
 //Generic function passing and assignment
@@ -145,7 +144,7 @@ func InvokeRetMethod(i interface{}, methodName string, args ...interface{}) (int
 	finalMethod := PreInvoke(i, methodName)
 	if finalMethod.IsValid() {
 		inputs := make([]reflect.Value, len(args))
-		for i, _ := range args {
+		for i := range args {
 			inputs[i] = reflect.ValueOf(args[i])
 		}
 		r := finalMethod.Call(inputs)
@@ -155,14 +154,14 @@ func InvokeRetMethod(i interface{}, methodName string, args ...interface{}) (int
 		}
 		return r[0].Interface(), nil
 	}
-	return nil, errors.New(fmt.Sprintf("The method name %s does not exist in %s", methodName, reflect.TypeOf(i).Name()))
+	return nil, fmt.Errorf("the method name %s does not exist in %s", methodName, reflect.TypeOf(i).Name())
 }
 
 func InvokeNoRetMethod(i interface{}, methodName string, args ...interface{}) error {
 	finalMethod := PreInvoke(i, methodName)
 	if finalMethod.IsValid() {
 		inputs := make([]reflect.Value, len(args))
-		for i, _ := range args {
+		for i := range args {
 			inputs[i] = reflect.ValueOf(args[i])
 		}
 		r := finalMethod.Call(inputs)
@@ -172,7 +171,7 @@ func InvokeNoRetMethod(i interface{}, methodName string, args ...interface{}) er
 		}
 		return nil
 	}
-	return errors.New(fmt.Sprintf("The method name %s does not exist in %s", methodName, reflect.TypeOf(i).Name()))
+	return fmt.Errorf("the method name %s does not exist in %s", methodName, reflect.TypeOf(i).Name())
 }
 
 func PreInvoke(i interface{}, methodName string) reflect.Value {
@@ -207,13 +206,4 @@ func uuidResolver(idParam string, r *http.Request) (uuid.UUID, error) {
 		return uuid.Nil, errors.New("id was not found")
 	}
 	return uuid.FromString(id)
-}
-
-func uintResolver(idParam string, r *http.Request) (uint, error) {
-	params := mux.Vars(r)
-	id, err := strconv.ParseUint(params[idParam], 10, 64)
-	if err != nil {
-		return 0, err
-	}
-	return uint(id), nil
 }

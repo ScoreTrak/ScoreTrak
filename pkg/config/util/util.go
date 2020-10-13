@@ -11,8 +11,7 @@ import (
 )
 
 func SetupConfig(f string) config.StaticConfig {
-	var err error
-	err = config.NewStaticConfig(f)
+	err := config.NewStaticConfig(f)
 	if err != nil {
 		panic(err)
 	}

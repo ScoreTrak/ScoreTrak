@@ -38,7 +38,7 @@ func (s ServiceClient) GetByID(id uuid.UUID) (*service.Service, error) {
 }
 
 func (s ServiceClient) Store(u []*service.Service) error {
-	return s.s.GenericStore(u, fmt.Sprintf("/service"))
+	return s.s.GenericStore(u, "/service")
 }
 
 func (s ServiceClient) Update(u *service.Service) error {

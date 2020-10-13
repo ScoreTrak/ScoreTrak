@@ -89,7 +89,7 @@ func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 			if !cnf.IsEqual(dcc) {
 				*cnf = *dcc
 			}
-			rnd := &round.Round{}
+			var rnd *round.Round
 			if *cnf.Enabled {
 				rNoneElapsing, _ := d.r.Round.GetLastNonElapsingRound()
 				if rNoneElapsing != nil {
@@ -278,13 +278,13 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 	}
 	r, _ := d.r.Round.GetLastRound()
 	if r == nil || r.ID != rnd.ID {
-		err = errors.New("A different round started before current round was able to finish. The scores will not be committed")
+		err = errors.New("a different round started before current round was able to finish. The scores will not be committed")
 		d.l.Error(err)
 		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
 		return
 	}
 	reportServ := report.NewReportCalculator(d.r.Report)
-	simpTeams, err := reportServ.RecalculateReport(teams, hostGroup, serviceGroups, rnd)
+	simpTeams := reportServ.RecalculateReport(teams, hostGroup, serviceGroups, rnd)
 	ch := report.NewReport()
 	bt, err := json.Marshal(&report.SimpleReport{Teams: simpTeams, Round: rnd.ID})
 	if err != nil {

@@ -32,8 +32,7 @@ func (w *Winrm) Validate() error {
 }
 
 func (w *Winrm) Execute(e exec.Exec) (passed bool, log string, err error) {
-	var isHttps bool
-	isHttps = exec.IsSecure(w.Scheme)
+	isHttps := exec.IsSecure(w.Scheme)
 	if w.Port == "" {
 		if isHttps {
 			w.Port = "5986"

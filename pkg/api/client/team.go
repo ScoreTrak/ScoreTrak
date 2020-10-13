@@ -37,7 +37,7 @@ func (t TeamClient) GetByID(id uuid.UUID) (*team.Team, error) {
 }
 
 func (t TeamClient) Store(u []*team.Team) error {
-	return t.s.GenericStore(u, fmt.Sprintf("/team"))
+	return t.s.GenericStore(u, "/team")
 }
 
 func (t TeamClient) Update(u *team.Team) error {

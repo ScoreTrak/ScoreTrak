@@ -46,7 +46,7 @@ func (s PropertyClient) GetAllByServiceID(id uuid.UUID) ([]*property.Property, e
 }
 
 func (s PropertyClient) Store(u []*property.Property) error {
-	return s.s.GenericStore(u, fmt.Sprintf("/property"))
+	return s.s.GenericStore(u, "/property")
 }
 
 func (s PropertyClient) Update(u *property.Property) error {

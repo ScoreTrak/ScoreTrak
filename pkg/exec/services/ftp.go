@@ -63,18 +63,18 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	}
 	if f.ReadFilename != "" {
 		r, err := c.Retr(f.ReadFilename)
-		defer r.Close()
-
 		if err != nil {
 			return false, "Failed to Retrieve the file from FTP", err
 		}
-
+		defer r.Close()
 		if err := c.Quit(); err != nil {
 			return false, "Unable to gracefully exit FTP server", err
 		}
 
 		buf, err := ioutil.ReadAll(r)
-
+		if err == nil {
+			return false, "Failed to read file contents, it might be corrupted", err
+		}
 		if f.ExpectedOutput != "" && string(buf) != f.ExpectedOutput {
 			return false, "Fetched file's contents do not match Expected Output", nil //TODO: Make a more meaningful output
 		}
