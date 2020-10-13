@@ -319,7 +319,7 @@ func (d dRunner) finalizeRound(rnd *round.Round, Note string, Error string) {
 func PropertyToMap(props []*property.Property) map[string]string {
 	params := map[string]string{}
 	for _, p := range props {
-		params[p.Key] = p.Value
+		params[p.Key] = *p.Value
 	}
 	return params
 }
