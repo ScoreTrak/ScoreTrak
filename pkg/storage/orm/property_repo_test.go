@@ -54,7 +54,8 @@ func TestPropertySpec(t *testing.T) {
 				So(count, ShouldEqual, 2)
 
 				Convey("Creating a sample property and associating with service 5 and round 1", func() {
-					c := []*property.Property{{Key: "TestKey", ServiceID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555"), Value: "TestValue", Status: "Edit"}}
+					str := "TestValue"
+					c := []*property.Property{{Key: "TestKey", ServiceID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555"), Value: &str, Status: "Edit"}}
 					err := cr.Store(c)
 					Convey("Should be Allowed", func() {
 						So(err, ShouldBeNil)
@@ -66,7 +67,7 @@ func TestPropertySpec(t *testing.T) {
 							So(err, ShouldBeNil)
 							So(ss.Key, ShouldEqual, "TestKey")
 							So(ss.ServiceID, ShouldEqual, uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555"))
-							So(ss.Value, ShouldEqual, "TestValue")
+							So(*ss.Value, ShouldEqual, "TestValue")
 						})
 
 						Convey("Then Querying By wrong ID", func() {
@@ -95,7 +96,8 @@ func TestPropertySpec(t *testing.T) {
 
 						Convey("Then Updating the property Description, Status", func() {
 							c[0].Status = "Hide"
-							c[0].Value = ""
+							str := ""
+							c[0].Value = &str
 							err = cr.Update(c[0])
 							So(err, ShouldBeNil)
 							ac, err = cr.GetAll()
@@ -115,20 +117,22 @@ func TestPropertySpec(t *testing.T) {
 						})
 
 						Convey("Then Updating the property Value", func() {
-							c[0].Value = "AnotherValue"
+							str := "AnotherValue"
+							c[0].Value = &str
 							err = cr.Update(c[0])
 							So(err, ShouldBeNil)
 							ac, err = cr.GetAll()
 							So(err, ShouldBeNil)
 							So(len(ac), ShouldEqual, 1)
-							So(ac[0].Value, ShouldEqual, "AnotherValue")
+							So(*ac[0].Value, ShouldEqual, "AnotherValue")
 							So(ac[0].Status, ShouldEqual, "Edit")
 						})
 
 					})
 				})
 				Convey("Creating a property with wrong service should not be allowed", func() {
-					s := []*property.Property{{Key: "TestKey", ServiceID: uuid.FromStringOrNil("55521555-5555-5555-5555-555555555555"), Value: "TestValue"}}
+					str := "TestValue"
+					s := []*property.Property{{Key: "TestKey", ServiceID: uuid.FromStringOrNil("55521555-5555-5555-5555-555555555555"), Value: &str}}
 					err := cr.Store(s)
 					So(err, ShouldNotBeNil)
 					ac, err := cr.GetAll()

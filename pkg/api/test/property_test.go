@@ -74,7 +74,7 @@ func TestPropertySpec(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(retProperty.ServiceID, ShouldEqual, uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
 			So(retProperty.Status, ShouldEqual, "View")
-			So(retProperty.Value, ShouldEqual, "80")
+			So(*retProperty.Value, ShouldEqual, "80")
 		})
 		Convey("Retrieving a property by wrong ID", func() {
 			retProperty, err := cli.GetByServiceIDKey(uuid.FromStringOrNil("20202020-2020-2020-2020-202020202020"), "Port")
@@ -86,14 +86,15 @@ func TestPropertySpec(t *testing.T) {
 		})
 
 		Convey("Updating a property by ID", func() {
-			t := property.Property{ServiceID: uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"), Value: "8080", Key: "Port", Status: "Edit"}
+			port := "8080"
+			t := property.Property{ServiceID: uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"), Value: &port, Key: "Port", Status: "Edit"}
 			err := cli.Update(&t)
 			So(err, ShouldBeNil)
 			Convey("Retrieving a property by ID", func() {
 				retProperty, err := cli.GetByServiceIDKey(uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"), "Port")
 				So(err, ShouldBeNil)
 				So(retProperty.ServiceID, ShouldEqual, uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111"))
-				So(retProperty.Value, ShouldEqual, "8080")
+				So(*retProperty.Value, ShouldEqual, "8080")
 				So(retProperty.Status, ShouldEqual, "Edit")
 			})
 		})
@@ -128,7 +129,8 @@ func TestPropertySpec(t *testing.T) {
 		})
 
 		Convey("Storing a new property", func() {
-			t := []*property.Property{{ServiceID: uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222"), Status: "Edit", Key: "Port2", Value: "3001"}}
+			port := "3001"
+			t := []*property.Property{{ServiceID: uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222"), Status: "Edit", Key: "Port2", Value: &port}}
 			err := cli.Store(t)
 			So(err, ShouldBeNil)
 			Convey("Getting all properties", func() {
