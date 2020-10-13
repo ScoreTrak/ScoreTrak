@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"golang.org/x/crypto/ssh"
+	"strings"
 	"time"
 )
 
@@ -37,7 +38,7 @@ func (s *SSH) Execute(e exec.Exec) (passed bool, log string, err error) {
 	sshConfig.HostKeyCallback = ssh.InsecureIgnoreHostKey()
 	client, err := ssh.Dial("tcp", e.Host+":"+s.Port, sshConfig)
 	if err != nil {
-		return false, "Unable to dial the remote host", err
+		return false, "Unable to dial the remote host. Make sure the host is up, and credentials are correct", err
 	}
 	defer client.Close()
 	session, err := client.NewSession()
@@ -49,7 +50,7 @@ func (s *SSH) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to execute the command", err
 	}
-	if s.ExpectedOutput != "" && string(out) != s.ExpectedOutput {
+	if s.ExpectedOutput != "" && !strings.Contains(string(out), s.ExpectedOutput) {
 		return false, "The output of the command did not match Expected Output", nil //TODO: Make a more meaningful output
 	}
 	return true, "Success!", nil
