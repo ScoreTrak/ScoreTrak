@@ -72,7 +72,7 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 		}
 
 		buf, err := ioutil.ReadAll(r)
-		if err == nil {
+		if err != nil {
 			return false, "Failed to read file contents, it might be corrupted", err
 		}
 		if f.ExpectedOutput != "" && string(buf) != f.ExpectedOutput {
