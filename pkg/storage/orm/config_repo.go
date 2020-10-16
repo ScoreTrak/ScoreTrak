@@ -38,8 +38,7 @@ func (c *configRepo) TruncateTable(v interface{}) error {
 	if err != nil {
 		return err
 	}
-	c.db.Raw(fmt.Sprintf("TRUNCATE table %s", stmt.Schema.Table))
-	return nil
+	return c.db.Exec(fmt.Sprintf("TRUNCATE TABLE %s", stmt.Schema.Table)).Error
 }
 
 func (c *configRepo) ResetScores() error {
