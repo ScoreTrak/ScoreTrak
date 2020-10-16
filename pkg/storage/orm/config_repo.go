@@ -38,7 +38,7 @@ func (c *configRepo) TruncateTable(v interface{}) error {
 	if err != nil {
 		return err
 	}
-	return c.db.Exec(fmt.Sprintf("TRUNCATE TABLE %s", stmt.Schema.Table)).Error
+	return c.db.Exec(fmt.Sprintf("SET FOREIGN_KEY_CHECKS = 0; TRUNCATE TABLE %s ; SET FOREIGN_KEY_CHECKS = 1;", stmt.Schema.Table)).Error
 }
 
 func (c *configRepo) ResetScores() error {
