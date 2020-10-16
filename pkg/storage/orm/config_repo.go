@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
@@ -31,16 +32,26 @@ func (c *configRepo) Get() (*config.DynamicConfig, error) {
 	return cfg, nil
 }
 
+func (c *configRepo) TruncateTable(v interface{}) error {
+	stmt := &gorm.Statement{DB: c.db}
+	err := stmt.Parse(v)
+	if err != nil {
+		return err
+	}
+	c.db.Raw(fmt.Sprintf("TRUNCATE table %s", stmt.Schema.Table))
+	return nil
+}
+
 func (c *configRepo) ResetScores() error {
-	err := c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&check.Check{}).Error
+	err := c.TruncateTable(&check.Check{})
 	if err != nil {
 		return err
 	}
-	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&round.Round{}).Error
+	err = c.TruncateTable(&round.Round{})
 	if err != nil {
 		return err
 	}
-	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&report.Report{}).Error
+	err = c.TruncateTable(&report.Report{})
 	if err != nil {
 		return err
 	}
@@ -56,23 +67,23 @@ func (c *configRepo) DeleteCompetition() error {
 	if err != nil {
 		return err
 	}
-	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&property.Property{}).Error
+	err = c.TruncateTable(&property.Property{})
 	if err != nil {
 		return err
 	}
-	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&service.Service{}).Error
+	err = c.TruncateTable(&service.Service{})
 	if err != nil {
 		return err
 	}
-	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&service_group.ServiceGroup{}).Error
+	err = c.TruncateTable(&service_group.ServiceGroup{})
 	if err != nil {
 		return err
 	}
-	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&host.Host{}).Error
+	err = c.TruncateTable(&host.Host{})
 	if err != nil {
 		return err
 	}
-	err = c.db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&host_group.HostGroup{}).Error
+	err = c.TruncateTable(&host_group.HostGroup{})
 	if err != nil {
 		return err
 	}
