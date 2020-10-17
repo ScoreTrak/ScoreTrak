@@ -69,7 +69,7 @@ func (w *Winrm) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if returnCode != 0 {
 		return false, "Process returned a non-zero code", errors.New(procStderr)
 	}
-	if w.ExpectedOutput != "" && !strings.Contains(procStdout, w.ExpectedOutput) {
+	if w.ExpectedOutput != "" && !strings.Contains(procStdout, strings.ToLower(w.ExpectedOutput)) {
 		return false, fmt.Sprintf("The output of the command did not match Expected Output. \"%s\" does not contain \"%s\"(Expected Output)", procStdout, w.ExpectedOutput), nil
 	}
 	return true, "Success!", nil
