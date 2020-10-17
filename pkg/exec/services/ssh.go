@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"golang.org/x/crypto/ssh"
 	"strings"
@@ -51,7 +52,7 @@ func (s *SSH) Execute(e exec.Exec) (passed bool, log string, err error) {
 		return false, "Unable to execute the command", err
 	}
 	if s.ExpectedOutput != "" && !strings.Contains(string(out), s.ExpectedOutput) {
-		return false, "The output of the command did not match Expected Output", nil //TODO: Make a more meaningful output
+		return false, fmt.Sprintf("The output of the command did not match Expected Output. \"%s\" does not contain \"%s\"(Expected Output)", string(out), s.ExpectedOutput), nil
 	}
 	return true, "Success!", nil
 }

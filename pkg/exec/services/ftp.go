@@ -76,7 +76,7 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 			return false, "Failed to read file contents, it might be corrupted", err
 		}
 		if f.ExpectedOutput != "" && string(buf) != f.ExpectedOutput {
-			return false, "Fetched file's contents do not match Expected Output", nil //TODO: Make a more meaningful output
+			return false, fmt.Sprintf("Fetched file's contents do not match Expected Output. \"%s\" != \"%s\"(Expected Output)", string(buf), f.ExpectedOutput), nil
 		}
 	}
 	return true, "Success!", nil

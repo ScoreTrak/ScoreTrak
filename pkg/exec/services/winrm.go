@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/masterzen/winrm"
 	"net"
@@ -69,7 +70,7 @@ func (w *Winrm) Execute(e exec.Exec) (passed bool, log string, err error) {
 		return false, "Process returned a non-zero code", errors.New(procStderr)
 	}
 	if w.ExpectedOutput != "" && strings.Contains(procStdout, w.ExpectedOutput) {
-		return false, "The process did not match ExpectedOutput", nil //TODO: Make a more meaningful output
+		return false, fmt.Sprintf("The output of the command did not match Expected Output. \"%s\" does not contain \"%s\"(Expected Output)", procStdout, w.ExpectedOutput), nil
 	}
 	return true, "Success!", nil
 }
