@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -84,6 +85,14 @@ func (h *hostRepo) Update(hst *host.Host) error {
 	}).Error
 	if err != nil {
 		h.log.Errorf("error while updating the host, reason : %v", err)
+		return err
+	}
+	return nil
+}
+
+func (h *hostRepo) TruncateTable() (err error) {
+	err = util.TruncateTable(&host.Host{}, h.db)
+	if err != nil {
 		return err
 	}
 	return nil

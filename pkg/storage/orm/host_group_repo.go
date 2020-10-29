@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -84,6 +85,14 @@ func (h *hostGroupRepo) Update(hstgrp *host_group.HostGroup) error {
 	err := h.db.Model(hstgrp).Updates(host_group.HostGroup{Name: hstgrp.Name, Enabled: hstgrp.Enabled}).Error
 	if err != nil {
 		h.log.Errorf("error while updating the hostGroup, reason : %v", err)
+		return err
+	}
+	return nil
+}
+
+func (h *hostGroupRepo) TruncateTable() (err error) {
+	err = util.TruncateTable(&host_group.HostGroup{}, h.db)
+	if err != nil {
 		return err
 	}
 	return nil

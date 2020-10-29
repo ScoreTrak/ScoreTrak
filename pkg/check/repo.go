@@ -10,4 +10,5 @@ type Repo interface {
 	GetAll() ([]*Check, error)
 	Store(u []*Check) error
 	Upsert(u []*Check) error
+	TruncateTable() error
 }

@@ -9,4 +9,5 @@ type Repo interface {
 	Store(u []*Host) error
 	Upsert(u []*Host) error
 	Update(u *Host) error
+	TruncateTable() error
 }

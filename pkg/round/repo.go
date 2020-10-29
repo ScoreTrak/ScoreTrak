@@ -11,4 +11,5 @@ type Repo interface {
 	GetLastRound() (*Round, error)
 	GetLastNonElapsingRound() (*Round, error)
 	GetLastElapsingRound() (*Round, error)
+	TruncateTable() error
 }

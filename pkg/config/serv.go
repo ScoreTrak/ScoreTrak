@@ -3,8 +3,6 @@ package config
 type Serv interface {
 	Get() (*DynamicConfig, error)
 	Update(*DynamicConfig) error
-	ResetScores() error
-	DeleteCompetition() error
 }
 
 type configServ struct {
@@ -20,10 +18,6 @@ func NewConfigServ(repo Repo) Serv {
 func (svc *configServ) Get() (*DynamicConfig, error) { return svc.repo.Get() }
 
 func (svc *configServ) Update(cfg *DynamicConfig) error { return svc.repo.Update(cfg) }
-
-func (svc *configServ) ResetScores() error { return svc.repo.ResetScores() }
-
-func (svc *configServ) DeleteCompetition() error { return svc.repo.DeleteCompetition() }
 
 type StaticServ interface {
 	Get() (*StaticConfig, error)

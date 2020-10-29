@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -131,4 +132,12 @@ func (r *roundRepo) GetLastRound() (*round.Round, error) {
 		return nil, err
 	}
 	return rnd, nil
+}
+
+func (r *roundRepo) TruncateTable() (err error) {
+	err = util.TruncateTable(&round.Round{}, r.db)
+	if err != nil {
+		return err
+	}
+	return nil
 }

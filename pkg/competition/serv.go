@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/di/repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/jackc/pgconn"
 )
 
@@ -11,19 +12,21 @@ type Serv interface {
 	LoadCompetition(*Competition) error
 	FetchCoreCompetition() (*Competition, error)
 	FetchEntireCompetition() (*Competition, error)
+	ResetScores() error
+	DeleteCompetition() error
 }
 
-type configServ struct {
+type competitionServ struct {
 	Store repo.Store
 }
 
 func NewCompetitionServ(str repo.Store) Serv {
-	return &configServ{
+	return &competitionServ{
 		Store: str,
 	}
 }
 
-func (svc *configServ) LoadCompetition(c *Competition) error {
+func (svc *competitionServ) LoadCompetition(c *Competition) error {
 	var errAgr []error
 	err := svc.Store.Config.Update(c.Config)
 	if err != nil {
@@ -72,7 +75,7 @@ func (svc *configServ) LoadCompetition(c *Competition) error {
 	return nil
 }
 
-func (svc *configServ) FetchCoreCompetition() (*Competition, error) {
+func (svc *competitionServ) FetchCoreCompetition() (*Competition, error) {
 	fls := false
 	cnf, err := svc.Store.Config.Get()
 	if err != nil {
@@ -111,7 +114,7 @@ func (svc *configServ) FetchCoreCompetition() (*Competition, error) {
 	return &Competition{Config: cnf, Teams: teams, HostGroups: hostsGroup, Hosts: hosts, ServiceGroups: serviceGroups, Services: services, Properties: properties}, nil
 }
 
-func (svc *configServ) FetchEntireCompetition() (*Competition, error) {
+func (svc *competitionServ) FetchEntireCompetition() (*Competition, error) {
 	cmp, err := svc.FetchCoreCompetition()
 	if err != nil {
 		return nil, err
@@ -124,12 +127,56 @@ func (svc *configServ) FetchEntireCompetition() (*Competition, error) {
 	if err != nil {
 		return nil, err
 	}
-	report, err := svc.Store.Report.Get()
+	getReport, err := svc.Store.Report.Get()
 	if err != nil {
 		return nil, err
 	}
 	cmp.Rounds = rounds
 	cmp.Checks = checks
-	cmp.Report = report
+	cmp.Report = getReport
 	return cmp, nil
+}
+
+func (svc *competitionServ) ResetScores() error {
+	err := svc.Store.Check.TruncateTable()
+	if err != nil {
+		return err
+	}
+	err = svc.Store.Round.TruncateTable()
+	if err != nil {
+		return err
+	}
+	err = svc.Store.Report.Update(&report.Report{Cache: "{}"})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (svc *competitionServ) DeleteCompetition() error {
+	err := svc.ResetScores()
+	if err != nil {
+		return err
+	}
+	err = svc.Store.Property.TruncateTable()
+	if err != nil {
+		return err
+	}
+	err = svc.Store.Service.TruncateTable()
+	if err != nil {
+		return err
+	}
+	err = svc.Store.ServiceGroup.TruncateTable()
+	if err != nil {
+		return err
+	}
+	err = svc.Store.Host.TruncateTable()
+	if err != nil {
+		return err
+	}
+	err = svc.Store.HostGroup.TruncateTable()
+	if err != nil {
+		return err
+	}
+	return nil
 }

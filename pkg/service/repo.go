@@ -9,4 +9,5 @@ type Repo interface {
 	Store(u []*Service) error
 	Upsert(u []*Service) error
 	Update(u *Service) error
+	TruncateTable() error
 }

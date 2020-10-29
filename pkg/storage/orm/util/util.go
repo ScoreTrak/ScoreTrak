@@ -204,3 +204,12 @@ func LoadReport(db *gorm.DB) error {
 	}
 	return nil
 }
+
+func TruncateTable(v interface{}, db *gorm.DB) error {
+	stmt := &gorm.Statement{DB: db}
+	err := stmt.Parse(v)
+	if err != nil {
+		return err
+	}
+	return db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", stmt.Schema.Table)).Error //POSTGRES SPECIFIC. FOR MYSQL, CHANGE THIS TO  SET FOREIGN_KEY_CHECKS=0 ; <TRUNCATE> ; SET FOREIGN_KEY_CHECKS=1
+}

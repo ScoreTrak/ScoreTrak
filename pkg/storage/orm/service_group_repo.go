@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -83,6 +84,14 @@ func (s *serviceGroupRepo) Update(sgr *service_group.ServiceGroup) error {
 	err := s.db.Model(sgr).Updates(service_group.ServiceGroup{Enabled: sgr.Enabled, DisplayName: sgr.DisplayName}).Error //Updating service group names is not supported because service group name tightly coupled with platform operations
 	if err != nil {
 		s.log.Errorf("error while updating the Service Group, reason : %v", err)
+		return err
+	}
+	return nil
+}
+
+func (s *serviceGroupRepo) TruncateTable() (err error) {
+	err = util.TruncateTable(&service_group.ServiceGroup{}, s.db)
+	if err != nil {
 		return err
 	}
 	return nil

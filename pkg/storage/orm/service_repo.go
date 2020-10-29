@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -86,6 +87,14 @@ func (s *serviceRepo) Update(swm *service.Service) error {
 		HostID: swm.HostID, DisplayName: swm.DisplayName}).Error
 	if err != nil {
 		s.log.Errorf("error while updating the service, reason : %v", err)
+		return err
+	}
+	return nil
+}
+
+func (s *serviceRepo) TruncateTable() (err error) {
+	err = util.TruncateTable(&service.Service{}, s.db)
+	if err != nil {
 		return err
 	}
 	return nil

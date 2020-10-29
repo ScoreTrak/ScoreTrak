@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -93,6 +94,14 @@ func (p *propertyRepo) Update(prop *property.Property) error {
 	}).Error
 	if err != nil {
 		p.log.Errorf("error while updating the property, reason : %v", err)
+		return err
+	}
+	return nil
+}
+
+func (p *propertyRepo) TruncateTable() (err error) {
+	err = util.TruncateTable(&property.Property{}, p.db)
+	if err != nil {
 		return err
 	}
 	return nil

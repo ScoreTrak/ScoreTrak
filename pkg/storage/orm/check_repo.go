@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -97,6 +98,14 @@ func (c *checkRepo) Upsert(chck []*check.Check) error {
 	err := c.db.Clauses(clause.OnConflict{DoNothing: true}).Create(chck).Error
 	if err != nil {
 		c.log.Errorf("error while creating the check, reason : %v", err)
+		return err
+	}
+	return nil
+}
+
+func (c *checkRepo) TruncateTable() (err error) {
+	err = util.TruncateTable(&check.Check{}, c.db)
+	if err != nil {
 		return err
 	}
 	return nil

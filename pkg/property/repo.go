@@ -10,4 +10,5 @@ type Repo interface {
 	Update(u *Property) error
 	GetAllByServiceID(id uuid.UUID) ([]*Property, error)
 	GetByServiceIDKey(id uuid.UUID, key string) (*Property, error)
+	TruncateTable() error
 }
