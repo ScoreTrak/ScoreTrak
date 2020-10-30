@@ -1,0 +1,57 @@
+syntax="proto3";
+package pkg.host.hostpb;
+
+import "google/protobuf/wrappers.proto";
+import "pkg/proto/utilpb/uuid.proto";
+
+import "pkg/service/servicepb/service.proto";
+
+option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/host/hostpb";
+
+message Host {
+  pkg.proto.utilpb.UUID id = 1;
+  string address = 2;
+  pkg.proto.utilpb.UUID host_group_id = 3;
+  pkg.proto.utilpb.UUID team_id = 4;
+  google.protobuf.BoolValue enabled = 5;
+  google.protobuf.BoolValue edit_host = 6;
+  repeated pkg.service.servicepb.Service services = 7;
+}
+
+message GetAllRequest{}
+message GetAllResponse{
+  repeated Host hosts = 1;
+}
+
+message GetByIDRequest{
+  pkg.proto.utilpb.UUID id = 1;
+}
+message GetByIDResponse{
+  Host host = 1;
+}
+
+message DeleteRequest{
+  pkg.proto.utilpb.UUID id = 1;
+}
+
+message DeleteResponse{}
+
+message StoreRequest{
+  repeated Host hosts = 1;
+}
+
+message StoreResponse{}
+
+message UpdateRequest{
+  Host host = 1;
+}
+
+message UpdateResponse{}
+
+service HostService{
+  rpc GetAll(GetAllRequest) returns (GetAllResponse){}
+  rpc GetByID(GetByIDRequest) returns (GetByIDResponse){}
+  rpc Delete(DeleteRequest) returns (DeleteResponse){}
+  rpc Store(StoreRequest) returns (StoreResponse) {}
+  rpc Update(UpdateRequest) returns (UpdateResponse) {}
+}

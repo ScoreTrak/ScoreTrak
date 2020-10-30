@@ -122,7 +122,7 @@ func TestServiceSpec(t *testing.T) {
 							s[0].RoundUnits = 3
 							rd := uint(2)
 							s[0].RoundDelay = &rd
-							s[0].Points = 5
+							s[0].Weight = 5
 							err = sr.Update(s[0])
 							So(err, ShouldBeNil)
 							ac, err = sr.GetAll()

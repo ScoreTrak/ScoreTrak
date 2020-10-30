@@ -1,0 +1,29 @@
+syntax="proto3";
+package pkg.config.dynamic_configpb;
+
+import "google/protobuf/wrappers.proto";
+import "pkg/proto/utilpb/uuid.proto";
+import "pkg/host/hostpb/host.proto";
+
+option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/config/dynamic_configpb";
+
+message DynamicConfig {
+  pkg.proto.utilpb.UUID id = 1;
+  uint64 round_duration = 2;
+  google.protobuf.BoolValue enabled = 3;
+}
+
+message GetRequest{}
+message GetResponse{
+  DynamicConfig dynamic_configs = 1;
+}
+message UpdateRequest{
+  DynamicConfig dynamic_config = 1;
+}
+
+message UpdateResponse{}
+
+service DynamicConfigService{
+  rpc Get(GetRequest) returns (GetResponse){}
+  rpc Update(UpdateRequest) returns (UpdateResponse) {}
+}

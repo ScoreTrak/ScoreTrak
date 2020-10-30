@@ -1,0 +1,62 @@
+syntax="proto3";
+package pkg.service.servicepb;
+
+import "google/protobuf/wrappers.proto";
+import "pkg/proto/utilpb/uuid.proto";
+import "pkg/property/propertypb/property.proto";
+import "pkg/check/checkpb/check.proto";
+
+option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/service/servicepb";
+
+message Service {
+  pkg.proto.utilpb.UUID id = 1;
+  string name = 2;
+  string display_name = 3;
+  uint64 points = 4;
+  uint64 points_boost = 5;
+  uint64 round_units = 6;
+  google.protobuf.UInt64Value round_delay = 7;
+  pkg.proto.utilpb.UUID service_group_id  = 8;
+  pkg.proto.utilpb.UUID host_id  = 9;
+  google.protobuf.BoolValue enabled = 10;
+  repeated pkg.property.propertypb.Property properties = 11;
+  repeated pkg.check.checkpb.Check checks = 12;
+}
+
+message GetAllRequest{}
+message GetAllResponse{
+  repeated Service services = 1;
+}
+
+message GetByIDRequest{
+  pkg.proto.utilpb.UUID id = 1;
+}
+message GetByIDResponse{
+  Service service = 1;
+}
+
+message DeleteRequest{
+  pkg.proto.utilpb.UUID id = 1;
+}
+
+message DeleteResponse{}
+
+message StoreRequest{
+  repeated Service services = 1;
+}
+
+message StoreResponse{}
+
+message UpdateRequest{
+  Service service = 1;
+}
+
+message UpdateResponse{}
+
+service ServiceService{
+  rpc GetAll(GetAllRequest) returns (GetAllResponse){}
+  rpc GetByID(GetByIDRequest) returns (GetByIDResponse){}
+  rpc Delete(DeleteRequest) returns (DeleteResponse){}
+  rpc Store(StoreRequest) returns (StoreResponse) {}
+  rpc Update(UpdateRequest) returns (UpdateResponse) {}
+}

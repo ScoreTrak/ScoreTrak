@@ -19,8 +19,8 @@ type Service struct {
 
 	DisplayName string `json:"display_name,omitempty"`
 
-	// Points granted for a successful check
-	Points uint `json:"points" gorm:"not null;default:0"`
+	// Weight granted for a successful check
+	Weight uint `json:"weight" gorm:"not null;default:0"`
 
 	PointsBoost uint `json:"points_boost" gorm:"not null;default:0"`
 

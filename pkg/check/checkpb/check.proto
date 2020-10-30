@@ -1,0 +1,43 @@
+syntax="proto3";
+package pkg.check.checkpb;
+
+import "google/protobuf/wrappers.proto";
+import "pkg/proto/utilpb/uuid.proto";
+
+option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/check/checkpb";
+
+message Check {
+  pkg.proto.utilpb.UUID service_id = 1;
+  uint64 round_id = 2;
+  string log = 3;
+  string err = 4;
+  google.protobuf.BoolValue passed = 5;
+}
+
+message GetAllByRoundIDRequest{
+  uint64 round_id = 1;
+}
+message GetAllByRoundIDResponse{
+  repeated Check checks = 1;
+}
+
+message GetByRoundServiceIDRequest{
+  pkg.proto.utilpb.UUID service_id = 1;
+  uint64 round_id = 2;
+}
+message GetByRoundServiceIDResponse{
+  repeated Check checks = 1;
+}
+
+message GetAllByServiceIDRequest{
+  pkg.proto.utilpb.UUID service_id = 1;
+}
+message GetAllByServiceIDResponse{
+  repeated Check checks = 1;
+}
+
+service CheckService{
+    rpc GetAllByRoundID(GetAllByRoundIDRequest) returns (GetAllByRoundIDResponse){}
+    rpc GetByRoundServiceID(GetByRoundServiceIDRequest) returns (Check){}
+    rpc GetAllByServiceID(GetAllByServiceIDRequest) returns (GetAllByServiceIDResponse){}
+}

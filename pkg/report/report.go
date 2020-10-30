@@ -59,6 +59,7 @@ type SimpleService struct {
 	Passed             bool
 	Log                string
 	Err                string
+	Weight             uint
 	Points             uint
 	PointsBoost        uint
 	Properties         map[string]*SimpleProperty

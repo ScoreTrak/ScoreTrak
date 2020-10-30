@@ -1,0 +1,64 @@
+syntax="proto3";
+package pkg.competition.competitionpb;
+
+import "google/protobuf/wrappers.proto";
+import "pkg/proto/utilpb/uuid.proto";
+import "pkg/host/hostpb/host.proto";
+
+import "pkg/config/configpb/config.proto";
+import "pkg/report/reportpb/report.proto";
+import "pkg/host_group/host_grouppb/host_group.proto";
+import "pkg/host/hostpb/host.proto";
+import "pkg/team/teampb/team.proto";
+import "pkg/service/servicepb/service.proto";
+import "pkg/service_group/service_grouppb/service_group.proto";
+import "pkg/round/roundpb/round.proto";
+import "pkg/property/propertypb/property.proto";
+import "pkg/check/checkpb/check.proto";
+
+option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/competition/competitionpb";
+
+message Competition {
+  pkg.config.dynamic_configpb.DynamicConfig dynamic_config = 1;
+  pkg.report.reportpb.Report report = 2;
+  repeated  pkg.host_group.host_grouppb.HostGroup host_group = 3;
+  repeated  pkg.host.hostpb.Host host = 4;
+  repeated  pkg.team.teampb.Team team = 5;
+  repeated  pkg.service.servicepb.Service service = 6;
+  repeated  pkg.service_group.service_grouppb.ServiceGroup service_group = 7;
+  repeated  pkg.round.roundpb.Round round = 8;
+  repeated  pkg.property.propertypb.Property property = 9;
+  repeated  pkg.check.checkpb.Check check = 10;
+  
+}
+
+message LoadCompetitionRequest{
+  Competition competition = 1;
+}
+message LoadCompetitionResponse{}
+
+message FetchCoreCompetitionRequest{}
+
+message FetchCoreCompetitionResponse{
+  Competition competition = 1;
+}
+
+message FetchEntireCompetitionRequest{}
+
+message FetchEntireCompetitionResponse{
+  Competition competition = 1;
+}
+
+message ResetScoresRequest{}
+message ResetScoresResponse{}
+
+message DeleteCompetitionRequest{}
+message DeleteCompetitionResponse{}
+
+service CompetitionService{
+  rpc LoadCompetition(LoadCompetitionRequest) returns (LoadCompetitionResponse){}
+  rpc FetchCoreCompetition(FetchCoreCompetitionRequest) returns (FetchCoreCompetitionResponse){}
+  rpc FetchEntireCompetition(FetchEntireCompetitionRequest) returns (FetchEntireCompetitionResponse){}
+  rpc ResetScores(ResetScoresRequest) returns (ResetScoresResponse) {}
+  rpc DeleteCompetition(DeleteCompetitionRequest) returns (DeleteCompetitionResponse) {}
+}

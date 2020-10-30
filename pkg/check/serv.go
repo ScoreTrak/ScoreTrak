@@ -3,9 +3,9 @@ package check
 import "github.com/gofrs/uuid"
 
 type Serv interface {
-	GetAllByRoundID(rID uint) ([]*Check, error)
-	GetByRoundServiceID(rID uint, sID uuid.UUID) (*Check, error)
-	GetAllByServiceID(sID uuid.UUID) ([]*Check, error)
+	GetAllByRoundID(roundID uint) ([]*Check, error)
+	GetByRoundServiceID(roundID uint, serviceID uuid.UUID) (*Check, error)
+	GetAllByServiceID(serviceID uuid.UUID) ([]*Check, error)
 }
 
 type checkServ struct {
@@ -18,17 +18,19 @@ func NewCheckServ(repo Repo) Serv {
 	}
 }
 
-func (svc *checkServ) GetAllByRoundID(rID uint) ([]*Check, error) {
-	return svc.repo.GetAllByRoundID(rID)
+func (svc *checkServ) GetAllByRoundID(roundID uint) ([]*Check, error) {
+	return svc.repo.GetAllByRoundID(roundID)
 }
-func (svc *checkServ) GetByRoundServiceID(rID uint, sID uuid.UUID) (*Check, error) {
-	return svc.repo.GetByRoundServiceID(rID, sID)
+func (svc *checkServ) GetByRoundServiceID(roundID uint, serviceID uuid.UUID) (*Check, error) {
+	return svc.repo.GetByRoundServiceID(roundID, serviceID)
 }
-func (svc *checkServ) GetAllByServiceID(sID uuid.UUID) ([]*Check, error) {
-	return svc.repo.GetAllByServiceID(sID)
+func (svc *checkServ) GetAllByServiceID(serviceID uuid.UUID) ([]*Check, error) {
+	return svc.repo.GetAllByServiceID(serviceID)
 }
 
-func (svc *checkServ) Delete(rID uint, sID uuid.UUID) error { return svc.repo.Delete(rID, sID) }
+func (svc *checkServ) Delete(roundID uint, serviceID uuid.UUID) error {
+	return svc.repo.Delete(roundID, serviceID)
+}
 
 func (svc *checkServ) GetAll() ([]*Check, error) { return svc.repo.GetAll() }
 

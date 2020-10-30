@@ -82,7 +82,7 @@ func (s *serviceRepo) Upsert(swm []*service.Service) error {
 func (s *serviceRepo) Update(swm *service.Service) error {
 	s.log.Debugf("updating the service, id : %v", swm.ID)
 	err := s.db.Model(swm).Updates(service.Service{Enabled: swm.Enabled,
-		Name: swm.Name, Points: swm.Points, PointsBoost: swm.PointsBoost, RoundDelay: swm.RoundDelay,
+		Name: swm.Name, Weight: swm.Weight, PointsBoost: swm.PointsBoost, RoundDelay: swm.RoundDelay,
 		RoundUnits: swm.RoundUnits, ServiceGroupID: swm.ServiceGroupID,
 		HostID: swm.HostID, DisplayName: swm.DisplayName}).Error
 	if err != nil {

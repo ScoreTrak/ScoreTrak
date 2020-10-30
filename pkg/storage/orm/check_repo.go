@@ -20,36 +20,36 @@ func NewCheckRepo(db *gorm.DB, log logger.LogInfoFormat) check.Repo {
 	return &checkRepo{db, log}
 }
 
-func (c *checkRepo) GetAllByRoundID(rID uint) ([]*check.Check, error) {
+func (c *checkRepo) GetAllByRoundID(roundID uint) ([]*check.Check, error) {
 	c.log.Debug("get all the checks")
 	var checks []*check.Check
-	err := c.db.Where("round_id = ?", rID).Find(&checks).Error
+	err := c.db.Where("round_id = ?", roundID).Find(&checks).Error
 	return checks, err
 }
 
-func (c *checkRepo) GetAllByServiceID(sID uuid.UUID) ([]*check.Check, error) {
+func (c *checkRepo) GetAllByServiceID(serviceID uuid.UUID) ([]*check.Check, error) {
 	c.log.Debug("get all the checks")
 	var checks []*check.Check
-	err := c.db.Where("service_id = ?", sID).Find(&checks).Error
+	err := c.db.Where("service_id = ?", serviceID).Find(&checks).Error
 	return checks, err
 }
 
-func (c *checkRepo) GetByRoundServiceID(rID uint, sID uuid.UUID) (*check.Check, error) {
+func (c *checkRepo) GetByRoundServiceID(roundID uint, serviceID uuid.UUID) (*check.Check, error) {
 	c.log.Debug("get all the checks")
 	chk := &check.Check{}
-	err := c.db.Where("round_id = ? AND service_id = ?", rID, sID).First(&chk).Error
+	err := c.db.Where("round_id = ? AND service_id = ?", roundID, serviceID).First(&chk).Error
 	if err != nil {
-		c.log.Errorf("the check with rid, sid : %d, %d not found, reason : %v", rID, sID, err)
+		c.log.Errorf("the check with rid, sid : %d, %d not found, reason : %v", roundID, serviceID, err)
 		return nil, err
 	}
 	return chk, err
 }
 
-func (c *checkRepo) Delete(rID uint, sID uuid.UUID) error {
-	c.log.Debugf("deleting the check with rid, sid : %d, %d", rID, sID)
-	result := c.db.Delete(&check.Check{}, "round_id = ? AND service_id = ?", rID, sID)
+func (c *checkRepo) Delete(roundID uint, serviceID uuid.UUID) error {
+	c.log.Debugf("deleting the check with rid, sid : %d, %d", roundID, serviceID)
+	result := c.db.Delete(&check.Check{}, "round_id = ? AND service_id = ?", roundID, serviceID)
 	if result.Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the check with rid, sid : %d, %d", rID, sID)
+		errMsg := fmt.Sprintf("error while deleting the check with rid, sid : %d, %d", roundID, serviceID)
 		c.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}
@@ -73,13 +73,13 @@ func (c *checkRepo) GetAll() ([]*check.Check, error) {
 	return checks, nil
 }
 
-func (c *checkRepo) GetByID(rID uint, sID uuid.UUID) (*check.Check, error) {
-	c.log.Debugf("get the check with rid, sid : %d, %d", rID, sID)
+func (c *checkRepo) GetByID(roundID uint, serviceID uuid.UUID) (*check.Check, error) {
+	c.log.Debugf("get the check with rid, sid : %d, %d", roundID, serviceID)
 
 	chck := &check.Check{}
-	err := c.db.Where("round_id = ? AND service_id = ?", rID, sID).First(&chck).Error
+	err := c.db.Where("round_id = ? AND service_id = ?", roundID, serviceID).First(&chck).Error
 	if err != nil {
-		c.log.Errorf("the check with rid, sid : %d, %d not found, reason : %v", rID, sID, err)
+		c.log.Errorf("the check with rid, sid : %d, %d not found, reason : %v", roundID, serviceID, err)
 		return nil, err
 	}
 	return chck, nil

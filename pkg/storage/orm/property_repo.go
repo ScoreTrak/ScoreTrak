@@ -20,12 +20,12 @@ func NewPropertyRepo(db *gorm.DB, log logger.LogInfoFormat) property.Repo {
 	return &propertyRepo{db, log}
 }
 
-func (p *propertyRepo) Delete(id uuid.UUID, key string) error {
-	p.log.Debugf("deleting the property with service_id : %d", id)
-	result := p.db.Delete(&property.Property{}, "service_id = ? AND key = ?", id, key)
+func (p *propertyRepo) Delete(serviceID uuid.UUID, key string) error {
+	p.log.Debugf("deleting the property with service_id : %d", serviceID)
+	result := p.db.Delete(&property.Property{}, "service_id = ? AND key = ?", serviceID, key)
 
 	if result.Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the property with service_id : %d and key: %s", id, key)
+		errMsg := fmt.Sprintf("error while deleting the property with service_id : %d and key: %s", serviceID, key)
 		p.log.Errorf(errMsg)
 		return errors.New(errMsg)
 	}
@@ -49,12 +49,12 @@ func (p *propertyRepo) GetAll() ([]*property.Property, error) {
 	return properties, nil
 }
 
-func (p *propertyRepo) GetAllByServiceID(id uuid.UUID) ([]*property.Property, error) {
-	p.log.Debugf("get property details by service_id : %s", id)
+func (p *propertyRepo) GetAllByServiceID(serviceID uuid.UUID) ([]*property.Property, error) {
+	p.log.Debugf("get property details by service_id : %s", serviceID)
 	properties := make([]*property.Property, 0)
-	err := p.db.Where("service_id = ?", id).Find(&properties).Error
+	err := p.db.Where("service_id = ?", serviceID).Find(&properties).Error
 	if err != nil {
-		p.log.Errorf("property not found with service_id : %d, reason : %v", id, err)
+		p.log.Errorf("property not found with service_id : %d, reason : %v", serviceID, err)
 		return nil, err
 	}
 	return properties, nil
