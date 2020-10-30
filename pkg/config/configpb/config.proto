@@ -3,7 +3,6 @@ package pkg.config.dynamic_configpb;
 
 import "google/protobuf/wrappers.proto";
 import "pkg/proto/utilpb/uuid.proto";
-import "pkg/host/hostpb/host.proto";
 
 option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/config/dynamic_configpb";
 

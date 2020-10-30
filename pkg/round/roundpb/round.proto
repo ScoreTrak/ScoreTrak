@@ -1,7 +1,6 @@
 syntax="proto3";
 package pkg.round.roundpb;
 
-import "google/protobuf/wrappers.proto";
 import "pkg/proto/utilpb/uuid.proto";
 import "pkg/check/checkpb/check.proto";
 import "google/protobuf/timestamp.proto";

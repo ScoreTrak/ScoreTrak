@@ -1,9 +1,7 @@
 syntax="proto3";
 package pkg.report.reportpb;
 
-import "google/protobuf/wrappers.proto";
 import "pkg/proto/utilpb/uuid.proto";
-import "pkg/host/hostpb/host.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/report/reportpb";

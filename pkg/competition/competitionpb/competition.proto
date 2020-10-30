@@ -1,10 +1,6 @@
 syntax="proto3";
 package pkg.competition.competitionpb;
 
-import "google/protobuf/wrappers.proto";
-import "pkg/proto/utilpb/uuid.proto";
-import "pkg/host/hostpb/host.proto";
-
 import "pkg/config/configpb/config.proto";
 import "pkg/report/reportpb/report.proto";
 import "pkg/host_group/host_grouppb/host_group.proto";
