@@ -1,1 +1,3 @@
 TODO: Return Validations once https://github.com/go-gorm/gorm/issues/3180 is answered
+
+TODO: Revisit JSONB format for Report
