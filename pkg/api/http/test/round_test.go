@@ -3,25 +3,25 @@ package client
 import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/cmd/master/server/gorilla"
-	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
-	"github.com/ScoreTrak/ScoreTrak/pkg/check"
+	"github.com/ScoreTrak/ScoreTrak/pkg/api/http/client"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 
-	"github.com/gofrs/uuid"
-	. "github.com/smartystreets/goconvey/convey"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestCheckSpec(t *testing.T) {
+func TestRoundSpec(t *testing.T) {
 	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
@@ -29,8 +29,8 @@ func TestCheckSpec(t *testing.T) {
 	} else {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
-	c.DB.Cockroach.Database = "scoretrak_test_api_check"
-	c.Logger.FileName = "check_test.log"
+	c.DB.Cockroach.Database = "scoretrak_test_api_round"
+	c.Logger.FileName = "round_test.log"
 	db := storage.SetupDB(c.DB)
 	l := SetupLogger(c.Logger)
 	rtr := gorilla.NewRouter()
@@ -42,9 +42,9 @@ func TestCheckSpec(t *testing.T) {
 			HandlerFunc: gorilla.Index,
 		},
 	}
-	cr := orm.NewCheckRepo(db, l)
-	checkSvc := check.NewCheckServ(cr)
-	routes = append(routes, gorilla.CheckRoutes(l, checkSvc)...)
+	cr := orm.NewRoundRepo(db, l)
+	roundSvc := round.NewRoundServ(cr)
+	routes = append(routes, gorilla.RoundRoutes(l, roundSvc)...)
 	for _, route := range routes {
 		var hdler http.Handler
 		hdler = route.HandlerFunc
@@ -63,34 +63,17 @@ func TestCheckSpec(t *testing.T) {
 	port := listener.Addr().(*net.TCPAddr).Port
 	go http.Serve(listener, rtr)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
-	Convey("Initializing check repo and controller", t, func() {
+	Convey("Initializing round repo and controller", t, func() {
 		CreateAllTables(db)
 		DataPreload(db)
 		s := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%d", port), Scheme: "http"}, "", http.DefaultClient)
-		cli := client.NewCheckClient(s)
-		Convey("Retrieving checks by Round ID", func() {
-			retChecks, err := cli.GetAllByRoundID(3)
+		cli := client.NewRoundClient(s)
+		Convey("Retrieving a round by ID", func() {
+			retRound, err := cli.GetLastNonElapsingRound()
 			So(err, ShouldBeNil)
-			So(len(retChecks), ShouldEqual, 2)
+			So(retRound.ID, ShouldEqual, 3)
+			So(retRound.Finish, ShouldNotBeNil)
 		})
-
-		Convey("Retrieving checks by Round ID and Service ID", func() {
-			retChecks, err := cli.GetAllByRoundID(3)
-			So(err, ShouldBeNil)
-			So(len(retChecks), ShouldEqual, 2)
-
-			for _, chck := range retChecks {
-				if chck.ServiceID == uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111") {
-					So(chck.Log, ShouldEqual, "Failed because of incorrect password")
-					So(*(chck.Passed), ShouldBeFalse)
-				} else {
-					So(chck.Log, ShouldEqual, "")
-					So(*(chck.Passed), ShouldBeTrue)
-				}
-			}
-
-		})
-
 		Reset(func() {
 			CleanAllTables(db)
 		})

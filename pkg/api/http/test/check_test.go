@@ -3,7 +3,8 @@ package client
 import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/cmd/master/server/gorilla"
-	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
+	"github.com/ScoreTrak/ScoreTrak/pkg/api/http/client"
+	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
@@ -11,6 +12,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 
+	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"net"
 	"net/http"
@@ -19,7 +21,7 @@ import (
 	"testing"
 )
 
-func TestConfigSpec(t *testing.T) {
+func TestCheckSpec(t *testing.T) {
 	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
@@ -27,8 +29,8 @@ func TestConfigSpec(t *testing.T) {
 	} else {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
-	c.DB.Cockroach.Database = "scoretrak_test_api_config"
-	c.Logger.FileName = "config_test.log"
+	c.DB.Cockroach.Database = "scoretrak_test_api_check"
+	c.Logger.FileName = "check_test.log"
 	db := storage.SetupDB(c.DB)
 	l := SetupLogger(c.Logger)
 	rtr := gorilla.NewRouter()
@@ -40,11 +42,9 @@ func TestConfigSpec(t *testing.T) {
 			HandlerFunc: gorilla.Index,
 		},
 	}
-	cr := orm.NewConfigRepo(db, l)
-	configSvc := config.NewConfigServ(cr)
-	staticConfigSvc := config.NewStaticConfigServ()
-	routes = append(routes, gorilla.ConfigRoutes(l, configSvc)...)
-	routes = append(routes, gorilla.StaticConfigRoutes(l, staticConfigSvc)...)
+	cr := orm.NewCheckRepo(db, l)
+	checkSvc := check.NewCheckServ(cr)
+	routes = append(routes, gorilla.CheckRoutes(l, checkSvc)...)
 	for _, route := range routes {
 		var hdler http.Handler
 		hdler = route.HandlerFunc
@@ -63,38 +63,32 @@ func TestConfigSpec(t *testing.T) {
 	port := listener.Addr().(*net.TCPAddr).Port
 	go http.Serve(listener, rtr)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
-	Convey("Initializing config repo and controller", t, func() {
+	Convey("Initializing check repo and controller", t, func() {
 		CreateAllTables(db)
 		DataPreload(db)
 		s := client.NewScoretrakClient(&url.URL{Host: fmt.Sprintf("localhost:%d", port), Scheme: "http"}, "", http.DefaultClient)
-		cli := client.NewConfigClient(s)
-		cliStatic := client.NewStaticConfigClient(s)
-		Convey("Retrieving a config", func() {
-			retConfig, err := cli.Get()
+		cli := client.NewCheckClient(s)
+		Convey("Retrieving checks by Round ID", func() {
+			retChecks, err := cli.GetAllByRoundID(3)
 			So(err, ShouldBeNil)
-			So(retConfig.ID, ShouldEqual, 1)
-			So(retConfig.RoundDuration, ShouldEqual, uint(60))
-			So(*(retConfig.Enabled), ShouldBeTrue)
+			So(len(retChecks), ShouldEqual, 2)
 		})
 
-		Convey("Retrieving a static config", func() {
-			retConfig, err := cliStatic.Get()
+		Convey("Retrieving checks by Round ID and Service ID", func() {
+			retChecks, err := cli.GetAllByRoundID(3)
 			So(err, ShouldBeNil)
-			So(retConfig.DB.Use, ShouldEqual, "cockroach")
-		})
+			So(len(retChecks), ShouldEqual, 2)
 
-		Convey("Update the config", func() {
-			fls := false
-			t := config.DynamicConfig{RoundDuration: 50, Enabled: &fls}
-			err := cli.Update(&t)
-			ShouldNotBeNil(err)
-			Convey("Retrieving a config", func() {
-				retConfig, err := cli.Get()
-				So(err, ShouldBeNil)
-				So(retConfig.ID, ShouldEqual, 1)
-				So(retConfig.RoundDuration, ShouldEqual, uint(50))
-				So(*(retConfig.Enabled), ShouldBeFalse)
-			})
+			for _, chck := range retChecks {
+				if chck.ServiceID == uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111") {
+					So(chck.Log, ShouldEqual, "Failed because of incorrect password")
+					So(*(chck.Passed), ShouldBeFalse)
+				} else {
+					So(chck.Log, ShouldEqual, "")
+					So(*(chck.Passed), ShouldBeTrue)
+				}
+			}
+
 		})
 
 		Reset(func() {

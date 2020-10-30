@@ -3,7 +3,7 @@ package client
 import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/cmd/master/server/gorilla"
-	"github.com/ScoreTrak/ScoreTrak/pkg/api/client"
+	"github.com/ScoreTrak/ScoreTrak/pkg/api/http/client"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/di/repo"
