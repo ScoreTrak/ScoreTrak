@@ -3,7 +3,7 @@ package gorilla
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/api/handler"
+	"github.com/ScoreTrak/ScoreTrak/pkg/api/http/handler"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/competition"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"

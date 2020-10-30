@@ -35,7 +35,7 @@ require (
 	github.com/masterzen/simplexml v0.0.0-20190410153822-31eea3082786 // indirect
 	github.com/masterzen/winrm v0.0.0-20200615185753-c42b5136ff88
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
-	github.com/miekg/dns v1.1.30
+	github.com/miekg/dns v1.1.30 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/nsqio/go-nsq v1.0.8
 	github.com/opencontainers/go-digest v1.0.0 // indirect
