@@ -17,18 +17,18 @@ require (
 	github.com/go-errors/errors v1.1.1 // indirect
 	github.com/go-ldap/ldap/v3 v3.2.3
 	github.com/gofrs/uuid v3.3.0+incompatible
-	github.com/golang/protobuf v1.4.2 // indirect
+	github.com/golang/protobuf v1.4.3
 	github.com/google/go-cmp v0.5.1 // indirect
 	github.com/googleapis/gnostic v0.3.1 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
-	github.com/gorilla/mux v1.7.4
+	github.com/gorilla/mux v1.7.4 // indirect
 	github.com/hirochachacha/go-smb2 v0.0.0-20200618112446-579efc4c6c8a
 	github.com/jackc/pgconn v1.6.4
 	github.com/jackc/pgproto3/v2 v2.0.3 // indirect
 	github.com/jackc/pgx/v4 v4.8.1 // indirect
 	github.com/jinzhu/configor v1.2.0
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
-	github.com/jinzhu/gorm v1.9.15
+	github.com/jinzhu/gorm v1.9.15 // indirect
 	github.com/jlaffaye/ftp v0.0.0-20200812143550-39e3779af0db
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/kr/text v0.2.0 // indirect
@@ -41,7 +41,6 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/qor/qor v0.0.0-20200729071734-d587cffbbb93 // indirect
-	github.com/qor/validations v0.0.0-20171228122639-f364bca61b46
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/smartystreets/assertions v1.1.1 // indirect
 	github.com/smartystreets/goconvey v1.6.4
@@ -55,7 +54,9 @@ require (
 	golang.org/x/time v0.0.0-20200630173020-3af7569d3a1e // indirect
 	golang.org/x/tools v0.0.0-20200731060945-b5fad4ed8dd6 // indirect
 	google.golang.org/appengine v1.6.6 // indirect
-	google.golang.org/protobuf v1.25.0 // indirect
+	google.golang.org/grpc v1.33.1
+	google.golang.org/grpc/cmd/protoc-gen-go-grpc v0.0.0-20200624194451-38aafd89f814 // indirect
+	google.golang.org/protobuf v1.25.0
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.3.0
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
