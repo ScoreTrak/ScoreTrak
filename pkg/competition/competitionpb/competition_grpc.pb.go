@@ -11,7 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion7
+const _ = grpc.SupportPackageIsVersion6
 
 // CompetitionServiceClient is the client API for CompetitionService service.
 //
@@ -78,7 +78,7 @@ func (c *competitionServiceClient) DeleteCompetition(ctx context.Context, in *De
 }
 
 // CompetitionServiceServer is the server API for CompetitionService service.
-// All implementations must embed UnimplementedCompetitionServiceServer
+// All implementations should embed UnimplementedCompetitionServiceServer
 // for forward compatibility
 type CompetitionServiceServer interface {
 	LoadCompetition(context.Context, *LoadCompetitionRequest) (*LoadCompetitionResponse, error)
@@ -86,38 +86,29 @@ type CompetitionServiceServer interface {
 	FetchEntireCompetition(context.Context, *FetchEntireCompetitionRequest) (*FetchEntireCompetitionResponse, error)
 	ResetScores(context.Context, *ResetScoresRequest) (*ResetScoresResponse, error)
 	DeleteCompetition(context.Context, *DeleteCompetitionRequest) (*DeleteCompetitionResponse, error)
-	mustEmbedUnimplementedCompetitionServiceServer()
 }
 
-// UnimplementedCompetitionServiceServer must be embedded to have forward compatible implementations.
+// UnimplementedCompetitionServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedCompetitionServiceServer struct {
 }
 
-func (UnimplementedCompetitionServiceServer) LoadCompetition(context.Context, *LoadCompetitionRequest) (*LoadCompetitionResponse, error) {
+func (*UnimplementedCompetitionServiceServer) LoadCompetition(context.Context, *LoadCompetitionRequest) (*LoadCompetitionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoadCompetition not implemented")
 }
-func (UnimplementedCompetitionServiceServer) FetchCoreCompetition(context.Context, *FetchCoreCompetitionRequest) (*FetchCoreCompetitionResponse, error) {
+func (*UnimplementedCompetitionServiceServer) FetchCoreCompetition(context.Context, *FetchCoreCompetitionRequest) (*FetchCoreCompetitionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FetchCoreCompetition not implemented")
 }
-func (UnimplementedCompetitionServiceServer) FetchEntireCompetition(context.Context, *FetchEntireCompetitionRequest) (*FetchEntireCompetitionResponse, error) {
+func (*UnimplementedCompetitionServiceServer) FetchEntireCompetition(context.Context, *FetchEntireCompetitionRequest) (*FetchEntireCompetitionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FetchEntireCompetition not implemented")
 }
-func (UnimplementedCompetitionServiceServer) ResetScores(context.Context, *ResetScoresRequest) (*ResetScoresResponse, error) {
+func (*UnimplementedCompetitionServiceServer) ResetScores(context.Context, *ResetScoresRequest) (*ResetScoresResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ResetScores not implemented")
 }
-func (UnimplementedCompetitionServiceServer) DeleteCompetition(context.Context, *DeleteCompetitionRequest) (*DeleteCompetitionResponse, error) {
+func (*UnimplementedCompetitionServiceServer) DeleteCompetition(context.Context, *DeleteCompetitionRequest) (*DeleteCompetitionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCompetition not implemented")
 }
-func (UnimplementedCompetitionServiceServer) mustEmbedUnimplementedCompetitionServiceServer() {}
 
-// UnsafeCompetitionServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to CompetitionServiceServer will
-// result in compilation errors.
-type UnsafeCompetitionServiceServer interface {
-	mustEmbedUnimplementedCompetitionServiceServer()
-}
-
-func RegisterCompetitionServiceServer(s grpc.ServiceRegistrar, srv CompetitionServiceServer) {
+func RegisterCompetitionServiceServer(s *grpc.Server, srv CompetitionServiceServer) {
 	s.RegisterService(&_CompetitionService_serviceDesc, srv)
 }
 

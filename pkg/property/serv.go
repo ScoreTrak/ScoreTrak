@@ -1,14 +1,17 @@
 package property
 
-import "github.com/gofrs/uuid"
+import (
+	"context"
+	"github.com/gofrs/uuid"
+)
 
 type Serv interface {
-	Delete(serviceID uuid.UUID, key string) error
-	GetAll() ([]*Property, error)
-	Store(u []*Property) error
-	Update(u *Property) error
-	GetByServiceIDKey(serviceID uuid.UUID, key string) (*Property, error)
-	GetAllByServiceID(serviceID uuid.UUID) ([]*Property, error)
+	Delete(ctx context.Context, serviceID uuid.UUID, key string) error
+	GetAll(ctx context.Context) ([]*Property, error)
+	Store(ctx context.Context, u []*Property) error
+	Update(ctx context.Context, u *Property) error
+	GetByServiceIDKey(ctx context.Context, serviceID uuid.UUID, key string) (*Property, error)
+	GetAllByServiceID(ctx context.Context, serviceID uuid.UUID) ([]*Property, error)
 }
 
 type propertyServ struct {
@@ -21,20 +24,26 @@ func NewPropertyServ(repo Repo) Serv {
 	}
 }
 
-func (svc *propertyServ) Delete(serviceID uuid.UUID, key string) error {
-	return svc.repo.Delete(serviceID, key)
+func (svc *propertyServ) Delete(ctx context.Context, serviceID uuid.UUID, key string) error {
+	return svc.repo.Delete(ctx, serviceID, key)
 }
 
-func (svc *propertyServ) GetAll() ([]*Property, error) { return svc.repo.GetAll() }
-
-func (svc *propertyServ) Store(u []*Property) error { return svc.repo.Store(u) }
-
-func (svc *propertyServ) Update(u *Property) error { return svc.repo.Update(u) }
-
-func (svc *propertyServ) GetAllByServiceID(serviceID uuid.UUID) ([]*Property, error) {
-	return svc.repo.GetAllByServiceID(serviceID)
+func (svc *propertyServ) GetAll(ctx context.Context) ([]*Property, error) {
+	return svc.repo.GetAll(ctx)
 }
 
-func (svc *propertyServ) GetByServiceIDKey(id uuid.UUID, key string) (*Property, error) {
-	return svc.repo.GetByServiceIDKey(id, key)
+func (svc *propertyServ) Store(ctx context.Context, u []*Property) error {
+	return svc.repo.Store(ctx, u)
+}
+
+func (svc *propertyServ) Update(ctx context.Context, u *Property) error {
+	return svc.repo.Update(ctx, u)
+}
+
+func (svc *propertyServ) GetAllByServiceID(ctx context.Context, serviceID uuid.UUID) ([]*Property, error) {
+	return svc.repo.GetAllByServiceID(ctx, serviceID)
+}
+
+func (svc *propertyServ) GetByServiceIDKey(ctx context.Context, id uuid.UUID, key string) (*Property, error) {
+	return svc.repo.GetByServiceIDKey(ctx, id, key)
 }

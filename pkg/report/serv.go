@@ -1,6 +1,7 @@
 package report
 
 import (
+	"context"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
@@ -9,7 +10,7 @@ import (
 )
 
 type Serv interface {
-	Get() (*Report, error)
+	Get(ctx context.Context) (*Report, error)
 }
 
 type reportServ struct {
@@ -32,7 +33,7 @@ func NewReportCalculator(repo Repo) *reportCalculator {
 	}
 }
 
-func (svc *reportServ) Get() (*Report, error) { return svc.repo.Get() }
+func (svc *reportServ) Get(ctx context.Context) (*Report, error) { return svc.repo.Get(ctx) }
 
 func (svc *reportCalculator) RecalculateReport(team []*team.Team, hostGroup []*host_group.HostGroup, serviceGroups []*service_group.ServiceGroup, round round.Round) (simpleTeams map[uuid.UUID]*SimpleTeam) {
 	simpleTeams = make(map[uuid.UUID]*SimpleTeam)

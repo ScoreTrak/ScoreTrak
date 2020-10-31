@@ -1,6 +1,8 @@
 package report
 
+import "context"
+
 type Repo interface {
-	Get() (*Report, error)
-	Update(*Report) error
+	Get(ctx context.Context) (*Report, error)
+	Update(context.Context, *Report) error
 }

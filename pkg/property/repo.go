@@ -1,14 +1,17 @@
 package property
 
-import "github.com/gofrs/uuid"
+import (
+	"context"
+	"github.com/gofrs/uuid"
+)
 
 type Repo interface {
-	Delete(serviceID uuid.UUID, key string) error
-	GetAll() ([]*Property, error)
-	Store(u []*Property) error
-	Upsert(u []*Property) error
-	Update(u *Property) error
-	GetAllByServiceID(id uuid.UUID) ([]*Property, error)
-	GetByServiceIDKey(id uuid.UUID, key string) (*Property, error)
-	TruncateTable() error
+	Delete(ctx context.Context, serviceID uuid.UUID, key string) error
+	GetAll(ctx context.Context) ([]*Property, error)
+	Store(ctx context.Context, u []*Property) error
+	Upsert(ctx context.Context, u []*Property) error
+	Update(ctx context.Context, u *Property) error
+	GetAllByServiceID(ctx context.Context, id uuid.UUID) ([]*Property, error)
+	GetByServiceIDKey(ctx context.Context, id uuid.UUID, key string) (*Property, error)
+	TruncateTable(ctx context.Context) error
 }

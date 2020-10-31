@@ -1,6 +1,8 @@
 package config
 
+import "context"
+
 type Repo interface {
-	Get() (*DynamicConfig, error)
-	Update(*DynamicConfig) error
+	Get(ctx context.Context) (*DynamicConfig, error)
+	Update(context.Context, *DynamicConfig) error
 }

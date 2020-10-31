@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
@@ -20,10 +21,10 @@ func NewHostRepo(db *gorm.DB, log logger.LogInfoFormat) host.Repo {
 	return &hostRepo{db, log}
 }
 
-func (h *hostRepo) Delete(id uuid.UUID) error {
+func (h *hostRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	h.log.Debugf("deleting the host with id : %h", id)
 
-	result := h.db.Delete(&host.Host{}, "id = ?", id)
+	result := h.db.WithContext(ctx).Delete(&host.Host{}, "id = ?", id)
 	if result.Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the host with id : %d", id)
 		h.log.Errorf(errMsg)
@@ -37,10 +38,10 @@ func (h *hostRepo) Delete(id uuid.UUID) error {
 	return nil
 }
 
-func (h *hostRepo) GetAll() ([]*host.Host, error) {
+func (h *hostRepo) GetAll(ctx context.Context) ([]*host.Host, error) {
 	h.log.Debug("get all the hosts")
 	hosts := make([]*host.Host, 0)
-	err := h.db.Find(&hosts).Error
+	err := h.db.WithContext(ctx).Find(&hosts).Error
 	if err != nil {
 		h.log.Debug("not a single host found")
 		return nil, err
@@ -48,10 +49,10 @@ func (h *hostRepo) GetAll() ([]*host.Host, error) {
 	return hosts, nil
 }
 
-func (h *hostRepo) GetByID(id uuid.UUID) (*host.Host, error) {
+func (h *hostRepo) GetByID(ctx context.Context, id uuid.UUID) (*host.Host, error) {
 	h.log.Debugf("get host details by id : %h", id)
 	hst := &host.Host{}
-	err := h.db.Where("id = ?", id).First(hst).Error
+	err := h.db.WithContext(ctx).Where("id = ?", id).First(hst).Error
 	if err != nil {
 		h.log.Errorf("host not found with id : %h, reason : %v", id, err)
 		return nil, err
@@ -59,8 +60,8 @@ func (h *hostRepo) GetByID(id uuid.UUID) (*host.Host, error) {
 	return hst, nil
 }
 
-func (h *hostRepo) Store(hst []*host.Host) error {
-	err := h.db.Create(hst).Error
+func (h *hostRepo) Store(ctx context.Context, hst []*host.Host) error {
+	err := h.db.WithContext(ctx).Create(hst).Error
 	if err != nil {
 		h.log.Errorf("error while creating the host, reason : %v", err)
 		return err
@@ -68,8 +69,8 @@ func (h *hostRepo) Store(hst []*host.Host) error {
 	return nil
 }
 
-func (h *hostRepo) Upsert(hst []*host.Host) error {
-	err := h.db.Clauses(clause.OnConflict{DoNothing: true}).Create(hst).Error
+func (h *hostRepo) Upsert(ctx context.Context, hst []*host.Host) error {
+	err := h.db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(hst).Error
 	if err != nil {
 		h.log.Errorf("error while creating the user, reason : %v", err)
 		return err
@@ -77,9 +78,9 @@ func (h *hostRepo) Upsert(hst []*host.Host) error {
 	return nil
 }
 
-func (h *hostRepo) Update(hst *host.Host) error {
+func (h *hostRepo) Update(ctx context.Context, hst *host.Host) error {
 	h.log.Debugf("updating the host, id : %v", hst.ID)
-	err := h.db.Model(hst).Updates(host.Host{Enabled: hst.Enabled,
+	err := h.db.WithContext(ctx).Model(hst).Updates(host.Host{Enabled: hst.Enabled,
 		Address: hst.Address, HostGroupID: hst.HostGroupID,
 		TeamID: hst.TeamID, EditHost: hst.EditHost,
 	}).Error
@@ -90,8 +91,8 @@ func (h *hostRepo) Update(hst *host.Host) error {
 	return nil
 }
 
-func (h *hostRepo) TruncateTable() (err error) {
-	err = util.TruncateTable(&host.Host{}, h.db)
+func (h *hostRepo) TruncateTable(ctx context.Context) (err error) {
+	err = util.TruncateTable(ctx, &host.Host{}, h.db)
 	if err != nil {
 		return err
 	}

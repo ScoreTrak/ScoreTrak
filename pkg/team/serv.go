@@ -1,13 +1,16 @@
 package team
 
-import "github.com/gofrs/uuid"
+import (
+	"context"
+	"github.com/gofrs/uuid"
+)
 
 type Serv interface {
-	GetAll() ([]*Team, error)
-	GetByID(id uuid.UUID) (*Team, error)
-	Delete(id uuid.UUID) error
-	Store(u []*Team) error
-	Update(u *Team) error
+	GetAll(ctx context.Context) ([]*Team, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*Team, error)
+	Delete(ctx context.Context, id uuid.UUID) error
+	Store(ctx context.Context, u []*Team) error
+	Update(ctx context.Context, u *Team) error
 }
 
 type teamServ struct {
@@ -20,18 +23,19 @@ func NewTeamServ(repo Repo) Serv {
 	}
 }
 
-func (svc *teamServ) DeleteByName(name string) error { return svc.repo.DeleteByName(name) }
-
-func (svc *teamServ) Delete(id uuid.UUID) error { return svc.repo.Delete(id) }
-
-func (svc *teamServ) GetAll() ([]*Team, error) { return svc.repo.GetAll() }
-
-func (svc *teamServ) GetByName(name string) (*Team, error) { return svc.repo.GetByName(name) }
-
-func (svc *teamServ) GetByID(id uuid.UUID) (*Team, error) { return svc.repo.GetByID(id) }
-
-func (svc *teamServ) Store(u []*Team) error { return svc.repo.Store(u) }
-
-func (svc *teamServ) UpdateByName(u *Team) error { return svc.repo.UpdateByName(u) }
-
-func (svc *teamServ) Update(u *Team) error { return svc.repo.Update(u) }
+func (svc *teamServ) DeleteByName(ctx context.Context, name string) error {
+	return svc.repo.DeleteByName(ctx, name)
+}
+func (svc *teamServ) Delete(ctx context.Context, id uuid.UUID) error { return svc.repo.Delete(ctx, id) }
+func (svc *teamServ) GetAll(ctx context.Context) ([]*Team, error)    { return svc.repo.GetAll(ctx) }
+func (svc *teamServ) GetByName(ctx context.Context, name string) (*Team, error) {
+	return svc.repo.GetByName(ctx, name)
+}
+func (svc *teamServ) GetByID(ctx context.Context, id uuid.UUID) (*Team, error) {
+	return svc.repo.GetByID(ctx, id)
+}
+func (svc *teamServ) Store(ctx context.Context, u []*Team) error { return svc.repo.Store(ctx, u) }
+func (svc *teamServ) UpdateByName(ctx context.Context, u *Team) error {
+	return svc.repo.UpdateByName(ctx, u)
+}
+func (svc *teamServ) Update(ctx context.Context, u *Team) error { return svc.repo.Update(ctx, u) }

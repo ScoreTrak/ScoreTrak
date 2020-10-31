@@ -11,7 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion7
+const _ = grpc.SupportPackageIsVersion6
 
 // TeamServiceClient is the client API for TeamService service.
 //
@@ -78,7 +78,7 @@ func (c *teamServiceClient) Update(ctx context.Context, in *UpdateRequest, opts 
 }
 
 // TeamServiceServer is the server API for TeamService service.
-// All implementations must embed UnimplementedTeamServiceServer
+// All implementations should embed UnimplementedTeamServiceServer
 // for forward compatibility
 type TeamServiceServer interface {
 	GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error)
@@ -86,38 +86,29 @@ type TeamServiceServer interface {
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	Store(context.Context, *StoreRequest) (*StoreResponse, error)
 	Update(context.Context, *UpdateRequest) (*UpdateResponse, error)
-	mustEmbedUnimplementedTeamServiceServer()
 }
 
-// UnimplementedTeamServiceServer must be embedded to have forward compatible implementations.
+// UnimplementedTeamServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedTeamServiceServer struct {
 }
 
-func (UnimplementedTeamServiceServer) GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error) {
+func (*UnimplementedTeamServiceServer) GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
-func (UnimplementedTeamServiceServer) GetByID(context.Context, *GetByIDRequest) (*GetByIDResponse, error) {
+func (*UnimplementedTeamServiceServer) GetByID(context.Context, *GetByIDRequest) (*GetByIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByID not implemented")
 }
-func (UnimplementedTeamServiceServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
+func (*UnimplementedTeamServiceServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (UnimplementedTeamServiceServer) Store(context.Context, *StoreRequest) (*StoreResponse, error) {
+func (*UnimplementedTeamServiceServer) Store(context.Context, *StoreRequest) (*StoreResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Store not implemented")
 }
-func (UnimplementedTeamServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
+func (*UnimplementedTeamServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
-func (UnimplementedTeamServiceServer) mustEmbedUnimplementedTeamServiceServer() {}
 
-// UnsafeTeamServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to TeamServiceServer will
-// result in compilation errors.
-type UnsafeTeamServiceServer interface {
-	mustEmbedUnimplementedTeamServiceServer()
-}
-
-func RegisterTeamServiceServer(s grpc.ServiceRegistrar, srv TeamServiceServer) {
+func RegisterTeamServiceServer(s *grpc.Server, srv TeamServiceServer) {
 	s.RegisterService(&_TeamService_serviceDesc, srv)
 }
 

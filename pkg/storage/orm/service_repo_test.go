@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"context"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
@@ -13,7 +14,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
-
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
@@ -32,6 +32,7 @@ func TestServiceSpec(t *testing.T) {
 	c.Logger.FileName = "service_test.log"
 	db := storage.SetupDB(c.DB)
 	l := SetupLogger(c.Logger)
+	ctx := context.Background()
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Service, Service Group, Host Tables along with their foreign keys", t, func() {
 		db.AutoMigrate(&service.Service{})
@@ -41,15 +42,15 @@ func TestServiceSpec(t *testing.T) {
 		sr := NewServiceRepo(db, l)
 		Convey("When all tables are empty", func() {
 			Convey("Should output no entry", func() {
-				gt, err := sr.GetAll()
+				gt, err := sr.GetAll(ctx)
 				So(err, ShouldBeNil)
 				So(len(gt), ShouldEqual, 0)
 			})
 			Convey("Creating a sample service should not be allowed", func() {
 				s := []*service.Service{{Name: "FTP"}}
-				err := sr.Store(s)
+				err := sr.Store(ctx, s)
 				So(err, ShouldNotBeNil)
-				ac, err := sr.GetAll()
+				ac, err := sr.GetAll(ctx)
 				So(err, ShouldBeNil)
 				So(len(ac), ShouldEqual, 0)
 			})
@@ -68,15 +69,15 @@ func TestServiceSpec(t *testing.T) {
 
 				Convey("Creating a sample service and associating with host id 5, and service group id 2", func() {
 					s := []*service.Service{{Name: "FTP", ServiceGroupID: uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222"), HostID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555")}}
-					err := sr.Store(s)
+					err := sr.Store(ctx, s)
 					Convey("Should be Allowed", func() {
 						So(err, ShouldBeNil)
-						ac, err := sr.GetAll()
+						ac, err := sr.GetAll(ctx)
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
 
 						Convey("Then Querying By ID", func() {
-							ss, err := sr.GetByID(s[0].ID)
+							ss, err := sr.GetByID(ctx, s[0].ID)
 							So(err, ShouldBeNil)
 							So(ss.Name, ShouldEqual, "FTP")
 							So(ss.ServiceGroupID, ShouldEqual, uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222"))
@@ -85,16 +86,16 @@ func TestServiceSpec(t *testing.T) {
 						})
 
 						Convey("Then Querying By wrong ID", func() {
-							ss, err := sr.GetByID(uuid.FromStringOrNil("24422222-2222-2222-2222-222222222222"))
+							ss, err := sr.GetByID(ctx, uuid.FromStringOrNil("24422222-2222-2222-2222-222222222222"))
 							So(err, ShouldNotBeNil)
 							So(ss, ShouldBeNil)
 						})
 
 						Convey("Then Deleting a wrong entry", func() {
-							err = sr.Delete(uuid.FromStringOrNil("24422222-2222-2222-2222-222222222222"))
+							err = sr.Delete(ctx, uuid.FromStringOrNil("24422222-2222-2222-2222-222222222222"))
 							So(err, ShouldNotBeNil)
 							Convey("Should output one entry", func() {
-								ac, err := sr.GetAll()
+								ac, err := sr.GetAll(ctx)
 								So(err, ShouldBeNil)
 								So(len(ac), ShouldEqual, 1)
 							})
@@ -102,17 +103,17 @@ func TestServiceSpec(t *testing.T) {
 
 						Convey("Then updating to non existent host should not be allowed", func() {
 							s[0].HostID = uuid.FromStringOrNil("22222233-2222-2222-2222-222222222222")
-							err = sr.Update(s[0])
+							err = sr.Update(ctx, s[0])
 							So(err, ShouldNotBeNil)
 						})
 						Convey("Then updating to different existent host/service_group should be allowed", func() {
 							s[0].HostID = uuid.FromStringOrNil("44444444-4444-4444-4444-444444444444")
-							err = sr.Update(s[0])
+							err = sr.Update(ctx, s[0])
 							So(err, ShouldBeNil)
 						})
 						Convey("Then adding service with the same name should be allowed", func() {
 							s2 := []*service.Service{{Name: "FTP", ServiceGroupID: uuid.FromStringOrNil("77777777-7777-7777-7777-777777777777"), HostID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555")}}
-							err = sr.Store(s2)
+							err = sr.Store(ctx, s2)
 							So(err, ShouldBeNil)
 						})
 						Convey("Then updating regular fields should be allowed", func() {
@@ -123,9 +124,9 @@ func TestServiceSpec(t *testing.T) {
 							rd := uint(2)
 							s[0].RoundDelay = &rd
 							s[0].Weight = 5
-							err = sr.Update(s[0])
+							err = sr.Update(ctx, s[0])
 							So(err, ShouldBeNil)
-							ac, err = sr.GetAll()
+							ac, err = sr.GetAll(ctx)
 							So(err, ShouldBeNil)
 							So(len(ac), ShouldEqual, 1)
 							So(ac[0].Name, ShouldEqual, "DifferentTestName")
@@ -136,17 +137,17 @@ func TestServiceSpec(t *testing.T) {
 							s[0].RoundDelay = &rd
 							Convey("Round Units set", func() {
 								s[0].RoundUnits = 3
-								err = sr.Update(s[0])
+								err = sr.Update(ctx, s[0])
 								So(err, ShouldNotBeNil)
-								ac, err = sr.GetAll()
+								ac, err = sr.GetAll(ctx)
 								So(err, ShouldBeNil)
 								So(len(ac), ShouldEqual, 1)
 								So(*(ac[0].RoundDelay), ShouldEqual, 0)
 							})
 							Convey("Round Units not set", func() {
-								err = sr.Update(s[0])
+								err = sr.Update(ctx, s[0])
 								So(err, ShouldNotBeNil)
-								ac, err = sr.GetAll()
+								ac, err = sr.GetAll(ctx)
 								So(err, ShouldBeNil)
 								So(len(ac), ShouldEqual, 1)
 								So(*(ac[0].RoundDelay), ShouldEqual, 0)
@@ -158,9 +159,9 @@ func TestServiceSpec(t *testing.T) {
 				Convey("Create Multiple services", func() {
 					s1 := []*service.Service{{Name: "FTP", ServiceGroupID: uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222"), HostID: uuid.FromStringOrNil("44444444-4444-4444-4444-444444444444")}}
 					s2 := []*service.Service{{Name: "FTP", ServiceGroupID: uuid.FromStringOrNil("77777777-7777-7777-7777-777777777777"), HostID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555")}}
-					err := sr.Store(s1)
+					err := sr.Store(ctx, s1)
 					So(err, ShouldBeNil)
-					err = sr.Store(s2)
+					err = sr.Store(ctx, s2)
 					So(err, ShouldBeNil)
 					Convey("Loading Checks And Properties Tables with sample data", func() {
 						db.AutoMigrate(&property.Property{})
@@ -174,7 +175,7 @@ func TestServiceSpec(t *testing.T) {
 						db.Table("properties").Count(&count)
 						So(count, ShouldEqual, 2)
 						Convey("Deleting the service", func() {
-							err = sr.Delete(s1[0].ID)
+							err = sr.Delete(ctx, s1[0].ID)
 							So(err, ShouldBeNil)
 							Convey("Should also delete checks and properties associated with the deleted service", func() {
 								var count int64
@@ -193,9 +194,9 @@ func TestServiceSpec(t *testing.T) {
 
 				Convey("Creating a sample service with wrong service_group should not be allowed", func() {
 					s := []*service.Service{{Name: "FTP", ServiceGroupID: uuid.FromStringOrNil("77777777-7777-7777-7777-777777777557"), HostID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555")}}
-					err := sr.Store(s)
+					err := sr.Store(ctx, s)
 					So(err, ShouldNotBeNil)
-					ac, err := sr.GetAll()
+					ac, err := sr.GetAll(ctx)
 					So(err, ShouldBeNil)
 					So(len(ac), ShouldEqual, 0)
 				})

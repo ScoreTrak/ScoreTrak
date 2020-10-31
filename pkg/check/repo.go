@@ -1,14 +1,17 @@
 package check
 
-import "github.com/gofrs/uuid"
+import (
+	"context"
+	"github.com/gofrs/uuid"
+)
 
 type Repo interface {
-	GetAllByRoundID(roundID uint) ([]*Check, error)
-	GetAllByServiceID(serviceID uuid.UUID) ([]*Check, error)
-	GetByRoundServiceID(roundID uint, serviceID uuid.UUID) (*Check, error)
-	Delete(roundID uint, serviceID uuid.UUID) error
-	GetAll() ([]*Check, error)
-	Store(u []*Check) error
-	Upsert(u []*Check) error
-	TruncateTable() error
+	GetAllByRoundID(ctx context.Context, roundID uint) ([]*Check, error)
+	GetAllByServiceID(ctx context.Context, serviceID uuid.UUID) ([]*Check, error)
+	GetByRoundServiceID(ctx context.Context, roundID uint, serviceID uuid.UUID) (*Check, error)
+	Delete(ctx context.Context, roundID uint, serviceID uuid.UUID) error
+	GetAll(ctx context.Context) ([]*Check, error)
+	Store(ctx context.Context, u []*Check) error
+	Upsert(ctx context.Context, u []*Check) error
+	TruncateTable(ctx context.Context) error
 }

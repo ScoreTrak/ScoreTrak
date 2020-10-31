@@ -15,7 +15,7 @@ import "pkg/check/checkpb/check.proto";
 option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/competition/competitionpb";
 
 message Competition {
-  pkg.config.dynamic_configpb.DynamicConfig dynamic_config = 1;
+  pkg.config.config.DynamicConfig dynamic_config = 1;
   pkg.report.reportpb.Report report = 2;
   repeated  pkg.host_group.host_grouppb.HostGroup host_group = 3;
   repeated  pkg.host.hostpb.Host host = 4;

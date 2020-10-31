@@ -11,14 +11,14 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion7
+const _ = grpc.SupportPackageIsVersion6
 
 // CheckServiceClient is the client API for CheckService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CheckServiceClient interface {
 	GetAllByRoundID(ctx context.Context, in *GetAllByRoundIDRequest, opts ...grpc.CallOption) (*GetAllByRoundIDResponse, error)
-	GetByRoundServiceID(ctx context.Context, in *GetByRoundServiceIDRequest, opts ...grpc.CallOption) (*Check, error)
+	GetByRoundServiceID(ctx context.Context, in *GetByRoundServiceIDRequest, opts ...grpc.CallOption) (*GetByRoundServiceIDResponse, error)
 	GetAllByServiceID(ctx context.Context, in *GetAllByServiceIDRequest, opts ...grpc.CallOption) (*GetAllByServiceIDResponse, error)
 }
 
@@ -39,8 +39,8 @@ func (c *checkServiceClient) GetAllByRoundID(ctx context.Context, in *GetAllByRo
 	return out, nil
 }
 
-func (c *checkServiceClient) GetByRoundServiceID(ctx context.Context, in *GetByRoundServiceIDRequest, opts ...grpc.CallOption) (*Check, error) {
-	out := new(Check)
+func (c *checkServiceClient) GetByRoundServiceID(ctx context.Context, in *GetByRoundServiceIDRequest, opts ...grpc.CallOption) (*GetByRoundServiceIDResponse, error) {
+	out := new(GetByRoundServiceIDResponse)
 	err := c.cc.Invoke(ctx, "/pkg.check.checkpb.CheckService/GetByRoundServiceID", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -58,38 +58,29 @@ func (c *checkServiceClient) GetAllByServiceID(ctx context.Context, in *GetAllBy
 }
 
 // CheckServiceServer is the server API for CheckService service.
-// All implementations must embed UnimplementedCheckServiceServer
+// All implementations should embed UnimplementedCheckServiceServer
 // for forward compatibility
 type CheckServiceServer interface {
 	GetAllByRoundID(context.Context, *GetAllByRoundIDRequest) (*GetAllByRoundIDResponse, error)
-	GetByRoundServiceID(context.Context, *GetByRoundServiceIDRequest) (*Check, error)
+	GetByRoundServiceID(context.Context, *GetByRoundServiceIDRequest) (*GetByRoundServiceIDResponse, error)
 	GetAllByServiceID(context.Context, *GetAllByServiceIDRequest) (*GetAllByServiceIDResponse, error)
-	mustEmbedUnimplementedCheckServiceServer()
 }
 
-// UnimplementedCheckServiceServer must be embedded to have forward compatible implementations.
+// UnimplementedCheckServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedCheckServiceServer struct {
 }
 
-func (UnimplementedCheckServiceServer) GetAllByRoundID(context.Context, *GetAllByRoundIDRequest) (*GetAllByRoundIDResponse, error) {
+func (*UnimplementedCheckServiceServer) GetAllByRoundID(context.Context, *GetAllByRoundIDRequest) (*GetAllByRoundIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllByRoundID not implemented")
 }
-func (UnimplementedCheckServiceServer) GetByRoundServiceID(context.Context, *GetByRoundServiceIDRequest) (*Check, error) {
+func (*UnimplementedCheckServiceServer) GetByRoundServiceID(context.Context, *GetByRoundServiceIDRequest) (*GetByRoundServiceIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByRoundServiceID not implemented")
 }
-func (UnimplementedCheckServiceServer) GetAllByServiceID(context.Context, *GetAllByServiceIDRequest) (*GetAllByServiceIDResponse, error) {
+func (*UnimplementedCheckServiceServer) GetAllByServiceID(context.Context, *GetAllByServiceIDRequest) (*GetAllByServiceIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllByServiceID not implemented")
 }
-func (UnimplementedCheckServiceServer) mustEmbedUnimplementedCheckServiceServer() {}
 
-// UnsafeCheckServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to CheckServiceServer will
-// result in compilation errors.
-type UnsafeCheckServiceServer interface {
-	mustEmbedUnimplementedCheckServiceServer()
-}
-
-func RegisterCheckServiceServer(s grpc.ServiceRegistrar, srv CheckServiceServer) {
+func RegisterCheckServiceServer(s *grpc.Server, srv CheckServiceServer) {
 	s.RegisterService(&_CheckService_serviceDesc, srv)
 }
 

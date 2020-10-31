@@ -1,13 +1,16 @@
 package service
 
-import "github.com/gofrs/uuid"
+import (
+	"context"
+	"github.com/gofrs/uuid"
+)
 
 type Serv interface {
-	Delete(id uuid.UUID) error
-	GetAll() ([]*Service, error)
-	GetByID(id uuid.UUID) (*Service, error)
-	Store(u []*Service) error
-	Update(u *Service) error
+	Delete(ctx context.Context, id uuid.UUID) error
+	GetAll(ctx context.Context) ([]*Service, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*Service, error)
+	Store(ctx context.Context, u []*Service) error
+	Update(ctx context.Context, u *Service) error
 }
 
 type serviceServ struct {
@@ -20,12 +23,16 @@ func NewServiceServ(repo Repo) Serv {
 	}
 }
 
-func (svc *serviceServ) Delete(id uuid.UUID) error { return svc.repo.Delete(id) }
+func (svc *serviceServ) Delete(ctx context.Context, id uuid.UUID) error {
+	return svc.repo.Delete(ctx, id)
+}
 
-func (svc *serviceServ) GetAll() ([]*Service, error) { return svc.repo.GetAll() }
+func (svc *serviceServ) GetAll(ctx context.Context) ([]*Service, error) { return svc.repo.GetAll(ctx) }
 
-func (svc *serviceServ) GetByID(id uuid.UUID) (*Service, error) { return svc.repo.GetByID(id) }
+func (svc *serviceServ) GetByID(ctx context.Context, id uuid.UUID) (*Service, error) {
+	return svc.repo.GetByID(ctx, id)
+}
 
-func (svc *serviceServ) Store(u []*Service) error { return svc.repo.Store(u) }
+func (svc *serviceServ) Store(ctx context.Context, u []*Service) error { return svc.repo.Store(ctx, u) }
 
-func (svc *serviceServ) Update(u *Service) error { return svc.repo.Update(u) }
+func (svc *serviceServ) Update(ctx context.Context, u *Service) error { return svc.repo.Update(ctx, u) }

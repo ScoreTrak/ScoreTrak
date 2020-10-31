@@ -11,7 +11,7 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion7
+const _ = grpc.SupportPackageIsVersion6
 
 // RoundServiceClient is the client API for RoundService service.
 //
@@ -68,42 +68,33 @@ func (c *roundServiceClient) GetLastRound(ctx context.Context, in *GetLastRoundR
 }
 
 // RoundServiceServer is the server API for RoundService service.
-// All implementations must embed UnimplementedRoundServiceServer
+// All implementations should embed UnimplementedRoundServiceServer
 // for forward compatibility
 type RoundServiceServer interface {
 	GetLastNonElapsingRound(context.Context, *GetLastNonElapsingRoundRequest) (*GetLastNonElapsingRoundResponse, error)
 	GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error)
 	GetByID(context.Context, *GetByIDRequest) (*GetByIDResponse, error)
 	GetLastRound(context.Context, *GetLastRoundRequest) (*GetLastRoundResponse, error)
-	mustEmbedUnimplementedRoundServiceServer()
 }
 
-// UnimplementedRoundServiceServer must be embedded to have forward compatible implementations.
+// UnimplementedRoundServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedRoundServiceServer struct {
 }
 
-func (UnimplementedRoundServiceServer) GetLastNonElapsingRound(context.Context, *GetLastNonElapsingRoundRequest) (*GetLastNonElapsingRoundResponse, error) {
+func (*UnimplementedRoundServiceServer) GetLastNonElapsingRound(context.Context, *GetLastNonElapsingRoundRequest) (*GetLastNonElapsingRoundResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastNonElapsingRound not implemented")
 }
-func (UnimplementedRoundServiceServer) GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error) {
+func (*UnimplementedRoundServiceServer) GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
-func (UnimplementedRoundServiceServer) GetByID(context.Context, *GetByIDRequest) (*GetByIDResponse, error) {
+func (*UnimplementedRoundServiceServer) GetByID(context.Context, *GetByIDRequest) (*GetByIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByID not implemented")
 }
-func (UnimplementedRoundServiceServer) GetLastRound(context.Context, *GetLastRoundRequest) (*GetLastRoundResponse, error) {
+func (*UnimplementedRoundServiceServer) GetLastRound(context.Context, *GetLastRoundRequest) (*GetLastRoundResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastRound not implemented")
 }
-func (UnimplementedRoundServiceServer) mustEmbedUnimplementedRoundServiceServer() {}
 
-// UnsafeRoundServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to RoundServiceServer will
-// result in compilation errors.
-type UnsafeRoundServiceServer interface {
-	mustEmbedUnimplementedRoundServiceServer()
-}
-
-func RegisterRoundServiceServer(s grpc.ServiceRegistrar, srv RoundServiceServer) {
+func RegisterRoundServiceServer(s *grpc.Server, srv RoundServiceServer) {
 	s.RegisterService(&_RoundService_serviceDesc, srv)
 }
 

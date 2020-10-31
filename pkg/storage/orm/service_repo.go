@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
@@ -20,10 +21,10 @@ func NewServiceRepo(db *gorm.DB, log logger.LogInfoFormat) service.Repo {
 	return &serviceRepo{db, log}
 }
 
-func (s *serviceRepo) Delete(id uuid.UUID) error {
+func (s *serviceRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	s.log.Debugf("deleting the service with id : %d", id)
 
-	result := s.db.Delete(&service.Service{}, "id = ?", id)
+	result := s.db.WithContext(ctx).Delete(&service.Service{}, "id = ?", id)
 
 	if result.Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the service with id : %d", id)
@@ -37,11 +38,11 @@ func (s *serviceRepo) Delete(id uuid.UUID) error {
 	return nil
 }
 
-func (s *serviceRepo) GetAll() ([]*service.Service, error) {
+func (s *serviceRepo) GetAll(ctx context.Context) ([]*service.Service, error) {
 	s.log.Debug("get all the services")
 
 	services := make([]*service.Service, 0)
-	err := s.db.Find(&services).Error
+	err := s.db.WithContext(ctx).Find(&services).Error
 	if err != nil {
 		s.log.Debug("not a single service found")
 		return nil, err
@@ -49,11 +50,11 @@ func (s *serviceRepo) GetAll() ([]*service.Service, error) {
 	return services, nil
 }
 
-func (s *serviceRepo) GetByID(id uuid.UUID) (*service.Service, error) {
+func (s *serviceRepo) GetByID(ctx context.Context, id uuid.UUID) (*service.Service, error) {
 	s.log.Debugf("get service details by id : %s", id)
 
 	ser := &service.Service{}
-	err := s.db.Where("id = ?", id).First(&ser).Error
+	err := s.db.WithContext(ctx).Where("id = ?", id).First(&ser).Error
 	if err != nil {
 		s.log.Errorf("service not found with id : %d, reason : %v", id, err)
 		return nil, err
@@ -61,8 +62,8 @@ func (s *serviceRepo) GetByID(id uuid.UUID) (*service.Service, error) {
 	return ser, nil
 }
 
-func (s *serviceRepo) Store(swm []*service.Service) error {
-	err := s.db.Create(swm).Error
+func (s *serviceRepo) Store(ctx context.Context, swm []*service.Service) error {
+	err := s.db.WithContext(ctx).Create(swm).Error
 	if err != nil {
 		s.log.Errorf("error while creating the service, reason : %v", err)
 		return err
@@ -70,8 +71,8 @@ func (s *serviceRepo) Store(swm []*service.Service) error {
 	return nil
 }
 
-func (s *serviceRepo) Upsert(swm []*service.Service) error {
-	err := s.db.Clauses(clause.OnConflict{DoNothing: true}).Create(swm).Error
+func (s *serviceRepo) Upsert(ctx context.Context, swm []*service.Service) error {
+	err := s.db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(swm).Error
 	if err != nil {
 		s.log.Errorf("error while creating the user, reason : %v", err)
 		return err
@@ -79,9 +80,9 @@ func (s *serviceRepo) Upsert(swm []*service.Service) error {
 	return nil
 }
 
-func (s *serviceRepo) Update(swm *service.Service) error {
+func (s *serviceRepo) Update(ctx context.Context, swm *service.Service) error {
 	s.log.Debugf("updating the service, id : %v", swm.ID)
-	err := s.db.Model(swm).Updates(service.Service{Enabled: swm.Enabled,
+	err := s.db.WithContext(ctx).Model(swm).Updates(service.Service{Enabled: swm.Enabled,
 		Name: swm.Name, Weight: swm.Weight, PointsBoost: swm.PointsBoost, RoundDelay: swm.RoundDelay,
 		RoundUnits: swm.RoundUnits, ServiceGroupID: swm.ServiceGroupID,
 		HostID: swm.HostID, DisplayName: swm.DisplayName}).Error
@@ -92,8 +93,8 @@ func (s *serviceRepo) Update(swm *service.Service) error {
 	return nil
 }
 
-func (s *serviceRepo) TruncateTable() (err error) {
-	err = util.TruncateTable(&service.Service{}, s.db)
+func (s *serviceRepo) TruncateTable(ctx context.Context) (err error) {
+	err = util.TruncateTable(ctx, &service.Service{}, s.db)
 	if err != nil {
 		return err
 	}

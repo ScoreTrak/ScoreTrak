@@ -1,13 +1,16 @@
 package host
 
-import "github.com/gofrs/uuid"
+import (
+	"context"
+	"github.com/gofrs/uuid"
+)
 
 type Repo interface {
-	Delete(id uuid.UUID) error
-	GetAll() ([]*Host, error)
-	GetByID(id uuid.UUID) (*Host, error)
-	Store(u []*Host) error
-	Upsert(u []*Host) error
-	Update(u *Host) error
-	TruncateTable() error
+	Delete(ctx context.Context, id uuid.UUID) error
+	GetAll(ctx context.Context) ([]*Host, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*Host, error)
+	Store(ctx context.Context, u []*Host) error
+	Upsert(ctx context.Context, u []*Host) error
+	Update(ctx context.Context, u *Host) error
+	TruncateTable(ctx context.Context) error
 }

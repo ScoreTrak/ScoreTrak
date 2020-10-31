@@ -38,6 +38,6 @@ message GetAllByServiceIDResponse{
 
 service CheckService{
     rpc GetAllByRoundID(GetAllByRoundIDRequest) returns (GetAllByRoundIDResponse){}
-    rpc GetByRoundServiceID(GetByRoundServiceIDRequest) returns (Check){}
+    rpc GetByRoundServiceID(GetByRoundServiceIDRequest) returns (GetByRoundServiceIDResponse){}
     rpc GetAllByServiceID(GetAllByServiceIDRequest) returns (GetAllByServiceIDResponse){}
 }

@@ -1,8 +1,10 @@
 package config
 
+import "context"
+
 type Serv interface {
-	Get() (*DynamicConfig, error)
-	Update(*DynamicConfig) error
+	Get(ctx context.Context) (*DynamicConfig, error)
+	Update(context.Context, *DynamicConfig) error
 }
 
 type configServ struct {
@@ -15,9 +17,11 @@ func NewConfigServ(repo Repo) Serv {
 	}
 }
 
-func (svc *configServ) Get() (*DynamicConfig, error) { return svc.repo.Get() }
+func (svc *configServ) Get(ctx context.Context) (*DynamicConfig, error) { return svc.repo.Get(ctx) }
 
-func (svc *configServ) Update(cfg *DynamicConfig) error { return svc.repo.Update(cfg) }
+func (svc *configServ) Update(ctx context.Context, cfg *DynamicConfig) error {
+	return svc.repo.Update(ctx, cfg)
+}
 
 type StaticServ interface {
 	Get() (*StaticConfig, error)

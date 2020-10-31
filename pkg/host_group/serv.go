@@ -1,13 +1,16 @@
 package host_group
 
-import "github.com/gofrs/uuid"
+import (
+	"context"
+	"github.com/gofrs/uuid"
+)
 
 type Serv interface {
-	Delete(id uuid.UUID) error
-	GetAll() ([]*HostGroup, error)
-	GetByID(id uuid.UUID) (*HostGroup, error)
-	Store(u []*HostGroup) error
-	Update(u *HostGroup) error
+	Delete(ctx context.Context, id uuid.UUID) error
+	GetAll(ctx context.Context) ([]*HostGroup, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*HostGroup, error)
+	Store(ctx context.Context, u []*HostGroup) error
+	Update(ctx context.Context, u *HostGroup) error
 }
 
 type hostGroupServ struct {
@@ -20,12 +23,22 @@ func NewHostGroupServ(repo Repo) Serv {
 	}
 }
 
-func (svc *hostGroupServ) Delete(id uuid.UUID) error { return svc.repo.Delete(id) }
+func (svc *hostGroupServ) Delete(ctx context.Context, id uuid.UUID) error {
+	return svc.repo.Delete(ctx, id)
+}
 
-func (svc *hostGroupServ) GetAll() ([]*HostGroup, error) { return svc.repo.GetAll() }
+func (svc *hostGroupServ) GetAll(ctx context.Context) ([]*HostGroup, error) {
+	return svc.repo.GetAll(ctx)
+}
 
-func (svc *hostGroupServ) GetByID(id uuid.UUID) (*HostGroup, error) { return svc.repo.GetByID(id) }
+func (svc *hostGroupServ) GetByID(ctx context.Context, id uuid.UUID) (*HostGroup, error) {
+	return svc.repo.GetByID(ctx, id)
+}
 
-func (svc *hostGroupServ) Store(u []*HostGroup) error { return svc.repo.Store(u) }
+func (svc *hostGroupServ) Store(ctx context.Context, u []*HostGroup) error {
+	return svc.repo.Store(ctx, u)
+}
 
-func (svc *hostGroupServ) Update(u *HostGroup) error { return svc.repo.Update(u) }
+func (svc *hostGroupServ) Update(ctx context.Context, u *HostGroup) error {
+	return svc.repo.Update(ctx, u)
+}

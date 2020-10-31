@@ -1,15 +1,17 @@
 package round
 
+import "context"
+
 type Repo interface {
-	Delete(id uint) error
-	GetAll() ([]*Round, error)
-	GetByID(id uint) (*Round, error)
-	Store(u *Round) error
-	Upsert(u []*Round) error
-	StoreMany(u []*Round) error
-	Update(u *Round) error
-	GetLastRound() (*Round, error)
-	GetLastNonElapsingRound() (*Round, error)
-	GetLastElapsingRound() (*Round, error)
-	TruncateTable() error
+	Delete(ctx context.Context, id uint) error
+	GetAll(ctx context.Context) ([]*Round, error)
+	GetByID(ctx context.Context, id uint) (*Round, error)
+	Store(ctx context.Context, u *Round) error
+	Upsert(ctx context.Context, u []*Round) error
+	StoreMany(ctx context.Context, u []*Round) error
+	Update(ctx context.Context, u *Round) error
+	GetLastRound(ctx context.Context) (*Round, error)
+	GetLastNonElapsingRound(ctx context.Context) (*Round, error)
+	GetLastElapsingRound(ctx context.Context) (*Round, error)
+	TruncateTable(ctx context.Context) error
 }

@@ -1,10 +1,10 @@
 syntax="proto3";
-package pkg.config.dynamic_configpb;
+package pkg.config.config;
 
 import "google/protobuf/wrappers.proto";
 import "pkg/proto/utilpb/uuid.proto";
 
-option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/config/dynamic_configpb";
+option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/config/configpb";
 
 message DynamicConfig {
   pkg.proto.utilpb.UUID id = 1;

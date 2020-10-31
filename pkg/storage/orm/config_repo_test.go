@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"context"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
@@ -39,7 +40,7 @@ func TestConfigSpec(t *testing.T) {
 		cr := NewConfigRepo(db, l)
 
 		Convey("Retrieving all config properties", func() {
-			dn, err := cr.Get()
+			dn, err := cr.Get(context.Background())
 			So(err, ShouldBeNil)
 			So(*(dn.Enabled), ShouldBeTrue)
 			So(dn.RoundDuration, ShouldEqual, 60)
@@ -48,9 +49,9 @@ func TestConfigSpec(t *testing.T) {
 		Convey("Updating the config properties should not return errors", func() {
 			fls := false
 			dn := config.DynamicConfig{RoundDuration: 25, Enabled: &fls}
-			err := cr.Update(&dn)
+			err := cr.Update(context.Background(), &dn)
 			So(err, ShouldBeNil)
-			dnr, err := cr.Get()
+			dnr, err := cr.Get(context.Background())
 			So(err, ShouldBeNil)
 			So(*(dnr.Enabled), ShouldBeFalse)
 			So(dnr.RoundDuration, ShouldEqual, 25)

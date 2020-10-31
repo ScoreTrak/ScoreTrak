@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
@@ -19,10 +20,10 @@ func NewTeamRepo(db *gorm.DB, log logger.LogInfoFormat) team.Repo {
 	return &teamRepo{db, log}
 }
 
-func (t *teamRepo) Delete(id uuid.UUID) error {
+func (t *teamRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	t.log.Debugf("deleting the team with id : %d", id)
 
-	result := t.db.Delete(&team.Team{}, "id = ?", id)
+	result := t.db.WithContext(ctx).Delete(&team.Team{}, "id = ?", id)
 
 	if result.Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the team with id : %d", id)
@@ -36,12 +37,12 @@ func (t *teamRepo) Delete(id uuid.UUID) error {
 	return nil
 }
 
-func (t *teamRepo) DeleteByName(name string) error {
+func (t *teamRepo) DeleteByName(ctx context.Context, name string) error {
 	t.log.Debugf("deleting the team with name : %s", name)
 	if name == "" {
 		return errors.New("you must specify the name of the team you are trying to update")
 	}
-	result := t.db.Delete(&team.Team{}, "name = ?", name)
+	result := t.db.WithContext(ctx).Delete(&team.Team{}, "name = ?", name)
 	if result.Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the team with name : %s", name)
 		t.log.Errorf(errMsg)
@@ -53,10 +54,10 @@ func (t *teamRepo) DeleteByName(name string) error {
 	return nil
 }
 
-func (t *teamRepo) GetAll() ([]*team.Team, error) {
+func (t *teamRepo) GetAll(ctx context.Context) ([]*team.Team, error) {
 	t.log.Debug("get all the teams")
 	teams := make([]*team.Team, 0)
-	err := t.db.Find(&teams).Error
+	err := t.db.WithContext(ctx).Find(&teams).Error
 	if err != nil {
 		t.log.Debug("not a single team found")
 		return nil, err
@@ -64,11 +65,11 @@ func (t *teamRepo) GetAll() ([]*team.Team, error) {
 	return teams, nil
 }
 
-func (t *teamRepo) GetByID(id uuid.UUID) (*team.Team, error) {
+func (t *teamRepo) GetByID(ctx context.Context, id uuid.UUID) (*team.Team, error) {
 	t.log.Debugf("get team details by id : %s", id)
 
 	tea := &team.Team{}
-	err := t.db.Where("id = ?", id).First(tea).Error
+	err := t.db.WithContext(ctx).Where("id = ?", id).First(tea).Error
 	if err != nil {
 		t.log.Errorf("team not found with id : %d, reason : %v", id, err)
 		return nil, err
@@ -76,13 +77,13 @@ func (t *teamRepo) GetByID(id uuid.UUID) (*team.Team, error) {
 	return tea, nil
 }
 
-func (t *teamRepo) GetByName(name string) (*team.Team, error) {
+func (t *teamRepo) GetByName(ctx context.Context, name string) (*team.Team, error) {
 	t.log.Debugf("get team details by name : %s", name)
 	if name == "" {
 		return nil, errors.New("you must specify the name of the team you are trying to update")
 	}
 	tea := &team.Team{}
-	err := t.db.Where("name = ?", name).First(tea).Error
+	err := t.db.WithContext(ctx).Where("name = ?", name).First(tea).Error
 	if err != nil {
 		t.log.Errorf("team not found with id : %d, reason : %v", name, err)
 		return nil, err
@@ -90,8 +91,8 @@ func (t *teamRepo) GetByName(name string) (*team.Team, error) {
 	return tea, nil
 }
 
-func (t *teamRepo) Store(tm []*team.Team) error {
-	err := t.db.Create(tm).Error
+func (t *teamRepo) Store(ctx context.Context, tm []*team.Team) error {
+	err := t.db.WithContext(ctx).Create(tm).Error
 	if err != nil {
 		t.log.Errorf("error while creating the team, reason : %v", err)
 		return err
@@ -99,8 +100,8 @@ func (t *teamRepo) Store(tm []*team.Team) error {
 	return nil
 }
 
-func (t *teamRepo) Upsert(usr []*team.Team) error {
-	err := t.db.Clauses(clause.OnConflict{DoNothing: true}).Create(usr).Error
+func (t *teamRepo) Upsert(ctx context.Context, usr []*team.Team) error {
+	err := t.db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(usr).Error
 	if err != nil {
 		t.log.Errorf("error while creating the user, reason : %v", err)
 		return err
@@ -108,9 +109,9 @@ func (t *teamRepo) Upsert(usr []*team.Team) error {
 	return nil
 }
 
-func (t *teamRepo) Update(tm *team.Team) error {
+func (t *teamRepo) Update(ctx context.Context, tm *team.Team) error {
 	t.log.Debugf("updating the team, with id : %v", tm.ID)
-	err := t.db.Model(tm).Updates(team.Team{Enabled: tm.Enabled, Name: tm.Name}).Error
+	err := t.db.WithContext(ctx).Model(tm).Updates(team.Team{Enabled: tm.Enabled, Name: tm.Name}).Error
 	if err != nil {
 		t.log.Errorf("error while updating the team, reason : %v", err)
 		return err
@@ -118,12 +119,12 @@ func (t *teamRepo) Update(tm *team.Team) error {
 	return nil
 }
 
-func (t *teamRepo) UpdateByName(tm *team.Team) error {
+func (t *teamRepo) UpdateByName(ctx context.Context, tm *team.Team) error {
 	t.log.Debugf("updating the team, with id : %v", tm.ID)
 	if tm.Name == "" {
 		return errors.New("you must specify the name of the team you are trying to update")
 	}
-	err := t.db.Model(tm).Where("name = ?", tm.Name).Updates(team.Team{Enabled: tm.Enabled}).Error
+	err := t.db.WithContext(ctx).Model(tm).Where("name = ?", tm.Name).Updates(team.Team{Enabled: tm.Enabled}).Error
 	if err != nil {
 		t.log.Errorf("error while updating the team, reason : %v", err)
 		return err

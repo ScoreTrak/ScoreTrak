@@ -1,11 +1,11 @@
 package orm
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -20,9 +20,9 @@ func NewServiceGroupRepo(db *gorm.DB, log logger.LogInfoFormat) service_group.Re
 	return &serviceGroupRepo{db, log}
 }
 
-func (s *serviceGroupRepo) Delete(id uuid.UUID) error {
+func (s *serviceGroupRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	s.log.Debugf("deleting the Service Group with id : %d", id)
-	result := s.db.Delete(&service_group.ServiceGroup{}, "id = ?", id)
+	result := s.db.WithContext(ctx).Delete(&service_group.ServiceGroup{}, "id = ?", id)
 
 	if result.Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the Service Group with id : %d", id)
@@ -37,11 +37,11 @@ func (s *serviceGroupRepo) Delete(id uuid.UUID) error {
 	return nil
 }
 
-func (s *serviceGroupRepo) GetAll() ([]*service_group.ServiceGroup, error) {
+func (s *serviceGroupRepo) GetAll(ctx context.Context) ([]*service_group.ServiceGroup, error) {
 	s.log.Debug("get all the serviceGroups")
 
 	serviceGroups := make([]*service_group.ServiceGroup, 0)
-	err := s.db.Find(&serviceGroups).Error
+	err := s.db.WithContext(ctx).Find(&serviceGroups).Error
 	if err != nil {
 		s.log.Debug("not a single Service Group found")
 		return nil, err
@@ -49,11 +49,11 @@ func (s *serviceGroupRepo) GetAll() ([]*service_group.ServiceGroup, error) {
 	return serviceGroups, nil
 }
 
-func (s *serviceGroupRepo) GetByID(id uuid.UUID) (*service_group.ServiceGroup, error) {
+func (s *serviceGroupRepo) GetByID(ctx context.Context, id uuid.UUID) (*service_group.ServiceGroup, error) {
 	s.log.Debugf("get Service Group details by id : %s", id)
 
 	sgr := &service_group.ServiceGroup{}
-	err := s.db.Where("id = ?", id).First(sgr).Error
+	err := s.db.WithContext(ctx).Where("id = ?", id).First(sgr).Error
 	if err != nil {
 		s.log.Errorf("serviceGroup not found with id : %d, reason : %v", id, err)
 		return nil, err
@@ -61,8 +61,8 @@ func (s *serviceGroupRepo) GetByID(id uuid.UUID) (*service_group.ServiceGroup, e
 	return sgr, nil
 }
 
-func (s *serviceGroupRepo) Store(sgr *service_group.ServiceGroup) error {
-	err := s.db.Create(sgr).Error
+func (s *serviceGroupRepo) Store(ctx context.Context, sgr *service_group.ServiceGroup) error {
+	err := s.db.WithContext(ctx).Create(sgr).Error
 	if err != nil {
 		s.log.Errorf("error while creating the Service Group, reason : %v", err)
 		return err
@@ -70,8 +70,8 @@ func (s *serviceGroupRepo) Store(sgr *service_group.ServiceGroup) error {
 	return nil
 }
 
-func (s *serviceGroupRepo) Upsert(sgr *service_group.ServiceGroup) error {
-	err := s.db.Clauses(clause.OnConflict{DoNothing: true}).Create(sgr).Error
+func (s *serviceGroupRepo) Upsert(ctx context.Context, sgr *service_group.ServiceGroup) error {
+	err := s.db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(sgr).Error
 	if err != nil {
 		s.log.Errorf("error while creating the user, reason : %v", err)
 		return err
@@ -79,19 +79,11 @@ func (s *serviceGroupRepo) Upsert(sgr *service_group.ServiceGroup) error {
 	return nil
 }
 
-func (s *serviceGroupRepo) Update(sgr *service_group.ServiceGroup) error {
+func (s *serviceGroupRepo) Update(ctx context.Context, sgr *service_group.ServiceGroup) error {
 	s.log.Debugf("updating the Service Group, id : %v", sgr.ID)
-	err := s.db.Model(sgr).Updates(service_group.ServiceGroup{Enabled: sgr.Enabled, DisplayName: sgr.DisplayName}).Error //Updating service group names is not supported because service group name tightly coupled with platform operations
+	err := s.db.WithContext(ctx).Model(sgr).Updates(service_group.ServiceGroup{Enabled: sgr.Enabled, DisplayName: sgr.DisplayName}).Error //Updating service group names is not supported because service group name tightly coupled with platform operations
 	if err != nil {
 		s.log.Errorf("error while updating the Service Group, reason : %v", err)
-		return err
-	}
-	return nil
-}
-
-func (s *serviceGroupRepo) TruncateTable() (err error) {
-	err = util.TruncateTable(&service_group.ServiceGroup{}, s.db)
-	if err != nil {
 		return err
 	}
 	return nil

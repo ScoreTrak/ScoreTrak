@@ -3,7 +3,6 @@ package pkg.host_group.host_grouppb;
 
 import "google/protobuf/wrappers.proto";
 import "pkg/proto/utilpb/uuid.proto";
-import "pkg/service/servicepb/service.proto";
 import "pkg/host/hostpb/host.proto";
 
 option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_grouppb";
