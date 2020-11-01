@@ -6,7 +6,7 @@ import "github.com/gofrs/uuid"
 type Check struct {
 	ServiceID uuid.UUID `json:"service_id,omitempty" gorm:"primary_key;type:uuid;auto_increment:false"`
 
-	RoundID uint `json:"round_id,omitempty" gorm:"primary_key;auto_increment:false"`
+	RoundID uint64 `json:"round_id,omitempty" gorm:"primary_key;auto_increment:false"`
 
 	// Represents an comment/log of a check. This will be helpful for debugging purposes during the competition
 	Log string `json:"log,omitempty"`

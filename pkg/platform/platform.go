@@ -1,8 +1,9 @@
 package platform
 
 import (
+	"context"
 	"errors"
-	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/docker"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/kubernetes"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
@@ -10,15 +11,15 @@ import (
 )
 
 type Platform interface {
-	DeployWorkers(info worker.Info) error
-	RemoveWorkers(info worker.Info) error
+	DeployWorkers(ctx context.Context, info worker.Info) error
+	RemoveWorkers(ctx context.Context, info worker.Info) error
 }
 
-func NewPlatform(config platforming.Config, l logger.LogInfoFormat) (Platform, error) {
+func NewPlatform(config platforming.Config) (Platform, error) {
 	if config.Use == "docker" || config.Use == "swarm" {
-		return docker.NewDocker(config, l)
+		return docker.NewDocker(config)
 	} else if config.Use == "kubernetes" {
-		return kubernetes.NewKubernetes(config, l)
+		return kubernetes.NewKubernetes(config)
 	} else if config.Use == "none" {
 		return nil, nil
 	}

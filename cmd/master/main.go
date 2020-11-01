@@ -4,16 +4,19 @@ import (
 	"flag"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/cmd/master/run"
-	"github.com/ScoreTrak/ScoreTrak/cmd/master/server/gorilla"
+	"github.com/ScoreTrak/ScoreTrak/cmd/master/server"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	cutil "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/di"
-	"github.com/ScoreTrak/ScoreTrak/pkg/di/repo"
-	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	diutil "github.com/ScoreTrak/ScoreTrak/pkg/di/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	sutil "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
-	"os"
+	"go.uber.org/dig"
+	"gorm.io/gorm"
+	"log"
+	"math"
+	"time"
 )
 
 func main() {
@@ -29,26 +32,18 @@ func main() {
 	if err != nil {
 		handleErr(err)
 	}
-	r := gorilla.NewRouter()
+
+	staticConfig := config.GetStaticConfig()
+
+	if !staticConfig.Prod {
+		log.SetFlags(log.LstdFlags | log.Lshortfile)
+	}
+
 	d, err := di.BuildMasterContainer()
 	handleErr(err)
-	var l logger.LogInfoFormat
-	di.Invoke(func(log logger.LogInfoFormat) {
-		l = log
-	})
-	svr := gorilla.NewServer(r, d, l)
-	svr.MapRoutes()
-	handleErr(svr.SetupDB())
+	handleErr(SetupDB(d))
 	db := storage.GetGlobalDB()
-	handleErr(svr.LoadTables(db))
-	handleErr(svr.Start())
-	var q queue.Queue
-	di.Invoke(func(qu queue.Queue) {
-		q = qu
-	})
-	dr := run.NewRunner(db, l, q, repo.NewStore())
-	var count int64
-	db.Table("config").Count(&count)
+	handleErr(sutil.CreateAllTables(db))
 	err = sutil.LoadConfig(db, cnf)
 	if err != nil {
 		handleErr(err)
@@ -57,13 +52,45 @@ func main() {
 	if err != nil {
 		handleErr(err)
 	}
-	handleErr(dr.MasterRunner(cnf))
+
+	store := diutil.NewStore()
+
+	var q queue.Queue
+	di.Invoke(func(qu queue.Queue) {
+		q = qu
+	})
+	dr := run.NewRunner(db, q, store)
+	go func() {
+		handleErr(dr.MasterRunner(cnf))
+	}()
+	handleErr(server.Start(staticConfig, d))
+
 }
 func handleErr(err error) {
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v", err)
-		os.Exit(-1)
+		log.Fatalf("%v", err)
 	} else {
 		return
 	}
+}
+
+func SetupDB(cont *dig.Container) error {
+	var db *gorm.DB
+	cont.Invoke(func(d *gorm.DB) {
+		db = d
+	})
+	var tm time.Time
+	res, err := db.Raw("SELECT current_timestamp;").Rows()
+	if err != nil {
+		panic(err)
+	}
+	defer res.Close()
+	for res.Next() {
+		res.Scan(&tm)
+	}
+	timeDiff := time.Since(tm)
+	if float64(time.Second*2) < math.Abs(float64(timeDiff)) {
+		panic(fmt.Errorf("time difference between master host, and database host are is large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now()))
+	}
+	return nil
 }

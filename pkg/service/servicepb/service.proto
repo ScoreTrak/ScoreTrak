@@ -12,8 +12,8 @@ message Service {
   pkg.proto.utilpb.UUID id = 1;
   string name = 2;
   string display_name = 3;
-  uint64 points = 4;
-  uint64 points_boost = 5;
+  google.protobuf.UInt64Value weight = 4;
+  google.protobuf.UInt64Value points_boost = 5;
   uint64 round_units = 6;
   google.protobuf.UInt64Value round_delay = 7;
   pkg.proto.utilpb.UUID service_group_id  = 8;
@@ -45,7 +45,9 @@ message StoreRequest{
   repeated Service services = 1;
 }
 
-message StoreResponse{}
+message StoreResponse{
+  repeated pkg.proto.utilpb.UUID ids = 1;
+}
 
 message UpdateRequest{
   Service service = 1;
@@ -53,10 +55,20 @@ message UpdateRequest{
 
 message UpdateResponse{}
 
+
+message TestServiceRequest{
+  pkg.proto.utilpb.UUID id = 1;
+}
+
+message TestServiceResponse{
+  pkg.check.checkpb.Check check = 1;
+}
+
 service ServiceService{
   rpc GetAll(GetAllRequest) returns (GetAllResponse){}
   rpc GetByID(GetByIDRequest) returns (GetByIDResponse){}
   rpc Delete(DeleteRequest) returns (DeleteResponse){}
   rpc Store(StoreRequest) returns (StoreResponse) {}
   rpc Update(UpdateRequest) returns (UpdateResponse) {}
+  rpc TestService(TestServiceRequest) returns (TestServiceResponse) {}
 }

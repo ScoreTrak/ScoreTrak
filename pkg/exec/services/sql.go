@@ -37,14 +37,14 @@ func (w *Sql) Validate() error {
 	}
 
 	if w.MaxExpectedRows != "" {
-		_, err := strconv.ParseUint(w.MaxExpectedRows, 10, 32)
+		_, err := strconv.ParseUint(w.MaxExpectedRows, 10, 64)
 		if err != nil {
 			return err
 		}
 	}
 
 	if w.MinExpectedRows != "" {
-		_, err := strconv.ParseUint(w.MinExpectedRows, 10, 32)
+		_, err := strconv.ParseUint(w.MinExpectedRows, 10, 64)
 		if err != nil {
 			return err
 		}

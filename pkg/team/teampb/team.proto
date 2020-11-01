@@ -36,7 +36,9 @@ message StoreRequest{
   repeated Team teams = 1;
 }
 
-message StoreResponse{}
+message StoreResponse{
+  repeated pkg.proto.utilpb.UUID ids = 1;
+}
 
 message UpdateRequest{
   Team team = 1;

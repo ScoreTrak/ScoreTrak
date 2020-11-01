@@ -17,14 +17,14 @@ option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/competition/competitionp
 message Competition {
   pkg.config.config.DynamicConfig dynamic_config = 1;
   pkg.report.reportpb.Report report = 2;
-  repeated  pkg.host_group.host_grouppb.HostGroup host_group = 3;
-  repeated  pkg.host.hostpb.Host host = 4;
-  repeated  pkg.team.teampb.Team team = 5;
-  repeated  pkg.service.servicepb.Service service = 6;
-  repeated  pkg.service_group.service_grouppb.ServiceGroup service_group = 7;
-  repeated  pkg.round.roundpb.Round round = 8;
-  repeated  pkg.property.propertypb.Property property = 9;
-  repeated  pkg.check.checkpb.Check check = 10;
+  repeated  pkg.host_group.host_grouppb.HostGroup host_groups = 3;
+  repeated  pkg.host.hostpb.Host hosts = 4;
+  repeated  pkg.team.teampb.Team teams = 5;
+  repeated  pkg.service.servicepb.Service services = 6;
+  repeated  pkg.service_group.service_grouppb.ServiceGroup service_groups = 7;
+  repeated  pkg.round.roundpb.Round rounds = 8;
+  repeated  pkg.property.propertypb.Property properties = 9;
+  repeated  pkg.check.checkpb.Check checks = 10;
   
 }
 

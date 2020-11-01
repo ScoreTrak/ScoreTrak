@@ -6,7 +6,6 @@ import (
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
-	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
@@ -26,9 +25,7 @@ func TestHostSpec(t *testing.T) {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_host"
-	c.Logger.FileName = "host_test.log"
 	db := storage.SetupDB(c.DB)
-	l := SetupLogger(c.Logger)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	ctx := context.Background()
 	Convey("Creating Host Table", t, func() {
@@ -36,7 +33,7 @@ func TestHostSpec(t *testing.T) {
 		db.AutoMigrate(&team.Team{})
 		db.Exec("INSERT INTO teams (id, name, enabled) VALUES ('11111111-1111-1111-1111-111111111111', 'HostGroup1', true)")
 		db.Exec("INSERT INTO teams (id, name, enabled) VALUES ('22222222-2222-2222-2222-222222222222', 'HostGroup2', false)")
-		hr := NewHostRepo(db, l)
+		hr := NewHostRepo(db)
 		Reset(func() {
 			db.Migrator().DropTable(&host.Host{})
 		})

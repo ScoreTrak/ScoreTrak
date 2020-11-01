@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
-	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
@@ -25,14 +24,12 @@ func TestServiceGroupSpec(t *testing.T) {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_service_group"
-	c.Logger.FileName = "service_group_test.log"
 	db := storage.SetupDB(c.DB)
-	l := SetupLogger(c.Logger)
 	ctx := context.Background()
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Service Group Tables", t, func() {
 		db.AutoMigrate(&service_group.ServiceGroup{})
-		sgr := NewServiceGroupRepo(db, l)
+		sgr := NewServiceGroupRepo(db)
 
 		Convey("When the Service Group table is empty", func() {
 			Convey("There should be no entries", func() {

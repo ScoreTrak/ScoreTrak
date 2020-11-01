@@ -40,7 +40,9 @@ message StoreRequest{
   repeated Host hosts = 1;
 }
 
-message StoreResponse{}
+message StoreResponse{
+  repeated pkg.proto.utilpb.UUID ids = 1;
+}
 
 message UpdateRequest{
   Host host = 1;

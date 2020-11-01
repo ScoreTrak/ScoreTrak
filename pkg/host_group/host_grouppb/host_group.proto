@@ -36,7 +36,9 @@ message StoreRequest{
   repeated HostGroup host_groups = 1;
 }
 
-message StoreResponse{}
+message StoreResponse{
+  repeated pkg.proto.utilpb.UUID ids = 1;
+}
 
 message UpdateRequest{
   HostGroup host_group = 1;

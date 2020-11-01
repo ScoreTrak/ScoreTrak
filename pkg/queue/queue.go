@@ -2,7 +2,6 @@ package queue
 
 import (
 	"errors"
-	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/none"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/nsq"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
@@ -16,11 +15,11 @@ type Queue interface {
 	Ping(group *service_group.ServiceGroup) error
 }
 
-func NewQueue(c queueing.Config, l logger.LogInfoFormat) (Queue, error) {
+func NewQueue(c queueing.Config) (Queue, error) {
 	if c.Use == "nsq" {
-		return nsq.NewNSQQueue(l, c)
+		return nsq.NewNSQQueue(c)
 	} else if c.Use == "none" {
-		return none.NewNoneQueue(l)
+		return none.NewNoneQueue()
 	} else {
 		return nil, errors.New("invalid queue selected")
 	}

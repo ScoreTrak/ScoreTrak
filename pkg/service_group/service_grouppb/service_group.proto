@@ -39,7 +39,9 @@ message StoreRequest{
   ServiceGroup service_group = 1;
 }
 
-message StoreResponse{}
+message StoreResponse{
+  pkg.proto.utilpb.UUID id = 1;
+}
 
 message UpdateRequest{
   ServiceGroup service_group = 1;
@@ -47,10 +49,17 @@ message UpdateRequest{
 
 message UpdateResponse{}
 
+message RedeployRequest{
+  pkg.proto.utilpb.UUID id = 1;
+}
+
+message RedeployResponse{}
+
 service ServiceGroupService{
   rpc GetAll(GetAllRequest) returns (GetAllResponse){}
   rpc GetByID(GetByIDRequest) returns (GetByIDResponse){}
   rpc Delete(DeleteRequest) returns (DeleteResponse){}
   rpc Store(StoreRequest) returns (StoreResponse) {}
   rpc Update(UpdateRequest) returns (UpdateResponse) {}
+  rpc Redeploy(RedeployRequest) returns (RedeployResponse){}
 }

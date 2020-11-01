@@ -2,18 +2,15 @@ package none
 
 import (
 	"errors"
-	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
 	"time"
 )
 
-type None struct {
-	l logger.LogInfoFormat
-}
+type None struct{}
 
 func (n None) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error) {
-
 	ret := make([]*queueing.QCheck, len(sds))
 	cq := make(chan queueing.IndexedQueue, 1)
 	for i, sd := range sds {
@@ -29,12 +26,11 @@ func (n None) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, erro
 					default:
 						err = errors.New("unknown panic")
 					}
-					n.l.Error(err)
 					cq <- queueing.IndexedQueue{Q: &queueing.QCheck{Service: sd.Service, Passed: false, Log: "Encountered an unexpected error during the check. This is most likely a bug", Err: err.Error(), RoundID: sd.RoundID}, I: i}
 					return
 				}
 			}()
-			qc := queueing.CommonExecute(sd, sd.Deadline.Add(-2*time.Second), n.l)
+			qc := queueing.CommonExecute(sd, sd.Deadline.Add(-2*time.Second))
 			cq <- queueing.IndexedQueue{Q: &qc, I: i}
 		}(sd, i)
 	}
@@ -65,6 +61,6 @@ func (n None) Ping(group *service_group.ServiceGroup) error {
 	return errors.New("you should not call Ping when queue is none")
 }
 
-func NewNoneQueue(l logger.LogInfoFormat) (*None, error) {
-	return &None{l}, nil
+func NewNoneQueue() (*None, error) {
+	return &None{}, nil
 }

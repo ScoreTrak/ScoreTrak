@@ -3,7 +3,7 @@ package exec
 import (
 	"context"
 	"errors"
-	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+
 	"reflect"
 	"time"
 )
@@ -17,11 +17,10 @@ type Exec struct {
 	Context    context.Context
 	Host       string
 	executable Executable
-	Logger     logger.LogInfoFormat
 }
 
-func NewExec(ctx context.Context, h string, e Executable, l logger.LogInfoFormat) *Exec {
-	return &Exec{Context: ctx, Host: h, executable: e, Logger: l}
+func NewExec(ctx context.Context, h string, e Executable) *Exec {
+	return &Exec{Context: ctx, Host: h, executable: e}
 }
 
 func (e Exec) Execute() (passed bool, log string, err error) {

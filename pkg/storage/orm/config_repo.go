@@ -3,17 +3,16 @@ package orm
 import (
 	"context"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config/repo"
 	"gorm.io/gorm"
 )
 
 type configRepo struct {
-	db  *gorm.DB
-	log logger.LogInfoFormat
+	db *gorm.DB
 }
 
-func NewConfigRepo(db *gorm.DB, log logger.LogInfoFormat) config.Repo {
-	return &configRepo{db, log}
+func NewConfigRepo(db *gorm.DB) repo.Repo {
+	return &configRepo{db}
 }
 
 func (c *configRepo) Get(ctx context.Context) (*config.DynamicConfig, error) {
@@ -24,11 +23,9 @@ func (c *configRepo) Get(ctx context.Context) (*config.DynamicConfig, error) {
 }
 
 func (c *configRepo) Update(ctx context.Context, cfg *config.DynamicConfig) error {
-	c.log.Debugf("updating the config")
 	cfg.ID = 1
 	err := c.db.WithContext(ctx).Model(cfg).Updates(config.DynamicConfig{RoundDuration: cfg.RoundDuration, Enabled: cfg.Enabled}).Error
 	if err != nil {
-		c.log.Errorf("error while updating the config, reason : %v", err)
 		return err
 	}
 	return nil

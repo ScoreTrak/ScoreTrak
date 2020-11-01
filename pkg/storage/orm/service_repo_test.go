@@ -7,7 +7,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
-	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
@@ -29,9 +28,7 @@ func TestServiceSpec(t *testing.T) {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_service"
-	c.Logger.FileName = "service_test.log"
 	db := storage.SetupDB(c.DB)
-	l := SetupLogger(c.Logger)
 	ctx := context.Background()
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Service, Service Group, Host Tables along with their foreign keys", t, func() {
@@ -39,7 +36,7 @@ func TestServiceSpec(t *testing.T) {
 		db.AutoMigrate(&service_group.ServiceGroup{})
 		db.AutoMigrate(&team.Team{})
 		db.AutoMigrate(&host.Host{})
-		sr := NewServiceRepo(db, l)
+		sr := NewServiceRepo(db)
 		Convey("When all tables are empty", func() {
 			Convey("Should output no entry", func() {
 				gt, err := sr.GetAll(ctx)
@@ -121,9 +118,10 @@ func TestServiceSpec(t *testing.T) {
 							s[0].Enabled = &tru
 							s[0].Name = "DifferentTestName"
 							s[0].RoundUnits = 3
-							rd := uint(2)
+							rd := uint64(2)
 							s[0].RoundDelay = &rd
-							s[0].Weight = 5
+							x := uint64(5)
+							s[0].Weight = &x
 							err = sr.Update(ctx, s[0])
 							So(err, ShouldBeNil)
 							ac, err = sr.GetAll(ctx)
@@ -133,7 +131,7 @@ func TestServiceSpec(t *testing.T) {
 							So(*(ac[0].RoundDelay), ShouldEqual, 2)
 						})
 						SkipConvey("Then updating Round Delay to something larger than Round Units should not be allowed", func() { //TODO: Change this to Convey once govalidations are enabled
-							rd := uint(5)
+							rd := uint64(5)
 							s[0].RoundDelay = &rd
 							Convey("Round Units set", func() {
 								s[0].RoundUnits = 3

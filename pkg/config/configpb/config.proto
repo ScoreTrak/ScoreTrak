@@ -2,19 +2,17 @@ syntax="proto3";
 package pkg.config.config;
 
 import "google/protobuf/wrappers.proto";
-import "pkg/proto/utilpb/uuid.proto";
 
 option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/config/configpb";
 
 message DynamicConfig {
-  pkg.proto.utilpb.UUID id = 1;
   uint64 round_duration = 2;
   google.protobuf.BoolValue enabled = 3;
 }
 
 message GetRequest{}
 message GetResponse{
-  DynamicConfig dynamic_configs = 1;
+  DynamicConfig dynamic_config = 1;
 }
 message UpdateRequest{
   DynamicConfig dynamic_config = 1;

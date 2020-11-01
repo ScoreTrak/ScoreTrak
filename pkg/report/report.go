@@ -6,7 +6,7 @@ import (
 )
 
 type Report struct {
-	ID        uint      `json:"id,omitempty"`
+	ID        uint64    `json:"id,omitempty"`
 	Cache     string    `json:"cache,omitempty" gorm:"not null;default:'{}'"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -23,7 +23,7 @@ func NewReport() *Report {
 }
 
 type SimpleReport struct {
-	Round uint
+	Round uint64
 	Teams map[uuid.UUID]*SimpleTeam
 }
 
@@ -59,9 +59,9 @@ type SimpleService struct {
 	Passed             bool
 	Log                string
 	Err                string
-	Weight             uint
-	Points             uint
-	PointsBoost        uint
+	Weight             uint64
+	Points             uint64
+	PointsBoost        uint64
 	Properties         map[string]*SimpleProperty
 	SimpleServiceGroup *SimpleServiceGroup
 }

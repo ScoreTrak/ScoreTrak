@@ -3,10 +3,9 @@ package storage
 import (
 	"errors"
 	"fmt"
-	"gorm.io/gorm/schema"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 var db *gorm.DB
@@ -100,8 +99,8 @@ type Config struct {
 		Database          string `default:"scoretrak"`
 		ConfigureZones    bool   `default:"true"`
 		DefaultZoneConfig struct {
-			GcTtlseconds                    uint `default:"600"`
-			BackpressureRangeSizeMultiplier uint `default:"0"`
+			GcTtlseconds                    uint64 `default:"600"`
+			BackpressureRangeSizeMultiplier uint64 `default:"0"`
 		}
 	}
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
-	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
@@ -24,15 +23,13 @@ func TestPropertySpec(t *testing.T) {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_property"
-	c.Logger.FileName = "property_test.log"
 	db := storage.SetupDB(c.DB)
-	l := SetupLogger(c.Logger)
 	ctx := context.Background()
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Property and Property tables along with their foreign keys", t, func() {
 		db.AutoMigrate(&service.Service{})
 		db.AutoMigrate(&property.Property{})
-		cr := NewPropertyRepo(db, l)
+		cr := NewPropertyRepo(db)
 		Convey("When all tables are empty", func() {
 			Convey("Should output no entry", func() {
 				gt, err := cr.GetAll(ctx)

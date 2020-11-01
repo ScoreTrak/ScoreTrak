@@ -26,7 +26,7 @@ message GetByRoundServiceIDRequest{
   uint64 round_id = 2;
 }
 message GetByRoundServiceIDResponse{
-  repeated Check checks = 1;
+  Check checks = 1;
 }
 
 message GetAllByServiceIDRequest{

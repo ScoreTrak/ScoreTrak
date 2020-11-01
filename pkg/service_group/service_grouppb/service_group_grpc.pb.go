@@ -22,6 +22,7 @@ type ServiceGroupServiceClient interface {
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
 	Store(ctx context.Context, in *StoreRequest, opts ...grpc.CallOption) (*StoreResponse, error)
 	Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error)
+	Redeploy(ctx context.Context, in *RedeployRequest, opts ...grpc.CallOption) (*RedeployResponse, error)
 }
 
 type serviceGroupServiceClient struct {
@@ -77,6 +78,15 @@ func (c *serviceGroupServiceClient) Update(ctx context.Context, in *UpdateReques
 	return out, nil
 }
 
+func (c *serviceGroupServiceClient) Redeploy(ctx context.Context, in *RedeployRequest, opts ...grpc.CallOption) (*RedeployResponse, error) {
+	out := new(RedeployResponse)
+	err := c.cc.Invoke(ctx, "/pkg.service_group.service_grouppb.ServiceGroupService/Redeploy", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServiceGroupServiceServer is the server API for ServiceGroupService service.
 // All implementations should embed UnimplementedServiceGroupServiceServer
 // for forward compatibility
@@ -86,6 +96,7 @@ type ServiceGroupServiceServer interface {
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	Store(context.Context, *StoreRequest) (*StoreResponse, error)
 	Update(context.Context, *UpdateRequest) (*UpdateResponse, error)
+	Redeploy(context.Context, *RedeployRequest) (*RedeployResponse, error)
 }
 
 // UnimplementedServiceGroupServiceServer should be embedded to have forward compatible implementations.
@@ -106,6 +117,9 @@ func (*UnimplementedServiceGroupServiceServer) Store(context.Context, *StoreRequ
 }
 func (*UnimplementedServiceGroupServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+func (*UnimplementedServiceGroupServiceServer) Redeploy(context.Context, *RedeployRequest) (*RedeployResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Redeploy not implemented")
 }
 
 func RegisterServiceGroupServiceServer(s *grpc.Server, srv ServiceGroupServiceServer) {
@@ -202,6 +216,24 @@ func _ServiceGroupService_Update_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceGroupService_Redeploy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RedeployRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceGroupServiceServer).Redeploy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pkg.service_group.service_grouppb.ServiceGroupService/Redeploy",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceGroupServiceServer).Redeploy(ctx, req.(*RedeployRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _ServiceGroupService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "pkg.service_group.service_grouppb.ServiceGroupService",
 	HandlerType: (*ServiceGroupServiceServer)(nil),
@@ -225,6 +257,10 @@ var _ServiceGroupService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Update",
 			Handler:    _ServiceGroupService_Update_Handler,
+		},
+		{
+			MethodName: "Redeploy",
+			Handler:    _ServiceGroupService_Redeploy_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

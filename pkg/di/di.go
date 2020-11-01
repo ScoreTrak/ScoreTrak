@@ -1,21 +1,23 @@
 package di
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/check"
+	service5 "github.com/ScoreTrak/ScoreTrak/pkg/check/service"
+	service11 "github.com/ScoreTrak/ScoreTrak/pkg/competition/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	service6 "github.com/ScoreTrak/ScoreTrak/pkg/config/service"
+	service7 "github.com/ScoreTrak/ScoreTrak/pkg/host/service"
+	service8 "github.com/ScoreTrak/ScoreTrak/pkg/host_group/service"
+	service9 "github.com/ScoreTrak/ScoreTrak/pkg/property/service"
+	service10 "github.com/ScoreTrak/ScoreTrak/pkg/report/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/round/service"
+	service3 "github.com/ScoreTrak/ScoreTrak/pkg/service/service"
+	service2 "github.com/ScoreTrak/ScoreTrak/pkg/service_group/service"
+	service4 "github.com/ScoreTrak/ScoreTrak/pkg/team/service"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform"
-	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report"
-	"github.com/ScoreTrak/ScoreTrak/pkg/round"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm"
-	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"go.uber.org/dig"
 )
 
@@ -25,19 +27,19 @@ func BuildMasterContainer() (*dig.Container, error) {
 	var ctr []interface{}
 
 	ctr = append(ctr,
-		config.GetStaticConfig, config.GetLoggerConfig, config.GetDBConfig, config.GetQueueConfig, config.GetPlatformConfig,
+		config.GetStaticConfig, config.GetDBConfig, config.GetQueueConfig, config.GetPlatformConfig,
 		storage.LoadDB,
-		logger.NewLogger,
-		orm.NewCheckRepo, check.NewCheckServ,
-		orm.NewHostGroupRepo, host_group.NewHostGroupServ,
-		orm.NewPropertyRepo, property.NewPropertyServ,
-		orm.NewConfigRepo, config.NewConfigServ, config.NewStaticConfigServ,
-		orm.NewHostRepo, host.NewHostServ,
-		orm.NewRoundRepo, round.NewRoundServ,
-		orm.NewServiceGroupRepo, service_group.NewServiceGroupServ,
-		orm.NewServiceRepo, service.NewServiceServ,
-		orm.NewTeamRepo, team.NewTeamServ,
-		orm.NewReportRepo, report.NewReportServ,
+		orm.NewCheckRepo, service5.NewCheckServ,
+		orm.NewHostGroupRepo, service8.NewHostGroupServ,
+		orm.NewPropertyRepo, service9.NewPropertyServ,
+		orm.NewConfigRepo, service6.NewConfigServ, service6.NewStaticConfigServ,
+		orm.NewHostRepo, service7.NewHostServ,
+		orm.NewRoundRepo, service.NewRoundServ,
+		orm.NewServiceGroupRepo, service2.NewServiceGroupServ,
+		orm.NewServiceRepo, service3.NewServiceServ,
+		orm.NewTeamRepo, service4.NewTeamServ,
+		orm.NewReportRepo, service10.NewReportServ,
+		service11.NewCompetitionServ,
 		queue.NewQueue, platform.NewPlatform,
 	)
 
@@ -52,7 +54,7 @@ func BuildMasterContainer() (*dig.Container, error) {
 
 func BuildWorkerContainer() (*dig.Container, error) {
 	var ctr []interface{}
-	ctr = append(ctr, config.GetStaticConfig, config.GetLoggerConfig)
+	ctr = append(ctr, config.GetStaticConfig)
 
 	for _, i := range ctr {
 		err := container.Provide(i)

@@ -6,7 +6,6 @@ require (
 	github.com/ChrisTrenkamp/goxpath v0.0.0-20190607011252-c5096ec8773d // indirect
 	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/bogdanovich/dns_resolver v0.0.0-20170211073258-a8e42bc6a5b6
-	github.com/denisenkom/go-mssqldb v0.0.0-20200620013148-b91950f658ec // indirect
 	github.com/digineo/go-ping v1.0.0
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v1.13.1
@@ -14,38 +13,36 @@ require (
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/emersion/go-imap v1.0.5
 	github.com/emersion/go-sasl v0.0.0-20200509203442-7bfe0ed36a21 // indirect
-	github.com/go-errors/errors v1.1.1 // indirect
 	github.com/go-ldap/ldap/v3 v3.2.3
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/golang/protobuf v1.4.3
 	github.com/google/go-cmp v0.5.1 // indirect
 	github.com/googleapis/gnostic v0.3.1 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
-	github.com/gorilla/mux v1.7.4 // indirect
+	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/hirochachacha/go-smb2 v0.0.0-20200618112446-579efc4c6c8a
 	github.com/jackc/pgconn v1.6.4
 	github.com/jackc/pgproto3/v2 v2.0.3 // indirect
 	github.com/jackc/pgx/v4 v4.8.1 // indirect
 	github.com/jinzhu/configor v1.2.0
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
-	github.com/jinzhu/gorm v1.9.15 // indirect
 	github.com/jlaffaye/ftp v0.0.0-20200812143550-39e3779af0db
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/kr/text v0.2.0 // indirect
+	github.com/lib/pq v1.8.0 // indirect
 	github.com/masterzen/simplexml v0.0.0-20190410153822-31eea3082786 // indirect
 	github.com/masterzen/winrm v0.0.0-20200615185753-c42b5136ff88
-	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/miekg/dns v1.1.30 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/nsqio/go-nsq v1.0.8
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/qor/qor v0.0.0-20200729071734-d587cffbbb93 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
+	github.com/sirupsen/logrus v1.4.2
 	github.com/smartystreets/assertions v1.1.1 // indirect
 	github.com/smartystreets/goconvey v1.6.4
 	go.uber.org/dig v1.10.0
-	go.uber.org/zap v1.15.0
+	go.uber.org/zap v1.10.0
 	golang.org/x/crypto v0.0.0-20201012173705-84dcc777aaee
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
@@ -55,7 +52,6 @@ require (
 	golang.org/x/tools v0.0.0-20200731060945-b5fad4ed8dd6 // indirect
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/grpc v1.33.1
-	google.golang.org/grpc/cmd/protoc-gen-go-grpc v0.0.0-20200624194451-38aafd89f814 // indirect
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.3.0
@@ -63,7 +59,6 @@ require (
 	gorm.io/driver/mysql v1.0.1
 	gorm.io/driver/postgres v0.2.6
 	gorm.io/gorm v1.20.0
-	honnef.co/go/tools v0.0.1-2020.1.5 // indirect
 	k8s.io/api v0.18.6
 	k8s.io/apimachinery v0.18.6
 	k8s.io/client-go v0.18.6

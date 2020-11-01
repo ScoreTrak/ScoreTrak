@@ -1,14 +1,13 @@
 syntax="proto3";
 package pkg.round.roundpb;
 
-import "pkg/proto/utilpb/uuid.proto";
 import "pkg/check/checkpb/check.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/round/roundpb";
 
 message Round {
-  pkg.proto.utilpb.UUID id = 1;
+  uint64 id = 1;
   google.protobuf.Timestamp start = 2;
   string note = 3;
   string err = 4;
@@ -22,7 +21,7 @@ message GetAllResponse{
 }
 
 message GetByIDRequest{
-  pkg.proto.utilpb.UUID id = 1;
+  uint64 id = 1;
 }
 message GetByIDResponse{
   Round round = 1;

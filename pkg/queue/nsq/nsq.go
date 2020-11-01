@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
 	"github.com/gofrs/uuid"
@@ -16,13 +16,12 @@ import (
 )
 
 type NSQ struct {
-	l      logger.LogInfoFormat
 	config queueing.Config
 }
 
 func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error) {
 	addresses := n.GenerateNSQLookupdAddresses(n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port)
-	returningTopicName := queueing.TopicFromServiceRound(&sds[0].Service, sds[0].RoundID)
+	returningTopicName := queueing.TopicFromServiceRound(sds[0].RoundID)
 	bErr, tErr := n.TopicAbsent(returningTopicName, addresses)
 	if tErr != nil {
 		return nil, bErr, tErr
@@ -62,7 +61,6 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 		buf := bytes.NewBuffer(m.Body)
 		var qc queueing.QCheck
 		if err := gob.NewDecoder(buf).Decode(&qc); err != nil {
-			n.l.Error(err)
 			return err
 		}
 		for i, sd := range sds {
@@ -122,14 +120,13 @@ func (n NSQ) Receive() {
 				}
 				qc := queueing.QCheck{Service: sd.Service, Passed: false, Log: "Encountered an unexpected error during the check. This is most likely a bug", Err: err.Error(), RoundID: sd.RoundID}
 				n.Acknowledge(qc)
-				n.l.Error(err)
 				return
 			}
 		}()
 		if err := gob.NewDecoder(buf).Decode(&sd); err != nil {
 			panic(err)
 		}
-		qc := queueing.CommonExecute(&sd, sd.Deadline.Add(-3*time.Second), n.l)
+		qc := queueing.CommonExecute(&sd, sd.Deadline.Add(-3*time.Second))
 		n.Acknowledge(qc)
 		return nil
 
@@ -193,7 +190,6 @@ func (n NSQ) DeleteTopic(topic string, nsqAddresses []string) { //THis make NSQ 
 			resp.Body.Close()
 			return
 		}
-		n.l.Error(err)
 	}
 }
 
@@ -227,6 +223,6 @@ func (n NSQ) TopicAbsent(topic string, nsqAddresses []string) (bErr error, tErr 
 	}
 	return err, errors.New("no NSQLookupd instances answered the request")
 }
-func NewNSQQueue(l logger.LogInfoFormat, config queueing.Config) (*NSQ, error) {
-	return &NSQ{l, config}, nil
+func NewNSQQueue(config queueing.Config) (*NSQ, error) {
+	return &NSQ{config}, nil
 }

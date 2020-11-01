@@ -22,6 +22,7 @@ type ServiceServiceClient interface {
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
 	Store(ctx context.Context, in *StoreRequest, opts ...grpc.CallOption) (*StoreResponse, error)
 	Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error)
+	TestService(ctx context.Context, in *TestServiceRequest, opts ...grpc.CallOption) (*TestServiceResponse, error)
 }
 
 type serviceServiceClient struct {
@@ -77,6 +78,15 @@ func (c *serviceServiceClient) Update(ctx context.Context, in *UpdateRequest, op
 	return out, nil
 }
 
+func (c *serviceServiceClient) TestService(ctx context.Context, in *TestServiceRequest, opts ...grpc.CallOption) (*TestServiceResponse, error) {
+	out := new(TestServiceResponse)
+	err := c.cc.Invoke(ctx, "/pkg.service.servicepb.ServiceService/TestService", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServiceServiceServer is the server API for ServiceService service.
 // All implementations should embed UnimplementedServiceServiceServer
 // for forward compatibility
@@ -86,6 +96,7 @@ type ServiceServiceServer interface {
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	Store(context.Context, *StoreRequest) (*StoreResponse, error)
 	Update(context.Context, *UpdateRequest) (*UpdateResponse, error)
+	TestService(context.Context, *TestServiceRequest) (*TestServiceResponse, error)
 }
 
 // UnimplementedServiceServiceServer should be embedded to have forward compatible implementations.
@@ -106,6 +117,9 @@ func (*UnimplementedServiceServiceServer) Store(context.Context, *StoreRequest) 
 }
 func (*UnimplementedServiceServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+func (*UnimplementedServiceServiceServer) TestService(context.Context, *TestServiceRequest) (*TestServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TestService not implemented")
 }
 
 func RegisterServiceServiceServer(s *grpc.Server, srv ServiceServiceServer) {
@@ -202,6 +216,24 @@ func _ServiceService_Update_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServiceService_TestService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TestServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServiceServer).TestService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pkg.service.servicepb.ServiceService/TestService",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServiceServer).TestService(ctx, req.(*TestServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _ServiceService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "pkg.service.servicepb.ServiceService",
 	HandlerType: (*ServiceServiceServer)(nil),
@@ -225,6 +257,10 @@ var _ServiceService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Update",
 			Handler:    _ServiceService_Update_Handler,
+		},
+		{
+			MethodName: "TestService",
+			Handler:    _ServiceService_TestService_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
