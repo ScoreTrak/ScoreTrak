@@ -44,6 +44,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 func Start(staticConfig config.StaticConfig, d *dig.Container) error {
@@ -233,6 +234,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container) error {
 	go func() {
 		fmt.Println("Starting Server...")
 		if err := s.Serve(lis); err != nil {
+			time.Sleep(time.Second)
 			log.Fatalf("failed to serve: %v", err)
 		}
 	}()
