@@ -306,7 +306,7 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 				}
 				sh.Services = make(map[uuid.UUID]*report.SimpleService)
 				for _, s := range h.Services {
-					//points := uint(tp[s.ID]) * s.Points
+					points := uint(tp[s.ID]) * s.Points
 					params := map[string]*report.SimpleProperty{}
 					for _, p := range s.Properties {
 						params[p.Key] = &report.SimpleProperty{Value: *p.Value, Status: p.Status}
@@ -319,7 +319,7 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 					}
 					if len(s.Checks) != 0 {
 						lastCheck := s.Checks[len(s.Checks)-1]
-						sh.Services[s.ID] = &report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Enabled: *s.Enabled, Properties: params, PointsBoost: s.PointsBoost, SimpleServiceGroup: simpSgr, Points: s.Points}
+						sh.Services[s.ID] = &report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Enabled: *s.Enabled, Properties: params, PointsBoost: s.PointsBoost, SimpleServiceGroup: simpSgr, Points: points}
 						if lastCheck.RoundID == rnd.ID {
 							sh.Services[s.ID].Passed = *lastCheck.Passed
 							sh.Services[s.ID].Log = lastCheck.Log
