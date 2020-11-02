@@ -13,6 +13,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
+	"github.com/gofrs/uuid"
 	"github.com/jackc/pgconn"
 	"gorm.io/gorm"
 	"math"
@@ -283,8 +284,58 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
 		return
 	}
-	reportServ := report.NewReportCalculator(d.r.Report)
-	simpTeams := reportServ.RecalculateReport(teams, hostGroup, serviceGroups, rnd)
+	tp, err := d.r.Report.CountPassedPerService()
+	if err != nil {
+		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while generating report. Err: %s", err.Error()))
+		return
+	}
+
+	simpTeams := make(map[uuid.UUID]*report.SimpleTeam)
+	{
+		for _, t := range teams {
+			st := &report.SimpleTeam{Name: t.Name, Enabled: *t.Enabled}
+			st.Hosts = make(map[uuid.UUID]*report.SimpleHost)
+			for _, h := range t.Hosts {
+				sh := report.SimpleHost{Address: *h.Address, Enabled: *h.Enabled}
+				if h.HostGroupID != nil {
+					for _, hG := range hostGroup {
+						if hG.ID == *h.HostGroupID {
+							sh.HostGroup = &report.SimpleHostGroup{Enabled: *hG.Enabled, ID: *h.HostGroupID, Name: hG.Name}
+						}
+					}
+				}
+				sh.Services = make(map[uuid.UUID]*report.SimpleService)
+				for _, s := range h.Services {
+					//points := uint(tp[s.ID]) * s.Points
+					params := map[string]*report.SimpleProperty{}
+					for _, p := range s.Properties {
+						params[p.Key] = &report.SimpleProperty{Value: *p.Value, Status: p.Status}
+					}
+					var simpSgr *report.SimpleServiceGroup
+					for _, sG := range serviceGroups {
+						if sG.ID == s.ServiceGroupID {
+							simpSgr = &report.SimpleServiceGroup{ID: sG.ID, Name: sG.Name, Enabled: *sG.Enabled}
+						}
+					}
+					if len(s.Checks) != 0 {
+						lastCheck := s.Checks[len(s.Checks)-1]
+						sh.Services[s.ID] = &report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Enabled: *s.Enabled, Properties: params, PointsBoost: s.PointsBoost, SimpleServiceGroup: simpSgr, Points: s.Points}
+						if lastCheck.RoundID == rnd.ID {
+							sh.Services[s.ID].Passed = *lastCheck.Passed
+							sh.Services[s.ID].Log = lastCheck.Log
+							sh.Services[s.ID].Err = lastCheck.Err
+						} else {
+							sh.Services[s.ID].Passed = false
+							sh.Services[s.ID].Log = "Service was not checked because it was disabled"
+							sh.Services[s.ID].Err = ""
+						}
+					}
+				}
+				st.Hosts[h.ID] = &sh
+			}
+			simpTeams[t.ID] = st
+		}
+	}
 	ch := report.NewReport()
 	bt, err := json.Marshal(&report.SimpleReport{Teams: simpTeams, Round: rnd.ID})
 	if err != nil {
