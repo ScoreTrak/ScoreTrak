@@ -51,7 +51,7 @@ func TestPropertySpec(t *testing.T) {
 				db.Table("services").Count(&count)
 				So(count, ShouldEqual, 2)
 
-				Convey("Creating a sample property and associating with service 5 and round 1", func() {
+				Convey("Creating a sample property and associating with check_service 5 and round 1", func() {
 					str := "TestValue"
 					c := []*property.Property{{Key: "TestKey", ServiceID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555"), Value: &str, Status: "Edit"}}
 					err := cr.Store(ctx, c)
@@ -128,7 +128,7 @@ func TestPropertySpec(t *testing.T) {
 
 					})
 				})
-				Convey("Creating a property with wrong service should not be allowed", func() {
+				Convey("Creating a property with wrong check_service should not be allowed", func() {
 					str := "TestValue"
 					s := []*property.Property{{Key: "TestKey", ServiceID: uuid.FromStringOrNil("55521555-5555-5555-5555-555555555555"), Value: &str}}
 					err := cr.Store(ctx, s)

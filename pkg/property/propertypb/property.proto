@@ -1,4 +1,4 @@
-syntax="proto3";
+syntax = "proto3";
 package pkg.property.propertypb;
 
 import "google/protobuf/wrappers.proto";
@@ -15,7 +15,7 @@ enum Status {
 message Property {
   pkg.proto.utilpb.UUID service_id = 1;
   string key = 2;
-  google.protobuf.StringValue value  = 3;
+  google.protobuf.StringValue value = 3;
   Status status = 4;
 }
 

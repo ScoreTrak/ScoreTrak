@@ -4,18 +4,18 @@ import (
 	"context"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policypb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy/service"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type PolicyController struct {
-	svc service.Serv
+	svc policy_service.Serv
 }
 
-func (p PolicyController) Get(ctx context.Context, request *policypb.GetRequest) (*policypb.GetResponse, error) {
+func (p PolicyController) Get(ctx context.Context, _ *policypb.GetRequest) (*policypb.GetResponse, error) {
 	pol, err := p.svc.Get(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
@@ -35,7 +35,7 @@ func (p PolicyController) Update(ctx context.Context, request *policypb.UpdateRe
 	return &policypb.UpdateResponse{}, nil
 }
 
-func NewPolicyController(svc service.Serv) *PolicyController {
+func NewPolicyController(svc policy_service.Serv) *PolicyController {
 	return &PolicyController{svc}
 }
 

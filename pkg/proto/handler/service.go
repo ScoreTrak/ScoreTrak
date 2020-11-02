@@ -6,7 +6,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
-	service2 "github.com/ScoreTrak/ScoreTrak/pkg/service/service"
+	service2 "github.com/ScoreTrak/ScoreTrak/pkg/service/service_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service/servicepb"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"

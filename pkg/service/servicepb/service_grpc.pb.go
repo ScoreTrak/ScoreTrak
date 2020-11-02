@@ -13,7 +13,7 @@ import (
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// ServiceServiceClient is the client API for ServiceService service.
+// ServiceServiceClient is the client API for ServiceService check_service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceServiceClient interface {
@@ -35,7 +35,7 @@ func NewServiceServiceClient(cc grpc.ClientConnInterface) ServiceServiceClient {
 
 func (c *serviceServiceClient) GetAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*GetAllResponse, error) {
 	out := new(GetAllResponse)
-	err := c.cc.Invoke(ctx, "/pkg.service.servicepb.ServiceService/GetAll", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pkg.check_service.servicepb.ServiceService/GetAll", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (c *serviceServiceClient) GetAll(ctx context.Context, in *GetAllRequest, op
 
 func (c *serviceServiceClient) GetByID(ctx context.Context, in *GetByIDRequest, opts ...grpc.CallOption) (*GetByIDResponse, error) {
 	out := new(GetByIDResponse)
-	err := c.cc.Invoke(ctx, "/pkg.service.servicepb.ServiceService/GetByID", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pkg.check_service.servicepb.ServiceService/GetByID", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (c *serviceServiceClient) GetByID(ctx context.Context, in *GetByIDRequest, 
 
 func (c *serviceServiceClient) Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error) {
 	out := new(DeleteResponse)
-	err := c.cc.Invoke(ctx, "/pkg.service.servicepb.ServiceService/Delete", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pkg.check_service.servicepb.ServiceService/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func (c *serviceServiceClient) Delete(ctx context.Context, in *DeleteRequest, op
 
 func (c *serviceServiceClient) Store(ctx context.Context, in *StoreRequest, opts ...grpc.CallOption) (*StoreResponse, error) {
 	out := new(StoreResponse)
-	err := c.cc.Invoke(ctx, "/pkg.service.servicepb.ServiceService/Store", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pkg.check_service.servicepb.ServiceService/Store", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (c *serviceServiceClient) Store(ctx context.Context, in *StoreRequest, opts
 
 func (c *serviceServiceClient) Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error) {
 	out := new(UpdateResponse)
-	err := c.cc.Invoke(ctx, "/pkg.service.servicepb.ServiceService/Update", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pkg.check_service.servicepb.ServiceService/Update", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,14 +80,14 @@ func (c *serviceServiceClient) Update(ctx context.Context, in *UpdateRequest, op
 
 func (c *serviceServiceClient) TestService(ctx context.Context, in *TestServiceRequest, opts ...grpc.CallOption) (*TestServiceResponse, error) {
 	out := new(TestServiceResponse)
-	err := c.cc.Invoke(ctx, "/pkg.service.servicepb.ServiceService/TestService", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pkg.check_service.servicepb.ServiceService/TestService", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ServiceServiceServer is the server API for ServiceService service.
+// ServiceServiceServer is the server API for ServiceService check_service.
 // All implementations should embed UnimplementedServiceServiceServer
 // for forward compatibility
 type ServiceServiceServer interface {
@@ -136,7 +136,7 @@ func _ServiceService_GetAll_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pkg.service.servicepb.ServiceService/GetAll",
+		FullMethod: "/pkg.check_service.servicepb.ServiceService/GetAll",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceServiceServer).GetAll(ctx, req.(*GetAllRequest))
@@ -154,7 +154,7 @@ func _ServiceService_GetByID_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pkg.service.servicepb.ServiceService/GetByID",
+		FullMethod: "/pkg.check_service.servicepb.ServiceService/GetByID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceServiceServer).GetByID(ctx, req.(*GetByIDRequest))
@@ -172,7 +172,7 @@ func _ServiceService_Delete_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pkg.service.servicepb.ServiceService/Delete",
+		FullMethod: "/pkg.check_service.servicepb.ServiceService/Delete",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceServiceServer).Delete(ctx, req.(*DeleteRequest))
@@ -190,7 +190,7 @@ func _ServiceService_Store_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pkg.service.servicepb.ServiceService/Store",
+		FullMethod: "/pkg.check_service.servicepb.ServiceService/Store",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceServiceServer).Store(ctx, req.(*StoreRequest))
@@ -208,7 +208,7 @@ func _ServiceService_Update_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pkg.service.servicepb.ServiceService/Update",
+		FullMethod: "/pkg.check_service.servicepb.ServiceService/Update",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceServiceServer).Update(ctx, req.(*UpdateRequest))
@@ -226,7 +226,7 @@ func _ServiceService_TestService_Handler(srv interface{}, ctx context.Context, d
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pkg.service.servicepb.ServiceService/TestService",
+		FullMethod: "/pkg.check_service.servicepb.ServiceService/TestService",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceServiceServer).TestService(ctx, req.(*TestServiceRequest))
@@ -235,7 +235,7 @@ func _ServiceService_TestService_Handler(srv interface{}, ctx context.Context, d
 }
 
 var _ServiceService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "pkg.service.servicepb.ServiceService",
+	ServiceName: "pkg.check_service.servicepb.ServiceService",
 	HandlerType: (*ServiceServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -264,5 +264,5 @@ var _ServiceService_serviceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "pkg/service/servicepb/service.proto",
+	Metadata: "pkg/check_service/servicepb/check_service.proto",
 }

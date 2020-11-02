@@ -158,7 +158,7 @@ func TestHostSpec(t *testing.T) {
 						db.Migrator().DropTable(&team.Team{})
 					})
 				})
-				Convey("Then add a service", func() {
+				Convey("Then add a check_service", func() {
 					db.AutoMigrate(&service.Service{})
 					Reset(func() {
 						db.Migrator().DropTable(&service.Service{})

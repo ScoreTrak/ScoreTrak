@@ -6,8 +6,8 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/competition"
+	"github.com/ScoreTrak/ScoreTrak/pkg/competition/competition_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/competition/competitionpb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/competition/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host/hostpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
@@ -32,7 +32,7 @@ import (
 )
 
 type CompetitionController struct {
-	svc service.Serv
+	svc competition_service.Serv
 }
 
 func (c CompetitionController) LoadCompetition(ctx context.Context, request *competitionpb.LoadCompetitionRequest) (*competitionpb.LoadCompetitionResponse, error) {
@@ -64,7 +64,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	for i := range request.Competition.Services {
 		svc, err := ConvertServicePBtoService(true, request.Competition.Services[i])
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse service groups, details: %v", err)
+			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse check_service groups, details: %v", err)
 		}
 		svcs = append(svcs, svc)
 	}
@@ -187,7 +187,7 @@ func (c CompetitionController) DeleteCompetition(ctx context.Context, request *c
 	return &competitionpb.DeleteCompetitionResponse{}, nil
 }
 
-func NewCompetitionController(svc service.Serv) *CompetitionController {
+func NewCompetitionController(svc competition_service.Serv) *CompetitionController {
 	return &CompetitionController{svc}
 }
 

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_group_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_grouppb"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
@@ -14,7 +14,7 @@ import (
 )
 
 type ServiceGroupController struct {
-	svc service.Serv
+	svc service_group_service.Serv
 }
 
 func (p ServiceGroupController) Redeploy(ctx context.Context, request *service_grouppb.RedeployRequest) (*service_grouppb.RedeployResponse, error) {
@@ -132,7 +132,7 @@ func (p ServiceGroupController) Update(ctx context.Context, request *service_gro
 	return &service_grouppb.UpdateResponse{}, nil
 }
 
-func NewServiceGroupController(svc service.Serv) *ServiceGroupController {
+func NewServiceGroupController(svc service_group_service.Serv) *ServiceGroupController {
 	return &ServiceGroupController{svc}
 }
 

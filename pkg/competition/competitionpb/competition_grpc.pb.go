@@ -13,7 +13,7 @@ import (
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// CompetitionServiceClient is the client API for CompetitionService service.
+// CompetitionServiceClient is the client API for CompetitionService check_service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CompetitionServiceClient interface {
@@ -77,7 +77,7 @@ func (c *competitionServiceClient) DeleteCompetition(ctx context.Context, in *De
 	return out, nil
 }
 
-// CompetitionServiceServer is the server API for CompetitionService service.
+// CompetitionServiceServer is the server API for CompetitionService check_service.
 // All implementations should embed UnimplementedCompetitionServiceServer
 // for forward compatibility
 type CompetitionServiceServer interface {

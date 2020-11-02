@@ -1,4 +1,4 @@
-syntax="proto3";
+syntax = "proto3";
 package pkg.service.servicepb;
 
 import "google/protobuf/wrappers.proto";
@@ -6,7 +6,7 @@ import "pkg/proto/utilpb/uuid.proto";
 import "pkg/property/propertypb/property.proto";
 import "pkg/check/checkpb/check.proto";
 
-option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/service/servicepb";
+option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/check_service/servicepb";
 
 message Service {
   pkg.proto.utilpb.UUID id = 1;
@@ -16,8 +16,8 @@ message Service {
   google.protobuf.UInt64Value points_boost = 5;
   uint64 round_units = 6;
   google.protobuf.UInt64Value round_delay = 7;
-  pkg.proto.utilpb.UUID service_group_id  = 8;
-  pkg.proto.utilpb.UUID host_id  = 9;
+  pkg.proto.utilpb.UUID service_group_id = 8;
+  pkg.proto.utilpb.UUID host_id = 9;
   google.protobuf.BoolValue enabled = 10;
   repeated pkg.property.propertypb.Property properties = 11;
   repeated pkg.check.checkpb.Check checks = 12;

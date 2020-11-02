@@ -56,7 +56,7 @@ func TestCheckSpec(t *testing.T) {
 				So(count, ShouldEqual, 2)
 				db.Table("rounds").Count(&count)
 				So(count, ShouldEqual, 2)
-				Convey("Creating a sample check and associating with service 5 and round 1", func() {
+				Convey("Creating a sample check and associating with check_service 5 and round 1", func() {
 					c := []*check.Check{{Log: "TestLog", RoundID: 1, ServiceID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555")}}
 					err := cr.Store(context.Background(), c)
 					So(err, ShouldBeNil)
@@ -73,7 +73,7 @@ func TestCheckSpec(t *testing.T) {
 							So(ss.RoundID, ShouldEqual, 1)
 						})
 
-						Convey("Storing round with same round id and service id should not be allowed", func() {
+						Convey("Storing round with same round id and check_service id should not be allowed", func() {
 							c := []*check.Check{{Log: "TestLogSomethingElse", RoundID: 1, ServiceID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555")}}
 							err := cr.Store(context.Background(), c)
 							So(err, ShouldNotBeNil)
@@ -85,7 +85,7 @@ func TestCheckSpec(t *testing.T) {
 							So(ss, ShouldBeNil)
 						})
 
-						Convey("Then Querying By service ID", func() {
+						Convey("Then Querying By check_service ID", func() {
 							ss, err := cr.GetByRoundServiceID(context.Background(), 1, uuid.Nil)
 							So(err, ShouldNotBeNil)
 							So(ss, ShouldBeNil)
@@ -122,7 +122,7 @@ func TestCheckSpec(t *testing.T) {
 
 						})
 
-						Convey("Then adding more checks. One with similar round, and the other with similar service", func() {
+						Convey("Then adding more checks. One with similar round, and the other with similar check_service", func() {
 							c1 := check.Check{Log: "TestLog2", ServiceID: uuid.FromStringOrNil("66666666-6666-6666-6666-666666666666"), RoundID: 1}
 							c2 := check.Check{Log: "TestLog", ServiceID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555"), RoundID: 2}
 							checks := []*check.Check{&c1, &c2}
@@ -141,7 +141,7 @@ func TestCheckSpec(t *testing.T) {
 						})
 					})
 				})
-				Convey("Creating a check with wrong service should not be allowed", func() {
+				Convey("Creating a check with wrong check_service should not be allowed", func() {
 					s := []*check.Check{{Log: "TestLog", ServiceID: uuid.FromStringOrNil("95995555-5555-5555-5555-555555555555"), RoundID: 1}}
 					err := cr.Store(context.Background(), s)
 					So(err, ShouldNotBeNil)

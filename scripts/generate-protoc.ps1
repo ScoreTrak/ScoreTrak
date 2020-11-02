@@ -13,3 +13,4 @@ protoc .\pkg\report\reportpb\report.proto --go_out=. --go_opt=paths=source_relat
 protoc .\pkg\config\configpb\config.proto --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative --go-grpc_opt=requireUnimplementedServers=false
 protoc .\pkg\user\userpb\user.proto --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative --go-grpc_opt=requireUnimplementedServers=false
 protoc .\pkg\policy\policypb\policy.proto --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative --go-grpc_opt=requireUnimplementedServers=false
+protoc .\pkg\auth\auth.proto --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative --go-grpc_opt=requireUnimplementedServers=false

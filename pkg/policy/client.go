@@ -2,7 +2,7 @@ package policy
 
 import (
 	"context"
-	repo2 "github.com/ScoreTrak/ScoreTrak/pkg/policy/repo"
+	repo2 "github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_repo"
 	"sync"
 	"time"
 )

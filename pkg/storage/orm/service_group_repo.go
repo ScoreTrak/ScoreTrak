@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_group_repo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
 	"github.com/gofrs/uuid"
@@ -16,7 +16,7 @@ type serviceGroupRepo struct {
 	db *gorm.DB
 }
 
-func NewServiceGroupRepo(db *gorm.DB) repo.Repo {
+func NewServiceGroupRepo(db *gorm.DB) service_group_repo.Repo {
 	return &serviceGroupRepo{db}
 }
 
@@ -67,7 +67,7 @@ func (s *serviceGroupRepo) Upsert(ctx context.Context, sgr *service_group.Servic
 }
 
 func (s *serviceGroupRepo) Update(ctx context.Context, sgr *service_group.ServiceGroup) error {
-	err := s.db.WithContext(ctx).Model(sgr).Updates(service_group.ServiceGroup{Enabled: sgr.Enabled, DisplayName: sgr.DisplayName}).Error //Updating service group names is not supported because service group name tightly coupled with platform operations
+	err := s.db.WithContext(ctx).Model(sgr).Updates(service_group.ServiceGroup{Enabled: sgr.Enabled, DisplayName: sgr.DisplayName}).Error //Updating check_service group names is not supported because check_service group name tightly coupled with platform operations
 	if err != nil {
 		return err
 	}

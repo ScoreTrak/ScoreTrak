@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
+	"github.com/ScoreTrak/ScoreTrak/pkg/property/property_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property/propertypb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/property/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
@@ -14,7 +14,7 @@ import (
 )
 
 type PropertyController struct {
-	svc service.Serv
+	svc property_service.Serv
 }
 
 func (p PropertyController) GetAll(ctx context.Context, request *propertypb.GetAllRequest) (*propertypb.GetAllResponse, error) {
@@ -142,7 +142,7 @@ func (p PropertyController) GetAllByServiceID(ctx context.Context, request *prop
 	return &propertypb.GetAllByServiceIDResponse{Properties: propspb}, nil
 }
 
-func NewPropertyController(svc service.Serv) *PropertyController {
+func NewPropertyController(svc property_service.Serv) *PropertyController {
 	return &PropertyController{svc}
 }
 

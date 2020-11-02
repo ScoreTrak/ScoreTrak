@@ -3,18 +3,18 @@ package handler
 import (
 	"context"
 	"fmt"
+	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportpb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report/service"
 	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type ReportController struct {
-	svc service.Serv
+	svc report_service.Serv
 }
 
-func (p ReportController) Get(ctx context.Context, request *reportpb.GetRequest) (*reportpb.GetResponse, error) {
+func (p ReportController) Get(ctx context.Context, _ *reportpb.GetRequest) (*reportpb.GetResponse, error) {
 	tms, err := p.svc.Get(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
@@ -34,6 +34,6 @@ func (p ReportController) Get(ctx context.Context, request *reportpb.GetRequest)
 	}}, nil
 }
 
-func NewReportController(svc service.Serv) *ReportController {
+func NewReportController(svc report_service.Serv) *ReportController {
 	return &ReportController{svc}
 }

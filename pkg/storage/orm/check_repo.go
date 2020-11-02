@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
-	"github.com/ScoreTrak/ScoreTrak/pkg/check/repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/check/check_repo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
@@ -16,7 +16,7 @@ type checkRepo struct {
 	db *gorm.DB
 }
 
-func NewCheckRepo(db *gorm.DB) repo.Repo {
+func NewCheckRepo(db *gorm.DB) check_repo.Repo {
 	return &checkRepo{db}
 }
 
@@ -49,7 +49,7 @@ func (c *checkRepo) Delete(ctx context.Context, roundID uint64, serviceID uuid.U
 	}
 
 	if result.RowsAffected == 0 {
-		return &NoRowsAffected{"no model found for round ID, and service id provided"}
+		return &NoRowsAffected{"no model found for round ID, and check_service id provided"}
 	}
 
 	return nil

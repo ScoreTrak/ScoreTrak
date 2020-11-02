@@ -13,7 +13,7 @@ import (
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// PolicyServiceClient is the client API for PolicyService service.
+// PolicyServiceClient is the client API for PolicyService check_service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PolicyServiceClient interface {
@@ -47,7 +47,7 @@ func (c *policyServiceClient) Update(ctx context.Context, in *UpdateRequest, opt
 	return out, nil
 }
 
-// PolicyServiceServer is the server API for PolicyService service.
+// PolicyServiceServer is the server API for PolicyService check_service.
 // All implementations should embed UnimplementedPolicyServiceServer
 // for forward compatibility
 type PolicyServiceServer interface {

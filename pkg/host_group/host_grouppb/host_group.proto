@@ -1,4 +1,4 @@
-syntax="proto3";
+syntax = "proto3";
 package pkg.host_group.host_grouppb;
 
 import "google/protobuf/wrappers.proto";

@@ -4,18 +4,18 @@ import (
 	"context"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config/config_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config/configpb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config/service"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type ConfigController struct {
-	svc service.Serv
+	svc config_service.Serv
 }
 
-func (p ConfigController) Get(ctx context.Context, request *configpb.GetRequest) (*configpb.GetResponse, error) {
+func (p ConfigController) Get(ctx context.Context, _ *configpb.GetRequest) (*configpb.GetResponse, error) {
 	cnf, err := p.svc.Get(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
@@ -42,7 +42,7 @@ func (p ConfigController) Update(ctx context.Context, request *configpb.UpdateRe
 	return &configpb.UpdateResponse{}, nil
 }
 
-func NewConfigController(svc service.Serv) *ConfigController {
+func NewConfigController(svc config_service.Serv) *ConfigController {
 	return &ConfigController{svc}
 }
 

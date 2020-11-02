@@ -56,8 +56,8 @@ paths:
     get:
       tags:
         - "Check"
-      summary: "Retreive a single check for a given round and service"
-      description: "Orders scoring engine to retreive a single check for a given round and service"
+      summary: "Retreive a single check for a given round and check_service"
+      description: "Orders scoring engine to retreive a single check for a given round and check_service"
       operationId: "GetCheck"
       consumes:
         - "application/json"
@@ -706,8 +706,8 @@ paths:
     post:
       tags:
         - "Service Group"
-      summary: "Add a new service group"
-      description: "Orders scoring engine to create a service group entry in a database"
+      summary: "Add a new check_service group"
+      description: "Orders scoring engine to create a check_service group entry in a database"
       operationId: "AddServiceGroup"
       consumes:
         - "application/json"
@@ -737,8 +737,8 @@ paths:
     get:
       tags:
         - "Service Group"
-      summary: "Get a service group"
-      description: "Gets a service group from based on ID"
+      summary: "Get a check_service group"
+      description: "Gets a check_service group from based on ID"
       operationId: "GetServiceGroup"
       consumes:
         - "application/json"
@@ -747,7 +747,7 @@ paths:
       parameters:
         - name: "id"
           in: "path"
-          description: "ID of service group to return"
+          description: "ID of check_service group to return"
           required: true
           type: "integer"
           format: "int64"
@@ -771,8 +771,8 @@ paths:
     patch:
       tags:
         - "Service Group"
-      summary: "Update a service group"
-      description: "Updates the service group based on ID"
+      summary: "Update a check_service group"
+      description: "Updates the check_service group based on ID"
       operationId: "UpdateServiceGroup"
       consumes:
         - "application/json"
@@ -781,7 +781,7 @@ paths:
       parameters:
         - name: "id"
           in: "path"
-          description: "ID of service group to update"
+          description: "ID of check_service group to update"
           required: true
           type: "integer"
           format: "int64"
@@ -810,8 +810,8 @@ paths:
     delete:
       tags:
         - "Service Group"
-      summary: "Deletes a service group"
-      description: "Deletes a service group from based on ID"
+      summary: "Deletes a check_service group"
+      description: "Deletes a check_service group from based on ID"
       operationId: "DeleteServiceGroup"
       consumes:
         - "application/json"
@@ -820,7 +820,7 @@ paths:
       parameters:
         - name: "id"
           in: "path"
-          description: "ID of service group to delete"
+          description: "ID of check_service group to delete"
           required: true
           type: "integer"
           format: "int64"
@@ -843,7 +843,7 @@ paths:
     get:
       tags:
         - "Service Group"
-      summary: "Redeploys service group workers"
+      summary: "Redeploys check_service group workers"
       operationId: "RedeployServiceGroup"
       consumes:
         - "application/json"
@@ -852,7 +852,7 @@ paths:
       parameters:
         - name: "id"
           in: "path"
-          description: "ID of service group to return"
+          description: "ID of check_service group to return"
           required: true
           type: "integer"
           format: "int64"
@@ -892,7 +892,7 @@ paths:
           schema:
             type: "array"
             items:
-              $ref: "#/definitions/service"
+              $ref: "#/definitions/check_service"
         "401":
           description: "Authentication token is missing, or incorrect"
           headers:
@@ -903,8 +903,8 @@ paths:
     post:
       tags:
         - "Service"
-      summary: "Add a new service"
-      description: "Orders scoring engine to create a service entry in a database"
+      summary: "Add a new check_service"
+      description: "Orders scoring engine to create a check_service entry in a database"
       operationId: "AddService"
       consumes:
         - "application/json"
@@ -916,7 +916,7 @@ paths:
           description: "Service object that needs to be added to the store"
           required: true
           schema:
-            $ref: "#/definitions/service"
+            $ref: "#/definitions/check_service"
           x-exportParamName: "Body"
       responses:
         "201":
@@ -934,8 +934,8 @@ paths:
     get:
       tags:
         - "Service"
-      summary: "Get a service"
-      description: "Gets a service based on ID"
+      summary: "Get a check_service"
+      description: "Gets a check_service based on ID"
       operationId: "GetService"
       consumes:
         - "application/json"
@@ -944,7 +944,7 @@ paths:
       parameters:
         - name: "id"
           in: "path"
-          description: "ID of service to return"
+          description: "ID of check_service to return"
           required: true
           type: "integer"
           format: "int64"
@@ -953,7 +953,7 @@ paths:
         "200":
           description: "successful operation"
           schema:
-            $ref: "#/definitions/service"
+            $ref: "#/definitions/check_service"
         "400":
           description: "Invalid ID supplied"
         "401":
@@ -968,8 +968,8 @@ paths:
     patch:
       tags:
         - "Service"
-      summary: "Update a service"
-      description: "Updates the service based on ID"
+      summary: "Update a check_service"
+      description: "Updates the check_service based on ID"
       operationId: "UpdateService"
       consumes:
         - "application/json"
@@ -978,7 +978,7 @@ paths:
       parameters:
         - name: "id"
           in: "path"
-          description: "ID of service to update"
+          description: "ID of check_service to update"
           required: true
           type: "integer"
           format: "int64"
@@ -988,7 +988,7 @@ paths:
           description: "Service object that needs to be added to the store"
           required: true
           schema:
-            $ref: "#/definitions/service"
+            $ref: "#/definitions/check_service"
           x-exportParamName: "Body"
       responses:
         "200":
@@ -1007,8 +1007,8 @@ paths:
     delete:
       tags:
         - "Service"
-      summary: "Delete a service"
-      description: "Gets a service from based on ID"
+      summary: "Delete a check_service"
+      description: "Gets a check_service from based on ID"
       operationId: "DeleteService"
       consumes:
         - "application/json"
@@ -1017,7 +1017,7 @@ paths:
       parameters:
         - name: "id"
           in: "path"
-          description: "ID of service to delete"
+          description: "ID of check_service to delete"
           required: true
           type: "integer"
           format: "int64"
@@ -1040,8 +1040,8 @@ paths:
     get:
       tags:
         - "Service"
-      summary: "Test a service"
-      description: "Tests weather or not a given service is up and running"
+      summary: "Test a check_service"
+      description: "Tests weather or not a given check_service is up and running"
       operationId: "TestService"
       consumes:
         - "application/json"
@@ -1050,7 +1050,7 @@ paths:
       parameters:
         - name: "id"
           in: "path"
-          description: "ID of service"
+          description: "ID of check_service"
           required: true
           type: "integer"
           format: "int64"
@@ -1392,7 +1392,7 @@ definitions:
         type: "boolean"
         example: true
         description: "Enables to Edit the hostname. If a single host needs to be eddited\
-          \ for one service, and kept only visible for other service, you can make\
+          \ for one check_service, and kept only visible for other check_service, you can make\
           \ 2 services that point to same address, and have different edit_host properties."
     description: "Host model represents a single machine. This could be an IP address\
       \ or a resolvable hostname"
@@ -1426,7 +1426,7 @@ definitions:
 
       enabled:
         type: "boolean"
-        description: "Enables or Disables the service"
+        description: "Enables or Disables the check_service"
         default: true
     description: "Service Group model describes a grouping of services."
     example:
@@ -1461,30 +1461,30 @@ definitions:
         type: "integer"
         format: "int64"
         example: 5
-        description: "The frequency of a service check. If round_units is 5 and round_delay\
-          \ is 0, then service checks will happen on every 5th round. (5,10, etc)"
+        description: "The frequency of a check_service check. If round_units is 5 and round_delay\
+          \ is 0, then check_service checks will happen on every 5th round. (5,10, etc)"
       round_delay:
         type: "integer"
         format: "int64"
         example: 2
-        description: "The frequency of a service check. If round_units is 7 and round_delay\
-          \ is 3, then service checks will happen on every 7th round with an offset\
+        description: "The frequency of a check_service check. If round_units is 7 and round_delay\
+          \ is 3, then check_service checks will happen on every 7th round with an offset\
           \ of 3. (10,17, etc)"
       service_group_id:
         type: "integer"
         format: "int64"
         example: 333
-        description: "ID of a service group the service belongs to"
+        description: "ID of a check_service group the check_service belongs to"
       host_id:
         type: "integer"
         format: "int64"
         example: 444
-        description: "ID of a host the service belongs to"
+        description: "ID of a host the check_service belongs to"
       enabled:
         type: "boolean"
-        description: "Enables or Disables the service"
+        description: "Enables or Disables the check_service"
         default: true
-    description: "Service Model represents a service that is being scored for a given\
+    description: "Service Model represents a check_service that is being scored for a given\
       \ host"
     example:
       round_delay: 2
@@ -1521,7 +1521,7 @@ definitions:
       status:
         type: "string"
         example: "View"
-    description: "Property model describes a single key value pair for a service(parameters).\
+    description: "Property model describes a single key value pair for a check_service(parameters).\
       \ An example could be a port for HTTP checking"
     example:
       service_id: 6
@@ -1551,7 +1551,7 @@ definitions:
       passed:
         type: "boolean"
     description: "Check model contains an instance of a single check performed on\
-      \ a single host at a given round for a given service"
+      \ a single host at a given round for a given check_service"
     example:
       round_id: 1
       log: "log"

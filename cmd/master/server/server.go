@@ -1,37 +1,51 @@
 package server
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
+	checkService "github.com/ScoreTrak/ScoreTrak/pkg/check/check_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkpb"
-	checkService "github.com/ScoreTrak/ScoreTrak/pkg/check/service"
+	competitionService "github.com/ScoreTrak/ScoreTrak/pkg/competition/competition_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/competition/competitionpb"
-	competitionService "github.com/ScoreTrak/ScoreTrak/pkg/competition/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	configService "github.com/ScoreTrak/ScoreTrak/pkg/config/config_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config/configpb"
-	configService "github.com/ScoreTrak/ScoreTrak/pkg/config/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/di/util"
+	hostService "github.com/ScoreTrak/ScoreTrak/pkg/host/host_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host/hostpb"
-	hostService "github.com/ScoreTrak/ScoreTrak/pkg/host/service"
+	hostGroupService "github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_grouppb"
-	hostGroupService "github.com/ScoreTrak/ScoreTrak/pkg/host_group/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
+	policyService "github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policypb"
+	propertyService "github.com/ScoreTrak/ScoreTrak/pkg/property/property_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property/propertypb"
-	propertyService "github.com/ScoreTrak/ScoreTrak/pkg/property/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/handler"
+	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
+	"github.com/ScoreTrak/ScoreTrak/pkg/report"
+	reportService "github.com/ScoreTrak/ScoreTrak/pkg/report/report_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportpb"
-	reportService "github.com/ScoreTrak/ScoreTrak/pkg/report/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/role"
+	roundService "github.com/ScoreTrak/ScoreTrak/pkg/round/round_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round/roundpb"
-	roundService "github.com/ScoreTrak/ScoreTrak/pkg/round/service"
-	serviceService "github.com/ScoreTrak/ScoreTrak/pkg/service/service"
+	serviceService "github.com/ScoreTrak/ScoreTrak/pkg/service/service_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service/servicepb"
-	serviceGroupService "github.com/ScoreTrak/ScoreTrak/pkg/service_group/service"
+	serviceGroupService "github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_group_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_grouppb"
-	teamService "github.com/ScoreTrak/ScoreTrak/pkg/team/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/team"
+	teamService "github.com/ScoreTrak/ScoreTrak/pkg/team/team_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team/teampb"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user"
+	userService "github.com/ScoreTrak/ScoreTrak/pkg/user/user_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user/userpb"
+	"github.com/gofrs/uuid"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
+	"github.com/jackc/pgconn"
 	"go.uber.org/dig"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -39,6 +53,7 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 	"log"
 	"net"
 	"os"
@@ -47,7 +62,7 @@ import (
 	"time"
 )
 
-func Start(staticConfig config.StaticConfig, d *dig.Container) error {
+func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", staticConfig.Port))
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
@@ -185,6 +200,18 @@ func Start(staticConfig config.StaticConfig, d *dig.Container) error {
 			}); err != nil {
 				return err
 			}
+
+			var count int64
+			if count != 1 {
+				err := db.Create(report.NewReport()).Error
+				if err != nil {
+					serr, ok := err.(*pgconn.PgError)
+					if !ok || serr.Code != "23505" {
+						return err
+					}
+				}
+			}
+
 			reportpb.RegisterReportServiceServer(s, handler.NewReportController(reportSvc))
 		}
 		{
@@ -216,6 +243,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container) error {
 			service_grouppb.RegisterServiceGroupServiceServer(s, handler.NewServiceGroupController(serviceGroupSvc))
 		}
 
+		var uuid1 = uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 		{
 			var teamSvc teamService.Serv
 			if err := d.Invoke(func(s teamService.Serv) {
@@ -223,8 +251,77 @@ func Start(staticConfig config.StaticConfig, d *dig.Container) error {
 			}); err != nil {
 				return err
 			}
+			tru := true
+			idx := uint64(0)
+			err := teamSvc.Store(context.Background(), []*team.Team{
+				{
+					ID:      uuid1,
+					Name:    "Black Team",
+					Enabled: &tru,
+					Index:   &idx,
+					Users:   nil,
+					Hosts:   nil,
+				},
+			})
+			if err != nil {
+				serr, ok := err.(*pgconn.PgError)
+				if !ok || serr.Code != "23505" {
+					return err
+				}
+			}
 			teampb.RegisterTeamServiceServer(s, handler.NewTeamController(teamSvc))
 		}
+
+		{
+			var userServ userService.Serv
+			if err := d.Invoke(func(s userService.Serv) {
+				userServ = s
+			}); err != nil {
+				return err
+			}
+			usr, _ := handler.ConvertUserPBtoUser(true, &userpb.User{
+				Id:       &utilpb.UUID{Value: uuid1.String()},
+				Username: "admin",
+				TeamId:   &utilpb.UUID{Value: uuid1.String()},
+				Password: "changeme",
+				Role:     handler.UserRoleToRolePB(role.Black),
+			})
+			err := userServ.Store(context.Background(), []*user.User{usr})
+			if err != nil {
+				serr, ok := err.(*pgconn.PgError)
+				if !ok || serr.Code != "23505" {
+					return err
+				}
+			}
+			userpb.RegisterUserServiceServer(s, handler.NewUserController(userServ))
+			jwtManager := auth.NewJWTManager(config.GetJWTConfig().Secret, time.Duration(config.GetJWTConfig().TimeoutInSeconds)*time.Second)
+			auth.RegisterAuthServiceServer(s, handler.NewAuthController(userServ, jwtManager))
+		}
+
+		{
+			var policyServ policyService.Serv
+			if err := d.Invoke(func(s policyService.Serv) {
+				policyServ = s
+			}); err != nil {
+				return err
+			}
+
+			p := &policy.Policy{ID: 1}
+			err := db.Create(p).Error
+			if err != nil {
+				serr, ok := err.(*pgconn.PgError)
+				if !ok {
+					if serr.Code != "23505" {
+						panic(err)
+					} else {
+						db.Take(p)
+					}
+				}
+			}
+
+			policypb.RegisterPolicyServiceServer(s, handler.NewPolicyController(policyServ))
+		}
+
 	}
 
 	if !staticConfig.Prod {

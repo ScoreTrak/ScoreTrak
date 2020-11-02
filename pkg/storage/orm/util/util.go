@@ -10,12 +10,16 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
+	"github.com/ScoreTrak/ScoreTrak/pkg/role"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user"
+	"github.com/gofrs/uuid"
 	"github.com/gophercloud/gophercloud/openstack/db/v1/users"
 	"github.com/jackc/pgconn"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"time"
 )
@@ -86,6 +90,50 @@ func CreateAllTables(db *gorm.DB) (err error) {
 	return
 }
 
+var uuid1 = uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
+
+func CreateBlackTeam(db *gorm.DB) (err error) {
+	err = db.Create([]*team.Team{{ID: uuid1, Name: "Black Team"}}).Error
+	if err != nil {
+		serr, ok := err.(*pgconn.PgError)
+		if !ok || serr.Code != "23505" {
+			return err
+		}
+	}
+	return nil
+}
+
+func CreateAdminUser(db *gorm.DB) (err error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("changeme"), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	err = db.Create([]*user.User{{ID: uuid1, TeamID: uuid1, Username: "admin", Role: role.Black, PasswordHash: string(hashedPassword)}}).Error
+	if err != nil {
+		serr, ok := err.(*pgconn.PgError)
+		if !ok || serr.Code != "23505" {
+			return err
+		}
+	}
+	return nil
+}
+
+func CreatePolicy(db *gorm.DB) (*policy.Policy, error) {
+	p := &policy.Policy{ID: 1}
+	err := db.Create(p).Error
+	if err != nil {
+		serr, ok := err.(*pgconn.PgError)
+		if !ok {
+			if serr.Code != "23505" {
+				panic(err)
+			} else {
+				db.Take(p)
+			}
+		}
+	}
+	return p, nil
+}
+
 func DataPreload(db *gorm.DB) {
 	var count int64
 	//Creating Config
@@ -119,7 +167,7 @@ func DataPreload(db *gorm.DB) {
 	db.Exec("INSERT INTO service_groups (id, name, enabled) VALUES ('44444444-4444-4444-4444-444444444444', 'ServiceGroup4', false)")
 	db.Table("service_groups").Count(&count)
 	if count != 4 {
-		panic("There should be 4 entry in service groups")
+		panic("There should be 4 entry in check_service groups")
 	}
 	//Creating Hosts
 	db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id, enabled, edit_host) VALUES ('11111111-1111-1111-1111-111111111111', '10.0.0.1', '11111111-1111-1111-1111-111111111111', NULL, true, true)")

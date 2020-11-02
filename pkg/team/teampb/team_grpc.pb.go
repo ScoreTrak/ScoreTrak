@@ -13,7 +13,7 @@ import (
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// TeamServiceClient is the client API for TeamService service.
+// TeamServiceClient is the client API for TeamService check_service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TeamServiceClient interface {
@@ -77,7 +77,7 @@ func (c *teamServiceClient) Update(ctx context.Context, in *UpdateRequest, opts 
 	return out, nil
 }
 
-// TeamServiceServer is the server API for TeamService service.
+// TeamServiceServer is the server API for TeamService check_service.
 // All implementations should embed UnimplementedTeamServiceServer
 // for forward compatibility
 type TeamServiceServer interface {

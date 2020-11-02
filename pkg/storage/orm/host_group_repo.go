@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group/repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_repo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/gofrs/uuid"
@@ -17,7 +17,7 @@ type hostGroupRepo struct {
 	db *gorm.DB
 }
 
-func NewHostGroupRepo(db *gorm.DB) repo.Repo {
+func NewHostGroupRepo(db *gorm.DB) host_group_repo.Repo {
 	return &hostGroupRepo{db}
 }
 

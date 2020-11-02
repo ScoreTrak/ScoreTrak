@@ -17,7 +17,7 @@ type ServiceGroup struct {
 
 	DisplayName string `json:"display_name,omitempty" gorm:"default:null"`
 
-	// Enables or Disables the service
+	// Enables or Disables the check_service
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default:false"`
 
 	SkipHelper bool `json:"skip_helper,omitempty" gorm:"-"`
@@ -36,7 +36,7 @@ func (s ServiceGroup) Validate(db *gorm.DB) {
 		if len(s.Name) > 1 && len(s.Name) <= 64 && regexp.MustCompile(`^[\.a-zA-Z0-9_-]+(#ephemeral)?$`).MatchString(s.Name) {
 			return
 		}
-		db.AddError(fmt.Errorf("name %s doesn't resolve to scorable service", s.Name))
+		db.AddError(fmt.Errorf("name %s doesn't resolve to scorable check_service", s.Name))
 	}
 }
 

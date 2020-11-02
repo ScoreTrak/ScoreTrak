@@ -123,11 +123,11 @@ func TestServiceGroupSpec(t *testing.T) {
 				Convey("Creating Service Table", func() {
 					var count int64
 					db.AutoMigrate(&service.Service{})
-					Convey("Then associating one service with the service group", func() {
+					Convey("Then associating one check_service with the check_service group", func() {
 						db.Exec(fmt.Sprintf("INSERT INTO services (id, service_group_id, host_id, name) VALUES ('55555555-5555-5555-5555-555555555555', '%s', '55555555-5555-5555-5555-555555555555', 'TestService')", s.ID.String()))
 						db.Table("services").Count(&count)
 						So(count, ShouldEqual, 1)
-						Convey("Then Deleting the service group should be restricted", func() {
+						Convey("Then Deleting the check_service group should be restricted", func() {
 							err = sgr.Delete(ctx, s.ID)
 							So(err, ShouldNotBeNil)
 							ac, err := sgr.GetAll(ctx)

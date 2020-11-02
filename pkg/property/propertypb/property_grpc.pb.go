@@ -13,7 +13,7 @@ import (
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// PropertyServiceClient is the client API for PropertyService service.
+// PropertyServiceClient is the client API for PropertyService check_service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PropertyServiceClient interface {
@@ -87,7 +87,7 @@ func (c *propertyServiceClient) GetAllByServiceID(ctx context.Context, in *GetAl
 	return out, nil
 }
 
-// PropertyServiceServer is the server API for PropertyService service.
+// PropertyServiceServer is the server API for PropertyService check_service.
 // All implementations should embed UnimplementedPropertyServiceServer
 // for forward compatibility
 type PropertyServiceServer interface {

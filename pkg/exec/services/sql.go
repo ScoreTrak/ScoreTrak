@@ -27,7 +27,7 @@ func NewSql() *Sql {
 
 func (w *Sql) Validate() error {
 	if w.Password == "" || w.Username == "" {
-		return errors.New("sql service needs username, and password")
+		return errors.New("sql check_service needs username, and password")
 	}
 	if strings.ToLower(w.DBType) != "mysql" && strings.ToLower(w.DBType) != "postgres" {
 		return errors.New("DBType should either be mysql, or postgres")

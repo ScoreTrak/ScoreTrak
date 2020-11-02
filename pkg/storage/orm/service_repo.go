@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service/repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service/service_repo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
@@ -17,7 +17,7 @@ type serviceRepo struct {
 	db *gorm.DB
 }
 
-func NewServiceRepo(db *gorm.DB) repo.Repo {
+func NewServiceRepo(db *gorm.DB) service_repo.Repo {
 	return &serviceRepo{db}
 }
 
@@ -25,7 +25,7 @@ func (s *serviceRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	result := s.db.WithContext(ctx).Delete(&service.Service{}, "id = ?", id)
 
 	if result.Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the service with id : %d", id)
+		errMsg := fmt.Sprintf("error while deleting the check_service with id : %d", id)
 		return errors.New(errMsg)
 	}
 

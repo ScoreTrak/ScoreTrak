@@ -12,7 +12,7 @@ const (
 	Hide = "Hide"
 )
 
-// Property model describes a single key value pair for a service(parameters). An example could be a port for HTTP checking
+// Property model describes a single key value pair for a check_service(parameters). An example could be a port for HTTP checking
 type Property struct {
 	ServiceID uuid.UUID `json:"service_id" gorm:"type:uuid;not null;primary_key"`
 

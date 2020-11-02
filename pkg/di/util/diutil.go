@@ -1,18 +1,18 @@
 package util
 
 import (
-	repo5 "github.com/ScoreTrak/ScoreTrak/pkg/check/repo"
-	repo6 "github.com/ScoreTrak/ScoreTrak/pkg/config/repo"
+	repo5 "github.com/ScoreTrak/ScoreTrak/pkg/check/check_repo"
+	repo6 "github.com/ScoreTrak/ScoreTrak/pkg/config/config_repo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/di"
-	repo7 "github.com/ScoreTrak/ScoreTrak/pkg/host/repo"
-	repo8 "github.com/ScoreTrak/ScoreTrak/pkg/host_group/repo"
-	repo9 "github.com/ScoreTrak/ScoreTrak/pkg/property/repo"
-	repo10 "github.com/ScoreTrak/ScoreTrak/pkg/report/repo"
-	repo3 "github.com/ScoreTrak/ScoreTrak/pkg/round/repo"
-	repo2 "github.com/ScoreTrak/ScoreTrak/pkg/service/repo"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/repo"
+	repo7 "github.com/ScoreTrak/ScoreTrak/pkg/host/host_repo"
+	repo8 "github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_repo"
+	repo9 "github.com/ScoreTrak/ScoreTrak/pkg/property/property_repo"
+	repo10 "github.com/ScoreTrak/ScoreTrak/pkg/report/report_repo"
+	repo3 "github.com/ScoreTrak/ScoreTrak/pkg/round/round_repo"
+	repo2 "github.com/ScoreTrak/ScoreTrak/pkg/service/service_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_group_repo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
-	repo4 "github.com/ScoreTrak/ScoreTrak/pkg/team/repo"
+	repo4 "github.com/ScoreTrak/ScoreTrak/pkg/team/team_repo"
 )
 
 func NewStore() util.Store {
@@ -32,8 +32,8 @@ func NewStore() util.Store {
 	di.Invoke(func(re repo2.Repo) {
 		serviceRepo = re
 	})
-	var serviceGroupRepo repo.Repo
-	di.Invoke(func(re repo.Repo) {
+	var serviceGroupRepo service_group_repo.Repo
+	di.Invoke(func(re service_group_repo.Repo) {
 		serviceGroupRepo = re
 	})
 	var propertyRepo repo9.Repo

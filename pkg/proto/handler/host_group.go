@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_grouppb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
@@ -14,7 +14,7 @@ import (
 )
 
 type HostGroupController struct {
-	svc service.Serv
+	svc host_group_service.Serv
 }
 
 func (p HostGroupController) GetByID(ctx context.Context, request *host_grouppb.GetByIDRequest) (*host_grouppb.GetByIDResponse, error) {
@@ -113,7 +113,7 @@ func (p HostGroupController) Update(ctx context.Context, request *host_grouppb.U
 	return &host_grouppb.UpdateResponse{}, nil
 }
 
-func NewHostGroupController(svc service.Serv) *HostGroupController {
+func NewHostGroupController(svc host_group_service.Serv) *HostGroupController {
 	return &HostGroupController{svc}
 }
 

@@ -1,4 +1,4 @@
-syntax="proto3";
+syntax = "proto3";
 package pkg.competition.competitionpb;
 
 import "pkg/config/configpb/config.proto";

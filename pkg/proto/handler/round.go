@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
+	"github.com/ScoreTrak/ScoreTrak/pkg/round/round_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round/roundpb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/round/service"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/grpc/codes"
@@ -13,7 +13,7 @@ import (
 )
 
 type RoundController struct {
-	svc service.Serv
+	svc round_service.Serv
 }
 
 func (r RoundController) GetLastNonElapsingRound(ctx context.Context, request *roundpb.GetLastNonElapsingRoundRequest) (*roundpb.GetLastNonElapsingRoundResponse, error) {
@@ -76,7 +76,7 @@ func (r RoundController) GetLastRound(ctx context.Context, request *roundpb.GetL
 	return &roundpb.GetLastRoundResponse{Round: rndpb}, nil
 }
 
-func NewRoundController(svc service.Serv) *RoundController {
+func NewRoundController(svc round_service.Serv) *RoundController {
 	return &RoundController{svc}
 }
 

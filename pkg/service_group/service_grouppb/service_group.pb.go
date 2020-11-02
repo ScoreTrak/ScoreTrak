@@ -809,12 +809,12 @@ var file_pkg_service_group_service_grouppb_service_group_proto_goTypes = []inter
 	(*RedeployResponse)(nil),   // 12: pkg.service_group.service_grouppb.RedeployResponse
 	(*utilpb.UUID)(nil),        // 13: pkg.proto.utilpb.UUID
 	(*wrappers.BoolValue)(nil), // 14: google.protobuf.BoolValue
-	(*servicepb.Service)(nil),  // 15: pkg.service.servicepb.Service
+	(*servicepb.Service)(nil),  // 15: pkg.check_service.servicepb.Service
 }
 var file_pkg_service_group_service_grouppb_service_group_proto_depIdxs = []int32{
 	13, // 0: pkg.service_group.service_grouppb.ServiceGroup.id:type_name -> pkg.proto.utilpb.UUID
 	14, // 1: pkg.service_group.service_grouppb.ServiceGroup.enabled:type_name -> google.protobuf.BoolValue
-	15, // 2: pkg.service_group.service_grouppb.ServiceGroup.services:type_name -> pkg.service.servicepb.Service
+	15, // 2: pkg.service_group.service_grouppb.ServiceGroup.services:type_name -> pkg.check_service.servicepb.Service
 	0,  // 3: pkg.service_group.service_grouppb.GetAllResponse.service_groups:type_name -> pkg.service_group.service_grouppb.ServiceGroup
 	13, // 4: pkg.service_group.service_grouppb.GetByIDRequest.id:type_name -> pkg.proto.utilpb.UUID
 	0,  // 5: pkg.service_group.service_grouppb.GetByIDResponse.service_group:type_name -> pkg.service_group.service_grouppb.ServiceGroup

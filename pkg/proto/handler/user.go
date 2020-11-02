@@ -6,7 +6,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/role"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
-	"github.com/ScoreTrak/ScoreTrak/pkg/user/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user/user_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user/userpb"
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -15,7 +15,7 @@ import (
 )
 
 type UserController struct {
-	svc service.Serv
+	svc user_service.Serv
 }
 
 func (p UserController) GetByUsername(ctx context.Context, request *userpb.GetByUsernameRequest) (*userpb.GetByUsernameResponse, error) {
@@ -55,7 +55,7 @@ func (p UserController) GetByID(ctx context.Context, request *userpb.GetByIDRequ
 	return &userpb.GetByIDResponse{User: ConvertUserToUserPb(tm)}, nil
 }
 
-func (p UserController) GetAll(ctx context.Context, request *userpb.GetAllRequest) (*userpb.GetAllResponse, error) {
+func (p UserController) GetAll(ctx context.Context, _ *userpb.GetAllRequest) (*userpb.GetAllResponse, error) {
 	tms, err := p.svc.GetAll(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
@@ -141,7 +141,7 @@ func (p UserController) Update(ctx context.Context, request *userpb.UpdateReques
 	return &userpb.UpdateResponse{}, nil
 }
 
-func NewUserController(svc service.Serv) *UserController {
+func NewUserController(svc user_service.Serv) *UserController {
 	return &UserController{svc}
 }
 
@@ -193,15 +193,7 @@ func ConvertUserPBtoUser(requireID bool, pb *userpb.User) (*user.User, error) {
 		passwordHash = []byte(pb.GetPasswordHash())
 	}
 
-	var r string
-	if pb.GetRole() == userpb.Role_Blue {
-		r = role.Blue
-	} else if pb.GetRole() == userpb.Role_Red {
-		r = role.Red
-	} else if pb.GetRole() == userpb.Role_Black {
-		r = role.Black
-	}
-
+	r := UserPBRoleToRole(pb.GetRole())
 	return &user.User{
 		ID:           id,
 		Username:     pb.Username,
@@ -216,6 +208,28 @@ func ConvertUserToUserPb(obj *user.User) *userpb.User {
 		Id:       &utilpb.UUID{Value: obj.ID.String()},
 		Username: obj.Username,
 		TeamId:   &utilpb.UUID{Value: obj.ID.String()},
-		Role:     0,
+		Role:     UserRoleToRolePB(obj.Role),
 	}
+}
+
+func UserPBRoleToRole(rolepb userpb.Role) (r string) {
+	if rolepb == userpb.Role_Blue {
+		r = role.Blue
+	} else if rolepb == userpb.Role_Red {
+		r = role.Red
+	} else if rolepb == userpb.Role_Black {
+		r = role.Black
+	}
+	return
+}
+
+func UserRoleToRolePB(r string) (rpb userpb.Role) {
+	if r == role.Blue {
+		rpb = userpb.Role_Blue
+	} else if r == role.Red {
+		rpb = userpb.Role_Red
+	} else if r == role.Black {
+		rpb = userpb.Role_Black
+	}
+	return
 }

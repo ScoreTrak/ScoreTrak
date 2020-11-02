@@ -80,7 +80,7 @@ func (d *Docker) DeployWorkers(ctx context.Context, info worker.Info) (err error
 		}
 	} else {
 		if info.Label == "" {
-			return errors.New("label should not be empty when creating a service on swarm platform")
+			return errors.New("label should not be empty when creating a check_service on swarm platform")
 		}
 		_, err := d.CreateService(info, networkName, path)
 		if err != nil {
@@ -118,7 +118,7 @@ func (d *Docker) GetServiceByName(ctx context.Context, n string) (swarm.Service,
 		}
 	}
 
-	return swarm.Service{}, errors.New("unable to find service. The workers might have already been removed")
+	return swarm.Service{}, errors.New("unable to find check_service. The workers might have already been removed")
 }
 
 func (d *Docker) GetContainerByName(ctx context.Context, n string) (types.Container, error) {

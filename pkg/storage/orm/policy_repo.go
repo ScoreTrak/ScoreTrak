@@ -1,8 +1,9 @@
 package orm
 
 import (
+	"context"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy/repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_repo"
 	"gorm.io/gorm"
 )
 
@@ -10,20 +11,20 @@ type policyRepo struct {
 	db *gorm.DB
 }
 
-func NewPolicyRepo(db *gorm.DB) repo.Repo {
+func NewPolicyRepo(db *gorm.DB) policy_repo.Repo {
 	return &policyRepo{db}
 }
 
-func (h *policyRepo) Get() (*policy.Policy, error) {
+func (h *policyRepo) Get(ctx context.Context) (*policy.Policy, error) {
 	p := &policy.Policy{}
 	p.ID = 1
-	h.db.Take(p)
+	h.db.WithContext(ctx).Take(p)
 	return p, nil
 }
 
-func (h *policyRepo) Update(tm *policy.Policy) error {
+func (h *policyRepo) Update(ctx context.Context, tm *policy.Policy) error {
 	tm.ID = 1
-	err := h.db.Model(tm).Updates(policy.Policy{AllowUnauthenticatedUsers: tm.AllowUnauthenticatedUsers, ShowPoints: tm.ShowPoints,
+	err := h.db.WithContext(ctx).Model(tm).Updates(policy.Policy{AllowUnauthenticatedUsers: tm.AllowUnauthenticatedUsers, ShowPoints: tm.ShowPoints,
 		AllowChangingUsernamesAndPasswords: tm.AllowChangingUsernamesAndPasswords, ShowAddresses: tm.ShowAddresses}).Error
 	if err != nil {
 		return err

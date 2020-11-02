@@ -1,4 +1,4 @@
-syntax="proto3";
+syntax = "proto3";
 package pkg.user.userpb;
 
 import "pkg/proto/utilpb/uuid.proto";

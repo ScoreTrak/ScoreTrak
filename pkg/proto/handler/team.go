@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
-	"github.com/ScoreTrak/ScoreTrak/pkg/team/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/team/team_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team/teampb"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
@@ -14,7 +14,7 @@ import (
 )
 
 type TeamController struct {
-	svc service.Serv
+	svc team_service.Serv
 }
 
 func (p TeamController) GetByID(ctx context.Context, request *teampb.GetByIDRequest) (*teampb.GetByIDResponse, error) {
@@ -113,7 +113,7 @@ func (p TeamController) Update(ctx context.Context, request *teampb.UpdateReques
 	return &teampb.UpdateResponse{}, nil
 }
 
-func NewTeamController(svc service.Serv) *TeamController {
+func NewTeamController(svc team_service.Serv) *TeamController {
 	return &TeamController{svc}
 }
 

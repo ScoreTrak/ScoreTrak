@@ -3,8 +3,8 @@ package handler
 import (
 	"context"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
+	"github.com/ScoreTrak/ScoreTrak/pkg/check/check_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkpb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/check/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
@@ -13,7 +13,7 @@ import (
 )
 
 type CheckController struct {
-	svc service.Serv
+	svc check_service.Serv
 }
 
 func (c *CheckController) GetAllByRoundID(ctx context.Context, request *checkpb.GetAllByRoundIDRequest) (*checkpb.GetAllByRoundIDResponse, error) {
@@ -98,7 +98,7 @@ func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkp
 	return &checkpb.GetAllByServiceIDResponse{Checks: chkspb}, nil
 }
 
-func NewCheckController(svc service.Serv) *CheckController {
+func NewCheckController(svc check_service.Serv) *CheckController {
 	return &CheckController{svc}
 }
 

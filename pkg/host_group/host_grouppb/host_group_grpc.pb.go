@@ -13,7 +13,7 @@ import (
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// HostGroupServiceClient is the client API for HostGroupService service.
+// HostGroupServiceClient is the client API for HostGroupService check_service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type HostGroupServiceClient interface {
@@ -77,7 +77,7 @@ func (c *hostGroupServiceClient) Update(ctx context.Context, in *UpdateRequest, 
 	return out, nil
 }
 
-// HostGroupServiceServer is the server API for HostGroupService service.
+// HostGroupServiceServer is the server API for HostGroupService check_service.
 // All implementations should embed UnimplementedHostGroupServiceServer
 // for forward compatibility
 type HostGroupServiceServer interface {

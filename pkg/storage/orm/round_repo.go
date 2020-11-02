@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/round/repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/round/round_repo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
@@ -16,7 +16,7 @@ type roundRepo struct {
 	db *gorm.DB
 }
 
-func NewRoundRepo(db *gorm.DB) repo.Repo {
+func NewRoundRepo(db *gorm.DB) round_repo.Repo {
 	return &roundRepo{db}
 }
 

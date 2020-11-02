@@ -43,7 +43,7 @@ func TestServiceSpec(t *testing.T) {
 				So(err, ShouldBeNil)
 				So(len(gt), ShouldEqual, 0)
 			})
-			Convey("Creating a sample service should not be allowed", func() {
+			Convey("Creating a sample check_service should not be allowed", func() {
 				s := []*service.Service{{Name: "FTP"}}
 				err := sr.Store(ctx, s)
 				So(err, ShouldNotBeNil)
@@ -64,7 +64,7 @@ func TestServiceSpec(t *testing.T) {
 				db.Table("service_groups").Count(&count)
 				So(count, ShouldEqual, 2)
 
-				Convey("Creating a sample service and associating with host id 5, and service group id 2", func() {
+				Convey("Creating a sample check_service and associating with host id 5, and check_service group id 2", func() {
 					s := []*service.Service{{Name: "FTP", ServiceGroupID: uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222"), HostID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555")}}
 					err := sr.Store(ctx, s)
 					Convey("Should be Allowed", func() {
@@ -108,7 +108,7 @@ func TestServiceSpec(t *testing.T) {
 							err = sr.Update(ctx, s[0])
 							So(err, ShouldBeNil)
 						})
-						Convey("Then adding service with the same name should be allowed", func() {
+						Convey("Then adding check_service with the same name should be allowed", func() {
 							s2 := []*service.Service{{Name: "FTP", ServiceGroupID: uuid.FromStringOrNil("77777777-7777-7777-7777-777777777777"), HostID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555")}}
 							err = sr.Store(ctx, s2)
 							So(err, ShouldBeNil)
@@ -172,10 +172,10 @@ func TestServiceSpec(t *testing.T) {
 						So(count, ShouldEqual, 2)
 						db.Table("properties").Count(&count)
 						So(count, ShouldEqual, 2)
-						Convey("Deleting the service", func() {
+						Convey("Deleting the check_service", func() {
 							err = sr.Delete(ctx, s1[0].ID)
 							So(err, ShouldBeNil)
-							Convey("Should also delete checks and properties associated with the deleted service", func() {
+							Convey("Should also delete checks and properties associated with the deleted check_service", func() {
 								var count int64
 								db.Table("properties").Count(&count)
 								So(count, ShouldEqual, 1)
@@ -190,7 +190,7 @@ func TestServiceSpec(t *testing.T) {
 					})
 				})
 
-				Convey("Creating a sample service with wrong service_group should not be allowed", func() {
+				Convey("Creating a sample check_service with wrong service_group should not be allowed", func() {
 					s := []*service.Service{{Name: "FTP", ServiceGroupID: uuid.FromStringOrNil("77777777-7777-7777-7777-777777777557"), HostID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555")}}
 					err := sr.Store(ctx, s)
 					So(err, ShouldNotBeNil)

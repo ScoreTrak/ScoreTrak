@@ -13,7 +13,7 @@ import (
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// ReportServiceClient is the client API for ReportService service.
+// ReportServiceClient is the client API for ReportService check_service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ReportServiceClient interface {
@@ -37,7 +37,7 @@ func (c *reportServiceClient) Get(ctx context.Context, in *GetRequest, opts ...g
 	return out, nil
 }
 
-// ReportServiceServer is the server API for ReportService service.
+// ReportServiceServer is the server API for ReportService check_service.
 // All implementations should embed UnimplementedReportServiceServer
 // for forward compatibility
 type ReportServiceServer interface {

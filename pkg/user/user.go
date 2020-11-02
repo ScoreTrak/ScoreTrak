@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/ScoreTrak/ScoreTrak/pkg/role"
 	"github.com/gofrs/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -30,4 +31,9 @@ func (u User) Validate(db *gorm.DB) {
 	if u.Role != "" && u.Role != role.Black && u.Role != role.Blue {
 		db.AddError(errors.New("you must specify a correct role"))
 	}
+}
+
+func (u *User) IsCorrectPassword(password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
+	return err == nil
 }

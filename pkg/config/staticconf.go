@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
@@ -25,6 +26,8 @@ type StaticConfig struct {
 	CertFile string `default:""`
 
 	KeyFile string `default:""`
+
+	JWT auth.Config
 }
 
 var staticConfig StaticConfig
@@ -39,6 +42,10 @@ func GetQueueConfig() queueing.Config {
 
 func GetDBConfig() storage.Config {
 	return staticConfig.DB
+}
+
+func GetJWTConfig() auth.Config {
+	return staticConfig.JWT
 }
 
 func NewStaticConfig(f string) error {

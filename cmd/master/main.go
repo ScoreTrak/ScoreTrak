@@ -63,7 +63,7 @@ func main() {
 	go func() {
 		handleErr(dr.MasterRunner(cnf))
 	}()
-	handleErr(server.Start(staticConfig, d))
+	handleErr(server.Start(staticConfig, d, db))
 
 }
 func handleErr(err error) {

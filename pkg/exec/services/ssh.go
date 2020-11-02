@@ -26,7 +26,7 @@ func (s *SSH) Validate() error {
 	if s.Password != "" && s.Username != "" {
 		return nil
 	}
-	return errors.New("SSH service needs username, and password")
+	return errors.New("SSH check_service needs username, and password")
 }
 
 func (s *SSH) Execute(e exec.Exec) (passed bool, log string, err error) {

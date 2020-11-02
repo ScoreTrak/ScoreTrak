@@ -13,7 +13,7 @@ import (
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// RoundServiceClient is the client API for RoundService service.
+// RoundServiceClient is the client API for RoundService check_service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RoundServiceClient interface {
@@ -67,7 +67,7 @@ func (c *roundServiceClient) GetLastRound(ctx context.Context, in *GetLastRoundR
 	return out, nil
 }
 
-// RoundServiceServer is the server API for RoundService service.
+// RoundServiceServer is the server API for RoundService check_service.
 // All implementations should embed UnimplementedRoundServiceServer
 // for forward compatibility
 type RoundServiceServer interface {
