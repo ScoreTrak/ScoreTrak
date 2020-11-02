@@ -190,11 +190,6 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 				if err != nil {
 					panic(err)
 				}
-				err = d.db.Model(&s).Association("Checks").Find(&s.Checks)
-				if err != nil {
-					panic(err)
-				}
-
 				if *t.Enabled {
 					var validHost bool
 					if *h.Enabled {
