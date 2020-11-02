@@ -7,12 +7,14 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
+	"github.com/gophercloud/gophercloud/openstack/db/v1/users"
 	"github.com/jackc/pgconn"
 	"gorm.io/gorm"
 	"time"
@@ -27,12 +29,21 @@ func CleanAllTables(db *gorm.DB) {
 	db.Migrator().DropTable(&host_group.HostGroup{})
 	db.Migrator().DropTable(&round.Round{})
 	db.Migrator().DropTable(&service_group.ServiceGroup{})
+	db.Migrator().DropTable(&users.User{})
 	db.Migrator().DropTable(&team.Team{})
 	db.Migrator().DropTable(&config.DynamicConfig{})
 }
 
 func CreateAllTables(db *gorm.DB) (err error) {
 	err = db.AutoMigrate(&team.Team{})
+	if err != nil {
+		return
+	}
+	err = db.AutoMigrate(&users.User{})
+	if err != nil {
+		return
+	}
+	err = db.AutoMigrate(&policy.Policy{})
 	if err != nil {
 		return
 	}

@@ -5,12 +5,14 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 )
 
 type Competition struct {
@@ -24,4 +26,6 @@ type Competition struct {
 	Rounds        []*round.Round
 	Properties    []*property.Property
 	Checks        []*check.Check
+	Users         []*user.User
+	Policy        *policy.Policy
 }

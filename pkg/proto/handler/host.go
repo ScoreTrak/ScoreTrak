@@ -82,6 +82,12 @@ func (p HostController) Store(ctx context.Context, request *hostpb.StoreRequest)
 		if err != nil {
 			return nil, err
 		}
+		if hst.TeamID == uuid.Nil {
+			return nil, status.Errorf(
+				codes.InvalidArgument,
+				"Team ID should not be nil",
+			)
+		}
 		props = append(props, hst)
 	}
 
@@ -163,11 +169,6 @@ func ConvertHostPBtoHost(requireID bool, pb *hostpb.Host) (*host.Host, error) {
 			)
 		}
 		hostGrpID = &uid
-	} else {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			"Host ID was not specified",
-		)
 	}
 
 	var teamID uuid.UUID
@@ -179,11 +180,6 @@ func ConvertHostPBtoHost(requireID bool, pb *hostpb.Host) (*host.Host, error) {
 				"Unable to parse ID: %v", err,
 			)
 		}
-	} else {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			"Host ID was not specified",
-		)
 	}
 	return &host.Host{
 		ID:          id,

@@ -11,3 +11,5 @@ protoc .\pkg\team\teampb\team.proto --go_out=. --go_opt=paths=source_relative --
 protoc .\pkg\competition\competitionpb\competition.proto --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative --go-grpc_opt=requireUnimplementedServers=false
 protoc .\pkg\report\reportpb\report.proto --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative --go-grpc_opt=requireUnimplementedServers=false
 protoc .\pkg\config\configpb\config.proto --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative --go-grpc_opt=requireUnimplementedServers=false
+protoc .\pkg\user\userpb\user.proto --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative --go-grpc_opt=requireUnimplementedServers=false
+protoc .\pkg\policy\policypb\policy.proto --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative --go-grpc_opt=requireUnimplementedServers=false

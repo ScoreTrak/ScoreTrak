@@ -62,6 +62,12 @@ func (svc *competitionServ) LoadCompetition(ctx context.Context, c *competition.
 	if c.Report != nil {
 		errAgr = append(errAgr, svc.Store.Report.Update(ctx, c.Report))
 	}
+	if c.Policy != nil {
+		errAgr = append(errAgr, svc.Store.Policy.Update(ctx, c.Policy))
+	}
+	if c.Users != nil {
+		errAgr = append(errAgr, svc.Store.Users.Upsert(ctx, c.Users))
+	}
 	errStr := ""
 	for i := range errAgr {
 		if errAgr[i] != nil {

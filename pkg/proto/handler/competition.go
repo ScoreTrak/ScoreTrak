@@ -8,8 +8,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/competition"
 	"github.com/ScoreTrak/ScoreTrak/pkg/competition/competitionpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/competition/service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config/configpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host/hostpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
@@ -26,8 +24,9 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_grouppb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team/teampb"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user/userpb"
 	"github.com/golang/protobuf/ptypes"
-	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -101,11 +100,18 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 		}
 		chcks = append(chcks, chck)
 	}
+
+	var users []*user.User
+	for i := range request.Competition.Users {
+		usr, err := ConvertUserPBtoUser(true, request.Competition.Users[i])
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse check, details: %v", err)
+		}
+		users = append(users, usr)
+	}
+
 	err := c.svc.LoadCompetition(ctx, &competition.Competition{
-		Config: &config.DynamicConfig{
-			RoundDuration: request.Competition.DynamicConfig.GetRoundDuration(),
-			Enabled:       &request.Competition.DynamicConfig.GetEnabled().Value,
-		},
+		Config: ConvertDynamicConfigPBToDynamicConfig(request.Competition.DynamicConfig),
 		Report: &report.Report{
 			Cache: request.Competition.Report.Cache,
 		},
@@ -117,6 +123,8 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 		Rounds:        rnds,
 		Properties:    props,
 		Checks:        chcks,
+		Users:         users,
+		Policy:        ConvertPolicyPBToPolicy(request.Competition.Policy),
 	})
 	if err != nil {
 		return nil, status.Errorf(
@@ -221,6 +229,10 @@ func ConvertCompetitionToCompetitionPB(comp *competition.Competition) (*competit
 	for i := range comp.Checks {
 		chcks = append(chcks, ConvertCheckToCheckPb(comp.Checks[i]))
 	}
+	var usrs []*userpb.User
+	for i := range comp.Users {
+		usrs = append(usrs, ConvertUserToUserPb(comp.Users[i]))
+	}
 
 	uat, err := ptypes.TimestampProto(comp.Report.UpdatedAt)
 	if err != nil {
@@ -231,10 +243,7 @@ func ConvertCompetitionToCompetitionPB(comp *competition.Competition) (*competit
 	}
 
 	return &competitionpb.Competition{
-		DynamicConfig: &configpb.DynamicConfig{
-			RoundDuration: comp.Config.RoundDuration,
-			Enabled:       &wrappers.BoolValue{Value: *comp.Config.Enabled},
-		},
+		DynamicConfig: ConvertDynamicConfigToDynamicConfigPB(comp.Config),
 		Report: &reportpb.Report{
 			Cache:     comp.Report.Cache,
 			UpdatedAt: uat,
@@ -247,5 +256,7 @@ func ConvertCompetitionToCompetitionPB(comp *competition.Competition) (*competit
 		Rounds:        rnds,
 		Properties:    props,
 		Checks:        chcks,
+		Users:         usrs,
+		Policy:        ConvertPolicyToPolicyPB(comp.Policy),
 	}, nil
 }

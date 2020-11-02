@@ -1,32 +1,35 @@
 syntax="proto3";
-package pkg.team.teampb;
+package pkg.user.userpb;
 
-import "google/protobuf/wrappers.proto";
 import "pkg/proto/utilpb/uuid.proto";
-import "pkg/host/hostpb/host.proto";
-import "pkg/user/userpb/user.proto";
 
-option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/team/teampb";
+option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/user/userpb";
 
-message Team {
+message User {
   pkg.proto.utilpb.UUID id = 1;
-  string name = 2;
-  google.protobuf.BoolValue enabled = 3;
-  repeated pkg.host.hostpb.Host hosts = 4;
-  google.protobuf.UInt64Value index = 5;
-  repeated pkg.user.userpb.User users = 6;
+  string username = 2;
+  pkg.proto.utilpb.UUID team_id = 4;
+  string password = 5;
+  Role role = 6;
+  string password_hash = 7;
+}
+
+enum Role {
+  Blue = 0;
+  Red = 1;
+  Black = 2;
 }
 
 message GetAllRequest{}
 message GetAllResponse{
-  repeated Team teams = 1;
+  repeated User users = 1;
 }
 
 message GetByIDRequest{
   pkg.proto.utilpb.UUID id = 1;
 }
 message GetByIDResponse{
-  Team team = 1;
+  User user = 1;
 }
 
 message DeleteRequest{
@@ -36,7 +39,7 @@ message DeleteRequest{
 message DeleteResponse{}
 
 message StoreRequest{
-  repeated Team teams = 1;
+  repeated User users = 1;
 }
 
 message StoreResponse{
@@ -44,15 +47,24 @@ message StoreResponse{
 }
 
 message UpdateRequest{
-  Team team = 1;
+  User user = 1;
 }
 
 message UpdateResponse{}
 
-service TeamService{
+message GetByUsernameRequest{
+  string username = 1;
+}
+
+message GetByUsernameResponse{
+  User user = 1;
+}
+
+service UserService{
   rpc GetAll(GetAllRequest) returns (GetAllResponse){}
   rpc GetByID(GetByIDRequest) returns (GetByIDResponse){}
   rpc Delete(DeleteRequest) returns (DeleteResponse){}
   rpc Store(StoreRequest) returns (StoreResponse) {}
   rpc Update(UpdateRequest) returns (UpdateResponse) {}
+  rpc GetByUsername(GetByUsernameRequest) returns (GetByUsernameResponse) {}
 }

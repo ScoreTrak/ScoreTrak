@@ -115,11 +115,16 @@ func (p ServiceController) Store(ctx context.Context, request *servicepb.StoreRe
 		if err != nil {
 			return nil, err
 		}
+		if sr.HostID == uuid.Nil || sr.ServiceGroupID == uuid.Nil {
+			return nil, status.Errorf(
+				codes.InvalidArgument,
+				"Host ID And Service ID should not be nil",
+			)
+		}
 		props = append(props, sr)
 	}
 	err := p.svc.Store(ctx, props)
 	if err != nil {
-
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Unknown internal error: %v", err),
@@ -199,11 +204,6 @@ func ConvertServicePBtoService(requireID bool, pb *servicepb.Service) (*service.
 				"Unable to parse ID: %v", err,
 			)
 		}
-	} else {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			"Service ID was not specified",
-		)
 	}
 
 	var hostID uuid.UUID
@@ -215,11 +215,6 @@ func ConvertServicePBtoService(requireID bool, pb *servicepb.Service) (*service.
 				"Unable to parse ID: %v", err,
 			)
 		}
-	} else {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			"Host ID was not specified",
-		)
 	}
 
 	return &service.Service{

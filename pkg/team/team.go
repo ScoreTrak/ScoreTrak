@@ -3,6 +3,7 @@ package team
 import (
 	"errors"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )
@@ -13,9 +14,13 @@ type Team struct {
 	// this id refers to ID of a team in web.
 	ID uuid.UUID `json:"id,omitempty" gorm:"type:uuid;primary_key;"`
 
-	Name string `json:"name" gorm:"unique;not null"`
+	Name string `json:"name" gorm:"unique;not null" valid:"required,alphanum"`
 
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default:true"`
+
+	Index *uint64 `json:"index" gorm:"unique;not null"`
+
+	Users []*user.User `gorm:"foreignkey:TeamID;association_foreignkey:ID;constraint:OnUpdate:RESTRICT,OnDelete:CASCADE" json:"-"`
 
 	Hosts []*host.Host `gorm:"foreignkey:TeamID;association_foreignkey:ID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT" json:"hosts,omitempty"`
 }

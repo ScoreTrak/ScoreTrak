@@ -20,10 +20,7 @@ func (p ConfigController) Get(ctx context.Context, request *configpb.GetRequest)
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	return &configpb.GetResponse{DynamicConfig: &configpb.DynamicConfig{
-		RoundDuration: cnf.RoundDuration,
-		Enabled:       &wrappers.BoolValue{Value: *cnf.Enabled},
-	}}, nil
+	return &configpb.GetResponse{DynamicConfig: ConvertDynamicConfigToDynamicConfigPB(cnf)}, nil
 }
 
 func (p ConfigController) Update(ctx context.Context, request *configpb.UpdateRequest) (*configpb.UpdateResponse, error) {
@@ -37,7 +34,6 @@ func (p ConfigController) Update(ctx context.Context, request *configpb.UpdateRe
 		Enabled:       enabled,
 	})
 	if err != nil {
-
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Unknown internal error: %v", err),
@@ -48,4 +44,22 @@ func (p ConfigController) Update(ctx context.Context, request *configpb.UpdateRe
 
 func NewConfigController(svc service.Serv) *ConfigController {
 	return &ConfigController{svc}
+}
+
+func ConvertDynamicConfigPBToDynamicConfig(pb *configpb.DynamicConfig) *config.DynamicConfig {
+	var enabled *bool
+	if pb.GetEnabled() != nil {
+		enabled = &pb.GetEnabled().Value
+	}
+	return &config.DynamicConfig{
+		RoundDuration: pb.GetRoundDuration(),
+		Enabled:       enabled,
+	}
+}
+
+func ConvertDynamicConfigToDynamicConfigPB(obj *config.DynamicConfig) *configpb.DynamicConfig {
+	return &configpb.DynamicConfig{
+		RoundDuration: obj.RoundDuration,
+		Enabled:       &wrappers.BoolValue{Value: *obj.Enabled},
+	}
 }

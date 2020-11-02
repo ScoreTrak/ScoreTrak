@@ -11,6 +11,8 @@ import "pkg/service_group/service_grouppb/service_group.proto";
 import "pkg/round/roundpb/round.proto";
 import "pkg/property/propertypb/property.proto";
 import "pkg/check/checkpb/check.proto";
+import "pkg/user/userpb/user.proto";
+import "pkg/policy/policypb/policy.proto";
 
 option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/competition/competitionpb";
 
@@ -25,7 +27,8 @@ message Competition {
   repeated  pkg.round.roundpb.Round rounds = 8;
   repeated  pkg.property.propertypb.Property properties = 9;
   repeated  pkg.check.checkpb.Check checks = 10;
-  
+  repeated  pkg.user.userpb.User users = 11;
+  pkg.policy.policy.Policy policy = 12;
 }
 
 message LoadCompetitionRequest{

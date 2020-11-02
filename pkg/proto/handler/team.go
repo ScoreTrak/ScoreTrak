@@ -138,11 +138,19 @@ func ConvertTeamPBtoTeam(requireID bool, pb *teampb.Team) (*team.Team, error) {
 	if pb.GetEnabled() != nil {
 		enabled = &pb.GetEnabled().Value
 	}
+
+	var index *uint64
+	if pb.GetIndex() != nil {
+		index = &pb.GetIndex().Value
+	}
+
 	return &team.Team{
 		ID:      id,
 		Name:    pb.GetName(),
 		Enabled: enabled,
+		Users:   nil,
 		Hosts:   nil,
+		Index:   index,
 	}, nil
 }
 
@@ -152,5 +160,7 @@ func ConvertTeamToTeamPb(obj *team.Team) *teampb.Team {
 		Name:    obj.Name,
 		Enabled: &wrappers.BoolValue{Value: *obj.Enabled},
 		Hosts:   nil,
+		Users:   nil,
+		Index:   &wrappers.UInt64Value{Value: *obj.Index},
 	}
 }

@@ -95,7 +95,7 @@ func (t *teamRepo) Upsert(ctx context.Context, usr []*team.Team) error {
 }
 
 func (t *teamRepo) Update(ctx context.Context, tm *team.Team) error {
-	err := t.db.WithContext(ctx).Model(tm).Updates(team.Team{Enabled: tm.Enabled, Name: tm.Name}).Error
+	err := t.db.WithContext(ctx).Model(tm).Updates(team.Team{Enabled: tm.Enabled, Name: tm.Name, Index: tm.Index}).Error
 	if err != nil {
 		return err
 	}

@@ -32,23 +32,34 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 		return nil, nil, err
 	}
 	defer producer.Stop()
+
+	m := make(map[string][][]byte)
 	for _, sd := range sds {
 		sd.Service.ReturningTopic = returningTopicName
 		buf := &bytes.Buffer{}
 		if err := gob.NewEncoder(buf).Encode(sd); err != nil {
 			return nil, nil, err
 		}
-		err = producer.Publish(sd.Service.Group, buf.Bytes())
+		if _, ok := m[sd.Service.Group]; ok {
+			m[sd.Service.Group] = append(m[sd.Service.Group], buf.Bytes())
+		} else {
+			m[sd.Service.Group] = [][]byte{buf.Bytes()}
+		}
+	}
+
+	for k, v := range m {
+		err = producer.MultiPublish(k, v)
 		if err != nil {
 			return nil, nil, err
 		}
 	}
+
 	defer func(returningTopicName string, addresses []string) {
 		go n.DeleteTopic(returningTopicName, addresses)
 	}(returningTopicName, addresses)
 	confc := nsq.NewConfig()
 	confc.LookupdPollInterval = time.Second * 1
-	consumer, err := nsq.NewConsumer(returningTopicName, "channel", confc)
+	consumer, err := nsq.NewConsumer(returningTopicName, "worker", confc)
 	if err != nil {
 		return nil, bErr, err
 	}
@@ -99,7 +110,7 @@ func (n NSQ) Receive() {
 	conf := nsq.NewConfig()
 	conf.LookupdPollInterval = time.Second * 2
 	conf.MaxInFlight = n.config.NSQ.MaxInFlight
-	consumer, err := nsq.NewConsumer(n.config.NSQ.Topic, "channel", conf)
+	consumer, err := nsq.NewConsumer(n.config.NSQ.Topic, "worker", conf)
 	if err != nil {
 		panic(err)
 	}
@@ -179,7 +190,7 @@ func (n NSQ) Acknowledge(q queueing.QCheck) {
 	producer.Stop()
 }
 
-func (n NSQ) DeleteTopic(topic string, nsqAddresses []string) { //THis make NSQ node unusable for a while
+func (n NSQ) DeleteTopic(topic string, nsqAddresses []string) { //This make NSQ node unusable for a while
 	time.Sleep(time.Second * 5)
 	for _, a := range nsqAddresses {
 		client := http.Client{

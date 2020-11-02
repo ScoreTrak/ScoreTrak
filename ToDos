@@ -3,3 +3,12 @@ TODO: Return Validations once https://github.com/go-gorm/gorm/issues/3180 is ans
 TODO: Revisit JSONB format for Report
 
 TODO: Look into implementing validations, and handling validations errors
+
+TODO: Convert Policy and Report intro streaming API
+(Perhaps Helpful)
+https://stackoverflow.com/questions/19992334/how-to-listen-to-n-channels-dynamic-select-statement
+https://stackoverflow.com/questions/36417199/how-to-broadcast-message-using-channel
+1) Every Web API connected to pubsub
+2) Pubsub gorutine Listens to NSQ, or pubsub alike
+3) When updates to report, or policy happen, pubsub gorutine notifies active streams, and new stream is pushed down to clients
+
