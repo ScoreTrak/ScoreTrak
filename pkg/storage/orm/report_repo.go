@@ -25,7 +25,7 @@ type totalSuccessfulPerService struct {
 func (c *reportRepo) CountPassedPerService() (map[uuid.UUID]uint64, error) {
 	var serviceToSuccess []*totalSuccessfulPerService
 	ret := make(map[uuid.UUID]uint64)
-	err := c.db.Model(&check.Check{}).Select("service_id, COUNT(*) as total").Group("service_id").Having("passed = ?", true).Scan(&serviceToSuccess).Error
+	err := c.db.Model(&check.Check{}).Select("passed, service_id, COUNT(*) as total").Group("service_id").Having("passed = ?", true).Scan(&serviceToSuccess).Error
 	if err != nil {
 		return nil, err
 	}
