@@ -18,8 +18,8 @@ func NewReportRepo(db *gorm.DB, log logger.LogInfoFormat) report.Repo {
 }
 
 type totalSuccessfulPerService struct {
-	serviceId uuid.UUID
-	total     uint64
+	ServiceID uuid.UUID
+	Total     uint64
 }
 
 func (c *reportRepo) CountPassedPerService() (map[uuid.UUID]uint64, error) {
@@ -32,7 +32,7 @@ func (c *reportRepo) CountPassedPerService() (map[uuid.UUID]uint64, error) {
 		return nil, err
 	}
 	for i := range serviceToSuccess {
-		ret[serviceToSuccess[i].serviceId] = serviceToSuccess[i].total
+		ret[serviceToSuccess[i].ServiceID] = serviceToSuccess[i].Total
 	}
 	return ret, nil
 }
