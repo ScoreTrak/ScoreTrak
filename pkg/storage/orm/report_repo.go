@@ -18,19 +18,19 @@ func NewReportRepo(db *gorm.DB, log logger.LogInfoFormat) report.Repo {
 }
 
 type totalSuccessfulPerService struct {
-	id          uuid.UUID
-	totalPassed uint64
+	serviceId uuid.UUID
+	total     uint64
 }
 
 func (c *reportRepo) CountPassedPerService() (map[uuid.UUID]uint64, error) {
 	var serviceToSuccess []*totalSuccessfulPerService
 	ret := make(map[uuid.UUID]uint64)
-	err := c.db.Model(&check.Check{}).Select("service_id, sum(Passed) as total").Group("service_id").Having("passed = ?", true).Scan(&serviceToSuccess).Error
+	err := c.db.Model(&check.Check{}).Select("service_id, COUNT(*) as total").Group("service_id").Having("passed = ?", true).Scan(&serviceToSuccess).Error
 	if err != nil {
 		return nil, err
 	}
 	for i := range serviceToSuccess {
-		ret[serviceToSuccess[i].id] = serviceToSuccess[i].totalPassed
+		ret[serviceToSuccess[i].serviceId] = serviceToSuccess[i].total
 	}
 	return ret, nil
 }
