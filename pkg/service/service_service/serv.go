@@ -25,7 +25,7 @@ type Serv interface {
 
 type serviceServ struct {
 	repo repo2.Repo
-	q    queue.Queue
+	q    queue.WorkerQueue
 	r    util.Store
 }
 

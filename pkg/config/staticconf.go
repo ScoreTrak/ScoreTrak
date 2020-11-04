@@ -19,6 +19,8 @@ type StaticConfig struct {
 
 	Platform platforming.Config
 
+	PubSubConfig queueing.MasterConfig
+
 	Port string `default:"33333"`
 
 	Prod bool `default:"false"`
@@ -46,6 +48,10 @@ func GetDBConfig() storage.Config {
 
 func GetJWTConfig() auth.Config {
 	return staticConfig.JWT
+}
+
+func GetPubSubConfig() queueing.MasterConfig {
+	return staticConfig.PubSubConfig
 }
 
 func NewStaticConfig(f string) error {

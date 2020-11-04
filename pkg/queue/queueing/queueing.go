@@ -63,6 +63,11 @@ type Config struct {
 	}
 }
 
+type MasterConfig struct {
+	ReportForceRefreshSeconds uint   `default:"60"`
+	ChannelPrefix             string `default:""`
+}
+
 func TopicFromServiceRound(roundID uint64) string {
 	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	return "round_" + strconv.FormatUint(roundID, 10) + "_" + strconv.Itoa(seededRand.Int()) + "_ack"

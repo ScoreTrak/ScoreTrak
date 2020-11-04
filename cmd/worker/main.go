@@ -21,7 +21,7 @@ func main() {
 	if !staticConfig.Prod {
 		log.SetFlags(log.LstdFlags | log.Lshortfile)
 	}
-	q, err := queue.NewQueue(config.GetStaticConfig().Queue)
+	q, err := queue.NewWorkerQueue(config.GetStaticConfig().Queue)
 	handleErr(err)
 	q.Receive()
 }

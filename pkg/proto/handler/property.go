@@ -7,6 +7,8 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/property/property_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property/propertypb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
+	"github.com/ScoreTrak/ScoreTrak/pkg/role"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
@@ -14,7 +16,8 @@ import (
 )
 
 type PropertyController struct {
-	svc property_service.Serv
+	svc    property_service.Serv
+	client *util.Store
 }
 
 func (p PropertyController) GetAll(ctx context.Context, request *propertypb.GetAllRequest) (*propertypb.GetAllResponse, error) {
@@ -80,11 +83,30 @@ func (p PropertyController) Store(ctx context.Context, request *propertypb.Store
 }
 
 func (p PropertyController) Update(ctx context.Context, request *propertypb.UpdateRequest) (*propertypb.UpdateResponse, error) {
-	prop, err := ConvertPropertyPBtoProperty(request.Property)
+	pr, err := ConvertPropertyPBtoProperty(request.Property)
 	if err != nil {
 		return nil, err
 	}
-	err = p.svc.Update(ctx, prop)
+
+	claim := extractUserClaim(ctx)
+	if claim.Role != role.Black {
+		tID, prop, err := teamIDFromProperty(ctx, p.client, pr.ServiceID, pr.Key)
+		if err != nil {
+			return nil, status.Errorf(
+				codes.Internal,
+				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
+			)
+		}
+		if tID.String() != claim.TeamID || prop.Status != property.Edit {
+			return nil, status.Errorf(
+				codes.PermissionDenied,
+				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
+			)
+		}
+		pr = &property.Property{Value: prop.Value, ServiceID: prop.ServiceID, Key: pr.Key}
+	}
+
+	err = p.svc.Update(ctx, pr)
 	if err != nil {
 		return nil, status.Errorf(
 			codes.Internal,
@@ -109,11 +131,34 @@ func (p PropertyController) GetByServiceIDKey(ctx context.Context, request *prop
 			"Unable to parse ID: %v", err,
 		)
 	}
-	prop, err := p.svc.GetByServiceIDKey(ctx, uid, request.GetKey())
-	if err != nil {
-		return nil, getErrorParser(err)
+
+	claim := extractUserClaim(ctx)
+
+	var chk *property.Property
+	if claim.Role != role.Black {
+		tID, prop, err := teamIDFromProperty(ctx, p.client, uid, request.Key)
+		if err != nil {
+			return nil, status.Errorf(
+				codes.Internal,
+				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
+			)
+		}
+		if tID.String() != claim.TeamID {
+			return nil, status.Errorf(
+				codes.PermissionDenied,
+				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
+			)
+		}
+		chk = prop
 	}
-	return &propertypb.GetByServiceIDKeyResponse{Property: ConvertPropertyToPropertyPb(prop)}, nil
+
+	if chk == nil {
+		chk, err = p.svc.GetByServiceIDKey(ctx, uid, request.GetKey())
+		if err != nil {
+			return nil, getErrorParser(err)
+		}
+	}
+	return &propertypb.GetByServiceIDKeyResponse{Property: ConvertPropertyToPropertyPb(chk)}, nil
 }
 
 func (p PropertyController) GetAllByServiceID(ctx context.Context, request *propertypb.GetAllByServiceIDRequest) (*propertypb.GetAllByServiceIDResponse, error) {
@@ -131,6 +176,25 @@ func (p PropertyController) GetAllByServiceID(ctx context.Context, request *prop
 			"Unable to parse ID: %v", err,
 		)
 	}
+
+	claim := extractUserClaim(ctx)
+
+	if claim.Role != role.Black {
+		tID, _, err := teamIDFromService(ctx, p.client, uid)
+		if err != nil {
+			return nil, status.Errorf(
+				codes.Internal,
+				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
+			)
+		}
+		if tID.String() != claim.TeamID {
+			return nil, status.Errorf(
+				codes.PermissionDenied,
+				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
+			)
+		}
+	}
+
 	props, err := p.svc.GetAllByServiceID(ctx, uid)
 	if err != nil {
 		return nil, getErrorParser(err)
@@ -142,8 +206,8 @@ func (p PropertyController) GetAllByServiceID(ctx context.Context, request *prop
 	return &propertypb.GetAllByServiceIDResponse{Properties: propspb}, nil
 }
 
-func NewPropertyController(svc property_service.Serv) *PropertyController {
-	return &PropertyController{svc}
+func NewPropertyController(svc property_service.Serv, client *util.Store) *PropertyController {
+	return &PropertyController{svc, client}
 }
 
 func ConvertPropertyPBtoProperty(pb *propertypb.Property) (*property.Property, error) {

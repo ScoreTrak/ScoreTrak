@@ -20,6 +20,8 @@ type Team struct {
 
 	Index *uint64 `json:"index" gorm:"unique;not null"`
 
+	Hidden *bool `json:"hide,omitempty" gorm:"not null;default:false"`
+
 	Users []*user.User `gorm:"foreignkey:TeamID;association_foreignkey:ID;constraint:OnUpdate:RESTRICT,OnDelete:CASCADE" json:"-"`
 
 	Hosts []*host.Host `gorm:"foreignkey:TeamID;association_foreignkey:ID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT" json:"hosts,omitempty"`

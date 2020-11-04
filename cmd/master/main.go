@@ -55,8 +55,8 @@ func main() {
 
 	store := diutil.NewStore()
 
-	var q queue.Queue
-	di.Invoke(func(qu queue.Queue) {
+	var q queue.WorkerQueue
+	di.Invoke(func(qu queue.WorkerQueue) {
 		q = qu
 	})
 	dr := run.NewRunner(db, q, store)

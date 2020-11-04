@@ -17,7 +17,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
-	"github.com/gophercloud/gophercloud/openstack/db/v1/users"
 	"github.com/jackc/pgconn"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -33,7 +32,7 @@ func CleanAllTables(db *gorm.DB) {
 	db.Migrator().DropTable(&host_group.HostGroup{})
 	db.Migrator().DropTable(&round.Round{})
 	db.Migrator().DropTable(&service_group.ServiceGroup{})
-	db.Migrator().DropTable(&users.User{})
+	db.Migrator().DropTable(&user.User{})
 	db.Migrator().DropTable(&team.Team{})
 	db.Migrator().DropTable(&config.DynamicConfig{})
 }
@@ -43,7 +42,7 @@ func CreateAllTables(db *gorm.DB) (err error) {
 	if err != nil {
 		return
 	}
-	err = db.AutoMigrate(&users.User{})
+	err = db.AutoMigrate(&user.User{})
 	if err != nil {
 		return
 	}

@@ -19,10 +19,10 @@ type Serv interface {
 }
 
 type competitionServ struct {
-	Store util.Store
+	Store *util.Store
 }
 
-func NewCompetitionServ(str util.Store) Serv {
+func NewCompetitionServ(str *util.Store) Serv {
 	return &competitionServ{
 		Store: str,
 	}

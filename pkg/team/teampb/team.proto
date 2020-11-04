@@ -15,6 +15,7 @@ message Team {
   repeated pkg.host.hostpb.Host hosts = 4;
   google.protobuf.UInt64Value index = 5;
   repeated pkg.user.userpb.User users = 6;
+  google.protobuf.BoolValue hidden = 7;
 }
 
 message GetAllRequest{}

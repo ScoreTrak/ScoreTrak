@@ -688,7 +688,7 @@ var file_pkg_host_hostpb_host_proto_goTypes = []interface{}{
 	(*UpdateResponse)(nil),     // 10: pkg.host.hostpb.UpdateResponse
 	(*utilpb.UUID)(nil),        // 11: pkg.proto.utilpb.UUID
 	(*wrappers.BoolValue)(nil), // 12: google.protobuf.BoolValue
-	(*servicepb.Service)(nil),  // 13: pkg.check_service.servicepb.Service
+	(*servicepb.Service)(nil),  // 13: pkg.service.servicepb.Service
 }
 var file_pkg_host_hostpb_host_proto_depIdxs = []int32{
 	11, // 0: pkg.host.hostpb.Host.id:type_name -> pkg.proto.utilpb.UUID
@@ -696,7 +696,7 @@ var file_pkg_host_hostpb_host_proto_depIdxs = []int32{
 	11, // 2: pkg.host.hostpb.Host.team_id:type_name -> pkg.proto.utilpb.UUID
 	12, // 3: pkg.host.hostpb.Host.enabled:type_name -> google.protobuf.BoolValue
 	12, // 4: pkg.host.hostpb.Host.edit_host:type_name -> google.protobuf.BoolValue
-	13, // 5: pkg.host.hostpb.Host.services:type_name -> pkg.check_service.servicepb.Service
+	13, // 5: pkg.host.hostpb.Host.services:type_name -> pkg.service.servicepb.Service
 	0,  // 6: pkg.host.hostpb.GetAllResponse.hosts:type_name -> pkg.host.hostpb.Host
 	11, // 7: pkg.host.hostpb.GetByIDRequest.id:type_name -> pkg.proto.utilpb.UUID
 	0,  // 8: pkg.host.hostpb.GetByIDResponse.host:type_name -> pkg.host.hostpb.Host

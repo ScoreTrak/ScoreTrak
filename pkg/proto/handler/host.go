@@ -7,6 +7,8 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/host/host_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host/hostpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
+	"github.com/ScoreTrak/ScoreTrak/pkg/role"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
@@ -14,7 +16,8 @@ import (
 )
 
 type HostController struct {
-	svc host_service.Serv
+	svc    host_service.Serv
+	client *util.Store
 }
 
 func (p HostController) GetByID(ctx context.Context, request *hostpb.GetByIDRequest) (*hostpb.GetByIDResponse, error) {
@@ -32,11 +35,32 @@ func (p HostController) GetByID(ctx context.Context, request *hostpb.GetByIDRequ
 			"Unable to parse ID: %v", err,
 		)
 	}
-	hst, err := p.svc.GetByID(ctx, uid)
-	if err != nil {
-		return nil, getErrorParser(err)
+
+	claim := extractUserClaim(ctx)
+	var hst *host.Host
+	if claim.Role != role.Black {
+		tID, prop, err := teamIDFromHost(ctx, p.client, uid)
+		if err != nil {
+			return nil, status.Errorf(
+				codes.Internal,
+				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
+			)
+		}
+		if tID.String() != claim.TeamID {
+			return nil, status.Errorf(
+				codes.PermissionDenied,
+				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
+			)
+		}
+		hst = prop
 	}
 
+	if hst == nil {
+		hst, err = p.svc.GetByID(ctx, uid)
+		if err != nil {
+			return nil, getErrorParser(err)
+		}
+	}
 	return &hostpb.GetByIDResponse{Host: ConvertHostToHostPb(hst)}, nil
 }
 
@@ -110,9 +134,28 @@ func (p HostController) Update(ctx context.Context, request *hostpb.UpdateReques
 	if err != nil {
 		return nil, err
 	}
+
+	claim := extractUserClaim(ctx)
+
+	if claim.Role != role.Black {
+		tID, prop, err := teamIDFromHost(ctx, p.client, hst.ID)
+		if err != nil {
+			return nil, status.Errorf(
+				codes.Internal,
+				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
+			)
+		}
+		if tID.String() != claim.TeamID || !*prop.EditHost {
+			return nil, status.Errorf(
+				codes.PermissionDenied,
+				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
+			)
+		}
+		hst = &host.Host{Address: prop.Address, ID: hst.ID}
+	}
+
 	err = p.svc.Update(ctx, hst)
 	if err != nil {
-
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Unknown internal error: %v", err),
@@ -121,8 +164,8 @@ func (p HostController) Update(ctx context.Context, request *hostpb.UpdateReques
 	return &hostpb.UpdateResponse{}, nil
 }
 
-func NewHostController(svc host_service.Serv) *HostController {
-	return &HostController{svc}
+func NewHostController(svc host_service.Serv, client *util.Store) *HostController {
+	return &HostController{svc, client}
 }
 
 func ConvertHostPBtoHost(requireID bool, pb *hostpb.Host) (*host.Host, error) {

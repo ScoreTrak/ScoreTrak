@@ -13,7 +13,7 @@ import (
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// ServiceGroupServiceClient is the client API for ServiceGroupService check_service.
+// ServiceGroupServiceClient is the client API for ServiceGroupService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceGroupServiceClient interface {
@@ -87,7 +87,7 @@ func (c *serviceGroupServiceClient) Redeploy(ctx context.Context, in *RedeployRe
 	return out, nil
 }
 
-// ServiceGroupServiceServer is the server API for ServiceGroupService check_service.
+// ServiceGroupServiceServer is the server API for ServiceGroupService service.
 // All implementations should embed UnimplementedServiceGroupServiceServer
 // for forward compatibility
 type ServiceGroupServiceServer interface {

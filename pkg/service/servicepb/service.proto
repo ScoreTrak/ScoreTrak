@@ -6,7 +6,7 @@ import "pkg/proto/utilpb/uuid.proto";
 import "pkg/property/propertypb/property.proto";
 import "pkg/check/checkpb/check.proto";
 
-option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/check_service/servicepb";
+option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/service/servicepb";
 
 message Service {
   pkg.proto.utilpb.UUID id = 1;

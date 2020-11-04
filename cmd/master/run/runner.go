@@ -25,8 +25,8 @@ import (
 
 type dRunner struct {
 	db *gorm.DB
-	q  queue.Queue
-	r  util.Store
+	q  queue.WorkerQueue
+	r  *util.Store
 }
 
 var dsync time.Duration
@@ -56,7 +56,7 @@ func (d dRunner) getDsync() time.Duration {
 	return dsync
 }
 
-func NewRunner(db *gorm.DB, q queue.Queue, r util.Store) *dRunner {
+func NewRunner(db *gorm.DB, q queue.WorkerQueue, r *util.Store) *dRunner {
 	return &dRunner{
 		db: db, q: q, r: r,
 	}
@@ -289,7 +289,7 @@ func (d dRunner) Score(rnd round.Round, ctx context.Context) {
 	simpTeams := make(map[uuid.UUID]*report.SimpleTeam)
 	{
 		for _, t := range teams {
-			st := &report.SimpleTeam{Name: t.Name, Enabled: *t.Enabled}
+			st := &report.SimpleTeam{Name: t.Name, Enabled: *t.Enabled, Hidden: *t.Hidden}
 			st.Hosts = make(map[uuid.UUID]*report.SimpleHost)
 			for _, h := range t.Hosts {
 				sh := report.SimpleHost{Address: *h.Address, Enabled: *h.Enabled}
@@ -348,6 +348,12 @@ func (d dRunner) Score(rnd round.Round, ctx context.Context) {
 		d.finalizeRound(ctx, &rnd, Note, fmt.Sprintf("Error while saving report. Err: %s", err.Error()))
 		return
 	}
+	pubsub, err := queue.NewMasterStreamPubSub(config.GetQueueConfig())
+	if err != nil {
+		d.finalizeRound(ctx, &rnd, Note, fmt.Sprintf("Error while notifying report update. Err: %s", err.Error()))
+		return
+	}
+	pubsub.NotifyTopic(config.GetPubSubConfig().ChannelPrefix + "_report")
 	d.finalizeRound(ctx, &rnd, Note, "")
 }
 

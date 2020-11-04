@@ -126,12 +126,25 @@ func (p UserController) Store(ctx context.Context, request *userpb.StoreRequest)
 }
 
 func (p UserController) Update(ctx context.Context, request *userpb.UpdateRequest) (*userpb.UpdateResponse, error) {
-	tmspb := request.GetUser()
-	tm, err := ConvertUserPBtoUser(true, tmspb)
+	usrpb := request.GetUser()
+	usr, err := ConvertUserPBtoUser(true, usrpb)
 	if err != nil {
 		return nil, err
 	}
-	err = p.svc.Update(ctx, tm)
+
+	claim := extractUserClaim(ctx)
+
+	if claim.Role != role.Black {
+		if claim.Id != usr.TeamID.String() {
+			return nil, status.Errorf(
+				codes.PermissionDenied,
+				fmt.Sprintf("You do not have permissions to change password of this user"),
+			)
+		}
+		request.User = &userpb.User{Username: request.GetUser().Username, Password: request.User.GetPassword()}
+	}
+
+	err = p.svc.Update(ctx, usr)
 	if err != nil {
 		return nil, status.Errorf(
 			codes.Internal,

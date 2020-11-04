@@ -6,21 +6,23 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
 	"github.com/gofrs/uuid"
 	"github.com/nsqio/go-nsq"
+	"log"
+	"math/rand"
 	"net/http"
+	"strconv"
 	"time"
 )
 
-type NSQ struct {
+type WorkerQueue struct {
 	config queueing.Config
 }
 
-func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error) {
-	addresses := n.GenerateNSQLookupdAddresses(n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port)
+func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error) {
+	addresses := generateNSQLookupdAddresses(n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port)
 	returningTopicName := queueing.TopicFromServiceRound(sds[0].RoundID)
 	bErr, tErr := n.TopicAbsent(returningTopicName, addresses)
 	if tErr != nil {
@@ -106,13 +108,13 @@ func (n NSQ) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error
 	}
 }
 
-func (n NSQ) Receive() {
+func (n WorkerQueue) Receive() {
 	conf := nsq.NewConfig()
 	conf.LookupdPollInterval = time.Second * 2
 	conf.MaxInFlight = n.config.NSQ.MaxInFlight
 	consumer, err := nsq.NewConsumer(n.config.NSQ.Topic, "worker", conf)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Failed to initialize NSQ consumer. Error: %v", err)
 	}
 	consumer.SetLoggerLevel(nsq.LogLevelError)
 	consumer.AddConcurrentHandlers(nsq.HandlerFunc(func(m *nsq.Message) error {
@@ -142,7 +144,7 @@ func (n NSQ) Receive() {
 		return nil
 
 	}), n.config.NSQ.ConcurrentHandlers)
-	addresses := n.GenerateNSQLookupdAddresses(n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port)
+	addresses := generateNSQLookupdAddresses(n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port)
 	err = consumer.ConnectToNSQLookupds(addresses)
 	if err != nil {
 		panic(err)
@@ -150,7 +152,7 @@ func (n NSQ) Receive() {
 	select {}
 }
 
-func (n NSQ) Ping(group *service_group.ServiceGroup) error {
+func (n WorkerQueue) Ping(group *service_group.ServiceGroup) error {
 	_, bErr, err := n.Send([]*queueing.ScoringData{
 		{
 			Service: queueing.QService{ID: uuid.Nil, Name: "PING", Group: group.Name}, Host: "localhost", Deadline: time.Now().Add(time.Second * 4), RoundID: 0, Properties: map[string]string{},
@@ -165,7 +167,7 @@ func (n NSQ) Ping(group *service_group.ServiceGroup) error {
 	return nil
 }
 
-func (n NSQ) GenerateNSQLookupdAddresses(hostNames []string, port string) []string {
+func generateNSQLookupdAddresses(hostNames []string, port string) []string {
 	var addresses []string
 	for _, h := range hostNames {
 		addresses = append(addresses, fmt.Sprintf("%s:%s", h, port))
@@ -173,7 +175,7 @@ func (n NSQ) GenerateNSQLookupdAddresses(hostNames []string, port string) []stri
 	return addresses
 }
 
-func (n NSQ) Acknowledge(q queueing.QCheck) {
+func (n WorkerQueue) Acknowledge(q queueing.QCheck) {
 	confp := nsq.NewConfig()
 	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", n.config.NSQ.NSQD.Host, n.config.NSQ.NSQD.Port), confp)
 	if err != nil {
@@ -190,7 +192,7 @@ func (n NSQ) Acknowledge(q queueing.QCheck) {
 	producer.Stop()
 }
 
-func (n NSQ) DeleteTopic(topic string, nsqAddresses []string) { //This make NSQ node unusable for a while
+func (n WorkerQueue) DeleteTopic(topic string, nsqAddresses []string) { //This makes NSQ node unusable for a while
 	time.Sleep(time.Second * 5)
 	for _, a := range nsqAddresses {
 		client := http.Client{
@@ -208,7 +210,7 @@ type topics struct {
 	Topics []string `json:"topics"`
 }
 
-func (n NSQ) TopicAbsent(topic string, nsqAddresses []string) (bErr error, tErr error) {
+func (n WorkerQueue) TopicAbsent(topic string, nsqAddresses []string) (bErr error, tErr error) {
 	var err error
 	for _, a := range nsqAddresses {
 		client := http.Client{
@@ -234,6 +236,53 @@ func (n NSQ) TopicAbsent(topic string, nsqAddresses []string) (bErr error, tErr 
 	}
 	return err, errors.New("no NSQLookupd instances answered the request")
 }
-func NewNSQQueue(config queueing.Config) (*NSQ, error) {
-	return &NSQ{config}, nil
+func NewNSQWorkerQueue(config queueing.Config) (*WorkerQueue, error) {
+	return &WorkerQueue{config}, nil
 }
+
+type PubSub struct {
+	config queueing.Config
+}
+
+func (p PubSub) NotifyTopic(topic string) {
+	confp := nsq.NewConfig()
+	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", p.config.NSQ.NSQD.Host, p.config.NSQ.NSQD.Port), confp)
+	if err != nil {
+		log.Fatalf("Unable to initialize producer to notify masters using queue. Ensure that the queue is reachable from master. Error Details: %v", err)
+	}
+	err = producer.Publish(topic, []byte{})
+	if err != nil {
+		log.Fatalf("Unable to publish to topic to notify masters. Ensure that the queue is reachable from master. Error Details: %v", err)
+	}
+	producer.Stop()
+}
+
+func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
+	n := make(chan struct{})
+	go func() {
+		conf := nsq.NewConfig()
+		conf.LookupdPollInterval = time.Second * 2
+		consumer, err := nsq.NewConsumer(topic, "master_"+strconv.Itoa(rand.New(rand.NewSource(time.Now().UnixNano())).Int()), conf)
+		if err != nil {
+			log.Fatalf("Unable to initualize consumer for topic: %s. Error Details: %v", topic, err)
+		}
+		consumer.AddHandler(
+			nsq.HandlerFunc(func(m *nsq.Message) error {
+				<-n
+				return nil
+			}))
+		addresses := generateNSQLookupdAddresses(p.config.NSQ.NSQLookupd.Hosts, p.config.NSQ.NSQLookupd.Port)
+		err = consumer.ConnectToNSQLookupds(addresses)
+		if err != nil {
+			log.Fatalf("Unable to connect to NSQLookupd instances")
+		}
+		select {}
+	}()
+	return n
+}
+
+func NewNSQPubSub(config queueing.Config) (*PubSub, error) {
+	return &PubSub{config}, nil
+}
+
+//Todo: For Master-Worker Exchange Queue look into simplifying, and speeding up the process by utilizing single listening topic, and reusing the topic from round to round

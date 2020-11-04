@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.25.0
 // 	protoc        v3.13.0
-// source: pkg/check_service/servicepb/check_service.proto
+// source: pkg/service/servicepb/service.proto
 
 package servicepb
 
@@ -301,7 +301,7 @@ type GetByIDResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Service *Service `protobuf:"bytes,1,opt,name=check_service,proto3" json:"check_service,omitempty"`
+	Service *Service `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
 }
 
 func (x *GetByIDResponse) Reset() {
@@ -527,7 +527,7 @@ type UpdateRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Service *Service `protobuf:"bytes,1,opt,name=check_service,proto3" json:"check_service,omitempty"`
+	Service *Service `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
 }
 
 func (x *UpdateRequest) Reset() {
@@ -852,19 +852,19 @@ func file_pkg_service_servicepb_service_proto_rawDescGZIP() []byte {
 
 var file_pkg_service_servicepb_service_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_pkg_service_servicepb_service_proto_goTypes = []interface{}{
-	(*Service)(nil),              // 0: pkg.check_service.servicepb.Service
-	(*GetAllRequest)(nil),        // 1: pkg.check_service.servicepb.GetAllRequest
-	(*GetAllResponse)(nil),       // 2: pkg.check_service.servicepb.GetAllResponse
-	(*GetByIDRequest)(nil),       // 3: pkg.check_service.servicepb.GetByIDRequest
-	(*GetByIDResponse)(nil),      // 4: pkg.check_service.servicepb.GetByIDResponse
-	(*DeleteRequest)(nil),        // 5: pkg.check_service.servicepb.DeleteRequest
-	(*DeleteResponse)(nil),       // 6: pkg.check_service.servicepb.DeleteResponse
-	(*StoreRequest)(nil),         // 7: pkg.check_service.servicepb.StoreRequest
-	(*StoreResponse)(nil),        // 8: pkg.check_service.servicepb.StoreResponse
-	(*UpdateRequest)(nil),        // 9: pkg.check_service.servicepb.UpdateRequest
-	(*UpdateResponse)(nil),       // 10: pkg.check_service.servicepb.UpdateResponse
-	(*TestServiceRequest)(nil),   // 11: pkg.check_service.servicepb.TestServiceRequest
-	(*TestServiceResponse)(nil),  // 12: pkg.check_service.servicepb.TestServiceResponse
+	(*Service)(nil),              // 0: pkg.service.servicepb.Service
+	(*GetAllRequest)(nil),        // 1: pkg.service.servicepb.GetAllRequest
+	(*GetAllResponse)(nil),       // 2: pkg.service.servicepb.GetAllResponse
+	(*GetByIDRequest)(nil),       // 3: pkg.service.servicepb.GetByIDRequest
+	(*GetByIDResponse)(nil),      // 4: pkg.service.servicepb.GetByIDResponse
+	(*DeleteRequest)(nil),        // 5: pkg.service.servicepb.DeleteRequest
+	(*DeleteResponse)(nil),       // 6: pkg.service.servicepb.DeleteResponse
+	(*StoreRequest)(nil),         // 7: pkg.service.servicepb.StoreRequest
+	(*StoreResponse)(nil),        // 8: pkg.service.servicepb.StoreResponse
+	(*UpdateRequest)(nil),        // 9: pkg.service.servicepb.UpdateRequest
+	(*UpdateResponse)(nil),       // 10: pkg.service.servicepb.UpdateResponse
+	(*TestServiceRequest)(nil),   // 11: pkg.service.servicepb.TestServiceRequest
+	(*TestServiceResponse)(nil),  // 12: pkg.service.servicepb.TestServiceResponse
 	(*utilpb.UUID)(nil),          // 13: pkg.proto.utilpb.UUID
 	(*wrappers.UInt64Value)(nil), // 14: google.protobuf.UInt64Value
 	(*wrappers.BoolValue)(nil),   // 15: google.protobuf.BoolValue
@@ -872,36 +872,36 @@ var file_pkg_service_servicepb_service_proto_goTypes = []interface{}{
 	(*checkpb.Check)(nil),        // 17: pkg.check.checkpb.Check
 }
 var file_pkg_service_servicepb_service_proto_depIdxs = []int32{
-	13, // 0: pkg.check_service.servicepb.Service.id:type_name -> pkg.proto.utilpb.UUID
-	14, // 1: pkg.check_service.servicepb.Service.weight:type_name -> google.protobuf.UInt64Value
-	14, // 2: pkg.check_service.servicepb.Service.points_boost:type_name -> google.protobuf.UInt64Value
-	14, // 3: pkg.check_service.servicepb.Service.round_delay:type_name -> google.protobuf.UInt64Value
-	13, // 4: pkg.check_service.servicepb.Service.service_group_id:type_name -> pkg.proto.utilpb.UUID
-	13, // 5: pkg.check_service.servicepb.Service.host_id:type_name -> pkg.proto.utilpb.UUID
-	15, // 6: pkg.check_service.servicepb.Service.enabled:type_name -> google.protobuf.BoolValue
-	16, // 7: pkg.check_service.servicepb.Service.properties:type_name -> pkg.property.propertypb.Property
-	17, // 8: pkg.check_service.servicepb.Service.checks:type_name -> pkg.check.checkpb.Check
-	0,  // 9: pkg.check_service.servicepb.GetAllResponse.services:type_name -> pkg.check_service.servicepb.Service
-	13, // 10: pkg.check_service.servicepb.GetByIDRequest.id:type_name -> pkg.proto.utilpb.UUID
-	0,  // 11: pkg.check_service.servicepb.GetByIDResponse.check_service:type_name -> pkg.check_service.servicepb.Service
-	13, // 12: pkg.check_service.servicepb.DeleteRequest.id:type_name -> pkg.proto.utilpb.UUID
-	0,  // 13: pkg.check_service.servicepb.StoreRequest.services:type_name -> pkg.check_service.servicepb.Service
-	13, // 14: pkg.check_service.servicepb.StoreResponse.ids:type_name -> pkg.proto.utilpb.UUID
-	0,  // 15: pkg.check_service.servicepb.UpdateRequest.check_service:type_name -> pkg.check_service.servicepb.Service
-	13, // 16: pkg.check_service.servicepb.TestServiceRequest.id:type_name -> pkg.proto.utilpb.UUID
-	17, // 17: pkg.check_service.servicepb.TestServiceResponse.check:type_name -> pkg.check.checkpb.Check
-	1,  // 18: pkg.check_service.servicepb.ServiceService.GetAll:input_type -> pkg.check_service.servicepb.GetAllRequest
-	3,  // 19: pkg.check_service.servicepb.ServiceService.GetByID:input_type -> pkg.check_service.servicepb.GetByIDRequest
-	5,  // 20: pkg.check_service.servicepb.ServiceService.Delete:input_type -> pkg.check_service.servicepb.DeleteRequest
-	7,  // 21: pkg.check_service.servicepb.ServiceService.Store:input_type -> pkg.check_service.servicepb.StoreRequest
-	9,  // 22: pkg.check_service.servicepb.ServiceService.Update:input_type -> pkg.check_service.servicepb.UpdateRequest
-	11, // 23: pkg.check_service.servicepb.ServiceService.TestService:input_type -> pkg.check_service.servicepb.TestServiceRequest
-	2,  // 24: pkg.check_service.servicepb.ServiceService.GetAll:output_type -> pkg.check_service.servicepb.GetAllResponse
-	4,  // 25: pkg.check_service.servicepb.ServiceService.GetByID:output_type -> pkg.check_service.servicepb.GetByIDResponse
-	6,  // 26: pkg.check_service.servicepb.ServiceService.Delete:output_type -> pkg.check_service.servicepb.DeleteResponse
-	8,  // 27: pkg.check_service.servicepb.ServiceService.Store:output_type -> pkg.check_service.servicepb.StoreResponse
-	10, // 28: pkg.check_service.servicepb.ServiceService.Update:output_type -> pkg.check_service.servicepb.UpdateResponse
-	12, // 29: pkg.check_service.servicepb.ServiceService.TestService:output_type -> pkg.check_service.servicepb.TestServiceResponse
+	13, // 0: pkg.service.servicepb.Service.id:type_name -> pkg.proto.utilpb.UUID
+	14, // 1: pkg.service.servicepb.Service.weight:type_name -> google.protobuf.UInt64Value
+	14, // 2: pkg.service.servicepb.Service.points_boost:type_name -> google.protobuf.UInt64Value
+	14, // 3: pkg.service.servicepb.Service.round_delay:type_name -> google.protobuf.UInt64Value
+	13, // 4: pkg.service.servicepb.Service.service_group_id:type_name -> pkg.proto.utilpb.UUID
+	13, // 5: pkg.service.servicepb.Service.host_id:type_name -> pkg.proto.utilpb.UUID
+	15, // 6: pkg.service.servicepb.Service.enabled:type_name -> google.protobuf.BoolValue
+	16, // 7: pkg.service.servicepb.Service.properties:type_name -> pkg.property.propertypb.Property
+	17, // 8: pkg.service.servicepb.Service.checks:type_name -> pkg.check.checkpb.Check
+	0,  // 9: pkg.service.servicepb.GetAllResponse.services:type_name -> pkg.service.servicepb.Service
+	13, // 10: pkg.service.servicepb.GetByIDRequest.id:type_name -> pkg.proto.utilpb.UUID
+	0,  // 11: pkg.service.servicepb.GetByIDResponse.service:type_name -> pkg.service.servicepb.Service
+	13, // 12: pkg.service.servicepb.DeleteRequest.id:type_name -> pkg.proto.utilpb.UUID
+	0,  // 13: pkg.service.servicepb.StoreRequest.services:type_name -> pkg.service.servicepb.Service
+	13, // 14: pkg.service.servicepb.StoreResponse.ids:type_name -> pkg.proto.utilpb.UUID
+	0,  // 15: pkg.service.servicepb.UpdateRequest.service:type_name -> pkg.service.servicepb.Service
+	13, // 16: pkg.service.servicepb.TestServiceRequest.id:type_name -> pkg.proto.utilpb.UUID
+	17, // 17: pkg.service.servicepb.TestServiceResponse.check:type_name -> pkg.check.checkpb.Check
+	1,  // 18: pkg.service.servicepb.ServiceService.GetAll:input_type -> pkg.service.servicepb.GetAllRequest
+	3,  // 19: pkg.service.servicepb.ServiceService.GetByID:input_type -> pkg.service.servicepb.GetByIDRequest
+	5,  // 20: pkg.service.servicepb.ServiceService.Delete:input_type -> pkg.service.servicepb.DeleteRequest
+	7,  // 21: pkg.service.servicepb.ServiceService.Store:input_type -> pkg.service.servicepb.StoreRequest
+	9,  // 22: pkg.service.servicepb.ServiceService.Update:input_type -> pkg.service.servicepb.UpdateRequest
+	11, // 23: pkg.service.servicepb.ServiceService.TestService:input_type -> pkg.service.servicepb.TestServiceRequest
+	2,  // 24: pkg.service.servicepb.ServiceService.GetAll:output_type -> pkg.service.servicepb.GetAllResponse
+	4,  // 25: pkg.service.servicepb.ServiceService.GetByID:output_type -> pkg.service.servicepb.GetByIDResponse
+	6,  // 26: pkg.service.servicepb.ServiceService.Delete:output_type -> pkg.service.servicepb.DeleteResponse
+	8,  // 27: pkg.service.servicepb.ServiceService.Store:output_type -> pkg.service.servicepb.StoreResponse
+	10, // 28: pkg.service.servicepb.ServiceService.Update:output_type -> pkg.service.servicepb.UpdateResponse
+	12, // 29: pkg.service.servicepb.ServiceService.TestService:output_type -> pkg.service.servicepb.TestServiceResponse
 	24, // [24:30] is the sub-list for method output_type
 	18, // [18:24] is the sub-list for method input_type
 	18, // [18:18] is the sub-list for extension type_name

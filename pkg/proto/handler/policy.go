@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policypb"
 	"github.com/golang/protobuf/ptypes/wrappers"
@@ -12,15 +13,32 @@ import (
 )
 
 type PolicyController struct {
-	svc policy_service.Serv
+	svc          policy_service.Serv
+	policyClient *policy_client.Client
 }
 
-func (p PolicyController) Get(ctx context.Context, _ *policypb.GetRequest) (*policypb.GetResponse, error) {
-	pol, err := p.svc.Get(ctx)
+func (p PolicyController) Get(request *policypb.GetRequest, server policypb.PolicyService_GetServer) error {
+	err := server.Send(&policypb.GetResponse{
+		Policy: ConvertPolicyToPolicyPB(p.policyClient.GetPolicy()),
+	})
 	if err != nil {
-		return nil, getErrorParser(err)
+		return err
 	}
-	return &policypb.GetResponse{Policy: ConvertPolicyToPolicyPB(pol)}, nil
+	uuid, ch := p.policyClient.Subscribe()
+	defer p.policyClient.Unsubscribe(uuid)
+	for {
+		select {
+		case <-ch:
+			err := server.Send(&policypb.GetResponse{
+				Policy: ConvertPolicyToPolicyPB(p.policyClient.GetPolicy()),
+			})
+			if err != nil {
+				return err
+			}
+		case <-server.Context().Done():
+			return nil
+		}
+	}
 }
 
 func (p PolicyController) Update(ctx context.Context, request *policypb.UpdateRequest) (*policypb.UpdateResponse, error) {
@@ -32,11 +50,15 @@ func (p PolicyController) Update(ctx context.Context, request *policypb.UpdateRe
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
+	p.policyClient.Notify()
 	return &policypb.UpdateResponse{}, nil
 }
 
 func NewPolicyController(svc policy_service.Serv) *PolicyController {
-	return &PolicyController{svc}
+	return &PolicyController{
+		svc:          svc,
+		policyClient: nil,
+	}
 }
 
 func ConvertPolicyPBToPolicy(pb *policypb.Policy) *policy.Policy {

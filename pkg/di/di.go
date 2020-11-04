@@ -45,7 +45,7 @@ func BuildMasterContainer() (*dig.Container, error) {
 
 		orm.NewReportRepo, service10.NewReportServ,
 		service11.NewCompetitionServ,
-		queue.NewQueue, platform.NewPlatform,
+		queue.NewWorkerQueue, platform.NewPlatform,
 	)
 
 	for _, i := range ctr {

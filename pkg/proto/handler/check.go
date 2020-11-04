@@ -2,10 +2,16 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/check_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkpb"
+	"github.com/ScoreTrak/ScoreTrak/pkg/host"
+	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
+	"github.com/ScoreTrak/ScoreTrak/pkg/role"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
@@ -13,7 +19,8 @@ import (
 )
 
 type CheckController struct {
-	svc check_service.Serv
+	svc    check_service.Serv
+	client *util.Store
 }
 
 func (c *CheckController) GetAllByRoundID(ctx context.Context, request *checkpb.GetAllByRoundIDRequest) (*checkpb.GetAllByRoundIDResponse, error) {
@@ -62,7 +69,30 @@ func (c *CheckController) GetByRoundServiceID(ctx context.Context, request *chec
 			"Unable to parse ID: %v", err,
 		)
 	}
-	chk, err := c.svc.GetByRoundServiceID(ctx, roundID, uid)
+
+	claim := extractUserClaim(ctx)
+
+	var chk *check.Check
+	if claim.Role != role.Black {
+		tID, prop, err := teamIDFromCheck(ctx, c.client, roundID, uid)
+		if err != nil {
+			return nil, status.Errorf(
+				codes.Internal,
+				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
+			)
+		}
+		if tID.String() != claim.TeamID {
+			return nil, status.Errorf(
+				codes.PermissionDenied,
+				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
+			)
+		}
+		chk = prop
+	}
+
+	if chk == nil {
+		chk, err = c.svc.GetByRoundServiceID(ctx, roundID, uid)
+	}
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
@@ -84,6 +114,25 @@ func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkp
 			"Unable to parse ID: %v", err,
 		)
 	}
+
+	claim := extractUserClaim(ctx)
+
+	if claim.Role != role.Black {
+		tID, _, err := teamIDFromService(ctx, c.client, uid)
+		if err != nil {
+			return nil, status.Errorf(
+				codes.Internal,
+				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
+			)
+		}
+		if tID.String() != claim.TeamID {
+			return nil, status.Errorf(
+				codes.PermissionDenied,
+				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
+			)
+		}
+	}
+
 	chks, err := c.svc.GetAllByServiceID(ctx, uid)
 	if err != nil {
 		return nil, getErrorParser(err)
@@ -98,8 +147,8 @@ func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkp
 	return &checkpb.GetAllByServiceIDResponse{Checks: chkspb}, nil
 }
 
-func NewCheckController(svc check_service.Serv) *CheckController {
-	return &CheckController{svc}
+func NewCheckController(svc check_service.Serv, client *util.Store) *CheckController {
+	return &CheckController{svc, client}
 }
 
 func ConvertCheckToCheckPb(obj *check.Check) *checkpb.Check {
@@ -146,4 +195,39 @@ func ConvertCheckPBtoCheck(pb *checkpb.Check) (*check.Check, error) {
 		Err:       pb.Err,
 		Passed:    passed,
 	}, nil
+}
+
+func teamIDFromProperty(ctx context.Context, c *util.Store, serviceID uuid.UUID, key string) (teamID uuid.UUID, property *property.Property, err error) {
+	property, err = c.Property.GetByServiceIDKey(ctx, serviceID, key)
+	if err != nil || property == nil {
+		return
+	}
+	teamID, _, err = teamIDFromService(ctx, c, property.ServiceID)
+	return
+}
+
+func teamIDFromCheck(ctx context.Context, c *util.Store, roundID uint64, serviceID uuid.UUID) (teamID uuid.UUID, check *check.Check, err error) {
+	check, err = c.Check.GetByRoundServiceID(ctx, roundID, serviceID)
+	if err != nil || check == nil {
+		return
+	}
+	teamID, _, err = teamIDFromService(ctx, c, check.ServiceID)
+	return
+}
+
+func teamIDFromService(ctx context.Context, c *util.Store, serviceID uuid.UUID) (teamID uuid.UUID, service *service.Service, err error) {
+	service, err = c.Service.GetByID(ctx, serviceID)
+	if err != nil || service == nil {
+		return
+	}
+	teamID, _, err = teamIDFromHost(ctx, c, service.HostID)
+	return
+}
+
+func teamIDFromHost(ctx context.Context, c *util.Store, hostID uuid.UUID) (teamID uuid.UUID, host *host.Host, err error) {
+	host, err = c.Host.GetByID(ctx, hostID)
+	if err != nil || host == nil {
+		return
+	}
+	return host.TeamID, host, err
 }

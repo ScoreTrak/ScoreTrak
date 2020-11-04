@@ -15,7 +15,7 @@ import (
 	repo4 "github.com/ScoreTrak/ScoreTrak/pkg/team/team_repo"
 )
 
-func NewStore() util.Store {
+func NewStore() *util.Store {
 	var hostGroupRepo repo8.Repo
 	di.Invoke(func(re repo8.Repo) {
 		hostGroupRepo = re
@@ -57,7 +57,7 @@ func NewStore() util.Store {
 		reportRepo = re
 	})
 
-	return util.Store{
+	return &util.Store{
 		Round:        roundRepo,
 		HostGroup:    hostGroupRepo,
 		Host:         hostRepo,

@@ -773,7 +773,7 @@ var file_pkg_competition_competitionpb_competition_proto_goTypes = []interface{}
 	(*host_grouppb.HostGroup)(nil),         // 13: pkg.host_group.host_grouppb.HostGroup
 	(*hostpb.Host)(nil),                    // 14: pkg.host.hostpb.Host
 	(*teampb.Team)(nil),                    // 15: pkg.team.teampb.Team
-	(*servicepb.Service)(nil),              // 16: pkg.check_service.servicepb.Service
+	(*servicepb.Service)(nil),              // 16: pkg.service.servicepb.Service
 	(*service_grouppb.ServiceGroup)(nil),   // 17: pkg.service_group.service_grouppb.ServiceGroup
 	(*roundpb.Round)(nil),                  // 18: pkg.round.roundpb.Round
 	(*propertypb.Property)(nil),            // 19: pkg.property.propertypb.Property
@@ -787,7 +787,7 @@ var file_pkg_competition_competitionpb_competition_proto_depIdxs = []int32{
 	13, // 2: pkg.competition.competitionpb.Competition.host_groups:type_name -> pkg.host_group.host_grouppb.HostGroup
 	14, // 3: pkg.competition.competitionpb.Competition.hosts:type_name -> pkg.host.hostpb.Host
 	15, // 4: pkg.competition.competitionpb.Competition.teams:type_name -> pkg.team.teampb.Team
-	16, // 5: pkg.competition.competitionpb.Competition.services:type_name -> pkg.check_service.servicepb.Service
+	16, // 5: pkg.competition.competitionpb.Competition.services:type_name -> pkg.service.servicepb.Service
 	17, // 6: pkg.competition.competitionpb.Competition.service_groups:type_name -> pkg.service_group.service_grouppb.ServiceGroup
 	18, // 7: pkg.competition.competitionpb.Competition.rounds:type_name -> pkg.round.roundpb.Round
 	19, // 8: pkg.competition.competitionpb.Competition.properties:type_name -> pkg.property.propertypb.Property

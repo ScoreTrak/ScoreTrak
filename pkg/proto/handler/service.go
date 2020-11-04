@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
+	"github.com/ScoreTrak/ScoreTrak/pkg/role"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	service2 "github.com/ScoreTrak/ScoreTrak/pkg/service/service_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service/servicepb"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
@@ -15,7 +17,8 @@ import (
 )
 
 type ServiceController struct {
-	svc service2.Serv
+	svc    service2.Serv
+	client *util.Store
 }
 
 func (p ServiceController) GetByID(ctx context.Context, request *servicepb.GetByIDRequest) (*servicepb.GetByIDResponse, error) {
@@ -33,12 +36,35 @@ func (p ServiceController) GetByID(ctx context.Context, request *servicepb.GetBy
 			"Unable to parse ID: %v", err,
 		)
 	}
-	prop, err := p.svc.GetByID(ctx, uid)
-	if err != nil {
-		return nil, getErrorParser(err)
+
+	claim := extractUserClaim(ctx)
+
+	var serv *service.Service
+	if claim.Role != role.Black {
+		tID, prop, err := teamIDFromService(ctx, p.client, uid)
+		if err != nil {
+			return nil, status.Errorf(
+				codes.Internal,
+				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
+			)
+		}
+		if tID.String() != claim.TeamID {
+			return nil, status.Errorf(
+				codes.PermissionDenied,
+				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
+			)
+		}
+		serv = prop
 	}
 
-	return &servicepb.GetByIDResponse{Service: ConvertServiceToServicePb(prop)}, nil
+	if serv == nil {
+		serv, err = p.svc.GetByID(ctx, uid)
+		if err != nil {
+			return nil, getErrorParser(err)
+		}
+	}
+
+	return &servicepb.GetByIDResponse{Service: ConvertServiceToServicePb(serv)}, nil
 }
 
 func (p ServiceController) TestService(ctx context.Context, request *servicepb.TestServiceRequest) (*servicepb.TestServiceResponse, error) {
@@ -153,8 +179,8 @@ func (p ServiceController) Update(ctx context.Context, request *servicepb.Update
 	return &servicepb.UpdateResponse{}, nil
 }
 
-func NewServiceController(svc service2.Serv) *ServiceController {
-	return &ServiceController{svc}
+func NewServiceController(svc service2.Serv, client *util.Store) *ServiceController {
+	return &ServiceController{svc, client}
 }
 
 func ConvertServicePBtoService(requireID bool, pb *servicepb.Service) (*service.Service, error) {

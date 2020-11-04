@@ -18,13 +18,16 @@ import (
 	hostGroupService "github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_grouppb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
 	policyService "github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policypb"
 	propertyService "github.com/ScoreTrak/ScoreTrak/pkg/property/property_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property/propertypb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/handler"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
+	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
+	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_client"
 	reportService "github.com/ScoreTrak/ScoreTrak/pkg/report/report_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/role"
@@ -124,20 +127,58 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 			grpc_recovery.WithRecoveryHandler(customFunc),
 		}
 		if staticConfig.Prod {
-
-			middlewareChainsUnary = append(middlewareChainsUnary, []grpc.UnaryServerInterceptor{
-				grpc_recovery.UnaryServerInterceptor(recoveryOpts...),
-			}...)
-
-			middlewareChainsStream = append(middlewareChainsStream, []grpc.StreamServerInterceptor{
-				grpc_recovery.StreamServerInterceptor(recoveryOpts...),
-			}...)
+			middlewareChainsUnary = append(middlewareChainsUnary, grpc_recovery.UnaryServerInterceptor(recoveryOpts...))
+			middlewareChainsStream = append(middlewareChainsStream, grpc_recovery.StreamServerInterceptor(recoveryOpts...))
 		}
 	}
+
+	//Load policy into DB & Create Policy service
+	var policyServ policyService.Serv
+	if err := d.Invoke(func(s policyService.Serv) {
+		policyServ = s
+	}); err != nil {
+		return err
+	}
+	p := &policy.Policy{ID: 1}
+	err = db.Create(p).Error
+	if err != nil {
+		serr, ok := err.(*pgconn.PgError)
+		if !ok {
+			if serr.Code != "23505" {
+				panic(err)
+			} else {
+				db.Take(p)
+			}
+		}
+	}
+
+	//Repo Store
+	repoStore := util.NewStore()
+
+	//Authorization And Authentication Middleware
+	jwtManager := auth.NewJWTManager(config.GetJWTConfig().Secret, time.Duration(config.GetJWTConfig().TimeoutInSeconds)*time.Second)
+	pubsub, err := queue.NewMasterStreamPubSub(staticConfig.Queue)
+	if err != nil {
+		return err
+	}
+
+	policyClient := policy_client.NewPolicyClient(p, staticConfig.PubSubConfig, repoStore.Policy, pubsub)
+
+	{
+
+		ai := auth.NewAuthInterceptor(jwtManager, policyClient)
+		middlewareChainsUnary = append(middlewareChainsUnary, ai.Unary())
+		middlewareChainsStream = append(middlewareChainsStream, ai.Stream())
+	}
+
 	//Middleware Chaining
 	{
 		opts = append(opts, grpc_middleware.WithUnaryServerChain(middlewareChainsUnary...))
 		opts = append(opts, grpc_middleware.WithStreamServerChain(middlewareChainsStream...))
+	}
+
+	{
+		opts = append(opts)
 	}
 
 	s := grpc.NewServer(opts...)
@@ -151,10 +192,10 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 			}); err != nil {
 				return err
 			}
-			checkpb.RegisterCheckServiceServer(s, handler.NewCheckController(checkSvc))
+			checkpb.RegisterCheckServiceServer(s, handler.NewCheckController(checkSvc, repoStore))
 		}
 		{
-			comptSvc := competitionService.NewCompetitionServ(util.NewStore())
+			comptSvc := competitionService.NewCompetitionServ(repoStore)
 			competitionpb.RegisterCompetitionServiceServer(s, handler.NewCompetitionController(comptSvc))
 		}
 		{
@@ -173,7 +214,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 			}); err != nil {
 				return err
 			}
-			hostpb.RegisterHostServiceServer(s, handler.NewHostController(hostSvc))
+			hostpb.RegisterHostServiceServer(s, handler.NewHostController(hostSvc, repoStore))
 		}
 		{
 			var hostGroupSvc hostGroupService.Serv
@@ -191,7 +232,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 			}); err != nil {
 				return err
 			}
-			propertypb.RegisterPropertyServiceServer(s, handler.NewPropertyController(propertySvc))
+			propertypb.RegisterPropertyServiceServer(s, handler.NewPropertyController(propertySvc, repoStore))
 		}
 		{
 			var reportSvc reportService.Serv
@@ -211,8 +252,8 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 					}
 				}
 			}
-
-			reportpb.RegisterReportServiceServer(s, handler.NewReportController(reportSvc))
+			reportClient := report_client.NewReportClient(staticConfig.PubSubConfig, repoStore.Report, pubsub)
+			reportpb.RegisterReportServiceServer(s, handler.NewReportController(reportSvc, reportClient, policyClient))
 		}
 		{
 			var roundSvc roundService.Serv
@@ -230,7 +271,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 			}); err != nil {
 				return err
 			}
-			servicepb.RegisterServiceServiceServer(s, handler.NewServiceController(serviceSvc))
+			servicepb.RegisterServiceServiceServer(s, handler.NewServiceController(serviceSvc, repoStore))
 		}
 
 		{
@@ -294,31 +335,11 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 				}
 			}
 			userpb.RegisterUserServiceServer(s, handler.NewUserController(userServ))
-			jwtManager := auth.NewJWTManager(config.GetJWTConfig().Secret, time.Duration(config.GetJWTConfig().TimeoutInSeconds)*time.Second)
+
 			auth.RegisterAuthServiceServer(s, handler.NewAuthController(userServ, jwtManager))
 		}
 
 		{
-			var policyServ policyService.Serv
-			if err := d.Invoke(func(s policyService.Serv) {
-				policyServ = s
-			}); err != nil {
-				return err
-			}
-
-			p := &policy.Policy{ID: 1}
-			err := db.Create(p).Error
-			if err != nil {
-				serr, ok := err.(*pgconn.PgError)
-				if !ok {
-					if serr.Code != "23505" {
-						panic(err)
-					} else {
-						db.Take(p)
-					}
-				}
-			}
-
 			policypb.RegisterPolicyServiceServer(s, handler.NewPolicyController(policyServ))
 		}
 

@@ -13,11 +13,11 @@ import (
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// PolicyServiceClient is the client API for PolicyService check_service.
+// PolicyServiceClient is the client API for PolicyService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PolicyServiceClient interface {
-	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
+	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (PolicyService_GetClient, error)
 	Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error)
 }
 
@@ -29,13 +29,36 @@ func NewPolicyServiceClient(cc grpc.ClientConnInterface) PolicyServiceClient {
 	return &policyServiceClient{cc}
 }
 
-func (c *policyServiceClient) Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error) {
-	out := new(GetResponse)
-	err := c.cc.Invoke(ctx, "/pkg.policy.policy.PolicyService/Get", in, out, opts...)
+func (c *policyServiceClient) Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (PolicyService_GetClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_PolicyService_serviceDesc.Streams[0], "/pkg.policy.policy.PolicyService/Get", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &policyServiceGetClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type PolicyService_GetClient interface {
+	Recv() (*GetResponse, error)
+	grpc.ClientStream
+}
+
+type policyServiceGetClient struct {
+	grpc.ClientStream
+}
+
+func (x *policyServiceGetClient) Recv() (*GetResponse, error) {
+	m := new(GetResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (c *policyServiceClient) Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error) {
@@ -47,11 +70,11 @@ func (c *policyServiceClient) Update(ctx context.Context, in *UpdateRequest, opt
 	return out, nil
 }
 
-// PolicyServiceServer is the server API for PolicyService check_service.
+// PolicyServiceServer is the server API for PolicyService service.
 // All implementations should embed UnimplementedPolicyServiceServer
 // for forward compatibility
 type PolicyServiceServer interface {
-	Get(context.Context, *GetRequest) (*GetResponse, error)
+	Get(*GetRequest, PolicyService_GetServer) error
 	Update(context.Context, *UpdateRequest) (*UpdateResponse, error)
 }
 
@@ -59,8 +82,8 @@ type PolicyServiceServer interface {
 type UnimplementedPolicyServiceServer struct {
 }
 
-func (*UnimplementedPolicyServiceServer) Get(context.Context, *GetRequest) (*GetResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+func (*UnimplementedPolicyServiceServer) Get(*GetRequest, PolicyService_GetServer) error {
+	return status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
 func (*UnimplementedPolicyServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
@@ -70,22 +93,25 @@ func RegisterPolicyServiceServer(s *grpc.Server, srv PolicyServiceServer) {
 	s.RegisterService(&_PolicyService_serviceDesc, srv)
 }
 
-func _PolicyService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetRequest)
-	if err := dec(in); err != nil {
-		return nil, err
+func _PolicyService_Get_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GetRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(PolicyServiceServer).Get(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/pkg.policy.policy.PolicyService/Get",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PolicyServiceServer).Get(ctx, req.(*GetRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(PolicyServiceServer).Get(m, &policyServiceGetServer{stream})
+}
+
+type PolicyService_GetServer interface {
+	Send(*GetResponse) error
+	grpc.ServerStream
+}
+
+type policyServiceGetServer struct {
+	grpc.ServerStream
+}
+
+func (x *policyServiceGetServer) Send(m *GetResponse) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 func _PolicyService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -111,14 +137,16 @@ var _PolicyService_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*PolicyServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Get",
-			Handler:    _PolicyService_Get_Handler,
-		},
-		{
 			MethodName: "Update",
 			Handler:    _PolicyService_Update_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Get",
+			Handler:       _PolicyService_Get_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "pkg/policy/policypb/policy.proto",
 }

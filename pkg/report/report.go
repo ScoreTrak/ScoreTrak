@@ -31,6 +31,7 @@ type SimpleTeam struct {
 	Hosts   map[uuid.UUID]*SimpleHost
 	Name    string
 	Enabled bool
+	Hidden  bool
 }
 
 type SimpleHostGroup struct {

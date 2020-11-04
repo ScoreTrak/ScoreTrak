@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -31,4 +33,11 @@ func deleteErrorParser(err error) error {
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
+}
+
+func extractUserClaim(ctx context.Context) *auth.UserClaims {
+	if val, ok := ctx.Value("claims").(*auth.UserClaims); ok && val != nil {
+		return val
+	}
+	return nil
 }

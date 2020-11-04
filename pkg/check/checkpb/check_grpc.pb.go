@@ -13,7 +13,7 @@ import (
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion6
 
-// CheckServiceClient is the client API for CheckService check_service.
+// CheckServiceClient is the client API for CheckService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CheckServiceClient interface {
@@ -57,7 +57,7 @@ func (c *checkServiceClient) GetAllByServiceID(ctx context.Context, in *GetAllBy
 	return out, nil
 }
 
-// CheckServiceServer is the server API for CheckService check_service.
+// CheckServiceServer is the server API for CheckService service.
 // All implementations should embed UnimplementedCheckServiceServer
 // for forward compatibility
 type CheckServiceServer interface {
