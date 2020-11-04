@@ -1,5 +1,5 @@
 syntax = "proto3";
-package pkg.policy.policy;
+package pkg.policy.policypb;
 
 import "google/protobuf/wrappers.proto";
 

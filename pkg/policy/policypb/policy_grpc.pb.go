@@ -30,7 +30,7 @@ func NewPolicyServiceClient(cc grpc.ClientConnInterface) PolicyServiceClient {
 }
 
 func (c *policyServiceClient) Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (PolicyService_GetClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_PolicyService_serviceDesc.Streams[0], "/pkg.policy.policy.PolicyService/Get", opts...)
+	stream, err := c.cc.NewStream(ctx, &_PolicyService_serviceDesc.Streams[0], "/pkg.policy.policypb.PolicyService/Get", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,7 @@ func (x *policyServiceGetClient) Recv() (*GetResponse, error) {
 
 func (c *policyServiceClient) Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error) {
 	out := new(UpdateResponse)
-	err := c.cc.Invoke(ctx, "/pkg.policy.policy.PolicyService/Update", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/pkg.policy.policypb.PolicyService/Update", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func _PolicyService_Update_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/pkg.policy.policy.PolicyService/Update",
+		FullMethod: "/pkg.policy.policypb.PolicyService/Update",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(PolicyServiceServer).Update(ctx, req.(*UpdateRequest))
@@ -133,7 +133,7 @@ func _PolicyService_Update_Handler(srv interface{}, ctx context.Context, dec fun
 }
 
 var _PolicyService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "pkg.policy.policy.PolicyService",
+	ServiceName: "pkg.policy.policypb.PolicyService",
 	HandlerType: (*PolicyServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

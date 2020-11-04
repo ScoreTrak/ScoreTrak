@@ -1,0 +1,56 @@
+version: "3.8"
+services:
+  scoretrak:
+    image: l1ghtman/scoretrak:latest
+    restart: on-failure
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../:/deployments
+    depends_on:
+      - db-init
+      - nsqd
+    ports:
+      - "33333:33333"
+    command: ./master -config /deployments/docker-nsq/config.yml
+
+  cockroachdb-1:
+    container_name: cockroachdb-1
+    image: cockroachdb/cockroach:latest
+    command: start --insecure
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+    networks:
+      default:
+        aliases:
+          - cockroach
+
+  db-init:
+    depends_on:
+      - cockroachdb-1
+    image: cockroachdb/cockroach:latest
+    restart: on-failure
+    command: sql --execute="CREATE DATABASE IF NOT EXISTS scoretrak; " --insecure --host cockroach
+
+
+  nsqlookupd:
+    image: nsqio/nsq
+    command: /nsqlookupd
+  nsqd:
+    image: nsqio/nsq
+    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160
+    depends_on:
+      - nsqlookupd
+  nsqadmin:
+    image: nsqio/nsq
+    command: /nsqadmin --lookupd-http-address=nsqlookupd:4161
+    depends_on:
+      - nsqlookupd
+    ports:
+      - "4171:4171"
+
+networks:
+  default:
+    attachable: yes
+
+

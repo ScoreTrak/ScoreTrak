@@ -250,7 +250,7 @@ func (p PubSub) NotifyTopic(topic string) {
 	if err != nil {
 		log.Fatalf("Unable to initialize producer to notify masters using queue. Ensure that the queue is reachable from master. Error Details: %v", err)
 	}
-	err = producer.Publish(topic, []byte{})
+	err = producer.Publish(topic, make([]byte, 1))
 	if err != nil {
 		log.Fatalf("Unable to publish to topic to notify masters. Ensure that the queue is reachable from master. Error Details: %v", err)
 	}
@@ -268,7 +268,7 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 		}
 		consumer.AddHandler(
 			nsq.HandlerFunc(func(m *nsq.Message) error {
-				<-n
+				n <- struct{}{}
 				return nil
 			}))
 		addresses := generateNSQLookupdAddresses(p.config.NSQ.NSQLookupd.Hosts, p.config.NSQ.NSQLookupd.Port)

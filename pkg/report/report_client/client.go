@@ -15,11 +15,11 @@ type Client struct {
 	cnf    queueing.MasterConfig
 
 	signal      map[uuid.UUID]chan struct{}
-	signalMutex sync.RWMutex
+	signalMutex *sync.RWMutex
 }
 
 func NewReportClient(cnf queueing.MasterConfig, repo report_repo.Repo, pubsub queue.MasterStreamPubSub) *Client {
-	return &Client{repo: repo, cnf: cnf, signalMutex: sync.RWMutex{}, pubsub: pubsub, signal: make(map[uuid.UUID]chan struct{})}
+	return &Client{repo: repo, cnf: cnf, signalMutex: &sync.RWMutex{}, pubsub: pubsub, signal: make(map[uuid.UUID]chan struct{})}
 }
 
 func (a *Client) Subscribe() (uuid.UUID, <-chan struct{}) {

@@ -28,7 +28,7 @@ message Competition {
   repeated  pkg.property.propertypb.Property properties = 9;
   repeated  pkg.check.checkpb.Check checks = 10;
   repeated  pkg.user.userpb.User users = 11;
-  pkg.policy.policy.Policy policy = 12;
+  pkg.policy.policypb.Policy policy = 12;
 }
 
 message LoadCompetitionRequest{

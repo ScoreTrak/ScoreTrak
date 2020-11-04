@@ -54,10 +54,10 @@ func (p PolicyController) Update(ctx context.Context, request *policypb.UpdateRe
 	return &policypb.UpdateResponse{}, nil
 }
 
-func NewPolicyController(svc policy_service.Serv) *PolicyController {
+func NewPolicyController(svc policy_service.Serv, client *policy_client.Client) *PolicyController {
 	return &PolicyController{
 		svc:          svc,
-		policyClient: nil,
+		policyClient: client,
 	}
 }
 

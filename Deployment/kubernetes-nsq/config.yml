@@ -1,0 +1,21 @@
+queue:
+  use: nsq
+  nsq:
+    NSQLookupd:
+      Hosts: ["nsqlookupd-0.nsqlookupd", "nsqlookupd-1.nsqlookupd", "nsqlookupd-2.nsqlookupd"]
+
+db:
+  cockroach:
+    host: scoretrak-cockroachdb-public
+
+webdb:
+  cockroach:
+    database: scoretrak_web
+    host: scoretrak-cockroachdb-public
+
+platform:
+  use: kubernetes
+  docker:
+    name: kubernetes-nsq
+
+secret: changeme

@@ -28,6 +28,18 @@ type authorizationMap struct {
 
 func NewAuthInterceptor(jwtManager *Manager, policyClient *policy_client.Client) *Interceptor {
 	authMap := map[string][]authorizationMap{}
+	const authService = "/pkg.auth.AuthService/Login"
+	authMap[authService] = []authorizationMap{{
+		role:      role.Anonymous,
+		isAllowed: AlwaysAllowFunc,
+	}}
+
+	const grpcReflection = "/grpc.reflection.v1alpha.ServerReflection/ServerReflectionInfo"
+	authMap[grpcReflection] = []authorizationMap{{
+		role:      role.Anonymous,
+		isAllowed: AlwaysAllowFunc,
+	}}
+
 	const propertyServicePath = "/pkg.property.propertypb.PropertyService/"
 	authMap[propertyServicePath+"GetByServiceIDKey"] = []authorizationMap{{
 		role:      role.Blue,
@@ -182,10 +194,10 @@ func (interceptor *Interceptor) Stream() grpc.StreamServerInterceptor {
 }
 
 func (interceptor *Interceptor) authorize(ctx context.Context, method string) (claims *UserClaims, err error) {
-	var r string
+	r := role.Anonymous
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
-		values := md["Authorization"]
+		values := md["authorization"]
 		if len(values) != 0 {
 			accessToken := values[0]
 			claims, err = interceptor.jwtManager.Verify(accessToken)

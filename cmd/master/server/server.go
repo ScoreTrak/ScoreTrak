@@ -157,15 +157,20 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 
 	//Authorization And Authentication Middleware
 	jwtManager := auth.NewJWTManager(config.GetJWTConfig().Secret, time.Duration(config.GetJWTConfig().TimeoutInSeconds)*time.Second)
-	pubsub, err := queue.NewMasterStreamPubSub(staticConfig.Queue)
-	if err != nil {
-		return err
+	var pubsub queue.MasterStreamPubSub
+	if config.GetQueueConfig().Use != "none" {
+		pubsub, err = queue.NewMasterStreamPubSub(staticConfig.Queue)
+		if err != nil {
+			return err
+		}
 	}
 
 	policyClient := policy_client.NewPolicyClient(p, staticConfig.PubSubConfig, repoStore.Policy, pubsub)
+	go func() {
+		policyClient.PolicyClient()
+	}()
 
 	{
-
 		ai := auth.NewAuthInterceptor(jwtManager, policyClient)
 		middlewareChainsUnary = append(middlewareChainsUnary, ai.Unary())
 		middlewareChainsStream = append(middlewareChainsStream, ai.Stream())
@@ -253,6 +258,9 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 				}
 			}
 			reportClient := report_client.NewReportClient(staticConfig.PubSubConfig, repoStore.Report, pubsub)
+			go func() {
+				reportClient.ReportClient()
+			}()
 			reportpb.RegisterReportServiceServer(s, handler.NewReportController(reportSvc, reportClient, policyClient))
 		}
 		{
@@ -340,7 +348,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 		}
 
 		{
-			policypb.RegisterPolicyServiceServer(s, handler.NewPolicyController(policyServ))
+			policypb.RegisterPolicyServiceServer(s, handler.NewPolicyController(policyServ, policyClient))
 		}
 
 	}

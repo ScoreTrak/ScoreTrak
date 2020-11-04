@@ -1,0 +1,43 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  namespace: default
+  name: scoretrak
+rules:
+  - resources:
+      - daemonsets
+      - pods
+    apiGroups:
+      - extensions
+      - apps
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - delete
+      - update
+
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: fabric8-rbac
+subjects:
+  - kind: ServiceAccount
+    name: scoretrak
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: scoretrak
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: scoretrak
+automountServiceAccountToken: true

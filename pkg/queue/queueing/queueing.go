@@ -65,7 +65,7 @@ type Config struct {
 
 type MasterConfig struct {
 	ReportForceRefreshSeconds uint   `default:"60"`
-	ChannelPrefix             string `default:""`
+	ChannelPrefix             string `default:"master"`
 }
 
 func TopicFromServiceRound(roundID uint64) string {

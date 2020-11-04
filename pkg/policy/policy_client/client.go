@@ -3,7 +3,7 @@ package policy_client
 import (
 	"context"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
-	repo2 "github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_repo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/gofrs/uuid"
@@ -15,18 +15,18 @@ import (
 
 type Client struct {
 	policy      *policy.Policy
-	policyMutex sync.RWMutex
+	policyMutex *sync.RWMutex
 
-	repo   repo2.Repo
+	repo   policy_repo.Repo
 	pubsub queue.MasterStreamPubSub
 	cnf    queueing.MasterConfig
 
 	signal      map[uuid.UUID]chan struct{}
-	signalMutex sync.RWMutex
+	signalMutex *sync.RWMutex
 }
 
-func NewPolicyClient(policy *policy.Policy, cnf queueing.MasterConfig, repo repo2.Repo, pubsub queue.MasterStreamPubSub) *Client {
-	return &Client{policy: policy, policyMutex: sync.RWMutex{}, repo: repo, cnf: cnf, signalMutex: sync.RWMutex{}, pubsub: pubsub, signal: make(map[uuid.UUID]chan struct{})}
+func NewPolicyClient(policy *policy.Policy, cnf queueing.MasterConfig, repo policy_repo.Repo, pubsub queue.MasterStreamPubSub) *Client {
+	return &Client{policy: policy, policyMutex: &sync.RWMutex{}, repo: repo, cnf: cnf, signalMutex: &sync.RWMutex{}, pubsub: pubsub, signal: make(map[uuid.UUID]chan struct{})}
 }
 
 func (a *Client) GetAllowUnauthenticatedUsers() bool {
@@ -76,6 +76,7 @@ func (a *Client) Unsubscribe(uid uuid.UUID) {
 func (a *Client) Publish() {
 	a.signalMutex.RLock()
 	defer a.signalMutex.RUnlock()
+
 	for _, ch := range a.signal {
 		ch <- struct{}{}
 	}
@@ -91,7 +92,7 @@ func (a *Client) RefreshLocalPolicy() {
 		log.Fatalf("Unable to retreive policy. Make sure database is reachable")
 	}
 	a.policyMutex.Lock()
-	defer a.policyMutex.RUnlock()
+	defer a.policyMutex.Unlock()
 	err = copier.Copy(a.policy, tempPolicy)
 	if err != nil {
 		log.Fatalf("Unable to copy policy into destination policy. This is likely a bug")

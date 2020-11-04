@@ -1,0 +1,8 @@
+platform:
+  use: docker
+  docker:
+    name: docker-standalone
+
+webdb:
+  cockroach:
+    database: scoretrak_web

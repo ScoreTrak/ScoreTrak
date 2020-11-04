@@ -6,6 +6,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
+	"log"
 )
 
 var db *gorm.DB
@@ -82,7 +83,7 @@ func newCockroach(c Config) (*gorm.DB, error) {
 			return nil, err
 		}
 	} else {
-		fmt.Println("You have chosen not to allow master configure database zones. Make sure you set gc.ttlseconds to something below 1200, so that report generation is not affected")
+		log.Println("You have chosen not to allow master configure database zones. Make sure you set gc.ttlseconds to something below 1200, so that report generation is not affected")
 	}
 	return db, nil
 }

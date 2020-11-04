@@ -1,0 +1,48 @@
+version: "3.8"
+services:
+  scoretrak:
+    image: l1ghtman/scoretrak:latest
+    volumes:
+      - ../:/deployments
+    restart: on-failure
+    depends_on:
+      - db-init
+    ports:
+      - "33333:33333"
+    command: ./master -config /deployments/docker-standalone/config.yml
+
+  scoretrakweb:
+    image: l1ghtman/scoretrakweb:latest
+    restart: on-failure
+    volumes:
+      - ../:/deployments
+    depends_on:
+      - scoretrak
+    ports:
+      - "44444:44444"
+    command: ./web -config /deployments/docker-standalone/config.yml
+
+  cockroachdb-1:
+    container_name: cockroachdb-1
+    image: cockroachdb/cockroach:latest
+    command: start --insecure
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+    networks:
+      default:
+        aliases:
+          - cockroach
+
+  db-init:
+    restart: on-failure
+    depends_on:
+      - cockroachdb-1
+    image: cockroachdb/cockroach:latest
+    command: sql --execute="CREATE DATABASE IF NOT EXISTS scoretrak; CREATE DATABASE IF NOT EXISTS scoretrak_web;" --insecure --host cockroach
+
+networks:
+  default:
+    attachable: yes
+
+
