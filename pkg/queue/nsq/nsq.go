@@ -3,7 +3,6 @@ package nsq
 import (
 	"bytes"
 	"encoding/gob"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
@@ -21,13 +20,13 @@ type WorkerQueue struct {
 	config queueing.Config
 }
 
-func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error) {
+func (n WorkerQueue) Send(sds []*queueing.ScoringData) (ret []*queueing.QCheck, bErr error, tErr error) {
 	addresses := generateNSQLookupdAddresses(n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port)
 	returningTopicName := queueing.TopicFromServiceRound(sds[0].RoundID)
-	bErr, tErr := n.TopicAbsent(returningTopicName, addresses)
-	if tErr != nil {
-		return nil, bErr, tErr
-	}
+	//bErr, tErr := n.TopicAbsent(returningTopicName, addresses)
+	//if tErr != nil {
+	//	return nil, bErr, tErr
+	//}
 	confp := nsq.NewConfig()
 	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", n.config.NSQ.NSQD.Host, n.config.NSQ.NSQD.Port), confp)
 	if err != nil {
@@ -66,7 +65,7 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, erro
 		return nil, bErr, err
 	}
 	defer consumer.Stop()
-	ret := make([]*queueing.QCheck, len(sds))
+	ret = make([]*queueing.QCheck, len(sds))
 	consumer.ChangeMaxInFlight(len(sds))
 	cq := make(chan queueing.IndexedQueue, 1)
 	consumer.SetLoggerLevel(nsq.LogLevelError)
@@ -206,36 +205,36 @@ func (n WorkerQueue) DeleteTopic(topic string, nsqAddresses []string) { //This m
 	}
 }
 
-type topics struct {
-	Topics []string `json:"topics"`
-}
+//type topics struct {
+//	Topics []string `json:"topics"`
+//}
 
-func (n WorkerQueue) TopicAbsent(topic string, nsqAddresses []string) (bErr error, tErr error) {
-	var err error
-	for _, a := range nsqAddresses {
-		client := http.Client{
-			Timeout: time.Second / 2,
-		}
-		resp, err2 := client.Get(fmt.Sprintf("http://%s/topics", a))
-		if err2 != nil {
-			err = err2
-			continue
-		}
-		topics := topics{}
-		errd := json.NewDecoder(resp.Body).Decode(&topics)
-		if errd != nil {
-			return err, errd
-		}
-		for _, val := range topics.Topics {
-			if val == topic {
-				return err, fmt.Errorf("NSQ Topic with the same name as %s exists. Round will be terminated. Please firt clean NSQ queues", topic)
-			}
-		}
-		return err, nil
-		resp.Body.Close()
-	}
-	return err, errors.New("no NSQLookupd instances answered the request")
-}
+//func (n WorkerQueue) TopicAbsent(topic string, nsqAddresses []string) (bErr error, tErr error) {
+//	var err error
+//	for _, a := range nsqAddresses {
+//		client := http.Client{
+//			Timeout: time.Second / 2,
+//		}
+//		resp, err2 := client.Get(fmt.Sprintf("http://%s/topics", a))
+//		if err2 != nil {
+//			err = err2
+//			continue
+//		}
+//		topics := topics{}
+//		errd := json.NewDecoder(resp.Body).Decode(&topics)
+//		if errd != nil {
+//			return err, errd
+//		}
+//		for _, val := range topics.Topics {
+//			if val == topic {
+//				return err, fmt.Errorf("NSQ Topic with the same name as %s exists. Round will be terminated. Please firt clean NSQ queues", topic)
+//			}
+//		}
+//		return err, nil
+//		resp.Body.Close()
+//	}
+//	return err, errors.New("no NSQLookupd instances answered the request")
+//}
 func NewNSQWorkerQueue(config queueing.Config) (*WorkerQueue, error) {
 	return &WorkerQueue{config}, nil
 }
