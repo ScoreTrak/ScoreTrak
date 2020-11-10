@@ -49,6 +49,17 @@ services:
     ports:
       - "4171:4171"
 
+  envoy:
+    build:
+      context: .
+      dockerfile: Dockerfile-envoy
+    depends_on:
+      - scoretrak
+    ports:
+      - "8000:8000"
+      - "9901:9901"
+
+
 networks:
   default:
     attachable: yes

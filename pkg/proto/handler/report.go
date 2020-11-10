@@ -14,6 +14,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"time"
 )
 
 type reportController struct {
@@ -127,6 +128,8 @@ func (r *reportController) Get(request *reportpb.GetRequest, server reportpb.Rep
 		return err
 	}
 	uid, ch := r.reportClient.Subscribe()
+	authTimer := time.NewTimer(time.Second * 30)
+
 	defer r.reportClient.Unsubscribe(uid)
 	for {
 		select {
@@ -139,6 +142,10 @@ func (r *reportController) Get(request *reportpb.GetRequest, server reportpb.Rep
 			err := server.Send(&reportpb.GetResponse{Report: frep})
 			if err != nil {
 				return err
+			}
+		case <-authTimer.C:
+			if rol == role.Anonymous && !r.policyClient.GetAllowUnauthenticatedUsers() {
+				return status.Error(codes.PermissionDenied, "You must login in order to access this resource")
 			}
 		case <-server.Context().Done():
 			return nil

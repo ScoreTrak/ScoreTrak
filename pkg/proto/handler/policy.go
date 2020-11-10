@@ -3,10 +3,12 @@ package handler
 import (
 	"context"
 	"fmt"
+	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policypb"
+	"github.com/ScoreTrak/ScoreTrak/pkg/role"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -18,6 +20,11 @@ type PolicyController struct {
 }
 
 func (p PolicyController) Get(request *policypb.GetRequest, server policypb.PolicyService_GetServer) error {
+	rol := role.Anonymous
+	if val, ok := server.Context().Value("claims").(*auth.UserClaims); ok && val != nil {
+		rol = val.Role
+	}
+
 	err := server.Send(&policypb.GetResponse{
 		Policy: ConvertPolicyToPolicyPB(p.policyClient.GetPolicy()),
 	})
@@ -25,10 +32,14 @@ func (p PolicyController) Get(request *policypb.GetRequest, server policypb.Poli
 		return err
 	}
 	uuid, ch := p.policyClient.Subscribe()
+
 	defer p.policyClient.Unsubscribe(uuid)
 	for {
 		select {
 		case <-ch:
+			if !p.policyClient.GetAllowUnauthenticatedUsers() && rol == role.Anonymous {
+				return status.Error(codes.PermissionDenied, "You must login in order to access this resource")
+			}
 			err := server.Send(&policypb.GetResponse{
 				Policy: ConvertPolicyToPolicyPB(p.policyClient.GetPolicy()),
 			})
