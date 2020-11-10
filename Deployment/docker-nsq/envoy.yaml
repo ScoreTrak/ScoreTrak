@@ -21,20 +21,38 @@ static_resources:
                     - name: local_service
                       domains: ["*"]
                       routes:
-                        - match: { prefix: "/pkg.policy.policypb.PolicyService/Get" }
+                        - match:
+                            prefix: "/pkg.policy.policypb.PolicyService/Get",
+                            headers:
+                              - name: "Content-Type"
+                                prefixMatch: "application/grpc-web-text"
                           route:
                             cluster: scoretrak
                             idle_timeout: 0s
                             max_grpc_timeout: 0s
-                        - match: { prefix: "/pkg.report.reportpb.ReportService/Get" }
+                        - match:
+                            prefix: "/pkg.report.reportpb.ReportService/Get"
+                            headers:
+                              - name: "Content-Type"
+                                prefixMatch: "application/grpc-web-text"
                           route:
                             cluster: scoretrak
                             idle_timeout: 0s
                             max_grpc_timeout: 0s
-                        - match: { prefix: "/" }
+                        - match:
+                            prefix: "/"
+                            headers:
+                              - name: "Content-Type"
+                                prefixMatch: "application/grpc-web-text"
                           route:
                             cluster: scoretrak
                             max_grpc_timeout: 0s
+# STATIC CONTENT:
+#                        - match:
+#                            prefix: "/"
+#                          route:
+#                            cluster: static_content_server
+
                       cors:
                         allow_origin_string_match:
                           - prefix: "*"
