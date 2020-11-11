@@ -236,10 +236,16 @@ func ConvertHostPBtoHost(requireID bool, pb *hostpb.Host) (*host.Host, error) {
 }
 
 func ConvertHostToHostPb(obj *host.Host) *hostpb.Host {
+
+	var hstGrpID *utilpb.UUID
+	if obj.HostGroupID != nil {
+		hstGrpID = &utilpb.UUID{Value: obj.HostGroupID.String()}
+	}
+
 	return &hostpb.Host{
 		Id:          &utilpb.UUID{Value: obj.ID.String()},
 		Address:     *obj.Address,
-		HostGroupId: &utilpb.UUID{Value: obj.HostGroupID.String()},
+		HostGroupId: hstGrpID,
 		TeamId:      &utilpb.UUID{Value: obj.TeamID.String()},
 		Enabled:     &wrappers.BoolValue{Value: *obj.Enabled},
 		EditHost:    &wrappers.BoolValue{Value: *obj.EditHost},

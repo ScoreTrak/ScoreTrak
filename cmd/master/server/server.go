@@ -310,6 +310,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 					Index:   &idx,
 					Users:   nil,
 					Hosts:   nil,
+					Hidden:  &tru,
 				},
 			})
 			if err != nil {
