@@ -107,7 +107,9 @@ func (p ServiceGroupController) Store(ctx context.Context, request *service_grou
 	}
 	err = p.svc.Store(ctx, svg)
 	if err != nil {
-
+		if _, ok := status.FromError(err); ok {
+			return nil, err
+		}
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Unknown internal error: %v", err),

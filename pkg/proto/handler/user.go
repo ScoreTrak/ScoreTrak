@@ -220,7 +220,7 @@ func ConvertUserToUserPb(obj *user.User) *userpb.User {
 	return &userpb.User{
 		Id:       &utilpb.UUID{Value: obj.ID.String()},
 		Username: obj.Username,
-		TeamId:   &utilpb.UUID{Value: obj.ID.String()},
+		TeamId:   &utilpb.UUID{Value: obj.TeamID.String()},
 		Role:     UserRoleToRolePB(obj.Role),
 	}
 }

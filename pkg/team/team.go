@@ -18,7 +18,7 @@ type Team struct {
 
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default:true"`
 
-	Index *uint64 `json:"index" gorm:"unique;not null"`
+	Index *uint64 `json:"index" gorm:"unique;"`
 
 	Hidden *bool `json:"hide,omitempty" gorm:"not null;default:false"`
 

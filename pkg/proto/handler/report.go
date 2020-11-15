@@ -127,19 +127,25 @@ func (r *reportController) Get(request *reportpb.GetRequest, server reportpb.Rep
 	if err != nil {
 		return err
 	}
+
 	uid, ch := r.reportClient.Subscribe()
 	authTimer := time.NewTimer(time.Second * 30)
-
 	defer r.reportClient.Unsubscribe(uid)
+
 	for {
 		select {
 		case <-ch:
+			lr, err := r.svc.Get(server.Context())
+			if err != nil {
+				return status.Errorf(codes.Internal,
+					fmt.Sprintf("Unable to retreive report: %v", err))
+			}
 			frep, err = r.filterReport(rol, tID, lr)
 			if err != nil {
 				return status.Errorf(codes.Internal,
 					fmt.Sprintf("Unable to filter report: %v", err))
 			}
-			err := server.Send(&reportpb.GetResponse{Report: frep})
+			err = server.Send(&reportpb.GetResponse{Report: frep})
 			if err != nil {
 				return err
 			}

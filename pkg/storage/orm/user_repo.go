@@ -72,7 +72,7 @@ func (h *userRepo) Upsert(ctx context.Context, usr []*user.User) error {
 }
 
 func (h *userRepo) Update(ctx context.Context, usr *user.User) error {
-	err := h.db.WithContext(ctx).Model(usr).Updates(user.User{PasswordHash: usr.PasswordHash, Username: usr.Username, TeamID: usr.TeamID}).Error
+	err := h.db.WithContext(ctx).Model(usr).Updates(user.User{PasswordHash: usr.PasswordHash, Username: usr.Username, TeamID: usr.TeamID, Role: usr.Role}).Error
 	if err != nil {
 		return err
 	}
