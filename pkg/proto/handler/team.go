@@ -155,12 +155,16 @@ func ConvertTeamPBtoTeam(requireID bool, pb *teampb.Team) (*team.Team, error) {
 }
 
 func ConvertTeamToTeamPb(obj *team.Team) *teampb.Team {
+	var idx uint64
+	if obj.Index != nil {
+		idx = *obj.Index
+	}
 	return &teampb.Team{
 		Id:      &utilpb.UUID{Value: obj.ID.String()},
 		Name:    obj.Name,
 		Enabled: &wrappers.BoolValue{Value: *obj.Enabled},
 		Hosts:   nil,
 		Users:   nil,
-		Index:   &wrappers.UInt64Value{Value: *obj.Index},
+		Index:   &wrappers.UInt64Value{Value: idx},
 	}
 }
