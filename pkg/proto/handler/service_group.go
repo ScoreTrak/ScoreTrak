@@ -164,7 +164,7 @@ func ConvertServiceGroupPBtoServiceGroup(requireID bool, pb *service_grouppb.Ser
 		Name:        pb.Name,
 		DisplayName: pb.DisplayName,
 		Enabled:     enabled,
-		SkipHelper:  false,
+		SkipHelper:  pb.SkipHelper,
 		Label:       pb.Label,
 		Services:    nil,
 	}, nil
@@ -176,7 +176,7 @@ func ConvertServiceGroupToServiceGroupPb(obj *service_group.ServiceGroup) *servi
 		Name:        obj.Name,
 		DisplayName: obj.DisplayName,
 		Enabled:     &wrappers.BoolValue{Value: *obj.Enabled},
-		SkipHelper:  false,
+		SkipHelper:  obj.SkipHelper,
 		Label:       obj.Label,
 		Services:    nil,
 	}
