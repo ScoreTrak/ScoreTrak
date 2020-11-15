@@ -22,7 +22,7 @@ static_resources:
                       domains: ["*"]
                       routes:
                         - match:
-                            prefix: "/pkg.policy.policypb.PolicyService/Get",
+                            prefix: "/pkg.policy.policypb.PolicyService/Get"
                             headers:
                               - name: "Content-Type"
                                 prefixMatch: "application/grpc-web-text"

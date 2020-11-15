@@ -50,15 +50,17 @@ services:
       - "4171:4171"
 
   envoy:
-    build:
-      context: .
-      dockerfile: Dockerfile-envoy
+    image: envoyproxy/envoy:v1.16-latest
+    volumes:
+      - type: bind
+        source: ./envoy.yaml
+        target: /etc/envoy/envoy.yaml
     depends_on:
       - scoretrak
     ports:
       - "8000:8000"
       - "9901:9901"
-
+    command: /usr/local/bin/envoy -c /etc/envoy/envoy.yaml
 
 networks:
   default:
