@@ -193,7 +193,7 @@ func ConvertHostPBtoHost(requireID bool, pb *hostpb.Host) (*host.Host, error) {
 
 	var editHost *bool
 	if pb.GetEditHost() != nil {
-		enabled = &pb.GetEditHost().Value
+		editHost = &pb.GetEditHost().Value
 	}
 
 	var address *string

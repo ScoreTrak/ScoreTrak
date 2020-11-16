@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/cmd/master/run"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
+	"github.com/ScoreTrak/ScoreTrak/pkg/host/host_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/property/property_repo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
-	repo2 "github.com/ScoreTrak/ScoreTrak/pkg/service/service_repo"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service/service_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_group_repo"
 	"github.com/gofrs/uuid"
 	"time"
 )
@@ -24,14 +26,20 @@ type Serv interface {
 }
 
 type serviceServ struct {
-	repo repo2.Repo
-	q    queue.WorkerQueue
-	r    util.Store
+	repo             service_repo.Repo
+	hostRepo         host_repo.Repo
+	propertyRepo     property_repo.Repo
+	serviceGroupRepo service_group_repo.Repo
+	q                queue.WorkerQueue
 }
 
-func NewServiceServ(repo repo2.Repo) Serv {
+func NewServiceServ(repo service_repo.Repo, q queue.WorkerQueue, pr property_repo.Repo, hr host_repo.Repo, srgr service_group_repo.Repo) Serv {
 	return &serviceServ{
-		repo: repo,
+		q:                q,
+		repo:             repo,
+		hostRepo:         hr,
+		propertyRepo:     pr,
+		serviceGroupRepo: srgr,
 	}
 }
 
@@ -56,19 +64,19 @@ func (svc *serviceServ) Update(ctx context.Context, u *service.Service) error {
 }
 
 func (svc *serviceServ) TestService(ctx context.Context, id uuid.UUID) (*check.Check, error) {
-	ser, err := svc.r.Service.GetByID(ctx, id)
+	ser, err := svc.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	p, err := svc.r.Property.GetAllByServiceID(ctx, id)
+	p, err := svc.propertyRepo.GetAllByServiceID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	h, err := svc.r.Host.GetByID(ctx, ser.HostID)
+	h, err := svc.hostRepo.GetByID(ctx, ser.HostID)
 	if err != nil {
 		return nil, err
 	}
-	serGrp, err := svc.r.ServiceGroup.GetByID(ctx, ser.ServiceGroupID)
+	serGrp, err := svc.serviceGroupRepo.GetByID(ctx, ser.ServiceGroupID)
 	if err != nil {
 		return nil, err
 	}
