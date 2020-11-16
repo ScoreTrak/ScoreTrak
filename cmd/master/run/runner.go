@@ -46,7 +46,7 @@ func (d dRunner) refreshDsync() error {
 	}
 	dsync = -time.Since(tm)
 	if float64(time.Second*2) < math.Abs(float64(dsync)) {
-		return fmt.Errorf("time difference between master host, and database host is too large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now())
+		return fmt.Errorf("time difference between master, and database is too large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now())
 	}
 	return nil
 }
@@ -112,6 +112,7 @@ func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 				}
 				ctx, _ := context.WithTimeout(context.Background(), (time.Duration(cnf.RoundDuration)*time.Second*9/10)+d.getDsync())
 				d.attemptToScore(ctx, rnd)
+				time.Sleep(time.Second * 2)
 				scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
 			} else {
 				scoringLoop = time.NewTicker(config.MinRoundDuration)
@@ -146,11 +147,11 @@ func (d *dRunner) attemptToScore(ctx context.Context, rnd *round.Round) {
 			panic(err)
 		}
 	} else {
-		go d.Score(*rnd, ctx)
+		go d.Score(ctx, *rnd)
 	}
 }
 
-func (d dRunner) Score(rnd round.Round, ctx context.Context) {
+func (d dRunner) Score(ctx context.Context, rnd round.Round) {
 	var Note string
 	defer func() {
 		if x := recover(); x != nil {
@@ -163,6 +164,7 @@ func (d dRunner) Score(rnd round.Round, ctx context.Context) {
 			default:
 				err = errors.New("unknown panic")
 			}
+
 			log.Println(err)
 			d.finalizeRound(ctx, &rnd, Note, fmt.Sprintf("A panic has occured. Err:%s", err.Error()))
 		}
@@ -181,17 +183,17 @@ func (d dRunner) Score(rnd round.Round, ctx context.Context) {
 	}
 	var sds []*queueing.ScoringData
 	for _, t := range teams {
-		err = d.db.Model(&t).Association("Hosts").Find(&t.Hosts)
+		err = d.db.WithContext(ctx).Model(&t).Association("Hosts").Find(&t.Hosts)
 		if err != nil {
 			panic(err)
 		}
 		for _, h := range t.Hosts {
-			err = d.db.Model(&h).Association("Services").Find(&h.Services)
+			err = d.db.WithContext(ctx).Model(&h).Association("Services").Find(&h.Services)
 			if err != nil {
 				panic(err)
 			}
 			for _, s := range h.Services {
-				err = d.db.Model(&s).Association("Properties").Find(&s.Properties)
+				err = d.db.WithContext(ctx).Model(&s).Association("Properties").Find(&s.Properties)
 				if err != nil {
 					panic(err)
 				}
@@ -220,7 +222,7 @@ func (d dRunner) Score(rnd round.Round, ctx context.Context) {
 									params := PropertyToMap(s.Properties)
 									de, _ := ctx.Deadline()
 									sd := &queueing.ScoringData{
-										Deadline:   de,
+										Deadline:   de.Add(-time.Second),
 										Host:       *(h.Address),
 										Service:    sq,
 										Properties: params,
