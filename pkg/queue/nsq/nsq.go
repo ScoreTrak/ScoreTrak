@@ -265,6 +265,7 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 		if err != nil {
 			log.Fatalf("Unable to initualize consumer for topic: %s. Error Details: %v", topic, err)
 		}
+		consumer.SetLoggerLevel(nsq.LogLevelError)
 		consumer.AddHandler(
 			nsq.HandlerFunc(func(m *nsq.Message) error {
 				n <- struct{}{}
