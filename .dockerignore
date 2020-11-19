@@ -3,3 +3,4 @@
 configs/
 **/*.log
 **/dev-config.yml
+web/node_modules
