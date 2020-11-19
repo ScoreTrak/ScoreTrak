@@ -117,3 +117,64 @@ export class DynamicConfigServiceClient {
 
 }
 
+export class StaticConfigServiceClient {
+  client_: grpcWeb.AbstractClientBase;
+  hostname_: string;
+  credentials_: null | { [index: string]: string; };
+  options_: null | { [index: string]: any; };
+
+  constructor (hostname: string,
+               credentials?: null | { [index: string]: string; },
+               options?: null | { [index: string]: any; }) {
+    if (!options) options = {};
+    if (!credentials) credentials = {};
+    options['format'] = 'text';
+
+    this.client_ = new grpcWeb.GrpcWebClientBase(options);
+    this.hostname_ = hostname;
+    this.credentials_ = credentials;
+    this.options_ = options;
+  }
+
+  methodInfoGet = new grpcWeb.AbstractClientBase.MethodInfo(
+    pkg_config_configpb_config_pb.GetStaticConfigResponse,
+    (request: pkg_config_configpb_config_pb.GetStaticConfigRequest) => {
+      return request.serializeBinary();
+    },
+    pkg_config_configpb_config_pb.GetStaticConfigResponse.deserializeBinary
+  );
+
+  get(
+    request: pkg_config_configpb_config_pb.GetStaticConfigRequest,
+    metadata: grpcWeb.Metadata | null): Promise<pkg_config_configpb_config_pb.GetStaticConfigResponse>;
+
+  get(
+    request: pkg_config_configpb_config_pb.GetStaticConfigRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.Error,
+               response: pkg_config_configpb_config_pb.GetStaticConfigResponse) => void): grpcWeb.ClientReadableStream<pkg_config_configpb_config_pb.GetStaticConfigResponse>;
+
+  get(
+    request: pkg_config_configpb_config_pb.GetStaticConfigRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.Error,
+               response: pkg_config_configpb_config_pb.GetStaticConfigResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/pkg.config.config.StaticConfigService/Get',
+        request,
+        metadata || {},
+        this.methodInfoGet,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/pkg.config.config.StaticConfigService/Get',
+    request,
+    metadata || {},
+    this.methodInfoGet);
+  }
+
+}
+

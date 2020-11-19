@@ -234,20 +234,24 @@ func ConvertCompetitionToCompetitionPB(comp *competition.Competition) (*competit
 		usrs = append(usrs, ConvertUserToUserPb(comp.Users[i]))
 	}
 
-	uat, err := ptypes.TimestampProto(comp.Report.UpdatedAt)
-	if err != nil {
-		return nil, status.Errorf(
-			codes.Internal,
-			fmt.Sprintf("Unable convert time.date to timestamp(Ideally, this should not happen, perhaps this is a bug): %v", err),
-		)
+	var rprt *reportpb.Report
+	if comp.Report != nil {
+		uat, err := ptypes.TimestampProto(comp.Report.UpdatedAt)
+		if err != nil {
+			return nil, status.Errorf(
+				codes.Internal,
+				fmt.Sprintf("Unable convert time.date to timestamp(Ideally, this should not happen, perhaps this is a bug): %v", err),
+			)
+		}
+		rprt = &reportpb.Report{
+			Cache:     comp.Report.Cache,
+			UpdatedAt: uat,
+		}
 	}
 
 	return &competitionpb.Competition{
 		DynamicConfig: ConvertDynamicConfigToDynamicConfigPB(comp.Config),
-		Report: &reportpb.Report{
-			Cache:     comp.Report.Cache,
-			UpdatedAt: uat,
-		},
+		Report:        rprt,
 		HostGroups:    hstGrps,
 		Hosts:         hsts,
 		Teams:         tms,

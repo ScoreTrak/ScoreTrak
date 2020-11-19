@@ -11,7 +11,7 @@ import Container from '@material-ui/core/Container';
 import {Alert} from '@material-ui/lab';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import {useForm} from "react-hook-form";
-import {Severity} from "../../utils/types";
+import {Severity} from "../../types/types";
 import {LoginRequest} from "../../grpc/pkg/auth/auth_pb";
 import {useHistory} from "react-router";
 import {token} from "../../grpc/token/token";
@@ -70,9 +70,11 @@ const Login = (props: LoginProps) => {
         props.authClient.login(loginRequest, {}).then(r => {
             token.saveToken(r.getAccessToken())
             history.push("/");
+            history.go(0)
         },
         (error) => {
             setAlert({severity: Severity.Error, message: `Failed to login: ${error.message}.(Code: ${error.code})`});
+            setLoading(false);
         })
     };
 

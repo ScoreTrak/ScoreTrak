@@ -3,7 +3,7 @@ import {token} from './token/token'
 import {AuthServiceClient} from "./pkg/auth/AuthServiceClientPb"
 import {CheckServiceClient} from "./pkg/check/checkpb/CheckServiceClientPb";
 import {CompetitionServiceClient} from "./pkg/competition/competitionpb/CompetitionServiceClientPb";
-import {DynamicConfigServiceClient} from "./pkg/config/configpb/ConfigServiceClientPb";
+import {DynamicConfigServiceClient, StaticConfigServiceClient} from "./pkg/config/configpb/ConfigServiceClientPb";
 import {HostServiceClient} from "./pkg/host/hostpb/HostServiceClientPb";
 import {HostGroupServiceClient} from "./pkg/host_group/host_grouppb/Host_groupServiceClientPb";
 import {PolicyServiceClient} from "./pkg/policy/policypb/PolicyServiceClientPb";
@@ -15,13 +15,14 @@ import {ServiceGroupServiceClient} from "./pkg/service_group/service_grouppb/Ser
 import {TeamServiceClient} from "./pkg/team/teampb/TeamServiceClientPb";
 import {UserServiceClient} from "./pkg/user/userpb/UserServiceClientPb";
 
-const serverAddress = `http://localhost:8000`
+const serverAddress = process.env.PUBLIC_URL
 
 export type GRPCClients = {
     authClient: AuthServiceClient;
     checkClient: CheckServiceClient;
     competitionClient: CompetitionServiceClient;
     dynamicConfigClient: DynamicConfigServiceClient;
+    staticConfigClient: StaticConfigServiceClient;
     hostClient: HostServiceClient;
     hostGroupClient: HostGroupServiceClient;
     policyClient: PolicyServiceClient;
@@ -54,6 +55,7 @@ export const gRPCClients: GRPCClients = {
     checkClient: new CheckServiceClient(serverAddress, null, options),
     competitionClient: new CompetitionServiceClient(serverAddress, null, options),
     dynamicConfigClient: new DynamicConfigServiceClient(serverAddress, null, options),
+    staticConfigClient: new StaticConfigServiceClient(serverAddress, null, options),
     hostClient: new HostServiceClient(serverAddress, null, options),
     hostGroupClient: new HostGroupServiceClient(serverAddress, null, options),
     policyClient: new PolicyServiceClient(serverAddress, null, options),

@@ -211,6 +211,14 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 				return err
 			}
 			configpb.RegisterDynamicConfigServiceServer(s, handler.NewConfigController(configSvc))
+
+			var staticConfigSvc configService.StaticServ
+			if err := d.Invoke(func(s configService.StaticServ) {
+				staticConfigSvc = s
+			}); err != nil {
+				return err
+			}
+			configpb.RegisterStaticConfigServiceServer(s, handler.NewStaticConfigController(staticConfigSvc))
 		}
 		{
 			var hostSvc hostService.Serv

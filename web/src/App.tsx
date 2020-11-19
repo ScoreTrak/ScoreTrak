@@ -10,6 +10,7 @@ import {deepOrange, deepPurple, lightBlue, orange} from "@material-ui/core/color
 import CssBaseline from "@material-ui/core/CssBaseline";
 import {gRPCClients} from "./grpc/gRPCClients";
 import Dashboard from "./components/Dashboard/Dashboard";
+import {SnackbarProvider} from "notistack";
 
 function App() {
   useEffect(() => {
@@ -37,10 +38,15 @@ function App() {
   return (
     <div className="App">
       <ThemeProvider theme={darkTheme}>
+        <SnackbarProvider maxSnack={3} anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }} dense>
         <CssBaseline />
-        <Router>
-          <Dashboard theme={{isDarkTheme: isDarkTheme, setIsDarkTheme: setIsDarkTheme}}  gRPCClients={gRPCClients} />
-        </Router>
+          <Router>
+            <Dashboard theme={{isDarkTheme: isDarkTheme, setIsDarkTheme: setIsDarkTheme}}  gRPCClients={gRPCClients} />
+          </Router>
+        </SnackbarProvider>
       </ThemeProvider>
     </div>
   );

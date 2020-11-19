@@ -24,3 +24,13 @@ service DynamicConfigService{
   rpc Get(GetRequest) returns (GetResponse){}
   rpc Update(UpdateRequest) returns (UpdateResponse) {}
 }
+
+message GetStaticConfigRequest{}
+
+message GetStaticConfigResponse{
+  string static_config = 1;
+}
+
+service StaticConfigService{
+  rpc Get(GetStaticConfigRequest) returns (GetStaticConfigResponse){}
+}

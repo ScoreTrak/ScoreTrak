@@ -89,8 +89,16 @@ func (svc *competitionServ) FetchCoreCompetition(ctx context.Context) (*competit
 	if err != nil {
 		return nil, err
 	}
+	pol, err := svc.Store.Policy.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
 	cnf.Enabled = &fls
 	teams, err := svc.Store.Team.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+	users, err := svc.Store.Users.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +127,7 @@ func (svc *competitionServ) FetchCoreCompetition(ctx context.Context) (*competit
 	if err != nil {
 		return nil, err
 	}
-	return &competition.Competition{Config: cnf, Teams: teams, HostGroups: hostsGroup, Hosts: hosts, ServiceGroups: serviceGroups, Services: services, Properties: properties}, nil
+	return &competition.Competition{Config: cnf, Teams: teams, HostGroups: hostsGroup, Hosts: hosts, ServiceGroups: serviceGroups, Services: services, Properties: properties, Policy: pol, Users: users}, nil
 }
 
 func (svc *competitionServ) FetchEntireCompetition(ctx context.Context) (*competition.Competition, error) {

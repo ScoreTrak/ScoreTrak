@@ -122,3 +122,77 @@ var _DynamicConfigService_serviceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "pkg/config/configpb/config.proto",
 }
+
+// StaticConfigServiceClient is the client API for StaticConfigService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type StaticConfigServiceClient interface {
+	Get(ctx context.Context, in *GetStaticConfigRequest, opts ...grpc.CallOption) (*GetStaticConfigResponse, error)
+}
+
+type staticConfigServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewStaticConfigServiceClient(cc grpc.ClientConnInterface) StaticConfigServiceClient {
+	return &staticConfigServiceClient{cc}
+}
+
+func (c *staticConfigServiceClient) Get(ctx context.Context, in *GetStaticConfigRequest, opts ...grpc.CallOption) (*GetStaticConfigResponse, error) {
+	out := new(GetStaticConfigResponse)
+	err := c.cc.Invoke(ctx, "/pkg.config.config.StaticConfigService/Get", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// StaticConfigServiceServer is the server API for StaticConfigService service.
+// All implementations should embed UnimplementedStaticConfigServiceServer
+// for forward compatibility
+type StaticConfigServiceServer interface {
+	Get(context.Context, *GetStaticConfigRequest) (*GetStaticConfigResponse, error)
+}
+
+// UnimplementedStaticConfigServiceServer should be embedded to have forward compatible implementations.
+type UnimplementedStaticConfigServiceServer struct {
+}
+
+func (*UnimplementedStaticConfigServiceServer) Get(context.Context, *GetStaticConfigRequest) (*GetStaticConfigResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+
+func RegisterStaticConfigServiceServer(s *grpc.Server, srv StaticConfigServiceServer) {
+	s.RegisterService(&_StaticConfigService_serviceDesc, srv)
+}
+
+func _StaticConfigService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetStaticConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StaticConfigServiceServer).Get(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/pkg.config.config.StaticConfigService/Get",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StaticConfigServiceServer).Get(ctx, req.(*GetStaticConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _StaticConfigService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "pkg.config.config.StaticConfigService",
+	HandlerType: (*StaticConfigServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Get",
+			Handler:    _StaticConfigService_Get_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "pkg/config/configpb/config.proto",
+}

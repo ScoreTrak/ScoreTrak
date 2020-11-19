@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config/config_service"
@@ -62,4 +63,34 @@ func ConvertDynamicConfigToDynamicConfigPB(obj *config.DynamicConfig) *configpb.
 		RoundDuration: obj.RoundDuration,
 		Enabled:       &wrappers.BoolValue{Value: *obj.Enabled},
 	}
+}
+
+func NewStaticConfigController(svc config_service.StaticServ) *StaticConfigController {
+	return &StaticConfigController{svc}
+}
+
+type StaticConfigController struct {
+	svc config_service.StaticServ
+}
+
+func (s StaticConfigController) Get(ctx context.Context, request *configpb.GetStaticConfigRequest) (*configpb.GetStaticConfigResponse, error) {
+	sc, err := s.svc.Get()
+	if err != nil {
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Unknown internal error: %v", err),
+		)
+	}
+
+	ret, err := json.Marshal(sc)
+	if err != nil {
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Unknown internal error: %v", err),
+		)
+	}
+
+	return &configpb.GetStaticConfigResponse{
+		StaticConfig: string(ret),
+	}, nil
 }

@@ -93,20 +93,27 @@ func ConvertPolicyPBToPolicy(pb *policypb.Policy) *policy.Policy {
 		sa = &pb.GetShowAddresses().Value
 	}
 
+	var artlstm *bool
+	if pb.GetAllowRedTeamLaunchingServiceTestsManually() != nil {
+		artlstm = &pb.GetAllowRedTeamLaunchingServiceTestsManually().Value
+	}
+
 	return &policy.Policy{
-		AllowUnauthenticatedUsers:          auu,
-		AllowChangingUsernamesAndPasswords: acup,
-		ShowPoints:                         sp,
-		ShowAddresses:                      sa,
+		AllowUnauthenticatedUsers:                 auu,
+		AllowChangingUsernamesAndPasswords:        acup,
+		AllowRedTeamLaunchingServiceTestsManually: artlstm,
+		ShowPoints:    sp,
+		ShowAddresses: sa,
 	}
 
 }
 
 func ConvertPolicyToPolicyPB(obj *policy.Policy) *policypb.Policy {
 	return &policypb.Policy{
-		AllowUnauthenticatedUsers:          &wrappers.BoolValue{Value: *obj.AllowUnauthenticatedUsers},
-		AllowChangingUsernamesAndPasswords: &wrappers.BoolValue{Value: *obj.AllowChangingUsernamesAndPasswords},
-		ShowPoints:                         &wrappers.BoolValue{Value: *obj.ShowPoints},
-		ShowAddresses:                      &wrappers.BoolValue{Value: *obj.ShowAddresses},
+		AllowUnauthenticatedUsers:                 &wrappers.BoolValue{Value: *obj.AllowUnauthenticatedUsers},
+		AllowChangingUsernamesAndPasswords:        &wrappers.BoolValue{Value: *obj.AllowChangingUsernamesAndPasswords},
+		ShowPoints:                                &wrappers.BoolValue{Value: *obj.ShowPoints},
+		ShowAddresses:                             &wrappers.BoolValue{Value: *obj.ShowAddresses},
+		AllowRedTeamLaunchingServiceTestsManually: &wrappers.BoolValue{Value: *obj.AllowRedTeamLaunchingServiceTestsManually},
 	}
 }

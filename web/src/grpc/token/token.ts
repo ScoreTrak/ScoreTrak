@@ -40,7 +40,11 @@ const getDecodedJWT = (): JWTToken | null => {
 }
 
 const getCurrentRole = ():string | undefined => {
-  return getDecodedJWT()?.role
+  if (isAValidToken()){
+    return getDecodedJWT()?.role
+  } else {
+    return undefined
+  }
 };
 
 const getCurrentTeamID = ():string | undefined => {

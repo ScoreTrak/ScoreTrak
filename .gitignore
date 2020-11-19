@@ -20,6 +20,8 @@
 # Dependency directories (remove the comment below to include it)
 vendor/
 
+.idea/
+
 cmd/debug_master
 
 cmd/debug_worker

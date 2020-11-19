@@ -95,3 +95,35 @@ export namespace UpdateResponse {
   }
 }
 
+export class GetStaticConfigRequest extends jspb.Message {
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetStaticConfigRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetStaticConfigRequest): GetStaticConfigRequest.AsObject;
+  static serializeBinaryToWriter(message: GetStaticConfigRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetStaticConfigRequest;
+  static deserializeBinaryFromReader(message: GetStaticConfigRequest, reader: jspb.BinaryReader): GetStaticConfigRequest;
+}
+
+export namespace GetStaticConfigRequest {
+  export type AsObject = {
+  }
+}
+
+export class GetStaticConfigResponse extends jspb.Message {
+  getStaticConfig(): string;
+  setStaticConfig(value: string): GetStaticConfigResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetStaticConfigResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetStaticConfigResponse): GetStaticConfigResponse.AsObject;
+  static serializeBinaryToWriter(message: GetStaticConfigResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetStaticConfigResponse;
+  static deserializeBinaryFromReader(message: GetStaticConfigResponse, reader: jspb.BinaryReader): GetStaticConfigResponse;
+}
+
+export namespace GetStaticConfigResponse {
+  export type AsObject = {
+    staticConfig: string,
+  }
+}
+
