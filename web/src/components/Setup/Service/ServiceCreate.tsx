@@ -102,7 +102,6 @@ const ServiceCreate = forwardRef((props: SetupProps, ref) => {
     }
 
     function submit() {
-        console.log(rowsData)
             let services: serviceColumns[] = []
             Object.keys(rowsData).forEach(hostGroupID =>{
                 Object.keys(rowsData[hostGroupID]).forEach(idx => {
@@ -117,7 +116,6 @@ const ServiceCreate = forwardRef((props: SetupProps, ref) => {
             const storeRequest = new StoreRequest()
             
             services.forEach(servVals => {
-                console.log(servVals)
                 storeRequest.addServices(serviceColumnsToService(servVals))
             })
         
@@ -205,9 +203,10 @@ const ServiceCreate = forwardRef((props: SetupProps, ref) => {
 
                                                              {
                                                                  (column.id !== 'serviceGroupId' && column.id !== 'name') &&
-                                                                     <TextField id={`${table.getId()?.getValue()}_${i}_${column.id}`} type={(column.id==='weight' || column.id==='pointsBoost' || column.id === 'roundUnits' || column.id === 'roundDelay') ? 'number' : undefined } value={rowsData[table.getId()?.getValue() as string] && rowsData[table.getId()?.getValue() as string][i] && rowsData[table.getId()?.getValue() as string][i][column.id as keyof serviceColumns]}
+                                                                     <TextField id={`${table.getId()?.getValue()}_${i}_${column.id}`}
+                                                                                type={(column.id==='weight' || column.id==='pointsBoost' || column.id === 'roundUnits' || column.id === 'roundDelay') ? 'number' : undefined } value={rowsData[table.getId()?.getValue() as string] && rowsData[table.getId()?.getValue() as string][i] && rowsData[table.getId()?.getValue() as string][i][column.id as keyof serviceColumns]}
                                                                                 onChange={((event: React.ChangeEvent<HTMLInputElement>) => {
-                                                                             let val:number
+                                                                             let val: number | string = event.target.value
                                                                              if ((column.id==='weight' || column.id==='pointsBoost' || column.id === 'roundUnits' || column.id === 'roundDelay')){
                                                                                  val = parseInt(event.target.value)
                                                                              }

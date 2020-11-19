@@ -33,7 +33,6 @@ const PropertiesCreate = forwardRef((props: SetupProps, ref) => {
             let displayNames = new Set<string>()
             respService.getServicesList().forEach(serv => {
                 if (serv.getDisplayName()){
-                    console.log("Got Here!")
                     displayNames.add(serv.getDisplayName())
                     if (!(serv.getDisplayName() in rowdt)){
                         rowdt[serv.getDisplayName()] = {enableProcessingProperty: false}

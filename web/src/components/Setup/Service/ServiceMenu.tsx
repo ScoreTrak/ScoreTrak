@@ -188,7 +188,7 @@ function ServiceMenuTable(props: SetupProps) {
                         actions={[
                             {icon: "flash_on", tooltip: 'test service', onClick: (event, rowData) => {
                                 return props.gRPCClients.serviceClient.testService(new TestServiceRequest().setId(new UUID().setValue((rowData as serviceColumns).id as string)), {}).then((response) => { //ToDo: Implement Deadline
-                                    if (response.getCheck()?.getPassed()){
+                                    if (response.getCheck()?.getPassed()?.getValue()){
                                         props.genericEnqueue(`Check Passed. Log: ${response.getCheck()?.getLog()}.`, Severity.Success)
                                     } else {
                                         props.genericEnqueue(`Check Failed. Log: ${response.getCheck()?.getLog()}. Err: ${response.getCheck()?.getErr()}.`, Severity.Warning)

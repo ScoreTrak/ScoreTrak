@@ -16,7 +16,6 @@ type roundColumns = {
 }
 
 function roundToRoundColumn(round: Round): roundColumns{
-    console.log(round.getStart()?.getSeconds(), round.getFinish()?.getSeconds())
     return {
         id: round.getId(),
         start: round.getStart() ? new Date(round.getStart()?.getSeconds() as number * 1000) : undefined,
