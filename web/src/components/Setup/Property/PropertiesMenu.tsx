@@ -56,8 +56,8 @@ export default function PropertiesMenu(props: SetupProps) {
 }
 
 export enum Status {
-    View = "Hide",
-    Hide = "View",
+    View = "View",
+    Hide = "Hide",
     Edit = "Edit"
 }
 

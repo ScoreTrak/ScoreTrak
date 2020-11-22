@@ -40,7 +40,7 @@ const PropertiesCreate = forwardRef((props: SetupProps, ref) => {
                              rowdt[serv.getDisplayName()][key] = {
                                 ...Checks[serv.getName() as availableChecks][key],
                                 value: 'defaultValue' in Checks[serv.getName() as availableChecks][key] ? Checks[serv.getName() as availableChecks][key].defaultValue as string : '',
-                                status: Checks[serv.getName() as availableChecks][key].defaultStatus? Checks[serv.getName() as availableChecks][key].defaultStatus : Status.Edit,
+                                status: Checks[serv.getName() as availableChecks][key].defaultStatus? Checks[serv.getName() as availableChecks][key].defaultStatus : Status.View,
                             }
                         })
                     }
