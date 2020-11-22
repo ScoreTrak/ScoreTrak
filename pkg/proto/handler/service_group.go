@@ -138,11 +138,11 @@ func NewServiceGroupController(svc service_group_service.Serv) *ServiceGroupCont
 	return &ServiceGroupController{svc}
 }
 
-func ConvertServiceGroupPBtoServiceGroup(requireID bool, pb *service_grouppb.ServiceGroup) (*service_group.ServiceGroup, error) {
+func ConvertServiceGroupPBtoServiceGroup(requireID bool, sg *service_grouppb.ServiceGroup) (*service_group.ServiceGroup, error) {
 	var id uuid.UUID
 	var err error
-	if pb.GetId() != nil {
-		id, err = uuid.FromString(pb.GetId().GetValue())
+	if sg.GetId() != nil {
+		id, err = uuid.FromString(sg.GetId().GetValue())
 		if err != nil {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
@@ -156,16 +156,16 @@ func ConvertServiceGroupPBtoServiceGroup(requireID bool, pb *service_grouppb.Ser
 		)
 	}
 	var enabled *bool
-	if pb.GetEnabled() != nil {
-		enabled = &pb.GetEnabled().Value
+	if sg.GetEnabled() != nil {
+		enabled = &sg.GetEnabled().Value
 	}
 	return &service_group.ServiceGroup{
 		ID:          id,
-		Name:        pb.Name,
-		DisplayName: pb.DisplayName,
+		Name:        sg.Name,
+		DisplayName: sg.DisplayName,
 		Enabled:     enabled,
-		SkipHelper:  pb.SkipHelper,
-		Label:       pb.Label,
+		SkipHelper:  sg.SkipHelper,
+		Label:       sg.Label,
 		Services:    nil,
 	}, nil
 }

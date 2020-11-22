@@ -37,64 +37,64 @@ type CompetitionController struct {
 
 func (c CompetitionController) LoadCompetition(ctx context.Context, request *competitionpb.LoadCompetitionRequest) (*competitionpb.LoadCompetitionResponse, error) {
 	var hstGrps []*host_group.HostGroup
-	for i := range request.Competition.HostGroups {
-		hstGrp, err := ConvertHostGroupPBtoHostGroup(true, request.Competition.HostGroups[i])
+	for i := range request.GetCompetition().HostGroups {
+		hstGrp, err := ConvertHostGroupPBtoHostGroup(true, request.GetCompetition().HostGroups[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse host groups, details: %v", err)
 		}
 		hstGrps = append(hstGrps, hstGrp)
 	}
 	var hsts []*host.Host
-	for i := range request.Competition.Hosts {
-		hst, err := ConvertHostPBtoHost(true, request.Competition.Hosts[i])
+	for i := range request.GetCompetition().Hosts {
+		hst, err := ConvertHostPBtoHost(true, request.GetCompetition().Hosts[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse host, details: %v", err)
 		}
 		hsts = append(hsts, hst)
 	}
 	var tms []*team.Team
-	for i := range request.Competition.Teams {
-		tm, err := ConvertTeamPBtoTeam(true, request.Competition.Teams[i])
+	for i := range request.GetCompetition().Teams {
+		tm, err := ConvertTeamPBtoTeam(true, request.GetCompetition().Teams[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse team, details: %v", err)
 		}
 		tms = append(tms, tm)
 	}
 	var svcs []*service2.Service
-	for i := range request.Competition.Services {
-		svc, err := ConvertServicePBtoService(true, request.Competition.Services[i])
+	for i := range request.GetCompetition().Services {
+		svc, err := ConvertServicePBtoService(true, request.GetCompetition().Services[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse check_service groups, details: %v", err)
 		}
 		svcs = append(svcs, svc)
 	}
 	var servGrps []*service_group.ServiceGroup
-	for i := range request.Competition.ServiceGroups {
-		servGrp, err := ConvertServiceGroupPBtoServiceGroup(true, request.Competition.ServiceGroups[i])
+	for i := range request.GetCompetition().ServiceGroups {
+		servGrp, err := ConvertServiceGroupPBtoServiceGroup(true, request.GetCompetition().ServiceGroups[i])
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse host groups, details: %v", err)
+			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse service groups, details: %v", err)
 		}
 		servGrps = append(servGrps, servGrp)
 	}
 	var rnds []*round.Round
-	for i := range request.Competition.Rounds {
-		rnd, err := ConvertRoundPBtoRound(true, request.Competition.Rounds[i])
+	for i := range request.GetCompetition().Rounds {
+		rnd, err := ConvertRoundPBtoRound(true, request.GetCompetition().Rounds[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse round, details: %v", err)
 		}
 		rnds = append(rnds, rnd)
 	}
 	var props []*property.Property
-	for i := range request.Competition.Properties {
-		prop, err := ConvertPropertyPBtoProperty(request.Competition.Properties[i])
+	for i := range request.GetCompetition().Properties {
+		prop, err := ConvertPropertyPBtoProperty(request.GetCompetition().Properties[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse property, details: %v", err)
 		}
 		props = append(props, prop)
 	}
 	var chcks []*check.Check
-	for i := range request.Competition.Checks {
-		chck, err := ConvertCheckPBtoCheck(request.Competition.Checks[i])
+	for i := range request.GetCompetition().Checks {
+		chck, err := ConvertCheckPBtoCheck(request.GetCompetition().Checks[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse check, details: %v", err)
 		}
@@ -102,8 +102,8 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	}
 
 	var users []*user.User
-	for i := range request.Competition.Users {
-		usr, err := ConvertUserPBtoUser(true, request.Competition.Users[i])
+	for i := range request.GetCompetition().Users {
+		usr, err := ConvertUserPBtoUser(true, request.GetCompetition().Users[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse check, details: %v", err)
 		}
@@ -111,7 +111,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	}
 
 	err := c.svc.LoadCompetition(ctx, &competition.Competition{
-		Config: ConvertDynamicConfigPBToDynamicConfig(request.Competition.DynamicConfig),
+		Config: ConvertDynamicConfigPBToDynamicConfig(request.GetCompetition().DynamicConfig),
 		Report: &report.Report{
 			Cache: request.Competition.Report.Cache,
 		},
@@ -124,7 +124,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 		Properties:    props,
 		Checks:        chcks,
 		Users:         users,
-		Policy:        ConvertPolicyPBToPolicy(request.Competition.Policy),
+		Policy:        ConvertPolicyPBToPolicy(request.GetCompetition().Policy),
 	})
 	if err != nil {
 		return nil, status.Errorf(
