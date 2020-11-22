@@ -23,7 +23,6 @@ import InputLabel from "@material-ui/core/InputLabel";
 import Input from "@material-ui/core/Input";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import {SetupProps} from "../Setup/util/util";
-import {centerStyle} from "../../styles/styles";
 import {Policy, UpdateRequest as UpdateRequestPolicy} from "../../grpc/pkg/policy/policypb/policy_pb";
 import { saveAs } from 'file-saver';
 import {
@@ -37,7 +36,7 @@ import {BoolValue, StringValue, UInt64Value} from "google-protobuf/google/protob
 import {
     Competition,
     DeleteCompetitionRequest,
-    FetchCoreCompetitionRequest, FetchEntireCompetitionRequest,
+    FetchCoreCompetitionRequest, FetchEntireCompetitionRequest, LoadCompetitionRequest,
     ResetScoresRequest
 } from "../../grpc/pkg/competition/competitionpb/competition_pb";
 import { TransitionProps } from '@material-ui/core/transitions';
@@ -237,14 +236,15 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
                 }
 
                 if (obj.hostGroupsList && obj.hostGroupsList.length !== 0){
-                    const hosts: HostGroup[] = []
+                    const hostGroups: HostGroup[] = []
                     obj.hostGroupsList.forEach(hostGrp => {
                         const h = new HostGroup()
                         h.setName(hostGrp.name)
                         h.setId(new UUID().setValue(hostGrp.id?.value as string))
                         h.setEnabled(new BoolValue().setValue(hostGrp.enabled?.value as boolean))
+                        hostGroups.push(h)
                     })
-                    comp.setHostGroupsList(hosts)
+                    comp.setHostGroupsList(hostGroups)
                 }
 
                 if (obj.serviceGroupsList && obj.serviceGroupsList.length !==0){
@@ -256,6 +256,8 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
                         sg.setLabel(servGrp.label)
                         sg.setDisplayName(servGrp.displayName)
                         sg.setEnabled(new BoolValue().setValue(servGrp.enabled?.value as boolean))
+                        sg.setId(new UUID().setValue(servGrp.id?.value as string))
+                        serviceGroup.push(sg)
                     })
                     comp.setServiceGroupsList(serviceGroup)
                 }
@@ -321,6 +323,12 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
                     })
                     comp.setPropertiesList(properties)
                 }
+                props.gRPCClients.competitionClient.loadCompetition(new LoadCompetitionRequest().setCompetition(comp), {}).then(resp =>{
+                    props.genericEnqueue("Success!", Severity.Success)
+                }, (err:any) => {
+                    props.genericEnqueue(`Failed to upload competition: ${err.message}. Error code: ${err.code}`, Severity.Error)
+                })
+
 
             }
             reader.onerror = function (evt) {
