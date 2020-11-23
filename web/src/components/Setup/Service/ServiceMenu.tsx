@@ -127,9 +127,11 @@ function ServiceMenuTable(props: SetupProps) {
             { title: 'Round Units(Frequency)', field: 'roundUnits', type: 'numeric', initialEditValue: 1},
             { title: 'Round Delay(Shift in frequency)', field: 'roundDelay', type: 'numeric', initialEditValue: 0 },
         ]
-    const [state, setState] = React.useState<{columns: any[], loader: boolean, data: serviceColumns[]}>({
+    const [state, setState] = React.useState<{columns: any[], loaderServiceGroup: boolean, loaderService: boolean, loaderHost: boolean, data: serviceColumns[]}>({
         columns: columns,
-        loader: true,
+        loaderService: true,
+        loaderServiceGroup: true,
+        loaderHost: true,
         data: []
     });
 
@@ -147,7 +149,7 @@ function ServiceMenuTable(props: SetupProps) {
                         columns[i]['lookup'] = lookup
                     }
                 }
-                return{...prevState, columns: columns
+                return{...prevState, columns: columns, loaderHost: false
                 }})
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving parent Teams: ${err.message}. Error code: ${err.code}`, Severity.Error)
@@ -165,13 +167,13 @@ function ServiceMenuTable(props: SetupProps) {
                         columns[i]['lookup'] = lookup
                     }
                 }
-                return{...prevState, columns: columns}})
+                return{...prevState, columns: columns, loaderServiceGroup: false}})
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving parent Teams: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
         props.gRPCClients.serviceClient.getAll(new GetAllRequest(), {}).then(servicesResponse => {
             setState(prevState => {return{...prevState, data: servicesResponse.getServicesList().map((service):serviceColumns => {
-                    return serviceToServiceColumn(service)}), loader:false}})}, (err: any) => {
+                    return serviceToServiceColumn(service)}), loaderService:false}})}, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Services: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }
@@ -181,7 +183,7 @@ function ServiceMenuTable(props: SetupProps) {
 
     return (
         <React.Fragment>
-            {!state.loader ?
+            {!state.loaderHost && !state.loaderService && !state.loaderServiceGroup  ?
                 <Box height="100%" width="100%" >
                     <MaterialTable
                         title={title}

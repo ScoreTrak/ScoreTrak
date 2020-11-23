@@ -70,9 +70,10 @@ export default function UserMenu(props: SetupProps) {
             { title: 'Team ID', field: 'teamId' },
             { title: 'Role', field: 'role', lookup: { [Role.Black]: Role.Black, [Role.Blue]: Role.Blue, [Role.Red]: Role.Red }},
         ]
-    const [state, setState] = React.useState<{columns: any[], loader: boolean, data: userColumns[]}>({
+    const [state, setState] = React.useState<{columns: any[], loaderHost: boolean, loaderUser: boolean, data: userColumns[]}>({
         columns: columns,
-        loader: true,
+        loaderHost: true,
+        loaderUser: true,
         data: []
     });
 
@@ -89,14 +90,14 @@ export default function UserMenu(props: SetupProps) {
                         columns[i]['lookup'] = lookup
                     }
                 }
-                return{...prevState, columns: columns
+                return{...prevState, columns: columns, loaderHost: false
             }})
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving parent Teams: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
         props.gRPCClients.userClient.getAll(new GetAllRequestUser(), {}).then(usersResponse => {
             setState(prevState => {return{...prevState, data: usersResponse.getUsersList().map((user):userColumns => {
-                return userToUserColumn(user)}), loader:false}})}, (err: any) => {
+                return userToUserColumn(user)}), loaderUser:false}})}, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Users: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }
@@ -106,7 +107,7 @@ export default function UserMenu(props: SetupProps) {
 
     return (
         <React.Fragment>
-            {!state.loader ?
+            {!state.loaderUser && !state.loaderHost ?
                 <Box height="100%" width="100%" >
                     <MaterialTable
                         title={title}

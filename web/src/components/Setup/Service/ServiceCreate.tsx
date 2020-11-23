@@ -25,7 +25,7 @@ import {HostGroup} from "../../../grpc/pkg/host_group/host_grouppb/host_group_pb
 import {serviceColumns, serviceColumnsToService} from "./ServiceMenu";
 
 const ServiceCreate = forwardRef((props: SetupProps, ref) => {
-    const [dt, setData] = React.useState<{loader: boolean, hosts: Host[], hostGroups: HostGroup[], serviceGroups: ServiceGroup[]}>({loader: true, hosts:[], hostGroups:[], serviceGroups: []})
+    const [dt, setData] = React.useState<{loaderHost: boolean, loaderHostGroup: boolean, hosts: Host[], hostGroups: HostGroup[], serviceGroups: ServiceGroup[]}>({loaderHost: true, loaderHostGroup: true, hosts:[], hostGroups:[], serviceGroups: []})
     const [counter, setCounter] = React.useState<Record<string, number>>({})
     const [rowsData, setRowData] = React.useState<Record<string, Record <number, serviceColumns> >>({});
 
@@ -67,7 +67,7 @@ const ServiceCreate = forwardRef((props: SetupProps, ref) => {
                 })
                 setCounter(counter)
                 setRowData(rowdt)
-                setData(prevState => {return {...prevState, loader: false, hostGroups: respHostGroup.getHostGroupsList()}})
+                setData(prevState => {return {...prevState, loaderHostGroup: false, hostGroups: respHostGroup.getHostGroupsList()}})
 
             },(err: any) => {
                 props.genericEnqueue(`Encountered an error while retrieving Host Groups: ${err.message}. Error code: ${err.code}`, Severity.Error)
@@ -75,7 +75,7 @@ const ServiceCreate = forwardRef((props: SetupProps, ref) => {
         )
 
         props.gRPCClients.hostClient.getAll(new GetAllRequestHost(), {}).then(respHost => {
-            setData(prevState => {return {...prevState, loader: false, hosts: respHost.getHostsList()}})
+            setData(prevState => {return {...prevState, loaderHost: false, hosts: respHost.getHostsList()}})
 
 
         }, (err: any) => {
@@ -129,7 +129,7 @@ const ServiceCreate = forwardRef((props: SetupProps, ref) => {
     return (
         <React.Fragment>
         <div>
-            {!dt.loader ?
+            {!dt.loaderHostGroup && !dt.loaderHost ?
                 dt.hostGroups.map((table) => (
                         <React.Fragment>
                             <Typography>Services for: {table.getName()}</Typography>
@@ -213,7 +213,6 @@ const ServiceCreate = forwardRef((props: SetupProps, ref) => {
                                                                              setRowData(prevState => {
                                                                                  return {...prevState, [table.getId()?.getValue() as string]: {...prevState[table.getId()?.getValue() as string], [i]: {...prevState[table.getId()?.getValue() as string][i], [column.id]: val}}}
                                                                          })})}
-                                                                                //Todo: Validate on positive numbers
                                                                      />
                                                              }
                                                          </TableCell>

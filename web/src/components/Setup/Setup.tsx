@@ -49,6 +49,3 @@ export default function Setup(props: SetupProps) {
         </Box>
     );
 }
-
-//ToDo: Allow Chaining of the foreign IDs
-//Todo: Add ID propagation all the way to Team Element

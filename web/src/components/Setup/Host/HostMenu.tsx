@@ -101,9 +101,11 @@ function HostMenuTable(props: SetupProps) {
             { title: 'Edit Host(Allow users to change Addresses)', field: 'editHost', type: 'boolean' },
         ]
 
-    const [state, setState] = React.useState<{columns: any[], loader: boolean, data: hostColumns[]}>({
+    const [state, setState] = React.useState<{columns: any[], loaderTeam: boolean, loaderHost: boolean, loaderHostGroup: boolean, data: hostColumns[]}>({
         columns: columns,
-        loader: true,
+        loaderTeam: true,
+        loaderHost: true,
+        loaderHostGroup: true,
         data: []
     });
 
@@ -121,7 +123,7 @@ function HostMenuTable(props: SetupProps) {
                         columns[i]['lookup'] = lookup
                     }
                 }
-                return{...prevState, columns: columns
+                return{...prevState, columns: columns, loaderHostGroup: false
                 }})
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving parent Host Groups: ${err.message}. Error code: ${err.code}`, Severity.Error)
@@ -139,13 +141,13 @@ function HostMenuTable(props: SetupProps) {
                         columns[i]['lookup'] = lookup
                     }
                 }
-                return{...prevState, columns: columns}})
+                return{...prevState, columns: columns, loaderTeam: false}})
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving parent Teams: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
         props.gRPCClients.hostClient.getAll(new GetAllRequest(), {}).then(hostsResponse => {
             setState(prevState => {return{...prevState, data: hostsResponse.getHostsList().map((host):hostColumns => {
-                    return hostToHostColumn(host)}), loader:false}})}, (err: any) => {
+                    return hostToHostColumn(host)}), loader:false, loaderHost: false}})}, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Hosts: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }
@@ -155,7 +157,7 @@ function HostMenuTable(props: SetupProps) {
 
     return (
         <React.Fragment>
-            {!state.loader ?
+            {!state.loaderHost && !state.loaderTeam && !state.loaderHostGroup ?
                 <Box height="100%" width="100%" >
                     <MaterialTable
                         title={title}

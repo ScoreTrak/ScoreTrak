@@ -5,7 +5,6 @@ import MaterialTable from "material-table";
 import {Severity} from "../../../types/types";
 import {CircularProgress} from "@material-ui/core";
 import {GetAllRequest, Round} from "../../../grpc/pkg/round/roundpb/round_pb";
-import {Timestamp} from "google-protobuf/google/protobuf/timestamp_pb";
 
 type roundColumns = {
     id: number

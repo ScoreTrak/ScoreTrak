@@ -335,7 +335,7 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
                 props.genericEnqueue(`Failed to open the file`, Severity.Error)
             }
         }
-        handleClose()  //TODO: IMPLEMENT
+        handleClose()
     }
 
     const handleResetCompetition = () => {

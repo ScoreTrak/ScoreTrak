@@ -24,11 +24,11 @@ import {hostColumnsToHost} from "./HostMenu";
 
 const HostCreate = forwardRef((props: SetupProps, ref) => {
 
-    const [dt, setData] = React.useState<{loader: boolean, teams: Team[], hostGroups: HostGroup[]}>({loader: true, teams:[], hostGroups:[]})
+    const [dt, setData] = React.useState<{loaderTeam: boolean, loaderHostGroup: boolean, teams: Team[], hostGroups: HostGroup[]}>({loaderTeam: true, loaderHostGroup: true, teams:[], hostGroups:[]})
 
     useEffect(() => {
         props.gRPCClients.teamClient.getAll(new GetAllRequestTeam(), {}).then(respTeam =>{
-            setData(prevState => {return {...prevState, loader: false, teams: respTeam.getTeamsList().sort((a,b) => {
+            setData(prevState => {return {...prevState, loaderTeam: false, teams: respTeam.getTeamsList().sort((a,b) => {
                     const aidx = a.getIndex()?.getValue()
                     const bidx = b.getIndex()?.getValue()
                     if (!aidx){
@@ -44,7 +44,7 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
         })
 
         props.gRPCClients.hostGroupClient.getAll(new GetAllRequestHostGroup(), {}).then(respHostGroup =>{
-            setData(prevState => {return {...prevState, hostGroups: respHostGroup.getHostGroupsList(), loader: false}})
+            setData(prevState => {return {...prevState, hostGroups: respHostGroup.getHostGroupsList(), loaderHostGroup: false}})
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Host Groups: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
@@ -90,7 +90,7 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
     return (
         <React.Fragment>
             <div>
-                {!dt.loader ?
+                {!dt.loaderTeam && !dt.loaderHostGroup ?
                     <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>

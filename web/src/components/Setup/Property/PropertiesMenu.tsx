@@ -108,9 +108,10 @@ function PropertyMenuTable(props: SetupProps) {
             { title: 'Status', field: 'status', lookup:{'View': 'View', 'Hide':'Hide', 'Edit':'Edit'}},
             { title: 'Service ID', field: 'serviceId', editable: 'onAdd'},
         ]
-    const [state, setState] = React.useState<{columns: any[], loader: boolean, data: propertyColumns[]}>({
+    const [state, setState] = React.useState<{columns: any[], loaderService: boolean, loaderProperty: boolean, data: propertyColumns[]}>({
         columns: columns,
-        loader: true,
+        loaderService: true,
+        loaderProperty: true,
         data: []
     });
 
@@ -128,7 +129,7 @@ function PropertyMenuTable(props: SetupProps) {
                         columns[i]['lookup'] = lookup
                     }
                 }
-                return{...prevState, columns: columns
+                return{...prevState, columns: columns, loaderService: false
                 }})
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving parent Teams: ${err.message}. Error code: ${err.code}`, Severity.Error)
@@ -136,7 +137,7 @@ function PropertyMenuTable(props: SetupProps) {
 
         props.gRPCClients.propertyClient.getAll(new GetAllRequest(), {}).then(propertiesResponse => {
             setState(prevState => {return{...prevState, data: propertiesResponse.getPropertiesList().map((property):propertyColumns => {
-                    return propertyToPropertyColumn(property)}), loader:false}})}, (err: any) => {
+                    return propertyToPropertyColumn(property)}), loaderProperty:false}})}, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Properties: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }
@@ -146,7 +147,7 @@ function PropertyMenuTable(props: SetupProps) {
 
     return (
         <React.Fragment>
-            {!state.loader ?
+            {!state.loaderProperty && !state.loaderService ?
                 <Box height="100%" width="100%" >
                     <MaterialTable
                         title={title}
