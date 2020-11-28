@@ -9,9 +9,12 @@ services:
     depends_on:
       - db-init
       - nsqd
-    ports:
-      - "33333:33333"
     command: ./master -config /deployments/docker-nsq/config.yml
+
+  scoretrak-web:
+    image: l1ghtman/scoretrak-web:latest
+    depends_on:
+      - scoretrak
 
   cockroachdb-1:
     container_name: cockroachdb-1

@@ -47,11 +47,10 @@ static_resources:
                           route:
                             cluster: scoretrak
                             max_grpc_timeout: 0s
-# STATIC CONTENT:
-#                        - match:
-#                            prefix: "/"
-#                          route:
-#                            cluster: static_content_server
+                        - match:
+                            prefix: "/"
+                          route:
+                            cluster: scoretrak-web
 
                       cors:
                         allow_origin_string_match:
@@ -71,7 +70,7 @@ static_resources:
       http2_protocol_options: {}
       lb_policy: round_robin
       load_assignment:
-        cluster_name: cluster_0
+        cluster_name: scoretrak
         endpoints:
           - lb_endpoints:
               - endpoint:
@@ -79,3 +78,17 @@ static_resources:
                     socket_address:
                       address: scoretrak
                       port_value: 33333
+
+    - name: scoretrak-web
+      connect_timeout: 0.25s
+      type: logical_dns
+      lb_policy: round_robin
+      load_assignment:
+        cluster_name: scoretrak-web
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: scoretrak-web
+                      port_value: 80
