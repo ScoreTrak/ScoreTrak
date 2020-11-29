@@ -25,7 +25,7 @@ func (h *policyRepo) Get(ctx context.Context) (*policy.Policy, error) {
 func (h *policyRepo) Update(ctx context.Context, tm *policy.Policy) error {
 	tm.ID = 1
 	err := h.db.WithContext(ctx).Model(tm).Updates(policy.Policy{AllowUnauthenticatedUsers: tm.AllowUnauthenticatedUsers, ShowPoints: tm.ShowPoints,
-		AllowChangingUsernamesAndPasswords: tm.AllowChangingUsernamesAndPasswords, ShowAddresses: tm.ShowAddresses}).Error
+		AllowChangingUsernamesAndPasswords: tm.AllowChangingUsernamesAndPasswords, ShowAddresses: tm.ShowAddresses, AllowRedTeamLaunchingServiceTestsManually: tm.AllowRedTeamLaunchingServiceTestsManually}).Error
 	if err != nil {
 		return err
 	}
