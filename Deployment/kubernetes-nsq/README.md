@@ -104,7 +104,7 @@ Requirements:
        Access the web component via port forwarding like so open up the browser and input
        any node IP followed by port 30080
      
-5) (Optional) Configure Load Balancer. (This step will depend heavily on your environment, hence this step is up to the devs to implement)
+5) (Optional) Configure External Load Balancer. (This step will depend heavily on your environment, hence this step is up to the devs to implement)
 
 6) Labels.
     1) Using the dashboard, add labels to desired nodes. The labels should follow the format:

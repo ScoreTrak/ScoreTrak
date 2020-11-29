@@ -43,7 +43,7 @@ metadata:
     app.kubernetes.io/name: nsq
 spec:
   capacity:
-    storage: 8Gi
+    storage: 20Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
