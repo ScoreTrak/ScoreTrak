@@ -158,11 +158,10 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 	//Authorization And Authentication Middleware
 	jwtManager := auth.NewJWTManager(config.GetJWTConfig().Secret, time.Duration(config.GetJWTConfig().TimeoutInSeconds)*time.Second)
 	var pubsub queue.MasterStreamPubSub
-	if config.GetQueueConfig().Use != "none" {
-		pubsub, err = queue.NewMasterStreamPubSub(staticConfig.Queue)
-		if err != nil {
-			return err
-		}
+
+	pubsub, err = queue.NewMasterStreamPubSub(staticConfig.Queue)
+	if err != nil {
+		return err
 	}
 
 	policyClient := policy_client.NewPolicyClient(p, staticConfig.PubSubConfig, repoStore.Policy, pubsub)

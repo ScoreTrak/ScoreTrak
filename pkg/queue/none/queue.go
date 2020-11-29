@@ -2,7 +2,6 @@ package none
 
 import (
 	"errors"
-
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
 	"time"
@@ -62,5 +61,5 @@ func (n None) Ping(group *service_group.ServiceGroup) error {
 }
 
 func NewNoneQueue() (*None, error) {
-	return &None{}, nil
+	return &None{}, nil // Use global Variable
 }

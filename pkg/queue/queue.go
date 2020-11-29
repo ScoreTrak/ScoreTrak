@@ -24,7 +24,7 @@ func NewMasterStreamPubSub(c queueing.Config) (MasterStreamPubSub, error) {
 	if c.Use == "nsq" {
 		return nsq.NewNSQPubSub(c)
 	} else if c.Use == "none" {
-		panic("implement me")
+		return none.NewNonePubSub(c)
 	} else {
 		return nil, errors.New("invalid pubsub selected")
 	}

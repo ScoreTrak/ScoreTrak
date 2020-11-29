@@ -17,5 +17,7 @@ WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 # Copy static assets from builder stage
 COPY --from=builder /app/build .
+#redirect 404s to index
+RUN sed -i '/index  index.html index.htm;/a try_files \$uri \$uri/ /index.html;' /etc/nginx/conf.d/default.conf
 # Containers run nginx with global directives and daemon off
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
