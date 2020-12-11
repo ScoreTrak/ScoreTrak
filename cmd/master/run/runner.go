@@ -1,21 +1,22 @@
 package run
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/di/repo"
-	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/gofrs/uuid"
 	"github.com/jackc/pgconn"
 	"gorm.io/gorm"
+	"log"
 	"math"
 	"strings"
 	"sync"
@@ -24,15 +25,14 @@ import (
 
 type dRunner struct {
 	db *gorm.DB
-	l  logger.LogInfoFormat
-	q  queue.Queue
-	r  repo.Store
+	q  queue.WorkerQueue
+	r  *util.Store
 }
 
 var dsync time.Duration
 var mud sync.RWMutex
 
-func (d dRunner) refreshDsync() {
+func (d dRunner) refreshDsync() error {
 	mud.Lock()
 	defer mud.Unlock()
 	var tm time.Time
@@ -45,10 +45,10 @@ func (d dRunner) refreshDsync() {
 		res.Scan(&tm)
 	}
 	dsync = -time.Since(tm)
-
 	if float64(time.Second*2) < math.Abs(float64(dsync)) {
-		d.l.Error(fmt.Sprintf("time difference between master host, and database host is too large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now()))
+		return fmt.Errorf("time difference between master, and database is too large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now())
 	}
+	return nil
 }
 func (d dRunner) getDsync() time.Duration {
 	mud.RLock()
@@ -56,16 +56,19 @@ func (d dRunner) getDsync() time.Duration {
 	return dsync
 }
 
-func NewRunner(db *gorm.DB, l logger.LogInfoFormat, q queue.Queue, r repo.Store) *dRunner {
+func NewRunner(db *gorm.DB, q queue.WorkerQueue, r *util.Store) *dRunner {
 	return &dRunner{
-		db: db, l: l, q: q, r: r,
+		db: db, q: q, r: r,
 	}
 }
 
 func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
-	d.refreshDsync()
+	err = d.refreshDsync()
+	if err != nil {
+		return err
+	}
 	var scoringLoop *time.Ticker
-	r, _ := d.r.Round.GetLastNonElapsingRound()
+	r, _ := d.r.Round.GetLastNonElapsingRound(context.TODO())
 	if r != nil {
 		scoringLoop = time.NewTicker(d.durationUntilNextRound(r, cnf.RoundDuration))
 	} else {
@@ -76,37 +79,40 @@ func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 	for {
 		select {
 		case <-configLoop.C:
-			dcc, _ := d.r.Config.Get()
+			dcc, _ := d.r.Config.Get(context.TODO())
 			if !cnf.IsEqual(dcc) {
 				*cnf = *dcc
 			}
-			r, _ := d.r.Round.GetLastRound()
-			d.refreshDsync()
+			r, _ := d.r.Round.GetLastRound(context.TODO())
+			err = d.refreshDsync()
+			if err != nil {
+				log.Println(err)
+			}
 			scoringLoop.Stop()
 			scoringLoop = time.NewTicker(d.durationUntilNextRound(r, cnf.RoundDuration))
 		case <-scoringLoop.C:
 			scoringLoop.Stop()
-			dcc, _ := d.r.Config.Get()
+			dcc, _ := d.r.Config.Get(context.TODO())
 			if !cnf.IsEqual(dcc) {
 				*cnf = *dcc
 			}
 			var rnd *round.Round
 			if *cnf.Enabled {
-				rNoneElapsing, _ := d.r.Round.GetLastNonElapsingRound()
+				rNoneElapsing, _ := d.r.Round.GetLastNonElapsingRound(context.TODO())
 				if rNoneElapsing != nil {
 					rnd = &round.Round{ID: rNoneElapsing.ID + 1}
 				} else {
 					rnd = &round.Round{ID: 1}
 				}
-
-				lastRnd, _ := d.r.Round.GetLastRound()
-
+				lastRnd, _ := d.r.Round.GetLastRound(context.TODO())
 				if lastRnd != nil && rnd.ID <= lastRnd.ID && lastRnd.Finish == nil {
 					if time.Now().After(lastRnd.Start.Add(time.Duration(cnf.RoundDuration) * time.Second).Add(time.Second * 3)) {
-						d.r.Round.Delete(lastRnd.ID)
+						d.r.Round.Delete(context.TODO(), lastRnd.ID)
 					} //This is indicative of a scoring master dying. In this case we delete the last round
 				}
-				d.attemptToScore(rnd, time.Now().Add(d.getDsync()).Add(time.Duration(cnf.RoundDuration)*time.Second*9/10))
+				ctx, _ := context.WithTimeout(context.Background(), (time.Duration(cnf.RoundDuration)*time.Second*9/10)+d.getDsync())
+				d.attemptToScore(ctx, rnd)
+				time.Sleep(time.Second * 2)
 				scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
 			} else {
 				scoringLoop = time.NewTicker(config.MinRoundDuration)
@@ -115,7 +121,7 @@ func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 	}
 }
 
-func (d *dRunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint) time.Duration {
+func (d *dRunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64) time.Duration {
 	if rnd == nil || rnd.ID == 0 {
 		return config.MinRoundDuration / 2
 	}
@@ -127,25 +133,25 @@ func (d *dRunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint) t
 }
 
 //Runs check in the background as a gorutine.
-func (d *dRunner) attemptToScore(rnd *round.Round, timeout time.Time) {
-	err := d.r.Round.Store(rnd)
+func (d *dRunner) attemptToScore(ctx context.Context, rnd *round.Round) {
+	err := d.r.Round.Store(ctx, rnd)
 	if err != nil {
 		serr, ok := err.(*pgconn.PgError)
 		if ok && serr.Code == "23505" {
-			r, _ := d.r.Round.GetByID(rnd.ID)
+			r, _ := d.r.Round.GetByID(ctx, rnd.ID)
 			if r != nil {
 				*rnd = *r
 			}
 		} else {
-			d.l.Error(err)
+			log.Println(err)
 			panic(err)
 		}
 	} else {
-		go d.Score(*rnd, timeout)
+		go d.Score(ctx, *rnd)
 	}
 }
 
-func (d dRunner) Score(rnd round.Round, deadline time.Time) {
+func (d dRunner) Score(ctx context.Context, rnd round.Round) {
 	var Note string
 	defer func() {
 		if x := recover(); x != nil {
@@ -158,35 +164,36 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 			default:
 				err = errors.New("unknown panic")
 			}
-			d.l.Error(err)
-			d.finalizeRound(&rnd, Note, fmt.Sprintf("A panic has occured. Err:%s", err.Error()))
+
+			log.Println(err)
+			d.finalizeRound(ctx, &rnd, Note, fmt.Sprintf("A panic has occured. Err:%s", err.Error()))
 		}
 	}()
-	d.l.Info("Running check for round %d", rnd.ID)
-	teams, err := d.r.Team.GetAll()
+	log.Printf("Running check for round %d", rnd.ID)
+	teams, err := d.r.Team.GetAll(ctx)
 	if err != nil {
-		d.finalizeRound(&rnd, Note, "No Teams Detected")
+		d.finalizeRound(ctx, &rnd, Note, "No Teams Detected")
 		return
 	}
-	hostGroup, _ := d.r.HostGroup.GetAll()
-	serviceGroups, err := d.r.ServiceGroup.GetAll()
+	hostGroup, _ := d.r.HostGroup.GetAll(ctx)
+	serviceGroups, err := d.r.ServiceGroup.GetAll(ctx)
 	if err != nil {
-		d.finalizeRound(&rnd, Note, "No Service Groups Detected")
+		d.finalizeRound(ctx, &rnd, Note, "No Service Groups Detected")
 		return
 	}
 	var sds []*queueing.ScoringData
 	for _, t := range teams {
-		err = d.db.Model(&t).Association("Hosts").Find(&t.Hosts)
+		err = d.db.WithContext(ctx).Model(&t).Association("Hosts").Find(&t.Hosts)
 		if err != nil {
 			panic(err)
 		}
 		for _, h := range t.Hosts {
-			err = d.db.Model(&h).Association("Services").Find(&h.Services)
+			err = d.db.WithContext(ctx).Model(&h).Association("Services").Find(&h.Services)
 			if err != nil {
 				panic(err)
 			}
 			for _, s := range h.Services {
-				err = d.db.Model(&s).Association("Properties").Find(&s.Properties)
+				err = d.db.WithContext(ctx).Model(&s).Association("Properties").Find(&s.Properties)
 				if err != nil {
 					panic(err)
 				}
@@ -213,8 +220,9 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 								if s.ServiceGroupID == servGroup.ID && *(servGroup.Enabled) {
 									sq := queueing.QService{ID: s.ID, Group: servGroup.Name, Name: s.Name}
 									params := PropertyToMap(s.Properties)
+									de, _ := ctx.Deadline()
 									sd := &queueing.ScoringData{
-										Deadline:   deadline,
+										Deadline:   de.Add(-time.Second),
 										Host:       *(h.Address),
 										Service:    sq,
 										Properties: params,
@@ -230,8 +238,7 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 		}
 	}
 	if len(sds) == 0 {
-		d.l.Info("No services are currently scorable. Finalizing the round")
-		d.finalizeRound(&rnd, Note, "No scorable services detected")
+		d.finalizeRound(ctx, &rnd, Note, "No scorable services detected")
 		return
 	}
 	var chks []*queueing.QCheck
@@ -240,11 +247,9 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 	chks, bearableErr, err = d.q.Send(sds)
 	if bearableErr != nil {
 		Note += bearableErr.Error()
-		d.l.Error(bearableErr)
 	}
 	if err != nil {
-		d.l.Error(err)
-		d.finalizeRound(&rnd, Note, err.Error())
+		d.finalizeRound(ctx, &rnd, Note, err.Error())
 		return
 	}
 	var checks []*check.Check
@@ -266,29 +271,27 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 		}
 	}
 
-	err = d.r.Check.Store(checks)
+	err = d.r.Check.Store(ctx, checks)
 	if err != nil {
-		d.l.Error(err)
-		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
+		d.finalizeRound(ctx, &rnd, Note, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
 		return
 	}
-	r, _ := d.r.Round.GetLastRound()
+	r, _ := d.r.Round.GetLastRound(ctx)
 	if r == nil || r.ID != rnd.ID {
-		err = errors.New("a different round started before current round was able to finish. The scores will not be committed")
-		d.l.Error(err)
-		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
+		d.finalizeRound(ctx, &rnd, Note, "Error while saving checks. Err: a different round started before current round was able to finish. The scores will not be committed")
 		return
 	}
-	tp, err := d.r.Report.CountPassedPerService()
+
+	tp, err := d.r.Report.CountPassedPerService(ctx)
 	if err != nil {
-		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while generating report. Err: %s", err.Error()))
+		d.finalizeRound(ctx, &rnd, Note, fmt.Sprintf("Error while generating report. Err: %s", err.Error()))
 		return
 	}
 
 	simpTeams := make(map[uuid.UUID]*report.SimpleTeam)
 	{
 		for _, t := range teams {
-			st := &report.SimpleTeam{Name: t.Name, Enabled: *t.Enabled}
+			st := &report.SimpleTeam{Name: t.Name, Enabled: *t.Enabled, Hidden: *t.Hidden}
 			st.Hosts = make(map[uuid.UUID]*report.SimpleHost)
 			for _, h := range t.Hosts {
 				sh := report.SimpleHost{Address: *h.Address, Enabled: *h.Enabled}
@@ -301,7 +304,7 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 				}
 				sh.Services = make(map[uuid.UUID]*report.SimpleService)
 				for _, s := range h.Services {
-					points := uint(tp[s.ID]) * s.Points
+					points := tp[s.ID] * *s.Weight
 					params := map[string]*report.SimpleProperty{}
 					for _, p := range s.Properties {
 						params[p.Key] = &report.SimpleProperty{Value: *p.Value, Status: p.Status}
@@ -314,7 +317,7 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 					}
 					if len(s.Checks) != 0 {
 						lastCheck := s.Checks[len(s.Checks)-1]
-						sh.Services[s.ID] = &report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Enabled: *s.Enabled, Properties: params, PointsBoost: s.PointsBoost, SimpleServiceGroup: simpSgr, Points: points}
+						sh.Services[s.ID] = &report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Enabled: *s.Enabled, Points: points, Properties: params, PointsBoost: *s.PointsBoost, SimpleServiceGroup: simpSgr, Weight: *s.Weight}
 						if lastCheck.RoundID == rnd.ID {
 							sh.Services[s.ID].Passed = *lastCheck.Passed
 							sh.Services[s.ID].Log = lastCheck.Log
@@ -331,34 +334,40 @@ func (d dRunner) Score(rnd round.Round, deadline time.Time) {
 			simpTeams[t.ID] = st
 		}
 	}
+
 	ch := report.NewReport()
 	bt, err := json.Marshal(&report.SimpleReport{Teams: simpTeams, Round: rnd.ID})
 	if err != nil {
-		d.l.Error(err)
-		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving report. Err: %s", err.Error()))
+		d.finalizeRound(ctx, &rnd, Note, fmt.Sprintf("Error while saving report. Err: %s", err.Error()))
 		return
 	}
 	ch.Cache = string(bt)
-	err = d.r.Report.Update(ch)
+	err = d.r.Report.Update(ctx, ch)
 	if err != nil {
-		d.l.Error(err)
 		if strings.Contains(err.Error(), "split failed while applying backpressure to") {
 			Note += "\nPossible solution to error: decrease: gc.ttlseconds for database. "
 		}
-		d.finalizeRound(&rnd, Note, fmt.Sprintf("Error while saving report. Err: %s", err.Error()))
+		d.finalizeRound(ctx, &rnd, Note, fmt.Sprintf("Error while saving report. Err: %s", err.Error()))
 		return
 	}
-	d.finalizeRound(&rnd, Note, "")
+	pubsub, err := queue.NewMasterStreamPubSub(config.GetQueueConfig())
+	if err != nil {
+		d.finalizeRound(ctx, &rnd, Note, fmt.Sprintf("Error while notifying report update. Err: %s", err.Error()))
+		return
+	}
+	pubsub.NotifyTopic(config.GetPubSubConfig().ChannelPrefix + "_report")
+	d.finalizeRound(ctx, &rnd, Note, "")
 }
 
-func (d dRunner) finalizeRound(rnd *round.Round, Note string, Error string) {
+func (d dRunner) finalizeRound(ctx context.Context, rnd *round.Round, Note string, Error string) {
+	log.Printf("Note: %s\nError: %s\nRound: %v", Note, Error, rnd)
 	now := time.Now().Add(d.getDsync())
 	rnd.Finish = &now
 	rnd.Note = Note
 	rnd.Err = Error
-	err := d.r.Round.Update(rnd)
+	err := d.r.Round.Update(ctx, rnd)
 	if err != nil {
-		d.l.Error(err)
+		log.Printf("Unable to update round %v", rnd)
 	}
 }
 

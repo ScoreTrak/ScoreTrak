@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scoretrak
+spec:
+  selector:
+    matchLabels:
+      app: scoretrak
+      component: master
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: scoretrak
+        component: master
+    spec:
+      containers:
+        - name: scoretrak
+          image: l1ghtman/scoretrak:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 33333
+              name: http
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/scoretrak/
+          command:
+            - ./master
+            - -config
+            - /etc/scoretrak/config.yml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: scoretrak-config
+
+      serviceAccountName: scoretrak
+
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: scoretrak
+spec:
+  selector:
+    app: scoretrak
+    component: master
+  ports:
+    - protocol: TCP
+      port: 33333
+      targetPort: 33333

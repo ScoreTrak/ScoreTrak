@@ -1,15 +1,14 @@
 package orm
 
 import (
+	"context"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
-	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
-
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"os"
@@ -25,19 +24,18 @@ func TestTeamSpec(t *testing.T) {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_team"
-	c.Logger.FileName = "team_test.log"
 	db := storage.SetupDB(c.DB)
-	l := SetupLogger(c.Logger)
+	ctx := context.Background()
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Team Tables", t, func() {
 		db.AutoMigrate(&team.Team{})
-		tr := NewTeamRepo(db, l)
+		tr := NewTeamRepo(db)
 		Reset(func() {
 			db.Migrator().DropTable(&team.Team{})
 		})
 		Convey("When the Teams table is empty", func() {
 			Convey("There should be no entries", func() {
-				ac, err := tr.GetAll()
+				ac, err := tr.GetAll(ctx)
 				So(err, ShouldBeNil)
 				So(len(ac), ShouldEqual, 0)
 			})
@@ -46,11 +44,11 @@ func TestTeamSpec(t *testing.T) {
 				var err error
 				tru := true
 				t := []*team.Team{{Name: "", Enabled: &tru}}
-				err = tr.Store(t)
+				err = tr.Store(ctx, t)
 				So(err, ShouldNotBeNil)
 
 				Convey("Should output no entry", func() {
-					ac, err := tr.GetAll()
+					ac, err := tr.GetAll(ctx)
 					So(err, ShouldBeNil)
 					So(len(ac), ShouldEqual, 0)
 				})
@@ -60,36 +58,36 @@ func TestTeamSpec(t *testing.T) {
 				var err error
 				tru := true
 				t := []*team.Team{{Name: "TestTeam", Enabled: &tru}}
-				err = tr.Store(t)
+				err = tr.Store(ctx, t)
 				So(err, ShouldBeNil)
 				Convey("Should output one entry", func() {
-					ac, err := tr.GetAll()
+					ac, err := tr.GetAll(ctx)
 					So(err, ShouldBeNil)
 					So(len(ac), ShouldEqual, 1)
 					So(ac[0].Name, ShouldEqual, "TestTeam")
 				})
 
 				Convey("Then Deleting a wrong entry", func() {
-					err = tr.DeleteByName("TestTeamWRONG")
+					err = tr.DeleteByName(ctx, "TestTeamWRONG")
 					So(err, ShouldNotBeNil)
 					Convey("Should output one entry", func() {
-						ac, err := tr.GetAll()
+						ac, err := tr.GetAll(ctx)
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
 					})
 				})
 				Convey("Then Deleting the added entry", func() {
-					err = tr.DeleteByName("TestTeam")
+					err = tr.DeleteByName(ctx, "TestTeam")
 					So(err, ShouldBeNil)
 					Convey("Should output no entries", func() {
-						ac, err := tr.GetAll()
+						ac, err := tr.GetAll(ctx)
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 0)
 					})
 				})
 
 				Convey("Then Retrieving entry by Name", func() {
-					tm, err := tr.GetByName("TestTeam")
+					tm, err := tr.GetByName(ctx, "TestTeam")
 					So(err, ShouldBeNil)
 					Convey("Should output the inserted entry", func() {
 						So(tm.Name, ShouldEqual, "TestTeam")
@@ -98,7 +96,7 @@ func TestTeamSpec(t *testing.T) {
 				})
 
 				Convey("Then Querying By wrong Name", func() {
-					ss, err := tr.GetByName("WrongTeamName")
+					ss, err := tr.GetByName(ctx, "WrongTeamName")
 					So(err, ShouldNotBeNil)
 					So(ss, ShouldBeNil)
 				})
@@ -108,9 +106,9 @@ func TestTeamSpec(t *testing.T) {
 					newTeam := &team.Team{Enabled: &fls}
 					Convey("For the wrong entry should not update anything", func() {
 						newTeam.ID = uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")
-						err = tr.Update(newTeam)
+						err = tr.Update(ctx, newTeam)
 						So(err, ShouldBeNil)
-						ac, err := tr.GetAll()
+						ac, err := tr.GetAll(ctx)
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
 						So(*(ac[0].Enabled), ShouldBeTrue)
@@ -119,9 +117,9 @@ func TestTeamSpec(t *testing.T) {
 					Convey("For the correct entry should update", func() {
 						newTeam.Name = "TestTeam"
 						newTeam.ID = t[0].ID
-						err = tr.Update(newTeam)
+						err = tr.Update(ctx, newTeam)
 						So(err, ShouldBeNil)
-						ac, err := tr.GetAll()
+						ac, err := tr.GetAll(ctx)
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
 						So(*(ac[0].Enabled), ShouldBeFalse)
@@ -137,17 +135,17 @@ func TestTeamSpec(t *testing.T) {
 						db.Table("hosts").Count(&count)
 						So(count, ShouldEqual, 1)
 						Convey("DeleteByName a team without deleting a host", func() {
-							err = tr.DeleteByName("TestTeam")
+							err = tr.DeleteByName(ctx, "TestTeam")
 							So(err, ShouldNotBeNil)
-							ac, err := tr.GetAll()
+							ac, err := tr.GetAll(ctx)
 							So(err, ShouldBeNil)
 							So(len(ac), ShouldEqual, 1)
 						})
 						Convey("Deleting a host then deleting a team", func() {
 							db.Exec("DELETE FROM hosts WHERE id='44444444-4444-4444-4444-444444444444'")
-							err = tr.DeleteByName("TestTeam")
+							err = tr.DeleteByName(ctx, "TestTeam")
 							So(err, ShouldBeNil)
-							ac, err := tr.GetAll()
+							ac, err := tr.GetAll(ctx)
 							So(err, ShouldBeNil)
 							So(len(ac), ShouldEqual, 0)
 						})
@@ -155,7 +153,7 @@ func TestTeamSpec(t *testing.T) {
 						Convey("Updating a team enabled without deleting a host should not yield error", func() {
 							tru := true
 							t[0].Enabled = &tru
-							err = tr.Update(t[0])
+							err = tr.Update(ctx, t[0])
 							So(err, ShouldBeNil)
 						})
 

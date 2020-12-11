@@ -1,9 +1,9 @@
 package orm
 
 import (
+	"context"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
-	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
@@ -23,9 +23,7 @@ func TestConfigSpec(t *testing.T) {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_config"
-	c.Logger.FileName = "config_test.log"
 	db := storage.SetupDB(c.DB)
-	l := SetupLogger(c.Logger)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
 	Convey("Creating Config Table and Insert sample config", t, func() {
 		db.AutoMigrate(&config.DynamicConfig{})
@@ -36,10 +34,10 @@ func TestConfigSpec(t *testing.T) {
 		db.Table("config").Count(&count)
 		So(count, ShouldEqual, 1)
 
-		cr := NewConfigRepo(db, l)
+		cr := NewConfigRepo(db)
 
 		Convey("Retrieving all config properties", func() {
-			dn, err := cr.Get()
+			dn, err := cr.Get(context.Background())
 			So(err, ShouldBeNil)
 			So(*(dn.Enabled), ShouldBeTrue)
 			So(dn.RoundDuration, ShouldEqual, 60)
@@ -48,9 +46,9 @@ func TestConfigSpec(t *testing.T) {
 		Convey("Updating the config properties should not return errors", func() {
 			fls := false
 			dn := config.DynamicConfig{RoundDuration: 25, Enabled: &fls}
-			err := cr.Update(&dn)
+			err := cr.Update(context.Background(), &dn)
 			So(err, ShouldBeNil)
-			dnr, err := cr.Get()
+			dnr, err := cr.Get(context.Background())
 			So(err, ShouldBeNil)
 			So(*(dnr.Enabled), ShouldBeFalse)
 			So(dnr.RoundDuration, ShouldEqual, 25)

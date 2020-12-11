@@ -25,7 +25,7 @@ func (i *IMAP) Validate() error {
 	if i.Password != "" && i.Username != "" {
 		return nil
 	}
-	return errors.New("IMAP service needs password, and username to operate")
+	return errors.New("IMAP check_service needs password, and username to operate")
 }
 
 func (i *IMAP) Execute(e exec.Exec) (passed bool, log string, err error) {

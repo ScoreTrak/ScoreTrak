@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
@@ -13,29 +13,26 @@ import (
 
 // StaticConfig is a struct of settings that were set at the start of the application
 type StaticConfig struct {
-	// token specified on init of the staticConfig
-	Token string `default:""`
-
 	DB storage.Config
-
-	Logger logger.Config
 
 	Queue queueing.Config
 
 	Platform platforming.Config
 
+	PubSubConfig queueing.MasterConfig
+
 	Port string `default:"33333"`
+
+	Prod bool `default:"false"`
+
+	CertFile string `default:""`
+
+	KeyFile string `default:""`
+
+	JWT auth.Config
 }
 
 var staticConfig StaticConfig
-
-func GetToken() string {
-	return staticConfig.Token
-}
-
-func GetLoggerConfig() logger.Config {
-	return staticConfig.Logger
-}
 
 func GetPlatformConfig() platforming.Config {
 	return staticConfig.Platform
@@ -47,6 +44,14 @@ func GetQueueConfig() queueing.Config {
 
 func GetDBConfig() storage.Config {
 	return staticConfig.DB
+}
+
+func GetJWTConfig() auth.Config {
+	return staticConfig.JWT
+}
+
+func GetPubSubConfig() queueing.MasterConfig {
+	return staticConfig.PubSubConfig
 }
 
 func NewStaticConfig(f string) error {

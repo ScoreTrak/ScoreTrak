@@ -1,0 +1,36 @@
+syntax = "proto3";
+package pkg.config.config;
+
+import "google/protobuf/wrappers.proto";
+
+option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/config/configpb";
+
+message DynamicConfig {
+  uint64 round_duration = 2;
+  google.protobuf.BoolValue enabled = 3;
+}
+
+message GetRequest{}
+message GetResponse{
+  DynamicConfig dynamic_config = 1;
+}
+message UpdateRequest{
+  DynamicConfig dynamic_config = 1;
+}
+
+message UpdateResponse{}
+
+service DynamicConfigService{
+  rpc Get(GetRequest) returns (GetResponse){}
+  rpc Update(UpdateRequest) returns (UpdateResponse) {}
+}
+
+message GetStaticConfigRequest{}
+
+message GetStaticConfigResponse{
+  string static_config = 1;
+}
+
+service StaticConfigService{
+  rpc Get(GetStaticConfigRequest) returns (GetStaticConfigResponse){}
+}

@@ -33,9 +33,9 @@ func (f *FTP) Validate() error {
 		if f.Text != "" || f.ReadFilename != "" {
 			return nil
 		}
-		return errors.New("FTP service needs either text, or read_file parameter")
+		return errors.New("FTP check_service needs either text, or read_file parameter")
 	}
-	return errors.New("FTP service needs username and password")
+	return errors.New("FTP check_service needs username and password")
 }
 
 func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {

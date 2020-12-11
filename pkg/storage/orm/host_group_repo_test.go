@@ -1,14 +1,13 @@
 package orm
 
 import (
+	"context"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
-	. "github.com/ScoreTrak/ScoreTrak/pkg/logger/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
-
 	"github.com/gofrs/uuid"
 	"os"
 	"testing"
@@ -25,19 +24,18 @@ func TestHostGroupSpec(t *testing.T) {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_host_group"
-	c.Logger.FileName = "host_group_test.log"
 	db := storage.SetupDB(c.DB)
-	l := SetupLogger(c.Logger)
 	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
+	ctx := context.Background()
 	Convey("Creating Host Group Table", t, func() {
 		db.AutoMigrate(&host_group.HostGroup{})
-		hg := NewHostGroupRepo(db, l)
+		hg := NewHostGroupRepo(db)
 		Reset(func() {
 			db.Migrator().DropTable(&host_group.HostGroup{})
 		})
 		Convey("When the Teams table is empty", func() {
 			Convey("There should be no entries", func() {
-				ac, err := hg.GetAll()
+				ac, err := hg.GetAll(ctx)
 				So(err, ShouldBeNil)
 				So(len(ac), ShouldEqual, 0)
 			})
@@ -45,10 +43,10 @@ func TestHostGroupSpec(t *testing.T) {
 			Convey("Adding an valid entry", func() {
 				var err error
 				h := []*host_group.HostGroup{{ID: uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"), Name: "host group"}}
-				err = hg.Store(h)
+				err = hg.Store(ctx, h)
 				So(err, ShouldBeNil)
 				Convey("Then making sure the entry exists", func() {
-					ac, err := hg.GetAll()
+					ac, err := hg.GetAll(ctx)
 					So(err, ShouldBeNil)
 					So(len(ac), ShouldEqual, 1)
 					So(ac[0].ID, ShouldEqual, uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
@@ -56,33 +54,33 @@ func TestHostGroupSpec(t *testing.T) {
 				})
 
 				Convey("Then getting entry by id", func() {
-					ac, err := hg.GetByID(uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
+					ac, err := hg.GetByID(ctx, uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 					So(err, ShouldBeNil)
 					So(ac.ID, ShouldEqual, uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 					So(ac.Name, ShouldEqual, "host group")
 				})
 
 				Convey("Then Querying By wrong ID", func() {
-					ss, err := hg.GetByID(uuid.FromStringOrNil("43333333-3333-3333-3333-333333333333"))
+					ss, err := hg.GetByID(ctx, uuid.FromStringOrNil("43333333-3333-3333-3333-333333333333"))
 					So(err, ShouldNotBeNil)
 					So(ss, ShouldBeNil)
 				})
 
 				Convey("Then Deleting a wrong entry", func() {
-					err = hg.Delete(uuid.FromStringOrNil("23333333-3333-3333-3333-333333333333"))
+					err = hg.Delete(ctx, uuid.FromStringOrNil("23333333-3333-3333-3333-333333333333"))
 					So(err, ShouldNotBeNil)
 					Convey("Should output one entry", func() {
-						ac, err := hg.GetAll()
+						ac, err := hg.GetAll(ctx)
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
 					})
 				})
 
 				Convey("Then Deleting the added entry", func() {
-					err = hg.Delete(uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
+					err = hg.Delete(ctx, uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 					So(err, ShouldBeNil)
 					Convey("Should output no entries", func() {
-						ac, err := hg.GetAll()
+						ac, err := hg.GetAll(ctx)
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 0)
 					})
@@ -93,18 +91,18 @@ func TestHostGroupSpec(t *testing.T) {
 					newHostGroup := &host_group.HostGroup{Enabled: &tru}
 					Convey("For the wrong entry should not update anything", func() {
 						newHostGroup.ID = uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")
-						err = hg.Update(newHostGroup)
+						err = hg.Update(ctx, newHostGroup)
 						So(err, ShouldBeNil)
-						ac, err := hg.GetAll()
+						ac, err := hg.GetAll(ctx)
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
 						So(*(ac[0].Enabled), ShouldBeTrue)
 					})
 					Convey("For the correct entry should update", func() {
 						newHostGroup.ID = uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333")
-						err = hg.Update(newHostGroup)
+						err = hg.Update(ctx, newHostGroup)
 						So(err, ShouldBeNil)
-						ac, err := hg.GetAll()
+						ac, err := hg.GetAll(ctx)
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
 						So(*(ac[0].Enabled), ShouldBeTrue)
@@ -119,17 +117,17 @@ func TestHostGroupSpec(t *testing.T) {
 						db.Table("hosts").Count(&count)
 						So(count, ShouldEqual, 1)
 						Convey("Delete a host group without deleting a host", func() {
-							err = hg.Delete(uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
+							err = hg.Delete(ctx, uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 							So(err, ShouldNotBeNil)
-							ac, err := hg.GetAll()
+							ac, err := hg.GetAll(ctx)
 							So(err, ShouldBeNil)
 							So(len(ac), ShouldEqual, 1)
 						})
 						Convey("Deleting a host then deleting a host group", func() {
 							db.Exec("DELETE FROM hosts WHERE id='44444444-4444-4444-4444-444444444444'")
-							err = hg.Delete(uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
+							err = hg.Delete(ctx, uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 							So(err, ShouldBeNil)
-							ac, err := hg.GetAll()
+							ac, err := hg.GetAll(ctx)
 							So(err, ShouldBeNil)
 							So(len(ac), ShouldEqual, 0)
 						})
@@ -137,7 +135,7 @@ func TestHostGroupSpec(t *testing.T) {
 						Convey("Updating a team enabled without deleting a host should not yield error", func() {
 							tru := true
 							h[0].Enabled = &tru
-							err = hg.Update(h[0])
+							err = hg.Update(ctx, h[0])
 							So(err, ShouldBeNil)
 						})
 

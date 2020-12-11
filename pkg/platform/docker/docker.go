@@ -7,7 +7,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
@@ -24,16 +24,14 @@ import (
 )
 
 type Docker struct {
-	l           logger.LogInfoFormat
 	NetworkName string
 	Name        string
 	IsSwarm     bool
 	Client      *client.Client
-	Context     context.Context
 }
 
-func NewDocker(cnf platforming.Config, l logger.LogInfoFormat) (d *Docker, err error) {
-	d = &Docker{NetworkName: cnf.Docker.Network, Name: cnf.Docker.Name, Context: context.Background(), l: l}
+func NewDocker(cnf platforming.Config) (d *Docker, err error) {
+	d = &Docker{NetworkName: cnf.Docker.Network, Name: cnf.Docker.Name}
 	if cnf.Use == "swarm" { //https://github.com/openbaton/go-docker-vnfm/blob/8d0a99b48e57d4b94fa14cdb377abe07eaa6c0aa/handler/docker_utils.go#L113
 		d.IsSwarm = true
 	}
@@ -52,15 +50,15 @@ func NewDocker(cnf platforming.Config, l logger.LogInfoFormat) (d *Docker, err e
 //	}
 //}
 
-func (d *Docker) GetWorkerContainerStatus(info worker.Info) (status string, err error) {
-	ctr, err := d.GetContainerByName("worker_" + info.Topic)
+func (d *Docker) GetWorkerContainerStatus(ctx context.Context, info worker.Info) (status string, err error) {
+	ctr, err := d.GetContainerByName(ctx, "worker_"+info.Topic)
 	if err != nil {
 		return "", err
 	}
 	return ctr.Status, nil
 }
 
-func (d *Docker) DeployWorkers(info worker.Info) (err error) {
+func (d *Docker) DeployWorkers(ctx context.Context, info worker.Info) (err error) {
 	networkName := d.Name + "_" + d.NetworkName
 	tmp := filepath.Join(".", "tmp")
 	err = os.MkdirAll(tmp, os.ModePerm)
@@ -72,23 +70,20 @@ func (d *Docker) DeployWorkers(info worker.Info) (err error) {
 		return err
 	}
 	if !d.IsSwarm {
-		resp, err := d.CreateWorkerContainer(networkName, info, path)
+		resp, err := d.CreateWorkerContainer(ctx, networkName, info, path)
 		if err != nil {
-			d.l.Error(err)
 			return err
 		}
-		err = d.StartContainer(resp)
+		err = d.StartContainer(ctx, resp)
 		if err != nil {
-			d.l.Error(err)
 			return err
 		}
 	} else {
 		if info.Label == "" {
-			return errors.New("label should not be empty when creating a service on swarm platform")
+			return errors.New("label should not be empty when creating a check_service on swarm platform")
 		}
 		_, err := d.CreateService(info, networkName, path)
 		if err != nil {
-			d.l.Error(err)
 			return nil
 		}
 	}
@@ -96,24 +91,24 @@ func (d *Docker) DeployWorkers(info worker.Info) (err error) {
 	return nil
 }
 
-func (d *Docker) RemoveWorkers(info worker.Info) error {
+func (d *Docker) RemoveWorkers(ctx context.Context, info worker.Info) error {
 	if d.IsSwarm {
-		s, err := d.GetServiceByName("worker_" + info.Topic)
+		s, err := d.GetServiceByName(ctx, "worker_"+info.Topic)
 		if err != nil {
 			return err
 		}
-		return d.Client.ServiceRemove(d.Context, s.ID)
+		return d.Client.ServiceRemove(ctx, s.ID)
 	} else {
-		ctr, err := d.GetContainerByName("worker_" + info.Topic)
+		ctr, err := d.GetContainerByName(ctx, "worker_"+info.Topic)
 		if err != nil {
 			return err
 		}
-		return d.Client.ContainerRemove(d.Context, ctr.ID, types.ContainerRemoveOptions{Force: true})
+		return d.Client.ContainerRemove(ctx, ctr.ID, types.ContainerRemoveOptions{Force: true})
 	}
 }
 
-func (d *Docker) GetServiceByName(n string) (swarm.Service, error) {
-	services, err := d.Client.ServiceList(d.Context, types.ServiceListOptions{})
+func (d *Docker) GetServiceByName(ctx context.Context, n string) (swarm.Service, error) {
+	services, err := d.Client.ServiceList(ctx, types.ServiceListOptions{})
 	if err != nil {
 		return swarm.Service{}, err
 	}
@@ -123,11 +118,11 @@ func (d *Docker) GetServiceByName(n string) (swarm.Service, error) {
 		}
 	}
 
-	return swarm.Service{}, errors.New("unable to find service. The workers might have already been removed")
+	return swarm.Service{}, errors.New("unable to find check_service. The workers might have already been removed")
 }
 
-func (d *Docker) GetContainerByName(n string) (types.Container, error) {
-	containers, err := d.Client.ContainerList(d.Context, types.ContainerListOptions{})
+func (d *Docker) GetContainerByName(ctx context.Context, n string) (types.Container, error) {
+	containers, err := d.Client.ContainerList(ctx, types.ContainerListOptions{})
 	if err != nil {
 		return types.Container{}, err
 	}
@@ -141,15 +136,15 @@ func (d *Docker) GetContainerByName(n string) (types.Container, error) {
 	return types.Container{}, errors.New("container not found. The worker might have already been removed")
 }
 
-func (d *Docker) CommitWorkerContainerToImage(resp container.ContainerCreateCreatedBody, info worker.Info) (string, error) {
-	id, err := d.Client.ContainerCommit(d.Context, resp.ID, types.ContainerCommitOptions{Reference: "worker_" + info.Topic})
+func (d *Docker) CommitWorkerContainerToImage(ctx context.Context, resp container.ContainerCreateCreatedBody, info worker.Info) (string, error) {
+	id, err := d.Client.ContainerCommit(ctx, resp.ID, types.ContainerCommitOptions{Reference: "worker_" + info.Topic})
 	if err != nil {
 		return "", err
 	}
 	return id.ID, nil
 }
 
-func (d *Docker) BuildWorkerImage() error {
+func (d *Docker) BuildWorkerImage(ctx context.Context) error {
 	buf := new(bytes.Buffer)
 	tw := tar.NewWriter(buf)
 	defer tw.Close()
@@ -162,7 +157,7 @@ func (d *Docker) BuildWorkerImage() error {
 	}
 	dockerFileTarReader := bytes.NewReader(buf.Bytes())
 	imageBuildResponse, err := d.Client.ImageBuild(
-		d.Context,
+		ctx,
 		dockerFileTarReader,
 		types.ImageBuildOptions{
 			Context:    dockerFileTarReader,
@@ -214,14 +209,14 @@ func (d *Docker) CreateService(info worker.Info, networkName string, configPath 
 	return createResponse, nil
 }
 
-func (d *Docker) CreateWorkerContainer(networkName string, info worker.Info, configPath string) (container.ContainerCreateCreatedBody, error) {
+func (d *Docker) CreateWorkerContainer(ctx context.Context, networkName string, info worker.Info, configPath string) (container.ContainerCreateCreatedBody, error) {
 	content, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		return container.ContainerCreateCreatedBody{}, err
 	}
 	cEnc := base64.StdEncoding.EncodeToString(content)
 
-	resp, err := d.Client.ContainerCreate(d.Context, &container.Config{
+	resp, err := d.Client.ContainerCreate(ctx, &container.Config{
 		Image: util.Image,
 		Tty:   true,
 		Cmd:   []string{"./worker", "-encoded-config", cEnc},
@@ -232,7 +227,7 @@ func (d *Docker) CreateWorkerContainer(networkName string, info worker.Info, con
 	return resp, nil
 }
 
-func (d *Docker) UploadConfigToContainer(resp container.ContainerCreateCreatedBody, path string) error {
+func (d *Docker) UploadConfigToContainer(ctx context.Context, resp container.ContainerCreateCreatedBody, path string) error {
 
 	buf := new(bytes.Buffer)
 	tw := tar.NewWriter(buf)
@@ -261,31 +256,31 @@ func (d *Docker) UploadConfigToContainer(resp container.ContainerCreateCreatedBo
 		return err
 	}
 	dockerFileTarReader := bytes.NewReader(buf.Bytes())
-	err = d.Client.CopyToContainer(d.Context, resp.ID, "/go/src/github.com/ScoreTrak/ScoreTrak", dockerFileTarReader, types.CopyToContainerOptions{AllowOverwriteDirWithFile: true})
+	err = d.Client.CopyToContainer(ctx, resp.ID, "/go/src/github.com/ScoreTrak/ScoreTrak", dockerFileTarReader, types.CopyToContainerOptions{AllowOverwriteDirWithFile: true})
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (d *Docker) StartContainer(resp container.ContainerCreateCreatedBody) error {
-	if err := d.Client.ContainerStart(d.Context, resp.ID, types.ContainerStartOptions{}); err != nil {
+func (d *Docker) StartContainer(ctx context.Context, resp container.ContainerCreateCreatedBody) error {
+	if err := d.Client.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		return err
 	}
-	//_, err := d.Client.ContainerWait(d.Context, resp.ID)
+	//_, err := d.Client.ContainerWait(ctx, resp.ID)
 	//fmt.Println("But not Here!")
 	//if err != nil{
 	//	return err
 	//}
-	//_, err = d.Client.ContainerLogs(d.Context, resp.ID, types.ContainerLogsOptions{ShowStdout: true})
+	//_, err = d.Client.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true})
 	//if err != nil {
 	//	return err
 	//}
 	return nil
 }
 
-func (d *Docker) PullImage() error {
-	reader, err := d.Client.ImagePull(d.Context, util.Image, types.ImagePullOptions{})
+func (d *Docker) PullImage(ctx context.Context) error {
+	reader, err := d.Client.ImagePull(ctx, util.Image, types.ImagePullOptions{})
 	if err != nil {
 		return err
 	}

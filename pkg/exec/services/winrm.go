@@ -29,7 +29,7 @@ func (w *Winrm) Validate() error {
 	if w.Password != "" && w.Username != "" {
 		return nil
 	}
-	return errors.New("winrm service needs username, and password")
+	return errors.New("winrm check_service needs username, and password")
 }
 
 func (w *Winrm) Execute(e exec.Exec) (passed bool, log string, err error) {

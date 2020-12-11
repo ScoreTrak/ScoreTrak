@@ -1,0 +1,6 @@
+platform:
+  use: docker
+  docker:
+    name: docker-standalone
+queue:
+  use: none

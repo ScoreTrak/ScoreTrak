@@ -1,20 +1,21 @@
 package orm
 
 import (
+	"context"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
-	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report"
+	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_repo"
 	"github.com/gofrs/uuid"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"gorm.io/gorm"
 )
 
 type reportRepo struct {
-	db  *gorm.DB
-	log logger.LogInfoFormat
+	db *gorm.DB
 }
 
-func NewReportRepo(db *gorm.DB, log logger.LogInfoFormat) report.Repo {
-	return &reportRepo{db, log}
+func NewReportRepo(db *gorm.DB) report_repo.Repo {
+	return &reportRepo{db}
 }
 
 type totalSuccessfulPerService struct {
@@ -22,12 +23,10 @@ type totalSuccessfulPerService struct {
 	Total     uint64
 }
 
-func (c *reportRepo) CountPassedPerService() (map[uuid.UUID]uint64, error) {
+func (c *reportRepo) CountPassedPerService(ctx context.Context) (map[uuid.UUID]uint64, error) {
 	var serviceToSuccess []*totalSuccessfulPerService
 	ret := make(map[uuid.UUID]uint64)
-
-	err := c.db.Model(&check.Check{}).Distinct("service_id, COUNT(*) as total").Where("passed = ?", true).Group("service_id").Scan(&serviceToSuccess).Error
-
+	err := c.db.WithContext(ctx).Model(&check.Check{}).Distinct("service_id, COUNT(*) as total").Where("passed = ?", true).Group("service_id").Scan(&serviceToSuccess).Error
 	if err != nil {
 		return nil, err
 	}
@@ -37,19 +36,17 @@ func (c *reportRepo) CountPassedPerService() (map[uuid.UUID]uint64, error) {
 	return ret, nil
 }
 
-func (c *reportRepo) Get() (*report.Report, error) {
+func (c *reportRepo) Get(ctx context.Context) (*report.Report, error) {
 	cfg := &report.Report{}
 	cfg.ID = 1
-	c.db.Take(cfg)
+	c.db.WithContext(ctx).Take(cfg)
 	return cfg, nil
 }
 
-func (c *reportRepo) Update(cfg *report.Report) error {
-	c.log.Debugf("updating the report")
+func (c *reportRepo) Update(ctx context.Context, cfg *report.Report) error {
 	cfg.ID = 1
-	err := c.db.Model(cfg).Updates(report.Report{Cache: cfg.Cache}).Error
+	err := c.db.WithContext(ctx).Model(cfg).Updates(report.Report{Cache: cfg.Cache}).Error
 	if err != nil {
-		c.log.Errorf("error while updating the config, reason : %v", err)
 		return err
 	}
 	return nil

@@ -10,33 +10,33 @@ import (
 	"gorm.io/gorm"
 )
 
-// Service Model represents a service that is being scored for a given host
+// Service Model represents a check_service that is being scored for a given host
 type Service struct {
 	ID uuid.UUID `json:"id,omitempty" gorm:"type:uuid;primary_key;"`
 
-	//Name of the service that will be checked against known services
+	//Name of the check_service that will be checked against known services
 	Name string `json:"name" gorm:"not null;default:null"`
 
 	DisplayName string `json:"display_name,omitempty"`
 
-	// Points granted for a successful check
-	Points uint `json:"points" gorm:"not null;default:0"`
+	// Weight granted for a successful check
+	Weight *uint64 `json:"weight" gorm:"not null;default:0"`
 
-	PointsBoost uint `json:"points_boost" gorm:"not null;default:0"`
+	PointsBoost *uint64 `json:"points_boost" gorm:"not null;default:0"`
 
-	// The frequency of a service check. If round_units is 5 and round_delay is 0, then service checks will happen on every 5th round. (5,10, etc)
-	RoundUnits uint `json:"round_units,omitempty" gorm:"not null;default:1"`
+	// The frequency of a check_service check. If round_units is 5 and round_delay is 0, then check_service checks will happen on every 5th round. (5,10, etc)
+	RoundUnits uint64 `json:"round_units,omitempty" gorm:"not null;default:1"`
 
-	// The frequency of a service check. If round_units is 7 and round_delay is 3, then service checks will happen on every 7th round with an offset of 3. (10,17, etc)
-	RoundDelay *uint `json:"round_delay,omitempty" gorm:"not null;default:0"`
+	// The frequency of a check_service check. If round_units is 7 and round_delay is 3, then check_service checks will happen on every 7th round with an offset of 3. (10,17, etc)
+	RoundDelay *uint64 `json:"round_delay,omitempty" gorm:"not null;default:0"`
 
-	// ID of a service group the service belongs to
+	// ID of a check_service group the check_service belongs to
 	ServiceGroupID uuid.UUID `json:"service_group_id" gorm:"type:uuid;not null"`
 
-	// ID of a host the service belongs to
+	// ID of a host the check_service belongs to
 	HostID uuid.UUID `json:"host_id" gorm:"type:uuid;not null"`
 
-	// Enables or Disables the service
+	// Enables or Disables the check_service
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default:true"`
 
 	Properties []*property.Property `json:"properties,omitempty" gorm:"foreignkey:ServiceID; constraint:OnUpdate:RESTRICT,OnDelete:CASCADE"`
@@ -81,6 +81,6 @@ func (s Service) Validate(db *gorm.DB) {
 	}
 
 	if s.Name != "" && resolver.ExecutableByName(s.Name) == nil {
-		db.AddError(fmt.Errorf("name %s doesn't resolve to scorable service", s.Name))
+		db.AddError(fmt.Errorf("name %s doesn't resolve to scorable check_service", s.Name))
 	}
 }

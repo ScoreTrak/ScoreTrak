@@ -2,7 +2,7 @@ package kubernetes
 
 import (
 	"context"
-	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
@@ -14,13 +14,11 @@ import (
 )
 
 type Kubernetes struct {
-	l         logger.LogInfoFormat
 	Client    *kubernetes.Clientset
 	Namespace string
-	ctx       context.Context
 }
 
-func NewKubernetes(cnf platforming.Config, l logger.LogInfoFormat) (d *Kubernetes, err error) {
+func NewKubernetes(cnf platforming.Config) (d *Kubernetes, err error) {
 	c, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, err
@@ -29,10 +27,10 @@ func NewKubernetes(cnf platforming.Config, l logger.LogInfoFormat) (d *Kubernete
 	if err != nil {
 		return nil, err
 	}
-	return &Kubernetes{l, clientset, cnf.Kubernetes.Namespace, context.Background()}, nil
+	return &Kubernetes{Client: clientset, Namespace: cnf.Kubernetes.Namespace}, nil
 }
 
-func (k *Kubernetes) DeployWorkers(info worker.Info) error {
+func (k *Kubernetes) DeployWorkers(ctx context.Context, info worker.Info) error {
 	name := info.Label + "-" + info.Topic
 	labels := map[string]string{"scoretrak_worker": info.Label}
 	path, err := util.GenerateConfigFile(info)
@@ -43,7 +41,7 @@ func (k *Kubernetes) DeployWorkers(info worker.Info) error {
 	if err != nil {
 		return err
 	}
-	_, err = k.Client.AppsV1().DaemonSets(k.Namespace).Create(k.ctx,
+	_, err = k.Client.AppsV1().DaemonSets(k.Namespace).Create(ctx,
 		&appv1.DaemonSet{ObjectMeta: metav1.ObjectMeta{
 			Name: name},
 			Spec: appv1.DaemonSetSpec{
@@ -73,6 +71,6 @@ func (k *Kubernetes) DeployWorkers(info worker.Info) error {
 	return nil
 }
 
-func (k *Kubernetes) RemoveWorkers(info worker.Info) error {
-	return k.Client.AppsV1().DaemonSets(k.Namespace).Delete(k.ctx, info.Label+"-"+info.Topic, metav1.DeleteOptions{})
+func (k *Kubernetes) RemoveWorkers(ctx context.Context, info worker.Info) error {
+	return k.Client.AppsV1().DaemonSets(k.Namespace).Delete(ctx, info.Label+"-"+info.Topic, metav1.DeleteOptions{})
 }

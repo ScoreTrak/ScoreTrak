@@ -6,7 +6,8 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec/resolver"
-	"github.com/ScoreTrak/ScoreTrak/pkg/logger"
+	"log"
+
 	"github.com/gofrs/uuid"
 	"math/rand"
 	"strconv"
@@ -18,7 +19,7 @@ type ScoringData struct {
 	Properties map[string]string
 	Deadline   time.Time
 	Host       string
-	RoundID    uint
+	RoundID    uint64
 }
 
 type QService struct {
@@ -30,13 +31,12 @@ type QService struct {
 
 type QCheck struct {
 	Service QService
-	RoundID uint
+	RoundID uint64
 	Passed  bool
 	Log     string
 	Err     string
 }
 
-// Todo: Implement Round error to indicate that something went wrong with scoring a service (for instance, round duration too small)
 type IndexedQueue struct {
 	Q *QCheck
 	I int
@@ -62,12 +62,17 @@ type Config struct {
 	}
 }
 
-func TopicFromServiceRound(ser *QService, roundID uint) string {
-	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return "round_" + strconv.FormatUint(uint64(roundID), 10) + "_" + strconv.Itoa(seededRand.Int()) + "_ack"
+type MasterConfig struct {
+	ReportForceRefreshSeconds uint   `default:"60"`
+	ChannelPrefix             string `default:"master"`
 }
 
-func CommonExecute(sd *ScoringData, execDeadline time.Time, l logger.LogInfoFormat) QCheck {
+func TopicFromServiceRound(roundID uint64) string {
+	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
+	return "round_" + strconv.FormatUint(roundID, 10) + "_" + strconv.Itoa(seededRand.Int()) + "_ack"
+}
+
+func CommonExecute(sd *ScoringData, execDeadline time.Time) QCheck {
 	if time.Now().After(sd.Deadline) {
 		return QCheck{Service: sd.Service, Passed: false, Log: "", Err: "The check arrived late to the worker", RoundID: sd.RoundID}
 	}
@@ -76,7 +81,6 @@ func CommonExecute(sd *ScoringData, execDeadline time.Time, l logger.LogInfoForm
 	err := exec.UpdateExecutableProperties(executable, sd.Properties)
 	if err != nil {
 		errLog := fmt.Sprintf("Failed to set properties for %v. Properties provided %v. See Error details for additional information", sd.Service, sd.Properties)
-		l.Error(errLog, err.Error())
 		return QCheck{Service: sd.Service, Passed: false, Log: errLog, Err: err.Error(), RoundID: sd.RoundID}
 	}
 
@@ -84,7 +88,7 @@ func CommonExecute(sd *ScoringData, execDeadline time.Time, l logger.LogInfoForm
 	ctx, cancel := context.WithDeadline(ctx, execDeadline)
 	defer cancel()
 
-	e := exec.NewExec(ctx, sd.Host, executable, l)
+	e := exec.NewExec(ctx, sd.Host, executable)
 	type checkRet struct {
 		passed bool
 		log    string
@@ -92,8 +96,8 @@ func CommonExecute(sd *ScoringData, execDeadline time.Time, l logger.LogInfoForm
 	}
 	cq := make(chan checkRet)
 	go func() {
-		passed, log, err := e.Execute()
-		cq <- checkRet{passed: passed, log: log, err: err}
+		passed, l, err := e.Execute()
+		cq <- checkRet{passed: passed, log: l, err: err}
 	}()
 	select {
 	case res := <-cq:
@@ -103,7 +107,7 @@ func CommonExecute(sd *ScoringData, execDeadline time.Time, l logger.LogInfoForm
 		}
 		return QCheck{Service: sd.Service, Passed: res.passed, Log: res.log, Err: errstr, RoundID: sd.RoundID}
 	case <-time.After(time.Until(execDeadline.Add(time.Second))):
-		l.Error("Check is possibly causing resource leakage", sd.Service, execDeadline)
+		log.Println("Check is possibly causing resource leakage", sd.Service, execDeadline)
 		panic(errors.New("check timed out. this is most likely due to services timing out"))
 	}
 }

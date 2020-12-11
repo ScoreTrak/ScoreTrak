@@ -1,0 +1,68 @@
+syntax = "proto3";
+package pkg.property.propertypb;
+
+import "google/protobuf/wrappers.proto";
+import "pkg/proto/utilpb/uuid.proto";
+
+option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/property/propertypb";
+
+enum Status {
+  View = 0;
+  Edit = 1;
+  Hide = 2;
+}
+
+message Property {
+  pkg.proto.utilpb.UUID service_id = 1;
+  string key = 2;
+  google.protobuf.StringValue value = 3;
+  Status status = 4;
+}
+
+message GetAllRequest{}
+message GetAllResponse{
+  repeated Property properties = 1;
+}
+
+message GetByServiceIDKeyRequest{
+  pkg.proto.utilpb.UUID service_id = 1;
+  string key = 2;
+}
+message GetByServiceIDKeyResponse{
+  Property property = 1;
+}
+
+message GetAllByServiceIDRequest{
+  pkg.proto.utilpb.UUID service_id = 1;
+}
+message GetAllByServiceIDResponse{
+  repeated Property properties = 1;
+}
+
+message DeleteRequest{
+  pkg.proto.utilpb.UUID service_id = 1;
+  string key = 2;
+}
+
+message DeleteResponse{}
+
+message StoreRequest{
+  repeated Property properties = 1;
+}
+
+message StoreResponse{}
+
+message UpdateRequest{
+  Property property = 1;
+}
+
+message UpdateResponse{}
+
+service PropertyService{
+  rpc GetAll(GetAllRequest) returns (GetAllResponse){}
+  rpc Delete(DeleteRequest) returns (DeleteResponse){}
+  rpc Store(StoreRequest) returns (StoreResponse) {}
+  rpc Update(UpdateRequest) returns (UpdateResponse) {}
+  rpc GetByServiceIDKey(GetByServiceIDKeyRequest) returns (GetByServiceIDKeyResponse) {}
+  rpc GetAllByServiceID(GetAllByServiceIDRequest) returns (GetAllByServiceIDResponse) {}
+}

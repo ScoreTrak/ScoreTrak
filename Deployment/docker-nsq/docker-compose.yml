@@ -1,0 +1,72 @@
+version: "3.8"
+services:
+  scoretrak:
+    image: l1ghtman/scoretrak:latest
+    restart: on-failure
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../:/deployments
+    depends_on:
+      - db-init
+      - nsqd
+    command: ./master -config /deployments/docker-nsq/config.yml
+
+  scoretrak-web:
+    image: l1ghtman/scoretrak-web:latest
+    depends_on:
+      - scoretrak
+
+  cockroachdb-1:
+    container_name: cockroachdb-1
+    image: cockroachdb/cockroach:latest
+    command: start --insecure
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+    networks:
+      default:
+        aliases:
+          - cockroach
+
+  db-init:
+    depends_on:
+      - cockroachdb-1
+    image: cockroachdb/cockroach:latest
+    restart: on-failure
+    command: sql --execute="CREATE DATABASE IF NOT EXISTS scoretrak; " --insecure --host cockroach
+
+
+  nsqlookupd:
+    image: nsqio/nsq
+    command: /nsqlookupd
+  nsqd:
+    image: nsqio/nsq
+    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160
+    depends_on:
+      - nsqlookupd
+  nsqadmin:
+    image: nsqio/nsq
+    command: /nsqadmin --lookupd-http-address=nsqlookupd:4161
+    depends_on:
+      - nsqlookupd
+    ports:
+      - "4171:4171"
+
+  envoy:
+    image: envoyproxy/envoy:v1.16-latest
+    volumes:
+      - type: bind
+        source: ./envoy.yaml
+        target: /etc/envoy/envoy.yaml
+    depends_on:
+      - scoretrak
+    ports:
+      - "8000:8000"
+      - "9901:9901"
+    command: /usr/local/bin/envoy -c /etc/envoy/envoy.yaml
+
+networks:
+  default:
+    attachable: yes
+
+
