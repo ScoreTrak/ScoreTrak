@@ -1,5 +1,8 @@
 queue:
   use: nsq
+  nsq:
+    nsqlookupd:
+      hosts: ["nsqlookupd-1", "nsqlookupd-2", "nsqlookupd-3"]
 platform:
   use: docker
   docker:
