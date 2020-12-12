@@ -1,3 +1,47 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  namespace: default
+  name: scoretrak
+rules:
+  - resources:
+      - daemonsets
+      - pods
+    apiGroups:
+      - extensions
+      - apps
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - delete
+      - update
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: fabric8-rbac
+subjects:
+  - kind: ServiceAccount
+    name: scoretrak
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: scoretrak
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: scoretrak
+automountServiceAccountToken: true
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,16 +58,36 @@ spec:
         app: scoretrak
         component: master
     spec:
+      initContainers:
+        - name: init-certs
+          image: cockroachdb/cockroach-k8s-request-cert:0.4
+          imagePullPolicy: IfNotPresent
+          command:
+            - "/bin/ash"
+            - "-ecx"
+            - "/request-cert -namespace=${POD_NAMESPACE} -certs-dir=/cockroach-certs -type=client -user=root -symlink-ca-from=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          volumeMounts:
+            - name: client-certs
+              mountPath: /cockroach-certs
+            - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              name: cockroach-cert-token
+
       containers:
         - name: scoretrak
           image: l1ghtman/scoretrak:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 33333
-              name: http
           volumeMounts:
             - name: config-volume
               mountPath: /etc/scoretrak/
+            - name: client-certs
+              mountPath: /cockroach-certs
           command:
             - ./master
             - -config
@@ -32,13 +96,15 @@ spec:
         - name: config-volume
           configMap:
             name: scoretrak-config
+        - name: client-certs
+          emptyDir: {}
+        - name: cockroach-cert-token
+          secret:
+            secretName: cockroachdb-client-secret
 
       serviceAccountName: scoretrak
 
-
-
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -48,6 +114,43 @@ spec:
     app: scoretrak
     component: master
   ports:
-    - protocol: TCP
-      port: 33333
-      targetPort: 33333
+    - port: 33333
+      name: grpc-web
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scoretrak-web
+spec:
+  selector:
+    matchLabels:
+      app: scoretrak
+      component: web
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: scoretrak
+        component: web
+    spec:
+      containers:
+        - name: scoretrak
+          image: l1ghtman/scoretrak-web:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scoretrak-web
+spec:
+  selector:
+    app: scoretrak
+    component: web
+  ports:
+    - port: 80
+      name: http

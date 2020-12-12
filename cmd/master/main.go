@@ -34,6 +34,8 @@ func main() {
 	}
 
 	staticConfig := config.GetStaticConfig()
+	fmt.Println(staticConfig)
+	time.Sleep(time.Second * 5000)
 
 	if !staticConfig.Prod {
 		log.SetFlags(log.LstdFlags | log.Lshortfile)
