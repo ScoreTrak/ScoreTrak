@@ -41,7 +41,18 @@ Requirements:
         ```
        in case the token expires, you will need to fetch the same way
     
-2) Database
+2) Service Mesh. We will need to configure service mesh to allow for greater monitoring of the traffic. In addition, it will allow our application to utilize grpc web, with client browsers, that at the moment do not natively support grpc protocol.
+    1) Follow setup process to get istio up and running here: https://istio.io/latest/docs/setup/getting-started/
+    2) Make sure you don't forget the https://istio.io/latest/docs/setup/getting-started/#dashboard section to enable kiali dashboard
+    3) https://github.com/venilnoronha/grpc-web-istio-demo
+    4) Run `kubectl edit configmaps istio-sidecar-injector -n istio-system` and add following configuration to `neverInjectSelector`:
+    ```
+      neverInjectSelector:
+      - matchExpressions:
+        - {key: job-name, operator: Exists}
+    ```
+    This allows us to skip sidecar injection for job containers
+3) Database
     1) Download cockroachdb helm charts
        ```
        helm repo add cockroachdb https://charts.cockroachdb.com/
@@ -50,25 +61,71 @@ Requirements:
        ```
        helm repo update
        ```
-       
     3) Create persistent volume claims:
        ```
-       bash CreateCockroachDBPersistentVolumeAndClaims.sh
+       bash CreateCRDBAndNSQPersistentVolumeAndClaims.sh
        ```
-    3) Install cockroach using helm:
+    4) Install cockroach using helm:
        ```
        helm install scoretrak --values cockroach-helm-values.yml cockroachdb/cockroachdb
        ```
-       If you would like to check cockroach web console, you could run:
+
+    5) Make sure you see 4 CSRs when before proceeding to the next step by running: `kubectl get csr`.
+       
+    6) We need to deploy cluster in secure mode when using istio due to this issue(https://github.com/cockroachdb/cockroach/issues/19667). Approve CSRs made by cockroachdb server:
+        ```
+        kubectl certificate approve default.node.scoretrak-cockroachdb-0
+        kubectl certificate approve default.node.scoretrak-cockroachdb-1
+        kubectl certificate approve default.node.scoretrak-cockroachdb-2
+        sleep 20;
+        kubectl certificate approve default.client.root
+        ```
+        Make sure you see that every instance has 1/1 ready, like this:
+        ```
+        NAME                               READY   STATUS      RESTARTS   AGE
+        scoretrak-cockroachdb-0            1/1     Running     0          50s
+        scoretrak-cockroachdb-1            1/1     Running     0          50s
+        scoretrak-cockroachdb-2            1/1     Running     0          50s
+        scoretrak-cockroachdb-init-4qm9c   0/1     Completed   0          50s        
+        ```
+        (If that is not the case, you might have to redo everything starting with step 3. Make sure to follow this guide https://www.cockroachlabs.com/docs/stable/orchestrate-cockroachdb-with-kubernetes.html#stop-the-cluster to delete the failed deployment)
+        
+        If you would like to check cockroach web console, you could run:
+           
+        ```
+        kubectl port-forward service/scoretrak-cockroachdb-public 8080:8080
+        ```
+        to port forward remote port to your local port. Same applies for port   which is cockroachdb port.
+        
+    7) Setup Databases:
+       1) Run:
+        ```
+        kubectl create -f client-secure.yaml
+        ```
+       2) Run:
        ```
-       kubectl port-forward service/scoretrak-cockroachdb-public 8080:8080
+       kubectl exec -it cockroachdb-client-secure \
+        -- ./cockroach sql \
+        --certs-dir=/cockroach-certs \
+        --host=scoretrak-cockroachdb-public
        ```
-       to port forward remote port to your local port. Same applies for port   which is cockroachdb port.
-   
-    4) Setup Databases
+       3) Generate secure password, and run following command(make sure to replace SOME_SECURE_PASSWORD) Execute:
        ```
-        kubectl create -f setup-db-job.yaml
+       CREATE DATABASE IF NOT EXISTS scoretrak;
+       ALTER USER root WITH PASSWORD 'SOME_SECURE_PASSWORD';
+       \q;
        ```
+       4) Inside of config.yml replace SOME_SECURE_PASSWORD with your generated password
+       5) Run: 
+        ```
+       kubectl delete -f client-secure.yaml
+        ```
+       6) Run (Note: this is a workaround to create pass certs to scoretrak https://github.com/kubernetes/kubernetes/issues/66020):
+       ```
+       kubectl apply -f cockroachdb-cert-loader-api.yaml
+       ```
+       We will use the generated above key when deploying scoretrak in later sections
+    
    
 3) Deploy NSQ
     1) We will use a modified version of the following repo https://github.com/adrianchifor/k8s-nsq. To do that, just run:
@@ -81,29 +138,30 @@ Requirements:
        ```
     
 4) Setting up scoretrak
-    1) Create service role for scoretrak master
-       ```
-       kubectl create -f scoretrak-role.yaml
-       ```
-    2) Create Config map:
+    1) Create Config map:
        ```
        kubectl create configmap scoretrak-config --from-file=./config.yml
        ```
-    3) Deploy Scoretrak master component:
+    2) Deploy Scoretrak master component:
        ```
        kubectl create -f scoretrak.yaml
        ```
-       If you would like to access scoretrak, you can do so by running:
+    3) Run `kubectl apply -f istio.yaml` to deploy necessary gateways, and virtual services
+
+
+5) Configuring istio
+    1) Simply Run:
        ```
-       kubectl port-forward service/scoretrak 33333:33333
+       kubectl apply -f istio.yaml
        ```
-    4) Deploy Scoretrak web component
+    2) If you would like to configure ingress port type:
        ```
-       kubectl create -f scoretrak-web.yaml
+       kubectl edit svc istio-ingressgateway -n istio-system
        ```
-       Access the web component via port forwarding like so open up the browser and input
-       any node IP followed by port 30080
-     
+       Change the value of the port 80
+       
+   
+
 5) (Optional) Configure External Load Balancer. (This step will depend heavily on your environment, hence this step is up to the devs to implement)
 
 6) Labels.

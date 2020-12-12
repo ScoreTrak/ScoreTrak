@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cockroachdb-client-secret
+  annotations:
+    kubernetes.io/service-account.name: scoretrak-cockroachdb
+type: kubernetes.io/service-account-token

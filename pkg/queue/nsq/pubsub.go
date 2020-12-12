@@ -16,7 +16,7 @@ type PubSub struct {
 
 func (p PubSub) NotifyTopic(topic string) {
 	confp := nsq.NewConfig()
-	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", p.config.NSQ.NSQD.Host, p.config.NSQ.NSQD.Port), confp)
+	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", p.config.NSQ.NSQLookupd.Hosts, p.config.NSQ.NSQLookupd.Port), confp)
 	if err != nil {
 		log.Fatalf("Unable to initialize producer to notify masters using queue. Ensure that the queue is reachable from master. Error Details: %v", err)
 	}

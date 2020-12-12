@@ -8,7 +8,9 @@ services:
       - ../:/deployments
     depends_on:
       - db-init
-      - nsqd
+      - nsqd-3
+      - nsqd-2
+      - nsqd-1
     command: ./master -config /deployments/docker-nsq/config.yml
 
   scoretrak-web:
@@ -19,7 +21,7 @@ services:
   cockroachdb-1:
     container_name: cockroachdb-1
     image: cockroachdb/cockroach:latest
-    command: start --insecure
+    command: start-single-node --insecure
     ports:
       - "26257:26257"
       - "8080:8080"
@@ -36,21 +38,88 @@ services:
     command: sql --execute="CREATE DATABASE IF NOT EXISTS scoretrak; " --insecure --host cockroach
 
 
-  nsqlookupd:
-    image: nsqio/nsq
-    command: /nsqlookupd
-  nsqd:
-    image: nsqio/nsq
-    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160
-    depends_on:
-      - nsqlookupd
-  nsqadmin:
-    image: nsqio/nsq
-    command: /nsqadmin --lookupd-http-address=nsqlookupd:4161
-    depends_on:
-      - nsqlookupd
+#FROM https://github.com/segmentio/nsq-go/blob/master/docker-compose.yml
+
+  consul:
+    image: consul:latest
+    command: agent -server -dev -log-level debug -client 0.0.0.0
     ports:
-      - "4171:4171"
+      - 8500:8500
+
+  nsqlookupd-1:
+    image: nsqio/nsq:v0.3.8
+    command: >
+      /nsqlookupd
+      -broadcast-address localhost:4160
+    ports:
+      - 4160:4160
+      - 4161:4161
+
+  nsqlookupd-2:
+    image: nsqio/nsq:v0.3.8
+    command: >
+      /nsqlookupd
+      -broadcast-address localhost:4162
+    ports:
+      - 4162:4160
+      - 4163:4161
+
+  nsqlookupd-3:
+    image: nsqio/nsq:v0.3.8
+    command: >
+      /nsqlookupd
+      -broadcast-address localhost:4164
+    ports:
+      - 4164:4160
+      - 4165:4161
+
+  nsqd-1:
+    image: nsqio/nsq:v0.3.8
+    command: >
+      /nsqd
+      -broadcast-address localhost:4150
+      -lookupd-tcp-address nsqlookupd-1:4160
+      -lookupd-tcp-address nsqlookupd-2:4160
+      -lookupd-tcp-address nsqlookupd-3:4160
+    ports:
+      - 4150:4150
+      - 4151:4151
+    depends_on:
+      - nsqlookupd-1
+      - nsqlookupd-2
+      - nsqlookupd-3
+
+  nsqd-2:
+    image: nsqio/nsq:v0.3.8
+    command: >
+      /nsqd
+      -broadcast-address localhost:4152
+      -lookupd-tcp-address nsqlookupd-1:4160
+      -lookupd-tcp-address nsqlookupd-2:4160
+      -lookupd-tcp-address nsqlookupd-3:4160
+    ports:
+      - 4152:4150
+      - 4153:4151
+    depends_on:
+      - nsqlookupd-1
+      - nsqlookupd-2
+      - nsqlookupd-3
+
+  nsqd-3:
+    image: nsqio/nsq:v0.3.8
+    command: >
+      /nsqd
+      -broadcast-address localhost:4154
+      -lookupd-tcp-address nsqlookupd-1:4160
+      -lookupd-tcp-address nsqlookupd-2:4160
+      -lookupd-tcp-address nsqlookupd-3:4160
+    ports:
+      - 4154:4150
+      - 4155:4151
+    depends_on:
+      - nsqlookupd-1
+      - nsqlookupd-2
+      - nsqlookupd-3
 
   envoy:
     image: envoyproxy/envoy:v1.16-latest
