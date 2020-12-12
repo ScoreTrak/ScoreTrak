@@ -71,12 +71,13 @@ func newCockroach(c Config) (*gorm.DB, error) {
 		psqlInfo += " password=" + c.Cockroach.Password
 	}
 	if c.Cockroach.ClientCA != "" && c.Cockroach.ClientSSLKey != "" && c.Cockroach.ClientSSLCert != "" {
-		psqlInfo += fmt.Sprintf(" ssl=true sslmode=require sslrootcert=%s sslkey=%s sslcert=%s", c.Cockroach.ClientCA, c.Cockroach.ClientSSLKey, c.Cockroach.ClientSSLCert)
+		psqlInfo += fmt.Sprintf(" ssl=true sslmode=verify-full sslrootcert=%s sslkey=%s sslcert=%s", c.Cockroach.ClientCA, c.Cockroach.ClientSSLKey, c.Cockroach.ClientSSLCert)
 	} else if c.Cockroach.ClientCA != "" || c.Cockroach.ClientSSLKey != "" || c.Cockroach.ClientSSLCert != "" {
 		return nil, fmt.Errorf("you provided some, but not all certificate information. CA: %s, Key: %s, Cert: %s. If you wish to not use certificates for database, make sure to all fields are empty", c.Cockroach.ClientCA, c.Cockroach.ClientSSLKey, c.Cockroach.ClientSSLCert)
 	} else {
 		psqlInfo += " sslmode=disable"
 	}
+
 	db, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{NamingStrategy: schema.NamingStrategy{
 		TablePrefix: c.Prefix,
 	}})
