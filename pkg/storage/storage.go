@@ -61,12 +61,22 @@ func NewDB(c Config) (*gorm.DB, error) {
 }
 
 func newCockroach(c Config) (*gorm.DB, error) {
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable",
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s dbname=%s",
 		c.Cockroach.Host,
 		c.Cockroach.Port,
 		c.Cockroach.UserName,
 		c.Cockroach.Database)
 
+	if c.Cockroach.Password != "" {
+		psqlInfo += " password=" + c.Cockroach.Password
+	}
+	if c.Cockroach.ClientCA != "" && c.Cockroach.ClientSSLKey != "" && c.Cockroach.ClientSSLCert != "" {
+		psqlInfo += fmt.Sprintf(" ssl=true sslmode=require sslrootcert=%s sslkey=%s sslcert=%s", c.Cockroach.ClientCA, c.Cockroach.ClientSSLKey, c.Cockroach.ClientSSLCert)
+	} else if c.Cockroach.ClientCA != "" || c.Cockroach.ClientSSLKey != "" || c.Cockroach.ClientSSLCert != "" {
+		return nil, fmt.Errorf("you provided some, but not all certificate information. CA: %s, Key: %s, Cert: %s. If you wish to not use certificates for database, make sure to all fields are empty", c.Cockroach.ClientCA, c.Cockroach.ClientSSLKey, c.Cockroach.ClientSSLCert)
+	} else {
+		psqlInfo += " sslmode=disable"
+	}
 	db, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{NamingStrategy: schema.NamingStrategy{
 		TablePrefix: c.Prefix,
 	}})
@@ -97,6 +107,9 @@ type Config struct {
 		Port              string `default:"26257"`
 		UserName          string `default:"root"`
 		Password          string `default:""`
+		ClientCA          string `default:""`
+		ClientSSLKey      string `default:""`
+		ClientSSLCert     string `default:""`
 		Database          string `default:"scoretrak"`
 		ConfigureZones    bool   `default:"true"`
 		DefaultZoneConfig struct {
