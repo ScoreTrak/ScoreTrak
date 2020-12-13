@@ -19,13 +19,14 @@ type WorkerQueue struct {
 }
 
 func (n WorkerQueue) Send(sds []*queueing.ScoringData) (ret []*queueing.QCheck, bErr error, tErr error) {
+	addresses := generateNSQLookupdAddresses(n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port)
 	returningTopicName := queueing.TopicFromServiceRound(sds[0].RoundID)
 	//bErr, tErr := n.TopicAbsent(returningTopicName, addresses)
 	//if tErr != nil {
 	//	return nil, bErr, tErr
 	//}
 	confp := nsq.NewConfig()
-	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port), confp)
+	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", n.config.NSQ.NSQD.Host, n.config.NSQ.NSQD.Port), confp)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -51,7 +52,10 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) (ret []*queueing.QCheck, 
 			return nil, nil, err
 		}
 	}
-	addresses := generateNSQLookupdAddresses(n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port)
+
+	defer func(returningTopicName string, addresses []string) {
+		go n.DeleteTopic(returningTopicName, addresses)
+	}(returningTopicName, addresses)
 	confc := nsq.NewConfig()
 	confc.LookupdPollInterval = time.Second * 1
 	consumer, err := nsq.NewConsumer(returningTopicName, "worker", confc)
@@ -170,7 +174,7 @@ func generateNSQLookupdAddresses(hostNames []string, port string) []string {
 
 func (n WorkerQueue) Acknowledge(q queueing.QCheck) {
 	confp := nsq.NewConfig()
-	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port), confp)
+	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", n.config.NSQ.NSQD.Host, n.config.NSQ.NSQD.Port), confp)
 	if err != nil {
 		panic(err)
 	}

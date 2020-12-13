@@ -1,17 +1,17 @@
----
-apiVersion: policy/v1beta1
-kind: PodDisruptionBudget
-metadata:
-  name: nsqd-budget
-  labels:
-    app: nsq
-    component: nsqd
-spec:
-  selector:
-    matchLabels:
-      app: nsq
-      component: nsqd
-  minAvailable: 1
+#---
+#apiVersion: policy/v1beta1
+#kind: PodDisruptionBudget
+#metadata:
+#  name: nsqd-budget
+#  labels:
+#    app: nsq
+#    component: nsqd
+#spec:
+#  selector:
+#    matchLabels:
+#      app: nsq
+#      component: nsqd
+#  minAvailable: 1
 ---
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
@@ -46,25 +46,25 @@ spec:
   selector:
     app: nsq
     component: nsqlookupd
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: nsqd
-  labels:
-    app: nsq
-spec:
-  ports:
-    - port: 4150
-      targetPort: 4150
-      name: tcp
-    - port: 4151
-      targetPort: 4151
-      name: http
-  clusterIP: None
-  selector:
-    app: nsq
-    component: nsqd
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: nsqd
+#  labels:
+#    app: nsq
+#spec:
+#  ports:
+#    - port: 4150
+#      targetPort: 4150
+#      name: tcp
+#    - port: 4151
+#      targetPort: 4151
+#      name: http
+#  clusterIP: None
+#  selector:
+#    app: nsq
+#    component: nsqd
 ---
 apiVersion: v1
 kind: Service
