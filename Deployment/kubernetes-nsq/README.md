@@ -127,7 +127,7 @@ Requirements:
        We will use the generated above key when deploying scoretrak in later sections
     
    
-3) Deploy NSQ
+4) Deploy NSQ
     1) We will use a modified version of the following repo https://github.com/adrianchifor/k8s-nsq. To do that, just run:
        ```
        kubectl create -f deploy-nsq.yaml
@@ -137,7 +137,7 @@ Requirements:
        kubectl port-forward $(kubectl get pods | grep nsqadmin |  awk '{print $1}') 4171:4171
        ```
     
-4) Setting up scoretrak
+5) Setting up scoretrak
     1) Create Config map:
        ```
        kubectl create configmap scoretrak-config --from-file=./config.yml
@@ -149,7 +149,7 @@ Requirements:
     3) Run `kubectl apply -f istio.yaml` to deploy necessary gateways, and virtual services
 
 
-5) Configuring istio
+6) Configuring istio
     1) Simply Run:
        ```
        kubectl apply -f istio.yaml
@@ -162,9 +162,9 @@ Requirements:
        
    
 
-5) (Optional) Configure External Load Balancer. (This step will depend heavily on your environment, hence this step is up to the devs to implement)
+7) (Optional) Configure External Load Balancer. (This step will depend heavily on your environment, hence this step is up to the devs to implement)
 
-6) Labels.
+8) Labels.
     1) Using the dashboard, add labels to desired nodes. The labels should follow the format:
     scoretrak_worker: <YOUR_LABEL_VALUE>, for instance scoretrak_worker: internal, where internal can represet a set of workers responsible for scoring internal services.
     

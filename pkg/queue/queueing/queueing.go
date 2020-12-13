@@ -47,6 +47,10 @@ type Config struct {
 	Kafka struct {
 	}
 	NSQ struct {
+		NSQD struct {
+			Port string `default:"4150"`
+			Host string `default:"nsqd"`
+		}
 		IgnoreAllScoresIfWorkerFails bool   `default:"true"`
 		Topic                        string `default:"default"`
 		MaxInFlight                  int    `default:"200"`
