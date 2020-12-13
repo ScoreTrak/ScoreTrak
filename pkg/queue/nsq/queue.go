@@ -19,7 +19,6 @@ type WorkerQueue struct {
 }
 
 func (n WorkerQueue) Send(sds []*queueing.ScoringData) (ret []*queueing.QCheck, bErr error, tErr error) {
-	addresses := generateNSQLookupdAddresses(n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port)
 	returningTopicName := queueing.TopicFromServiceRound(sds[0].RoundID)
 	//bErr, tErr := n.TopicAbsent(returningTopicName, addresses)
 	//if tErr != nil {
@@ -52,10 +51,7 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) (ret []*queueing.QCheck, 
 			return nil, nil, err
 		}
 	}
-
-	defer func(returningTopicName string, addresses []string) {
-		go n.DeleteTopic(returningTopicName, addresses)
-	}(returningTopicName, addresses)
+	addresses := generateNSQLookupdAddresses(n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port)
 	confc := nsq.NewConfig()
 	confc.LookupdPollInterval = time.Second * 1
 	consumer, err := nsq.NewConsumer(returningTopicName, "worker", confc)
