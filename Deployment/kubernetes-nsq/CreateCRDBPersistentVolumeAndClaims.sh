@@ -3,8 +3,6 @@ set -exuo pipefail
 
 # Clean up anything from a prior run:
 kubectl delete statefulsets,persistentvolumes,persistentvolumeclaims,services,poddisruptionbudget -l app.kubernetes.io/component=cockroachdb
-kubectl delete statefulsets,persistentvolumes,persistentvolumeclaims,services,poddisruptionbudget -l component=nsqd
-kubectl delete statefulsets,persistentvolumes,persistentvolumeclaims,services,poddisruptionbudget -l app.kubernetes.io/component=nsq
 
 # Make persistent volumes and (correctly named) claims. We must create the
 # claims here manually even though that sounds counter-intuitive. For details
@@ -28,27 +26,5 @@ spec:
     - ReadWriteOnce
   hostPath:
     path: "/tmp/cockroachdb/${i}"
-EOF
-done;
-
-
-for i in $(seq 0 2); do
-  cat <<EOF | kubectl create -f -
-kind: PersistentVolume
-apiVersion: v1
-metadata:
-  name: pv-nsq${i}
-  labels:
-    type: local
-    app.kubernetes.io/component: nsq
-    app.kubernetes.io/instance: scoretrak
-    app.kubernetes.io/name: nsq
-spec:
-  capacity:
-    storage: 20Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/tmp/nsq/${i}"
 EOF
 done;
