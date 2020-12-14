@@ -163,7 +163,9 @@ Requirements:
    
 
 7) (Optional) Configure External Load Balancer. (This step will depend heavily on your environment, hence this step is up to the devs to implement)
-
+   Notes:
+    - Make sure idle time out is set to something large (Ex: 5 hours). This is needed because ScoreTrak utilizes gRPC with server push.
+    - Make sure your proxy supports HTTP2.0    
 8) Labels.
     1) Using the dashboard, add labels to desired nodes. The labels should follow the format:
     scoretrak_worker: <YOUR_LABEL_VALUE>, for instance scoretrak_worker: internal, where internal can represet a set of workers responsible for scoring internal services.
