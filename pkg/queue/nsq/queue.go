@@ -54,6 +54,7 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) (ret []*queueing.QCheck, 
 	addresses := generateNSQLookupdAddresses(n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port)
 	confc := nsq.NewConfig()
 	confc.LookupdPollInterval = time.Second * 1
+	confc.MaxInFlight = n.config.NSQ.MaxInFlight
 	consumer, err := nsq.NewConsumer(returningTopicName, "worker", confc)
 	if err != nil {
 		return nil, bErr, err

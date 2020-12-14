@@ -32,6 +32,7 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 	go func() {
 		conf := nsq.NewConfig()
 		conf.LookupdPollInterval = time.Second * 2
+		conf.MaxInFlight = p.config.NSQ.MaxInFlight
 		consumer, err := nsq.NewConsumer(topic, "master_"+strconv.Itoa(rand.New(rand.NewSource(time.Now().UnixNano())).Int()), conf)
 		if err != nil {
 			log.Fatalf("Unable to initualize consumer for topic: %s. Error Details: %v", topic, err)
