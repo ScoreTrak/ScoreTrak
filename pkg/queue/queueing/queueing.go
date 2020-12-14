@@ -54,6 +54,10 @@ type Config struct {
 		IgnoreAllScoresIfWorkerFails bool   `default:"true"`
 		Topic                        string `default:"default"`
 		MaxInFlight                  int    `default:"200"` //This should be more than min(NumberOfChecks, #NSQD Nodes)
+		AuthSecret                   string `default:""`
+		ClientCA                     string `default:""`
+		ClientSSLKey                 string `default:""`
+		ClientSSLCert                string `default:""`
 		ConcurrentHandlers           int    `default:"200"`
 		NSQLookupd                   struct {
 			Hosts []string `default:"[\"nsqlookupd\"]"`

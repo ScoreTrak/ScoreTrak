@@ -25,6 +25,7 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) (ret []*queueing.QCheck, 
 	//	return nil, bErr, tErr
 	//}
 	confp := nsq.NewConfig()
+	ProducerConfig(confp, n.config)
 	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", n.config.NSQ.NSQD.Host, n.config.NSQ.NSQD.Port), confp)
 	if err != nil {
 		return nil, nil, err
@@ -53,8 +54,7 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) (ret []*queueing.QCheck, 
 	}
 	addresses := generateNSQLookupdAddresses(n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port)
 	confc := nsq.NewConfig()
-	confc.LookupdPollInterval = time.Second * 1
-	confc.MaxInFlight = n.config.NSQ.MaxInFlight
+	ConsumerConfig(confc, n.config)
 	consumer, err := nsq.NewConsumer(returningTopicName, "worker", confc)
 	if err != nil {
 		return nil, bErr, err
@@ -104,8 +104,7 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) (ret []*queueing.QCheck, 
 
 func (n WorkerQueue) Receive() {
 	conf := nsq.NewConfig()
-	conf.LookupdPollInterval = time.Second * 2
-	conf.MaxInFlight = n.config.NSQ.MaxInFlight
+	ConsumerConfig(conf, n.config)
 	consumer, err := nsq.NewConsumer(n.config.NSQ.Topic, "worker", conf)
 	if err != nil {
 		log.Fatalf("Failed to initialize NSQ consumer. Error: %v", err)
@@ -171,6 +170,7 @@ func generateNSQLookupdAddresses(hostNames []string, port string) []string {
 
 func (n WorkerQueue) Acknowledge(q queueing.QCheck) {
 	confp := nsq.NewConfig()
+	ProducerConfig(confp, n.config)
 	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", n.config.NSQ.NSQD.Host, n.config.NSQ.NSQD.Port), confp)
 	if err != nil {
 		panic(err)
@@ -184,6 +184,44 @@ func (n WorkerQueue) Acknowledge(q queueing.QCheck) {
 		panic(err)
 	}
 	producer.Stop()
+}
+
+func ProducerConfig(conf *nsq.Config, config queueing.Config) {
+	tlsConfig(conf, config)
+}
+
+func ConsumerConfig(conf *nsq.Config, config queueing.Config) {
+	conf.LookupdPollInterval = time.Second * 1
+	conf.MaxInFlight = config.NSQ.MaxInFlight
+	tlsConfig(conf, config)
+}
+
+func tlsConfig(conf *nsq.Config, config queueing.Config) {
+	if config.NSQ.AuthSecret != "" {
+		conf.AuthSecret = config.NSQ.AuthSecret
+	}
+	if config.NSQ.ClientCA != "" && config.NSQ.ClientSSLKey != "" && config.NSQ.ClientSSLCert != "" {
+		err := conf.Set("tls_v1", true)
+		if err != nil {
+			panic(err)
+		}
+		err = conf.Set("tls_insecure_skip_verify", false)
+		if err != nil {
+			panic(err)
+		}
+		err = conf.Set("tls_root_ca_file", config.NSQ.ClientCA)
+		if err != nil {
+			panic(err)
+		}
+		err = conf.Set("tls_cert", config.NSQ.ClientSSLCert)
+		if err != nil {
+			panic(err)
+		}
+		err = conf.Set("tls_key", config.NSQ.ClientSSLKey)
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 func (n WorkerQueue) DeleteTopic(topic string, nsqAddresses []string) { //This makes NSQ node unusable for a while
