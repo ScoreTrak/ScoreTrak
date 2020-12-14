@@ -92,51 +92,6 @@ spec:
             - ./master
             - -config
             - /etc/scoretrak/config.yml
-
-        - name: nsqd
-          image: nsqio/nsq:v1.1.0
-          imagePullPolicy: Always
-          resources:
-            requests:
-              cpu: 30m
-              memory: 64Mi
-          ports:
-            - containerPort: 4150
-              name: tcp
-            - containerPort: 4151
-              name: http
-          livenessProbe:
-            httpGet:
-              path: /ping
-              port: http
-            initialDelaySeconds: 5
-          readinessProbe:
-            httpGet:
-              path: /ping
-              port: http
-            initialDelaySeconds: 2
-          volumeMounts:
-            - name: datadir
-              mountPath: /data
-          command:
-            - /nsqd
-            - -data-path
-            - /data
-            - -lookupd-tcp-address
-            - nsqlookupd-0.nsqlookupd:4160
-            - -lookupd-tcp-address
-            - nsqlookupd-1.nsqlookupd:4160
-            - -lookupd-tcp-address
-            - nsqlookupd-2.nsqlookupd:4160
-            - -broadcast-address
-            - $(HOSTNAME).nsqd
-          env:
-            - name: HOSTNAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-      terminationGracePeriodSeconds: 5
-
       volumes:
         - name: config-volume
           configMap:
@@ -146,20 +101,8 @@ spec:
         - name: cockroach-cert-token
           secret:
             secretName: cockroachdb-client-secret
-        - name: datadir
-          persistentVolumeClaim:
-            claimName: datadir
-
       serviceAccountName: scoretrak
-  volumeClaimTemplates:
-    - metadata:
-        name: datadir
-      spec:
-        accessModes:
-          - "ReadWriteOnce"
-        resources:
-          requests:
-            storage: 1Gi
+
 ---
 apiVersion: v1
 kind: Service
@@ -172,7 +115,6 @@ spec:
   ports:
     - port: 33333
       name: grpc-web
-
 
 ---
 apiVersion: apps/v1

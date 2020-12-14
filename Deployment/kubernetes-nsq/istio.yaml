@@ -67,14 +67,14 @@ spec:
             port:
               number: 80
 
-#---
-#apiVersion: networking.istio.io/v1alpha3
-#kind: DestinationRule
-#metadata:
-#  name: grpc-iddletimeout-policy
-#spec:
-#  host: scoretrak.default.svc.cluster.local
-#  trafficPolicy:
-#    connectionPool:
-#      http:
-#        idleTimeout: 0s
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: grpc-iddletimeout-policy
+spec:
+  host: scoretrak.default.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      http:
+        idleTimeout: 86400s

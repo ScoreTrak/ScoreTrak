@@ -16,6 +16,7 @@ type PubSub struct {
 
 func (p PubSub) NotifyTopic(topic string) {
 	confp := nsq.NewConfig()
+	ProducerConfig(confp, p.config)
 	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", p.config.NSQ.NSQD.Host, p.config.NSQ.NSQD.Port), confp)
 	if err != nil {
 		log.Fatalf("Unable to initialize producer to notify masters using queue. Ensure that the queue is reachable from master. Error Details: %v", err)
@@ -31,8 +32,7 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 	n := make(chan struct{})
 	go func() {
 		conf := nsq.NewConfig()
-		conf.LookupdPollInterval = time.Second * 2
-		conf.MaxInFlight = p.config.NSQ.MaxInFlight
+		ConsumerConfig(conf, p.config)
 		consumer, err := nsq.NewConsumer(topic, "master_"+strconv.Itoa(rand.New(rand.NewSource(time.Now().UnixNano())).Int()), conf)
 		if err != nil {
 			log.Fatalf("Unable to initualize consumer for topic: %s. Error Details: %v", topic, err)

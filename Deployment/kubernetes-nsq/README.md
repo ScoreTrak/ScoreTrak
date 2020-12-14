@@ -63,7 +63,7 @@ Requirements:
        ```
     3) Create persistent volume claims:
        ```
-       bash CreateCRDBAndNSQPersistentVolumeAndClaims.sh
+       bash CreateCRDBPersistentVolumeAndClaims.sh
        ```
     4) Install cockroach using helm:
        ```
@@ -130,7 +130,7 @@ Requirements:
 4) Deploy NSQ
     1) We will use a modified version of the following repo https://github.com/adrianchifor/k8s-nsq. To do that, just run:
        ```
-       kubectl create -f deploy-nsq.yaml
+       kubectl create -f nsq.yaml
        ```
        Likewise, if you would like to access the admin panel you can execute:
        ```

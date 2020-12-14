@@ -2,8 +2,6 @@
 queue:
   use: nsq
   nsq:
-    nsqd:
-      host: "localhost"
     nsqlookupd:
       hosts: ["nsqlookupd-0.nsqlookupd", "nsqlookupd-1.nsqlookupd", "nsqlookupd-2.nsqlookupd"]
 db:
