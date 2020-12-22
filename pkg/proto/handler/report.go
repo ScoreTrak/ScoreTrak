@@ -42,7 +42,7 @@ func (r *reportController) filterReport(rol string, tID uuid.UUID, lr *report.Re
 					continue
 				}
 				for s := range simpleReport.Teams[t].Hosts[h].Services {
-					if !simpleReport.Teams[t].Hosts[h].Services[s].Enabled || (!simpleReport.Teams[t].Hosts[h].Services[s].SimpleServiceGroup.Enabled) {
+					if !simpleReport.Teams[t].Hosts[h].Services[s].Enabled || !simpleReport.Teams[t].Hosts[h].Services[s].SimpleServiceGroup.Enabled {
 						delete(simpleReport.Teams[t].Hosts[h].Services, s)
 						continue
 					}
@@ -50,6 +50,18 @@ func (r *reportController) filterReport(rol string, tID uuid.UUID, lr *report.Re
 			}
 		}
 	}
+
+	//Calculate TotalPoints
+	{
+		for t := range simpleReport.Teams {
+			for h := range simpleReport.Teams[t].Hosts {
+				for s := range simpleReport.Teams[t].Hosts[h].Services {
+					simpleReport.Teams[t].TotalPoints += simpleReport.Teams[t].Hosts[h].Services[s].Points + simpleReport.Teams[t].Hosts[h].Services[s].PointsBoost
+				}
+			}
+		}
+	}
+
 	if rol != role.Black {
 		p := r.policyClient.GetPolicy()
 		for t := range simpleReport.Teams {
@@ -75,9 +87,9 @@ func (r *reportController) filterReport(rol string, tID uuid.UUID, lr *report.Re
 						if !*p.ShowPoints {
 							simpleReport.Teams[t].Hosts[h].Services[s].Points = 0
 							simpleReport.Teams[t].Hosts[h].Services[s].PointsBoost = 0
+							simpleReport.Teams[t].TotalPoints = 0
 						}
 					}
-
 				}
 				if t != tID {
 					if !*p.ShowAddresses {

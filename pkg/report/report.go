@@ -27,11 +27,13 @@ type SimpleReport struct {
 	Teams map[uuid.UUID]*SimpleTeam
 }
 
+// Todo: Look into including Paused service (Not scored for the latest round, but points from rounds where service wasnt paused will be included into the total (Also shows up in the report as yellow))
 type SimpleTeam struct {
-	Hosts   map[uuid.UUID]*SimpleHost
-	Name    string
-	Enabled bool
-	Hidden  bool
+	Hosts       map[uuid.UUID]*SimpleHost
+	Name        string
+	Enabled     bool
+	Hidden      bool
+	TotalPoints uint64
 }
 
 type SimpleHostGroup struct {

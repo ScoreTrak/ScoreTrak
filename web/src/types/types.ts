@@ -48,7 +48,8 @@ export type SimpleTeam = {
     Hosts:   Record<string, SimpleHost>,
     Name:    string,
     Enabled: boolean,
-    Hidden:  boolean
+    Hidden:  boolean,
+    TotalPoints: number
 }
 
 export type SimpleHostGroup = {
