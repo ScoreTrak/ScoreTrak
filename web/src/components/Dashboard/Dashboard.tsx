@@ -249,7 +249,7 @@ export default function Dashboard(props: DashboardProps) {
                     <Divider />
                     <List>
                       <div>
-                        {!(token.getCurrentRole() !== Role.Black && !currentPolicy?.showPoints) &&
+                        { (currentPolicy.showPoints?.value || token.getCurrentRole() === Role.Black) &&
                         <ListItem button component={Link} to="/ranks">
                           <ListItemIcon>
                             <BarChartIcon/>
