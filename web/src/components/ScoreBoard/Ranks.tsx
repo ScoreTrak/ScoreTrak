@@ -38,7 +38,7 @@ type RanksProps = {
     isDarkTheme: boolean
 }
 
-//todo: fix changing colors
+
 export default function Ranks(props: RanksProps) {
     const report=props.report
     let data: Record<string, number | string> [] = []
