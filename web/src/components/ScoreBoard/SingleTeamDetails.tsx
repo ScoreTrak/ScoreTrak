@@ -141,7 +141,7 @@ export default function SingleTeamDetails(props: CustomSingleTeamDetailsProps) {
                             {
                                 service_id: prevState[cached_service_id][prevState[cached_service_id].length-1]["service_id"],
                                 host_id: prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"],
-                                passed: prevDT["Teams"][teamID]["Hosts"][prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"]]["Services"][cached_service_id]["Passed"],
+                                passed: prevDT["Teams"][teamID]["Hosts"][prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"]]["Services"][cached_service_id]["Passed"], //Causes a bug if cached service id doesnt exist anymore
                                 err: prevDT["Teams"][teamID]["Hosts"][prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"]]["Services"][cached_service_id]["Err"],
                                 log: prevDT["Teams"][teamID]["Hosts"][prevState[cached_service_id][prevState[cached_service_id].length-1]["host_id"]]["Services"][cached_service_id]["Log"],
                                 round_id: prevDT["Round"],
@@ -383,7 +383,7 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
                 <Grid item xs={6}>
                     {
                         <MaterialTable
-                            options={{pageSizeOptions: [3, 5,10,20,50,100], pageSize:3}}
+                            options={{pageSizeOptions: [3, 5,10,20,50,100, PropertiesData.length], pageSize:PropertiesData.length}}
                             title="Properties"
                             columns={columns}
                             data={PropertiesData}
