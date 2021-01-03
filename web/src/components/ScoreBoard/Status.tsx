@@ -184,7 +184,7 @@ export default function Status(props: RanksProps) {
                                                   control={<Switch checked={dense} onChange={toggleChangeDense} />}
                                                   label="Dense padding"
                                 />
-                                { (token.isAValidToken() || props.currentPolicy.showAddresses) &&
+                                { (token.isAValidToken() || props.currentPolicy.showAddresses?.value) &&
                                 <FormControlLabel className={classes.tableNavigator}
                                                   control={<Switch checked={hideAddresses} onChange={toggleHideAddresses} />}
                                                   label={"Hide Addresses"}

@@ -65,7 +65,7 @@ export default function UserMenu(props: SetupProps) {
         [
             { title: 'ID (optional)', field: 'id', editable: 'onAdd' as const},
             { title: 'Username', field: 'username' },
-            { title: 'Password', field: 'password' },
+            { title: 'Password', field: 'password', render: (rowData: any) => <React.Fragment/> },
             { title: 'Password Hash', field: 'passwordHash', editable: 'never' as const},
             { title: 'Team ID', field: 'teamId' },
             { title: 'Role', field: 'role', lookup: { [Role.Black]: Role.Black, [Role.Blue]: Role.Blue, [Role.Red]: Role.Red }},

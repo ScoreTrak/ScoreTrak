@@ -19,7 +19,7 @@ require (
 	github.com/golang/protobuf v1.4.3
 	github.com/google/go-cmp v0.5.1 // indirect
 	github.com/googleapis/gnostic v0.3.1 // indirect
-	github.com/gophercloud/gophercloud v0.1.0
+	github.com/gophercloud/gophercloud v0.1.0 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/hirochachacha/go-smb2 v0.0.0-20200618112446-579efc4c6c8a
@@ -40,7 +40,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
-	github.com/sirupsen/logrus v1.4.2
+	github.com/sirupsen/logrus v1.4.2 // indirect
 	github.com/smartystreets/assertions v1.1.1 // indirect
 	github.com/smartystreets/goconvey v1.6.4
 	go.uber.org/dig v1.10.0

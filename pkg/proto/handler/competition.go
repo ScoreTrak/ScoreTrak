@@ -110,10 +110,15 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 		users = append(users, usr)
 	}
 
+	var cache string
+	if request.Competition.Report != nil {
+		cache = request.Competition.Report.Cache
+	}
+
 	err := c.svc.LoadCompetition(ctx, &competition.Competition{
 		Config: ConvertDynamicConfigPBToDynamicConfig(request.GetCompetition().DynamicConfig),
 		Report: &report.Report{
-			Cache: request.Competition.Report.Cache,
+			Cache: cache,
 		},
 		HostGroups:    hstGrps,
 		Hosts:         hsts,
