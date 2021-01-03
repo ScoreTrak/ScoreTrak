@@ -2,7 +2,6 @@ import { ResponsiveBar } from '@nivo/bar'
 
 import React from "react";
 import {SimpleReport} from "../../types/types";
-import any = jasmine.any;
 
 const darkTheme = {
     axis: {
