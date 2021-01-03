@@ -153,7 +153,7 @@ export default function Status(props: RanksProps) {
                                                     if (column in data[name] && "Properties" in data[name][column]){
                                                         Object.keys(data[name][column]["Properties"]).forEach(key =>{
                                                             if (key === "Port"){
-                                                                msg += ":" + data[name][column]["Properties"][key]
+                                                                msg += ":" + data[name][column]["Properties"][key].Value
                                                             }
                                                         })
                                                     }

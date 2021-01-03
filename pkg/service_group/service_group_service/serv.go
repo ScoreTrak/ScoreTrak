@@ -101,7 +101,7 @@ func (svc *serviceGroupServ) Store(ctx context.Context, u *service_group.Service
 
 		}
 		wr := worker.Info{Topic: u.Name, Label: u.Label}
-		err := svc.p.DeployWorkers(ctx, wr) //Todo: Make sure that worker container is not allocated multiple times (Currently workers are duplicated)
+		err := svc.p.DeployWorkers(ctx, wr)
 		if err != nil {
 			return err
 		}
