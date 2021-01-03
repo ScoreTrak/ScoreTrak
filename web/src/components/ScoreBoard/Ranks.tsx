@@ -103,6 +103,43 @@ export default function Ranks(props: RanksProps) {
         Object.assign(theme, darkTheme);
     }
 
+    // @ts-ignore
+    const TotalLabels = ({ bars, yScale }) => {
+        // space between top of stacked bars and total label
+        const labelMargin = 20;
+
+        // @ts-ignore
+        return bars.map(({ data: { data, indexValue }, x, width }, i) => {
+            // sum of all the bar values in a stacked bar
+            const total = Object.keys(data)
+                //f ilter out whatever your indexBy value is
+                .filter(key => key !== "teamName")
+                .reduce((a, key) => a + data[key], 0);
+
+            return (
+                <g
+                    transform={`translate(${x}, ${yScale(total) - labelMargin})`}
+                    key={`${indexValue}-${i}`}
+                >
+                    <text
+                        // add any class to the label here
+                        className="bar-total-label"
+                        x={width / 2}
+                        y={labelMargin / 2}
+                        textAnchor="middle"
+                        alignmentBaseline="central"
+                        // add any style to the label here
+                        style={{
+                            fill: props.isDarkTheme ? "rgb(222,255,255)" : "rgb(51,51,51)"
+                        }}
+                    >
+                        {total}
+                    </text>
+                </g>
+            );
+        });
+    };
+
     return (
         // @ts-ignore
         <ResponsiveBar
@@ -135,41 +172,3 @@ export default function Ranks(props: RanksProps) {
         />
     );
 }
-
-
-// @ts-ignore
-const TotalLabels = ({ bars, yScale }) => {
-    // space between top of stacked bars and total label
-    const labelMargin = 20;
-
-    // @ts-ignore
-    return bars.map(({ data: { data, indexValue }, x, width }, i) => {
-        // sum of all the bar values in a stacked bar
-        const total = Object.keys(data)
-            //f ilter out whatever your indexBy value is
-            .filter(key => key !== "teamName")
-            .reduce((a, key) => a + data[key], 0);
-
-        return (
-            <g
-                transform={`translate(${x}, ${yScale(total) - labelMargin})`}
-                key={`${indexValue}-${i}`}
-            >
-                <text
-                    // add any class to the label here
-                    className="bar-total-label"
-                    x={width / 2}
-                    y={labelMargin / 2}
-                    textAnchor="middle"
-                    alignmentBaseline="central"
-                    // add any style to the label here
-                    style={{
-                        fill: "rgb(51, 51, 51)"
-                    }}
-                >
-                    {total}
-                </text>
-            </g>
-        );
-    });
-};
