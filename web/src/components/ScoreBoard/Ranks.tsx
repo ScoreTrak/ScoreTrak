@@ -116,7 +116,6 @@ export default function Ranks(props: RanksProps) {
             borderColor={{ from: 'color', modifiers: [ [ 'darker', '0' ] ] }}
             axisTop={null}
             axisRight={null}
-            colorBy="index"
             axisLeft={{
                 tickSize: 5,
                 tickPadding: 5,
