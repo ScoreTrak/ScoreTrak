@@ -19,7 +19,7 @@ services:
   cockroachdb-1:
     container_name: cockroachdb-1
     image: cockroachdb/cockroach:latest
-    command: start --insecure
+    command: start-single-node --insecure
     ports:
       - "26257:26257"
       - "8080:8080"

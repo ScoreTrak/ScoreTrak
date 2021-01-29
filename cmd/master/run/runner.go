@@ -215,7 +215,7 @@ func (d dRunner) Score(ctx context.Context, rnd round.Round) {
 						if s.RoundDelay != nil {
 							schedule += *(s.RoundDelay)
 						}
-						if *(s.Enabled) && rnd.ID%schedule == 0 { //Todo: Fix: Add unscheduled checks into report. (Looking into report:30 To perhaps utilize Pause to indicate skipped service) This way scoreboard does not flicked when check is skipped (Or handle this on frontend by locally caching
+						if *(s.Enabled) && rnd.ID%schedule == 0 { //Todo: Fix: Add unscheduled checks into report. (Looking into report:30 To perhaps utilize Pause to indicate skipped service) This way scoreboard does not flicked when check is skipped (Or handle this on frontend by locally caching. This should also fix an issue with changing colors on ranking page
 							for _, servGroup := range serviceGroups {
 								if s.ServiceGroupID == servGroup.ID && *(servGroup.Enabled) {
 									sq := queueing.QService{ID: s.ID, Group: servGroup.Name, Name: s.Name}
