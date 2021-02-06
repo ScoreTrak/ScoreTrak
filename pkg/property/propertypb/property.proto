@@ -16,7 +16,7 @@ message Property {
   pkg.proto.utilpb.UUID service_id = 1;
   string key = 2;
   google.protobuf.StringValue value = 3;
-  Status status = 4;
+  optional Status status = 4;
 }
 
 message GetAllRequest{}

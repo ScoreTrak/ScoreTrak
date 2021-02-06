@@ -17,6 +17,7 @@ import (
 type PolicyController struct {
 	svc          policy_service.Serv
 	policyClient *policy_client.Client
+	policypb.UnimplementedPolicyServiceServer
 }
 
 func (p PolicyController) Get(request *policypb.GetRequest, server policypb.PolicyService_GetServer) error {

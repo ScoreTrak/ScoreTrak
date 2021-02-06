@@ -16,6 +16,7 @@ import (
 
 type UserController struct {
 	svc user_service.Serv
+	userpb.UnimplementedUserServiceServer
 }
 
 func (p UserController) GetByUsername(ctx context.Context, request *userpb.GetByUsernameRequest) (*userpb.GetByUsernameResponse, error) {
@@ -155,7 +156,7 @@ func (p UserController) Update(ctx context.Context, request *userpb.UpdateReques
 }
 
 func NewUserController(svc user_service.Serv) *UserController {
-	return &UserController{svc}
+	return &UserController{svc: svc}
 }
 
 func ConvertUserPBtoUser(requireID bool, pb *userpb.User) (*user.User, error) {
@@ -206,7 +207,17 @@ func ConvertUserPBtoUser(requireID bool, pb *userpb.User) (*user.User, error) {
 		passwordHash = []byte(pb.GetPasswordHash())
 	}
 
-	r := UserPBRoleToRole(pb.GetRole())
+	var r string
+	if pb.Role != nil {
+		if pb.GetRole() == userpb.Role_Blue {
+			r = role.Blue
+		} else if pb.GetRole() == userpb.Role_Red {
+			r = role.Red
+		} else if pb.GetRole() == userpb.Role_Black {
+			r = role.Black
+		}
+	}
+
 	return &user.User{
 		ID:           id,
 		Username:     pb.Username,
@@ -225,18 +236,8 @@ func ConvertUserToUserPb(obj *user.User) *userpb.User {
 	}
 }
 
-func UserPBRoleToRole(rolepb userpb.Role) (r string) {
-	if rolepb == userpb.Role_Blue {
-		r = role.Blue
-	} else if rolepb == userpb.Role_Red {
-		r = role.Red
-	} else if rolepb == userpb.Role_Black {
-		r = role.Black
-	}
-	return
-}
-
-func UserRoleToRolePB(r string) (rpb userpb.Role) {
+func UserRoleToRolePB(r string) *userpb.Role {
+	var rpb userpb.Role
 	if r == role.Blue {
 		rpb = userpb.Role_Blue
 	} else if r == role.Red {
@@ -244,5 +245,5 @@ func UserRoleToRolePB(r string) (rpb userpb.Role) {
 	} else if r == role.Black {
 		rpb = userpb.Role_Black
 	}
-	return
+	return &rpb
 }

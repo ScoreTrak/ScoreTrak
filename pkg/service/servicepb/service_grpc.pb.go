@@ -11,7 +11,8 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+// Requires gRPC-Go v1.32.0 or later.
+const _ = grpc.SupportPackageIsVersion7
 
 // ServiceServiceClient is the client API for ServiceService service.
 //
@@ -88,7 +89,7 @@ func (c *serviceServiceClient) TestService(ctx context.Context, in *TestServiceR
 }
 
 // ServiceServiceServer is the server API for ServiceService service.
-// All implementations should embed UnimplementedServiceServiceServer
+// All implementations must embed UnimplementedServiceServiceServer
 // for forward compatibility
 type ServiceServiceServer interface {
 	GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error)
@@ -97,33 +98,42 @@ type ServiceServiceServer interface {
 	Store(context.Context, *StoreRequest) (*StoreResponse, error)
 	Update(context.Context, *UpdateRequest) (*UpdateResponse, error)
 	TestService(context.Context, *TestServiceRequest) (*TestServiceResponse, error)
+	mustEmbedUnimplementedServiceServiceServer()
 }
 
-// UnimplementedServiceServiceServer should be embedded to have forward compatible implementations.
+// UnimplementedServiceServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedServiceServiceServer struct {
 }
 
-func (*UnimplementedServiceServiceServer) GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error) {
+func (UnimplementedServiceServiceServer) GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
-func (*UnimplementedServiceServiceServer) GetByID(context.Context, *GetByIDRequest) (*GetByIDResponse, error) {
+func (UnimplementedServiceServiceServer) GetByID(context.Context, *GetByIDRequest) (*GetByIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByID not implemented")
 }
-func (*UnimplementedServiceServiceServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
+func (UnimplementedServiceServiceServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (*UnimplementedServiceServiceServer) Store(context.Context, *StoreRequest) (*StoreResponse, error) {
+func (UnimplementedServiceServiceServer) Store(context.Context, *StoreRequest) (*StoreResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Store not implemented")
 }
-func (*UnimplementedServiceServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
+func (UnimplementedServiceServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
-func (*UnimplementedServiceServiceServer) TestService(context.Context, *TestServiceRequest) (*TestServiceResponse, error) {
+func (UnimplementedServiceServiceServer) TestService(context.Context, *TestServiceRequest) (*TestServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TestService not implemented")
 }
+func (UnimplementedServiceServiceServer) mustEmbedUnimplementedServiceServiceServer() {}
 
-func RegisterServiceServiceServer(s *grpc.Server, srv ServiceServiceServer) {
-	s.RegisterService(&_ServiceService_serviceDesc, srv)
+// UnsafeServiceServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ServiceServiceServer will
+// result in compilation errors.
+type UnsafeServiceServiceServer interface {
+	mustEmbedUnimplementedServiceServiceServer()
+}
+
+func RegisterServiceServiceServer(s grpc.ServiceRegistrar, srv ServiceServiceServer) {
+	s.RegisterService(&ServiceService_ServiceDesc, srv)
 }
 
 func _ServiceService_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -234,7 +244,10 @@ func _ServiceService_TestService_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-var _ServiceService_serviceDesc = grpc.ServiceDesc{
+// ServiceService_ServiceDesc is the grpc.ServiceDesc for ServiceService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ServiceService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "pkg.service.servicepb.ServiceService",
 	HandlerType: (*ServiceServiceServer)(nil),
 	Methods: []grpc.MethodDesc{

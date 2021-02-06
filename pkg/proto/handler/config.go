@@ -14,6 +14,7 @@ import (
 
 type ConfigController struct {
 	svc config_service.Serv
+	configpb.UnimplementedDynamicConfigServiceServer
 }
 
 func (p ConfigController) Get(ctx context.Context, _ *configpb.GetRequest) (*configpb.GetResponse, error) {
@@ -44,7 +45,7 @@ func (p ConfigController) Update(ctx context.Context, request *configpb.UpdateRe
 }
 
 func NewConfigController(svc config_service.Serv) *ConfigController {
-	return &ConfigController{svc}
+	return &ConfigController{svc: svc}
 }
 
 func ConvertDynamicConfigPBToDynamicConfig(pb *configpb.DynamicConfig) *config.DynamicConfig {
@@ -66,11 +67,12 @@ func ConvertDynamicConfigToDynamicConfigPB(obj *config.DynamicConfig) *configpb.
 }
 
 func NewStaticConfigController(svc config_service.StaticServ) *StaticConfigController {
-	return &StaticConfigController{svc}
+	return &StaticConfigController{svc: svc}
 }
 
 type StaticConfigController struct {
 	svc config_service.StaticServ
+	configpb.UnimplementedStaticConfigServiceServer
 }
 
 func (s StaticConfigController) Get(ctx context.Context, request *configpb.GetStaticConfigRequest) (*configpb.GetStaticConfigResponse, error) {

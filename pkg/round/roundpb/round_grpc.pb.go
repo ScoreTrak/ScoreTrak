@@ -11,7 +11,8 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+// Requires gRPC-Go v1.32.0 or later.
+const _ = grpc.SupportPackageIsVersion7
 
 // RoundServiceClient is the client API for RoundService service.
 //
@@ -68,34 +69,43 @@ func (c *roundServiceClient) GetLastRound(ctx context.Context, in *GetLastRoundR
 }
 
 // RoundServiceServer is the server API for RoundService service.
-// All implementations should embed UnimplementedRoundServiceServer
+// All implementations must embed UnimplementedRoundServiceServer
 // for forward compatibility
 type RoundServiceServer interface {
 	GetLastNonElapsingRound(context.Context, *GetLastNonElapsingRoundRequest) (*GetLastNonElapsingRoundResponse, error)
 	GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error)
 	GetByID(context.Context, *GetByIDRequest) (*GetByIDResponse, error)
 	GetLastRound(context.Context, *GetLastRoundRequest) (*GetLastRoundResponse, error)
+	mustEmbedUnimplementedRoundServiceServer()
 }
 
-// UnimplementedRoundServiceServer should be embedded to have forward compatible implementations.
+// UnimplementedRoundServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedRoundServiceServer struct {
 }
 
-func (*UnimplementedRoundServiceServer) GetLastNonElapsingRound(context.Context, *GetLastNonElapsingRoundRequest) (*GetLastNonElapsingRoundResponse, error) {
+func (UnimplementedRoundServiceServer) GetLastNonElapsingRound(context.Context, *GetLastNonElapsingRoundRequest) (*GetLastNonElapsingRoundResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastNonElapsingRound not implemented")
 }
-func (*UnimplementedRoundServiceServer) GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error) {
+func (UnimplementedRoundServiceServer) GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
-func (*UnimplementedRoundServiceServer) GetByID(context.Context, *GetByIDRequest) (*GetByIDResponse, error) {
+func (UnimplementedRoundServiceServer) GetByID(context.Context, *GetByIDRequest) (*GetByIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByID not implemented")
 }
-func (*UnimplementedRoundServiceServer) GetLastRound(context.Context, *GetLastRoundRequest) (*GetLastRoundResponse, error) {
+func (UnimplementedRoundServiceServer) GetLastRound(context.Context, *GetLastRoundRequest) (*GetLastRoundResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLastRound not implemented")
 }
+func (UnimplementedRoundServiceServer) mustEmbedUnimplementedRoundServiceServer() {}
 
-func RegisterRoundServiceServer(s *grpc.Server, srv RoundServiceServer) {
-	s.RegisterService(&_RoundService_serviceDesc, srv)
+// UnsafeRoundServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to RoundServiceServer will
+// result in compilation errors.
+type UnsafeRoundServiceServer interface {
+	mustEmbedUnimplementedRoundServiceServer()
+}
+
+func RegisterRoundServiceServer(s grpc.ServiceRegistrar, srv RoundServiceServer) {
+	s.RegisterService(&RoundService_ServiceDesc, srv)
 }
 
 func _RoundService_GetLastNonElapsingRound_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -170,7 +180,10 @@ func _RoundService_GetLastRound_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-var _RoundService_serviceDesc = grpc.ServiceDesc{
+// RoundService_ServiceDesc is the grpc.ServiceDesc for RoundService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var RoundService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "pkg.round.roundpb.RoundService",
 	HandlerType: (*RoundServiceServer)(nil),
 	Methods: []grpc.MethodDesc{

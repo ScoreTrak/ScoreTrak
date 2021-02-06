@@ -11,7 +11,8 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+// Requires gRPC-Go v1.32.0 or later.
+const _ = grpc.SupportPackageIsVersion7
 
 // PolicyServiceClient is the client API for PolicyService service.
 //
@@ -30,7 +31,7 @@ func NewPolicyServiceClient(cc grpc.ClientConnInterface) PolicyServiceClient {
 }
 
 func (c *policyServiceClient) Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (PolicyService_GetClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_PolicyService_serviceDesc.Streams[0], "/pkg.policy.policypb.PolicyService/Get", opts...)
+	stream, err := c.cc.NewStream(ctx, &PolicyService_ServiceDesc.Streams[0], "/pkg.policy.policypb.PolicyService/Get", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -71,26 +72,35 @@ func (c *policyServiceClient) Update(ctx context.Context, in *UpdateRequest, opt
 }
 
 // PolicyServiceServer is the server API for PolicyService service.
-// All implementations should embed UnimplementedPolicyServiceServer
+// All implementations must embed UnimplementedPolicyServiceServer
 // for forward compatibility
 type PolicyServiceServer interface {
 	Get(*GetRequest, PolicyService_GetServer) error
 	Update(context.Context, *UpdateRequest) (*UpdateResponse, error)
+	mustEmbedUnimplementedPolicyServiceServer()
 }
 
-// UnimplementedPolicyServiceServer should be embedded to have forward compatible implementations.
+// UnimplementedPolicyServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedPolicyServiceServer struct {
 }
 
-func (*UnimplementedPolicyServiceServer) Get(*GetRequest, PolicyService_GetServer) error {
+func (UnimplementedPolicyServiceServer) Get(*GetRequest, PolicyService_GetServer) error {
 	return status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
-func (*UnimplementedPolicyServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
+func (UnimplementedPolicyServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
+func (UnimplementedPolicyServiceServer) mustEmbedUnimplementedPolicyServiceServer() {}
 
-func RegisterPolicyServiceServer(s *grpc.Server, srv PolicyServiceServer) {
-	s.RegisterService(&_PolicyService_serviceDesc, srv)
+// UnsafePolicyServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PolicyServiceServer will
+// result in compilation errors.
+type UnsafePolicyServiceServer interface {
+	mustEmbedUnimplementedPolicyServiceServer()
+}
+
+func RegisterPolicyServiceServer(s grpc.ServiceRegistrar, srv PolicyServiceServer) {
+	s.RegisterService(&PolicyService_ServiceDesc, srv)
 }
 
 func _PolicyService_Get_Handler(srv interface{}, stream grpc.ServerStream) error {
@@ -132,7 +142,10 @@ func _PolicyService_Update_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-var _PolicyService_serviceDesc = grpc.ServiceDesc{
+// PolicyService_ServiceDesc is the grpc.ServiceDesc for PolicyService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var PolicyService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "pkg.policy.policypb.PolicyService",
 	HandlerType: (*PolicyServiceServer)(nil),
 	Methods: []grpc.MethodDesc{

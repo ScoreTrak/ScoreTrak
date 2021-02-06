@@ -11,7 +11,8 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+// Requires gRPC-Go v1.32.0 or later.
+const _ = grpc.SupportPackageIsVersion7
 
 // PropertyServiceClient is the client API for PropertyService service.
 //
@@ -88,7 +89,7 @@ func (c *propertyServiceClient) GetAllByServiceID(ctx context.Context, in *GetAl
 }
 
 // PropertyServiceServer is the server API for PropertyService service.
-// All implementations should embed UnimplementedPropertyServiceServer
+// All implementations must embed UnimplementedPropertyServiceServer
 // for forward compatibility
 type PropertyServiceServer interface {
 	GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error)
@@ -97,33 +98,42 @@ type PropertyServiceServer interface {
 	Update(context.Context, *UpdateRequest) (*UpdateResponse, error)
 	GetByServiceIDKey(context.Context, *GetByServiceIDKeyRequest) (*GetByServiceIDKeyResponse, error)
 	GetAllByServiceID(context.Context, *GetAllByServiceIDRequest) (*GetAllByServiceIDResponse, error)
+	mustEmbedUnimplementedPropertyServiceServer()
 }
 
-// UnimplementedPropertyServiceServer should be embedded to have forward compatible implementations.
+// UnimplementedPropertyServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedPropertyServiceServer struct {
 }
 
-func (*UnimplementedPropertyServiceServer) GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error) {
+func (UnimplementedPropertyServiceServer) GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
-func (*UnimplementedPropertyServiceServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
+func (UnimplementedPropertyServiceServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (*UnimplementedPropertyServiceServer) Store(context.Context, *StoreRequest) (*StoreResponse, error) {
+func (UnimplementedPropertyServiceServer) Store(context.Context, *StoreRequest) (*StoreResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Store not implemented")
 }
-func (*UnimplementedPropertyServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
+func (UnimplementedPropertyServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
-func (*UnimplementedPropertyServiceServer) GetByServiceIDKey(context.Context, *GetByServiceIDKeyRequest) (*GetByServiceIDKeyResponse, error) {
+func (UnimplementedPropertyServiceServer) GetByServiceIDKey(context.Context, *GetByServiceIDKeyRequest) (*GetByServiceIDKeyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByServiceIDKey not implemented")
 }
-func (*UnimplementedPropertyServiceServer) GetAllByServiceID(context.Context, *GetAllByServiceIDRequest) (*GetAllByServiceIDResponse, error) {
+func (UnimplementedPropertyServiceServer) GetAllByServiceID(context.Context, *GetAllByServiceIDRequest) (*GetAllByServiceIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllByServiceID not implemented")
 }
+func (UnimplementedPropertyServiceServer) mustEmbedUnimplementedPropertyServiceServer() {}
 
-func RegisterPropertyServiceServer(s *grpc.Server, srv PropertyServiceServer) {
-	s.RegisterService(&_PropertyService_serviceDesc, srv)
+// UnsafePropertyServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PropertyServiceServer will
+// result in compilation errors.
+type UnsafePropertyServiceServer interface {
+	mustEmbedUnimplementedPropertyServiceServer()
+}
+
+func RegisterPropertyServiceServer(s grpc.ServiceRegistrar, srv PropertyServiceServer) {
+	s.RegisterService(&PropertyService_ServiceDesc, srv)
 }
 
 func _PropertyService_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -234,7 +244,10 @@ func _PropertyService_GetAllByServiceID_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
-var _PropertyService_serviceDesc = grpc.ServiceDesc{
+// PropertyService_ServiceDesc is the grpc.ServiceDesc for PropertyService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var PropertyService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "pkg.property.propertypb.PropertyService",
 	HandlerType: (*PropertyServiceServer)(nil),
 	Methods: []grpc.MethodDesc{

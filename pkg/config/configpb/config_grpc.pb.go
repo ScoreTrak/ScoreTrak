@@ -11,7 +11,8 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+// Requires gRPC-Go v1.32.0 or later.
+const _ = grpc.SupportPackageIsVersion7
 
 // DynamicConfigServiceClient is the client API for DynamicConfigService service.
 //
@@ -48,26 +49,35 @@ func (c *dynamicConfigServiceClient) Update(ctx context.Context, in *UpdateReque
 }
 
 // DynamicConfigServiceServer is the server API for DynamicConfigService service.
-// All implementations should embed UnimplementedDynamicConfigServiceServer
+// All implementations must embed UnimplementedDynamicConfigServiceServer
 // for forward compatibility
 type DynamicConfigServiceServer interface {
 	Get(context.Context, *GetRequest) (*GetResponse, error)
 	Update(context.Context, *UpdateRequest) (*UpdateResponse, error)
+	mustEmbedUnimplementedDynamicConfigServiceServer()
 }
 
-// UnimplementedDynamicConfigServiceServer should be embedded to have forward compatible implementations.
+// UnimplementedDynamicConfigServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedDynamicConfigServiceServer struct {
 }
 
-func (*UnimplementedDynamicConfigServiceServer) Get(context.Context, *GetRequest) (*GetResponse, error) {
+func (UnimplementedDynamicConfigServiceServer) Get(context.Context, *GetRequest) (*GetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
-func (*UnimplementedDynamicConfigServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
+func (UnimplementedDynamicConfigServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
+func (UnimplementedDynamicConfigServiceServer) mustEmbedUnimplementedDynamicConfigServiceServer() {}
 
-func RegisterDynamicConfigServiceServer(s *grpc.Server, srv DynamicConfigServiceServer) {
-	s.RegisterService(&_DynamicConfigService_serviceDesc, srv)
+// UnsafeDynamicConfigServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to DynamicConfigServiceServer will
+// result in compilation errors.
+type UnsafeDynamicConfigServiceServer interface {
+	mustEmbedUnimplementedDynamicConfigServiceServer()
+}
+
+func RegisterDynamicConfigServiceServer(s grpc.ServiceRegistrar, srv DynamicConfigServiceServer) {
+	s.RegisterService(&DynamicConfigService_ServiceDesc, srv)
 }
 
 func _DynamicConfigService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -106,7 +116,10 @@ func _DynamicConfigService_Update_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-var _DynamicConfigService_serviceDesc = grpc.ServiceDesc{
+// DynamicConfigService_ServiceDesc is the grpc.ServiceDesc for DynamicConfigService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var DynamicConfigService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "pkg.config.config.DynamicConfigService",
 	HandlerType: (*DynamicConfigServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
@@ -148,22 +161,31 @@ func (c *staticConfigServiceClient) Get(ctx context.Context, in *GetStaticConfig
 }
 
 // StaticConfigServiceServer is the server API for StaticConfigService service.
-// All implementations should embed UnimplementedStaticConfigServiceServer
+// All implementations must embed UnimplementedStaticConfigServiceServer
 // for forward compatibility
 type StaticConfigServiceServer interface {
 	Get(context.Context, *GetStaticConfigRequest) (*GetStaticConfigResponse, error)
+	mustEmbedUnimplementedStaticConfigServiceServer()
 }
 
-// UnimplementedStaticConfigServiceServer should be embedded to have forward compatible implementations.
+// UnimplementedStaticConfigServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedStaticConfigServiceServer struct {
 }
 
-func (*UnimplementedStaticConfigServiceServer) Get(context.Context, *GetStaticConfigRequest) (*GetStaticConfigResponse, error) {
+func (UnimplementedStaticConfigServiceServer) Get(context.Context, *GetStaticConfigRequest) (*GetStaticConfigResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
+func (UnimplementedStaticConfigServiceServer) mustEmbedUnimplementedStaticConfigServiceServer() {}
 
-func RegisterStaticConfigServiceServer(s *grpc.Server, srv StaticConfigServiceServer) {
-	s.RegisterService(&_StaticConfigService_serviceDesc, srv)
+// UnsafeStaticConfigServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to StaticConfigServiceServer will
+// result in compilation errors.
+type UnsafeStaticConfigServiceServer interface {
+	mustEmbedUnimplementedStaticConfigServiceServer()
+}
+
+func RegisterStaticConfigServiceServer(s grpc.ServiceRegistrar, srv StaticConfigServiceServer) {
+	s.RegisterService(&StaticConfigService_ServiceDesc, srv)
 }
 
 func _StaticConfigService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -184,7 +206,10 @@ func _StaticConfigService_Get_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-var _StaticConfigService_serviceDesc = grpc.ServiceDesc{
+// StaticConfigService_ServiceDesc is the grpc.ServiceDesc for StaticConfigService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var StaticConfigService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "pkg.config.config.StaticConfigService",
 	HandlerType: (*StaticConfigServiceServer)(nil),
 	Methods: []grpc.MethodDesc{

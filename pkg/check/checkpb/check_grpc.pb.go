@@ -11,7 +11,8 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+// Requires gRPC-Go v1.32.0 or later.
+const _ = grpc.SupportPackageIsVersion7
 
 // CheckServiceClient is the client API for CheckService service.
 //
@@ -58,30 +59,39 @@ func (c *checkServiceClient) GetAllByServiceID(ctx context.Context, in *GetAllBy
 }
 
 // CheckServiceServer is the server API for CheckService service.
-// All implementations should embed UnimplementedCheckServiceServer
+// All implementations must embed UnimplementedCheckServiceServer
 // for forward compatibility
 type CheckServiceServer interface {
 	GetAllByRoundID(context.Context, *GetAllByRoundIDRequest) (*GetAllByRoundIDResponse, error)
 	GetByRoundServiceID(context.Context, *GetByRoundServiceIDRequest) (*GetByRoundServiceIDResponse, error)
 	GetAllByServiceID(context.Context, *GetAllByServiceIDRequest) (*GetAllByServiceIDResponse, error)
+	mustEmbedUnimplementedCheckServiceServer()
 }
 
-// UnimplementedCheckServiceServer should be embedded to have forward compatible implementations.
+// UnimplementedCheckServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedCheckServiceServer struct {
 }
 
-func (*UnimplementedCheckServiceServer) GetAllByRoundID(context.Context, *GetAllByRoundIDRequest) (*GetAllByRoundIDResponse, error) {
+func (UnimplementedCheckServiceServer) GetAllByRoundID(context.Context, *GetAllByRoundIDRequest) (*GetAllByRoundIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllByRoundID not implemented")
 }
-func (*UnimplementedCheckServiceServer) GetByRoundServiceID(context.Context, *GetByRoundServiceIDRequest) (*GetByRoundServiceIDResponse, error) {
+func (UnimplementedCheckServiceServer) GetByRoundServiceID(context.Context, *GetByRoundServiceIDRequest) (*GetByRoundServiceIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByRoundServiceID not implemented")
 }
-func (*UnimplementedCheckServiceServer) GetAllByServiceID(context.Context, *GetAllByServiceIDRequest) (*GetAllByServiceIDResponse, error) {
+func (UnimplementedCheckServiceServer) GetAllByServiceID(context.Context, *GetAllByServiceIDRequest) (*GetAllByServiceIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllByServiceID not implemented")
 }
+func (UnimplementedCheckServiceServer) mustEmbedUnimplementedCheckServiceServer() {}
 
-func RegisterCheckServiceServer(s *grpc.Server, srv CheckServiceServer) {
-	s.RegisterService(&_CheckService_serviceDesc, srv)
+// UnsafeCheckServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CheckServiceServer will
+// result in compilation errors.
+type UnsafeCheckServiceServer interface {
+	mustEmbedUnimplementedCheckServiceServer()
+}
+
+func RegisterCheckServiceServer(s grpc.ServiceRegistrar, srv CheckServiceServer) {
+	s.RegisterService(&CheckService_ServiceDesc, srv)
 }
 
 func _CheckService_GetAllByRoundID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -138,7 +148,10 @@ func _CheckService_GetAllByServiceID_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-var _CheckService_serviceDesc = grpc.ServiceDesc{
+// CheckService_ServiceDesc is the grpc.ServiceDesc for CheckService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var CheckService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "pkg.check.checkpb.CheckService",
 	HandlerType: (*CheckServiceServer)(nil),
 	Methods: []grpc.MethodDesc{

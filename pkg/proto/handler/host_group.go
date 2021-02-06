@@ -15,6 +15,7 @@ import (
 
 type HostGroupController struct {
 	svc host_group_service.Serv
+	host_grouppb.UnimplementedHostGroupServiceServer
 }
 
 func (p HostGroupController) GetByID(ctx context.Context, request *host_grouppb.GetByIDRequest) (*host_grouppb.GetByIDResponse, error) {
@@ -114,7 +115,7 @@ func (p HostGroupController) Update(ctx context.Context, request *host_grouppb.U
 }
 
 func NewHostGroupController(svc host_group_service.Serv) *HostGroupController {
-	return &HostGroupController{svc}
+	return &HostGroupController{svc: svc}
 }
 
 func ConvertHostGroupPBtoHostGroup(requireID bool, pb *host_grouppb.HostGroup) (*host_group.HostGroup, error) {
