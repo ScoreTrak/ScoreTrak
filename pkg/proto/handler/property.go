@@ -103,7 +103,7 @@ func (p PropertyController) Update(ctx context.Context, request *propertypb.Upda
 				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
 			)
 		}
-		pr = &property.Property{Value: prop.Value, ServiceID: prop.ServiceID, Key: pr.Key}
+		pr = &property.Property{Value: pr.Value, ServiceID: prop.ServiceID, Key: prop.Key}
 	}
 
 	err = p.svc.Update(ctx, pr)
