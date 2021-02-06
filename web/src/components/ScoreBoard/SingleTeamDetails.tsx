@@ -38,6 +38,7 @@ import {
 
 
 import {UUID} from "../../grpc/pkg/proto/utilpb/uuid_pb";
+import {StringValue} from "google-protobuf/google/protobuf/wrappers_pb";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -401,7 +402,9 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
                                             const uuid = new UUID()
                                             uuid.setValue(service_id)
                                             property.setServiceId(uuid)
-                                            property.setValue(newValue)
+                                            const stringValue = new StringValue()
+                                            stringValue.setValue(newValue)
+                                            property.setValue(stringValue)
                                             const updatedProperty = new UpdateRequestProperty()
                                             updatedProperty.setProperty(property)
                                             props.gRPCClients.propertyClient.update(updatedProperty, {}).then(r => {
