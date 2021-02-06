@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -19,16 +19,20 @@ import FormHelperText from "@material-ui/core/FormHelperText";
 import Button from "@material-ui/core/Button";
 import {Severity, SimpleReport, SimpleService} from "../../types/types";
 import {GRPCClients} from "../../grpc/gRPCClients";
-import {GetAllByServiceIDRequest as GetAllByServiceIDRequestCheck, GetAllByServiceIDResponse as GetAllByServiceIDResponseCheck, } from "../../grpc/pkg/check/checkpb/check_pb";
+import {
+    GetAllByServiceIDRequest as GetAllByServiceIDRequestCheck,
+    GetAllByServiceIDResponse as GetAllByServiceIDResponseCheck,
+} from "../../grpc/pkg/check/checkpb/check_pb";
 import {
     GetAllByServiceIDRequest as GetAllByServiceIDRequestProperty,
     GetAllByServiceIDResponse as GetAllByServiceIDResponseProperty,
     Property,
+    Status,
     UpdateRequest as UpdateRequestProperty
 } from "../../grpc/pkg/property/propertypb/property_pb";
 import {
     GetByIDRequest as GetByIDRequestHost,
-    GetByIDResponse as GetByIDResponseHost, Host,
+    Host,
     UpdateRequest as UpdateRequestHost
 } from "../../grpc/pkg/host/hostpb/host_pb";
 
@@ -302,7 +306,7 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
             for (const [key, property] of Object.entries(simpleService["Properties"])) {
                 let obj: PropertiesData = {key: key, value_used: property["Value"], service_id: key, value: undefined}
                 results.getPropertiesList().forEach(res => {
-                    if (key === res.getKey() && res.getStatus().toString() === "Edit"){
+                    if (key === res.getKey() && res.getStatus() === Status.EDIT){
                         obj.value = res.getValue()?.getValue()
                     }
                 })
@@ -383,10 +387,11 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
                 <Grid item xs={6}>
                     {
                         <MaterialTable
-                            options={{pageSizeOptions: [3, 5,10,20,50,100, PropertiesData.length], pageSize:PropertiesData.length}}
+                            options={{pageSizeOptions: [3, 5,10,20,50,100], pageSize: 5}} //PropertiesData.length
                             title="Properties"
                             columns={columns}
                             data={PropertiesData}
+
                             cellEditable={{
                                 onCellEditApproved: (newValue, oldValue, rowData, columnDef) => {
                                     return new Promise((resolve, reject) => {
