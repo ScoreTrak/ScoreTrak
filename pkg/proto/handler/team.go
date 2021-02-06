@@ -15,6 +15,7 @@ import (
 
 type TeamController struct {
 	svc team_service.Serv
+	teampb.UnimplementedTeamServiceServer
 }
 
 func (p TeamController) GetByID(ctx context.Context, request *teampb.GetByIDRequest) (*teampb.GetByIDResponse, error) {
@@ -114,7 +115,7 @@ func (p TeamController) Update(ctx context.Context, request *teampb.UpdateReques
 }
 
 func NewTeamController(svc team_service.Serv) *TeamController {
-	return &TeamController{svc}
+	return &TeamController{svc: svc}
 }
 
 func ConvertTeamPBtoTeam(requireID bool, pb *teampb.Team) (*team.Team, error) {

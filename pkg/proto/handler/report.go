@@ -21,6 +21,7 @@ type reportController struct {
 	svc          report_service.Serv
 	reportClient *report_client.Client
 	policyClient *policy_client.Client
+	reportpb.UnimplementedReportServiceServer
 }
 
 func (r *reportController) filterReport(rol string, tID uuid.UUID, lr *report.Report) (*reportpb.Report, error) {

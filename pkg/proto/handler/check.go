@@ -21,6 +21,7 @@ import (
 type CheckController struct {
 	svc    check_service.Serv
 	client *util.Store
+	checkpb.UnimplementedCheckServiceServer
 }
 
 func (c *CheckController) GetAllByRoundID(ctx context.Context, request *checkpb.GetAllByRoundIDRequest) (*checkpb.GetAllByRoundIDResponse, error) {
@@ -148,7 +149,7 @@ func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkp
 }
 
 func NewCheckController(svc check_service.Serv, client *util.Store) *CheckController {
-	return &CheckController{svc, client}
+	return &CheckController{svc: svc, client: client}
 }
 
 func ConvertCheckToCheckPb(obj *check.Check) *checkpb.Check {

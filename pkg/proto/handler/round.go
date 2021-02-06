@@ -14,6 +14,7 @@ import (
 
 type RoundController struct {
 	svc round_service.Serv
+	roundpb.UnimplementedRoundServiceServer
 }
 
 func (r RoundController) GetLastNonElapsingRound(ctx context.Context, request *roundpb.GetLastNonElapsingRoundRequest) (*roundpb.GetLastNonElapsingRoundResponse, error) {
@@ -77,7 +78,7 @@ func (r RoundController) GetLastRound(ctx context.Context, request *roundpb.GetL
 }
 
 func NewRoundController(svc round_service.Serv) *RoundController {
-	return &RoundController{svc}
+	return &RoundController{svc: svc}
 }
 
 func ConvertRoundPBtoRound(requireID bool, pb *roundpb.Round) (*round.Round, error) {

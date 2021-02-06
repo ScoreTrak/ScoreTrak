@@ -10,7 +10,7 @@ message User {
   string username = 2;
   pkg.proto.utilpb.UUID team_id = 4;
   string password = 5;
-  Role role = 6;
+  optional Role role = 6;
   string password_hash = 7;
 }
 

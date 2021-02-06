@@ -18,6 +18,7 @@ import (
 type HostController struct {
 	svc    host_service.Serv
 	client *util.Store
+	hostpb.UnimplementedHostServiceServer
 }
 
 func (p HostController) GetByID(ctx context.Context, request *hostpb.GetByIDRequest) (*hostpb.GetByIDResponse, error) {
@@ -165,7 +166,7 @@ func (p HostController) Update(ctx context.Context, request *hostpb.UpdateReques
 }
 
 func NewHostController(svc host_service.Serv, client *util.Store) *HostController {
-	return &HostController{svc, client}
+	return &HostController{svc: svc, client: client}
 }
 
 func ConvertHostPBtoHost(requireID bool, pb *hostpb.Host) (*host.Host, error) {

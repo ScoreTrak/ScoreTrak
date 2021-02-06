@@ -18,6 +18,7 @@ import (
 type PropertyController struct {
 	svc    property_service.Serv
 	client *util.Store
+	propertypb.UnimplementedPropertyServiceServer
 }
 
 func (p PropertyController) GetAll(ctx context.Context, request *propertypb.GetAllRequest) (*propertypb.GetAllResponse, error) {
@@ -207,7 +208,7 @@ func (p PropertyController) GetAllByServiceID(ctx context.Context, request *prop
 }
 
 func NewPropertyController(svc property_service.Serv, client *util.Store) *PropertyController {
-	return &PropertyController{svc, client}
+	return &PropertyController{svc: svc, client: client}
 }
 
 func ConvertPropertyPBtoProperty(pb *propertypb.Property) (*property.Property, error) {
@@ -238,13 +239,16 @@ func ConvertPropertyPBtoProperty(pb *propertypb.Property) (*property.Property, e
 		value = &pb.GetValue().Value
 	}
 	var st string
-	if pb.GetStatus() == propertypb.Status_View {
-		st = property.View
-	} else if pb.GetStatus() == propertypb.Status_Edit {
-		st = property.Edit
-	} else if pb.GetStatus() == propertypb.Status_Hide {
-		st = property.Hide
+	if pb.Status != nil {
+		if pb.GetStatus() == propertypb.Status_View {
+			st = property.View
+		} else if pb.GetStatus() == propertypb.Status_Edit {
+			st = property.Edit
+		} else if pb.GetStatus() == propertypb.Status_Hide {
+			st = property.Hide
+		}
 	}
+
 	return &property.Property{
 		ServiceID: id,
 		Key:       pb.GetKey(),
@@ -270,6 +274,6 @@ func ConvertPropertyToPropertyPb(obj *property.Property) *propertypb.Property {
 		ServiceId: &utilpb.UUID{Value: obj.ServiceID.String()},
 		Key:       obj.Key,
 		Value:     value,
-		Status:    st,
+		Status:    &st,
 	}
 }

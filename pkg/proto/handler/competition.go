@@ -33,6 +33,7 @@ import (
 
 type CompetitionController struct {
 	svc competition_service.Serv
+	competitionpb.UnimplementedCompetitionServiceServer
 }
 
 func (c CompetitionController) LoadCompetition(ctx context.Context, request *competitionpb.LoadCompetitionRequest) (*competitionpb.LoadCompetitionResponse, error) {
@@ -193,7 +194,7 @@ func (c CompetitionController) DeleteCompetition(ctx context.Context, request *c
 }
 
 func NewCompetitionController(svc competition_service.Serv) *CompetitionController {
-	return &CompetitionController{svc}
+	return &CompetitionController{svc: svc}
 }
 
 func ConvertCompetitionToCompetitionPB(comp *competition.Competition) (*competitionpb.Competition, error) {

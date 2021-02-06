@@ -11,7 +11,8 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+// Requires gRPC-Go v1.32.0 or later.
+const _ = grpc.SupportPackageIsVersion7
 
 // HostGroupServiceClient is the client API for HostGroupService service.
 //
@@ -78,7 +79,7 @@ func (c *hostGroupServiceClient) Update(ctx context.Context, in *UpdateRequest, 
 }
 
 // HostGroupServiceServer is the server API for HostGroupService service.
-// All implementations should embed UnimplementedHostGroupServiceServer
+// All implementations must embed UnimplementedHostGroupServiceServer
 // for forward compatibility
 type HostGroupServiceServer interface {
 	GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error)
@@ -86,30 +87,39 @@ type HostGroupServiceServer interface {
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	Store(context.Context, *StoreRequest) (*StoreResponse, error)
 	Update(context.Context, *UpdateRequest) (*UpdateResponse, error)
+	mustEmbedUnimplementedHostGroupServiceServer()
 }
 
-// UnimplementedHostGroupServiceServer should be embedded to have forward compatible implementations.
+// UnimplementedHostGroupServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedHostGroupServiceServer struct {
 }
 
-func (*UnimplementedHostGroupServiceServer) GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error) {
+func (UnimplementedHostGroupServiceServer) GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
-func (*UnimplementedHostGroupServiceServer) GetByID(context.Context, *GetByIDRequest) (*GetByIDResponse, error) {
+func (UnimplementedHostGroupServiceServer) GetByID(context.Context, *GetByIDRequest) (*GetByIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByID not implemented")
 }
-func (*UnimplementedHostGroupServiceServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
+func (UnimplementedHostGroupServiceServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (*UnimplementedHostGroupServiceServer) Store(context.Context, *StoreRequest) (*StoreResponse, error) {
+func (UnimplementedHostGroupServiceServer) Store(context.Context, *StoreRequest) (*StoreResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Store not implemented")
 }
-func (*UnimplementedHostGroupServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
+func (UnimplementedHostGroupServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
+func (UnimplementedHostGroupServiceServer) mustEmbedUnimplementedHostGroupServiceServer() {}
 
-func RegisterHostGroupServiceServer(s *grpc.Server, srv HostGroupServiceServer) {
-	s.RegisterService(&_HostGroupService_serviceDesc, srv)
+// UnsafeHostGroupServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to HostGroupServiceServer will
+// result in compilation errors.
+type UnsafeHostGroupServiceServer interface {
+	mustEmbedUnimplementedHostGroupServiceServer()
+}
+
+func RegisterHostGroupServiceServer(s grpc.ServiceRegistrar, srv HostGroupServiceServer) {
+	s.RegisterService(&HostGroupService_ServiceDesc, srv)
 }
 
 func _HostGroupService_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -202,7 +212,10 @@ func _HostGroupService_Update_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-var _HostGroupService_serviceDesc = grpc.ServiceDesc{
+// HostGroupService_ServiceDesc is the grpc.ServiceDesc for HostGroupService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var HostGroupService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "pkg.host_group.host_grouppb.HostGroupService",
 	HandlerType: (*HostGroupServiceServer)(nil),
 	Methods: []grpc.MethodDesc{

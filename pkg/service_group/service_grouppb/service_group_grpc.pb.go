@@ -11,7 +11,8 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+// Requires gRPC-Go v1.32.0 or later.
+const _ = grpc.SupportPackageIsVersion7
 
 // ServiceGroupServiceClient is the client API for ServiceGroupService service.
 //
@@ -88,7 +89,7 @@ func (c *serviceGroupServiceClient) Redeploy(ctx context.Context, in *RedeployRe
 }
 
 // ServiceGroupServiceServer is the server API for ServiceGroupService service.
-// All implementations should embed UnimplementedServiceGroupServiceServer
+// All implementations must embed UnimplementedServiceGroupServiceServer
 // for forward compatibility
 type ServiceGroupServiceServer interface {
 	GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error)
@@ -97,33 +98,42 @@ type ServiceGroupServiceServer interface {
 	Store(context.Context, *StoreRequest) (*StoreResponse, error)
 	Update(context.Context, *UpdateRequest) (*UpdateResponse, error)
 	Redeploy(context.Context, *RedeployRequest) (*RedeployResponse, error)
+	mustEmbedUnimplementedServiceGroupServiceServer()
 }
 
-// UnimplementedServiceGroupServiceServer should be embedded to have forward compatible implementations.
+// UnimplementedServiceGroupServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedServiceGroupServiceServer struct {
 }
 
-func (*UnimplementedServiceGroupServiceServer) GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error) {
+func (UnimplementedServiceGroupServiceServer) GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
 }
-func (*UnimplementedServiceGroupServiceServer) GetByID(context.Context, *GetByIDRequest) (*GetByIDResponse, error) {
+func (UnimplementedServiceGroupServiceServer) GetByID(context.Context, *GetByIDRequest) (*GetByIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByID not implemented")
 }
-func (*UnimplementedServiceGroupServiceServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
+func (UnimplementedServiceGroupServiceServer) Delete(context.Context, *DeleteRequest) (*DeleteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
-func (*UnimplementedServiceGroupServiceServer) Store(context.Context, *StoreRequest) (*StoreResponse, error) {
+func (UnimplementedServiceGroupServiceServer) Store(context.Context, *StoreRequest) (*StoreResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Store not implemented")
 }
-func (*UnimplementedServiceGroupServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
+func (UnimplementedServiceGroupServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
-func (*UnimplementedServiceGroupServiceServer) Redeploy(context.Context, *RedeployRequest) (*RedeployResponse, error) {
+func (UnimplementedServiceGroupServiceServer) Redeploy(context.Context, *RedeployRequest) (*RedeployResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Redeploy not implemented")
 }
+func (UnimplementedServiceGroupServiceServer) mustEmbedUnimplementedServiceGroupServiceServer() {}
 
-func RegisterServiceGroupServiceServer(s *grpc.Server, srv ServiceGroupServiceServer) {
-	s.RegisterService(&_ServiceGroupService_serviceDesc, srv)
+// UnsafeServiceGroupServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ServiceGroupServiceServer will
+// result in compilation errors.
+type UnsafeServiceGroupServiceServer interface {
+	mustEmbedUnimplementedServiceGroupServiceServer()
+}
+
+func RegisterServiceGroupServiceServer(s grpc.ServiceRegistrar, srv ServiceGroupServiceServer) {
+	s.RegisterService(&ServiceGroupService_ServiceDesc, srv)
 }
 
 func _ServiceGroupService_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -234,7 +244,10 @@ func _ServiceGroupService_Redeploy_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-var _ServiceGroupService_serviceDesc = grpc.ServiceDesc{
+// ServiceGroupService_ServiceDesc is the grpc.ServiceDesc for ServiceGroupService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ServiceGroupService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "pkg.service_group.service_grouppb.ServiceGroupService",
 	HandlerType: (*ServiceGroupServiceServer)(nil),
 	Methods: []grpc.MethodDesc{

@@ -11,10 +11,11 @@ import (
 type AuthController struct {
 	svc        user_service.Serv
 	jwtManager *auth.Manager
+	auth.UnimplementedAuthServiceServer
 }
 
 func NewAuthController(svc user_service.Serv, jwtManager *auth.Manager) *AuthController {
-	return &AuthController{svc, jwtManager}
+	return &AuthController{svc: svc, jwtManager: jwtManager}
 }
 
 func (a AuthController) Login(ctx context.Context, request *auth.LoginRequest) (*auth.LoginResponse, error) {

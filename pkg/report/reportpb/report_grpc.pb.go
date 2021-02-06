@@ -11,7 +11,8 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+// Requires gRPC-Go v1.32.0 or later.
+const _ = grpc.SupportPackageIsVersion7
 
 // ReportServiceClient is the client API for ReportService service.
 //
@@ -29,7 +30,7 @@ func NewReportServiceClient(cc grpc.ClientConnInterface) ReportServiceClient {
 }
 
 func (c *reportServiceClient) Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (ReportService_GetClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_ReportService_serviceDesc.Streams[0], "/pkg.report.reportpb.ReportService/Get", opts...)
+	stream, err := c.cc.NewStream(ctx, &ReportService_ServiceDesc.Streams[0], "/pkg.report.reportpb.ReportService/Get", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -61,22 +62,31 @@ func (x *reportServiceGetClient) Recv() (*GetResponse, error) {
 }
 
 // ReportServiceServer is the server API for ReportService service.
-// All implementations should embed UnimplementedReportServiceServer
+// All implementations must embed UnimplementedReportServiceServer
 // for forward compatibility
 type ReportServiceServer interface {
 	Get(*GetRequest, ReportService_GetServer) error
+	mustEmbedUnimplementedReportServiceServer()
 }
 
-// UnimplementedReportServiceServer should be embedded to have forward compatible implementations.
+// UnimplementedReportServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedReportServiceServer struct {
 }
 
-func (*UnimplementedReportServiceServer) Get(*GetRequest, ReportService_GetServer) error {
+func (UnimplementedReportServiceServer) Get(*GetRequest, ReportService_GetServer) error {
 	return status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
+func (UnimplementedReportServiceServer) mustEmbedUnimplementedReportServiceServer() {}
 
-func RegisterReportServiceServer(s *grpc.Server, srv ReportServiceServer) {
-	s.RegisterService(&_ReportService_serviceDesc, srv)
+// UnsafeReportServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ReportServiceServer will
+// result in compilation errors.
+type UnsafeReportServiceServer interface {
+	mustEmbedUnimplementedReportServiceServer()
+}
+
+func RegisterReportServiceServer(s grpc.ServiceRegistrar, srv ReportServiceServer) {
+	s.RegisterService(&ReportService_ServiceDesc, srv)
 }
 
 func _ReportService_Get_Handler(srv interface{}, stream grpc.ServerStream) error {
@@ -100,7 +110,10 @@ func (x *reportServiceGetServer) Send(m *GetResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-var _ReportService_serviceDesc = grpc.ServiceDesc{
+// ReportService_ServiceDesc is the grpc.ServiceDesc for ReportService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ReportService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "pkg.report.reportpb.ReportService",
 	HandlerType: (*ReportServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},

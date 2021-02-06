@@ -11,7 +11,8 @@ import (
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+// Requires gRPC-Go v1.32.0 or later.
+const _ = grpc.SupportPackageIsVersion7
 
 // CompetitionServiceClient is the client API for CompetitionService service.
 //
@@ -78,7 +79,7 @@ func (c *competitionServiceClient) DeleteCompetition(ctx context.Context, in *De
 }
 
 // CompetitionServiceServer is the server API for CompetitionService service.
-// All implementations should embed UnimplementedCompetitionServiceServer
+// All implementations must embed UnimplementedCompetitionServiceServer
 // for forward compatibility
 type CompetitionServiceServer interface {
 	LoadCompetition(context.Context, *LoadCompetitionRequest) (*LoadCompetitionResponse, error)
@@ -86,30 +87,39 @@ type CompetitionServiceServer interface {
 	FetchEntireCompetition(context.Context, *FetchEntireCompetitionRequest) (*FetchEntireCompetitionResponse, error)
 	ResetScores(context.Context, *ResetScoresRequest) (*ResetScoresResponse, error)
 	DeleteCompetition(context.Context, *DeleteCompetitionRequest) (*DeleteCompetitionResponse, error)
+	mustEmbedUnimplementedCompetitionServiceServer()
 }
 
-// UnimplementedCompetitionServiceServer should be embedded to have forward compatible implementations.
+// UnimplementedCompetitionServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedCompetitionServiceServer struct {
 }
 
-func (*UnimplementedCompetitionServiceServer) LoadCompetition(context.Context, *LoadCompetitionRequest) (*LoadCompetitionResponse, error) {
+func (UnimplementedCompetitionServiceServer) LoadCompetition(context.Context, *LoadCompetitionRequest) (*LoadCompetitionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoadCompetition not implemented")
 }
-func (*UnimplementedCompetitionServiceServer) FetchCoreCompetition(context.Context, *FetchCoreCompetitionRequest) (*FetchCoreCompetitionResponse, error) {
+func (UnimplementedCompetitionServiceServer) FetchCoreCompetition(context.Context, *FetchCoreCompetitionRequest) (*FetchCoreCompetitionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FetchCoreCompetition not implemented")
 }
-func (*UnimplementedCompetitionServiceServer) FetchEntireCompetition(context.Context, *FetchEntireCompetitionRequest) (*FetchEntireCompetitionResponse, error) {
+func (UnimplementedCompetitionServiceServer) FetchEntireCompetition(context.Context, *FetchEntireCompetitionRequest) (*FetchEntireCompetitionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FetchEntireCompetition not implemented")
 }
-func (*UnimplementedCompetitionServiceServer) ResetScores(context.Context, *ResetScoresRequest) (*ResetScoresResponse, error) {
+func (UnimplementedCompetitionServiceServer) ResetScores(context.Context, *ResetScoresRequest) (*ResetScoresResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ResetScores not implemented")
 }
-func (*UnimplementedCompetitionServiceServer) DeleteCompetition(context.Context, *DeleteCompetitionRequest) (*DeleteCompetitionResponse, error) {
+func (UnimplementedCompetitionServiceServer) DeleteCompetition(context.Context, *DeleteCompetitionRequest) (*DeleteCompetitionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCompetition not implemented")
 }
+func (UnimplementedCompetitionServiceServer) mustEmbedUnimplementedCompetitionServiceServer() {}
 
-func RegisterCompetitionServiceServer(s *grpc.Server, srv CompetitionServiceServer) {
-	s.RegisterService(&_CompetitionService_serviceDesc, srv)
+// UnsafeCompetitionServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CompetitionServiceServer will
+// result in compilation errors.
+type UnsafeCompetitionServiceServer interface {
+	mustEmbedUnimplementedCompetitionServiceServer()
+}
+
+func RegisterCompetitionServiceServer(s grpc.ServiceRegistrar, srv CompetitionServiceServer) {
+	s.RegisterService(&CompetitionService_ServiceDesc, srv)
 }
 
 func _CompetitionService_LoadCompetition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -202,7 +212,10 @@ func _CompetitionService_DeleteCompetition_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
-var _CompetitionService_serviceDesc = grpc.ServiceDesc{
+// CompetitionService_ServiceDesc is the grpc.ServiceDesc for CompetitionService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var CompetitionService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "pkg.competition.competitionpb.CompetitionService",
 	HandlerType: (*CompetitionServiceServer)(nil),
 	Methods: []grpc.MethodDesc{

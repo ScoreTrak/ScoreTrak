@@ -15,6 +15,7 @@ import (
 
 type ServiceGroupController struct {
 	svc service_group_service.Serv
+	service_grouppb.UnimplementedServiceGroupServiceServer
 }
 
 func (p ServiceGroupController) Redeploy(ctx context.Context, request *service_grouppb.RedeployRequest) (*service_grouppb.RedeployResponse, error) {
@@ -135,7 +136,7 @@ func (p ServiceGroupController) Update(ctx context.Context, request *service_gro
 }
 
 func NewServiceGroupController(svc service_group_service.Serv) *ServiceGroupController {
-	return &ServiceGroupController{svc}
+	return &ServiceGroupController{svc: svc}
 }
 
 func ConvertServiceGroupPBtoServiceGroup(requireID bool, sg *service_grouppb.ServiceGroup) (*service_group.ServiceGroup, error) {

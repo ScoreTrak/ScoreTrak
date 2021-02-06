@@ -19,6 +19,7 @@ import (
 type ServiceController struct {
 	svc    service2.Serv
 	client *util.Store
+	servicepb.UnimplementedServiceServiceServer
 }
 
 func (p ServiceController) GetByID(ctx context.Context, request *servicepb.GetByIDRequest) (*servicepb.GetByIDResponse, error) {
@@ -180,7 +181,7 @@ func (p ServiceController) Update(ctx context.Context, request *servicepb.Update
 }
 
 func NewServiceController(svc service2.Serv, client *util.Store) *ServiceController {
-	return &ServiceController{svc, client}
+	return &ServiceController{svc: svc, client: client}
 }
 
 func ConvertServicePBtoService(requireID bool, pb *servicepb.Service) (*service.Service, error) {
