@@ -21,7 +21,7 @@
     "google-protobuf": "^3.14.0-rc.1",
     "grpc-web": "^1.2.1",
     "jwt-decode": "^3.1.1",
-    "material-table": "^1.67.1",
+    "material-table": "1.67.1",
     "notistack": "^1.0.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
