@@ -208,14 +208,13 @@ func ConvertUserPBtoUser(requireID bool, pb *userpb.User) (*user.User, error) {
 	}
 
 	var r string
-	if pb.Role != nil {
-		if pb.GetRole() == userpb.Role_Blue {
-			r = role.Blue
-		} else if pb.GetRole() == userpb.Role_Red {
-			r = role.Red
-		} else if pb.GetRole() == userpb.Role_Black {
-			r = role.Black
-		}
+
+	if pb.GetRole() == userpb.Role_Blue {
+		r = role.Blue
+	} else if pb.GetRole() == userpb.Role_Red {
+		r = role.Red
+	} else if pb.GetRole() == userpb.Role_Black {
+		r = role.Black
 	}
 
 	return &user.User{
@@ -236,7 +235,7 @@ func ConvertUserToUserPb(obj *user.User) *userpb.User {
 	}
 }
 
-func UserRoleToRolePB(r string) *userpb.Role {
+func UserRoleToRolePB(r string) userpb.Role {
 	var rpb userpb.Role
 	if r == role.Blue {
 		rpb = userpb.Role_Blue
@@ -245,5 +244,5 @@ func UserRoleToRolePB(r string) *userpb.Role {
 	} else if r == role.Black {
 		rpb = userpb.Role_Black
 	}
-	return &rpb
+	return rpb
 }

@@ -7,16 +7,17 @@ import "pkg/proto/utilpb/uuid.proto";
 option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/property/propertypb";
 
 enum Status {
-  View = 0;
-  Edit = 1;
-  Hide = 2;
+  STATUS_NOT_SET = 0;
+  View = 1;
+  Edit = 2;
+  Hide = 3;
 }
 
 message Property {
   pkg.proto.utilpb.UUID service_id = 1;
   string key = 2;
   google.protobuf.StringValue value = 3;
-  optional Status status = 4;
+  Status status = 4;
 }
 
 message GetAllRequest{}

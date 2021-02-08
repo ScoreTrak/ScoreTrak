@@ -7,6 +7,8 @@
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
+/* eslint-disable */
+// @ts-nocheck
 
 var jspb = require('google-protobuf');
 var goog = jspb;
@@ -2268,9 +2270,10 @@ proto.pkg.property.propertypb.UpdateResponse.serializeBinaryToWriter = function(
  * @enum {number}
  */
 proto.pkg.property.propertypb.Status = {
-  VIEW: 0,
-  EDIT: 1,
-  HIDE: 2
+  STATUS_NOT_SET: 0,
+  VIEW: 1,
+  EDIT: 2,
+  HIDE: 3
 };
 
 goog.object.extend(exports, proto.pkg.property.propertypb);

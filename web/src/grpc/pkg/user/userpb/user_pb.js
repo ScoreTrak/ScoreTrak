@@ -7,6 +7,8 @@
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
+/* eslint-disable */
+// @ts-nocheck
 
 var jspb = require('google-protobuf');
 var goog = jspb;
@@ -2295,9 +2297,10 @@ proto.pkg.user.userpb.GetByUsernameResponse.prototype.hasUser = function() {
  * @enum {number}
  */
 proto.pkg.user.userpb.Role = {
-  BLUE: 0,
-  RED: 1,
-  BLACK: 2
+  ROLE_NOT_SET: 0,
+  BLUE: 1,
+  RED: 2,
+  BLACK: 3
 };
 
 goog.object.extend(exports, proto.pkg.user.userpb);

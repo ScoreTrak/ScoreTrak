@@ -10,14 +10,15 @@ message User {
   string username = 2;
   pkg.proto.utilpb.UUID team_id = 4;
   string password = 5;
-  optional Role role = 6;
+  Role role = 6;
   string password_hash = 7;
 }
 
 enum Role {
-  Blue = 0;
-  Red = 1;
-  Black = 2;
+  ROLE_NOT_SET = 0;
+  Blue = 1;
+  Red = 2;
+  Black = 3;
 }
 
 message GetAllRequest{}
