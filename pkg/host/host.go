@@ -19,7 +19,7 @@ type Host struct {
 	Address string `json:"address" gorm:"not null;default:null"`
 
 	//Comma Separated List of allowed CIDRs, and hostnames
-	AddressListRange *string `json:"address_list_range"`
+	AddressListRange *string `json:"address_list_range" gorm:"not null;default:''"`
 
 	// The ID of a host group that the host belongs to.
 	HostGroupID *uuid.UUID `json:"host_group_id,omitempty" gorm:"type:uuid"`
@@ -52,16 +52,18 @@ func (p *Host) BeforeSave(tx *gorm.DB) (err error) {
 				p.Address = hst.Address
 			}
 		}
+
 		if !govalidator.IsHost(p.Address) {
-			return errors.New("provided address is not a valid Hostname, nor a valid IP address")
+			return fmt.Errorf("provided address: \"%s\" is not a valid Hostname, nor a valid IP address", p.Address)
 		}
 		if p.AddressListRange != nil {
 			*p.AddressListRange = strings.ReplaceAll(*p.AddressListRange, " ", "")
 			err = validateIfAddressInRange(p.Address, *p.AddressListRange)
 			if err != nil {
-				return fmt.Errorf("the provided ip address was not in allowed range")
+				return err
 			}
 		}
+
 	}
 	return nil
 }
@@ -78,6 +80,10 @@ func (p *Host) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 func validateIfAddressInRange(addr string, addresses string) (err error) {
+	if addresses == "" {
+		return nil
+	}
+
 	var addressList []string
 	addressList = strings.Split(addresses, ",")
 	for i := range addressList {
@@ -94,5 +100,5 @@ func validateIfAddressInRange(addr string, addresses string) (err error) {
 			return fmt.Errorf("%s is not a valid hostname or CIDR", addressList[i])
 		}
 	}
-	return nil
+	return fmt.Errorf("the provided ip address was not in allowed range")
 }

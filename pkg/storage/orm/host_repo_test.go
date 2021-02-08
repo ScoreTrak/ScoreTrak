@@ -107,7 +107,7 @@ func TestHostSpec(t *testing.T) {
 					newHost := host.Host{Address: "googleZZZ.com"}
 					newHost.ID = uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333")
 					err = hr.Update(ctx, &newHost)
-					So(err, ShouldBeNil)
+					So(err, ShouldNotBeNil)
 				})
 
 				Convey("Then Changing to incorrect AllowedAddressRange", func() {
