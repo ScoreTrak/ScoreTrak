@@ -223,7 +223,7 @@ func (d dRunner) Score(ctx context.Context, rnd round.Round) {
 									de, _ := ctx.Deadline()
 									sd := &queueing.ScoringData{
 										Deadline:   de.Add(-time.Second),
-										Host:       *(h.Address),
+										Host:       h.Address,
 										Service:    sq,
 										Properties: params,
 										RoundID:    rnd.ID,
@@ -294,7 +294,7 @@ func (d dRunner) Score(ctx context.Context, rnd round.Round) {
 			st := &report.SimpleTeam{Name: t.Name, Enabled: *t.Enabled, Hidden: *t.Hidden}
 			st.Hosts = make(map[uuid.UUID]*report.SimpleHost)
 			for _, h := range t.Hosts {
-				sh := report.SimpleHost{Address: *h.Address, Enabled: *h.Enabled}
+				sh := report.SimpleHost{Address: h.Address, Enabled: *h.Enabled}
 				if h.HostGroupID != nil {
 					for _, hG := range hostGroup {
 						if hG.ID == *h.HostGroupID {

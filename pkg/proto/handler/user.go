@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/role"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user/user_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user/userpb"
@@ -110,6 +109,14 @@ func (p UserController) Store(ctx context.Context, request *userpb.StoreRequest)
 				"Password should not be empty",
 			)
 		}
+
+		if usr.Role == "" {
+			return nil, status.Errorf(
+				codes.InvalidArgument,
+				"Password should not be empty",
+			)
+		}
+
 		usrs = append(usrs, usr)
 	}
 	err := p.svc.Store(ctx, usrs)
@@ -135,7 +142,7 @@ func (p UserController) Update(ctx context.Context, request *userpb.UpdateReques
 
 	claim := extractUserClaim(ctx)
 
-	if claim.Role != role.Black {
+	if claim.Role != user.Black {
 		if claim.Id != usr.TeamID.String() {
 			return nil, status.Errorf(
 				codes.PermissionDenied,
@@ -210,11 +217,11 @@ func ConvertUserPBtoUser(requireID bool, pb *userpb.User) (*user.User, error) {
 	var r string
 
 	if pb.GetRole() == userpb.Role_Blue {
-		r = role.Blue
+		r = user.Blue
 	} else if pb.GetRole() == userpb.Role_Red {
-		r = role.Red
+		r = user.Red
 	} else if pb.GetRole() == userpb.Role_Black {
-		r = role.Black
+		r = user.Black
 	}
 
 	return &user.User{
@@ -237,11 +244,11 @@ func ConvertUserToUserPb(obj *user.User) *userpb.User {
 
 func UserRoleToRolePB(r string) userpb.Role {
 	var rpb userpb.Role
-	if r == role.Blue {
+	if r == user.Blue {
 		rpb = userpb.Role_Blue
-	} else if r == role.Red {
+	} else if r == user.Red {
 		rpb = userpb.Role_Red
-	} else if r == role.Black {
+	} else if r == user.Black {
 		rpb = userpb.Role_Black
 	}
 	return rpb

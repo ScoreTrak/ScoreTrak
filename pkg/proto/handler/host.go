@@ -7,8 +7,8 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/host/host_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host/hostpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/role"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
@@ -39,7 +39,7 @@ func (p HostController) GetByID(ctx context.Context, request *hostpb.GetByIDRequ
 
 	claim := extractUserClaim(ctx)
 	var hst *host.Host
-	if claim.Role != role.Black {
+	if claim.Role != user.Black {
 		tID, prop, err := teamIDFromHost(ctx, p.client, uid)
 		if err != nil {
 			return nil, status.Errorf(
@@ -138,7 +138,7 @@ func (p HostController) Update(ctx context.Context, request *hostpb.UpdateReques
 
 	claim := extractUserClaim(ctx)
 
-	if claim.Role != role.Black {
+	if claim.Role != user.Black {
 		tID, prop, err := teamIDFromHost(ctx, p.client, hst.ID)
 		if err != nil {
 			return nil, status.Errorf(
@@ -197,10 +197,9 @@ func ConvertHostPBtoHost(requireID bool, pb *hostpb.Host) (*host.Host, error) {
 		editHost = &pb.GetEditHost().Value
 	}
 
-	var address *string
+	var address string
 	if pb.GetAddress() != "" {
-		addr := pb.GetAddress()
-		address = &addr
+		address = pb.GetAddress()
 	}
 
 	var hostGrpID *uuid.UUID
@@ -225,14 +224,21 @@ func ConvertHostPBtoHost(requireID bool, pb *hostpb.Host) (*host.Host, error) {
 			)
 		}
 	}
+
+	var addressList *string
+	if pb.GetAddressListRange() != nil {
+		addressList = &pb.GetAddressListRange().Value
+	}
+
 	return &host.Host{
-		ID:          id,
-		Address:     address,
-		HostGroupID: hostGrpID,
-		TeamID:      teamID,
-		Enabled:     enabled,
-		EditHost:    editHost,
-		Services:    nil,
+		AddressListRange: addressList,
+		ID:               id,
+		Address:          address,
+		HostGroupID:      hostGrpID,
+		TeamID:           teamID,
+		Enabled:          enabled,
+		EditHost:         editHost,
+		Services:         nil,
 	}, nil
 }
 
@@ -243,13 +249,19 @@ func ConvertHostToHostPb(obj *host.Host) *hostpb.Host {
 		hstGrpID = &utilpb.UUID{Value: obj.HostGroupID.String()}
 	}
 
+	var addressList *wrappers.StringValue
+	if obj.AddressListRange != nil {
+		addressList = &wrappers.StringValue{Value: *obj.AddressListRange}
+	}
+
 	return &hostpb.Host{
-		Id:          &utilpb.UUID{Value: obj.ID.String()},
-		Address:     *obj.Address,
-		HostGroupId: hstGrpID,
-		TeamId:      &utilpb.UUID{Value: obj.TeamID.String()},
-		Enabled:     &wrappers.BoolValue{Value: *obj.Enabled},
-		EditHost:    &wrappers.BoolValue{Value: *obj.EditHost},
-		Services:    nil,
+		Id:               &utilpb.UUID{Value: obj.ID.String()},
+		Address:          obj.Address,
+		HostGroupId:      hstGrpID,
+		TeamId:           &utilpb.UUID{Value: obj.TeamID.String()},
+		Enabled:          &wrappers.BoolValue{Value: *obj.Enabled},
+		EditHost:         &wrappers.BoolValue{Value: *obj.EditHost},
+		Services:         nil,
+		AddressListRange: addressList,
 	}
 }

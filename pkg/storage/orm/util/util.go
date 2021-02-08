@@ -10,7 +10,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
-	"github.com/ScoreTrak/ScoreTrak/pkg/role"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
@@ -107,7 +106,7 @@ func CreateAdminUser(db *gorm.DB) (err error) {
 	if err != nil {
 		return err
 	}
-	err = db.Create([]*user.User{{ID: uuid1, TeamID: uuid1, Username: "admin", Role: role.Black, PasswordHash: string(hashedPassword)}}).Error
+	err = db.Create([]*user.User{{ID: uuid1, TeamID: uuid1, Username: "admin", Role: user.Black, PasswordHash: string(hashedPassword)}}).Error
 	if err != nil {
 		serr, ok := err.(*pgconn.PgError)
 		if !ok || serr.Code != "23505" {

@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/role"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	service2 "github.com/ScoreTrak/ScoreTrak/pkg/service/service_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service/servicepb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
@@ -41,7 +41,7 @@ func (p ServiceController) GetByID(ctx context.Context, request *servicepb.GetBy
 	claim := extractUserClaim(ctx)
 
 	var serv *service.Service
-	if claim.Role != role.Black {
+	if claim.Role != user.Black {
 		tID, prop, err := teamIDFromService(ctx, p.client, uid)
 		if err != nil {
 			return nil, status.Errorf(

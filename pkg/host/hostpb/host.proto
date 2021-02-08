@@ -16,6 +16,7 @@ message Host {
   google.protobuf.BoolValue enabled = 5;
   google.protobuf.BoolValue edit_host = 6;
   repeated pkg.service.servicepb.Service services = 7;
+  google.protobuf.StringValue address_list_range = 8;
 }
 
 message GetAllRequest{}

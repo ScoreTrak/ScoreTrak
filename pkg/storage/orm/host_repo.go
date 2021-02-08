@@ -70,7 +70,7 @@ func (h *hostRepo) Upsert(ctx context.Context, hst []*host.Host) error {
 func (h *hostRepo) Update(ctx context.Context, hst *host.Host) error {
 	err := h.db.WithContext(ctx).Model(hst).Updates(host.Host{Enabled: hst.Enabled,
 		Address: hst.Address, HostGroupID: hst.HostGroupID,
-		TeamID: hst.TeamID, EditHost: hst.EditHost,
+		TeamID: hst.TeamID, EditHost: hst.EditHost, AddressListRange: hst.AddressListRange,
 	}).Error
 	if err != nil {
 		return err
