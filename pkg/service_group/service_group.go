@@ -15,7 +15,7 @@ type ServiceGroup struct {
 
 	Name string `json:"name" gorm:"not null;unique;default:null"`
 
-	DisplayName string `json:"display_name,omitempty" gorm:"unique;default:'default'"`
+	DisplayName string `json:"display_name,omitempty" gorm:"unique"`
 
 	// Enables or Disables the check_service
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default:false"`
