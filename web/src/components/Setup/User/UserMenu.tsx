@@ -21,7 +21,7 @@ type userColumns = {
     password: string,
     passwordHash: string | undefined,
     teamId: string | undefined
-    role: string | undefined
+    role: Role | undefined
 }
 
 function userToUserColumn(user: User): userColumns{
@@ -40,21 +40,23 @@ function userColumnsToUser(userC: userColumns): User{
     if (userC.id && userC.id !== "") u.setId((new UUID().setValue(userC.id)))
     u.setPassword(userC.password)
     u.setUsername(userC.username)
-    u.setRole(RoleToProtoRole(userC.role as Role))
+    u.setRole(RoleToProtoRole(userC.role))
     if (userC.teamId && userC.teamId !== "") u.setTeamId((new UUID().setValue(userC.teamId)))
     return u
 }
 
-function ProtoRoleToRole (eRole : ProtoRole ): Role {
+function ProtoRoleToRole (eRole : ProtoRole ): Role | undefined{
+    if (eRole === ProtoRole.BLUE) return Role.Blue
     if (eRole === ProtoRole.BLACK) return Role.Black
     if (eRole === ProtoRole.RED) return Role.Red
-    return Role.Blue
+    return undefined
 }
 
-function RoleToProtoRole (role : Role): ProtoRole {
+function RoleToProtoRole (role : Role | undefined): ProtoRole {
+    if (role === Role.Blue) return ProtoRole.BLUE
     if (role === Role.Black) return ProtoRole.BLACK
     if (role === Role.Red) return ProtoRole.RED
-    return ProtoRole.BLUE
+    return ProtoRole.ROLE_NOT_SET
 }
 
 

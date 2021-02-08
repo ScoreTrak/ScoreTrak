@@ -263,7 +263,8 @@ export namespace UpdateResponse {
 }
 
 export enum Status { 
-  VIEW = 0,
-  EDIT = 1,
-  HIDE = 2,
+  STATUS_NOT_SET = 0,
+  VIEW = 1,
+  EDIT = 2,
+  HIDE = 3,
 }

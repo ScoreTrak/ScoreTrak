@@ -266,7 +266,8 @@ export namespace GetByUsernameResponse {
 }
 
 export enum Role { 
-  BLUE = 0,
-  RED = 1,
-  BLACK = 2,
+  ROLE_NOT_SET = 0,
+  BLUE = 1,
+  RED = 2,
+  BLACK = 3,
 }

@@ -239,14 +239,13 @@ func ConvertPropertyPBtoProperty(pb *propertypb.Property) (*property.Property, e
 		value = &pb.GetValue().Value
 	}
 	var st string
-	if pb.Status != nil {
-		if pb.GetStatus() == propertypb.Status_View {
-			st = property.View
-		} else if pb.GetStatus() == propertypb.Status_Edit {
-			st = property.Edit
-		} else if pb.GetStatus() == propertypb.Status_Hide {
-			st = property.Hide
-		}
+
+	if pb.GetStatus() == propertypb.Status_View {
+		st = property.View
+	} else if pb.GetStatus() == propertypb.Status_Edit {
+		st = property.Edit
+	} else if pb.GetStatus() == propertypb.Status_Hide {
+		st = property.Hide
 	}
 
 	return &property.Property{
@@ -274,6 +273,6 @@ func ConvertPropertyToPropertyPb(obj *property.Property) *propertypb.Property {
 		ServiceId: &utilpb.UUID{Value: obj.ServiceID.String()},
 		Key:       obj.Key,
 		Value:     value,
-		Status:    &st,
+		Status:    st,
 	}
 }

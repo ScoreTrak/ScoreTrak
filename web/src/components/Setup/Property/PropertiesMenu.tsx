@@ -61,23 +61,25 @@ export enum Status {
     Edit = "Edit"
 }
 
-function EnumStatusToStatus (pStatus : ProtoStatus ): Status {
+function EnumStatusToStatus (pStatus : ProtoStatus ): Status |undefined {
+    if (pStatus === ProtoStatus.VIEW) return Status.View
     if (pStatus === ProtoStatus.EDIT) return Status.Edit
     if (pStatus === ProtoStatus.HIDE) return Status.Hide
-    return Status.View
+    return undefined
 }
 
-function StatusToEnumStatus (status: Status): ProtoStatus {
+function StatusToEnumStatus (status: Status | undefined): ProtoStatus {
+    if (status === Status.View) return ProtoStatus.VIEW
     if (status === Status.Hide) return ProtoStatus.HIDE
     if (status === Status.Edit) return ProtoStatus.EDIT
-    return ProtoStatus.VIEW
+    return ProtoStatus.STATUS_NOT_SET
 }
 
 export type propertyColumns = {
     key: string,
     serviceId: string | undefined,
     value: string | undefined,
-    status: Status
+    status: Status | undefined
 }
 
 export function propertyToPropertyColumn(property: Property): propertyColumns{
