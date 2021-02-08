@@ -37,28 +37,30 @@ type Host struct {
 }
 
 func (p *Host) BeforeSave(tx *gorm.DB) (err error) {
-	p.Address = strings.ReplaceAll(p.Address, " ", "")
-	if (p.AddressListRange == nil || p.Address == "") && p.ID != uuid.Nil {
-		hst := &Host{}
-		err := tx.Where("id = ?", p.ID).First(hst).Error
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("unable to retreive the requested entry, in order to validate address. Error: %v", err)
+	if p.AddressListRange != nil || p.Address != "" {
+		p.Address = strings.ReplaceAll(p.Address, " ", "")
+		if (p.AddressListRange == nil || p.Address == "") && p.ID != uuid.Nil {
+			hst := &Host{}
+			err := tx.Where("id = ?", p.ID).First(hst).Error
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("unable to retreive the requested entry, in order to validate address. Error: %v", err)
+			}
+			if p.AddressListRange == nil {
+				p.AddressListRange = hst.AddressListRange
+			}
+			if p.Address == "" {
+				p.Address = hst.Address
+			}
 		}
-		if p.AddressListRange == nil {
-			p.AddressListRange = hst.AddressListRange
+		if !govalidator.IsHost(p.Address) {
+			return errors.New("provided address is not a valid Hostname, nor a valid IP address")
 		}
-		if p.Address == "" {
-			p.Address = hst.Address
-		}
-	}
-	if !govalidator.IsHost(p.Address) {
-		return errors.New("provided address is not a valid Hostname, nor a valid IP address")
-	}
-	if p.AddressListRange != nil {
-		*p.AddressListRange = strings.ReplaceAll(*p.AddressListRange, " ", "")
-		err = validateIfAddressInRange(p.Address, *p.AddressListRange)
-		if err != nil {
-			return fmt.Errorf("the provided ip address was not in allowed range")
+		if p.AddressListRange != nil {
+			*p.AddressListRange = strings.ReplaceAll(*p.AddressListRange, " ", "")
+			err = validateIfAddressInRange(p.Address, *p.AddressListRange)
+			if err != nil {
+				return fmt.Errorf("the provided ip address was not in allowed range")
+			}
 		}
 	}
 	return nil
