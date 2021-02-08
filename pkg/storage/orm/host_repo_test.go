@@ -49,7 +49,7 @@ func TestHostSpec(t *testing.T) {
 				b := false
 				tr := true
 				s := "127.0.0.1"
-				h := []*host.Host{{ID: uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"), Address: &s, Enabled: &b, EditHost: &tr, TeamID: uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")}}
+				h := []*host.Host{{ID: uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"), Address: s, Enabled: &b, EditHost: &tr, TeamID: uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")}}
 				err = hr.Store(ctx, h)
 				So(err, ShouldBeNil)
 				Convey("Then making sure the entry exists", func() {
@@ -57,7 +57,7 @@ func TestHostSpec(t *testing.T) {
 					So(err, ShouldBeNil)
 					So(len(ac), ShouldEqual, 1)
 					So(ac[0].ID, ShouldEqual, uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
-					So(*(ac[0].Address), ShouldEqual, "127.0.0.1")
+					So(ac[0].Address, ShouldEqual, "127.0.0.1")
 					So(*(ac[0].Enabled), ShouldBeFalse)
 				})
 
@@ -65,7 +65,7 @@ func TestHostSpec(t *testing.T) {
 					ac, err := hr.GetByID(ctx, uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 					So(err, ShouldBeNil)
 					So(ac.ID, ShouldEqual, uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
-					So(*(ac.Address), ShouldEqual, "127.0.0.1")
+					So(ac.Address, ShouldEqual, "127.0.0.1")
 					So(*(ac.Enabled), ShouldBeFalse)
 				})
 
@@ -134,7 +134,7 @@ func TestHostSpec(t *testing.T) {
 						address := "127.0.0.1"
 						tru := true
 						hstg2 := uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333")
-						newHost := []*host.Host{{ID: uuid.FromStringOrNil("44444444-4444-4444-4444-444444444444"), HostGroupID: &hstg2, Address: &address, EditHost: &tru, TeamID: uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222")}}
+						newHost := []*host.Host{{ID: uuid.FromStringOrNil("44444444-4444-4444-4444-444444444444"), HostGroupID: &hstg2, Address: address, EditHost: &tru, TeamID: uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222")}}
 						err := hr.Store(ctx, newHost)
 						So(err, ShouldBeNil)
 					})
