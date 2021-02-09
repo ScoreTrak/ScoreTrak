@@ -78,7 +78,7 @@ func TopicFromServiceRound(roundID uint64) string {
 
 func CommonExecute(sd *ScoringData, execDeadline time.Time) QCheck {
 	if time.Now().After(sd.Deadline) {
-		return QCheck{Service: sd.Service, Passed: false, Log: "", Err: "The check arrived late to the worker", RoundID: sd.RoundID}
+		return QCheck{Service: sd.Service, Passed: false, Log: "", Err: "The check arrived late to the worker. Make sure the time is synced between workers and masters, and there are enough workers to handle the load", RoundID: sd.RoundID}
 	}
 	executable := resolver.ExecutableByName(sd.Service.Name)
 
