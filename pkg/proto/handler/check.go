@@ -77,10 +77,7 @@ func (c *CheckController) GetByRoundServiceID(ctx context.Context, request *chec
 	if claim.Role != user.Black {
 		tID, prop, err := teamIDFromCheck(ctx, c.client, roundID, uid)
 		if err != nil {
-			return nil, status.Errorf(
-				codes.Internal,
-				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
-			)
+			return nil, getErrorParser(err)
 		}
 		if tID.String() != claim.TeamID {
 			return nil, status.Errorf(
@@ -97,7 +94,7 @@ func (c *CheckController) GetByRoundServiceID(ctx context.Context, request *chec
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	return &checkpb.GetByRoundServiceIDResponse{Checks: ConvertCheckToCheckPb(chk)}, nil
+	return &checkpb.GetByRoundServiceIDResponse{Check: ConvertCheckToCheckPb(chk)}, nil
 }
 
 func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkpb.GetAllByServiceIDRequest) (*checkpb.GetAllByServiceIDResponse, error) {
@@ -121,10 +118,7 @@ func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkp
 	if claim.Role != user.Black {
 		tID, _, err := teamIDFromService(ctx, c.client, uid)
 		if err != nil {
-			return nil, status.Errorf(
-				codes.Internal,
-				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
-			)
+			return nil, getErrorParser(err)
 		}
 		if tID.String() != claim.TeamID {
 			return nil, status.Errorf(

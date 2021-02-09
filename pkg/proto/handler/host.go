@@ -42,10 +42,7 @@ func (p HostController) GetByID(ctx context.Context, request *hostpb.GetByIDRequ
 	if claim.Role != user.Black {
 		tID, prop, err := teamIDFromHost(ctx, p.client, uid)
 		if err != nil {
-			return nil, status.Errorf(
-				codes.Internal,
-				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
-			)
+			return nil, getErrorParser(err)
 		}
 		if tID.String() != claim.TeamID {
 			return nil, status.Errorf(
@@ -141,10 +138,7 @@ func (p HostController) Update(ctx context.Context, request *hostpb.UpdateReques
 	if claim.Role != user.Black {
 		tID, prop, err := teamIDFromHost(ctx, p.client, hst.ID)
 		if err != nil {
-			return nil, status.Errorf(
-				codes.Internal,
-				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
-			)
+			return nil, getErrorParser(err)
 		}
 		if tID.String() != claim.TeamID || !*prop.EditHost {
 			return nil, status.Errorf(

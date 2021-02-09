@@ -24,7 +24,6 @@ import (
 
 func CleanAllTables(db *gorm.DB) {
 	db.Migrator().DropTable(&check.Check{})
-	db.Migrator().DropTable(&check.Check{})
 	db.Migrator().DropTable(&property.Property{})
 	db.Migrator().DropTable(&service.Service{})
 	db.Migrator().DropTable(&host.Host{})
@@ -132,6 +131,19 @@ func CreatePolicy(db *gorm.DB) (*policy.Policy, error) {
 	return p, nil
 }
 
+func TruncateAllTables(db *gorm.DB) {
+	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "checks"))
+	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "properties"))
+	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "services"))
+	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "hosts"))
+	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "host_groups"))
+	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "rounds"))
+	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "service_groups"))
+	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "users"))
+	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "teams"))
+	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "config"))
+}
+
 func DataPreload(db *gorm.DB) {
 	var count int64
 	//Creating Config
@@ -148,6 +160,14 @@ func DataPreload(db *gorm.DB) {
 	db.Table("teams").Count(&count)
 	if count != 4 {
 		panic("There should be 4 entry in teams")
+	}
+	//Creating Users
+	db.Exec("INSERT INTO users (team_id, id, username, role) VALUES ('11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111', 'TeamOneUser', 'black')")
+	db.Exec("INSERT INTO users (team_id, id, username, role) VALUES ('22222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-222222222222', 'TeamTwoUser2', 'red')")
+	db.Exec("INSERT INTO users (team_id, id, username, role) VALUES ('22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333333', 'TeamTwoUser1', 'blue')")
+	db.Table("users").Count(&count)
+	if count != 3 {
+		panic("There should be 3 entries in users")
 	}
 	//Creating Host Groups
 	db.Exec("INSERT INTO host_groups (id, name, enabled) VALUES ('11111111-1111-1111-1111-111111111111', 'HostGroup1', true)")
@@ -216,10 +236,10 @@ func DataPreload(db *gorm.DB) {
 		panic("There should be 4 entry in rounds")
 	}
 	//Creating Checks
-	db.Exec("INSERT INTO checks (round_id, service_id, log, passed) VALUES (1, '11111111-1111-1111-1111-111111111111', '',true)")
-	db.Exec("INSERT INTO checks (round_id, service_id, log, passed) VALUES (2, '22222222-2222-2222-2222-222222222222', '',true)")
+	db.Exec("INSERT INTO checks (round_id, service_id, log, passed) VALUES (1, '11111111-1111-1111-1111-111111111111', 'Successful Check One!',true)")
+	db.Exec("INSERT INTO checks (round_id, service_id, log, passed) VALUES (2, '22222222-2222-2222-2222-222222222222', 'Successful Check Two!',true)")
 	db.Exec("INSERT INTO checks (round_id, service_id, log, passed) VALUES (3, '11111111-1111-1111-1111-111111111111', 'Failed because of incorrect password',false)")
-	db.Exec("INSERT INTO checks (round_id, service_id, log, passed) VALUES (3, '33333333-3333-3333-3333-333333333333', '',true)")
+	db.Exec("INSERT INTO checks (round_id, service_id, log, passed) VALUES (3, '33333333-3333-3333-3333-333333333333', 'Successful Check Four!',true)")
 	db.Table("checks").Count(&count)
 	if count != 4 {
 		panic("There should be 4 entry in checks")

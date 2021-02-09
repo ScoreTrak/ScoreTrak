@@ -165,14 +165,14 @@ func (interceptor *Interceptor) Unary() grpc.UnaryServerInterceptor {
 }
 
 //Custom Stream that allows embedding of user claims for stream grpc (Similar to what describe in: https://stackoverflow.com/questions/60982406/how-to-safely-add-values-to-grpc-serverstream-in-interceptor)
-type authStream struct {
+type StreamClaimInjector struct {
 	grpc.ServerStream
-	uClaims *UserClaims
+	Claims *UserClaims
 }
 
-func (s authStream) Context() context.Context {
-	if s.uClaims != nil {
-		return context.WithValue(s.ServerStream.Context(), "claims", s.uClaims)
+func (s StreamClaimInjector) Context() context.Context {
+	if s.Claims != nil {
+		return context.WithValue(s.ServerStream.Context(), "claims", s.Claims)
 	} else {
 		return s.ServerStream.Context()
 	}
@@ -189,7 +189,7 @@ func (interceptor *Interceptor) Stream() grpc.StreamServerInterceptor {
 		if err != nil {
 			return err
 		}
-		return handler(srv, authStream{stream, claims})
+		return handler(srv, StreamClaimInjector{stream, claims})
 	}
 }
 

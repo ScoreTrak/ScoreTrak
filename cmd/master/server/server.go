@@ -180,9 +180,9 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 		opts = append(opts, grpc_middleware.WithStreamServerChain(middlewareChainsStream...))
 	}
 
-	{
-		opts = append(opts)
-	}
+	//{
+	//	opts = append(opts)
+	//}
 
 	s := grpc.NewServer(opts...)
 

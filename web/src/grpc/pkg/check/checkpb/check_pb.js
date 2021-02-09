@@ -967,7 +967,7 @@ proto.pkg.check.checkpb.GetByRoundServiceIDResponse.prototype.toObject = functio
  */
 proto.pkg.check.checkpb.GetByRoundServiceIDResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    checks: (f = msg.getChecks()) && proto.pkg.check.checkpb.Check.toObject(includeInstance, f)
+    check: (f = msg.getCheck()) && proto.pkg.check.checkpb.Check.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -1007,7 +1007,7 @@ proto.pkg.check.checkpb.GetByRoundServiceIDResponse.deserializeBinaryFromReader 
     case 1:
       var value = new proto.pkg.check.checkpb.Check;
       reader.readMessage(value,proto.pkg.check.checkpb.Check.deserializeBinaryFromReader);
-      msg.setChecks(value);
+      msg.setCheck(value);
       break;
     default:
       reader.skipField();
@@ -1038,7 +1038,7 @@ proto.pkg.check.checkpb.GetByRoundServiceIDResponse.prototype.serializeBinary = 
  */
 proto.pkg.check.checkpb.GetByRoundServiceIDResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getChecks();
+  f = message.getCheck();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -1050,10 +1050,10 @@ proto.pkg.check.checkpb.GetByRoundServiceIDResponse.serializeBinaryToWriter = fu
 
 
 /**
- * optional Check checks = 1;
+ * optional Check check = 1;
  * @return {?proto.pkg.check.checkpb.Check}
  */
-proto.pkg.check.checkpb.GetByRoundServiceIDResponse.prototype.getChecks = function() {
+proto.pkg.check.checkpb.GetByRoundServiceIDResponse.prototype.getCheck = function() {
   return /** @type{?proto.pkg.check.checkpb.Check} */ (
     jspb.Message.getWrapperField(this, proto.pkg.check.checkpb.Check, 1));
 };
@@ -1063,7 +1063,7 @@ proto.pkg.check.checkpb.GetByRoundServiceIDResponse.prototype.getChecks = functi
  * @param {?proto.pkg.check.checkpb.Check|undefined} value
  * @return {!proto.pkg.check.checkpb.GetByRoundServiceIDResponse} returns this
 */
-proto.pkg.check.checkpb.GetByRoundServiceIDResponse.prototype.setChecks = function(value) {
+proto.pkg.check.checkpb.GetByRoundServiceIDResponse.prototype.setCheck = function(value) {
   return jspb.Message.setWrapperField(this, 1, value);
 };
 
@@ -1072,8 +1072,8 @@ proto.pkg.check.checkpb.GetByRoundServiceIDResponse.prototype.setChecks = functi
  * Clears the message field making it undefined.
  * @return {!proto.pkg.check.checkpb.GetByRoundServiceIDResponse} returns this
  */
-proto.pkg.check.checkpb.GetByRoundServiceIDResponse.prototype.clearChecks = function() {
-  return this.setChecks(undefined);
+proto.pkg.check.checkpb.GetByRoundServiceIDResponse.prototype.clearCheck = function() {
+  return this.setCheck(undefined);
 };
 
 
@@ -1081,7 +1081,7 @@ proto.pkg.check.checkpb.GetByRoundServiceIDResponse.prototype.clearChecks = func
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.pkg.check.checkpb.GetByRoundServiceIDResponse.prototype.hasChecks = function() {
+proto.pkg.check.checkpb.GetByRoundServiceIDResponse.prototype.hasCheck = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 

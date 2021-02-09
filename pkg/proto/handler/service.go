@@ -44,10 +44,7 @@ func (p ServiceController) GetByID(ctx context.Context, request *servicepb.GetBy
 	if claim.Role != user.Black {
 		tID, prop, err := teamIDFromService(ctx, p.client, uid)
 		if err != nil {
-			return nil, status.Errorf(
-				codes.Internal,
-				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
-			)
+			return nil, getErrorParser(err)
 		}
 		if tID.String() != claim.TeamID {
 			return nil, status.Errorf(
