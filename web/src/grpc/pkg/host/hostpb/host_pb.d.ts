@@ -39,6 +39,11 @@ export class Host extends jspb.Message {
   clearServicesList(): Host;
   addServices(value?: pkg_service_servicepb_service_pb.Service, index?: number): pkg_service_servicepb_service_pb.Service;
 
+  getAddressListRange(): google_protobuf_wrappers_pb.StringValue | undefined;
+  setAddressListRange(value?: google_protobuf_wrappers_pb.StringValue): Host;
+  hasAddressListRange(): boolean;
+  clearAddressListRange(): Host;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Host.AsObject;
   static toObject(includeInstance: boolean, msg: Host): Host.AsObject;
@@ -56,6 +61,7 @@ export namespace Host {
     enabled?: google_protobuf_wrappers_pb.BoolValue.AsObject,
     editHost?: google_protobuf_wrappers_pb.BoolValue.AsObject,
     servicesList: Array<pkg_service_servicepb_service_pb.Service.AsObject>,
+    addressListRange?: google_protobuf_wrappers_pb.StringValue.AsObject,
   }
 }
 

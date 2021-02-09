@@ -1,16 +1,25 @@
 package host
 
 import (
+	"errors"
+	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
+	"github.com/asaskevich/govalidator"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
+	"net"
+	"strings"
 )
 
 // Host model represents a single machine. This could be an IP address or a resolvable hostname
 type Host struct {
 	ID uuid.UUID `json:"id,omitempty" gorm:"type:uuid;primary_key;"`
 
-	Address *string `json:"address" gorm:"not null;default:null" valid:"host,optional"`
+	//Address represents the hostname or an IP address of the remote computer
+	Address string `json:"address" gorm:"not null;default:null"`
+
+	//Comma Separated List of allowed CIDRs, and hostnames
+	AddressListRange *string `json:"address_list_range" gorm:"not null;default:''"`
 
 	// The ID of a host group that the host belongs to.
 	HostGroupID *uuid.UUID `json:"host_group_id,omitempty" gorm:"type:uuid"`
@@ -27,6 +36,38 @@ type Host struct {
 	Services []*service.Service `json:"services,omitempty" gorm:"foreignkey:HostID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT"`
 }
 
+func (p *Host) BeforeSave(tx *gorm.DB) (err error) {
+	if p.AddressListRange != nil || p.Address != "" {
+		p.Address = strings.ReplaceAll(p.Address, " ", "")
+		if (p.AddressListRange == nil || p.Address == "") && p.ID != uuid.Nil {
+			hst := &Host{}
+			err := tx.Where("id = ?", p.ID).First(hst).Error
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("unable to retreive the requested entry, in order to validate address. Error: %v", err)
+			}
+			if p.AddressListRange == nil {
+				p.AddressListRange = hst.AddressListRange
+			}
+			if p.Address == "" {
+				p.Address = hst.Address
+			}
+		}
+
+		if !govalidator.IsHost(p.Address) {
+			return fmt.Errorf("provided address: \"%s\" is not a valid Hostname, nor a valid IP address", p.Address)
+		}
+		if p.AddressListRange != nil {
+			*p.AddressListRange = strings.ReplaceAll(*p.AddressListRange, " ", "")
+			err = validateIfAddressInRange(p.Address, *p.AddressListRange)
+			if err != nil {
+				return err
+			}
+		}
+
+	}
+	return nil
+}
+
 func (p *Host) BeforeCreate(tx *gorm.DB) (err error) {
 	if p.ID == uuid.Nil {
 		u, err := uuid.NewV4()
@@ -36,4 +77,28 @@ func (p *Host) BeforeCreate(tx *gorm.DB) (err error) {
 		p.ID = u
 	}
 	return nil
+}
+
+func validateIfAddressInRange(addr string, addresses string) (err error) {
+	if addresses == "" {
+		return nil
+	}
+
+	var addressList []string
+	addressList = strings.Split(addresses, ",")
+	for i := range addressList {
+		_, network, err := net.ParseCIDR(addressList[i])
+		if err == nil {
+			if network.Contains(net.ParseIP(addr)) {
+				return nil
+			}
+		} else if govalidator.IsHost(addressList[i]) {
+			if strings.ToLower(addressList[i]) == strings.ToLower(addr) {
+				return nil
+			}
+		} else {
+			return fmt.Errorf("%s is not a valid hostname or CIDR", addressList[i])
+		}
+	}
+	return fmt.Errorf("the provided ip address was not in allowed range")
 }

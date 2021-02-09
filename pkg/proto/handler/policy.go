@@ -8,7 +8,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policypb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/role"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -21,7 +21,7 @@ type PolicyController struct {
 }
 
 func (p PolicyController) Get(request *policypb.GetRequest, server policypb.PolicyService_GetServer) error {
-	rol := role.Anonymous
+	rol := user.Anonymous
 	if val, ok := server.Context().Value("claims").(*auth.UserClaims); ok && val != nil {
 		rol = val.Role
 	}
@@ -38,7 +38,7 @@ func (p PolicyController) Get(request *policypb.GetRequest, server policypb.Poli
 	for {
 		select {
 		case <-ch:
-			if !p.policyClient.GetAllowUnauthenticatedUsers() && rol == role.Anonymous {
+			if !p.policyClient.GetAllowUnauthenticatedUsers() && rol == user.Anonymous {
 				return status.Error(codes.PermissionDenied, "You must login in order to access this resource")
 			}
 			err := server.Send(&policypb.GetResponse{

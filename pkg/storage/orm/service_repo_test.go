@@ -116,7 +116,7 @@ func TestServiceSpec(t *testing.T) {
 						Convey("Then updating regular fields should be allowed", func() {
 							tru := true
 							s[0].Enabled = &tru
-							s[0].Name = "DifferentTestName"
+							s[0].Name = "SSH"
 							s[0].RoundUnits = 3
 							rd := uint64(2)
 							s[0].RoundDelay = &rd
@@ -127,10 +127,10 @@ func TestServiceSpec(t *testing.T) {
 							ac, err = sr.GetAll(ctx)
 							So(err, ShouldBeNil)
 							So(len(ac), ShouldEqual, 1)
-							So(ac[0].Name, ShouldEqual, "DifferentTestName")
+							So(ac[0].Name, ShouldEqual, "SSH")
 							So(*(ac[0].RoundDelay), ShouldEqual, 2)
 						})
-						SkipConvey("Then updating Round Delay to something larger than Round Units should not be allowed", func() { //TODO: Change this to Convey once govalidations are enabled
+						Convey("Then updating Round Delay to something larger than Round Units should not be allowed", func() {
 							rd := uint64(5)
 							s[0].RoundDelay = &rd
 							Convey("Round Units set", func() {

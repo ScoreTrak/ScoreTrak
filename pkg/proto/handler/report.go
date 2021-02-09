@@ -9,7 +9,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_client"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportpb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/role"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/grpc/codes"
@@ -63,7 +63,7 @@ func (r *reportController) filterReport(rol string, tID uuid.UUID, lr *report.Re
 		}
 	}
 
-	if rol != role.Black {
+	if rol != user.Black {
 		p := r.policyClient.GetPolicy()
 		for t := range simpleReport.Teams {
 			for h := range simpleReport.Teams[t].Hosts {
@@ -118,7 +118,7 @@ func (r *reportController) filterReport(rol string, tID uuid.UUID, lr *report.Re
 }
 
 func (r *reportController) Get(request *reportpb.GetRequest, server reportpb.ReportService_GetServer) error {
-	rol := role.Anonymous
+	rol := user.Anonymous
 	tID := uuid.UUID{}
 	lr, err := r.svc.Get(server.Context())
 	if err != nil {
@@ -163,7 +163,7 @@ func (r *reportController) Get(request *reportpb.GetRequest, server reportpb.Rep
 				return err
 			}
 		case <-authTimer.C:
-			if rol == role.Anonymous && !r.policyClient.GetAllowUnauthenticatedUsers() {
+			if rol == user.Anonymous && !r.policyClient.GetAllowUnauthenticatedUsers() {
 				return status.Error(codes.PermissionDenied, "You must login in order to access this resource")
 			}
 		case <-server.Context().Done():

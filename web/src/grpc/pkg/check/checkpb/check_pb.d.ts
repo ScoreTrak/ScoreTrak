@@ -105,10 +105,10 @@ export namespace GetByRoundServiceIDRequest {
 }
 
 export class GetByRoundServiceIDResponse extends jspb.Message {
-  getChecks(): Check | undefined;
-  setChecks(value?: Check): GetByRoundServiceIDResponse;
-  hasChecks(): boolean;
-  clearChecks(): GetByRoundServiceIDResponse;
+  getCheck(): Check | undefined;
+  setCheck(value?: Check): GetByRoundServiceIDResponse;
+  hasCheck(): boolean;
+  clearCheck(): GetByRoundServiceIDResponse;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetByRoundServiceIDResponse.AsObject;
@@ -120,7 +120,7 @@ export class GetByRoundServiceIDResponse extends jspb.Message {
 
 export namespace GetByRoundServiceIDResponse {
   export type AsObject = {
-    checks?: Check.AsObject,
+    check?: Check.AsObject,
   }
 }
 

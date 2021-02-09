@@ -104,7 +104,7 @@ func TestPropertySpec(t *testing.T) {
 							So(ac[0].Status, ShouldEqual, "Hide")
 						})
 
-						SkipConvey("Then Updating the property Status to an invalid value", func() { //TODO: Change this to Convey once govalidations are enabled
+						Convey("Then Updating the property Status to an invalid value", func() {
 							c[0].Status = "SomeBadStatus"
 							err = cr.Update(ctx, c[0])
 							So(err, ShouldNotBeNil)

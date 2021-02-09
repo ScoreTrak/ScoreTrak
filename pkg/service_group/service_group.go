@@ -15,7 +15,7 @@ type ServiceGroup struct {
 
 	Name string `json:"name" gorm:"not null;unique;default:null"`
 
-	DisplayName string `json:"display_name,omitempty" gorm:"default:null"`
+	DisplayName string `json:"display_name,omitempty" gorm:"unique"`
 
 	// Enables or Disables the check_service
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default:false"`
@@ -31,13 +31,15 @@ func (ServiceGroup) TableName() string {
 	return "service_groups"
 }
 
-func (s ServiceGroup) Validate(db *gorm.DB) {
+// BeforeSave ensures that name is set to correct value
+func (s *ServiceGroup) BeforeSave(tx *gorm.DB) (err error) {
 	if s.Name != "" { //https://github.com/nsqio/go-nsq/blob/04552936c57a26026c39e10a8993805e0f5a73d0/protocol.go
 		if len(s.Name) > 1 && len(s.Name) <= 64 && regexp.MustCompile(`^[\.a-zA-Z0-9_-]+(#ephemeral)?$`).MatchString(s.Name) {
 			return
 		}
-		db.AddError(fmt.Errorf("name %s doesn't resolve to scorable check_service", s.Name))
+		return fmt.Errorf("name %s doesn't resolve to scorable check_service", s.Name)
 	}
+	return nil
 }
 
 // BeforeCreate will set a UUID rather than numeric ID.

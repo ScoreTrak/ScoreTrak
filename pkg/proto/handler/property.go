@@ -7,8 +7,8 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/property/property_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property/propertypb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/role"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
@@ -90,13 +90,10 @@ func (p PropertyController) Update(ctx context.Context, request *propertypb.Upda
 	}
 
 	claim := extractUserClaim(ctx)
-	if claim.Role != role.Black {
+	if claim.Role != user.Black {
 		tID, prop, err := teamIDFromProperty(ctx, p.client, pr.ServiceID, pr.Key)
 		if err != nil {
-			return nil, status.Errorf(
-				codes.Internal,
-				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
-			)
+			return nil, getErrorParser(err)
 		}
 		if tID.String() != claim.TeamID || prop.Status != property.Edit {
 			return nil, status.Errorf(
@@ -136,13 +133,10 @@ func (p PropertyController) GetByServiceIDKey(ctx context.Context, request *prop
 	claim := extractUserClaim(ctx)
 
 	var chk *property.Property
-	if claim.Role != role.Black {
+	if claim.Role != user.Black {
 		tID, prop, err := teamIDFromProperty(ctx, p.client, uid, request.Key)
 		if err != nil {
-			return nil, status.Errorf(
-				codes.Internal,
-				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
-			)
+			return nil, getErrorParser(err)
 		}
 		if tID.String() != claim.TeamID {
 			return nil, status.Errorf(
@@ -180,13 +174,10 @@ func (p PropertyController) GetAllByServiceID(ctx context.Context, request *prop
 
 	claim := extractUserClaim(ctx)
 
-	if claim.Role != role.Black {
+	if claim.Role != user.Black {
 		tID, _, err := teamIDFromService(ctx, p.client, uid)
 		if err != nil {
-			return nil, status.Errorf(
-				codes.Internal,
-				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
-			)
+			return nil, getErrorParser(err)
 		}
 		if tID.String() != claim.TeamID {
 			return nil, status.Errorf(

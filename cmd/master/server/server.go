@@ -30,7 +30,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_client"
 	reportService "github.com/ScoreTrak/ScoreTrak/pkg/report/report_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportpb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/role"
 	roundService "github.com/ScoreTrak/ScoreTrak/pkg/round/round_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round/roundpb"
 	serviceService "github.com/ScoreTrak/ScoreTrak/pkg/service/service_service"
@@ -181,9 +180,9 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 		opts = append(opts, grpc_middleware.WithStreamServerChain(middlewareChainsStream...))
 	}
 
-	{
-		opts = append(opts)
-	}
+	//{
+	//	opts = append(opts)
+	//}
 
 	s := grpc.NewServer(opts...)
 
@@ -341,7 +340,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 				Username: "admin",
 				TeamId:   &utilpb.UUID{Value: uuid1.String()},
 				Password: "changeme",
-				Role:     handler.UserRoleToRolePB(role.Black),
+				Role:     handler.UserRoleToRolePB(user.Black),
 			})
 			err := userServ.Store(context.Background(), []*user.User{usr})
 			if err != nil {

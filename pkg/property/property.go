@@ -27,16 +27,19 @@ func (Property) TableName() string {
 	return "properties"
 }
 
-func (p Property) Validate(db *gorm.DB) {
+func (p *Property) BeforeSave(tx *gorm.DB) (err error) {
 	if p.Status != "" {
+		var validStatus bool
 		for _, item := range []string{View, Edit, Hide} {
 			if item == p.Status {
-				return
+				validStatus = true
 			}
 		}
-		db.AddError(errors.New("property Status should either be View, Edit, or Hide"))
-		return
+		if !validStatus {
+			return errors.New("property Status should either be View, Edit, or Hide")
+		}
 	}
+	return nil
 }
 
 func (p *Property) BeforeCreate(tx *gorm.DB) (err error) {

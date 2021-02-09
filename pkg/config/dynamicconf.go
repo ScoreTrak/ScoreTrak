@@ -16,10 +16,11 @@ type DynamicConfig struct {
 	Enabled *bool `json:"enabled,omitempty" default:"false" gorm:"not null;default:false"`
 }
 
-func (d DynamicConfig) Validate(db *gorm.DB) {
+func (d *DynamicConfig) BeforeSave(tx *gorm.DB) (err error) {
 	if d.RoundDuration != 0 && d.RoundDuration < uint64(MinRoundDuration.Seconds()) {
-		db.AddError(fmt.Errorf("round Duration should not be larger than MinRoundDuration, which is %d", uint64(MinRoundDuration.Seconds())))
+		return fmt.Errorf("round Duration should not be larger than MinRoundDuration, which is %d", uint64(MinRoundDuration.Seconds()))
 	}
+	return nil
 }
 
 func (d DynamicConfig) TableName() string {

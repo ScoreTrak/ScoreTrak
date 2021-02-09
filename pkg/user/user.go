@@ -2,10 +2,16 @@ package user
 
 import (
 	"errors"
-	"github.com/ScoreTrak/ScoreTrak/pkg/role"
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
+)
+
+const (
+	Black     = "black"
+	Blue      = "blue"
+	Red       = "red"
+	Anonymous = ""
 )
 
 type User struct {
@@ -14,6 +20,23 @@ type User struct {
 	PasswordHash string    `json:"password_hash" gorm:"not null;default: null"`
 	TeamID       uuid.UUID `json:"team_id,omitempty" gorm:"type:uuid"`
 	Role         string    `json:"role" gorm:"default:'blue'"`
+}
+
+func (u *User) BeforeSave(tx *gorm.DB) (err error) {
+	if u.Role != "" {
+		var validStatus bool
+		for _, item := range []string{Black, Blue, Red} {
+			if item == u.Role {
+				validStatus = true
+			}
+		}
+		if !validStatus {
+			return errors.New("you must specify a correct role")
+		}
+		return nil
+
+	}
+	return nil
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
@@ -25,12 +48,6 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 		u.ID = uid
 	}
 	return nil
-}
-
-func (u User) Validate(db *gorm.DB) {
-	if u.Role != "" && u.Role != role.Black && u.Role != role.Blue {
-		db.AddError(errors.New("you must specify a correct role"))
-	}
 }
 
 func (u *User) IsCorrectPassword(password string) bool {

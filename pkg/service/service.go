@@ -56,31 +56,27 @@ func (s *Service) BeforeCreate(tx *gorm.DB) (err error) {
 	return nil
 }
 
-func (s Service) Validate(db *gorm.DB) {
-	if s.RoundDelay != nil && *(s.RoundDelay) != 0 {
-		if s.RoundUnits != 0 {
-			if *(s.RoundDelay) >= s.RoundUnits {
-				db.AddError(errors.New("round delay should not be larger than round unit"))
-			}
-		} else {
+func (s *Service) BeforeSave(tx *gorm.DB) (err error) {
+	if (s.RoundDelay != nil && *(s.RoundDelay) != 0) || s.RoundUnits != 0 {
+		if (s.RoundDelay == nil || s.RoundUnits == 0) && s.ID != uuid.Nil {
 			se := Service{}
-			db.Where("id = ?", s.ID).First(&se)
-			if *(s.RoundDelay) >= se.RoundUnits {
-				db.AddError(errors.New("round delay should not be larger than round unit"))
+			err := tx.Where("id = ?", s.ID).First(&se).Error
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("unable to retreive the requested entry, in order to validate round delay. Error: %v", err)
+			}
+			if s.RoundDelay == nil {
+				s.RoundDelay = se.RoundDelay
+			}
+			if s.RoundUnits == 0 {
+				s.RoundUnits = se.RoundUnits
 			}
 		}
-		return
-	}
-
-	if s.RoundUnits != 0 {
-		se := Service{}
-		db.Where("id = ?", s.ID).First(&se)
-		if se.RoundDelay != nil && *(se.RoundDelay) >= s.RoundUnits {
-			db.AddError(errors.New("round delay should not be larger than round unit"))
+		if s.RoundDelay != nil && *(s.RoundDelay) >= s.RoundUnits {
+			return errors.New("round delay should not be larger than round unit")
 		}
 	}
-
 	if s.Name != "" && resolver.ExecutableByName(s.Name) == nil {
-		db.AddError(fmt.Errorf("name %s doesn't resolve to scorable check_service", s.Name))
+		return fmt.Errorf("name %s doesn't resolve to scorable check_service", s.Name)
 	}
+	return nil
 }

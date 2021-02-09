@@ -308,7 +308,8 @@ proto.pkg.host.hostpb.Host.toObject = function(includeInstance, msg) {
     enabled: (f = msg.getEnabled()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
     editHost: (f = msg.getEditHost()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
     servicesList: jspb.Message.toObjectList(msg.getServicesList(),
-    pkg_service_servicepb_service_pb.Service.toObject, includeInstance)
+    pkg_service_servicepb_service_pb.Service.toObject, includeInstance),
+    addressListRange: (f = msg.getAddressListRange()) && google_protobuf_wrappers_pb.StringValue.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -378,6 +379,11 @@ proto.pkg.host.hostpb.Host.deserializeBinaryFromReader = function(msg, reader) {
       var value = new pkg_service_servicepb_service_pb.Service;
       reader.readMessage(value,pkg_service_servicepb_service_pb.Service.deserializeBinaryFromReader);
       msg.addServices(value);
+      break;
+    case 8:
+      var value = new google_protobuf_wrappers_pb.StringValue;
+      reader.readMessage(value,google_protobuf_wrappers_pb.StringValue.deserializeBinaryFromReader);
+      msg.setAddressListRange(value);
       break;
     default:
       reader.skipField();
@@ -461,6 +467,14 @@ proto.pkg.host.hostpb.Host.serializeBinaryToWriter = function(message, writer) {
       7,
       f,
       pkg_service_servicepb_service_pb.Service.serializeBinaryToWriter
+    );
+  }
+  f = message.getAddressListRange();
+  if (f != null) {
+    writer.writeMessage(
+      8,
+      f,
+      google_protobuf_wrappers_pb.StringValue.serializeBinaryToWriter
     );
   }
 };
@@ -704,6 +718,43 @@ proto.pkg.host.hostpb.Host.prototype.addServices = function(opt_value, opt_index
  */
 proto.pkg.host.hostpb.Host.prototype.clearServicesList = function() {
   return this.setServicesList([]);
+};
+
+
+/**
+ * optional google.protobuf.StringValue address_list_range = 8;
+ * @return {?proto.google.protobuf.StringValue}
+ */
+proto.pkg.host.hostpb.Host.prototype.getAddressListRange = function() {
+  return /** @type{?proto.google.protobuf.StringValue} */ (
+    jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.StringValue, 8));
+};
+
+
+/**
+ * @param {?proto.google.protobuf.StringValue|undefined} value
+ * @return {!proto.pkg.host.hostpb.Host} returns this
+*/
+proto.pkg.host.hostpb.Host.prototype.setAddressListRange = function(value) {
+  return jspb.Message.setWrapperField(this, 8, value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.pkg.host.hostpb.Host} returns this
+ */
+proto.pkg.host.hostpb.Host.prototype.clearAddressListRange = function() {
+  return this.setAddressListRange(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.pkg.host.hostpb.Host.prototype.hasAddressListRange = function() {
+  return jspb.Message.getField(this, 8) != null;
 };
 
 

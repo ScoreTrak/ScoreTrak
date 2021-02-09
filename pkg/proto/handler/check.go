@@ -9,9 +9,9 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/role"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
@@ -74,13 +74,10 @@ func (c *CheckController) GetByRoundServiceID(ctx context.Context, request *chec
 	claim := extractUserClaim(ctx)
 
 	var chk *check.Check
-	if claim.Role != role.Black {
+	if claim.Role != user.Black {
 		tID, prop, err := teamIDFromCheck(ctx, c.client, roundID, uid)
 		if err != nil {
-			return nil, status.Errorf(
-				codes.Internal,
-				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
-			)
+			return nil, getErrorParser(err)
 		}
 		if tID.String() != claim.TeamID {
 			return nil, status.Errorf(
@@ -97,7 +94,7 @@ func (c *CheckController) GetByRoundServiceID(ctx context.Context, request *chec
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	return &checkpb.GetByRoundServiceIDResponse{Checks: ConvertCheckToCheckPb(chk)}, nil
+	return &checkpb.GetByRoundServiceIDResponse{Check: ConvertCheckToCheckPb(chk)}, nil
 }
 
 func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkpb.GetAllByServiceIDRequest) (*checkpb.GetAllByServiceIDResponse, error) {
@@ -118,13 +115,10 @@ func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkp
 
 	claim := extractUserClaim(ctx)
 
-	if claim.Role != role.Black {
+	if claim.Role != user.Black {
 		tID, _, err := teamIDFromService(ctx, c.client, uid)
 		if err != nil {
-			return nil, status.Errorf(
-				codes.Internal,
-				fmt.Sprintf("Unabkle to validate resource. Err: %v", err),
-			)
+			return nil, getErrorParser(err)
 		}
 		if tID.String() != claim.TeamID {
 			return nil, status.Errorf(

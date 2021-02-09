@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
-	"github.com/ScoreTrak/ScoreTrak/pkg/role"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -30,116 +30,116 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policy_client.Client)
 	authMap := map[string][]authorizationMap{}
 	const authService = "/pkg.auth.AuthService/Login"
 	authMap[authService] = []authorizationMap{{
-		role:      role.Anonymous,
+		role:      user.Anonymous,
 		isAllowed: AlwaysAllowFunc,
 	}}
 
 	const grpcReflection = "/grpc.reflection.v1alpha.ServerReflection/ServerReflectionInfo"
 	authMap[grpcReflection] = []authorizationMap{{
-		role:      role.Anonymous,
+		role:      user.Anonymous,
 		isAllowed: AlwaysAllowFunc,
 	}}
 
 	const propertyServicePath = "/pkg.property.propertypb.PropertyService/"
 	authMap[propertyServicePath+"GetByServiceIDKey"] = []authorizationMap{{
-		role:      role.Blue,
+		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
-		role:      role.Red,
+		role:      user.Red,
 		isAllowed: AlwaysAllowFunc,
 	}}
 	authMap[propertyServicePath+"GetAllByServiceID"] = []authorizationMap{{
-		role:      role.Blue,
+		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
-		role:      role.Red,
+		role:      user.Red,
 		isAllowed: AlwaysAllowFunc,
 	}}
 
 	authMap[propertyServicePath+"Update"] = []authorizationMap{{
-		role:      role.Blue,
+		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
-		role:      role.Red,
+		role:      user.Red,
 		isAllowed: AlwaysAllowFunc,
 	}}
 
 	const serviceServicePath = "/pkg.service.servicepb.ServiceService/"
 	authMap[serviceServicePath+"GetByID"] = []authorizationMap{{
-		role:      role.Blue,
+		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
-		role:      role.Red,
+		role:      user.Red,
 		isAllowed: AlwaysAllowFunc,
 	}}
 
 	authMap[serviceServicePath+"TestService"] = []authorizationMap{{
-		role:      role.Red,
+		role:      user.Red,
 		isAllowed: policyClient.GetAllowRedTeamLaunchingServiceTestsManually,
 	}}
 
 	const hostServicePath = "/pkg.host.hostpb.HostService/"
 	authMap[hostServicePath+"Update"] = []authorizationMap{{
-		role:      role.Blue,
+		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
-		role:      role.Red,
+		role:      user.Red,
 		isAllowed: AlwaysAllowFunc,
 	}}
 	authMap[hostServicePath+"GetByID"] = []authorizationMap{{
-		role:      role.Blue,
+		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
-		role:      role.Red,
+		role:      user.Red,
 		isAllowed: AlwaysAllowFunc,
 	}}
 
 	const checkServicePath = "/pkg.check.checkpb.CheckService/"
 	authMap[checkServicePath+"GetByRoundServiceID"] = []authorizationMap{{
-		role:      role.Blue,
+		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
-		role:      role.Red,
+		role:      user.Red,
 		isAllowed: AlwaysAllowFunc,
 	}}
 	authMap[checkServicePath+"GetAllByServiceID"] = []authorizationMap{{
-		role:      role.Blue,
+		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
-		role:      role.Red,
+		role:      user.Red,
 		isAllowed: AlwaysAllowFunc,
 	}}
 
 	const reportServicePath = "/pkg.report.reportpb.ReportService/"
 	authMap[reportServicePath+"Get"] = []authorizationMap{{
-		role:      role.Blue,
+		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
-		role:      role.Red,
+		role:      user.Red,
 		isAllowed: AlwaysAllowFunc,
 	}, {
-		role:      role.Anonymous,
+		role:      user.Anonymous,
 		isAllowed: policyClient.GetAllowUnauthenticatedUsers,
 	}}
 
 	const policyServicePath = "/pkg.policy.policypb.PolicyService/"
 	authMap[policyServicePath+"Get"] = []authorizationMap{{
-		role:      role.Blue,
+		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
-		role:      role.Red,
+		role:      user.Red,
 		isAllowed: AlwaysAllowFunc,
 	}, {
-		role:      role.Anonymous,
+		role:      user.Anonymous,
 		isAllowed: policyClient.GetAllowUnauthenticatedUsers,
 	}}
 
 	const userServicePath = "/pkg.user.userpb.UserService/"
 	authMap[userServicePath+"Get"] = []authorizationMap{{
-		role:      role.Blue,
+		role:      user.Blue,
 		isAllowed: policyClient.GetAllowChangingUsernamesAndPasswords,
 	}, {
-		role:      role.Red,
+		role:      user.Red,
 		isAllowed: policyClient.GetAllowChangingUsernamesAndPasswords,
 	}}
 
@@ -165,14 +165,14 @@ func (interceptor *Interceptor) Unary() grpc.UnaryServerInterceptor {
 }
 
 //Custom Stream that allows embedding of user claims for stream grpc (Similar to what describe in: https://stackoverflow.com/questions/60982406/how-to-safely-add-values-to-grpc-serverstream-in-interceptor)
-type authStream struct {
+type StreamClaimInjector struct {
 	grpc.ServerStream
-	uClaims *UserClaims
+	Claims *UserClaims
 }
 
-func (s authStream) Context() context.Context {
-	if s.uClaims != nil {
-		return context.WithValue(s.ServerStream.Context(), "claims", s.uClaims)
+func (s StreamClaimInjector) Context() context.Context {
+	if s.Claims != nil {
+		return context.WithValue(s.ServerStream.Context(), "claims", s.Claims)
 	} else {
 		return s.ServerStream.Context()
 	}
@@ -189,12 +189,12 @@ func (interceptor *Interceptor) Stream() grpc.StreamServerInterceptor {
 		if err != nil {
 			return err
 		}
-		return handler(srv, authStream{stream, claims})
+		return handler(srv, StreamClaimInjector{stream, claims})
 	}
 }
 
 func (interceptor *Interceptor) authorize(ctx context.Context, method string) (claims *UserClaims, err error) {
-	r := role.Anonymous
+	r := user.Anonymous
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		values := md["authorization"]
@@ -207,11 +207,11 @@ func (interceptor *Interceptor) authorize(ctx context.Context, method string) (c
 			r = claims.Role
 		}
 	}
-	if r == role.Black {
+	if r == user.Black {
 		return
 	} else {
 		for i := range interceptor.accessibleRoles[method] {
-			if (r == interceptor.accessibleRoles[method][i].role || role.Anonymous == interceptor.accessibleRoles[method][i].role) && interceptor.accessibleRoles[method][i].isAllowed() {
+			if (r == interceptor.accessibleRoles[method][i].role || user.Anonymous == interceptor.accessibleRoles[method][i].role) && interceptor.accessibleRoles[method][i].isAllowed() {
 				return
 			}
 		}
