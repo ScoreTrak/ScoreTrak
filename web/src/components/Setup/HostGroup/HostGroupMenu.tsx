@@ -14,7 +14,7 @@ import {
 } from "../../../grpc/pkg/host_group/host_grouppb/host_group_pb";
 import {BoolValue} from "google-protobuf/google/protobuf/wrappers_pb";
 
-type hostGroupColumns = {
+export type hostGroupColumns = {
     id: string | undefined
     enabled: boolean | undefined
     name: string,

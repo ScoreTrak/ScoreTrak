@@ -6,7 +6,7 @@ import StepButton from "@material-ui/core/StepButton";
 import {SetupProps} from "../util/util";
 import HostCreate from "./HostCreate";
 import {UUID} from "../../../grpc/pkg/proto/utilpb/uuid_pb";
-import {BoolValue, UInt64Value} from "google-protobuf/google/protobuf/wrappers_pb";
+import {BoolValue, StringValue, UInt64Value} from "google-protobuf/google/protobuf/wrappers_pb";
 import {
     DeleteRequest,
     GetAllRequest,
@@ -62,9 +62,19 @@ export type hostColumns = {
     enabled: boolean | undefined
     editHost: boolean | undefined
     address: string
+    addressListRange: string | undefined
     hostGroupId: string | undefined
     teamId: string | undefined
 }
+
+
+export function defaultHostColumns(): hostColumns {
+    return {
+        address: "", addressListRange: "", editHost: false, enabled: true, hostGroupId: undefined, id: undefined, teamId: undefined
+    }
+}
+
+
 
 export function hostToHostColumn(host: Host): hostColumns{
     return {
@@ -73,7 +83,8 @@ export function hostToHostColumn(host: Host): hostColumns{
         address: host.getAddress(),
         editHost: host.getEditHost()?.getValue(),
         hostGroupId: host.getHostGroupId()?.getValue(),
-        teamId: host.getTeamId()?.getValue()
+        teamId: host.getTeamId()?.getValue(),
+        addressListRange: host.getAddressListRange()?.getValue()
     }
 }
 
@@ -84,6 +95,7 @@ export function hostColumnsToHost(hostC: hostColumns): Host{
     if (hostC.teamId && hostC.teamId !== "") u.setTeamId((new UUID().setValue(hostC.teamId)))
     if (hostC.enabled !== undefined) u.setEnabled(new BoolValue().setValue(hostC.enabled))
     if (hostC.editHost !== undefined) u.setEditHost(new BoolValue().setValue(hostC.editHost))
+    if (hostC.addressListRange !== undefined) u.setAddressListRange(new StringValue().setValue(hostC.addressListRange))
     u.setAddress(hostC.address)
     return u
 }
@@ -99,6 +111,7 @@ function HostMenuTable(props: SetupProps) {
             { title: 'Team ID', field: 'teamId' },
             { title: 'Enabled', field: 'enabled', type: 'boolean', initialEditValue: true},
             { title: 'Edit Host(Allow users to change Addresses)', field: 'editHost', type: 'boolean' },
+            { title: "Address List Range(comma separated list of allowed CIDR ranges and hostnames)", field: 'addressListRange'}
         ]
 
     const [state, setState] = React.useState<{columns: any[], loaderTeam: boolean, loaderHost: boolean, loaderHostGroup: boolean, data: hostColumns[]}>({

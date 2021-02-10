@@ -53,7 +53,7 @@ export default function TeamMenu(props: SetupProps) {
 }
 
 
-type teamColumns = {
+export type teamColumns = {
     id: string | undefined
     name: string,
     index: number | undefined
@@ -61,7 +61,7 @@ type teamColumns = {
     hidden: boolean | undefined
 }
 
-function teamToTeamColumn(team: Team): teamColumns{
+export function teamToTeamColumn(team: Team): teamColumns{
     return {
         enabled: team.getEnabled()?.getValue(),
         id: team.getId()?.getValue(),
@@ -71,7 +71,7 @@ function teamToTeamColumn(team: Team): teamColumns{
     }
 }
 
-function teamColumnsToTeam(teamC: teamColumns): Team{
+export function teamColumnsToTeam(teamC: teamColumns): Team{
     const t = new Team()
     if (teamC.enabled !== undefined) t.setEnabled(new BoolValue().setValue(teamC.enabled))
     if (teamC.hidden !== undefined) t.setHidden(new BoolValue().setValue(teamC.hidden))

@@ -157,10 +157,11 @@ export default function Dashboard(props: DashboardProps) {
       </React.Fragment>
   );
 
-  const genericEnqueue = (message:string, severity: Severity, autoHideDuration: number | null | undefined = null) => {
+  const genericEnqueue = (message:string, severity: Severity, autoHideDuration: number | null | undefined = null, uniqueID?: string) => {
     enqueueSnackbar(message, {
         variant: severity,
         autoHideDuration: autoHideDuration,
+        key: uniqueID,
         action,
     })
   }

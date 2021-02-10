@@ -41,7 +41,7 @@ function App() {
         <SnackbarProvider maxSnack={3} anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'right',
-        }} dense>
+        }} dense preventDuplicate>
         <CssBaseline />
           <Router>
             <Dashboard theme={{isDarkTheme: isDarkTheme, setIsDarkTheme: setIsDarkTheme}}  gRPCClients={gRPCClients} />

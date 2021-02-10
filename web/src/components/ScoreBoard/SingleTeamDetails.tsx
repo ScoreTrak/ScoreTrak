@@ -388,7 +388,7 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
                 <Grid item xs={6}>
                     {
                         <MaterialTable
-                            options={{pageSizeOptions: [3, 5,10,20,50,100], pageSize: 5}} //PropertiesData.length
+                            options={{pageSizeOptions: [3, 5,10,20,50,100], pageSize: 20, emptyRowsWhenPaging: false}} //PropertiesData.length
                             title="Properties"
                             columns={columns}
                             data={PropertiesData}
