@@ -27,25 +27,25 @@ function roundToRoundColumn(round: Round): roundColumns{
 export default function RoundMenu(props: SetupProps) {
     const title = "Rounds"
     props.setTitle(title)
-    const columns=
+    const columns =
         [
             { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
-            { title: 'Start Time', field: 'start', type:'datetime' },
+            { title: 'Start Time', field: 'start', type: 'datetime' },
             { title: 'Note', field: 'note' },
             { title: 'Error', field: 'err'},
-            { title: 'Finish Time', field: 'finish', type:'datetime'},
+            { title: 'Finish Time', field: 'finish', type: 'datetime'},
         ]
-    
+
     const [state, setState] = React.useState<{columns: any[], loader: boolean, data: roundColumns[]}>({
-        columns: columns,
+        columns,
         loader: true,
         data: []
     });
 
     function reloadSetter() {
         props.gRPCClients.roundClient.getAll(new GetAllRequest(), {}).then(roundsResponse => {
-            setState(prevState => {return{...prevState, data: roundsResponse.getRoundsList().map((round):roundColumns => {
-                    return roundToRoundColumn(round)}), loader:false}})}, (err: any) => {
+            setState(prevState => {return{...prevState, data: roundsResponse.getRoundsList().map((round): roundColumns => {
+                    return roundToRoundColumn(round)}), loader: false}})}, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Rounds: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }
@@ -61,7 +61,7 @@ export default function RoundMenu(props: SetupProps) {
                         title={title}
                         columns={state.columns}
                         data={state.data}
-                        options={{pageSizeOptions: [5,10,20,50,100, 500, 1000], pageSize:20, emptyRowsWhenPaging:false}}
+                        options={{pageSizeOptions: [5, 10, 20, 50, 100, 500, 1000], pageSize: 20, emptyRowsWhenPaging: false}}
                     />
                 </Box>
                 :

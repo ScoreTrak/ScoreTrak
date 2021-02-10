@@ -6,11 +6,10 @@ import StepButton from "@material-ui/core/StepButton";
 import {SetupProps} from "../util/util";
 import HostCreate from "./HostCreate";
 import {UUID} from "../../../grpc/pkg/proto/utilpb/uuid_pb";
-import {BoolValue, StringValue, UInt64Value} from "google-protobuf/google/protobuf/wrappers_pb";
+import {BoolValue, StringValue} from "google-protobuf/google/protobuf/wrappers_pb";
 import {
     DeleteRequest,
     GetAllRequest,
-    GetAllRequest as GetAllRequestHost,
     Host,
     StoreRequest, UpdateRequest
 } from "../../../grpc/pkg/host/hostpb/host_pb";
@@ -103,7 +102,7 @@ export function hostColumnsToHost(hostC: hostColumns): Host{
 function HostMenuTable(props: SetupProps) {
     const title =  "Hosts"
     props.setTitle(title)
-    const columns=
+    const columns =
         [
             { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
             { title: 'Address', field: 'address' },
@@ -115,7 +114,7 @@ function HostMenuTable(props: SetupProps) {
         ]
 
     const [state, setState] = React.useState<{columns: any[], loaderTeam: boolean, loaderHost: boolean, loaderHostGroup: boolean, data: hostColumns[]}>({
-        columns: columns,
+        columns,
         loaderTeam: true,
         loaderHost: true,
         loaderHostGroup: true,
@@ -125,42 +124,42 @@ function HostMenuTable(props: SetupProps) {
     function reloadSetter() {
 
         props.gRPCClients.hostGroupClient.getAll(new GetAllRequestHostGroup(), {}).then(hostsGroupResponse => {
-            let lookup: Record<string, string> = {}
+            const lookup: Record<string, string> = {}
             for (let i = 0; i < hostsGroupResponse.getHostGroupsList().length; i++){
                 lookup[hostsGroupResponse.getHostGroupsList()[i].getId()?.getValue() as string] = `${hostsGroupResponse.getHostGroupsList()[i].getName()} (ID:${hostsGroupResponse.getHostGroupsList()[i].getId()?.getValue() as string})`
             }
             setState(prevState => {
-                let columns = prevState.columns
+                const columns = prevState.columns
                 for (let i = 0; i < columns.length; i++){
-                    if (columns[i]['field'] === "hostGroupId"){
-                        columns[i]['lookup'] = lookup
+                    if (columns[i].field === "hostGroupId"){
+                        columns[i].lookup = lookup
                     }
                 }
-                return{...prevState, columns: columns, loaderHostGroup: false
+                return{...prevState, columns, loaderHostGroup: false
                 }})
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving parent Host Groups: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
 
         props.gRPCClients.teamClient.getAll(new GetAllRequestTeam(), {}).then(teamResponse => {
-            let lookup: Record<string, string> = {}
+            const lookup: Record<string, string> = {}
             for (let i = 0; i < teamResponse.getTeamsList().length; i++){
                 lookup[teamResponse.getTeamsList()[i].getId()?.getValue() as string] = `${teamResponse.getTeamsList()[i].getName()} (ID:${teamResponse.getTeamsList()[i].getId()?.getValue() as string})`
             }
             setState(prevState => {
-                let columns = prevState.columns
+                const columns = prevState.columns
                 for (let i = 0; i < columns.length; i++){
-                    if (columns[i]['field'] === "teamId"){
-                        columns[i]['lookup'] = lookup
+                    if (columns[i].field === "teamId"){
+                        columns[i].lookup = lookup
                     }
                 }
-                return{...prevState, columns: columns, loaderTeam: false}})
+                return{...prevState, columns, loaderTeam: false}})
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving parent Teams: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
         props.gRPCClients.hostClient.getAll(new GetAllRequest(), {}).then(hostsResponse => {
-            setState(prevState => {return{...prevState, data: hostsResponse.getHostsList().map((host):hostColumns => {
-                    return hostToHostColumn(host)}), loader:false, loaderHost: false}})}, (err: any) => {
+            setState(prevState => {return{...prevState, data: hostsResponse.getHostsList().map((host): hostColumns => {
+                    return hostToHostColumn(host)}), loader: false, loaderHost: false}})}, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Hosts: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }
@@ -176,7 +175,7 @@ function HostMenuTable(props: SetupProps) {
                         title={title}
                         columns={state.columns}
                         data={state.data}
-                        options={{pageSizeOptions: [5,10,20,50,100, 500, 1000], pageSize:20, emptyRowsWhenPaging:false}}
+                        options={{pageSizeOptions: [5, 10, 20, 50, 100, 500, 1000], pageSize: 20, emptyRowsWhenPaging: false}}
                         editable={{
                             onRowAdd: (newData) =>
                                 new Promise((resolve, reject) => {

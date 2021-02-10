@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {forwardRef,} from 'react';
+import {forwardRef, } from 'react';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -22,15 +22,15 @@ import {propertyColumns, propertyColumnsToProperty, Status} from "./PropertiesMe
 import {StoreRequest} from "../../../grpc/pkg/property/propertypb/property_pb";
 
 const PropertiesCreate = forwardRef((props: SetupProps, ref) => {
-    const [dt, setData] = React.useState<{loader: boolean, services: serviceColumns[]}>({loader: true, services:[]})
-    type RowType = Record<string, any> //Todo: Implement more specific types
+    const [dt, setData] = React.useState<{loader: boolean, services: serviceColumns[]}>({loader: true, services: []})
+    type RowType = Record<string, any> // Todo: Implement more specific types
     const [rowsData, setRowData] = React.useState<RowType>({});
 
 
     useEffect(() => {
         props.gRPCClients.serviceClient.getAll(new GetAllRequest(), {}).then(respService => {
-            let rowdt: RowType = {}
-            let displayNames = new Set<string>()
+            const rowdt: RowType = {}
+            const displayNames = new Set<string>()
             respService.getServicesList().forEach(serv => {
                 if (serv.getDisplayName()){
                     displayNames.add(serv.getDisplayName())
@@ -40,14 +40,14 @@ const PropertiesCreate = forwardRef((props: SetupProps, ref) => {
                              rowdt[serv.getDisplayName()][key] = {
                                 ...Checks[serv.getName() as availableChecks][key],
                                 value: 'defaultValue' in Checks[serv.getName() as availableChecks][key] ? Checks[serv.getName() as availableChecks][key].defaultValue as string : '',
-                                status: Checks[serv.getName() as availableChecks][key].defaultStatus? Checks[serv.getName() as availableChecks][key].defaultStatus : Status.View,
+                                status: Checks[serv.getName() as availableChecks][key].defaultStatus ? Checks[serv.getName() as availableChecks][key].defaultStatus : Status.View,
                             }
                         })
                     }
                 }
             })
 
-            let serviceCols: serviceColumns[] = []
+            const serviceCols: serviceColumns[] = []
 
             respService.getServicesList().forEach(serv => {
                 serviceCols.push(serviceToServiceColumn(serv))
@@ -61,13 +61,13 @@ const PropertiesCreate = forwardRef((props: SetupProps, ref) => {
     }, []);
 
 
-    const processProperties = (displayName:string, enable:boolean) => {
+    const processProperties = (displayName: string, enable: boolean) => {
         setRowData(prevState => {return {...prevState, [displayName]: {...prevState[displayName], enableProcessingProperty: enable}}})
     }
 
     function submit() {
-            let properties:propertyColumns[] = []
-            Object.keys(rowsData).forEach((DisplayName) =>{
+            const properties: propertyColumns[] = []
+            Object.keys(rowsData).forEach((DisplayName) => {
                 if (rowsData[DisplayName].enableProcessingProperty){
                     dt.services.forEach(service => {
                         if (service.displayName === DisplayName){
@@ -76,8 +76,8 @@ const PropertiesCreate = forwardRef((props: SetupProps, ref) => {
                                     properties.push({
                                         serviceId: service.id,
                                         key: propertyKey,
-                                        status: rowsData[DisplayName][propertyKey]["status"],
-                                        value: rowsData[DisplayName][propertyKey]["value"]
+                                        status: rowsData[DisplayName][propertyKey].status,
+                                        value: rowsData[DisplayName][propertyKey].value
                                     })
                                 }
                             })
@@ -163,7 +163,7 @@ const PropertiesCreate = forwardRef((props: SetupProps, ref) => {
                                                                 })}
                                                             >
                                                                 {
-                                                                    rowsData[table][property].options.map((stat:string) => {
+                                                                    rowsData[table][property].options.map((stat: string) => {
                                                                         return <MenuItem value={stat}>{stat}</MenuItem>
                                                                     })
                                                                 }

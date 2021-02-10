@@ -144,12 +144,12 @@ export default function Dashboard(props: DashboardProps) {
       } else{
         localStorage.setItem("theme", "light")
       }
-     return !prevState
+      return !prevState
     });
   };
 
 
-  const action = (key:string) => (
+  const action = (key: string) => (
       <React.Fragment>
         <Button variant="outlined" onClick={() => { closeSnackbar(key) }}>
           Dismiss
@@ -157,10 +157,10 @@ export default function Dashboard(props: DashboardProps) {
       </React.Fragment>
   );
 
-  const genericEnqueue = (message:string, severity: Severity, autoHideDuration: number | null | undefined = null, uniqueID?: string) => {
+  const genericEnqueue = (message: string, severity: Severity, autoHideDuration: number | null | undefined = null, uniqueID?: string) => {
     enqueueSnackbar(message, {
         variant: severity,
-        autoHideDuration: autoHideDuration,
+        autoHideDuration,
         key: uniqueID,
         action,
     })
@@ -172,16 +172,16 @@ export default function Dashboard(props: DashboardProps) {
   const handleDrawerClose = () => {
     setOpen(false);
   };
- const logout = () => {
+  const logout = () => {
     token.logout()
     window.location.reload()
   }
   const handleFullScreen = useFullScreenHandle()
   const [currentPolicy, setPolicy] = useState<Policy.AsObject | undefined>(undefined);
-  let history = useHistory();
+  const history = useHistory();
   useEffect(() => {
-    let streamRequest = new GetRequest();
-    let stream = props.gRPCClients.policyClient.get(streamRequest, {})
+    const streamRequest = new GetRequest();
+    const stream = props.gRPCClients.policyClient.get(streamRequest, {})
     stream.on('error', (err: any) => {
       if (err.code === 7){
         genericEnqueue(`You are not authorized to perform this action. Please Log in`, Severity.Error)
@@ -304,7 +304,7 @@ export default function Dashboard(props: DashboardProps) {
                     <Container maxWidth="xl" className={classes.container}>
                           <Route exact path={["/", "/ranks", "/details"]} render={() => (
                               <FullScreen handle={handleFullScreen}>
-                                <div style={(handleFullScreen.active && ((!isDarkTheme && { background: grey[50]} ) || { background: grey.A400})) || undefined}>
+                                <div style={(handleFullScreen.active && ((!isDarkTheme && { background: grey[50]}) || { background: grey.A400})) || undefined}>
                                   <ScoreBoard {...props} genericEnqueue={genericEnqueue} currentPolicy={currentPolicy} setTitle={setTitle} handleFullScreen={handleFullScreen}/>
                                 </div>
                               </FullScreen>

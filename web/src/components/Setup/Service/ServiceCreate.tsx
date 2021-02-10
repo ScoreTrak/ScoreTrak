@@ -25,7 +25,7 @@ import {HostGroup} from "../../../grpc/pkg/host_group/host_grouppb/host_group_pb
 import {serviceColumns, serviceColumnsToService} from "./ServiceMenu";
 
 const ServiceCreate = forwardRef((props: SetupProps, ref) => {
-    const [dt, setData] = React.useState<{loaderHost: boolean, loaderHostGroup: boolean, hosts: Host[], hostGroups: HostGroup[], serviceGroups: ServiceGroup[]}>({loaderHost: true, loaderHostGroup: true, hosts:[], hostGroups:[], serviceGroups: []})
+    const [dt, setData] = React.useState<{loaderHost: boolean, loaderHostGroup: boolean, hosts: Host[], hostGroups: HostGroup[], serviceGroups: ServiceGroup[]}>({loaderHost: true, loaderHostGroup: true, hosts: [], hostGroups: [], serviceGroups: []})
     const [counter, setCounter] = React.useState<Record<string, number>>({})
     const [rowsData, setRowData] = React.useState<Record<string, Record <number, serviceColumns> >>({});
 
@@ -55,12 +55,12 @@ const ServiceCreate = forwardRef((props: SetupProps, ref) => {
     useEffect(() => {
         props.gRPCClients.serviceGroupClient.getAll(new GetAllRequestService(), {}).then(respServiceGrp => {
             setData(prevState => {return {...prevState, loader: false, serviceGroups: respServiceGrp.getServiceGroupsList()}})
-        },(err: any) => {
+        }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Service Groups: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
         props.gRPCClients.hostGroupClient.getAll(new GetAllRequestServiceGroup(), {}).then(respHostGroup => {
-                let counter:Record<string, number> = {}
-                let rowdt:Record<string, serviceColumns[]> = {}
+                const counter: Record<string, number> = {}
+                const rowdt: Record<string, serviceColumns[]> = {}
                 respHostGroup.getHostGroupsList().forEach(hstGrp => {
                     counter[hstGrp.getId()?.getValue() as string] = 0
                     rowdt[hstGrp.getId()?.getValue() as string] = []
@@ -69,7 +69,7 @@ const ServiceCreate = forwardRef((props: SetupProps, ref) => {
                 setRowData(rowdt)
                 setData(prevState => {return {...prevState, loaderHostGroup: false, hostGroups: respHostGroup.getHostGroupsList()}})
 
-            },(err: any) => {
+            }, (err: any) => {
                 props.genericEnqueue(`Encountered an error while retrieving Host Groups: ${err.message}. Error code: ${err.code}`, Severity.Error)
             }
         )
@@ -87,7 +87,7 @@ const ServiceCreate = forwardRef((props: SetupProps, ref) => {
     const setNumberOfServices = (hostGroupID: string, value: number) => {
         if (value >= 0){
             setRowData(prevState => {
-                let newRowData: serviceColumns[] = []
+                const newRowData: serviceColumns[] = []
                 for (let i = 1; i <= value; i++){
                     if (i in prevState[hostGroupID]){
                         newRowData[i] = prevState[hostGroupID][i]
@@ -102,8 +102,8 @@ const ServiceCreate = forwardRef((props: SetupProps, ref) => {
     }
 
     function submit() {
-            let services: serviceColumns[] = []
-            Object.keys(rowsData).forEach(hostGroupID =>{
+            const services: serviceColumns[] = []
+            Object.keys(rowsData).forEach(hostGroupID => {
                 Object.keys(rowsData[hostGroupID]).forEach(idx => {
                     dt.hosts.forEach(host => {
                         if (hostGroupID === host.getHostGroupId()?.getValue()){
@@ -112,15 +112,15 @@ const ServiceCreate = forwardRef((props: SetupProps, ref) => {
                     })
                 })
             })
-            
+
             const storeRequest = new StoreRequest()
-            
+
             services.forEach(servVals => {
                 storeRequest.addServices(serviceColumnsToService(servVals))
             })
-        
+
             props.gRPCClients.serviceClient.store(storeRequest, {}).then(r => {
-               props.genericEnqueue("Success!", Severity.Success, 3000) 
+               props.genericEnqueue("Success!", Severity.Success, 3000)
             }, (err: any) => {
                 props.genericEnqueue(`Failed to save services: ${err.message}. Error code: ${err.code}`, Severity.Error)
             })
@@ -152,8 +152,8 @@ const ServiceCreate = forwardRef((props: SetupProps, ref) => {
                                 </TableHead>
                                 <TableBody>
                                     {
-                                        Array.apply(null, Array(counter[table.getId()?.getValue() as string])).map((e,j) => {
-                                            let i = j+1
+                                        Array.apply(null, Array(counter[table.getId()?.getValue() as string])).map((e, j) => {
+                                            const i = j + 1
                                             return <TableRow hover role="checkbox" tabIndex={-1} key={`${table.getId()?.getValue()}_${i}`}>
                                                     <TableCell key={`${table.getId()?.getValue() as string}_${i}`}>
                                                         {i}
@@ -204,10 +204,10 @@ const ServiceCreate = forwardRef((props: SetupProps, ref) => {
                                                              {
                                                                  (column.id !== 'serviceGroupId' && column.id !== 'name') &&
                                                                      <TextField id={`${table.getId()?.getValue()}_${i}_${column.id}`}
-                                                                                type={(column.id==='weight' || column.id==='pointsBoost' || column.id === 'roundUnits' || column.id === 'roundDelay') ? 'number' : undefined } value={rowsData[table.getId()?.getValue() as string] && rowsData[table.getId()?.getValue() as string][i] && rowsData[table.getId()?.getValue() as string][i][column.id as keyof serviceColumns]}
+                                                                                type={(column.id === 'weight' || column.id === 'pointsBoost' || column.id === 'roundUnits' || column.id === 'roundDelay') ? 'number' : undefined } value={rowsData[table.getId()?.getValue() as string] && rowsData[table.getId()?.getValue() as string][i] && rowsData[table.getId()?.getValue() as string][i][column.id as keyof serviceColumns]}
                                                                                 onChange={((event: React.ChangeEvent<HTMLInputElement>) => {
                                                                              let val: number | string = event.target.value
-                                                                             if ((column.id==='weight' || column.id==='pointsBoost' || column.id === 'roundUnits' || column.id === 'roundDelay')){
+                                                                             if ((column.id === 'weight' || column.id === 'pointsBoost' || column.id === 'roundUnits' || column.id === 'roundDelay')){
                                                                                  val = parseInt(event.target.value)
                                                                              }
                                                                              setRowData(prevState => {

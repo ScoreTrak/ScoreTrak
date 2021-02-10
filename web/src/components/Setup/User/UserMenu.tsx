@@ -45,7 +45,7 @@ function userColumnsToUser(userC: userColumns): User{
     return u
 }
 
-function ProtoRoleToRole (eRole : ProtoRole ): Role | undefined{
+function ProtoRoleToRole (eRole : ProtoRole): Role | undefined{
     if (eRole === ProtoRole.BLUE) return Role.Blue
     if (eRole === ProtoRole.BLACK) return Role.Black
     if (eRole === ProtoRole.RED) return Role.Red
@@ -63,7 +63,7 @@ function RoleToProtoRole (role : Role | undefined): ProtoRole {
 export default function UserMenu(props: SetupProps) {
     const title = "Users"
     props.setTitle(title)
-    const columns=
+    const columns =
         [
             { title: 'ID (optional)', field: 'id', editable: 'onAdd' as const},
             { title: 'Username', field: 'username' },
@@ -73,33 +73,33 @@ export default function UserMenu(props: SetupProps) {
             { title: 'Role', field: 'role', lookup: { [Role.Black]: Role.Black, [Role.Blue]: Role.Blue, [Role.Red]: Role.Red }},
         ]
     const [state, setState] = React.useState<{columns: any[], loaderHost: boolean, loaderUser: boolean, data: userColumns[]}>({
-        columns: columns,
+        columns,
         loaderHost: true,
         loaderUser: true,
         data: []
     });
 
     function reloadSetter() {
-        let lookup: Record<string, string> = {}
+        const lookup: Record<string, string> = {}
         props.gRPCClients.teamClient.getAll(new GetAllRequestTeam(), {}).then(teamsResponse => {
             for (let i = 0; i < teamsResponse.getTeamsList().length; i++){
                 lookup[teamsResponse.getTeamsList()[i].getId()?.getValue() as string] = `${teamsResponse.getTeamsList()[i].getName()} (ID:${teamsResponse.getTeamsList()[i].getId()?.getValue() as string})`
             }
             setState(prevState => {
-                let columns = prevState.columns
+                const columns = prevState.columns
                 for (let i = 0; i < columns.length; i++){
-                    if (columns[i]['field'] === "teamId"){
-                        columns[i]['lookup'] = lookup
+                    if (columns[i].field === "teamId"){
+                        columns[i].lookup = lookup
                     }
                 }
-                return{...prevState, columns: columns, loaderHost: false
+                return{...prevState, columns, loaderHost: false
             }})
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving parent Teams: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
         props.gRPCClients.userClient.getAll(new GetAllRequestUser(), {}).then(usersResponse => {
-            setState(prevState => {return{...prevState, data: usersResponse.getUsersList().map((user):userColumns => {
-                return userToUserColumn(user)}), loaderUser:false}})}, (err: any) => {
+            setState(prevState => {return{...prevState, data: usersResponse.getUsersList().map((user): userColumns => {
+                return userToUserColumn(user)}), loaderUser: false}})}, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Users: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }
@@ -115,13 +115,13 @@ export default function UserMenu(props: SetupProps) {
                         title={title}
                         columns={state.columns}
                         data={state.data}
-                        options={{pageSizeOptions: [5,10,20,50,100, 500, 1000], pageSize:20, emptyRowsWhenPaging:false}}
+                        options={{pageSizeOptions: [5, 10, 20, 50, 100, 500, 1000], pageSize: 20, emptyRowsWhenPaging: false}}
                         editable={{
                             onRowAdd: (newData) =>
                                 new Promise((resolve, reject) => {
                                     setTimeout(() => {
                                         const storeRequest = new StoreRequest()
-                                        //https://github.com/protocolbuffers/protobuf/issues/1591
+                                        // https://github.com/protocolbuffers/protobuf/issues/1591
                                         const u = userColumnsToUser(newData)
                                         storeRequest.addUsers(u, 0)
                                         props.gRPCClients.userClient.store(storeRequest, {}).then(result => {

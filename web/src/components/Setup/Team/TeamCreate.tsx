@@ -20,7 +20,7 @@ const TeamCreate = forwardRef((props: SetupProps, ref) => {
         { id: 'name', label: 'Team Name'},
         { id: 'index', label: 'Index', field: <TextField onChange={
         ((event: React.ChangeEvent<HTMLInputElement>)  => {
-            setRows(parse_index(event.target.value).map((idx:number) => {
+            setRows(parse_index(event.target.value).map((idx: number) => {
                 return {
                     name: <TextField required label="Team Name" id={`name_${idx}`}/> ,
                     index: idx
@@ -34,8 +34,8 @@ const TeamCreate = forwardRef((props: SetupProps, ref) => {
     ];
 
     function submit() {
-            const teams = rows.map(row =>{
-                return {index: row["index"], name: (document.getElementById(`name_${row["index"]}`) as HTMLInputElement).value }
+            const teams = rows.map(row => {
+                return {index: row.index, name: (document.getElementById(`name_${row.index}`) as HTMLInputElement).value }
             })
             const storeRequest = new StoreRequest()
             teams.forEach(team => {

@@ -7,14 +7,14 @@ function numberRange (start: number, end: number) {
         start = end
         end = tmp
     }
-    end = end+1
+    end = end + 1
     return new Array(end - start).fill(undefined).map((d, i) => i + start);
 }
 
 function parse_index(rng: string){
     const stripped = rng.replace(/\s+/g, '')
-    let ranges = stripped.split(',');
-    let ret:number[] = []
+    const ranges = stripped.split(',');
+    const ret: number[] = []
 
     for (let i = 0; i < ranges.length; i++){
         if (ranges[i].split('-').length === 1){

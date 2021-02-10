@@ -61,7 +61,7 @@ export enum Status {
     Edit = "Edit"
 }
 
-function EnumStatusToStatus (pStatus : ProtoStatus ): Status |undefined {
+function EnumStatusToStatus (pStatus : ProtoStatus): Status | undefined {
     if (pStatus === ProtoStatus.VIEW) return Status.View
     if (pStatus === ProtoStatus.EDIT) return Status.Edit
     if (pStatus === ProtoStatus.HIDE) return Status.Hide
@@ -103,15 +103,15 @@ export function propertyColumnsToProperty(propertyC: propertyColumns): Property{
 function PropertyMenuTable(props: SetupProps) {
     const title = "Properties"
     props.setTitle(title)
-    const columns=
+    const columns =
         [
             { title: 'Key', field: 'key', editable: 'onAdd'},
             { title: 'Value', field: 'value' },
-            { title: 'Status', field: 'status', lookup:{'View': 'View', 'Hide':'Hide', 'Edit':'Edit'}},
+            { title: 'Status', field: 'status', lookup: {'View': 'View', 'Hide': 'Hide', 'Edit': 'Edit'}},
             { title: 'Service ID', field: 'serviceId', editable: 'onAdd'},
         ]
     const [state, setState] = React.useState<{columns: any[], loaderService: boolean, loaderProperty: boolean, data: propertyColumns[]}>({
-        columns: columns,
+        columns,
         loaderService: true,
         loaderProperty: true,
         data: []
@@ -120,26 +120,26 @@ function PropertyMenuTable(props: SetupProps) {
     function reloadSetter() {
 
         props.gRPCClients.serviceClient.getAll(new GetAllRequestService(), {}).then(serviceResponse => {
-            let lookup: Record<string, string> = {}
+            const lookup: Record<string, string> = {}
             for (let i = 0; i < serviceResponse.getServicesList().length; i++){
                 lookup[serviceResponse.getServicesList()[i].getId()?.getValue() as string] = `${serviceResponse.getServicesList()[i].getDisplayName()} (ID:${serviceResponse.getServicesList()[i].getId()?.getValue() as string})`
             }
             setState(prevState => {
-                let columns = prevState.columns
+                const columns = prevState.columns
                 for (let i = 0; i < columns.length; i++){
-                    if (columns[i]['field'] === "hostId"){
-                        columns[i]['lookup'] = lookup
+                    if (columns[i].field === "hostId"){
+                        columns[i].lookup = lookup
                     }
                 }
-                return{...prevState, columns: columns, loaderService: false
+                return{...prevState, columns, loaderService: false
                 }})
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving parent Teams: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
 
         props.gRPCClients.propertyClient.getAll(new GetAllRequest(), {}).then(propertiesResponse => {
-            setState(prevState => {return{...prevState, data: propertiesResponse.getPropertiesList().map((property):propertyColumns => {
-                    return propertyToPropertyColumn(property)}), loaderProperty:false}})}, (err: any) => {
+            setState(prevState => {return{...prevState, data: propertiesResponse.getPropertiesList().map((property): propertyColumns => {
+                    return propertyToPropertyColumn(property)}), loaderProperty: false}})}, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Properties: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }
@@ -155,7 +155,7 @@ function PropertyMenuTable(props: SetupProps) {
                         title={title}
                         columns={state.columns}
                         data={state.data}
-                        options={{pageSizeOptions: [5,10,20,50,100, 500, 1000], pageSize:20, emptyRowsWhenPaging:false}}
+                        options={{pageSizeOptions: [5, 10, 20, 50, 100, 500, 1000], pageSize: 20, emptyRowsWhenPaging: false}}
                         editable={{
                             onRowAdd: (newData) =>
                                 new Promise((resolve, reject) => {

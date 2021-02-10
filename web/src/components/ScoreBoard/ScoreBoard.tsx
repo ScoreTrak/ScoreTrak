@@ -56,12 +56,12 @@ export default function ScoreBoard(props : ScoreBoardProps) {
         setFade(false);
     };
     const handleFullScreen = props.handleFullScreen
-    let history = useHistory();
+    const history = useHistory();
 
 
     useEffect(() => {
-        let streamRequest = new GetRequest();
-        let stream = props.gRPCClients.reportClient.get(streamRequest, {})
+        const streamRequest = new GetRequest();
+        const stream = props.gRPCClients.reportClient.get(streamRequest, {})
         stream.on('error', (err: any) => {
             if (err.code === 7){
                 history.push("/login");
@@ -85,7 +85,7 @@ export default function ScoreBoard(props : ScoreBoardProps) {
     return (
             <Box className={classes.alignItemsAndJustifyContent} height="100%" width="100%"  >
                 { report && report.Round !== 0 ?
-                    <Box m="auto" style={{height: handleFullScreen.active ? '100vh' : '85vh', width:'100%'}}>
+                    <Box m="auto" style={{height: handleFullScreen.active ? '100vh' : '85vh', width: '100%'}}>
                         { (props.currentPolicy.showPoints?.value || token.getCurrentRole() === Role.Black) &&
                         <Route exact path='/ranks' render={() => (
                             <Ranks isDarkTheme={props.theme.isDarkTheme} report={report}/>

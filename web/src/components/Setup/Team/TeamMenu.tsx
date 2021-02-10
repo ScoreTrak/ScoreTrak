@@ -85,7 +85,7 @@ export function teamColumnsToTeam(teamC: teamColumns): Team{
 function TeamMenuTable(props: SetupProps) {
     const title = "Teams"
     props.setTitle(title)
-    const columns=
+    const columns =
         [
             { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
             { title: 'Team Name', field: 'name' },
@@ -93,17 +93,17 @@ function TeamMenuTable(props: SetupProps) {
             { title: 'Enabled', field: 'enabled', type: 'boolean', initialEditValue: true},
             { title: 'Hidden', field: 'hidden', type: 'boolean', initialEditValue: false}
         ]
-    
+
     const [state, setState] = React.useState<{columns: any[], loader: boolean, data: teamColumns[]}>({
-        columns: columns,
+        columns,
         loader: true,
         data: []
     });
 
     function reloadSetter() {
         props.gRPCClients.teamClient.getAll(new GetAllRequest(), {}).then(teamsResponse => {
-            setState(prevState => {return{...prevState, data: teamsResponse.getTeamsList().map((team):teamColumns => {
-                return teamToTeamColumn(team)}), loader:false}})}, (err: any) => {
+            setState(prevState => {return{...prevState, data: teamsResponse.getTeamsList().map((team): teamColumns => {
+                return teamToTeamColumn(team)}), loader: false}})}, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Teams: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }
@@ -119,7 +119,7 @@ function TeamMenuTable(props: SetupProps) {
                         title={title}
                         columns={state.columns}
                         data={state.data}
-                        options={{pageSizeOptions: [5,10,20,50,100, 500, 1000], pageSize:20, emptyRowsWhenPaging:false}}
+                        options={{pageSizeOptions: [5, 10, 20, 50, 100, 500, 1000], pageSize: 20, emptyRowsWhenPaging: false}}
                         editable={{
                             onRowAdd: (newData) =>
                                 new Promise((resolve, reject) => {

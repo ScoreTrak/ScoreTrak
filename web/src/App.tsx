@@ -44,7 +44,7 @@ function App() {
         }} dense preventDuplicate>
         <CssBaseline />
           <Router>
-            <Dashboard theme={{isDarkTheme: isDarkTheme, setIsDarkTheme: setIsDarkTheme}}  gRPCClients={gRPCClients} />
+            <Dashboard theme={{isDarkTheme, setIsDarkTheme}}  gRPCClients={gRPCClients} />
           </Router>
         </SnackbarProvider>
       </ThemeProvider>

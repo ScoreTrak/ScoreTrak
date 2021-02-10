@@ -35,11 +35,11 @@ type templateState = {
 }
 const HostCreate = forwardRef((props: SetupProps, ref) => {
 
-    const [dt, setData] = React.useState<{loaderTeam: boolean, loaderHostGroup: boolean, teams: Team[], hostGroups:  HostGroup [], hostGroupsTemplateState:  templateState []}>({loaderTeam: true, loaderHostGroup: true, teams:[], hostGroups:[], hostGroupsTemplateState: []})
+    const [dt, setData] = React.useState<{loaderTeam: boolean, loaderHostGroup: boolean, teams: Team[], hostGroups:  HostGroup [], hostGroupsTemplateState:  templateState []}>({loaderTeam: true, loaderHostGroup: true, teams: [], hostGroups: [], hostGroupsTemplateState: []})
     const [rowsData, setRowData] = React.useState<Record<string, hostColumns>>({});
     useEffect(() => {
-        props.gRPCClients.teamClient.getAll(new GetAllRequestTeam(), {}).then(respTeam =>{
-            setData(prevState => {return {...prevState, loaderTeam: false, teams: respTeam.getTeamsList().sort((a,b) => {
+        props.gRPCClients.teamClient.getAll(new GetAllRequestTeam(), {}).then(respTeam => {
+            setData(prevState => {return {...prevState, loaderTeam: false, teams: respTeam.getTeamsList().sort((a, b) => {
                     const aidx = a.getIndex()?.getValue()
                     const bidx = b.getIndex()?.getValue()
                     if (!aidx){
@@ -53,13 +53,13 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Teams: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
-        props.gRPCClients.hostGroupClient.getAll(new GetAllRequestHostGroup(), {}).then(respHostGroup =>{
+        props.gRPCClients.hostGroupClient.getAll(new GetAllRequestHostGroup(), {}).then(respHostGroup => {
             setData(prevState => {
                 const hostGroupsTemplateState:  templateState[] = []
                 respHostGroup.getHostGroupsList().forEach(hstGrp => {
                     hostGroupsTemplateState.push({edit_hostTemplate: !!defaultHostColumns().editHost, enabledTemplate: !!defaultHostColumns().enabled})
                 })
-                return {...prevState,hostGroups:respHostGroup.getHostGroupsList(), hostGroupsTemplateState: hostGroupsTemplateState, loaderHostGroup: false}})
+                return {...prevState, hostGroups: respHostGroup.getHostGroupsList(), hostGroupsTemplateState, loaderHostGroup: false}})
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Host Groups: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
@@ -82,7 +82,7 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
 
 
     const templateModification = (hostGroupId: string, templateValue: valueof<hostColumns>, hostProperty: keyof hostColumns) => {
-        let matched_index: string[] = []
+        const matched_index: string[] = []
         if (typeof templateValue == "string")
         {
             const re  = new RegExp('(?<={).*?(?=})', 'g')
@@ -100,7 +100,7 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
 
         setRowData(prevState => {
             const newState = {...prevState}
-                for (let i = 0; i < dt.teams.length; i++){
+            for (let i = 0; i < dt.teams.length; i++){
                     if (dt.teams[i].getIndex()?.getValue()) {
                         const cell = `${dt.teams[i].getId()?.getValue()}_${hostGroupId}`
                         if (!(cell in newState)){
@@ -108,7 +108,7 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
                             newState[cell].teamId = dt.teams[i].getId()?.getValue()
                             newState[cell].hostGroupId = hostGroupId
                         }
-                        let tmColumn = teamToTeamColumn(dt.teams[i])
+                        const tmColumn = teamToTeamColumn(dt.teams[i])
                         if (typeof templateValue == "string"){
                             matched_index.forEach(templatedValue => {
                                 if (templatedValue in tmColumn){
@@ -139,7 +139,7 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
         })
         props.gRPCClients.hostClient.store(storeRequest, {}).then(r => {
             props.genericEnqueue("Success!", Severity.Success, 3000)
-        }, (err:any) =>{
+        }, (err: any) => {
             props.genericEnqueue(`Encountered an error while Storing Hosts: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }
