@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"github.com/asaskevich/govalidator"
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -16,13 +17,16 @@ const (
 
 type User struct {
 	ID           uuid.UUID `json:"id,omitempty" gorm:"type:uuid;primary_key;"`
-	Username     string    `json:"username" gorm:"unique,not null;default:null" valid:"required,alphanum"`
-	PasswordHash string    `json:"password_hash" gorm:"not null;default: null"`
+	Username     string    `json:"username" gorm:"unique;not null;default:null"`
+	PasswordHash string    `json:"password_hash" gorm:"not null;default:null"`
 	TeamID       uuid.UUID `json:"team_id,omitempty" gorm:"type:uuid"`
 	Role         string    `json:"role" gorm:"default:'blue'"`
 }
 
 func (u *User) BeforeSave(tx *gorm.DB) (err error) {
+	if u.Username != "" && !govalidator.IsAlpha(u.Username) {
+		return errors.New("field Name must be alphanumeric")
+	}
 	if u.Role != "" {
 		var validStatus bool
 		for _, item := range []string{Black, Blue, Red} {
