@@ -9,7 +9,7 @@ import {
 } from "../../../grpc/pkg/service_group/service_grouppb/service_group_pb";
 import {BoolValue} from "google-protobuf/google/protobuf/wrappers_pb";
 import {UUID} from "../../../grpc/pkg/proto/utilpb/uuid_pb";
-import MaterialTable from "material-table";
+import MaterialTable from '@material-table/core'
 import {Box, CircularProgress} from "@material-ui/core";
 
 

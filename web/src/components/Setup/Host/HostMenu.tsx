@@ -14,7 +14,7 @@ import {
     StoreRequest, UpdateRequest
 } from "../../../grpc/pkg/host/hostpb/host_pb";
 import {Severity} from "../../../types/types";
-import MaterialTable from "material-table";
+import MaterialTable from '@material-table/core'
 import {CircularProgress} from "@material-ui/core";
 import {GetAllRequest as GetAllRequestHostGroup} from "../../../grpc/pkg/host_group/host_grouppb/host_group_pb";
 import {GetAllRequest as GetAllRequestTeam} from "../../../grpc/pkg/team/teampb/team_pb";

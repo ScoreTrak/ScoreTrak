@@ -11,7 +11,7 @@ import ErrorIcon from '@material-ui/icons/Error';
 import Alert from "@material-ui/lab/Alert";
 import AlertTitle from "@material-ui/lab/AlertTitle";
 import Grid from "@material-ui/core/Grid";
-import MaterialTable from "material-table";
+import MaterialTable, {Column} from '@material-table/core'
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import Input from "@material-ui/core/Input";
@@ -39,6 +39,8 @@ import {
 
 import {UUID} from "../../grpc/pkg/proto/utilpb/uuid_pb";
 import {StringValue} from "google-protobuf/google/protobuf/wrappers_pb";
+import {hostColumns} from "../Setup/Host/HostMenu";
+import {propertyColumns} from "../Setup/Property/PropertiesMenu";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -247,6 +249,7 @@ type PropertiesData = {
     value_used: string,
     service_id: string,
     value: undefined | string
+    editable_value: boolean
 }
 
 function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionDetailsBoxProps) {
@@ -260,10 +263,11 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
     const host_id = props.host_id
 
 
-    const columns = [
+    const columns: Array<Column<PropertiesData>> = [
         { title: 'Key', field: 'key', editable: "never" as const},
         { title: 'Value Used', field: 'value_used', editable: "never" as const},
-        { title: 'Current Value', field: 'value'},
+        { title: 'Current Value', field: 'value', emptyValue: '(empty)' },
+        { title: 'editable_value', field: 'status', hidden: true },
     ]
 
     const columnsPreviousRounds = [
@@ -305,10 +309,11 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
         reloadProperties(service_id).then(results => {
             const d: PropertiesData[] = []
             for (const [key, property] of Object.entries(simpleService.Properties)) {
-                const obj: PropertiesData = {key, value_used: property.Value, service_id: key, value: undefined}
+                const obj: PropertiesData = {key, value_used: property.Value, service_id: key, value: "", editable_value: false}
                 results.getPropertiesList().forEach(res => {
                     if (key === res.getKey() && res.getStatus() === Status.EDIT){
-                        obj.value = res.getValue()?.getValue()
+                        obj.value = res.getValue()?.getValue() ? res.getValue()?.getValue() : undefined
+                        obj.editable_value = true
                     }
                 })
                 d.push(obj)
@@ -392,11 +397,14 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
                             title="Properties"
                             columns={columns}
                             data={PropertiesData}
-
                             cellEditable={{
+                                isCellEditable: (rowData, columnDef ) => {return rowData.editable_value},
                                 onCellEditApproved: (newValue, oldValue, rowData, columnDef) => {
                                     return new Promise((resolve, reject) => {
                                         setTimeout(() => {
+                                            if (newValue !== "" && newValue.trim() === ""){
+                                                reject("Only empty strings are not allowed")
+                                            }
                                             const property = new Property()
                                             property.setKey(rowData.key)
                                             const uuid = new UUID()
@@ -411,7 +419,7 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
                                                 setPropertiesData((prevState) => {
                                                     return prevState.map(property => {
                                                         if (property.key === rowData.key) {
-                                                            return {...rowData, value: newValue}
+                                                            return {...rowData, value: newValue ? newValue : undefined }
                                                         }
                                                         return {...property}
                                                     })
@@ -427,7 +435,6 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
                             }}
                         />
                     }
-
                     {
                         props.hostData && props.hostData.edit_host &&
                         <form style={{width: "100%", marginTop: "1vh"}} onSubmit={e => {handleSetHostAddress(e, host_id) }}>

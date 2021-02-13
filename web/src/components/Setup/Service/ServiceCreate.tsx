@@ -167,9 +167,15 @@ const ServiceCreate = forwardRef((props: SetupProps, ref) => {
                                                                      id={`${table.getId()?.getValue()}_${i}_${column.id}`}
                                                                      value={rowsData[table.getId()?.getValue() as string] && rowsData[table.getId()?.getValue() as string][i] && rowsData[table.getId()?.getValue() as string][i][column.id]}
                                                                      onChange={((event) => {
-                                                                         const val = event.target.value
+                                                                         const val = String(event.target.value)
                                                                          setRowData(prevState => {
-                                                                             return {...prevState, [table.getId()?.getValue() as string]: {...prevState[table.getId()?.getValue() as string], [i]: {...prevState[table.getId()?.getValue() as string][i], [column.id]: val}}}
+                                                                             return {...prevState,
+                                                                                 [table.getId()?.getValue() as string]: {...prevState[table.getId()?.getValue() as string],
+                                                                                     [i]: {...prevState[table.getId()?.getValue() as string][i],
+                                                                                         name: val,
+                                                                                         displayName: prevState[table.getId()?.getValue() as string][i].displayName ? prevState[table.getId()?.getValue() as string][i].displayName : `${table.getName()}: ${val}`
+                                                                                 }}}
+
                                                                          })})}
                                                                  >
                                                                      {

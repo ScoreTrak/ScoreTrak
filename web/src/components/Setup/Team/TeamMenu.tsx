@@ -5,7 +5,7 @@ import StepButton from "@material-ui/core/StepButton";
 import {SetupProps} from "../util/util";
 import TeamCreate from "./TeamCreate";
 import Box from "@material-ui/core/Box";
-import MaterialTable from "material-table";
+import MaterialTable from '@material-table/core'
 import {
     DeleteRequest,
     GetAllRequest,

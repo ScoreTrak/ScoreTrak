@@ -264,7 +264,7 @@ export default function Dashboard(props: DashboardProps) {
                           </ListItemIcon>
                           <ListItemText primary="Status" />
                         </ListItem>
-                        { (token.getCurrentRole() === Role.Blue || token.getCurrentRole() === Role.Black) &&
+                        { (token.getCurrentRole() === Role.Red || token.getCurrentRole() === Role.Blue || token.getCurrentRole() === Role.Black) &&
                         <ListItem button component={Link} to="/details">
                           <ListItemIcon>
                             <DetailsIcon />

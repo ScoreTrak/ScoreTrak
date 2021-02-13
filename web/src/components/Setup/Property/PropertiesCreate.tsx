@@ -20,7 +20,7 @@ import {Severity} from "../../../types/types";
 import {serviceColumns, serviceToServiceColumn} from "../Service/ServiceMenu";
 import {propertyColumns, propertyColumnsToProperty, Status} from "./PropertiesMenu";
 import {StoreRequest} from "../../../grpc/pkg/property/propertypb/property_pb";
-
+//Todo: If Display name missing, replace with HostGroup.Name + Service.Name equivalent
 const PropertiesCreate = forwardRef((props: SetupProps, ref) => {
     const [dt, setData] = React.useState<{loader: boolean, services: serviceColumns[]}>({loader: true, services: []})
     type RowType = Record<string, any> // Todo: Implement more specific types

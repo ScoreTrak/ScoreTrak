@@ -5,7 +5,7 @@ import Step from "@material-ui/core/Step";
 import StepButton from "@material-ui/core/StepButton";
 import {SetupProps} from "../util/util";
 import {Severity} from "../../../types/types";
-import MaterialTable from "material-table";
+import MaterialTable from '@material-table/core'
 import {UUID} from "../../../grpc/pkg/proto/utilpb/uuid_pb";
 import {CircularProgress} from "@material-ui/core";
 import ServiceCreate from "./ServiceCreate";

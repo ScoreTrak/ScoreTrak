@@ -63,7 +63,7 @@ export default function Details(props: DetailsProps) {
                 href="https://fonts.googleapis.com/icon?family=Material+Icons"
             />
             {
-                token.getCurrentRole() === Role.Blue  ?
+                (token.getCurrentRole() === Role.Blue || token.getCurrentRole() === Role.Red) ?
                     <SingleTeamDetails {...props} teamID={token.getCurrentTeamID() as string} gRPCClients={props.gRPCClients}/>
                     :
                 BlackTeamPanel()

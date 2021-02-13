@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 import {SetupProps} from "../util/util";
 import {Role} from "../../../grpc/token/token";
 import Box from "@material-ui/core/Box";
-import MaterialTable from "material-table";
+import MaterialTable from '@material-table/core'
 import {GetAllRequest as GetAllRequestTeam} from "../../../grpc/pkg/team/teampb/team_pb";
 import {
     DeleteRequest,

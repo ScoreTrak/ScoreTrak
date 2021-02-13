@@ -20,7 +20,9 @@ import {defaultHostColumns, hostColumns, hostColumnsToHost} from "./HostMenu";
 import {teamToTeamColumn} from "../Team/TeamMenu";
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-
+import IconButton from "@material-ui/core/IconButton";
+import DeleteIcon from '@material-ui/icons/Delete';
+import Grid from "@material-ui/core/Grid";
 function setProperty<T, K extends keyof T>(obj: T, key: K, value: T[K]) {
     obj[key] = value;
 }
@@ -81,20 +83,17 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
     }
 
 
-    const templateModification = (hostGroupId: string, templateValue: valueof<hostColumns>, hostProperty: keyof hostColumns) => {
+    const templateModification = (hostGroupId: string, template: valueof<hostColumns>, hostProperty: keyof hostColumns) => {
         const matched_index: string[] = []
-        if (typeof templateValue == "string")
+        if (typeof template == "string")
         {
             const re  = new RegExp('(?<={).*?(?=})', 'g')
             let match
-            while ((match = re.exec(templateValue)) != null) {
+            while ((match = re.exec(template)) != null) {
                 if (match[0] === ""){
                     break
                 }
                 matched_index.push(match[0])
-            }
-            if (!matched_index.length){
-                return
             }
         }
 
@@ -109,21 +108,20 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
                             newState[cell].hostGroupId = hostGroupId
                         }
                         const tmColumn = teamToTeamColumn(dt.teams[i])
-                        if (typeof templateValue == "string"){
-                            matched_index.forEach(templatedValue => {
-                                if (templatedValue in tmColumn){
-                                    setProperty(newState[cell], hostProperty, templateValue.replace(`{${templatedValue}}`,
-                                        String(
-                                            getKeyValue(tmColumn, templatedValue)
-                                        )))
+                        setProperty(newState[cell], hostProperty, template)
+                        if (typeof template == "string" && matched_index.length !== 0){
+                            let templateCopy = template
+                            matched_index.forEach(t => {
+                                if (t in tmColumn){
+                                    templateCopy = templateCopy.replace(`{${t}}`, String(getKeyValue(tmColumn, t)))
                                 } else{
                                     props.genericEnqueue(`Entered templated value does not exist. Supported values from parent Team object: ${Object.keys(tmColumn).toString()}`, Severity.Warning)
                                     return {...prevState}
                                 }
                             })
-                        } else {
-                            setProperty(newState[cell], hostProperty, templateValue)
+                            setProperty(newState[cell], hostProperty, templateCopy)
                         }
+
 
                     }
                 }
@@ -134,9 +132,20 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
 
     function submit() {
         const storeRequest = new StoreRequest()
+        let elements_skipped: boolean = false
         Object.keys(rowsData).forEach(teamHostGrpId => {
-            storeRequest.addHosts(hostColumnsToHost(rowsData[teamHostGrpId]))
+            if (rowsData[teamHostGrpId].address !== "")
+            {
+                storeRequest.addHosts(hostColumnsToHost(rowsData[teamHostGrpId]))
+            } else {
+                elements_skipped = true
+            }
+
         })
+        if (elements_skipped){
+            props.genericEnqueue("Elements with empty Address filed were skipped", Severity.Warning)
+        }
+
         props.gRPCClients.hostClient.store(storeRequest, {}).then(r => {
             props.genericEnqueue("Success!", Severity.Success, 3000)
         }, (err: any) => {
@@ -201,53 +210,96 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {dt.teams.map((row) => {
+                            {dt.teams.map((row, row_idx) => {
                                 if (row.getIndex()?.getValue()){
                                     return (
                                         <TableRow hover role="checkbox" tabIndex={-1}>
                                             <TableCell key={row.getName()}>
                                                 {row.getName()}
+                                                <IconButton onClick={ () => {
+                                                    setData(prevState => {
+                                                        const newData = {...prevState}
+                                                        newData.teams.splice(row_idx, 1)
+                                                        return {...newData}
+                                                    })
+                                                    setRowData(prevState => {
+                                                        const newData = {...prevState}
+                                                        const toDelete: string[] = []
+                                                        Object.keys(newData).forEach(key =>{
+                                                            if (key.includes(row.getId()?.getValue() as string)){
+                                                                toDelete.push(key)
+                                                            }
+                                                        })
+                                                        toDelete.forEach(key => delete newData[key])
+                                                        return {...newData}
+                                                    })
+                                                }
+                                                } aria-label="delete">
+                                                    <DeleteIcon />
+                                                </IconButton>
                                             </TableCell>
 
                                             {dt.hostGroups.map((column) => {
+                                                const cell = `${row.getId()?.getValue()}_${column.getId()?.getValue()}`
                                                 return (
-                                                    <TableCell>
-                                                        <TextField label="Address" id={`${row.getId()?.getValue()}_${column.getId()?.getValue()}_address`} value={rowsData[`${row.getId()?.getValue()}_${column.getId()?.getValue()}`]?.address || ''} onChange={(event => {
+                                                    <TableCell color="secondary" >
+                                                        <TextField label="Address" id={`${cell}_address`} value={rowsData[cell]?.address || ''} onChange={(event => {
                                                             const val = event.target.value
                                                             modifyRowDataProperty(val, column, row, "address")
                                                         })}
                                                         />
-                                                        <TextField label="Address List Range" id={`${row.getId()?.getValue()}_${column.getId()?.getValue()}_allowed_range`} value={rowsData[`${row.getId()?.getValue()}_${column.getId()?.getValue()}`]?.addressListRange || ''} onChange={(event => {
+                                                        <TextField label="Address List Range" id={`${cell}_allowed_range`} value={rowsData[cell]?.addressListRange || ''} onChange={(event => {
                                                             const val = event.target.value
                                                             modifyRowDataProperty(val, column, row, "addressListRange")
                                                         })}
                                                         />
-                                                        <FormControlLabel
-                                                            control={
-                                                                <Switch id={`id_${column.getId()?.getValue()}_enable`}
-                                                                        checked={rowsData[`${row.getId()?.getValue()}_${column.getId()?.getValue()}`] ? rowsData[`${row.getId()?.getValue()}_${column.getId()?.getValue()}`].enabled :
-                                                                            defaultHostColumns().enabled}
-                                                                        onChange={(event => {
-                                                                    const val = event.target.checked
-                                                                    modifyRowDataProperty(val, column, row, "enabled")
-                                                                })}
+                                                        <Grid container >
+                                                            <Grid item xs={8}>
+                                                                <FormControlLabel
+                                                                    control={
+                                                                        <Switch id={`id_${column.getId()?.getValue()}_enable`}
+                                                                                checked={rowsData[cell] ? rowsData[cell].enabled :
+                                                                                    defaultHostColumns().enabled}
+                                                                                onChange={(event => {
+                                                                                    const val = event.target.checked
+                                                                                    modifyRowDataProperty(val, column, row, "enabled")
+                                                                                })}
+                                                                        />
+                                                                    }
+                                                                    label="Enable"
                                                                 />
-                                                            }
-                                                            label="Enable Host Scoring"
-                                                        />
-                                                        <FormControlLabel
-                                                            control={
-                                                                <Switch id={`id_${column.getId()?.getValue()}_edit_host`}
-                                                                        checked={rowsData[`${row.getId()?.getValue()}_${column.getId()?.getValue()}`] ? rowsData[`${row.getId()?.getValue()}_${column.getId()?.getValue()}`].editHost :
-                                                                            defaultHostColumns().editHost}
-                                                                        onChange={(event => {
-                                                                            const val = event.target.checked
-                                                                            modifyRowDataProperty(val, column, row, "editHost")
-                                                                        })}
-                                                                />}
-                                                            label="Allow Changing Hostname"
-                                                        />
+                                                            <br/>
+                                                                <FormControlLabel
+                                                                    control={
+                                                                        <Switch id={`id_${column.getId()?.getValue()}_edit_host`}
+                                                                                checked={rowsData[cell] ? rowsData[cell].editHost :
+                                                                                    defaultHostColumns().editHost}
+                                                                                onChange={(event => {
+                                                                                    const val = event.target.checked
+                                                                                    modifyRowDataProperty(val, column, row, "editHost")
+                                                                                })}
+                                                                        />
+                                                                    }
+                                                                    label="Edit Hostname"
+                                                                />
+                                                            </Grid>
+                                                            <Grid item xs={4}>
+                                                                {
+                                                                    cell in rowsData &&
+                                                                    <IconButton onClick={ () => {
+                                                                        setRowData(prevState => {
+                                                                            const newData = {...prevState}
+                                                                            delete newData[cell]
+                                                                            return {...newData}
+                                                                        })
+                                                                    }
+                                                                    } aria-label="delete">
+                                                                        <DeleteIcon />
+                                                                    </IconButton>
 
+                                                                }
+                                                            </Grid>
+                                                        </Grid>
                                                     </TableCell>
                                                 );
                                             })}

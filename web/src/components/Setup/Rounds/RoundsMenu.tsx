@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
 import {SetupProps} from "../util/util";
 import Box from "@material-ui/core/Box";
-import MaterialTable from "material-table";
+import MaterialTable from '@material-table/core'
 import {Severity} from "../../../types/types";
 import {CircularProgress} from "@material-ui/core";
 import {GetAllRequest, Round} from "../../../grpc/pkg/round/roundpb/round_pb";

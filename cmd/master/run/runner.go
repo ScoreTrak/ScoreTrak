@@ -45,7 +45,7 @@ func (d dRunner) refreshDsync() error {
 		res.Scan(&tm)
 	}
 	dsync = -time.Since(tm)
-	if float64(time.Second*2) < math.Abs(float64(dsync)) {
+	if float64(time.Second*2) < math.Abs(float64(dsync)) { //Todo: Move runner into its own package, and allow to statically assign the default values
 		return fmt.Errorf("time difference between master, and database is too large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now())
 	}
 	return nil
@@ -68,9 +68,11 @@ func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 		return err
 	}
 	var scoringLoop *time.Ticker
-	r, _ := d.r.Round.GetLastNonElapsingRound(context.TODO())
-	if r != nil {
+	r, err := d.r.Round.GetLastNonElapsingRound(context.TODO())
+	if r != nil || (err != nil && errors.Is(err, gorm.ErrRecordNotFound)) {
 		scoringLoop = time.NewTicker(d.durationUntilNextRound(r, cnf.RoundDuration))
+	} else if err != nil {
+		return err
 	} else {
 		scoringLoop = time.NewTicker(time.Second)
 	}
@@ -79,43 +81,86 @@ func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 	for {
 		select {
 		case <-configLoop.C:
-			dcc, _ := d.r.Config.Get(context.TODO())
+			dcc, err := d.r.Config.Get(context.TODO())
+			if err != nil {
+				return err
+			}
 			if !cnf.IsEqual(dcc) {
 				*cnf = *dcc
 			}
-			r, _ := d.r.Round.GetLastRound(context.TODO())
+			r, err := d.r.Round.GetLastRound(context.TODO())
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				return err
+			}
 			err = d.refreshDsync()
 			if err != nil {
-				log.Println(err)
+				return err
 			}
 			scoringLoop.Stop()
 			scoringLoop = time.NewTicker(d.durationUntilNextRound(r, cnf.RoundDuration))
 		case <-scoringLoop.C:
 			scoringLoop.Stop()
-			dcc, _ := d.r.Config.Get(context.TODO())
+			dcc, err := d.r.Config.Get(context.TODO())
+			if err != nil {
+				return err
+			}
 			if !cnf.IsEqual(dcc) {
 				*cnf = *dcc
 			}
 			var rnd *round.Round
 			if *cnf.Enabled {
-				rNoneElapsing, _ := d.r.Round.GetLastNonElapsingRound(context.TODO())
-				if rNoneElapsing != nil {
-					rnd = &round.Round{ID: rNoneElapsing.ID + 1}
+				lastRound, err := d.r.Round.GetLastRound(context.TODO())
+				if err != nil {
+					if errors.Is(err, gorm.ErrRecordNotFound) {
+						rnd = &round.Round{ID: 1}
+					} else {
+						return err
+					}
+				} else if lastRound.Finish != nil {
+					rnd = &round.Round{ID: lastRound.ID + 1}
+				} else if time.Now().After(lastRound.Start.Add(time.Duration(cnf.RoundDuration) * time.Second).Add(time.Second * 5)) {
+					err = d.db.Transaction(func(tx *gorm.DB) error {
+						delayedLastRound := &round.Round{}
+						err := tx.Last(delayedLastRound).Error
+						if err != nil {
+							return err
+						}
+						if lastRound.ID == delayedLastRound.ID && delayedLastRound.Finish == nil {
+							now := time.Now()
+							err = tx.Model(delayedLastRound).Updates(round.Round{Finish: &now, Note: "This round did not score!", Err: "one of the masters died while scoring. this round is now skipped"}).Error
+							if err != nil {
+								return err
+							}
+						}
+						return nil
+					})
+					if err != nil {
+						return err
+					}
+					rnd = &round.Round{ID: lastRound.ID + 1}
 				} else {
-					rnd = &round.Round{ID: 1}
+					scoringLoop = time.NewTicker(config.MinRoundDuration)
+					break
 				}
-				lastRnd, _ := d.r.Round.GetLastRound(context.TODO())
-				if lastRnd != nil && rnd.ID <= lastRnd.ID && lastRnd.Finish == nil {
-					if time.Now().After(lastRnd.Start.Add(time.Duration(cnf.RoundDuration) * time.Second).Add(time.Second * 3)) {
-						d.r.Round.Delete(context.TODO(), lastRnd.ID)
-					} //This is indicative of a scoring master dying. In this case we delete the last round
+				ctx, cancelContext := context.WithTimeout(context.Background(), (time.Duration(cnf.RoundDuration)*time.Second*9/10)+d.getDsync())
+				err = d.r.Round.Store(ctx, rnd)
+				if err != nil {
+					serr, ok := err.(*pgconn.PgError)
+					if ok && serr.Code == "23505" {
+						r, _ := d.r.Round.GetByID(ctx, rnd.ID)
+						if r != nil {
+							*rnd = *r
+						}
+					} else {
+						cancelContext()
+						return err
+					}
+				} else {
+					d.Score(ctx, *rnd)
 				}
-				ctx, _ := context.WithTimeout(context.Background(), (time.Duration(cnf.RoundDuration)*time.Second*9/10)+d.getDsync())
-				d.attemptToScore(ctx, rnd)
+				cancelContext()
 				time.Sleep(time.Second * 2)
 				scoringLoop = time.NewTicker(d.durationUntilNextRound(rnd, cnf.RoundDuration))
-			} else {
-				scoringLoop = time.NewTicker(config.MinRoundDuration)
 			}
 		}
 	}
@@ -130,25 +175,6 @@ func (d *dRunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64)
 		return 1
 	}
 	return dur
-}
-
-//Runs check in the background as a gorutine.
-func (d *dRunner) attemptToScore(ctx context.Context, rnd *round.Round) {
-	err := d.r.Round.Store(ctx, rnd)
-	if err != nil {
-		serr, ok := err.(*pgconn.PgError)
-		if ok && serr.Code == "23505" {
-			r, _ := d.r.Round.GetByID(ctx, rnd.ID)
-			if r != nil {
-				*rnd = *r
-			}
-		} else {
-			log.Println(err)
-			panic(err)
-		}
-	} else {
-		go d.Score(ctx, *rnd)
-	}
 }
 
 func (d dRunner) Score(ctx context.Context, rnd round.Round) {
