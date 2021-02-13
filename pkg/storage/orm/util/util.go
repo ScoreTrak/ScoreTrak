@@ -162,9 +162,9 @@ func DataPreload(db *gorm.DB) {
 		panic("There should be 4 entry in teams")
 	}
 	//Creating Users
-	db.Exec("INSERT INTO users (team_id, id, username, role) VALUES ('11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111', 'TeamOneUser', 'black')")
-	db.Exec("INSERT INTO users (team_id, id, username, role) VALUES ('22222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-222222222222', 'TeamTwoUser2', 'red')")
-	db.Exec("INSERT INTO users (team_id, id, username, role) VALUES ('22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333333', 'TeamTwoUser1', 'blue')")
+	db.Exec("INSERT INTO users (team_id, id, username, role, 'password_hash') VALUES ('11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111', 'TeamOneUser', 'black', '$2a$10$SDWdEajPUVYx1wczissDSur3R0/TmNsvCi/KivaKUM2DQi0Hc9EDG')")
+	db.Exec("INSERT INTO users (team_id, id, username, role, 'password_hash') VALUES ('22222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-222222222222', 'TeamTwoUser2', 'red', '$2a$10$SDWdEajPUVYx1wczissDSur3R0/TmNsvCi/KivaKUM2DQi0Hc9EDG')")
+	db.Exec("INSERT INTO users (team_id, id, username, role, 'password_hash') VALUES ('22222222-2222-2222-2222-222222222222', '33333333-3333-3333-3333-333333333333', 'TeamTwoUser1', 'blue', '$2a$10$SDWdEajPUVYx1wczissDSur3R0/TmNsvCi/KivaKUM2DQi0Hc9EDG')")
 	db.Table("users").Count(&count)
 	if count != 3 {
 		panic("There should be 3 entries in users")
