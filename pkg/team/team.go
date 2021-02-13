@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
-	"github.com/asaskevich/govalidator"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )
@@ -26,14 +25,6 @@ type Team struct {
 	Users []*user.User `gorm:"foreignkey:TeamID;association_foreignkey:ID;constraint:OnUpdate:RESTRICT,OnDelete:CASCADE" json:"-"`
 
 	Hosts []*host.Host `gorm:"foreignkey:TeamID;association_foreignkey:ID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT" json:"hosts,omitempty"`
-}
-
-// BeforeSave will set a UUID rather than numeric ID.
-func (t *Team) BeforeSave(tx *gorm.DB) (err error) {
-	if t.Name != "" && !govalidator.IsAlpha(t.Name) {
-		return errors.New("field Name must be alphanumeric")
-	}
-	return nil
 }
 
 // BeforeCreate will set a UUID rather than numeric ID.

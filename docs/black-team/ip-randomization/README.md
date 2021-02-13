@@ -35,9 +35,9 @@ iptables -I FORWARD -i ens192 -o ens160 -m state --state ESTABLISHED,RELATED -j 
 ```
 6) Configure SNAT:
 ```
-iptables -t nat -I POSTROUTING -d 10.0.0.0/20 -m state --state NEW -m statistic --mode nth --every 3 --packet 0 -j SNAT --to-source 10.0.4.10
-iptables -t nat -I POSTROUTING -d 10.0.0.0/20 -m state --state NEW -m statistic --mode nth --every 2 --packet 0 -j SNAT --to-source 10.0.4.25
-iptables -t nat -I POSTROUTING -d 10.0.0.0/20 -m state --state NEW -m statistic --mode nth --every 1 --packet 0 -j SNAT --to-source 10.0.4.30
+iptables -t nat -I POSTROUTING -d 0.0.0.0/0 -m state --state NEW -m statistic --mode nth --every 3 --packet 0 -j SNAT --to-source 10.0.4.10
+iptables -t nat -I POSTROUTING -d 0.0.0.0/0 -m state --state NEW -m statistic --mode nth --every 2 --packet 0 -j SNAT --to-source 10.0.4.25
+iptables -t nat -I POSTROUTING -d 0.0.0.0/0 -m state --state NEW -m statistic --mode nth --every 1 --packet 0 -j SNAT --to-source 10.0.4.30
 ```
 
 NOTE that `--every` is decreasing with every rule. Following explains the behavior: https://serverfault.com/questions/490854/rotating-outgoing-ips-using-iptables/491517#491517
