@@ -27,13 +27,13 @@ type DetailsProps = {
 type Row = {team_id: string, team_name: string}
 
 export default function Details(props: DetailsProps) {
-    const report=props.report
+    const report = props.report
     function BlackTeamPanel() {
-        let data: Row []= []
-        Object.keys(report["Teams"]).forEach(team_id =>{
+        const data: Row [] = []
+        Object.keys(report.Teams).forEach(team_id => {
             data.push({
-                team_id: team_id,
-                team_name: report["Teams"][team_id]["Name"],
+                team_id,
+                team_name: report.Teams[team_id].Name,
             })
         })
         data.sort((a, b) => (a.team_name > b.team_name) ? 1 : -1)
@@ -63,7 +63,7 @@ export default function Details(props: DetailsProps) {
                 href="https://fonts.googleapis.com/icon?family=Material+Icons"
             />
             {
-                token.getCurrentRole() === Role.Blue  ?
+                (token.getCurrentRole() === Role.Blue || token.getCurrentRole() === Role.Red) ?
                     <SingleTeamDetails {...props} teamID={token.getCurrentTeamID() as string} gRPCClients={props.gRPCClients}/>
                     :
                 BlackTeamPanel()

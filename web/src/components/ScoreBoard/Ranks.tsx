@@ -40,34 +40,34 @@ type RanksProps = {
 
 
 export default function Ranks(props: RanksProps) {
-    const report=props.report
-    let data: Record<string, number | string> [] = []
-    let dataKeys = new Set<string>();
+    const report = props.report
+    const data: Record<string, number | string> [] = []
+    const dataKeys = new Set<string>();
     if ("Teams" in report){
-        for (let team in report["Teams"]) {
-            if (report["Teams"].hasOwnProperty(team)) {
-                let serviceAggregator: Record<string, number> = {}
-                for (let host in report.Teams[team]["Hosts"]){
-                    if (report.Teams[team]["Hosts"].hasOwnProperty(host)) {
-                        if (Object.keys(report.Teams[team]["Hosts"][host]["Services"]).length !== 0){
-                            for (let service in report.Teams[team]["Hosts"][host]["Services"]) {
-                                if (report.Teams[team]["Hosts"][host]["Services"].hasOwnProperty(service)) {
-                                    let sr = report.Teams[team]["Hosts"][host]["Services"][service]
+        for (const team in report.Teams) {
+            if (report.Teams.hasOwnProperty(team)) {
+                const serviceAggregator: Record<string, number> = {}
+                for (const host in report.Teams[team].Hosts){
+                    if (report.Teams[team].Hosts.hasOwnProperty(host)) {
+                        if (Object.keys(report.Teams[team].Hosts[host].Services).length !== 0){
+                            for (const service in report.Teams[team].Hosts[host].Services) {
+                                if (report.Teams[team].Hosts[host].Services.hasOwnProperty(service)) {
+                                    const sr = report.Teams[team].Hosts[host].Services[service]
                                     let keyName = ""
-                                    if (sr["DisplayName"]){
-                                        keyName = sr["DisplayName"]
+                                    if (sr.DisplayName){
+                                        keyName = sr.DisplayName
                                     } else {
-                                        if (report.Teams[team]["Hosts"][host]["HostGroup"]){
-                                            keyName = report.Teams[team]["Hosts"][host]["HostGroup"]["Name"] + "-" + sr["Name"]
+                                        if (report.Teams[team].Hosts[host].HostGroup){
+                                            keyName = report.Teams[team].Hosts[host].HostGroup.Name + "-" + sr.Name
                                         } else{
-                                            keyName = sr["Name"]
+                                            keyName = sr.Name
                                         }
                                     }
                                     dataKeys.add(keyName)
                                     if (keyName in serviceAggregator){
-                                        serviceAggregator[keyName] += sr["Points"] + sr["PointsBoost"]
+                                        serviceAggregator[keyName] += sr.Points + sr.PointsBoost
                                     } else {
-                                        serviceAggregator[keyName] = sr["Points"] + sr["PointsBoost"]
+                                        serviceAggregator[keyName] = sr.Points + sr.PointsBoost
                                     }
                                 }
                             }
@@ -76,10 +76,10 @@ export default function Ranks(props: RanksProps) {
                     }
                 }
 
-                if (Object.keys(serviceAggregator).length !==0){
+                if (Object.keys(serviceAggregator).length !== 0){
                     data.push({
                         ...serviceAggregator,
-                        teamName: report["Teams"][team]["Name"],
+                        teamName: report.Teams[team].Name,
                     })
                 }
             }
@@ -98,7 +98,7 @@ export default function Ranks(props: RanksProps) {
 
 
     data.sort((a, b) => (serviceSum(a) === serviceSum(b)) ? (a.teamName > b.teamName ? 1 : -1) : (serviceSum(a) > serviceSum(b) ? 1 : -1))
-    let theme= {fontSize: "0.875rem"}
+    const theme = {fontSize: "0.875rem"}
     if (props.isDarkTheme){
         Object.assign(theme, darkTheme);
     }
@@ -112,7 +112,7 @@ export default function Ranks(props: RanksProps) {
         return bars.map(({ data: { data, indexValue }, x, width }, i) => {
             // sum of all the bar values in a stacked bar
             const total = Object.keys(data)
-                //f ilter out whatever your indexBy value is
+                // f ilter out whatever your indexBy value is
                 .filter(key => key !== "teamName")
                 .reduce((a, key) => a + data[key], 0);
 

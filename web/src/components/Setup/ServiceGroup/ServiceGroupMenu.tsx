@@ -9,7 +9,7 @@ import {
 } from "../../../grpc/pkg/service_group/service_grouppb/service_group_pb";
 import {BoolValue} from "google-protobuf/google/protobuf/wrappers_pb";
 import {UUID} from "../../../grpc/pkg/proto/utilpb/uuid_pb";
-import MaterialTable from "material-table";
+import MaterialTable from '@material-table/core'
 import {Box, CircularProgress} from "@material-ui/core";
 
 
@@ -48,7 +48,7 @@ function serviceGroupColumnsToServiceGroup(serviceGroupC: serviceGroupColumns): 
 export function ServiceGroupsMenu(props: SetupProps) {
     const title = "Service Group"
     props.setTitle(title)
-    const columns=
+    const columns =
         [
             { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
             { title: 'Service Group Name', field: 'name', editable: 'onAdd' },
@@ -57,17 +57,17 @@ export function ServiceGroupsMenu(props: SetupProps) {
             { title: 'Skip Helper(Skips autodeploy of workers)', field: 'skipHelper', type: 'boolean' },
             { title: 'Label(Workers would be deployed on nodes with the following label)', field: 'label', editable: 'onAdd'},
         ]
-    
+
     const [state, setState] = React.useState<{columns: any[], loader: boolean, data: serviceGroupColumns[]}>({
-        columns: columns,
+        columns,
         loader: true,
         data: []
     });
 
     function reloadSetter() {
         props.gRPCClients.serviceGroupClient.getAll(new GetAllRequest(), {}).then(serviceGroupResponse => {
-            setState(prevState => {return{...prevState, data: serviceGroupResponse.getServiceGroupsList().map((service):serviceGroupColumns => {
-                    return serviceGroupToServiceGroupColumn(service)}), loader:false}})}, (err: any) => {
+            setState(prevState => {return{...prevState, data: serviceGroupResponse.getServiceGroupsList().map((service): serviceGroupColumns => {
+                    return serviceGroupToServiceGroupColumn(service)}), loader: false}})}, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Service Groups: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }
@@ -94,7 +94,7 @@ export function ServiceGroupsMenu(props: SetupProps) {
                         ]}
                         columns={state.columns}
                         data={state.data}
-                        options={{pageSizeOptions: [5,10,20,50,100, 500, 1000], pageSize:20, emptyRowsWhenPaging:false}}
+                        options={{pageSizeOptions: [5, 10, 20, 50, 100, 500, 1000], pageSize: 20, emptyRowsWhenPaging: false}}
                         editable={{
                             onRowAdd: (newData) =>
                                 new Promise((resolve, reject) => {

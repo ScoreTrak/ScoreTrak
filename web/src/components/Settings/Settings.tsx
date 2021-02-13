@@ -95,7 +95,7 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
     const setTitle = props.setTitle
     setTitle("Settings")
     const [dt, setData] = useState<{loader: boolean, dynamicConfig: undefined | DynamicConfig, staticConfig: object}>({
-        loader:true, dynamicConfig: undefined,
+        loader: true, dynamicConfig: undefined,
         staticConfig: {}
     });
 
@@ -104,7 +104,7 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
     const [open, setOpen] = React.useState<string>("");
     const [fileSelected, setFileSelected] = React.useState({selected: false, name: ""});
 
-    const handleClickOpen = (panel:string) => () => {
+    const handleClickOpen = (panel: string) => () => {
         setOpen(panel);
     };
 
@@ -114,11 +114,11 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
 
     const [expanded, setExpanded] = React.useState('panelConfig');
 
-    const handleChange = (panel:string) => (event: React.ChangeEvent<{}>, isExpanded:boolean) => {
+    const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
         setExpanded(isExpanded ? panel : "");
     };
-    
-    
+
+
     const handleSetFileSelected = () => {
         const file = document.getElementById('file') as HTMLInputElement
         setFileSelected({selected: true, name: file.files ? file.files[0].name : "" })
@@ -143,7 +143,7 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
 
     const handleSetEnabled = (e: React.ChangeEvent<HTMLInputElement>) => {
         const boolVal = new BoolValue().setValue(e.target.checked)
-        props.gRPCClients.dynamicConfigClient.update(new UpdateRequestDynamicConfig().setDynamicConfig(new DynamicConfig().setEnabled(boolVal)), {}).then(resp =>{
+        props.gRPCClients.dynamicConfigClient.update(new UpdateRequestDynamicConfig().setDynamicConfig(new DynamicConfig().setEnabled(boolVal)), {}).then(resp => {
             setData(prevState => {
                 const newDN = prevState.dynamicConfig
                 newDN?.setEnabled(boolVal)
@@ -155,8 +155,8 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
 
     const handleSetRoundDuration = (e: React.SyntheticEvent) => {
         e.preventDefault()
-        let val = Number((document.getElementById("round_duration") as HTMLInputElement).value)
-        props.gRPCClients.dynamicConfigClient.update(new UpdateRequestDynamicConfig().setDynamicConfig(new DynamicConfig().setRoundDuration(val)), {}).then(resp =>{
+        const val = Number((document.getElementById("round_duration") as HTMLInputElement).value)
+        props.gRPCClients.dynamicConfigClient.update(new UpdateRequestDynamicConfig().setDynamicConfig(new DynamicConfig().setRoundDuration(val)), {}).then(resp => {
             setData(prevState => {
                 const newDN = prevState.dynamicConfig
                 newDN?.setRoundDuration(val)
@@ -167,7 +167,7 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
     }
 
     const handleSetPolicy = (policy: Policy) => {
-        props.gRPCClients.policyClient.update(new UpdateRequestPolicy().setPolicy(policy), {}).then(resp =>{}, (err: any) => {
+        props.gRPCClients.policyClient.update(new UpdateRequestPolicy().setPolicy(policy), {}).then(resp => {}, (err: any) => {
             props.genericEnqueue(`Failed to update policy: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }
@@ -247,9 +247,9 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
                     comp.setHostGroupsList(hostGroups)
                 }
 
-                if (obj.serviceGroupsList && obj.serviceGroupsList.length !==0){
+                if (obj.serviceGroupsList && obj.serviceGroupsList.length !== 0){
                     const serviceGroup: ServiceGroup[] = []
-                    obj.serviceGroupsList.forEach(servGrp =>{
+                    obj.serviceGroupsList.forEach(servGrp => {
                         const sg = new ServiceGroup()
                         sg.setSkipHelper(servGrp.skipHelper)
                         sg.setName(servGrp.name)
@@ -279,7 +279,7 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
 
                 if (obj.hostsList && obj.hostsList.length !== 0){
                     const hosts: Host [] = []
-                    obj.hostsList.forEach(hst=>{
+                    obj.hostsList.forEach(hst => {
                         const h = new Host()
                         h.setEnabled(new BoolValue().setValue(hst.enabled?.value as boolean))
                         h.setId(new UUID().setValue(hst.id?.value as string))
@@ -323,9 +323,9 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
                     })
                     comp.setPropertiesList(properties)
                 }
-                props.gRPCClients.competitionClient.loadCompetition(new LoadCompetitionRequest().setCompetition(comp), {}).then(resp =>{
+                props.gRPCClients.competitionClient.loadCompetition(new LoadCompetitionRequest().setCompetition(comp), {}).then(resp => {
                     props.genericEnqueue("Success!", Severity.Success)
-                }, (err:any) => {
+                }, (err: any) => {
                     props.genericEnqueue(`Failed to upload competition: ${err.message}. Error code: ${err.code}`, Severity.Error)
                 })
 
@@ -356,7 +356,7 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
         handleClose()
     }
 
-    function saveJSONtoFile(obj:object | undefined, filename: string) {
+    function saveJSONtoFile(obj: object | undefined, filename: string) {
         const fileToSave = new Blob([JSON.stringify(obj)], {
             type: 'application/json'
         });
@@ -464,7 +464,7 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
                             </Box>
                         </AccordionDetails>
                     </Accordion>
-                    
+
                     <Accordion expanded={expanded === 'panelStaticConfig'} onChange={handleChange('panelStaticConfig')}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
@@ -501,7 +501,7 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
                                     className={classes.button}
                                     startIcon={<SaveIcon />}
                                     onClick={() => {
-                                        props.gRPCClients.competitionClient.fetchCoreCompetition(new FetchCoreCompetitionRequest(), {}).then(resp =>{
+                                        props.gRPCClients.competitionClient.fetchCoreCompetition(new FetchCoreCompetitionRequest(), {}).then(resp => {
                                         saveJSONtoFile(resp.getCompetition()?.toObject(), "core-competition.json")
                                     }, (err: any) => {
                                         props.genericEnqueue(`Failed to fetch competition: ${err.message}. Error code: ${err.code}`, Severity.Error)
@@ -560,7 +560,7 @@ export default function Settings(props: SetupProps & {currentPolicy: Policy.AsOb
                                     color="primary"
                                     className={classes.button}
                                     startIcon={<SaveIcon />}
-                                    onClick={() => {props.gRPCClients.competitionClient.fetchEntireCompetition(new FetchEntireCompetitionRequest(), {}).then(resp =>{
+                                    onClick={() => {props.gRPCClients.competitionClient.fetchEntireCompetition(new FetchEntireCompetitionRequest(), {}).then(resp => {
                                         saveJSONtoFile(resp.getCompetition()?.toObject(), "entire-competition.json")
                                     }, (err: any) => {
                                         props.genericEnqueue(`Failed to fetch competition: ${err.message}. Error code: ${err.code}`, Severity.Error)

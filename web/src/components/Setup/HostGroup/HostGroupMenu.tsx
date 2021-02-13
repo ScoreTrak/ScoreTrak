@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
 import {SetupProps} from "../util/util";
 import Box from "@material-ui/core/Box";
-import MaterialTable from "material-table";
+import MaterialTable from '@material-table/core'
 import {Severity} from "../../../types/types";
 import {CircularProgress} from "@material-ui/core";
 import {UUID} from "../../../grpc/pkg/proto/utilpb/uuid_pb";
@@ -14,7 +14,7 @@ import {
 } from "../../../grpc/pkg/host_group/host_grouppb/host_group_pb";
 import {BoolValue} from "google-protobuf/google/protobuf/wrappers_pb";
 
-type hostGroupColumns = {
+export type hostGroupColumns = {
     id: string | undefined
     enabled: boolean | undefined
     name: string,
@@ -41,7 +41,7 @@ function hostGroupToHostGroupColumns(hostGroup: HostGroup): hostGroupColumns{
 export default function HostGroupsMenu(props: SetupProps) {
     const title = "Host Groups"
     props.setTitle(title)
-    const columns=
+    const columns =
         [
             { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
             { title: 'Host Group Name', field: 'name' },
@@ -49,15 +49,15 @@ export default function HostGroupsMenu(props: SetupProps) {
         ]
 
     const [state, setState] = React.useState<{columns: any[], loader: boolean, data: hostGroupColumns[]}>({
-        columns: columns,
+        columns,
         loader: true,
         data: []
     });
 
     function reloadSetter() {
         props.gRPCClients.hostGroupClient.getAll(new GetAllRequest(), {}).then(hostGroupsResponse => {
-            setState(prevState => {return{...prevState, data: hostGroupsResponse.getHostGroupsList().map((hostGroup):hostGroupColumns => {
-                    return hostGroupToHostGroupColumns(hostGroup)}), loader:false}})}, (err: any) => {
+            setState(prevState => {return{...prevState, data: hostGroupsResponse.getHostGroupsList().map((hostGroup): hostGroupColumns => {
+                    return hostGroupToHostGroupColumns(hostGroup)}), loader: false}})}, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Host Groups: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }
@@ -132,11 +132,11 @@ export default function HostGroupsMenu(props: SetupProps) {
                                     }, 600);
                                 }),
                         }}
-                        
+
                         title={title}
                         columns={state.columns}
                         data={state.data}
-                        options={{pageSizeOptions: [5,10,20,50,100, 500, 1000], pageSize:20, emptyRowsWhenPaging:false}}
+                        options={{pageSizeOptions: [5, 10, 20, 50, 100, 500, 1000], pageSize: 20, emptyRowsWhenPaging: false}}
                     />
                 </Box>
                 :

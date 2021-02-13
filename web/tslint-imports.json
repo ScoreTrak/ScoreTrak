@@ -1,0 +1,15 @@
+{
+  "extends": [
+    "tslint-etc",
+    "tslint:latest"
+  ],
+  "rules": {
+    "no-unused-declaration": true
+  },
+  "linterOptions": {
+    "exclude": [
+      "",
+      "./src/grpc/pkg/**/*.ts"
+    ]
+  }
+}

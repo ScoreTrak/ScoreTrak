@@ -12,23 +12,36 @@ import Button from "@material-ui/core/Button";
 import {SetupProps} from "../util/util";
 import {Team} from "../../../grpc/pkg/team/teampb/team_pb";
 import {HostGroup} from "../../../grpc/pkg/host_group/host_grouppb/host_group_pb";
-
-
 import {GetAllRequest as GetAllRequestHostGroup} from "../../../grpc/pkg/host_group/host_grouppb/host_group_pb";
 import {GetAllRequest as GetAllRequestTeam} from "../../../grpc/pkg/team/teampb/team_pb";
 import {Severity} from "../../../types/types";
 import {StoreRequest} from "../../../grpc/pkg/host/hostpb/host_pb";
-import {hostColumnsToHost} from "./HostMenu";
+import {defaultHostColumns, hostColumns, hostColumnsToHost} from "./HostMenu";
+import {teamToTeamColumn} from "../Team/TeamMenu";
+import Switch from "@material-ui/core/Switch";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import IconButton from "@material-ui/core/IconButton";
+import DeleteIcon from '@material-ui/icons/Delete';
+import Grid from "@material-ui/core/Grid";
+function setProperty<T, K extends keyof T>(obj: T, key: K, value: T[K]) {
+    obj[key] = value;
+}
+function getKeyValue<T>(obj: Record<string, T>, key: string){
+    return obj[key];
+}
 
-
-
+type valueof<T> = T[keyof T]
+type templateState = {
+    enabledTemplate: boolean
+    edit_hostTemplate: boolean
+}
 const HostCreate = forwardRef((props: SetupProps, ref) => {
 
-    const [dt, setData] = React.useState<{loaderTeam: boolean, loaderHostGroup: boolean, teams: Team[], hostGroups: HostGroup[]}>({loaderTeam: true, loaderHostGroup: true, teams:[], hostGroups:[]})
-
+    const [dt, setData] = React.useState<{loaderTeam: boolean, loaderHostGroup: boolean, teams: Team[], hostGroups:  HostGroup [], hostGroupsTemplateState:  templateState []}>({loaderTeam: true, loaderHostGroup: true, teams: [], hostGroups: [], hostGroupsTemplateState: []})
+    const [rowsData, setRowData] = React.useState<Record<string, hostColumns>>({});
     useEffect(() => {
-        props.gRPCClients.teamClient.getAll(new GetAllRequestTeam(), {}).then(respTeam =>{
-            setData(prevState => {return {...prevState, loaderTeam: false, teams: respTeam.getTeamsList().sort((a,b) => {
+        props.gRPCClients.teamClient.getAll(new GetAllRequestTeam(), {}).then(respTeam => {
+            setData(prevState => {return {...prevState, loaderTeam: false, teams: respTeam.getTeamsList().sort((a, b) => {
                     const aidx = a.getIndex()?.getValue()
                     const bidx = b.getIndex()?.getValue()
                     if (!aidx){
@@ -42,47 +55,100 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Teams: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
-
-        props.gRPCClients.hostGroupClient.getAll(new GetAllRequestHostGroup(), {}).then(respHostGroup =>{
-            setData(prevState => {return {...prevState, hostGroups: respHostGroup.getHostGroupsList(), loaderHostGroup: false}})
+        props.gRPCClients.hostGroupClient.getAll(new GetAllRequestHostGroup(), {}).then(respHostGroup => {
+            setData(prevState => {
+                const hostGroupsTemplateState:  templateState[] = []
+                respHostGroup.getHostGroupsList().forEach(hstGrp => {
+                    hostGroupsTemplateState.push({edit_hostTemplate: !!defaultHostColumns().editHost, enabledTemplate: !!defaultHostColumns().enabled})
+                })
+                return {...prevState, hostGroups: respHostGroup.getHostGroupsList(), hostGroupsTemplateState, loaderHostGroup: false}})
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Host Groups: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }, []);
 
-    const [rowsData, setRowData] = React.useState<Record<string, string>>({});
 
-    function modifyTeamRows(hostGroupId: string, templateValue: string){
-        let nextRowData:Record<string, string> = {}
-        if (templateValue.includes('X')){
-            for (let i = 0; i < dt.teams.length; i++){
-                if (dt.teams[i].getIndex()?.getValue()) {
-                    nextRowData[`${dt.teams[i].getId()?.getValue()}_${hostGroupId}`] = templateValue.replace("X", (dt.teams[i].getIndex()?.getValue() as number).toString())
-                }
+    const modifyRowDataProperty = (val : valueof<hostColumns>, hostGroup: HostGroup, team: Team, hostKey: keyof hostColumns) => {
+        setRowData(prevState => {
+            const newState = {...prevState}
+            const cell = `${team.getId()?.getValue()}_${hostGroup.getId()?.getValue()}`
+            if (!(cell in newState)){
+                newState[cell] = defaultHostColumns()
+                newState[cell].teamId = team.getId()?.getValue()
+                newState[cell].hostGroupId = hostGroup.getId()?.getValue()
             }
-
-            setRowData(prevState => {return{...prevState, ...nextRowData}})
-        }
+            setProperty(newState[cell], hostKey, val)
+            return {...newState}
+        })
     }
+
+
+    const templateModification = (hostGroupId: string, template: valueof<hostColumns>, hostProperty: keyof hostColumns) => {
+        const matched_index: string[] = []
+        if (typeof template == "string")
+        {
+            const re  = new RegExp('(?<={).*?(?=})', 'g')
+            let match
+            while ((match = re.exec(template)) != null) {
+                if (match[0] === ""){
+                    break
+                }
+                matched_index.push(match[0])
+            }
+        }
+
+        setRowData(prevState => {
+            const newState = {...prevState}
+            for (let i = 0; i < dt.teams.length; i++){
+                    if (dt.teams[i].getIndex()?.getValue()) {
+                        const cell = `${dt.teams[i].getId()?.getValue()}_${hostGroupId}`
+                        if (!(cell in newState)){
+                            newState[cell] = defaultHostColumns()
+                            newState[cell].teamId = dt.teams[i].getId()?.getValue()
+                            newState[cell].hostGroupId = hostGroupId
+                        }
+                        const tmColumn = teamToTeamColumn(dt.teams[i])
+                        setProperty(newState[cell], hostProperty, template)
+                        if (typeof template == "string" && matched_index.length !== 0){
+                            let templateCopy = template
+                            matched_index.forEach(t => {
+                                if (t in tmColumn){
+                                    templateCopy = templateCopy.replace(`{${t}}`, String(getKeyValue(tmColumn, t)))
+                                } else{
+                                    props.genericEnqueue(`Entered templated value does not exist. Supported values from parent Team object: ${Object.keys(tmColumn).toString()}`, Severity.Warning)
+                                    return {...prevState}
+                                }
+                            })
+                            setProperty(newState[cell], hostProperty, templateCopy)
+                        }
+
+
+                    }
+                }
+            return{...newState}
+        })
+    }
+
+
     function submit() {
         const storeRequest = new StoreRequest()
+        let elements_skipped: boolean = false
         Object.keys(rowsData).forEach(teamHostGrpId => {
-            let teamId, hostGroupId
-            [teamId, hostGroupId] = teamHostGrpId.split("_")
-            if (rowsData[teamHostGrpId]){
-                storeRequest.addHosts(hostColumnsToHost({
-                    address: rowsData[teamHostGrpId],
-                    editHost: false,
-                    enabled: true,
-                    teamId: teamId,
-                    hostGroupId: hostGroupId,
-                    id: undefined
-                }))
+            if (rowsData[teamHostGrpId].address !== "")
+            {
+                storeRequest.addHosts(hostColumnsToHost(rowsData[teamHostGrpId]))
+            } else {
+                elements_skipped = true
             }
+
         })
+        if (elements_skipped){
+            props.genericEnqueue("Elements with empty Address filed were skipped", Severity.Warning)
+        }
+
         props.gRPCClients.hostClient.store(storeRequest, {}).then(r => {
             props.genericEnqueue("Success!", Severity.Success, 3000)
-        }, (err:any) =>{
+        }, (err: any) => {
             props.genericEnqueue(`Encountered an error while Storing Hosts: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }
@@ -104,40 +170,141 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
                         </TableHead>
                         <TableHead>
                             <TableRow>
-                                <TableCell />
-                                {dt.hostGroups.map((column) => (
+                                <TableCell>
+                                    Templates
+                                </TableCell>
+                                {dt.hostGroups.map((column, column_idx) => (
                                     <TableCell>
-                                        <TextField label="Template" id={`id_${column.getId()?.getValue()}`} helperText="Ex. 10.1.X.1" onChange={event => {modifyTeamRows(column.getId()?.getValue() as string, event.target.value)}}/>
+                                        <TextField label="Address" id={`id_${column.getId()?.getValue()}_address`} helperText="Ex. 10.1.{index}.1" onChange={event => {templateModification(column.getId()?.getValue() as string, event.target.value, "address")}}/>
+                                        <TextField label="Address List Range" id={`id_${column.getId()?.getValue()}_allowed_range`} helperText="Ex. 10.1.{index}.1/24,10.2.{index}.1/24" onChange={event => {templateModification(column.getId()?.getValue() as string, event.target.value, "addressListRange")}}/>
+                                        <FormControlLabel
+                                            control={
+                                                <Switch id={`id_${column.getId()?.getValue()}_enable`} checked={dt.hostGroupsTemplateState[column_idx].enabledTemplate} onChange={event => {
+                                                    const val = event.target.checked
+                                                    setData(prevState => {
+                                                        const newState = {...prevState}
+                                                        newState.hostGroupsTemplateState[column_idx].enabledTemplate = val
+                                                        return {...newState}
+                                                    })
+                                                    templateModification(column.getId()?.getValue() as string, event.target.checked, "enabled")
+                                                }}/>
+                                            }
+                                            label="Enable Host Scoring"
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Switch id={`id_${column.getId()?.getValue()}_edit_host`} checked={dt.hostGroupsTemplateState[column_idx].edit_hostTemplate} onChange={event => {
+                                                    const val = event.target.checked
+                                                    setData(prevState => {
+                                                        const newState = {...prevState}
+                                                        newState.hostGroupsTemplateState[column_idx].edit_hostTemplate = val
+                                                        return {...newState}
+                                                    })
+                                                    templateModification(column.getId()?.getValue() as string, event.target.checked, "editHost")
+                                                }}/>
+                                            }
+                                            label="Allow Changing Hostname"
+                                        />
                                     </TableCell>
                                 ))}
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {dt.teams.map((row) => {
+                            {dt.teams.map((row, row_idx) => {
                                 if (row.getIndex()?.getValue()){
                                     return (
                                         <TableRow hover role="checkbox" tabIndex={-1}>
                                             <TableCell key={row.getName()}>
                                                 {row.getName()}
+                                                <IconButton onClick={ () => {
+                                                    setData(prevState => {
+                                                        const newData = {...prevState}
+                                                        newData.teams.splice(row_idx, 1)
+                                                        return {...newData}
+                                                    })
+                                                    setRowData(prevState => {
+                                                        const newData = {...prevState}
+                                                        const toDelete: string[] = []
+                                                        Object.keys(newData).forEach(key =>{
+                                                            if (key.includes(row.getId()?.getValue() as string)){
+                                                                toDelete.push(key)
+                                                            }
+                                                        })
+                                                        toDelete.forEach(key => delete newData[key])
+                                                        return {...newData}
+                                                    })
+                                                }
+                                                } aria-label="delete">
+                                                    <DeleteIcon />
+                                                </IconButton>
                                             </TableCell>
 
                                             {dt.hostGroups.map((column) => {
+                                                const cell = `${row.getId()?.getValue()}_${column.getId()?.getValue()}`
                                                 return (
-                                                    <TableCell>
-                                                        <TextField id={`${row.getId()?.getValue()}_${column.getId()?.getValue()}`} value={rowsData[`${row.getId()?.getValue()}_${column.getId()?.getValue()}`]} onChange={(event => {
+                                                    <TableCell color="secondary" >
+                                                        <TextField label="Address" id={`${cell}_address`} value={rowsData[cell]?.address || ''} onChange={(event => {
                                                             const val = event.target.value
-                                                            setRowData(prevState => {
-                                                                return {...prevState, [`${row.getId()?.getValue()}_${column.getId()?.getValue()}`]: val}
-                                                            })
+                                                            modifyRowDataProperty(val, column, row, "address")
                                                         })}
                                                         />
+                                                        <TextField label="Address List Range" id={`${cell}_allowed_range`} value={rowsData[cell]?.addressListRange || ''} onChange={(event => {
+                                                            const val = event.target.value
+                                                            modifyRowDataProperty(val, column, row, "addressListRange")
+                                                        })}
+                                                        />
+                                                        <Grid container >
+                                                            <Grid item xs={8}>
+                                                                <FormControlLabel
+                                                                    control={
+                                                                        <Switch id={`id_${column.getId()?.getValue()}_enable`}
+                                                                                checked={rowsData[cell] ? rowsData[cell].enabled :
+                                                                                    defaultHostColumns().enabled}
+                                                                                onChange={(event => {
+                                                                                    const val = event.target.checked
+                                                                                    modifyRowDataProperty(val, column, row, "enabled")
+                                                                                })}
+                                                                        />
+                                                                    }
+                                                                    label="Enable"
+                                                                />
+                                                            <br/>
+                                                                <FormControlLabel
+                                                                    control={
+                                                                        <Switch id={`id_${column.getId()?.getValue()}_edit_host`}
+                                                                                checked={rowsData[cell] ? rowsData[cell].editHost :
+                                                                                    defaultHostColumns().editHost}
+                                                                                onChange={(event => {
+                                                                                    const val = event.target.checked
+                                                                                    modifyRowDataProperty(val, column, row, "editHost")
+                                                                                })}
+                                                                        />
+                                                                    }
+                                                                    label="Edit Hostname"
+                                                                />
+                                                            </Grid>
+                                                            <Grid item xs={4}>
+                                                                {
+                                                                    cell in rowsData &&
+                                                                    <IconButton onClick={ () => {
+                                                                        setRowData(prevState => {
+                                                                            const newData = {...prevState}
+                                                                            delete newData[cell]
+                                                                            return {...newData}
+                                                                        })
+                                                                    }
+                                                                    } aria-label="delete">
+                                                                        <DeleteIcon />
+                                                                    </IconButton>
+
+                                                                }
+                                                            </Grid>
+                                                        </Grid>
                                                     </TableCell>
                                                 );
                                             })}
                                         </TableRow>
                                     );
-                                } else {
-                                    return
                                 }
                             })}
                         </TableBody>

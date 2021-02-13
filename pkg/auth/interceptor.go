@@ -65,6 +65,10 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policy_client.Client)
 	}}
 
 	const serviceServicePath = "/pkg.service.servicepb.ServiceService/"
+	authMap[serviceServicePath+"GetAll"] = []authorizationMap{{
+		role:      user.Red,
+		isAllowed: policyClient.GetAllowRedTeamLaunchingServiceTestsManually,
+	}}
 	authMap[serviceServicePath+"GetByID"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,

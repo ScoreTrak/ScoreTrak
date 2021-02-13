@@ -33,7 +33,7 @@ type Host struct {
 	// Enables to Edit the hostname. If a single host needs to be eddited for one check_service, and kept only visible for other check_service, you can make 2 services that point to same address, and have different edit_host properties.
 	EditHost *bool `json:"edit_host,omitempty" gorm:"not null;default:false"`
 
-	Services []*service.Service `json:"services,omitempty" gorm:"foreignkey:HostID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT"`
+	Services []*service.Service `json:"services,omitempty" gorm:"foreignkey:HostID;constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT"`
 }
 
 func (p *Host) BeforeSave(tx *gorm.DB) (err error) {

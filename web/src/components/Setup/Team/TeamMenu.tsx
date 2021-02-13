@@ -5,7 +5,7 @@ import StepButton from "@material-ui/core/StepButton";
 import {SetupProps} from "../util/util";
 import TeamCreate from "./TeamCreate";
 import Box from "@material-ui/core/Box";
-import MaterialTable from "material-table";
+import MaterialTable from '@material-table/core'
 import {
     DeleteRequest,
     GetAllRequest,
@@ -53,7 +53,7 @@ export default function TeamMenu(props: SetupProps) {
 }
 
 
-type teamColumns = {
+export type teamColumns = {
     id: string | undefined
     name: string,
     index: number | undefined
@@ -61,7 +61,7 @@ type teamColumns = {
     hidden: boolean | undefined
 }
 
-function teamToTeamColumn(team: Team): teamColumns{
+export function teamToTeamColumn(team: Team): teamColumns{
     return {
         enabled: team.getEnabled()?.getValue(),
         id: team.getId()?.getValue(),
@@ -71,7 +71,7 @@ function teamToTeamColumn(team: Team): teamColumns{
     }
 }
 
-function teamColumnsToTeam(teamC: teamColumns): Team{
+export function teamColumnsToTeam(teamC: teamColumns): Team{
     const t = new Team()
     if (teamC.enabled !== undefined) t.setEnabled(new BoolValue().setValue(teamC.enabled))
     if (teamC.hidden !== undefined) t.setHidden(new BoolValue().setValue(teamC.hidden))
@@ -85,7 +85,7 @@ function teamColumnsToTeam(teamC: teamColumns): Team{
 function TeamMenuTable(props: SetupProps) {
     const title = "Teams"
     props.setTitle(title)
-    const columns=
+    const columns =
         [
             { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
             { title: 'Team Name', field: 'name' },
@@ -93,17 +93,17 @@ function TeamMenuTable(props: SetupProps) {
             { title: 'Enabled', field: 'enabled', type: 'boolean', initialEditValue: true},
             { title: 'Hidden', field: 'hidden', type: 'boolean', initialEditValue: false}
         ]
-    
+
     const [state, setState] = React.useState<{columns: any[], loader: boolean, data: teamColumns[]}>({
-        columns: columns,
+        columns,
         loader: true,
         data: []
     });
 
     function reloadSetter() {
         props.gRPCClients.teamClient.getAll(new GetAllRequest(), {}).then(teamsResponse => {
-            setState(prevState => {return{...prevState, data: teamsResponse.getTeamsList().map((team):teamColumns => {
-                return teamToTeamColumn(team)}), loader:false}})}, (err: any) => {
+            setState(prevState => {return{...prevState, data: teamsResponse.getTeamsList().map((team): teamColumns => {
+                return teamToTeamColumn(team)}), loader: false}})}, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Teams: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }
@@ -119,7 +119,7 @@ function TeamMenuTable(props: SetupProps) {
                         title={title}
                         columns={state.columns}
                         data={state.data}
-                        options={{pageSizeOptions: [5,10,20,50,100, 500, 1000], pageSize:20, emptyRowsWhenPaging:false}}
+                        options={{pageSizeOptions: [5, 10, 20, 50, 100, 500, 1000], pageSize: 20, emptyRowsWhenPaging: false}}
                         editable={{
                             onRowAdd: (newData) =>
                                 new Promise((resolve, reject) => {

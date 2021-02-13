@@ -5,7 +5,7 @@ import Step from "@material-ui/core/Step";
 import StepButton from "@material-ui/core/StepButton";
 import {SetupProps} from "../util/util";
 import {Severity} from "../../../types/types";
-import MaterialTable from "material-table";
+import MaterialTable from '@material-table/core'
 import {UUID} from "../../../grpc/pkg/proto/utilpb/uuid_pb";
 import {CircularProgress} from "@material-ui/core";
 import ServiceCreate from "./ServiceCreate";
@@ -110,11 +110,11 @@ export function serviceColumnsToService(serviceC: serviceColumns): Service{
 function ServiceMenuTable(props: SetupProps) {
     const title = "Services"
     props.setTitle(title)
-    const columns=
+    const columns =
         [
             { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
             { title: 'Name', field: 'name', lookup: {
-                    'PING': 'PING', 'DNS':'DNS', 'FTP':'FTP', 'LDAP':'LDAP',
+                    'PING': 'PING', 'DNS': 'DNS', 'FTP': 'FTP', 'LDAP': 'LDAP',
                     'HTTP': 'HTTP', 'IMAP': 'IMAP', 'SMB': 'SMB', 'SSH': 'SSH',
                     'WINRM': 'WINRM', "SQL": "SQL"
                 }},
@@ -128,7 +128,7 @@ function ServiceMenuTable(props: SetupProps) {
             { title: 'Round Delay(Shift in frequency)', field: 'roundDelay', type: 'numeric', initialEditValue: 0 },
         ]
     const [state, setState] = React.useState<{columns: any[], loaderServiceGroup: boolean, loaderService: boolean, loaderHost: boolean, data: serviceColumns[]}>({
-        columns: columns,
+        columns,
         loaderService: true,
         loaderServiceGroup: true,
         loaderHost: true,
@@ -138,42 +138,42 @@ function ServiceMenuTable(props: SetupProps) {
     function reloadSetter() {
 
         props.gRPCClients.hostClient.getAll(new GetAllRequestHost(), {}).then(hostsResponse => {
-            let lookup: Record<string, string> = {}
+            const lookup: Record<string, string> = {}
             for (let i = 0; i < hostsResponse.getHostsList().length; i++){
                 lookup[hostsResponse.getHostsList()[i].getId()?.getValue() as string] = `${hostsResponse.getHostsList()[i].getAddress()} (ID:${hostsResponse.getHostsList()[i].getId()?.getValue() as string})`
             }
             setState(prevState => {
-                let columns = prevState.columns
+                const columns = prevState.columns
                 for (let i = 0; i < columns.length; i++){
-                    if (columns[i]['field'] === "hostId"){
-                        columns[i]['lookup'] = lookup
+                    if (columns[i].field === "hostId"){
+                        columns[i].lookup = lookup
                     }
                 }
-                return{...prevState, columns: columns, loaderHost: false
+                return{...prevState, columns, loaderHost: false
                 }})
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving parent Teams: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
 
         props.gRPCClients.serviceGroupClient.getAll(new GetAllRequestServiceGroup(), {}).then(serviceGroupRequest => {
-            let lookup: Record<string, string> = {}
+            const lookup: Record<string, string> = {}
             for (let i = 0; i < serviceGroupRequest.getServiceGroupsList().length; i++){
                 lookup[serviceGroupRequest.getServiceGroupsList()[i].getId()?.getValue() as string] = `${serviceGroupRequest.getServiceGroupsList()[i].getName()} (ID:${serviceGroupRequest.getServiceGroupsList()[i].getId()?.getValue() as string})`
             }
             setState(prevState => {
-                let columns = prevState.columns
+                const columns = prevState.columns
                 for (let i = 0; i < columns.length; i++){
-                    if (columns[i]['field'] === "serviceGroupId"){
-                        columns[i]['lookup'] = lookup
+                    if (columns[i].field === "serviceGroupId"){
+                        columns[i].lookup = lookup
                     }
                 }
-                return{...prevState, columns: columns, loaderServiceGroup: false}})
+                return{...prevState, columns, loaderServiceGroup: false}})
         }, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving parent Teams: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
         props.gRPCClients.serviceClient.getAll(new GetAllRequest(), {}).then(servicesResponse => {
-            setState(prevState => {return{...prevState, data: servicesResponse.getServicesList().map((service):serviceColumns => {
-                    return serviceToServiceColumn(service)}), loaderService:false}})}, (err: any) => {
+            setState(prevState => {return{...prevState, data: servicesResponse.getServicesList().map((service): serviceColumns => {
+                    return serviceToServiceColumn(service)}), loaderService: false}})}, (err: any) => {
             props.genericEnqueue(`Encountered an error while retrieving Services: ${err.message}. Error code: ${err.code}`, Severity.Error)
         })
     }
@@ -189,7 +189,7 @@ function ServiceMenuTable(props: SetupProps) {
                         title={title}
                         actions={[
                             {icon: "flash_on", tooltip: 'test service', onClick: (event, rowData) => {
-                                return props.gRPCClients.serviceClient.testService(new TestServiceRequest().setId(new UUID().setValue((rowData as serviceColumns).id as string)), {}).then((response) => { //ToDo: Implement Deadline
+                                return props.gRPCClients.serviceClient.testService(new TestServiceRequest().setId(new UUID().setValue((rowData as serviceColumns).id as string)), {}).then((response) => { // ToDo: Implement Deadline
                                     if (response.getCheck()?.getPassed()?.getValue()){
                                         props.genericEnqueue(`Check Passed. Log: ${response.getCheck()?.getLog()}.`, Severity.Success)
                                     } else {
@@ -202,7 +202,7 @@ function ServiceMenuTable(props: SetupProps) {
                         ]}
                         columns={state.columns}
                         data={state.data}
-                        options={{pageSizeOptions: [5,10,20,50,100, 500, 1000], pageSize:20, emptyRowsWhenPaging:false}}
+                        options={{pageSizeOptions: [5, 10, 20, 50, 100, 500, 1000], pageSize: 20, emptyRowsWhenPaging: false}}
                         editable={{
                             onRowAdd: (newData) =>
                                 new Promise((resolve, reject) => {

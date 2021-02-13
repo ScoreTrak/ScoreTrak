@@ -21,7 +21,7 @@ const useStyles = makeStyles({
         width: '100%',
         height: '100%'
     },
-    tableNavigator:{
+    tableNavigator: {
         marginRight: "5vh",
         marginLeft: "5vh"
     }
@@ -56,7 +56,7 @@ export default function Status(props: RanksProps) {
         setRowsPerPage(Number(event.target.value));
         setRowPage(0);
     };
-    
+
     const [columnPage, setColumnPage] = React.useState(0);
     const [columnsPerPage, setColumnsPerPage] = React.useState(25);
     const handleColumnChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, page: number) => {
@@ -68,32 +68,32 @@ export default function Status(props: RanksProps) {
     };
 
     const report = props.report
-    let teamNamesSet = new Set<string>();
-    let data: Record<string, Record<string, SimpleService & {Address: string}>> = {}
-    let dataKeys = new Set<string>();
+    const teamNamesSet = new Set<string>();
+    const data: Record<string, Record<string, SimpleService & {Address: string}>> = {}
+    const dataKeys = new Set<string>();
     if ("Teams" in report){
-        for (let team in report["Teams"]) {
-            if (report["Teams"].hasOwnProperty(team)) {
-                data[report["Teams"][team]["Name"]] = {}
-                for (let host in report.Teams[team]["Hosts"]){
-                    if (report.Teams[team]["Hosts"].hasOwnProperty(host)) {
-                        if (Object.keys(report.Teams[team]["Hosts"][host]["Services"]).length !== 0){
-                            for (let service in report.Teams[team]["Hosts"][host]["Services"]) {
-                                if (report.Teams[team]["Hosts"][host]["Services"].hasOwnProperty(service)) {
-                                    let sr = report.Teams[team]["Hosts"][host]["Services"][service]
+        for (const team in report.Teams) {
+            if (report.Teams.hasOwnProperty(team)) {
+                data[report.Teams[team].Name] = {}
+                for (const host in report.Teams[team].Hosts){
+                    if (report.Teams[team].Hosts.hasOwnProperty(host)) {
+                        if (Object.keys(report.Teams[team].Hosts[host].Services).length !== 0){
+                            for (const service in report.Teams[team].Hosts[host].Services) {
+                                if (report.Teams[team].Hosts[host].Services.hasOwnProperty(service)) {
+                                    const sr = report.Teams[team].Hosts[host].Services[service]
                                     let keyName = ""
-                                    if (sr["DisplayName"]){
-                                        keyName = sr["DisplayName"]
+                                    if (sr.DisplayName){
+                                        keyName = sr.DisplayName
                                     } else {
-                                        if (report.Teams[team]["Hosts"][host]["HostGroup"]){
-                                            keyName = report.Teams[team]["Hosts"][host]["HostGroup"]["Name"] + "-" + sr["Name"]
+                                        if (report.Teams[team].Hosts[host].HostGroup){
+                                            keyName = report.Teams[team].Hosts[host].HostGroup.Name + "-" + sr.Name
                                         } else{
-                                            keyName = sr["Name"]
+                                            keyName = sr.Name
                                         }
                                     }
-                                    data[report["Teams"][team]["Name"]][keyName] = {...sr, Address: report["Teams"][team]["Hosts"][host].Address}
+                                    data[report.Teams[team].Name][keyName] = {...sr, Address: report.Teams[team].Hosts[host].Address}
                                     dataKeys.add(keyName)
-                                    teamNamesSet.add(report["Teams"][team]["Name"])
+                                    teamNamesSet.add(report.Teams[team].Name)
                                 }
                             }
                         }
@@ -137,9 +137,9 @@ export default function Status(props: RanksProps) {
                                         {name}
                                     </TableCell>
                                     {dataKeysArray.slice(columnPage * columnsPerPage, columnPage * columnsPerPage + columnsPerPage).map((column) => (
-                                        <TableCell key={name+column} style={(() => {
+                                        <TableCell key={name + column} style={(() => {
                                             if (data[name][column]) {
-                                                if (data[name][column]["Passed"]){
+                                                if (data[name][column].Passed){
                                                     return {backgroundColor: "green"}
                                                 }
                                                 return {backgroundColor: "red", color: "white"}
@@ -148,12 +148,12 @@ export default function Status(props: RanksProps) {
                                         >
                                             {!hideAddresses && data[name][column] && (() => {
                                                 let msg = ""
-                                                if (data[name][column]["Address"]) {
-                                                    msg += data[name][column]["Address"]
+                                                if (data[name][column].Address) {
+                                                    msg += data[name][column].Address
                                                     if (column in data[name] && "Properties" in data[name][column]){
-                                                        Object.keys(data[name][column]["Properties"]).forEach(key =>{
+                                                        Object.keys(data[name][column].Properties).forEach(key => {
                                                             if (key === "Port"){
-                                                                msg += ":" + data[name][column]["Properties"][key].Value
+                                                                msg += ":" + data[name][column].Properties[key].Value
                                                             }
                                                         })
                                                     }
@@ -165,12 +165,12 @@ export default function Status(props: RanksProps) {
                                 </TableRow>
                             );
                         })}
-                        
+
                     </TableBody>
                     <TableFooter>
                         <TableRow>
-                            <TableCell colSpan={dataKeysArray.length+1}>
-                                <div style={{display:"flex", flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
+                            <TableCell colSpan={dataKeysArray.length + 1}>
+                                <div style={{display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
                                 <TablePagination className={classes.tableNavigator}
                                                  rowsPerPageOptions={[1, 5, 10, 25, 100]}
                                                  component="div"

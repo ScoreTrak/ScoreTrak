@@ -1,7 +1,7 @@
 import {Status} from "../Property/PropertiesMenu";
 
 export type availableChecks = 'WINRM' | 'SSH' | 'SMB' | 'PING' | 'LDAP' | 'IMAP' | 'HTTP' | 'DNS' | 'FTP' | 'SQL'
-export type PropertyType = Record<string, { name: string, type: 'field' | 'select', defaultStatus?: Status, defaultValue?:string, options?: string[]}>
+export type PropertyType = Record<string, { name: string, type: 'field' | 'select', defaultStatus?: Status, defaultValue?: string, options?: string[]}>
 export type ChecksType = Record<availableChecks, PropertyType>
 
 
@@ -38,7 +38,7 @@ export const Checks: ChecksType = {
     },
 
     PING: {
-        Protocol: {name: 'Protocol', type: 'select', options:["ipv4", "ipv6"], defaultValue: 'ipv4' },
+        Protocol: {name: 'Protocol', type: 'select', options: ["ipv4", "ipv6"], defaultValue: 'ipv4' },
         Attempts: {name: 'Attempts', type: 'field', defaultValue: '1'},
     },
 

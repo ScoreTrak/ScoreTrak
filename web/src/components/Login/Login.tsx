@@ -60,7 +60,7 @@ const Login = (props: LoginProps) => {
     const { register, handleSubmit, errors} = useForm<LoginInfo>();
     const [loading, setLoading] = useState(false);
     const [alert, setAlert] = useState<LoginAlertType>({message: "", severity: undefined})
-    let history = useHistory();
+    const history = useHistory();
     const handleLogin = (data: LoginInfo) => {
         setAlert({severity: undefined, message: ""});
         setLoading(true);
