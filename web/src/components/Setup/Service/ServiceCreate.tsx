@@ -47,7 +47,8 @@ const ServiceCreate = forwardRef((props: SetupProps, ref) => {
         roundUnits: 1,
         roundDelay: 0,
         serviceGroupId : undefined,
-        enabled: true,
+        pause: false,
+        hide: false,
         hostId: undefined,
         id: undefined,
     }

@@ -5,7 +5,7 @@ import Step from "@material-ui/core/Step";
 import StepButton from "@material-ui/core/StepButton";
 import {SetupProps} from "../util/util";
 import {Severity} from "../../../types/types";
-import MaterialTable from '@material-table/core'
+import MaterialTable, {Column} from '@material-table/core'
 import {UUID} from "../../../grpc/pkg/proto/utilpb/uuid_pb";
 import {CircularProgress} from "@material-ui/core";
 import ServiceCreate from "./ServiceCreate";
@@ -72,13 +72,15 @@ export type serviceColumns = {
     serviceGroupId: string | undefined
     hostId: string | undefined
     weight: number | undefined
-    enabled: boolean | undefined
+    pause: boolean | undefined
+    hide: boolean | undefined
 }
 
 export function serviceToServiceColumn(service: Service): serviceColumns{
     return {
         displayName: service.getDisplayName(),
-        enabled: service.getEnabled()?.getValue(),
+        pause: service.getPause()?.getValue(),
+        hide: service.getHide()?.getValue(),
         hostId: service.getHostId()?.getValue(),
         id: service.getId()?.getValue(),
         name: service.getName(),
@@ -96,7 +98,8 @@ export function serviceColumnsToService(serviceC: serviceColumns): Service{
     u.setDisplayName(serviceC.displayName)
     if (serviceC.hostId && serviceC.hostId !== "") u.setHostId((new UUID().setValue(serviceC.hostId)))
     if (serviceC.serviceGroupId && serviceC.serviceGroupId !== "") u.setServiceGroupId((new UUID().setValue(serviceC.serviceGroupId)))
-    if (serviceC.enabled !== undefined) u.setEnabled(new BoolValue().setValue(serviceC.enabled))
+    if (serviceC.pause !== undefined) u.setPause(new BoolValue().setValue(serviceC.pause))
+    if (serviceC.hide !== undefined) u.setHide(new BoolValue().setValue(serviceC.hide))
     u.setName(serviceC.name)
     if (serviceC.weight !== undefined) u.setWeight(new UInt64Value().setValue(serviceC.weight))
     u.setRoundUnits(serviceC.roundUnits)
@@ -105,15 +108,13 @@ export function serviceColumnsToService(serviceC: serviceColumns): Service{
     return u
 }
 
-
-
 function ServiceMenuTable(props: SetupProps) {
     const title = "Services"
     props.setTitle(title)
-    const columns =
+    const columns : Array<Column<serviceColumns>> =
         [
             { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
-            { title: 'Name', field: 'name', lookup: {
+            { title: 'Name', field: "name", lookup: {
                     'PING': 'PING', 'DNS': 'DNS', 'FTP': 'FTP', 'LDAP': 'LDAP',
                     'HTTP': 'HTTP', 'IMAP': 'IMAP', 'SMB': 'SMB', 'SSH': 'SSH',
                     'WINRM': 'WINRM', "SQL": "SQL"
@@ -121,7 +122,8 @@ function ServiceMenuTable(props: SetupProps) {
             { title: 'Display Name(Columns on Status page)', field: 'displayName' },
             { title: 'Weight(Points per successful check)', field: 'weight', type: 'numeric', },
             { title: 'Points Boost', field: 'pointsBoost', type: 'numeric', initialEditValue: 0},
-            { title: 'Enabled', field: 'enabled', type: 'boolean' , initialEditValue: true},
+            { title: 'Hide from Scoreboard', field: 'hide', type: 'boolean', initialEditValue: false},
+            { title: 'Pause Scoring', field: 'pause', type: 'boolean', initialEditValue: false},
             { title: 'Service Group ID', field: 'serviceGroupId' },
             { title: 'Host ID', field: 'hostId' },
             { title: 'Round Units(Frequency)', field: 'roundUnits', type: 'numeric', initialEditValue: 1},

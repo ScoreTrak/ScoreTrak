@@ -5,7 +5,7 @@ import Step from "@material-ui/core/Step";
 import StepButton from "@material-ui/core/StepButton";
 import {SetupProps} from "../util/util";
 import {Severity} from "../../../types/types";
-import MaterialTable from '@material-table/core'
+import MaterialTable, {Column} from '@material-table/core'
 import {UUID} from "../../../grpc/pkg/proto/utilpb/uuid_pb";
 import {CircularProgress} from "@material-ui/core";
 import {
@@ -103,7 +103,7 @@ export function propertyColumnsToProperty(propertyC: propertyColumns): Property{
 function PropertyMenuTable(props: SetupProps) {
     const title = "Properties"
     props.setTitle(title)
-    const columns =
+    const columns:Array<Column<propertyColumns>> =
         [
             { title: 'Key', field: 'key', editable: 'onAdd'},
             { title: 'Value', field: 'value' },

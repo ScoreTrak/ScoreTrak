@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
 import {SetupProps} from "../util/util";
 import Box from "@material-ui/core/Box";
-import MaterialTable from '@material-table/core'
+import MaterialTable, {Column} from '@material-table/core'
 import {Severity} from "../../../types/types";
 import {CircularProgress} from "@material-ui/core";
 import {GetAllRequest, Round} from "../../../grpc/pkg/round/roundpb/round_pb";
@@ -27,7 +27,7 @@ function roundToRoundColumn(round: Round): roundColumns{
 export default function RoundMenu(props: SetupProps) {
     const title = "Rounds"
     props.setTitle(title)
-    const columns =
+    const columns :Array<Column<roundColumns>>  =
         [
             { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
             { title: 'Start Time', field: 'start', type: 'datetime' },

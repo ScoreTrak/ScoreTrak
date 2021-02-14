@@ -183,8 +183,9 @@ export default function Dashboard(props: DashboardProps) {
     const streamRequest = new GetRequest();
     const stream = props.gRPCClients.policyClient.get(streamRequest, {})
     stream.on('error', (err: any) => {
-      if (err.code === 7){
+      if (err.code === 7 || err.code === 16){
         genericEnqueue(`You are not authorized to perform this action. Please Log in`, Severity.Error)
+        token.logout()
         history.push("/login");
       } else{
         genericEnqueue(`Encountered an error while fetching policy: ${err.message}. Error code: ${err.code}`, Severity.Error)

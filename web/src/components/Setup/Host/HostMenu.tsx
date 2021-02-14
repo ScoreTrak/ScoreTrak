@@ -14,7 +14,7 @@ import {
     StoreRequest, UpdateRequest
 } from "../../../grpc/pkg/host/hostpb/host_pb";
 import {Severity} from "../../../types/types";
-import MaterialTable from '@material-table/core'
+import MaterialTable, {Column} from '@material-table/core'
 import {CircularProgress} from "@material-ui/core";
 import {GetAllRequest as GetAllRequestHostGroup} from "../../../grpc/pkg/host_group/host_grouppb/host_group_pb";
 import {GetAllRequest as GetAllRequestTeam} from "../../../grpc/pkg/team/teampb/team_pb";
@@ -58,7 +58,8 @@ export default function HostMenu(props: SetupProps) {
 
 export type hostColumns = {
     id: string | undefined
-    enabled: boolean | undefined
+    pause: boolean | undefined
+    hide: boolean | undefined
     editHost: boolean | undefined
     address: string
     addressListRange: string | undefined
@@ -69,7 +70,7 @@ export type hostColumns = {
 
 export function defaultHostColumns(): hostColumns {
     return {
-        address: "", addressListRange: "", editHost: false, enabled: true, hostGroupId: undefined, id: undefined, teamId: undefined
+        address: "", addressListRange: "", editHost: false, pause: false, hide: false, hostGroupId: undefined, id: undefined, teamId: undefined
     }
 }
 
@@ -78,7 +79,8 @@ export function defaultHostColumns(): hostColumns {
 export function hostToHostColumn(host: Host): hostColumns{
     return {
         id: host.getId()?.getValue(),
-        enabled: host.getEnabled()?.getValue(),
+        pause: host.getPause()?.getValue(),
+        hide: host.getHide()?.getValue(),
         address: host.getAddress(),
         editHost: host.getEditHost()?.getValue(),
         hostGroupId: host.getHostGroupId()?.getValue(),
@@ -92,7 +94,8 @@ export function hostColumnsToHost(hostC: hostColumns): Host{
     if (hostC.id && hostC.id !== "") u.setId((new UUID().setValue(hostC.id)))
     if (hostC.hostGroupId && hostC.hostGroupId !== "") u.setHostGroupId((new UUID().setValue(hostC.hostGroupId)))
     if (hostC.teamId && hostC.teamId !== "") u.setTeamId((new UUID().setValue(hostC.teamId)))
-    if (hostC.enabled !== undefined) u.setEnabled(new BoolValue().setValue(hostC.enabled))
+    if (hostC.hide !== undefined) u.setHide(new BoolValue().setValue(hostC.hide))
+    if (hostC.pause !== undefined) u.setPause(new BoolValue().setValue(hostC.pause))
     if (hostC.editHost !== undefined) u.setEditHost(new BoolValue().setValue(hostC.editHost))
     if (hostC.addressListRange !== undefined) u.setAddressListRange(new StringValue().setValue(hostC.addressListRange))
     u.setAddress(hostC.address)
@@ -102,13 +105,14 @@ export function hostColumnsToHost(hostC: hostColumns): Host{
 function HostMenuTable(props: SetupProps) {
     const title =  "Hosts"
     props.setTitle(title)
-    const columns =
+    const columns:Array<Column<hostColumns>> =
         [
             { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
             { title: 'Address', field: 'address' },
             { title: 'Host Group ID', field: 'hostGroupId' },
             { title: 'Team ID', field: 'teamId' },
-            { title: 'Enabled', field: 'enabled', type: 'boolean', initialEditValue: true},
+            { title: 'Hide from Scoreboard', field: 'hide', type: 'boolean', initialEditValue: false},
+            { title: 'Pause Scoring', field: 'pause', type: 'boolean', initialEditValue: false},
             { title: 'Edit Host(Allow users to change Addresses)', field: 'editHost', type: 'boolean' },
             { title: "Address List Range(comma separated list of allowed CIDR ranges and hostnames)", field: 'addressListRange'}
         ]

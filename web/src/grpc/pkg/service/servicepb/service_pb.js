@@ -314,7 +314,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.pkg.service.servicepb.Service.repeatedFields_ = [11,12];
+proto.pkg.service.servicepb.Service.repeatedFields_ = [12,13];
 
 
 
@@ -356,7 +356,8 @@ proto.pkg.service.servicepb.Service.toObject = function(includeInstance, msg) {
     roundDelay: (f = msg.getRoundDelay()) && google_protobuf_wrappers_pb.UInt64Value.toObject(includeInstance, f),
     serviceGroupId: (f = msg.getServiceGroupId()) && pkg_proto_utilpb_uuid_pb.UUID.toObject(includeInstance, f),
     hostId: (f = msg.getHostId()) && pkg_proto_utilpb_uuid_pb.UUID.toObject(includeInstance, f),
-    enabled: (f = msg.getEnabled()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
+    hide: (f = msg.getHide()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
+    pause: (f = msg.getPause()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
     propertiesList: jspb.Message.toObjectList(msg.getPropertiesList(),
     pkg_property_propertypb_property_pb.Property.toObject, includeInstance),
     checksList: jspb.Message.toObjectList(msg.getChecksList(),
@@ -442,14 +443,19 @@ proto.pkg.service.servicepb.Service.deserializeBinaryFromReader = function(msg, 
     case 10:
       var value = new google_protobuf_wrappers_pb.BoolValue;
       reader.readMessage(value,google_protobuf_wrappers_pb.BoolValue.deserializeBinaryFromReader);
-      msg.setEnabled(value);
+      msg.setHide(value);
       break;
     case 11:
+      var value = new google_protobuf_wrappers_pb.BoolValue;
+      reader.readMessage(value,google_protobuf_wrappers_pb.BoolValue.deserializeBinaryFromReader);
+      msg.setPause(value);
+      break;
+    case 12:
       var value = new pkg_property_propertypb_property_pb.Property;
       reader.readMessage(value,pkg_property_propertypb_property_pb.Property.deserializeBinaryFromReader);
       msg.addProperties(value);
       break;
-    case 12:
+    case 13:
       var value = new pkg_check_checkpb_check_pb.Check;
       reader.readMessage(value,pkg_check_checkpb_check_pb.Check.deserializeBinaryFromReader);
       msg.addChecks(value);
@@ -552,7 +558,7 @@ proto.pkg.service.servicepb.Service.serializeBinaryToWriter = function(message, 
       pkg_proto_utilpb_uuid_pb.UUID.serializeBinaryToWriter
     );
   }
-  f = message.getEnabled();
+  f = message.getHide();
   if (f != null) {
     writer.writeMessage(
       10,
@@ -560,10 +566,18 @@ proto.pkg.service.servicepb.Service.serializeBinaryToWriter = function(message, 
       google_protobuf_wrappers_pb.BoolValue.serializeBinaryToWriter
     );
   }
+  f = message.getPause();
+  if (f != null) {
+    writer.writeMessage(
+      11,
+      f,
+      google_protobuf_wrappers_pb.BoolValue.serializeBinaryToWriter
+    );
+  }
   f = message.getPropertiesList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
-      11,
+      12,
       f,
       pkg_property_propertypb_property_pb.Property.serializeBinaryToWriter
     );
@@ -571,7 +585,7 @@ proto.pkg.service.servicepb.Service.serializeBinaryToWriter = function(message, 
   f = message.getChecksList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
-      12,
+      13,
       f,
       pkg_check_checkpb_check_pb.Check.serializeBinaryToWriter
     );
@@ -856,10 +870,10 @@ proto.pkg.service.servicepb.Service.prototype.hasHostId = function() {
 
 
 /**
- * optional google.protobuf.BoolValue enabled = 10;
+ * optional google.protobuf.BoolValue hide = 10;
  * @return {?proto.google.protobuf.BoolValue}
  */
-proto.pkg.service.servicepb.Service.prototype.getEnabled = function() {
+proto.pkg.service.servicepb.Service.prototype.getHide = function() {
   return /** @type{?proto.google.protobuf.BoolValue} */ (
     jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.BoolValue, 10));
 };
@@ -869,7 +883,7 @@ proto.pkg.service.servicepb.Service.prototype.getEnabled = function() {
  * @param {?proto.google.protobuf.BoolValue|undefined} value
  * @return {!proto.pkg.service.servicepb.Service} returns this
 */
-proto.pkg.service.servicepb.Service.prototype.setEnabled = function(value) {
+proto.pkg.service.servicepb.Service.prototype.setHide = function(value) {
   return jspb.Message.setWrapperField(this, 10, value);
 };
 
@@ -878,8 +892,8 @@ proto.pkg.service.servicepb.Service.prototype.setEnabled = function(value) {
  * Clears the message field making it undefined.
  * @return {!proto.pkg.service.servicepb.Service} returns this
  */
-proto.pkg.service.servicepb.Service.prototype.clearEnabled = function() {
-  return this.setEnabled(undefined);
+proto.pkg.service.servicepb.Service.prototype.clearHide = function() {
+  return this.setHide(undefined);
 };
 
 
@@ -887,18 +901,55 @@ proto.pkg.service.servicepb.Service.prototype.clearEnabled = function() {
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.pkg.service.servicepb.Service.prototype.hasEnabled = function() {
+proto.pkg.service.servicepb.Service.prototype.hasHide = function() {
   return jspb.Message.getField(this, 10) != null;
 };
 
 
 /**
- * repeated pkg.property.propertypb.Property properties = 11;
+ * optional google.protobuf.BoolValue pause = 11;
+ * @return {?proto.google.protobuf.BoolValue}
+ */
+proto.pkg.service.servicepb.Service.prototype.getPause = function() {
+  return /** @type{?proto.google.protobuf.BoolValue} */ (
+    jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.BoolValue, 11));
+};
+
+
+/**
+ * @param {?proto.google.protobuf.BoolValue|undefined} value
+ * @return {!proto.pkg.service.servicepb.Service} returns this
+*/
+proto.pkg.service.servicepb.Service.prototype.setPause = function(value) {
+  return jspb.Message.setWrapperField(this, 11, value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.pkg.service.servicepb.Service} returns this
+ */
+proto.pkg.service.servicepb.Service.prototype.clearPause = function() {
+  return this.setPause(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.pkg.service.servicepb.Service.prototype.hasPause = function() {
+  return jspb.Message.getField(this, 11) != null;
+};
+
+
+/**
+ * repeated pkg.property.propertypb.Property properties = 12;
  * @return {!Array<!proto.pkg.property.propertypb.Property>}
  */
 proto.pkg.service.servicepb.Service.prototype.getPropertiesList = function() {
   return /** @type{!Array<!proto.pkg.property.propertypb.Property>} */ (
-    jspb.Message.getRepeatedWrapperField(this, pkg_property_propertypb_property_pb.Property, 11));
+    jspb.Message.getRepeatedWrapperField(this, pkg_property_propertypb_property_pb.Property, 12));
 };
 
 
@@ -907,7 +958,7 @@ proto.pkg.service.servicepb.Service.prototype.getPropertiesList = function() {
  * @return {!proto.pkg.service.servicepb.Service} returns this
 */
 proto.pkg.service.servicepb.Service.prototype.setPropertiesList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 11, value);
+  return jspb.Message.setRepeatedWrapperField(this, 12, value);
 };
 
 
@@ -917,7 +968,7 @@ proto.pkg.service.servicepb.Service.prototype.setPropertiesList = function(value
  * @return {!proto.pkg.property.propertypb.Property}
  */
 proto.pkg.service.servicepb.Service.prototype.addProperties = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 11, opt_value, proto.pkg.property.propertypb.Property, opt_index);
+  return jspb.Message.addToRepeatedWrapperField(this, 12, opt_value, proto.pkg.property.propertypb.Property, opt_index);
 };
 
 
@@ -931,12 +982,12 @@ proto.pkg.service.servicepb.Service.prototype.clearPropertiesList = function() {
 
 
 /**
- * repeated pkg.check.checkpb.Check checks = 12;
+ * repeated pkg.check.checkpb.Check checks = 13;
  * @return {!Array<!proto.pkg.check.checkpb.Check>}
  */
 proto.pkg.service.servicepb.Service.prototype.getChecksList = function() {
   return /** @type{!Array<!proto.pkg.check.checkpb.Check>} */ (
-    jspb.Message.getRepeatedWrapperField(this, pkg_check_checkpb_check_pb.Check, 12));
+    jspb.Message.getRepeatedWrapperField(this, pkg_check_checkpb_check_pb.Check, 13));
 };
 
 
@@ -945,7 +996,7 @@ proto.pkg.service.servicepb.Service.prototype.getChecksList = function() {
  * @return {!proto.pkg.service.servicepb.Service} returns this
 */
 proto.pkg.service.servicepb.Service.prototype.setChecksList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 12, value);
+  return jspb.Message.setRepeatedWrapperField(this, 13, value);
 };
 
 
@@ -955,7 +1006,7 @@ proto.pkg.service.servicepb.Service.prototype.setChecksList = function(value) {
  * @return {!proto.pkg.check.checkpb.Check}
  */
 proto.pkg.service.servicepb.Service.prototype.addChecks = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 12, opt_value, proto.pkg.check.checkpb.Check, opt_index);
+  return jspb.Message.addToRepeatedWrapperField(this, 13, opt_value, proto.pkg.check.checkpb.Check, opt_index);
 };
 
 

@@ -268,7 +268,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.pkg.host.hostpb.Host.repeatedFields_ = [7];
+proto.pkg.host.hostpb.Host.repeatedFields_ = [8];
 
 
 
@@ -305,7 +305,8 @@ proto.pkg.host.hostpb.Host.toObject = function(includeInstance, msg) {
     address: jspb.Message.getFieldWithDefault(msg, 2, ""),
     hostGroupId: (f = msg.getHostGroupId()) && pkg_proto_utilpb_uuid_pb.UUID.toObject(includeInstance, f),
     teamId: (f = msg.getTeamId()) && pkg_proto_utilpb_uuid_pb.UUID.toObject(includeInstance, f),
-    enabled: (f = msg.getEnabled()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
+    pause: (f = msg.getPause()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
+    hide: (f = msg.getHide()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
     editHost: (f = msg.getEditHost()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
     servicesList: jspb.Message.toObjectList(msg.getServicesList(),
     pkg_service_servicepb_service_pb.Service.toObject, includeInstance),
@@ -368,19 +369,24 @@ proto.pkg.host.hostpb.Host.deserializeBinaryFromReader = function(msg, reader) {
     case 5:
       var value = new google_protobuf_wrappers_pb.BoolValue;
       reader.readMessage(value,google_protobuf_wrappers_pb.BoolValue.deserializeBinaryFromReader);
-      msg.setEnabled(value);
+      msg.setPause(value);
       break;
     case 6:
       var value = new google_protobuf_wrappers_pb.BoolValue;
       reader.readMessage(value,google_protobuf_wrappers_pb.BoolValue.deserializeBinaryFromReader);
-      msg.setEditHost(value);
+      msg.setHide(value);
       break;
     case 7:
+      var value = new google_protobuf_wrappers_pb.BoolValue;
+      reader.readMessage(value,google_protobuf_wrappers_pb.BoolValue.deserializeBinaryFromReader);
+      msg.setEditHost(value);
+      break;
+    case 8:
       var value = new pkg_service_servicepb_service_pb.Service;
       reader.readMessage(value,pkg_service_servicepb_service_pb.Service.deserializeBinaryFromReader);
       msg.addServices(value);
       break;
-    case 8:
+    case 9:
       var value = new google_protobuf_wrappers_pb.StringValue;
       reader.readMessage(value,google_protobuf_wrappers_pb.StringValue.deserializeBinaryFromReader);
       msg.setAddressListRange(value);
@@ -445,7 +451,7 @@ proto.pkg.host.hostpb.Host.serializeBinaryToWriter = function(message, writer) {
       pkg_proto_utilpb_uuid_pb.UUID.serializeBinaryToWriter
     );
   }
-  f = message.getEnabled();
+  f = message.getPause();
   if (f != null) {
     writer.writeMessage(
       5,
@@ -453,7 +459,7 @@ proto.pkg.host.hostpb.Host.serializeBinaryToWriter = function(message, writer) {
       google_protobuf_wrappers_pb.BoolValue.serializeBinaryToWriter
     );
   }
-  f = message.getEditHost();
+  f = message.getHide();
   if (f != null) {
     writer.writeMessage(
       6,
@@ -461,10 +467,18 @@ proto.pkg.host.hostpb.Host.serializeBinaryToWriter = function(message, writer) {
       google_protobuf_wrappers_pb.BoolValue.serializeBinaryToWriter
     );
   }
+  f = message.getEditHost();
+  if (f != null) {
+    writer.writeMessage(
+      7,
+      f,
+      google_protobuf_wrappers_pb.BoolValue.serializeBinaryToWriter
+    );
+  }
   f = message.getServicesList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
-      7,
+      8,
       f,
       pkg_service_servicepb_service_pb.Service.serializeBinaryToWriter
     );
@@ -472,7 +486,7 @@ proto.pkg.host.hostpb.Host.serializeBinaryToWriter = function(message, writer) {
   f = message.getAddressListRange();
   if (f != null) {
     writer.writeMessage(
-      8,
+      9,
       f,
       google_protobuf_wrappers_pb.StringValue.serializeBinaryToWriter
     );
@@ -610,10 +624,10 @@ proto.pkg.host.hostpb.Host.prototype.hasTeamId = function() {
 
 
 /**
- * optional google.protobuf.BoolValue enabled = 5;
+ * optional google.protobuf.BoolValue pause = 5;
  * @return {?proto.google.protobuf.BoolValue}
  */
-proto.pkg.host.hostpb.Host.prototype.getEnabled = function() {
+proto.pkg.host.hostpb.Host.prototype.getPause = function() {
   return /** @type{?proto.google.protobuf.BoolValue} */ (
     jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.BoolValue, 5));
 };
@@ -623,7 +637,7 @@ proto.pkg.host.hostpb.Host.prototype.getEnabled = function() {
  * @param {?proto.google.protobuf.BoolValue|undefined} value
  * @return {!proto.pkg.host.hostpb.Host} returns this
 */
-proto.pkg.host.hostpb.Host.prototype.setEnabled = function(value) {
+proto.pkg.host.hostpb.Host.prototype.setPause = function(value) {
   return jspb.Message.setWrapperField(this, 5, value);
 };
 
@@ -632,8 +646,8 @@ proto.pkg.host.hostpb.Host.prototype.setEnabled = function(value) {
  * Clears the message field making it undefined.
  * @return {!proto.pkg.host.hostpb.Host} returns this
  */
-proto.pkg.host.hostpb.Host.prototype.clearEnabled = function() {
-  return this.setEnabled(undefined);
+proto.pkg.host.hostpb.Host.prototype.clearPause = function() {
+  return this.setPause(undefined);
 };
 
 
@@ -641,16 +655,16 @@ proto.pkg.host.hostpb.Host.prototype.clearEnabled = function() {
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.pkg.host.hostpb.Host.prototype.hasEnabled = function() {
+proto.pkg.host.hostpb.Host.prototype.hasPause = function() {
   return jspb.Message.getField(this, 5) != null;
 };
 
 
 /**
- * optional google.protobuf.BoolValue edit_host = 6;
+ * optional google.protobuf.BoolValue hide = 6;
  * @return {?proto.google.protobuf.BoolValue}
  */
-proto.pkg.host.hostpb.Host.prototype.getEditHost = function() {
+proto.pkg.host.hostpb.Host.prototype.getHide = function() {
   return /** @type{?proto.google.protobuf.BoolValue} */ (
     jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.BoolValue, 6));
 };
@@ -660,8 +674,45 @@ proto.pkg.host.hostpb.Host.prototype.getEditHost = function() {
  * @param {?proto.google.protobuf.BoolValue|undefined} value
  * @return {!proto.pkg.host.hostpb.Host} returns this
 */
-proto.pkg.host.hostpb.Host.prototype.setEditHost = function(value) {
+proto.pkg.host.hostpb.Host.prototype.setHide = function(value) {
   return jspb.Message.setWrapperField(this, 6, value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.pkg.host.hostpb.Host} returns this
+ */
+proto.pkg.host.hostpb.Host.prototype.clearHide = function() {
+  return this.setHide(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.pkg.host.hostpb.Host.prototype.hasHide = function() {
+  return jspb.Message.getField(this, 6) != null;
+};
+
+
+/**
+ * optional google.protobuf.BoolValue edit_host = 7;
+ * @return {?proto.google.protobuf.BoolValue}
+ */
+proto.pkg.host.hostpb.Host.prototype.getEditHost = function() {
+  return /** @type{?proto.google.protobuf.BoolValue} */ (
+    jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.BoolValue, 7));
+};
+
+
+/**
+ * @param {?proto.google.protobuf.BoolValue|undefined} value
+ * @return {!proto.pkg.host.hostpb.Host} returns this
+*/
+proto.pkg.host.hostpb.Host.prototype.setEditHost = function(value) {
+  return jspb.Message.setWrapperField(this, 7, value);
 };
 
 
@@ -679,17 +730,17 @@ proto.pkg.host.hostpb.Host.prototype.clearEditHost = function() {
  * @return {boolean}
  */
 proto.pkg.host.hostpb.Host.prototype.hasEditHost = function() {
-  return jspb.Message.getField(this, 6) != null;
+  return jspb.Message.getField(this, 7) != null;
 };
 
 
 /**
- * repeated pkg.service.servicepb.Service services = 7;
+ * repeated pkg.service.servicepb.Service services = 8;
  * @return {!Array<!proto.pkg.service.servicepb.Service>}
  */
 proto.pkg.host.hostpb.Host.prototype.getServicesList = function() {
   return /** @type{!Array<!proto.pkg.service.servicepb.Service>} */ (
-    jspb.Message.getRepeatedWrapperField(this, pkg_service_servicepb_service_pb.Service, 7));
+    jspb.Message.getRepeatedWrapperField(this, pkg_service_servicepb_service_pb.Service, 8));
 };
 
 
@@ -698,7 +749,7 @@ proto.pkg.host.hostpb.Host.prototype.getServicesList = function() {
  * @return {!proto.pkg.host.hostpb.Host} returns this
 */
 proto.pkg.host.hostpb.Host.prototype.setServicesList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 7, value);
+  return jspb.Message.setRepeatedWrapperField(this, 8, value);
 };
 
 
@@ -708,7 +759,7 @@ proto.pkg.host.hostpb.Host.prototype.setServicesList = function(value) {
  * @return {!proto.pkg.service.servicepb.Service}
  */
 proto.pkg.host.hostpb.Host.prototype.addServices = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 7, opt_value, proto.pkg.service.servicepb.Service, opt_index);
+  return jspb.Message.addToRepeatedWrapperField(this, 8, opt_value, proto.pkg.service.servicepb.Service, opt_index);
 };
 
 
@@ -722,12 +773,12 @@ proto.pkg.host.hostpb.Host.prototype.clearServicesList = function() {
 
 
 /**
- * optional google.protobuf.StringValue address_list_range = 8;
+ * optional google.protobuf.StringValue address_list_range = 9;
  * @return {?proto.google.protobuf.StringValue}
  */
 proto.pkg.host.hostpb.Host.prototype.getAddressListRange = function() {
   return /** @type{?proto.google.protobuf.StringValue} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.StringValue, 8));
+    jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.StringValue, 9));
 };
 
 
@@ -736,7 +787,7 @@ proto.pkg.host.hostpb.Host.prototype.getAddressListRange = function() {
  * @return {!proto.pkg.host.hostpb.Host} returns this
 */
 proto.pkg.host.hostpb.Host.prototype.setAddressListRange = function(value) {
-  return jspb.Message.setWrapperField(this, 8, value);
+  return jspb.Message.setWrapperField(this, 9, value);
 };
 
 
@@ -754,7 +805,7 @@ proto.pkg.host.hostpb.Host.prototype.clearAddressListRange = function() {
  * @return {boolean}
  */
 proto.pkg.host.hostpb.Host.prototype.hasAddressListRange = function() {
-  return jspb.Message.getField(this, 8) != null;
+  return jspb.Message.getField(this, 9) != null;
 };
 
 

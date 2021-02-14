@@ -17,13 +17,18 @@ export type SimpleProperty = {
     Status: string
 }
 
+export type SimpleCheck = {
+    Passed:             boolean
+    Log:                string
+    Err:                string
+}
+
 export type SimpleService = {
-    Enabled:            boolean,
+    Check:              SimpleCheck | undefined
+    Pause:              boolean
+    Hide:               boolean,
     Name:               string,
     DisplayName:        string,
-    Passed:             boolean,
-    Log:                string,
-    Err:                string,
     Weight:             number,
     Points:             number,
     PointsBoost:        number,
@@ -38,24 +43,26 @@ export type SimpleServiceGroup = {
 }
 
 export type SimpleHost = {
-    HostGroup: SimpleHostGroup,
+    HostGroup: SimpleHostGroup | undefined,
     Address:   string,
     Services:  Record<string, SimpleService>,
-    Enabled:   boolean
+    Pause:     boolean,
+    Hide:      boolean,
 }
 
 export type SimpleTeam = {
     Hosts:   Record<string, SimpleHost>,
     Name:    string,
-    Enabled: boolean,
-    Hidden:  boolean,
+    Pause:   boolean,
+    Hide:    boolean,
     TotalPoints: number
 }
 
 export type SimpleHostGroup = {
     ID:      string,
     Name:    string,
-    Enabled: boolean
+    Pause:   boolean,
+    Hide:    boolean,
 }
 
 export type SimpleReport = {

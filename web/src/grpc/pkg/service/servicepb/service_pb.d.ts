@@ -46,10 +46,15 @@ export class Service extends jspb.Message {
   hasHostId(): boolean;
   clearHostId(): Service;
 
-  getEnabled(): google_protobuf_wrappers_pb.BoolValue | undefined;
-  setEnabled(value?: google_protobuf_wrappers_pb.BoolValue): Service;
-  hasEnabled(): boolean;
-  clearEnabled(): Service;
+  getHide(): google_protobuf_wrappers_pb.BoolValue | undefined;
+  setHide(value?: google_protobuf_wrappers_pb.BoolValue): Service;
+  hasHide(): boolean;
+  clearHide(): Service;
+
+  getPause(): google_protobuf_wrappers_pb.BoolValue | undefined;
+  setPause(value?: google_protobuf_wrappers_pb.BoolValue): Service;
+  hasPause(): boolean;
+  clearPause(): Service;
 
   getPropertiesList(): Array<pkg_property_propertypb_property_pb.Property>;
   setPropertiesList(value: Array<pkg_property_propertypb_property_pb.Property>): Service;
@@ -80,7 +85,8 @@ export namespace Service {
     roundDelay?: google_protobuf_wrappers_pb.UInt64Value.AsObject,
     serviceGroupId?: pkg_proto_utilpb_uuid_pb.UUID.AsObject,
     hostId?: pkg_proto_utilpb_uuid_pb.UUID.AsObject,
-    enabled?: google_protobuf_wrappers_pb.BoolValue.AsObject,
+    hide?: google_protobuf_wrappers_pb.BoolValue.AsObject,
+    pause?: google_protobuf_wrappers_pb.BoolValue.AsObject,
     propertiesList: Array<pkg_property_propertypb_property_pb.Property.AsObject>,
     checksList: Array<pkg_check_checkpb_check_pb.Check.AsObject>,
   }

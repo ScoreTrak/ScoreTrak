@@ -52,13 +52,14 @@ export default function Ranks(props: RanksProps) {
                         if (Object.keys(report.Teams[team].Hosts[host].Services).length !== 0){
                             for (const service in report.Teams[team].Hosts[host].Services) {
                                 if (report.Teams[team].Hosts[host].Services.hasOwnProperty(service)) {
+                                    const hst = report.Teams[team].Hosts[host]
                                     const sr = report.Teams[team].Hosts[host].Services[service]
                                     let keyName = ""
                                     if (sr.DisplayName){
                                         keyName = sr.DisplayName
                                     } else {
-                                        if (report.Teams[team].Hosts[host].HostGroup){
-                                            keyName = report.Teams[team].Hosts[host].HostGroup.Name + "-" + sr.Name
+                                        if (hst.HostGroup !== undefined){
+                                            keyName = hst.HostGroup.Name + "-" + sr.Name
                                         } else{
                                             keyName = sr.Name
                                         }
