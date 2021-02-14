@@ -74,8 +74,10 @@ func (r *reportController) filterReport(rol string, tID uuid.UUID, lr *report.Re
 					}
 					simpleReport.Teams[t].Hosts[h].Services[s].Properties = propFilterHide
 					if t != tID {
-						simpleReport.Teams[t].Hosts[h].Services[s].Err = ""
-						simpleReport.Teams[t].Hosts[h].Services[s].Log = ""
+						if simpleReport.Teams[t].Hosts[h].Services[s].Check != nil {
+							simpleReport.Teams[t].Hosts[h].Services[s].Check.Err = ""
+							simpleReport.Teams[t].Hosts[h].Services[s].Check.Log = ""
+						}
 						prop := map[string]*report.SimpleProperty{}
 						if *p.ShowAddresses {
 							if val, ok := simpleReport.Teams[t].Hosts[h].Services[s].Properties["Port"]; ok {
