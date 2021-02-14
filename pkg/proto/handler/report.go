@@ -3,7 +3,6 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_client"
@@ -32,17 +31,17 @@ func (r *reportController) filterReport(rol string, tID uuid.UUID, lr *report.Re
 	//Filter out Disabled, and Hidden Services
 	{
 		for t := range simpleReport.Teams {
-			if !simpleReport.Teams[t].Enabled || simpleReport.Teams[t].Hidden {
+			if simpleReport.Teams[t].Hide {
 				delete(simpleReport.Teams, t)
 				continue
 			}
 			for h := range simpleReport.Teams[t].Hosts {
-				if !simpleReport.Teams[t].Hosts[h].Enabled || (simpleReport.Teams[t].Hosts[h].HostGroup != nil && !simpleReport.Teams[t].Hosts[h].HostGroup.Enabled) {
+				if simpleReport.Teams[t].Hosts[h].Hide || (simpleReport.Teams[t].Hosts[h].HostGroup != nil && simpleReport.Teams[t].Hosts[h].HostGroup.Hide) {
 					delete(simpleReport.Teams[t].Hosts, h)
 					continue
 				}
 				for s := range simpleReport.Teams[t].Hosts[h].Services {
-					if !simpleReport.Teams[t].Hosts[h].Services[s].Enabled || !simpleReport.Teams[t].Hosts[h].Services[s].SimpleServiceGroup.Enabled {
+					if simpleReport.Teams[t].Hosts[h].Services[s].Hide || !simpleReport.Teams[t].Hosts[h].Services[s].SimpleServiceGroup.Enabled {
 						delete(simpleReport.Teams[t].Hosts[h].Services, s)
 						continue
 					}
@@ -125,9 +124,10 @@ func (r *reportController) Get(request *reportpb.GetRequest, server reportpb.Rep
 			fmt.Sprintf("Unable to retreive report: %v", err))
 	}
 
-	if val, ok := server.Context().Value("claims").(*auth.UserClaims); ok && val != nil {
-		rol = val.Role
-		tID = uuid.FromStringOrNil(val.TeamID)
+	claims := extractUserClaim(server.Context())
+	if claims != nil {
+		rol = claims.Role
+		tID = uuid.FromStringOrNil(claims.TeamID)
 	}
 
 	if rol == user.Anonymous && !r.policyClient.GetAllowUnauthenticatedUsers() {

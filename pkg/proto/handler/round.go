@@ -50,7 +50,7 @@ func (r RoundController) GetByID(ctx context.Context, request *roundpb.GetByIDRe
 	if roundID == 0 {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Round ID was not specified",
+			"Round"+idNotSpecified,
 		)
 	}
 

@@ -41,7 +41,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	for i := range request.GetCompetition().HostGroups {
 		hstGrp, err := ConvertHostGroupPBtoHostGroup(true, request.GetCompetition().HostGroups[i])
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse host groups, details: %v", err)
+			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" host groups, details: %v", err)
 		}
 		hstGrps = append(hstGrps, hstGrp)
 	}
@@ -49,7 +49,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	for i := range request.GetCompetition().Hosts {
 		hst, err := ConvertHostPBtoHost(true, request.GetCompetition().Hosts[i])
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse host, details: %v", err)
+			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" host, details: %v", err)
 		}
 		hsts = append(hsts, hst)
 	}
@@ -57,7 +57,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	for i := range request.GetCompetition().Teams {
 		tm, err := ConvertTeamPBtoTeam(true, request.GetCompetition().Teams[i])
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse team, details: %v", err)
+			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" team, details: %v", err)
 		}
 		tms = append(tms, tm)
 	}
@@ -65,7 +65,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	for i := range request.GetCompetition().Services {
 		svc, err := ConvertServicePBtoService(true, request.GetCompetition().Services[i])
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse check_service groups, details: %v", err)
+			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" check_service groups, details: %v", err)
 		}
 		svcs = append(svcs, svc)
 	}
@@ -73,7 +73,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	for i := range request.GetCompetition().ServiceGroups {
 		servGrp, err := ConvertServiceGroupPBtoServiceGroup(true, request.GetCompetition().ServiceGroups[i])
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse service groups, details: %v", err)
+			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" service groups, details: %v", err)
 		}
 		servGrps = append(servGrps, servGrp)
 	}
@@ -81,7 +81,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	for i := range request.GetCompetition().Rounds {
 		rnd, err := ConvertRoundPBtoRound(true, request.GetCompetition().Rounds[i])
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse round, details: %v", err)
+			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" round, details: %v", err)
 		}
 		rnds = append(rnds, rnd)
 	}
@@ -89,7 +89,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	for i := range request.GetCompetition().Properties {
 		prop, err := ConvertPropertyPBtoProperty(request.GetCompetition().Properties[i])
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse property, details: %v", err)
+			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" property, details: %v", err)
 		}
 		props = append(props, prop)
 	}
@@ -97,7 +97,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	for i := range request.GetCompetition().Checks {
 		chck, err := ConvertCheckPBtoCheck(request.GetCompetition().Checks[i])
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse check, details: %v", err)
+			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" check, details: %v", err)
 		}
 		chcks = append(chcks, chck)
 	}
@@ -106,7 +106,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	for i := range request.GetCompetition().Users {
 		usr, err := ConvertUserPBtoUser(true, request.GetCompetition().Users[i])
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse check, details: %v", err)
+			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" check, details: %v", err)
 		}
 		users = append(users, usr)
 	}
@@ -223,7 +223,7 @@ func ConvertCompetitionToCompetitionPB(comp *competition.Competition) (*competit
 	for i := range comp.Rounds {
 		rnd, err := ConvertRoundToRoundPb(comp.Rounds[i])
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "Unable to parse round, details: %v", err)
+			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" round, details: %v", err)
 		}
 		rnds = append(rnds, rnd)
 	}

@@ -13,10 +13,12 @@ message Host {
   string address = 2;
   pkg.proto.utilpb.UUID host_group_id = 3;
   pkg.proto.utilpb.UUID team_id = 4;
-  google.protobuf.BoolValue enabled = 5;
-  google.protobuf.BoolValue edit_host = 6;
-  repeated pkg.service.servicepb.Service services = 7;
-  google.protobuf.StringValue address_list_range = 8;
+  google.protobuf.BoolValue pause = 5;
+  google.protobuf.BoolValue hide = 6;
+
+  google.protobuf.BoolValue edit_host = 7;
+  repeated pkg.service.servicepb.Service services = 8;
+  google.protobuf.StringValue address_list_range = 9;
 }
 
 message GetAllRequest{}

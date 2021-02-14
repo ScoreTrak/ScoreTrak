@@ -39,14 +39,14 @@ func (p PropertyController) Delete(ctx context.Context, request *propertypb.Dele
 	if id == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 	uid, err := uuid.FromString(id.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Unable to parse ID: %v", err,
+			unableToParseID+": %v", err,
 		)
 	}
 	if request.GetKey() == "" {
@@ -98,7 +98,7 @@ func (p PropertyController) Update(ctx context.Context, request *propertypb.Upda
 		if tID.String() != claim.TeamID || prop.Status != property.Edit {
 			return nil, status.Errorf(
 				codes.PermissionDenied,
-				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
+				noPermissionsTo+genericErr,
 			)
 		}
 		pr = &property.Property{Value: pr.Value, ServiceID: prop.ServiceID, Key: prop.Key}
@@ -119,14 +119,14 @@ func (p PropertyController) GetByServiceIDKey(ctx context.Context, request *prop
 	if id == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 	uid, err := uuid.FromString(id.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Unable to parse ID: %v", err,
+			unableToParseID+": %v", err,
 		)
 	}
 
@@ -141,7 +141,7 @@ func (p PropertyController) GetByServiceIDKey(ctx context.Context, request *prop
 		if tID.String() != claim.TeamID {
 			return nil, status.Errorf(
 				codes.PermissionDenied,
-				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
+				noPermissionsTo+genericErr,
 			)
 		}
 		chk = prop
@@ -161,14 +161,14 @@ func (p PropertyController) GetAllByServiceID(ctx context.Context, request *prop
 	if id == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 	uid, err := uuid.FromString(id.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Unable to parse ID: %v", err,
+			unableToParseID+": %v", err,
 		)
 	}
 
@@ -182,7 +182,7 @@ func (p PropertyController) GetAllByServiceID(ctx context.Context, request *prop
 		if tID.String() != claim.TeamID {
 			return nil, status.Errorf(
 				codes.PermissionDenied,
-				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
+				noPermissionsTo+genericErr,
 			)
 		}
 	}
@@ -210,13 +210,13 @@ func ConvertPropertyPBtoProperty(pb *propertypb.Property) (*property.Property, e
 		if err != nil {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
-				"Unable to parse ID: %v", err,
+				unableToParseID+": %v", err,
 			)
 		}
 	} else {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Service ID was not specified",
+			"Service"+idNotSpecified,
 		)
 	}
 	if pb.GetKey() == "" {

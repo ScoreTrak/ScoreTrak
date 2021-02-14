@@ -223,12 +223,12 @@ func (d dRunner) Score(ctx context.Context, rnd round.Round) {
 				if err != nil {
 					panic(err)
 				}
-				if *t.Enabled {
+				if *t.Pause {
 					var validHost bool
-					if *h.Enabled {
+					if *h.Pause {
 						if h.HostGroupID != nil {
 							for _, hG := range hostGroup {
-								if hG.ID == *h.HostGroupID && *(hG.Enabled) {
+								if hG.ID == *h.HostGroupID && *(hG.Pause) {
 									validHost = true
 								}
 							}
@@ -241,7 +241,7 @@ func (d dRunner) Score(ctx context.Context, rnd round.Round) {
 						if s.RoundDelay != nil {
 							schedule += *(s.RoundDelay)
 						}
-						if *(s.Enabled) && rnd.ID%schedule == 0 { //Todo: Fix: Add unscheduled checks into report. (Looking into report:30 To perhaps utilize Pause to indicate skipped service) This way scoreboard does not flicked when check is skipped (Or handle this on frontend by locally caching. This should also fix an issue with changing colors on ranking page
+						if *(s.Pause) && rnd.ID%schedule == 0 {
 							for _, servGroup := range serviceGroups {
 								if s.ServiceGroupID == servGroup.ID && *(servGroup.Enabled) {
 									sq := queueing.QService{ID: s.ID, Group: servGroup.Name, Name: s.Name}
@@ -317,14 +317,14 @@ func (d dRunner) Score(ctx context.Context, rnd round.Round) {
 	simpTeams := make(map[uuid.UUID]*report.SimpleTeam)
 	{
 		for _, t := range teams {
-			st := &report.SimpleTeam{Name: t.Name, Enabled: *t.Enabled, Hidden: *t.Hidden}
+			st := &report.SimpleTeam{Name: t.Name, Pause: *t.Pause, Hide: *t.Hide}
 			st.Hosts = make(map[uuid.UUID]*report.SimpleHost)
 			for _, h := range t.Hosts {
-				sh := report.SimpleHost{Address: h.Address, Enabled: *h.Enabled}
+				sh := report.SimpleHost{Address: h.Address, Hide: *h.Hide, Pause: *h.Pause}
 				if h.HostGroupID != nil {
 					for _, hG := range hostGroup {
 						if hG.ID == *h.HostGroupID {
-							sh.HostGroup = &report.SimpleHostGroup{Enabled: *hG.Enabled, ID: *h.HostGroupID, Name: hG.Name}
+							sh.HostGroup = &report.SimpleHostGroup{Hide: *hG.Hide, Pause: *hG.Pause, ID: *h.HostGroupID, Name: hG.Name}
 						}
 					}
 				}
@@ -343,7 +343,7 @@ func (d dRunner) Score(ctx context.Context, rnd round.Round) {
 					}
 					if len(s.Checks) != 0 {
 						lastCheck := s.Checks[len(s.Checks)-1]
-						sh.Services[s.ID] = &report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Enabled: *s.Enabled, Points: points, Properties: params, PointsBoost: *s.PointsBoost, SimpleServiceGroup: simpSgr, Weight: *s.Weight}
+						sh.Services[s.ID] = &report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Hide: *s.Hide, Pause: *s.Pause, Points: points, Properties: params, PointsBoost: *s.PointsBoost, SimpleServiceGroup: simpSgr, Weight: *s.Weight}
 						if lastCheck.RoundID == rnd.ID {
 							sh.Services[s.ID].Passed = *lastCheck.Passed
 							sh.Services[s.ID].Log = lastCheck.Log

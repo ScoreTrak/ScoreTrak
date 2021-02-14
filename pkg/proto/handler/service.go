@@ -27,14 +27,14 @@ func (p ServiceController) GetByID(ctx context.Context, request *servicepb.GetBy
 	if id == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 	uid, err := uuid.FromString(id.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Unable to parse ID: %v", err,
+			unableToParseID+": %v", err,
 		)
 	}
 
@@ -49,7 +49,7 @@ func (p ServiceController) GetByID(ctx context.Context, request *servicepb.GetBy
 		if tID.String() != claim.TeamID {
 			return nil, status.Errorf(
 				codes.PermissionDenied,
-				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
+				noPermissionsTo+genericErr,
 			)
 		}
 		serv = prop
@@ -70,14 +70,14 @@ func (p ServiceController) TestService(ctx context.Context, request *servicepb.T
 	if id == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 	uid, err := uuid.FromString(id.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Unable to parse ID: %v", err,
+			unableToParseID+": %v", err,
 		)
 	}
 	chck, err := p.svc.TestService(ctx, uid)
@@ -114,14 +114,14 @@ func (p ServiceController) Delete(ctx context.Context, request *servicepb.Delete
 	if id == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 	uid, err := uuid.FromString(id.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Unable to parse ID: %v", err,
+			unableToParseID+": %v", err,
 		)
 	}
 	err = p.svc.Delete(ctx, uid)
@@ -189,13 +189,13 @@ func ConvertServicePBtoService(requireID bool, pb *servicepb.Service) (*service.
 		if err != nil {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
-				"Unable to parse ID: %v", err,
+				unableToParseID+": %v", err,
 			)
 		}
 	} else if requireID {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 
@@ -214,9 +214,14 @@ func ConvertServicePBtoService(requireID bool, pb *servicepb.Service) (*service.
 		pointsBoost = &pb.GetRoundDelay().Value
 	}
 
-	var enabled *bool
-	if pb.GetEnabled() != nil {
-		enabled = &pb.GetEnabled().Value
+	var pause *bool
+	if pb.GetPause() != nil {
+		pause = &pb.GetPause().Value
+	}
+
+	var hide *bool
+	if pb.GetHide() != nil {
+		hide = &pb.GetHide().Value
 	}
 
 	var serviceGrpID uuid.UUID
@@ -225,7 +230,7 @@ func ConvertServicePBtoService(requireID bool, pb *servicepb.Service) (*service.
 		if err != nil {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
-				"Unable to parse ID: %v", err,
+				unableToParseID+": %v", err,
 			)
 		}
 	}
@@ -236,7 +241,7 @@ func ConvertServicePBtoService(requireID bool, pb *servicepb.Service) (*service.
 		if err != nil {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
-				"Unable to parse ID: %v", err,
+				unableToParseID+": %v", err,
 			)
 		}
 	}
@@ -251,7 +256,8 @@ func ConvertServicePBtoService(requireID bool, pb *servicepb.Service) (*service.
 		RoundDelay:     roundDelay,
 		ServiceGroupID: serviceGrpID,
 		HostID:         hostID,
-		Enabled:        enabled,
+		Pause:          pause,
+		Hide:           hide,
 		Properties:     nil,
 		Checks:         nil,
 	}, nil
@@ -268,7 +274,8 @@ func ConvertServiceToServicePb(obj *service.Service) *servicepb.Service {
 		RoundDelay:     &wrappers.UInt64Value{Value: *obj.RoundDelay},
 		ServiceGroupId: &utilpb.UUID{Value: obj.ServiceGroupID.String()},
 		HostId:         &utilpb.UUID{Value: obj.HostID.String()},
-		Enabled:        &wrappers.BoolValue{Value: *obj.Enabled},
+		Pause:          &wrappers.BoolValue{Value: *obj.Pause},
+		Hide:           &wrappers.BoolValue{Value: *obj.Hide},
 		Properties:     nil,
 		Checks:         nil,
 	}

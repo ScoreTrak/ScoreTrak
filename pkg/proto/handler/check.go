@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/check_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkpb"
@@ -29,7 +28,7 @@ func (c *CheckController) GetAllByRoundID(ctx context.Context, request *checkpb.
 	if roundID == 0 {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Round ID was not specified",
+			"Round"+idNotSpecified,
 		)
 	}
 
@@ -53,21 +52,21 @@ func (c *CheckController) GetByRoundServiceID(ctx context.Context, request *chec
 	if serviceID == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Service ID was not specified",
+			"Service"+idNotSpecified,
 		)
 	}
 	roundID := request.GetRoundId()
 	if roundID == 0 {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Round ID was not specified",
+			"Round"+idNotSpecified,
 		)
 	}
 	uid, err := uuid.FromString(serviceID.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Unable to parse ID: %v", err,
+			unableToParseID+": %v", err,
 		)
 	}
 
@@ -82,7 +81,7 @@ func (c *CheckController) GetByRoundServiceID(ctx context.Context, request *chec
 		if tID.String() != claim.TeamID {
 			return nil, status.Errorf(
 				codes.PermissionDenied,
-				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
+				noPermissionsTo+genericErr,
 			)
 		}
 		chk = prop
@@ -102,14 +101,14 @@ func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkp
 	if serviceID == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Service ID was not specified",
+			"Service"+idNotSpecified,
 		)
 	}
 	uid, err := uuid.FromString(serviceID.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Unable to parse ID: %v", err,
+			unableToParseID+": %v", err,
 		)
 	}
 
@@ -123,7 +122,7 @@ func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkp
 		if tID.String() != claim.TeamID {
 			return nil, status.Errorf(
 				codes.PermissionDenied,
-				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
+				noPermissionsTo+genericErr,
 			)
 		}
 	}
@@ -164,19 +163,19 @@ func ConvertCheckPBtoCheck(pb *checkpb.Check) (*check.Check, error) {
 		if err != nil {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
-				"Unable to parse ID: %v", err,
+				unableToParseID+": %v", err,
 			)
 		}
 	} else {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Service ID was not specified",
+			"Service"+idNotSpecified,
 		)
 	}
 	if pb.GetRoundId() == 0 {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Round ID was not specified",
+			"Round"+idNotSpecified,
 		)
 	}
 	var passed *bool

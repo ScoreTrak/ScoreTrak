@@ -36,8 +36,9 @@ type Service struct {
 	// ID of a host the check_service belongs to
 	HostID uuid.UUID `json:"host_id" gorm:"type:uuid;not null"`
 
-	// Enables or Disables the check_service
-	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default:true"`
+	Hide *bool `json:"pause,omitempty" gorm:"not null;default:false"`
+
+	Pause *bool `json:"hide,omitempty" gorm:"not null;default:false"`
 
 	Properties []*property.Property `json:"properties,omitempty" gorm:"foreignkey:ServiceID; constraint:OnUpdate:RESTRICT,OnDelete:CASCADE"`
 

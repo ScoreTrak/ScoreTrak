@@ -86,9 +86,9 @@ func TestHostGroupSpec(t *testing.T) {
 					})
 				})
 
-				Convey("Then Updating Enabled to true", func() {
+				Convey("Then Updating Pause to true", func() {
 					tru := true
-					newHostGroup := &host_group.HostGroup{Enabled: &tru}
+					newHostGroup := &host_group.HostGroup{Pause: &tru}
 					Convey("For the wrong entry should not update anything", func() {
 						newHostGroup.ID = uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")
 						err = hg.Update(ctx, newHostGroup)
@@ -96,7 +96,7 @@ func TestHostGroupSpec(t *testing.T) {
 						ac, err := hg.GetAll(ctx)
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
-						So(*(ac[0].Enabled), ShouldBeTrue)
+						So(*(ac[0].Pause), ShouldBeFalse)
 					})
 					Convey("For the correct entry should update", func() {
 						newHostGroup.ID = uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333")
@@ -105,7 +105,7 @@ func TestHostGroupSpec(t *testing.T) {
 						ac, err := hg.GetAll(ctx)
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
-						So(*(ac[0].Enabled), ShouldBeTrue)
+						So(*(ac[0].Pause), ShouldBeTrue)
 					})
 				})
 
@@ -132,9 +132,9 @@ func TestHostGroupSpec(t *testing.T) {
 							So(len(ac), ShouldEqual, 0)
 						})
 
-						Convey("Updating a team enabled without deleting a host should not yield error", func() {
+						Convey("Updating a team pause without deleting a host should not yield error", func() {
 							tru := true
-							h[0].Enabled = &tru
+							h[0].Pause = &tru
 							err = hg.Update(ctx, h[0])
 							So(err, ShouldBeNil)
 						})

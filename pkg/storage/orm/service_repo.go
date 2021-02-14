@@ -70,7 +70,7 @@ func (s *serviceRepo) Upsert(ctx context.Context, swm []*service.Service) error 
 }
 
 func (s *serviceRepo) Update(ctx context.Context, swm *service.Service) error {
-	err := s.db.WithContext(ctx).Model(swm).Updates(service.Service{Enabled: swm.Enabled,
+	err := s.db.WithContext(ctx).Model(swm).Updates(service.Service{Pause: swm.Pause, Hide: swm.Hide,
 		Name: swm.Name, Weight: swm.Weight, PointsBoost: swm.PointsBoost, RoundDelay: swm.RoundDelay,
 		RoundUnits: swm.RoundUnits, ServiceGroupID: swm.ServiceGroupID,
 		HostID: swm.HostID, DisplayName: swm.DisplayName}).Error

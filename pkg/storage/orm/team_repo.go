@@ -95,7 +95,7 @@ func (t *teamRepo) Upsert(ctx context.Context, usr []*team.Team) error {
 }
 
 func (t *teamRepo) Update(ctx context.Context, tm *team.Team) error {
-	err := t.db.WithContext(ctx).Model(tm).Updates(team.Team{Hidden: tm.Hidden, Enabled: tm.Enabled, Name: tm.Name, Index: tm.Index}).Error
+	err := t.db.WithContext(ctx).Model(tm).Updates(team.Team{Hide: tm.Hide, Pause: tm.Pause, Name: tm.Name, Index: tm.Index}).Error
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func (t *teamRepo) UpdateByName(ctx context.Context, tm *team.Team) error {
 	if tm.Name == "" {
 		return errors.New("you must specify the name of the team you are trying to update")
 	}
-	err := t.db.WithContext(ctx).Model(tm).Where("name = ?", tm.Name).Updates(team.Team{Enabled: tm.Enabled}).Error
+	err := t.db.WithContext(ctx).Model(tm).Where("name = ?", tm.Name).Updates(team.Team{Pause: tm.Pause}).Error
 	if err != nil {
 		return err
 	}

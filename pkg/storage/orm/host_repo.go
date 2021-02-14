@@ -68,7 +68,7 @@ func (h *hostRepo) Upsert(ctx context.Context, hst []*host.Host) error {
 }
 
 func (h *hostRepo) Update(ctx context.Context, hst *host.Host) error {
-	err := h.db.WithContext(ctx).Model(hst).Updates(host.Host{Enabled: hst.Enabled,
+	err := h.db.WithContext(ctx).Model(hst).Updates(host.Host{Pause: hst.Pause, Hide: hst.Hide,
 		Address: hst.Address, HostGroupID: hst.HostGroupID,
 		TeamID: hst.TeamID, EditHost: hst.EditHost, AddressListRange: hst.AddressListRange,
 	}).Error

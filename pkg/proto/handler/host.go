@@ -26,14 +26,14 @@ func (p HostController) GetByID(ctx context.Context, request *hostpb.GetByIDRequ
 	if id == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 	uid, err := uuid.FromString(id.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Unable to parse ID: %v", err,
+			unableToParseID+": %v", err,
 		)
 	}
 
@@ -47,7 +47,7 @@ func (p HostController) GetByID(ctx context.Context, request *hostpb.GetByIDRequ
 		if tID.String() != claim.TeamID {
 			return nil, status.Errorf(
 				codes.PermissionDenied,
-				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
+				noPermissionsTo+genericErr,
 			)
 		}
 		hst = prop
@@ -79,14 +79,14 @@ func (p HostController) Delete(ctx context.Context, request *hostpb.DeleteReques
 	if id == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 	uid, err := uuid.FromString(id.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Unable to parse ID: %v", err,
+			unableToParseID+": %v", err,
 		)
 	}
 	err = p.svc.Delete(ctx, uid)
@@ -143,7 +143,7 @@ func (p HostController) Update(ctx context.Context, request *hostpb.UpdateReques
 		if tID.String() != claim.TeamID || !*prop.EditHost {
 			return nil, status.Errorf(
 				codes.PermissionDenied,
-				fmt.Sprintf("You do not have permissions to retreive or update this resource"),
+				noPermissionsTo+genericErr,
 			)
 		}
 		hst = &host.Host{Address: prop.Address, ID: hst.ID}
@@ -171,19 +171,24 @@ func ConvertHostPBtoHost(requireID bool, pb *hostpb.Host) (*host.Host, error) {
 		if err != nil {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
-				"Unable to parse ID: %v", err,
+				unableToParseID+": %v", err,
 			)
 		}
 	} else if requireID {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 
-	var enabled *bool
-	if pb.GetEnabled() != nil {
-		enabled = &pb.GetEnabled().Value
+	var pause *bool
+	if pb.GetPause() != nil {
+		pause = &pb.GetPause().Value
+	}
+
+	var hide *bool
+	if pb.GetHide() != nil {
+		hide = &pb.GetHide().Value
 	}
 
 	var editHost *bool
@@ -202,7 +207,7 @@ func ConvertHostPBtoHost(requireID bool, pb *hostpb.Host) (*host.Host, error) {
 		if err != nil {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
-				"Unable to parse ID: %v", err,
+				unableToParseID+": %v", err,
 			)
 		}
 		hostGrpID = &uid
@@ -214,7 +219,7 @@ func ConvertHostPBtoHost(requireID bool, pb *hostpb.Host) (*host.Host, error) {
 		if err != nil {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
-				"Unable to parse ID: %v", err,
+				unableToParseID+": %v", err,
 			)
 		}
 	}
@@ -230,7 +235,8 @@ func ConvertHostPBtoHost(requireID bool, pb *hostpb.Host) (*host.Host, error) {
 		Address:          address,
 		HostGroupID:      hostGrpID,
 		TeamID:           teamID,
-		Enabled:          enabled,
+		Pause:            pause,
+		Hide:             hide,
 		EditHost:         editHost,
 		Services:         nil,
 	}, nil
@@ -253,7 +259,8 @@ func ConvertHostToHostPb(obj *host.Host) *hostpb.Host {
 		Address:          obj.Address,
 		HostGroupId:      hstGrpID,
 		TeamId:           &utilpb.UUID{Value: obj.TeamID.String()},
-		Enabled:          &wrappers.BoolValue{Value: *obj.Enabled},
+		Pause:            &wrappers.BoolValue{Value: *obj.Pause},
+		Hide:             &wrappers.BoolValue{Value: *obj.Hide},
 		EditHost:         &wrappers.BoolValue{Value: *obj.EditHost},
 		Services:         nil,
 		AddressListRange: addressList,

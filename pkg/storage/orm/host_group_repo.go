@@ -27,11 +27,9 @@ func (h *hostGroupRepo) Delete(ctx context.Context, id uuid.UUID) error {
 		errMsg := fmt.Sprintf("error while deleting the host with id : %d", id)
 		return errors.New(errMsg)
 	}
-
 	if result.RowsAffected == 0 {
 		return &NoRowsAffected{"no model found"}
 	}
-
 	return nil
 }
 
@@ -72,7 +70,7 @@ func (h *hostGroupRepo) Upsert(ctx context.Context, hstgrp []*host_group.HostGro
 }
 
 func (h *hostGroupRepo) Update(ctx context.Context, hstgrp *host_group.HostGroup) error {
-	err := h.db.WithContext(ctx).Model(hstgrp).Updates(host_group.HostGroup{Name: hstgrp.Name, Enabled: hstgrp.Enabled}).Error
+	err := h.db.WithContext(ctx).Model(hstgrp).Updates(host_group.HostGroup{Name: hstgrp.Name, Pause: hstgrp.Pause, Hide: hstgrp.Hide}).Error
 	if err != nil {
 		return err
 	}

@@ -27,8 +27,9 @@ type Host struct {
 	// The ID of a team that this host belongs too.
 	TeamID uuid.UUID `json:"team_id,omitempty" gorm:"type:uuid;not null"`
 
-	// Enables or disables scoring for a single host
-	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default:true"`
+	Hide *bool `json:"pause,omitempty" gorm:"not null;default:false"`
+
+	Pause *bool `json:"hide,omitempty" gorm:"not null;default:false"`
 
 	// Enables to Edit the hostname. If a single host needs to be eddited for one check_service, and kept only visible for other check_service, you can make 2 services that point to same address, and have different edit_host properties.
 	EditHost *bool `json:"edit_host,omitempty" gorm:"not null;default:false"`
@@ -83,9 +84,7 @@ func validateIfAddressInRange(addr string, addresses string) (err error) {
 	if addresses == "" {
 		return nil
 	}
-
-	var addressList []string
-	addressList = strings.Split(addresses, ",")
+	addressList := strings.Split(addresses, ",")
 	for i := range addressList {
 		_, network, err := net.ParseCIDR(addressList[i])
 		if err == nil {
@@ -93,7 +92,7 @@ func validateIfAddressInRange(addr string, addresses string) (err error) {
 				return nil
 			}
 		} else if govalidator.IsHost(addressList[i]) {
-			if strings.ToLower(addressList[i]) == strings.ToLower(addr) {
+			if strings.EqualFold(addressList[i], addr) {
 				return nil
 			}
 		} else {

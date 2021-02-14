@@ -11,11 +11,11 @@ option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/team/teampb";
 message Team {
   pkg.proto.utilpb.UUID id = 1;
   string name = 2;
-  google.protobuf.BoolValue enabled = 3;
-  repeated pkg.host.hostpb.Host hosts = 4;
-  google.protobuf.UInt64Value index = 5;
-  repeated pkg.user.userpb.User users = 6;
-  google.protobuf.BoolValue hidden = 7;
+  google.protobuf.BoolValue hide = 3;
+  google.protobuf.BoolValue pause = 4;
+  repeated pkg.host.hostpb.Host hosts = 5;
+  google.protobuf.UInt64Value index = 6;
+  repeated pkg.user.userpb.User users = 7;
 }
 
 message GetAllRequest{}

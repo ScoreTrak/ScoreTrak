@@ -36,8 +36,17 @@ func deleteErrorParser(err error) error {
 }
 
 func extractUserClaim(ctx context.Context) *auth.UserClaims {
-	if val, ok := ctx.Value("claims").(*auth.UserClaims); ok && val != nil {
+	if val, ok := ctx.Value(auth.KeyClaim).(*auth.UserClaims); ok && val != nil {
 		return val
 	}
 	return nil
 }
+
+const (
+	noPermissionsTo = "You do not have permissions to "
+	genericErr      = "retrieve or update this resource"
+	idNotSpecified  = "ID was not specified"
+	changingUser    = "change this user"
+	unableToParse   = "Unable to parse"
+	unableToParseID = unableToParse + " ID"
+)
