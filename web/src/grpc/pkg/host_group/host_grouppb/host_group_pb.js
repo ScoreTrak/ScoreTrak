@@ -296,7 +296,8 @@ proto.pkg.host_group.host_grouppb.HostGroup.toObject = function(includeInstance,
   var f, obj = {
     id: (f = msg.getId()) && pkg_proto_utilpb_uuid_pb.UUID.toObject(includeInstance, f),
     name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    enabled: (f = msg.getEnabled()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
+    hide: (f = msg.getHide()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
+    pause: (f = msg.getPause()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
     hosts: (f = msg.getHosts()) && pkg_host_hostpb_host_pb.Host.toObject(includeInstance, f)
   };
 
@@ -346,9 +347,14 @@ proto.pkg.host_group.host_grouppb.HostGroup.deserializeBinaryFromReader = functi
     case 3:
       var value = new google_protobuf_wrappers_pb.BoolValue;
       reader.readMessage(value,google_protobuf_wrappers_pb.BoolValue.deserializeBinaryFromReader);
-      msg.setEnabled(value);
+      msg.setHide(value);
       break;
     case 4:
+      var value = new google_protobuf_wrappers_pb.BoolValue;
+      reader.readMessage(value,google_protobuf_wrappers_pb.BoolValue.deserializeBinaryFromReader);
+      msg.setPause(value);
+      break;
+    case 5:
       var value = new pkg_host_hostpb_host_pb.Host;
       reader.readMessage(value,pkg_host_hostpb_host_pb.Host.deserializeBinaryFromReader);
       msg.setHosts(value);
@@ -397,7 +403,7 @@ proto.pkg.host_group.host_grouppb.HostGroup.serializeBinaryToWriter = function(m
       f
     );
   }
-  f = message.getEnabled();
+  f = message.getHide();
   if (f != null) {
     writer.writeMessage(
       3,
@@ -405,10 +411,18 @@ proto.pkg.host_group.host_grouppb.HostGroup.serializeBinaryToWriter = function(m
       google_protobuf_wrappers_pb.BoolValue.serializeBinaryToWriter
     );
   }
-  f = message.getHosts();
+  f = message.getPause();
   if (f != null) {
     writer.writeMessage(
       4,
+      f,
+      google_protobuf_wrappers_pb.BoolValue.serializeBinaryToWriter
+    );
+  }
+  f = message.getHosts();
+  if (f != null) {
+    writer.writeMessage(
+      5,
       f,
       pkg_host_hostpb_host_pb.Host.serializeBinaryToWriter
     );
@@ -472,10 +486,10 @@ proto.pkg.host_group.host_grouppb.HostGroup.prototype.setName = function(value) 
 
 
 /**
- * optional google.protobuf.BoolValue enabled = 3;
+ * optional google.protobuf.BoolValue hide = 3;
  * @return {?proto.google.protobuf.BoolValue}
  */
-proto.pkg.host_group.host_grouppb.HostGroup.prototype.getEnabled = function() {
+proto.pkg.host_group.host_grouppb.HostGroup.prototype.getHide = function() {
   return /** @type{?proto.google.protobuf.BoolValue} */ (
     jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.BoolValue, 3));
 };
@@ -485,7 +499,7 @@ proto.pkg.host_group.host_grouppb.HostGroup.prototype.getEnabled = function() {
  * @param {?proto.google.protobuf.BoolValue|undefined} value
  * @return {!proto.pkg.host_group.host_grouppb.HostGroup} returns this
 */
-proto.pkg.host_group.host_grouppb.HostGroup.prototype.setEnabled = function(value) {
+proto.pkg.host_group.host_grouppb.HostGroup.prototype.setHide = function(value) {
   return jspb.Message.setWrapperField(this, 3, value);
 };
 
@@ -494,8 +508,8 @@ proto.pkg.host_group.host_grouppb.HostGroup.prototype.setEnabled = function(valu
  * Clears the message field making it undefined.
  * @return {!proto.pkg.host_group.host_grouppb.HostGroup} returns this
  */
-proto.pkg.host_group.host_grouppb.HostGroup.prototype.clearEnabled = function() {
-  return this.setEnabled(undefined);
+proto.pkg.host_group.host_grouppb.HostGroup.prototype.clearHide = function() {
+  return this.setHide(undefined);
 };
 
 
@@ -503,18 +517,55 @@ proto.pkg.host_group.host_grouppb.HostGroup.prototype.clearEnabled = function() 
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.pkg.host_group.host_grouppb.HostGroup.prototype.hasEnabled = function() {
+proto.pkg.host_group.host_grouppb.HostGroup.prototype.hasHide = function() {
   return jspb.Message.getField(this, 3) != null;
 };
 
 
 /**
- * optional pkg.host.hostpb.Host hosts = 4;
+ * optional google.protobuf.BoolValue pause = 4;
+ * @return {?proto.google.protobuf.BoolValue}
+ */
+proto.pkg.host_group.host_grouppb.HostGroup.prototype.getPause = function() {
+  return /** @type{?proto.google.protobuf.BoolValue} */ (
+    jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.BoolValue, 4));
+};
+
+
+/**
+ * @param {?proto.google.protobuf.BoolValue|undefined} value
+ * @return {!proto.pkg.host_group.host_grouppb.HostGroup} returns this
+*/
+proto.pkg.host_group.host_grouppb.HostGroup.prototype.setPause = function(value) {
+  return jspb.Message.setWrapperField(this, 4, value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.pkg.host_group.host_grouppb.HostGroup} returns this
+ */
+proto.pkg.host_group.host_grouppb.HostGroup.prototype.clearPause = function() {
+  return this.setPause(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.pkg.host_group.host_grouppb.HostGroup.prototype.hasPause = function() {
+  return jspb.Message.getField(this, 4) != null;
+};
+
+
+/**
+ * optional pkg.host.hostpb.Host hosts = 5;
  * @return {?proto.pkg.host.hostpb.Host}
  */
 proto.pkg.host_group.host_grouppb.HostGroup.prototype.getHosts = function() {
   return /** @type{?proto.pkg.host.hostpb.Host} */ (
-    jspb.Message.getWrapperField(this, pkg_host_hostpb_host_pb.Host, 4));
+    jspb.Message.getWrapperField(this, pkg_host_hostpb_host_pb.Host, 5));
 };
 
 
@@ -523,7 +574,7 @@ proto.pkg.host_group.host_grouppb.HostGroup.prototype.getHosts = function() {
  * @return {!proto.pkg.host_group.host_grouppb.HostGroup} returns this
 */
 proto.pkg.host_group.host_grouppb.HostGroup.prototype.setHosts = function(value) {
-  return jspb.Message.setWrapperField(this, 4, value);
+  return jspb.Message.setWrapperField(this, 5, value);
 };
 
 
@@ -541,7 +592,7 @@ proto.pkg.host_group.host_grouppb.HostGroup.prototype.clearHosts = function() {
  * @return {boolean}
  */
 proto.pkg.host_group.host_grouppb.HostGroup.prototype.hasHosts = function() {
-  return jspb.Message.getField(this, 4) != null;
+  return jspb.Message.getField(this, 5) != null;
 };
 
 

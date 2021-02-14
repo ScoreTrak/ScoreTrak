@@ -270,7 +270,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.pkg.team.teampb.Team.repeatedFields_ = [4,6];
+proto.pkg.team.teampb.Team.repeatedFields_ = [5,7];
 
 
 
@@ -305,13 +305,13 @@ proto.pkg.team.teampb.Team.toObject = function(includeInstance, msg) {
   var f, obj = {
     id: (f = msg.getId()) && pkg_proto_utilpb_uuid_pb.UUID.toObject(includeInstance, f),
     name: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    enabled: (f = msg.getEnabled()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
+    hide: (f = msg.getHide()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
+    pause: (f = msg.getPause()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f),
     hostsList: jspb.Message.toObjectList(msg.getHostsList(),
     pkg_host_hostpb_host_pb.Host.toObject, includeInstance),
     index: (f = msg.getIndex()) && google_protobuf_wrappers_pb.UInt64Value.toObject(includeInstance, f),
     usersList: jspb.Message.toObjectList(msg.getUsersList(),
-    pkg_user_userpb_user_pb.User.toObject, includeInstance),
-    hidden: (f = msg.getHidden()) && google_protobuf_wrappers_pb.BoolValue.toObject(includeInstance, f)
+    pkg_user_userpb_user_pb.User.toObject, includeInstance)
   };
 
   if (includeInstance) {
@@ -360,27 +360,27 @@ proto.pkg.team.teampb.Team.deserializeBinaryFromReader = function(msg, reader) {
     case 3:
       var value = new google_protobuf_wrappers_pb.BoolValue;
       reader.readMessage(value,google_protobuf_wrappers_pb.BoolValue.deserializeBinaryFromReader);
-      msg.setEnabled(value);
+      msg.setHide(value);
       break;
     case 4:
+      var value = new google_protobuf_wrappers_pb.BoolValue;
+      reader.readMessage(value,google_protobuf_wrappers_pb.BoolValue.deserializeBinaryFromReader);
+      msg.setPause(value);
+      break;
+    case 5:
       var value = new pkg_host_hostpb_host_pb.Host;
       reader.readMessage(value,pkg_host_hostpb_host_pb.Host.deserializeBinaryFromReader);
       msg.addHosts(value);
       break;
-    case 5:
+    case 6:
       var value = new google_protobuf_wrappers_pb.UInt64Value;
       reader.readMessage(value,google_protobuf_wrappers_pb.UInt64Value.deserializeBinaryFromReader);
       msg.setIndex(value);
       break;
-    case 6:
+    case 7:
       var value = new pkg_user_userpb_user_pb.User;
       reader.readMessage(value,pkg_user_userpb_user_pb.User.deserializeBinaryFromReader);
       msg.addUsers(value);
-      break;
-    case 7:
-      var value = new google_protobuf_wrappers_pb.BoolValue;
-      reader.readMessage(value,google_protobuf_wrappers_pb.BoolValue.deserializeBinaryFromReader);
-      msg.setHidden(value);
       break;
     default:
       reader.skipField();
@@ -426,7 +426,7 @@ proto.pkg.team.teampb.Team.serializeBinaryToWriter = function(message, writer) {
       f
     );
   }
-  f = message.getEnabled();
+  f = message.getHide();
   if (f != null) {
     writer.writeMessage(
       3,
@@ -434,10 +434,18 @@ proto.pkg.team.teampb.Team.serializeBinaryToWriter = function(message, writer) {
       google_protobuf_wrappers_pb.BoolValue.serializeBinaryToWriter
     );
   }
+  f = message.getPause();
+  if (f != null) {
+    writer.writeMessage(
+      4,
+      f,
+      google_protobuf_wrappers_pb.BoolValue.serializeBinaryToWriter
+    );
+  }
   f = message.getHostsList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
-      4,
+      5,
       f,
       pkg_host_hostpb_host_pb.Host.serializeBinaryToWriter
     );
@@ -445,7 +453,7 @@ proto.pkg.team.teampb.Team.serializeBinaryToWriter = function(message, writer) {
   f = message.getIndex();
   if (f != null) {
     writer.writeMessage(
-      5,
+      6,
       f,
       google_protobuf_wrappers_pb.UInt64Value.serializeBinaryToWriter
     );
@@ -453,17 +461,9 @@ proto.pkg.team.teampb.Team.serializeBinaryToWriter = function(message, writer) {
   f = message.getUsersList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
-      6,
-      f,
-      pkg_user_userpb_user_pb.User.serializeBinaryToWriter
-    );
-  }
-  f = message.getHidden();
-  if (f != null) {
-    writer.writeMessage(
       7,
       f,
-      google_protobuf_wrappers_pb.BoolValue.serializeBinaryToWriter
+      pkg_user_userpb_user_pb.User.serializeBinaryToWriter
     );
   }
 };
@@ -525,10 +525,10 @@ proto.pkg.team.teampb.Team.prototype.setName = function(value) {
 
 
 /**
- * optional google.protobuf.BoolValue enabled = 3;
+ * optional google.protobuf.BoolValue hide = 3;
  * @return {?proto.google.protobuf.BoolValue}
  */
-proto.pkg.team.teampb.Team.prototype.getEnabled = function() {
+proto.pkg.team.teampb.Team.prototype.getHide = function() {
   return /** @type{?proto.google.protobuf.BoolValue} */ (
     jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.BoolValue, 3));
 };
@@ -538,7 +538,7 @@ proto.pkg.team.teampb.Team.prototype.getEnabled = function() {
  * @param {?proto.google.protobuf.BoolValue|undefined} value
  * @return {!proto.pkg.team.teampb.Team} returns this
 */
-proto.pkg.team.teampb.Team.prototype.setEnabled = function(value) {
+proto.pkg.team.teampb.Team.prototype.setHide = function(value) {
   return jspb.Message.setWrapperField(this, 3, value);
 };
 
@@ -547,8 +547,8 @@ proto.pkg.team.teampb.Team.prototype.setEnabled = function(value) {
  * Clears the message field making it undefined.
  * @return {!proto.pkg.team.teampb.Team} returns this
  */
-proto.pkg.team.teampb.Team.prototype.clearEnabled = function() {
-  return this.setEnabled(undefined);
+proto.pkg.team.teampb.Team.prototype.clearHide = function() {
+  return this.setHide(undefined);
 };
 
 
@@ -556,18 +556,55 @@ proto.pkg.team.teampb.Team.prototype.clearEnabled = function() {
  * Returns whether this field is set.
  * @return {boolean}
  */
-proto.pkg.team.teampb.Team.prototype.hasEnabled = function() {
+proto.pkg.team.teampb.Team.prototype.hasHide = function() {
   return jspb.Message.getField(this, 3) != null;
 };
 
 
 /**
- * repeated pkg.host.hostpb.Host hosts = 4;
+ * optional google.protobuf.BoolValue pause = 4;
+ * @return {?proto.google.protobuf.BoolValue}
+ */
+proto.pkg.team.teampb.Team.prototype.getPause = function() {
+  return /** @type{?proto.google.protobuf.BoolValue} */ (
+    jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.BoolValue, 4));
+};
+
+
+/**
+ * @param {?proto.google.protobuf.BoolValue|undefined} value
+ * @return {!proto.pkg.team.teampb.Team} returns this
+*/
+proto.pkg.team.teampb.Team.prototype.setPause = function(value) {
+  return jspb.Message.setWrapperField(this, 4, value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.pkg.team.teampb.Team} returns this
+ */
+proto.pkg.team.teampb.Team.prototype.clearPause = function() {
+  return this.setPause(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.pkg.team.teampb.Team.prototype.hasPause = function() {
+  return jspb.Message.getField(this, 4) != null;
+};
+
+
+/**
+ * repeated pkg.host.hostpb.Host hosts = 5;
  * @return {!Array<!proto.pkg.host.hostpb.Host>}
  */
 proto.pkg.team.teampb.Team.prototype.getHostsList = function() {
   return /** @type{!Array<!proto.pkg.host.hostpb.Host>} */ (
-    jspb.Message.getRepeatedWrapperField(this, pkg_host_hostpb_host_pb.Host, 4));
+    jspb.Message.getRepeatedWrapperField(this, pkg_host_hostpb_host_pb.Host, 5));
 };
 
 
@@ -576,7 +613,7 @@ proto.pkg.team.teampb.Team.prototype.getHostsList = function() {
  * @return {!proto.pkg.team.teampb.Team} returns this
 */
 proto.pkg.team.teampb.Team.prototype.setHostsList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 4, value);
+  return jspb.Message.setRepeatedWrapperField(this, 5, value);
 };
 
 
@@ -586,7 +623,7 @@ proto.pkg.team.teampb.Team.prototype.setHostsList = function(value) {
  * @return {!proto.pkg.host.hostpb.Host}
  */
 proto.pkg.team.teampb.Team.prototype.addHosts = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 4, opt_value, proto.pkg.host.hostpb.Host, opt_index);
+  return jspb.Message.addToRepeatedWrapperField(this, 5, opt_value, proto.pkg.host.hostpb.Host, opt_index);
 };
 
 
@@ -600,12 +637,12 @@ proto.pkg.team.teampb.Team.prototype.clearHostsList = function() {
 
 
 /**
- * optional google.protobuf.UInt64Value index = 5;
+ * optional google.protobuf.UInt64Value index = 6;
  * @return {?proto.google.protobuf.UInt64Value}
  */
 proto.pkg.team.teampb.Team.prototype.getIndex = function() {
   return /** @type{?proto.google.protobuf.UInt64Value} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.UInt64Value, 5));
+    jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.UInt64Value, 6));
 };
 
 
@@ -614,7 +651,7 @@ proto.pkg.team.teampb.Team.prototype.getIndex = function() {
  * @return {!proto.pkg.team.teampb.Team} returns this
 */
 proto.pkg.team.teampb.Team.prototype.setIndex = function(value) {
-  return jspb.Message.setWrapperField(this, 5, value);
+  return jspb.Message.setWrapperField(this, 6, value);
 };
 
 
@@ -632,17 +669,17 @@ proto.pkg.team.teampb.Team.prototype.clearIndex = function() {
  * @return {boolean}
  */
 proto.pkg.team.teampb.Team.prototype.hasIndex = function() {
-  return jspb.Message.getField(this, 5) != null;
+  return jspb.Message.getField(this, 6) != null;
 };
 
 
 /**
- * repeated pkg.user.userpb.User users = 6;
+ * repeated pkg.user.userpb.User users = 7;
  * @return {!Array<!proto.pkg.user.userpb.User>}
  */
 proto.pkg.team.teampb.Team.prototype.getUsersList = function() {
   return /** @type{!Array<!proto.pkg.user.userpb.User>} */ (
-    jspb.Message.getRepeatedWrapperField(this, pkg_user_userpb_user_pb.User, 6));
+    jspb.Message.getRepeatedWrapperField(this, pkg_user_userpb_user_pb.User, 7));
 };
 
 
@@ -651,7 +688,7 @@ proto.pkg.team.teampb.Team.prototype.getUsersList = function() {
  * @return {!proto.pkg.team.teampb.Team} returns this
 */
 proto.pkg.team.teampb.Team.prototype.setUsersList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 6, value);
+  return jspb.Message.setRepeatedWrapperField(this, 7, value);
 };
 
 
@@ -661,7 +698,7 @@ proto.pkg.team.teampb.Team.prototype.setUsersList = function(value) {
  * @return {!proto.pkg.user.userpb.User}
  */
 proto.pkg.team.teampb.Team.prototype.addUsers = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 6, opt_value, proto.pkg.user.userpb.User, opt_index);
+  return jspb.Message.addToRepeatedWrapperField(this, 7, opt_value, proto.pkg.user.userpb.User, opt_index);
 };
 
 
@@ -671,43 +708,6 @@ proto.pkg.team.teampb.Team.prototype.addUsers = function(opt_value, opt_index) {
  */
 proto.pkg.team.teampb.Team.prototype.clearUsersList = function() {
   return this.setUsersList([]);
-};
-
-
-/**
- * optional google.protobuf.BoolValue hidden = 7;
- * @return {?proto.google.protobuf.BoolValue}
- */
-proto.pkg.team.teampb.Team.prototype.getHidden = function() {
-  return /** @type{?proto.google.protobuf.BoolValue} */ (
-    jspb.Message.getWrapperField(this, google_protobuf_wrappers_pb.BoolValue, 7));
-};
-
-
-/**
- * @param {?proto.google.protobuf.BoolValue|undefined} value
- * @return {!proto.pkg.team.teampb.Team} returns this
-*/
-proto.pkg.team.teampb.Team.prototype.setHidden = function(value) {
-  return jspb.Message.setWrapperField(this, 7, value);
-};
-
-
-/**
- * Clears the message field making it undefined.
- * @return {!proto.pkg.team.teampb.Team} returns this
- */
-proto.pkg.team.teampb.Team.prototype.clearHidden = function() {
-  return this.setHidden(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.pkg.team.teampb.Team.prototype.hasHidden = function() {
-  return jspb.Message.getField(this, 7) != null;
 };
 
 

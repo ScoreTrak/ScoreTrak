@@ -5,7 +5,7 @@ import StepButton from "@material-ui/core/StepButton";
 import {SetupProps} from "../util/util";
 import TeamCreate from "./TeamCreate";
 import Box from "@material-ui/core/Box";
-import MaterialTable from '@material-table/core'
+import MaterialTable, {Column} from '@material-table/core'
 import {
     DeleteRequest,
     GetAllRequest,
@@ -57,24 +57,24 @@ export type teamColumns = {
     id: string | undefined
     name: string,
     index: number | undefined
-    enabled: boolean | undefined
-    hidden: boolean | undefined
+    pause: boolean | undefined
+    hide: boolean | undefined
 }
 
 export function teamToTeamColumn(team: Team): teamColumns{
     return {
-        enabled: team.getEnabled()?.getValue(),
+        pause: team.getPause()?.getValue(),
         id: team.getId()?.getValue(),
         name: team.getName(),
         index: team.getIndex()?.getValue(),
-        hidden: team.getHidden()?.getValue()
+        hide: team.getHide()?.getValue()
     }
 }
 
 export function teamColumnsToTeam(teamC: teamColumns): Team{
     const t = new Team()
-    if (teamC.enabled !== undefined) t.setEnabled(new BoolValue().setValue(teamC.enabled))
-    if (teamC.hidden !== undefined) t.setHidden(new BoolValue().setValue(teamC.hidden))
+    if (teamC.pause !== undefined) t.setPause(new BoolValue().setValue(teamC.pause))
+    if (teamC.hide !== undefined) t.setHide(new BoolValue().setValue(teamC.hide))
     if (teamC.id && teamC.id !== "") t.setId((new UUID().setValue(teamC.id)))
     t.setName(teamC.name)
     if (teamC.index !== undefined) t.setIndex(new UInt64Value().setValue(teamC.index))
@@ -85,13 +85,13 @@ export function teamColumnsToTeam(teamC: teamColumns): Team{
 function TeamMenuTable(props: SetupProps) {
     const title = "Teams"
     props.setTitle(title)
-    const columns =
+    const columns :Array<Column<teamColumns>> =
         [
             { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
             { title: 'Team Name', field: 'name' },
             { title: 'Index', field: 'index', type: 'numeric' },
-            { title: 'Enabled', field: 'enabled', type: 'boolean', initialEditValue: true},
-            { title: 'Hidden', field: 'hidden', type: 'boolean', initialEditValue: false}
+            { title: 'Hide from Scoreboard', field: 'hide', type: 'boolean', initialEditValue: false},
+            { title: 'Pause Scoring', field: 'pause', type: 'boolean', initialEditValue: false},
         ]
 
     const [state, setState] = React.useState<{columns: any[], loader: boolean, data: teamColumns[]}>({

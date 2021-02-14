@@ -24,10 +24,15 @@ export class Host extends jspb.Message {
   hasTeamId(): boolean;
   clearTeamId(): Host;
 
-  getEnabled(): google_protobuf_wrappers_pb.BoolValue | undefined;
-  setEnabled(value?: google_protobuf_wrappers_pb.BoolValue): Host;
-  hasEnabled(): boolean;
-  clearEnabled(): Host;
+  getPause(): google_protobuf_wrappers_pb.BoolValue | undefined;
+  setPause(value?: google_protobuf_wrappers_pb.BoolValue): Host;
+  hasPause(): boolean;
+  clearPause(): Host;
+
+  getHide(): google_protobuf_wrappers_pb.BoolValue | undefined;
+  setHide(value?: google_protobuf_wrappers_pb.BoolValue): Host;
+  hasHide(): boolean;
+  clearHide(): Host;
 
   getEditHost(): google_protobuf_wrappers_pb.BoolValue | undefined;
   setEditHost(value?: google_protobuf_wrappers_pb.BoolValue): Host;
@@ -58,7 +63,8 @@ export namespace Host {
     address: string,
     hostGroupId?: pkg_proto_utilpb_uuid_pb.UUID.AsObject,
     teamId?: pkg_proto_utilpb_uuid_pb.UUID.AsObject,
-    enabled?: google_protobuf_wrappers_pb.BoolValue.AsObject,
+    pause?: google_protobuf_wrappers_pb.BoolValue.AsObject,
+    hide?: google_protobuf_wrappers_pb.BoolValue.AsObject,
     editHost?: google_protobuf_wrappers_pb.BoolValue.AsObject,
     servicesList: Array<pkg_service_servicepb_service_pb.Service.AsObject>,
     addressListRange?: google_protobuf_wrappers_pb.StringValue.AsObject,

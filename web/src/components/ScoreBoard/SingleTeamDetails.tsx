@@ -19,6 +19,7 @@ import FormHelperText from "@material-ui/core/FormHelperText";
 import Button from "@material-ui/core/Button";
 import {Severity, SimpleReport, SimpleService} from "../../types/types";
 import {GRPCClients} from "../../grpc/gRPCClients";
+import PauseCircleOutlineIcon from '@material-ui/icons/PauseCircleOutline';
 import {
     GetAllByServiceIDRequest as GetAllByServiceIDRequestCheck,
     GetAllByServiceIDResponse as GetAllByServiceIDResponseCheck,
@@ -39,8 +40,6 @@ import {
 
 import {UUID} from "../../grpc/pkg/proto/utilpb/uuid_pb";
 import {StringValue} from "google-protobuf/google/protobuf/wrappers_pb";
-import {hostColumns} from "../Setup/Host/HostMenu";
-import {propertyColumns} from "../Setup/Property/PropertiesMenu";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -56,6 +55,10 @@ const useStyles = makeStyles((theme) => ({
     customAccordionErrorHeader: {
         borderRight: `1px solid ${theme.palette.error.main}`,
         borderLeft: `1px solid ${theme.palette.error.main}`,
+    },
+    customAccordionWarningHeader: {
+        borderRight: `1px solid ${theme.palette.warning.main}`,
+        borderLeft: `1px solid ${theme.palette.warning.main}`,
     },
 
     paper: {
@@ -88,6 +91,13 @@ const useStyles = makeStyles((theme) => ({
         opacity: 0.9,
     },
 
+    iconWarning: {
+        color: theme.palette.warning.main,
+        marginRight: 12,
+        fontSize: 22,
+        opacity: 0.9,
+    },
+
     iconError: {
         color: theme.palette.error.main,
         marginRight: 12,
@@ -107,10 +117,11 @@ type CustomSingleTeamDetailsProps = {
 type SingleCheckDetails = {
     service_id: string
     host_id: string
-    passed: boolean
-    err: string
-    log: string
+    passed: boolean | null | undefined
+    err: string | null | undefined
+    log: string | null | undefined
     round_id: number
+    pause: boolean
 }
 
 export default function SingleTeamDetails(props: CustomSingleTeamDetailsProps) {
@@ -144,16 +155,21 @@ export default function SingleTeamDetails(props: CustomSingleTeamDetailsProps) {
                 const nextState: Record<string, SingleCheckDetails[]> = {}
                 Object.keys(prevState).forEach(cached_service_id => {
                     if (prevState[cached_service_id].length !== 0) {
-                        nextState[cached_service_id] = [...prevState[cached_service_id],
-                            {
-                                service_id: prevState[cached_service_id][prevState[cached_service_id].length - 1].service_id,
-                                host_id: prevState[cached_service_id][prevState[cached_service_id].length - 1].host_id,
-                                passed: prevDT.Teams[teamID].Hosts[prevState[cached_service_id][prevState[cached_service_id].length - 1].host_id].Services[cached_service_id].Passed, // Causes a bug if cached service id doesnt exist anymore
-                                err: prevDT.Teams[teamID].Hosts[prevState[cached_service_id][prevState[cached_service_id].length - 1].host_id].Services[cached_service_id].Err,
-                                log: prevDT.Teams[teamID].Hosts[prevState[cached_service_id][prevState[cached_service_id].length - 1].host_id].Services[cached_service_id].Log,
-                                round_id: prevDT.Round,
-                            }
-                        ]
+                        const prevService = prevDT.Teams[teamID].Hosts[prevState[cached_service_id][prevState[cached_service_id].length - 1].host_id].Services
+                        const check = prevService[cached_service_id].Check
+                        if (!prevService[cached_service_id].Pause){
+                            nextState[cached_service_id] = [...prevState[cached_service_id],
+                                {
+                                    service_id: prevState[cached_service_id][prevState[cached_service_id].length - 1].service_id,
+                                    host_id: prevState[cached_service_id][prevState[cached_service_id].length - 1].host_id,
+                                    pause: prevService[cached_service_id].Pause,
+                                    passed: check !== null ? check?.Passed : null, // Causes a bug if cached service id doesnt exist anymore
+                                    err: check !== null ? check?.Err : null,
+                                    log: check !== null ? check?.Log : null,
+                                    round_id: prevDT.Round,
+                                }
+                            ]
+                        }
                     } else {
                         Object.keys(props.report.Teams[teamID].Hosts).forEach((host) => {
                             const currentHost = props.report.Teams[teamID].Hosts[host]
@@ -163,9 +179,10 @@ export default function SingleTeamDetails(props: CustomSingleTeamDetailsProps) {
                                         {
                                         service_id,
                                         host_id: host,
-                                        passed: prevDT.Teams[teamID].Hosts[host].Services[service_id].Passed,
-                                        err: prevDT.Teams[teamID].Hosts[host].Services[service_id].Err,
-                                        log: prevDT.Teams[teamID].Hosts[host].Services[service_id].Log,
+                                        pause: prevDT.Teams[teamID].Hosts[host].Services[service_id].Pause,
+                                        passed: prevDT.Teams[teamID].Hosts[host].Services[service_id].Check?.Passed,
+                                        err: prevDT.Teams[teamID].Hosts[host].Services[service_id].Check?.Err,
+                                        log: prevDT.Teams[teamID].Hosts[host].Services[service_id].Check?.Log,
                                         round_id: prevDT.Round,
                                         }
                                     ]
@@ -197,16 +214,16 @@ export default function SingleTeamDetails(props: CustomSingleTeamDetailsProps) {
                                 keyName = simpleService.Name
                             }
                         }
+                        simpleService.Pause = props.report.Teams[teamID].Pause || (currentHost.HostGroup !== undefined ? currentHost.HostGroup.Pause : false) || currentHost.Pause || currentHost.Services[service_id].Pause
                         return (
-                            <Accordion expanded={expanded === keyName} onChange={handleChange(keyName)} className={simpleService.Passed ? classes.customAccordionSuccessHeader : classes.customAccordionErrorHeader}>
+                            <Accordion expanded={expanded === keyName} onChange={handleChange(keyName)} className={!simpleService.Pause ? (simpleService.Check?.Passed ? classes.customAccordionSuccessHeader : classes.customAccordionErrorHeader) : classes.customAccordionWarningHeader}>
                                 <AccordionSummary
                                     expandIcon={<ExpandMoreIcon />}
                                     aria-controls={`${keyName}bh-content`}
-                                    id={`${keyName}bh-header`}
-                                >
-                                    {simpleService.Passed ? <CheckCircleOutlineIcon className={classes.iconSuccess}  />  : <ErrorIcon className={classes.iconError}/>}
-                                    <Typography className=  {classes.heading}>{keyName}</Typography>
-                                    <Typography className={classes.secondaryHeading}>Host used for last round: {currentHost.Address}</Typography>
+                                    id={`${keyName}bh-header`}>
+                                    {!simpleService.Pause ? (simpleService.Check?.Passed ? <CheckCircleOutlineIcon className={classes.iconSuccess}  />  : <ErrorIcon className={classes.iconError}/>) : <PauseCircleOutlineIcon className={classes.iconWarning} />}
+                                    <Typography className={classes.heading}>{keyName}</Typography>
+                                    <Typography className={classes.secondaryHeading}>Host used for last round: {currentHost.Address}. Service Weight: {simpleService.Weight}</Typography>
 
                                 </AccordionSummary>
                                 <AccordionDetails>
@@ -271,13 +288,14 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
     ]
 
     const columnsPreviousRounds = [
-        { render: (rowData: any) => <div> {rowData.passed ? <CheckCircleOutlineIcon className={classes.iconSuccess}  />  : <ErrorIcon className={classes.iconError}/>}  </div> },
-        { title: 'Round', field: 'round_id', defaultSort: "desc" as const, type: 'numeric' as const},
+        { width: 5,  render: (rowData: any) => <div> {rowData.passed ? <CheckCircleOutlineIcon className={classes.iconSuccess}  />  : <ErrorIcon className={classes.iconError}/> }  </div>},
+        { title: 'Round', field: 'round_id', defaultSort: "desc" as const, type: 'numeric' as const, width: 5},
         { title: 'Passed', field: 'passed', hidden: true, type: 'boolean' as const},
         { title: 'Parent Host ID', field: 'host_id', hidden: true},
         { title: 'Service ID', field: 'service_id', hidden: true},
         { title: 'Response', field: 'log' },
         { title: 'Error Details', field: 'err'},
+        { title: 'Pause', field: 'pause', hidden: true},
     ]
 
     async function reloadPreviousChecks(service: string): Promise<GetAllByServiceIDResponseCheck> {
@@ -311,7 +329,9 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
             for (const [key, property] of Object.entries(simpleService.Properties)) {
                 const obj: PropertiesData = {key, value_used: property.Value, service_id: key, value: "", editable_value: false}
                 results.getPropertiesList().forEach(res => {
+                    console.log(res.getKey(), res.getStatus())
                     if (key === res.getKey() && res.getStatus() === Status.EDIT){
+                        console.log(res.getKey())
                         obj.value = res.getValue()?.getValue() ? res.getValue()?.getValue() : undefined
                         obj.editable_value = true
                     }
@@ -359,7 +379,7 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
                 const d: SingleCheckDetails[] = []
                 results.getChecksList().forEach(res => {
                     if (res.getRoundId().valueOf() < props.report.Round){
-                        d.push({service_id, round_id: res.getRoundId().valueOf(), passed: res.getPassed()?.getValue() as boolean, log: res.getLog(), err: res.getErr(), host_id})
+                        d.push({service_id, round_id: res.getRoundId().valueOf(), passed: res.getPassed()?.getValue() as boolean, log: res.getLog(), err: res.getErr(), host_id, pause: false})
                     }
                 })
                 setHistory(prevState => {return {...prevState, [service_id]: d }})
@@ -375,65 +395,76 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
     return (
         <Box width="100%" bgcolor="background.paper">
             <Grid container spacing={3}>
-                <Grid item xs={6}>
-                    {simpleService.Log &&
-                    <Alert severity={simpleService.Passed ? "info" : "warning"}>
+                <Grid item xs={12}>
+                    {simpleService.Check?.Log &&
+                    <Alert severity={simpleService.Check?.Passed ? "info" : "warning"}>
                         <AlertTitle>Response</AlertTitle>
-                        {simpleService.Log}
+                        {simpleService.Check?.Log}
                     </Alert>
                     }
                     <br/>
-                    {simpleService.Err &&
+                    {simpleService.Check?.Err &&
                     <Alert severity="error">
                         <AlertTitle>Error Details</AlertTitle>
-                        {simpleService.Err}
+                        {simpleService.Check?.Err}
                     </Alert>
                     }
                 </Grid>
+            </Grid>
+            <Grid container spacing={3}>
                 <Grid item xs={6}>
-                    {
-                        <MaterialTable
-                            options={{pageSizeOptions: [3, 5, 10, 20, 50, 100], pageSize: 20, emptyRowsWhenPaging: false}} // PropertiesData.length
-                            title="Properties"
-                            columns={columns}
-                            data={PropertiesData}
-                            cellEditable={{
-                                isCellEditable: (rowData, columnDef ) => {return rowData.editable_value},
-                                onCellEditApproved: (newValue, oldValue, rowData, columnDef) => {
-                                    return new Promise((resolve, reject) => {
-                                        setTimeout(() => {
-                                            if (newValue !== "" && newValue.trim() === ""){
-                                                reject("Only empty strings are not allowed")
-                                            }
-                                            const property = new Property()
-                                            property.setKey(rowData.key)
-                                            const uuid = new UUID()
-                                            uuid.setValue(service_id)
-                                            property.setServiceId(uuid)
-                                            const stringValue = new StringValue()
-                                            stringValue.setValue(newValue)
-                                            property.setValue(stringValue)
-                                            const updatedProperty = new UpdateRequestProperty()
-                                            updatedProperty.setProperty(property)
-                                            props.gRPCClients.propertyClient.update(updatedProperty, {}).then(r => {
-                                                setPropertiesData((prevState) => {
-                                                    return prevState.map(property => {
-                                                        if (property.key === rowData.key) {
-                                                            return {...rowData, value: newValue ? newValue : undefined }
-                                                        }
-                                                        return {...property}
-                                                    })
-                                                });
-                                                resolve();
-                                            }, (err: any) => {
-                                                props.genericEnqueue(`Encountered an error while loading previous checks: ${err.message}. Error code: ${err.code}`, Severity.Error)
-                                                reject()
-                                            })
-                                        }, 600);
-                                    })
-                                }
-                            }}
-                        />
+                    <MaterialTable
+                        options={{pageSizeOptions: [5, 10, 20, 50, 100], pageSize: 5}}
+                        title="Previous Rounds"
+                        columns={columnsPreviousRounds}
+                        data={history[service_id]}
+                    />
+                </Grid>
+                <Grid item xs={6}>
+                    {   PropertiesData.length !== 0 &&
+                    <MaterialTable
+                        options={{pageSizeOptions: [3, 5, 10, 20, 50, 100], pageSize: PropertiesData.length, emptyRowsWhenPaging: false}} //
+                        title="Properties"
+                        columns={columns}
+                        data={PropertiesData}
+                        cellEditable={{
+                            isCellEditable: (rowData, columnDef ) => {return rowData.editable_value},
+                            onCellEditApproved: (newValue, oldValue, rowData, columnDef) => {
+                                return new Promise((resolve, reject) => {
+                                    setTimeout(() => {
+                                        if (newValue !== "" && newValue.trim() === ""){
+                                            reject("Only empty strings are not allowed")
+                                        }
+                                        const property = new Property()
+                                        property.setKey(rowData.key)
+                                        const uuid = new UUID()
+                                        uuid.setValue(service_id)
+                                        property.setServiceId(uuid)
+                                        const stringValue = new StringValue()
+                                        stringValue.setValue(newValue)
+                                        property.setValue(stringValue)
+                                        const updatedProperty = new UpdateRequestProperty()
+                                        updatedProperty.setProperty(property)
+                                        props.gRPCClients.propertyClient.update(updatedProperty, {}).then(r => {
+                                            setPropertiesData((prevState) => {
+                                                return prevState.map(property => {
+                                                    if (property.key === rowData.key) {
+                                                        return {...rowData, value: newValue ? newValue : undefined }
+                                                    }
+                                                    return {...property}
+                                                })
+                                            });
+                                            resolve();
+                                        }, (err: any) => {
+                                            props.genericEnqueue(`Encountered an error while loading previous checks: ${err.message}. Error code: ${err.code}`, Severity.Error)
+                                            reject()
+                                        })
+                                    }, 600);
+                                })
+                            }
+                        }}
+                    />
+
                     }
                     {
                         props.hostData && props.hostData.edit_host &&
@@ -451,16 +482,7 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
                         </form>
                     }
                 </Grid>
-            </Grid>
-            <Grid container spacing={3}>
-                <Grid item xs={12}>
-                    <MaterialTable
-                        options={{pageSizeOptions: [5, 10, 20, 50, 100], pageSize: 5}}
-                        title="Previous Rounds"
-                        columns={columnsPreviousRounds}
-                        data={history[service_id]}
-                    />
-                </Grid>
+
             </Grid>
         </Box>
     )

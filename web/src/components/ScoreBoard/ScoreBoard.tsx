@@ -63,7 +63,8 @@ export default function ScoreBoard(props : ScoreBoardProps) {
         const streamRequest = new GetRequest();
         const stream = props.gRPCClients.reportClient.get(streamRequest, {})
         stream.on('error', (err: any) => {
-            if (err.code === 7){
+            if (err.code === 7 || err.code === 16){
+                token.logout()
                 history.push("/login");
             } else{
                 props.genericEnqueue(`Encountered an error while fetching report: ${err.message}. Error code: ${err.code}`, Severity.Error)
@@ -110,10 +111,7 @@ export default function ScoreBoard(props : ScoreBoardProps) {
                                 <Typography>This window will automatically reload once the first round is scored.</Typography>
                             </div>
                     }
-
                     </div>
-
-
                     }
                     {handleFullScreen.active ?
                         <Button

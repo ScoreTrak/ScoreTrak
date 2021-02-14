@@ -1,7 +1,7 @@
 import React, {useEffect} from "react";
 import {SetupProps} from "../util/util";
 import Box from "@material-ui/core/Box";
-import MaterialTable from '@material-table/core'
+import MaterialTable, {Column} from '@material-table/core'
 import {Severity} from "../../../types/types";
 import {CircularProgress} from "@material-ui/core";
 import {UUID} from "../../../grpc/pkg/proto/utilpb/uuid_pb";
@@ -16,13 +16,15 @@ import {BoolValue} from "google-protobuf/google/protobuf/wrappers_pb";
 
 export type hostGroupColumns = {
     id: string | undefined
-    enabled: boolean | undefined
+    pause: boolean | undefined
+    hide: boolean | undefined
     name: string,
 }
 
 function hostGroupColumnsToHostGroup(hostGroupC: hostGroupColumns): HostGroup{
     const t = new HostGroup()
-    if (hostGroupC.enabled !== undefined) t.setEnabled(new BoolValue().setValue(hostGroupC.enabled))
+    if (hostGroupC.pause !== undefined) t.setPause(new BoolValue().setValue(hostGroupC.pause))
+    if (hostGroupC.hide !== undefined) t.setHide(new BoolValue().setValue(hostGroupC.hide))
     if (hostGroupC.id && hostGroupC.id !== "") t.setId((new UUID().setValue(hostGroupC.id)))
     t.setName(hostGroupC.name)
     return t
@@ -30,7 +32,8 @@ function hostGroupColumnsToHostGroup(hostGroupC: hostGroupColumns): HostGroup{
 
 function hostGroupToHostGroupColumns(hostGroup: HostGroup): hostGroupColumns{
     return {
-        enabled: hostGroup.getEnabled()?.getValue(),
+        pause: hostGroup.getPause()?.getValue(),
+        hide: hostGroup.getHide()?.getValue(),
         id: hostGroup.getId()?.getValue(),
         name: hostGroup.getName()
     }
@@ -41,11 +44,12 @@ function hostGroupToHostGroupColumns(hostGroup: HostGroup): hostGroupColumns{
 export default function HostGroupsMenu(props: SetupProps) {
     const title = "Host Groups"
     props.setTitle(title)
-    const columns =
+    const columns :Array<Column<hostGroupColumns>> =
         [
             { title: 'ID (optional)', field: 'id', editable: 'onAdd'},
             { title: 'Host Group Name', field: 'name' },
-            { title: 'Enabled', field: 'enabled', type: 'boolean', initialEditValue: true},
+            { title: 'Hide from Scoreboard', field: 'hide', type: 'boolean', initialEditValue: false},
+            { title: 'Pause Scoring', field: 'pause', type: 'boolean', initialEditValue: false},
         ]
 
     const [state, setState] = React.useState<{columns: any[], loader: boolean, data: hostGroupColumns[]}>({

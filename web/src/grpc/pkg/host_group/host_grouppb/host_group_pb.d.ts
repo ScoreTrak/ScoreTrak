@@ -14,10 +14,15 @@ export class HostGroup extends jspb.Message {
   getName(): string;
   setName(value: string): HostGroup;
 
-  getEnabled(): google_protobuf_wrappers_pb.BoolValue | undefined;
-  setEnabled(value?: google_protobuf_wrappers_pb.BoolValue): HostGroup;
-  hasEnabled(): boolean;
-  clearEnabled(): HostGroup;
+  getHide(): google_protobuf_wrappers_pb.BoolValue | undefined;
+  setHide(value?: google_protobuf_wrappers_pb.BoolValue): HostGroup;
+  hasHide(): boolean;
+  clearHide(): HostGroup;
+
+  getPause(): google_protobuf_wrappers_pb.BoolValue | undefined;
+  setPause(value?: google_protobuf_wrappers_pb.BoolValue): HostGroup;
+  hasPause(): boolean;
+  clearPause(): HostGroup;
 
   getHosts(): pkg_host_hostpb_host_pb.Host | undefined;
   setHosts(value?: pkg_host_hostpb_host_pb.Host): HostGroup;
@@ -36,7 +41,8 @@ export namespace HostGroup {
   export type AsObject = {
     id?: pkg_proto_utilpb_uuid_pb.UUID.AsObject,
     name: string,
-    enabled?: google_protobuf_wrappers_pb.BoolValue.AsObject,
+    hide?: google_protobuf_wrappers_pb.BoolValue.AsObject,
+    pause?: google_protobuf_wrappers_pb.BoolValue.AsObject,
     hosts?: pkg_host_hostpb_host_pb.Host.AsObject,
   }
 }

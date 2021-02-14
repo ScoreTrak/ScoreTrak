@@ -15,10 +15,15 @@ export class Team extends jspb.Message {
   getName(): string;
   setName(value: string): Team;
 
-  getEnabled(): google_protobuf_wrappers_pb.BoolValue | undefined;
-  setEnabled(value?: google_protobuf_wrappers_pb.BoolValue): Team;
-  hasEnabled(): boolean;
-  clearEnabled(): Team;
+  getHide(): google_protobuf_wrappers_pb.BoolValue | undefined;
+  setHide(value?: google_protobuf_wrappers_pb.BoolValue): Team;
+  hasHide(): boolean;
+  clearHide(): Team;
+
+  getPause(): google_protobuf_wrappers_pb.BoolValue | undefined;
+  setPause(value?: google_protobuf_wrappers_pb.BoolValue): Team;
+  hasPause(): boolean;
+  clearPause(): Team;
 
   getHostsList(): Array<pkg_host_hostpb_host_pb.Host>;
   setHostsList(value: Array<pkg_host_hostpb_host_pb.Host>): Team;
@@ -35,11 +40,6 @@ export class Team extends jspb.Message {
   clearUsersList(): Team;
   addUsers(value?: pkg_user_userpb_user_pb.User, index?: number): pkg_user_userpb_user_pb.User;
 
-  getHidden(): google_protobuf_wrappers_pb.BoolValue | undefined;
-  setHidden(value?: google_protobuf_wrappers_pb.BoolValue): Team;
-  hasHidden(): boolean;
-  clearHidden(): Team;
-
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Team.AsObject;
   static toObject(includeInstance: boolean, msg: Team): Team.AsObject;
@@ -52,11 +52,11 @@ export namespace Team {
   export type AsObject = {
     id?: pkg_proto_utilpb_uuid_pb.UUID.AsObject,
     name: string,
-    enabled?: google_protobuf_wrappers_pb.BoolValue.AsObject,
+    hide?: google_protobuf_wrappers_pb.BoolValue.AsObject,
+    pause?: google_protobuf_wrappers_pb.BoolValue.AsObject,
     hostsList: Array<pkg_host_hostpb_host_pb.Host.AsObject>,
     index?: google_protobuf_wrappers_pb.UInt64Value.AsObject,
     usersList: Array<pkg_user_userpb_user_pb.User.AsObject>,
-    hidden?: google_protobuf_wrappers_pb.BoolValue.AsObject,
   }
 }
 

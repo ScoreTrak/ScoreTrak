@@ -11,7 +11,7 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
-import {SimpleReport, SimpleService} from "../../types/types";
+import {SimpleCheck, SimpleReport, SimpleService} from "../../types/types";
 import {Policy} from "../../grpc/pkg/policy/policypb/policy_pb";
 import {token} from "../../grpc/token/token";
 
@@ -80,18 +80,25 @@ export default function Status(props: RanksProps) {
                         if (Object.keys(report.Teams[team].Hosts[host].Services).length !== 0){
                             for (const service in report.Teams[team].Hosts[host].Services) {
                                 if (report.Teams[team].Hosts[host].Services.hasOwnProperty(service)) {
-                                    const sr = report.Teams[team].Hosts[host].Services[service]
+                                    const hst = report.Teams[team].Hosts[host]
+                                    const sr = hst.Services[service]
                                     let keyName = ""
                                     if (sr.DisplayName){
                                         keyName = sr.DisplayName
                                     } else {
-                                        if (report.Teams[team].Hosts[host].HostGroup){
-                                            keyName = report.Teams[team].Hosts[host].HostGroup.Name + "-" + sr.Name
+                                        if (hst.HostGroup !== undefined){
+                                            keyName = hst.HostGroup.Name + "-" + sr.Name
                                         } else{
                                             keyName = sr.Name
                                         }
                                     }
-                                    data[report.Teams[team].Name][keyName] = {...sr, Address: report.Teams[team].Hosts[host].Address}
+
+                                    data[report.Teams[team].Name][keyName] = {...sr, Address: report.Teams[team].Hosts[host].Address,
+                                        Pause: report.Teams[team].Pause || (hst.HostGroup !== undefined ? hst.HostGroup.Pause : false) || hst.Pause || sr.Pause
+                                    }
+
+
+
                                     dataKeys.add(keyName)
                                     teamNamesSet.add(report.Teams[team].Name)
                                 }
@@ -139,7 +146,9 @@ export default function Status(props: RanksProps) {
                                     {dataKeysArray.slice(columnPage * columnsPerPage, columnPage * columnsPerPage + columnsPerPage).map((column) => (
                                         <TableCell key={name + column} style={(() => {
                                             if (data[name][column]) {
-                                                if (data[name][column].Passed){
+                                                if (data[name][column].Pause){
+                                                    return {backgroundColor: "orange"}
+                                                } else if (data[name][column].Check !== undefined && data[name][column].Check?.Passed){
                                                     return {backgroundColor: "green"}
                                                 }
                                                 return {backgroundColor: "red", color: "white"}

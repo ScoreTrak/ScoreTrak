@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 import {SetupProps} from "../util/util";
 import {Role} from "../../../grpc/token/token";
 import Box from "@material-ui/core/Box";
-import MaterialTable from '@material-table/core'
+import MaterialTable, {Column} from '@material-table/core'
 import {GetAllRequest as GetAllRequestTeam} from "../../../grpc/pkg/team/teampb/team_pb";
 import {
     DeleteRequest,
@@ -63,7 +63,7 @@ function RoleToProtoRole (role : Role | undefined): ProtoRole {
 export default function UserMenu(props: SetupProps) {
     const title = "Users"
     props.setTitle(title)
-    const columns =
+    const columns :Array<Column<userColumns>> =
         [
             { title: 'ID (optional)', field: 'id', editable: 'onAdd' as const},
             { title: 'Username', field: 'username' },

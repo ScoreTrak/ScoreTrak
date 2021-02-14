@@ -32,7 +32,8 @@ function getKeyValue<T>(obj: Record<string, T>, key: string){
 
 type valueof<T> = T[keyof T]
 type templateState = {
-    enabledTemplate: boolean
+    hideTemplate: boolean
+    pauseTemplate: boolean
     edit_hostTemplate: boolean
 }
 const HostCreate = forwardRef((props: SetupProps, ref) => {
@@ -59,7 +60,7 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
             setData(prevState => {
                 const hostGroupsTemplateState:  templateState[] = []
                 respHostGroup.getHostGroupsList().forEach(hstGrp => {
-                    hostGroupsTemplateState.push({edit_hostTemplate: !!defaultHostColumns().editHost, enabledTemplate: !!defaultHostColumns().enabled})
+                    hostGroupsTemplateState.push({edit_hostTemplate: !!defaultHostColumns().editHost, pauseTemplate: !!defaultHostColumns().pause, hideTemplate: !!defaultHostColumns().hide})
                 })
                 return {...prevState, hostGroups: respHostGroup.getHostGroupsList(), hostGroupsTemplateState, loaderHostGroup: false}})
         }, (err: any) => {
@@ -179,14 +180,28 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
                                         <TextField label="Address List Range" id={`id_${column.getId()?.getValue()}_allowed_range`} helperText="Ex. 10.1.{index}.1/24,10.2.{index}.1/24" onChange={event => {templateModification(column.getId()?.getValue() as string, event.target.value, "addressListRange")}}/>
                                         <FormControlLabel
                                             control={
-                                                <Switch id={`id_${column.getId()?.getValue()}_enable`} checked={dt.hostGroupsTemplateState[column_idx].enabledTemplate} onChange={event => {
+                                                <Switch id={`id_${column.getId()?.getValue()}_hide`} checked={dt.hostGroupsTemplateState[column_idx].hideTemplate} onChange={event => {
                                                     const val = event.target.checked
                                                     setData(prevState => {
                                                         const newState = {...prevState}
-                                                        newState.hostGroupsTemplateState[column_idx].enabledTemplate = val
+                                                        newState.hostGroupsTemplateState[column_idx].hideTemplate = val
                                                         return {...newState}
                                                     })
-                                                    templateModification(column.getId()?.getValue() as string, event.target.checked, "enabled")
+                                                    templateModification(column.getId()?.getValue() as string, event.target.checked, "hide")
+                                                }}/>
+                                            }
+                                            label="Hide Host from scoring"
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Switch id={`id_${column.getId()?.getValue()}_pause`} checked={dt.hostGroupsTemplateState[column_idx].pauseTemplate} onChange={event => {
+                                                    const val = event.target.checked
+                                                    setData(prevState => {
+                                                        const newState = {...prevState}
+                                                        newState.hostGroupsTemplateState[column_idx].pauseTemplate = val
+                                                        return {...newState}
+                                                    })
+                                                    templateModification(column.getId()?.getValue() as string, event.target.checked, "pause")
                                                 }}/>
                                             }
                                             label="Enable Host Scoring"
@@ -258,15 +273,28 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
                                                                 <FormControlLabel
                                                                     control={
                                                                         <Switch id={`id_${column.getId()?.getValue()}_enable`}
-                                                                                checked={rowsData[cell] ? rowsData[cell].enabled :
-                                                                                    defaultHostColumns().enabled}
+                                                                                checked={rowsData[cell] ? rowsData[cell].hide :
+                                                                                    defaultHostColumns().hide}
                                                                                 onChange={(event => {
                                                                                     const val = event.target.checked
-                                                                                    modifyRowDataProperty(val, column, row, "enabled")
+                                                                                    modifyRowDataProperty(val, column, row, "hide")
                                                                                 })}
                                                                         />
                                                                     }
-                                                                    label="Enable"
+                                                                    label="Hide"
+                                                                />
+                                                                <FormControlLabel
+                                                                    control={
+                                                                        <Switch id={`id_${column.getId()?.getValue()}_enable`}
+                                                                                checked={rowsData[cell] ? rowsData[cell].pause :
+                                                                                    defaultHostColumns().pause}
+                                                                                onChange={(event => {
+                                                                                    const val = event.target.checked
+                                                                                    modifyRowDataProperty(val, column, row, "pause")
+                                                                                })}
+                                                                        />
+                                                                    }
+                                                                    label="Pause"
                                                                 />
                                                             <br/>
                                                                 <FormControlLabel
