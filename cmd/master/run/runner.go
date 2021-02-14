@@ -127,7 +127,7 @@ func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 						}
 						if lastRound.ID == delayedLastRound.ID && delayedLastRound.Finish == nil {
 							now := time.Now()
-							err = tx.Model(delayedLastRound).Updates(round.Round{Finish: &now, Note: "This round did not score!", Err: "one of the masters died while scoring. this round is now skipped"}).Error
+							err = tx.Model(delayedLastRound).Updates(round.Round{Finish: &now, Note: "This round did not score!", Err: "this round is now skipped because it took to long to score. This could be due to too low round duration, dead master, or a time desync between master instances."}).Error
 							if err != nil {
 								return err
 							}

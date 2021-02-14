@@ -14,7 +14,6 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"time"
 )
 
 type reportController struct {
@@ -131,6 +130,10 @@ func (r *reportController) Get(request *reportpb.GetRequest, server reportpb.Rep
 		tID = uuid.FromStringOrNil(val.TeamID)
 	}
 
+	if rol == user.Anonymous && !r.policyClient.GetAllowUnauthenticatedUsers() {
+		return status.Error(codes.PermissionDenied, "You must login in order to access this resource")
+	}
+
 	frep, err := r.filterReport(rol, tID, lr)
 	if err != nil {
 		return status.Errorf(codes.Internal,
@@ -142,12 +145,14 @@ func (r *reportController) Get(request *reportpb.GetRequest, server reportpb.Rep
 	}
 
 	uid, ch := r.reportClient.Subscribe()
-	authTimer := time.NewTimer(time.Second * 30)
 	defer r.reportClient.Unsubscribe(uid)
 
 	for {
 		select {
 		case <-ch:
+			if rol == user.Anonymous && !r.policyClient.GetAllowUnauthenticatedUsers() {
+				return status.Error(codes.PermissionDenied, "You must login in order to access this resource")
+			}
 			lr, err := r.svc.Get(server.Context())
 			if err != nil {
 				return status.Errorf(codes.Internal,
@@ -161,10 +166,6 @@ func (r *reportController) Get(request *reportpb.GetRequest, server reportpb.Rep
 			err = server.Send(&reportpb.GetResponse{Report: frep})
 			if err != nil {
 				return err
-			}
-		case <-authTimer.C:
-			if rol == user.Anonymous && !r.policyClient.GetAllowUnauthenticatedUsers() {
-				return status.Error(codes.PermissionDenied, "You must login in order to access this resource")
 			}
 		case <-server.Context().Done():
 			return nil
