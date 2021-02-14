@@ -23,14 +23,14 @@ func (p TeamController) GetByID(ctx context.Context, request *teampb.GetByIDRequ
 	if id == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 	uid, err := uuid.FromString(id.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Unable to parse ID: %v", err,
+			unableToParseID+": %v", err,
 		)
 	}
 	tm, err := p.svc.GetByID(ctx, uid)
@@ -57,14 +57,14 @@ func (p TeamController) Delete(ctx context.Context, request *teampb.DeleteReques
 	if id == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 	uid, err := uuid.FromString(id.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Unable to parse ID: %v", err,
+			unableToParseID+": %v", err,
 		)
 	}
 	err = p.svc.Delete(ctx, uid)
@@ -126,23 +126,23 @@ func ConvertTeamPBtoTeam(requireID bool, pb *teampb.Team) (*team.Team, error) {
 		if err != nil {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
-				"Unable to parse ID: %v", err,
+				unableToParseID+": %v", err,
 			)
 		}
 	} else if requireID {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
-	var enabled *bool
-	if pb.GetEnabled() != nil {
-		enabled = &pb.GetEnabled().Value
+	var pause *bool
+	if pb.GetPause() != nil {
+		pause = &pb.GetPause().Value
 	}
 
-	var hidden *bool
-	if pb.GetHidden() != nil {
-		hidden = &pb.GetHidden().Value
+	var hide *bool
+	if pb.GetHide() != nil {
+		hide = &pb.GetHide().Value
 	}
 
 	var index *uint64
@@ -151,13 +151,13 @@ func ConvertTeamPBtoTeam(requireID bool, pb *teampb.Team) (*team.Team, error) {
 	}
 
 	return &team.Team{
-		ID:      id,
-		Name:    pb.GetName(),
-		Enabled: enabled,
-		Users:   nil,
-		Hosts:   nil,
-		Index:   index,
-		Hidden:  hidden,
+		ID:    id,
+		Name:  pb.GetName(),
+		Pause: pause,
+		Users: nil,
+		Hosts: nil,
+		Index: index,
+		Hide:  hide,
 	}, nil
 }
 
@@ -167,12 +167,12 @@ func ConvertTeamToTeamPb(obj *team.Team) *teampb.Team {
 		idx = *obj.Index
 	}
 	return &teampb.Team{
-		Id:      &utilpb.UUID{Value: obj.ID.String()},
-		Name:    obj.Name,
-		Enabled: &wrappers.BoolValue{Value: *obj.Enabled},
-		Hosts:   nil,
-		Users:   nil,
-		Index:   &wrappers.UInt64Value{Value: idx},
-		Hidden:  &wrappers.BoolValue{Value: *obj.Hidden},
+		Id:    &utilpb.UUID{Value: obj.ID.String()},
+		Name:  obj.Name,
+		Hide:  &wrappers.BoolValue{Value: *obj.Hide},
+		Hosts: nil,
+		Users: nil,
+		Index: &wrappers.UInt64Value{Value: idx},
+		Pause: &wrappers.BoolValue{Value: *obj.Pause},
 	}
 }

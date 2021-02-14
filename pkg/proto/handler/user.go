@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user/user_service"
@@ -16,6 +17,7 @@ import (
 type UserController struct {
 	svc user_service.Serv
 	userpb.UnimplementedUserServiceServer
+	policyClient *policy_client.Client
 }
 
 func (p UserController) GetByUsername(ctx context.Context, request *userpb.GetByUsernameRequest) (*userpb.GetByUsernameResponse, error) {
@@ -38,14 +40,14 @@ func (p UserController) GetByID(ctx context.Context, request *userpb.GetByIDRequ
 	if id == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 	uid, err := uuid.FromString(id.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Unable to parse ID: %v", err,
+			unableToParseID+": %v", err,
 		)
 	}
 	tm, err := p.svc.GetByID(ctx, uid)
@@ -72,14 +74,14 @@ func (p UserController) Delete(ctx context.Context, request *userpb.DeleteReques
 	if id == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 	uid, err := uuid.FromString(id.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Unable to parse ID: %v", err,
+			unableToParseID+": %v", err,
 		)
 	}
 	err = p.svc.Delete(ctx, uid)
@@ -146,9 +148,17 @@ func (p UserController) Update(ctx context.Context, request *userpb.UpdateReques
 		if claim.Id != usr.TeamID.String() {
 			return nil, status.Errorf(
 				codes.PermissionDenied,
-				fmt.Sprintf("You do not have permissions to change password of this user"),
+				noPermissionsTo+changingUser,
 			)
 		}
+
+		if !p.policyClient.GetAllowChangingUsernamesAndPasswords() {
+			return nil, status.Errorf(
+				codes.PermissionDenied,
+				noPermissionsTo+changingUser+"'s password",
+			)
+		}
+
 		request.User = &userpb.User{Username: request.GetUser().Username, Password: request.User.GetPassword()}
 	}
 
@@ -162,8 +172,8 @@ func (p UserController) Update(ctx context.Context, request *userpb.UpdateReques
 	return &userpb.UpdateResponse{}, nil
 }
 
-func NewUserController(svc user_service.Serv) *UserController {
-	return &UserController{svc: svc}
+func NewUserController(svc user_service.Serv, policyClient *policy_client.Client) *UserController {
+	return &UserController{svc: svc, policyClient: policyClient}
 }
 
 func ConvertUserPBtoUser(requireID bool, pb *userpb.User) (*user.User, error) {
@@ -174,13 +184,13 @@ func ConvertUserPBtoUser(requireID bool, pb *userpb.User) (*user.User, error) {
 		if err != nil {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
-				"Unable to parse ID: %v", err,
+				unableToParseID+": %v", err,
 			)
 		}
 	} else if requireID {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 
@@ -190,7 +200,7 @@ func ConvertUserPBtoUser(requireID bool, pb *userpb.User) (*user.User, error) {
 		if err != nil {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
-				"Unable to parse ID: %v", err,
+				unableToParseID+": %v", err,
 			)
 		}
 	}

@@ -306,17 +306,17 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 			}); err != nil {
 				return err
 			}
-			tru := true
+			fls := false
 			idx := uint64(0)
 			err := teamSvc.Store(context.Background(), []*team.Team{
 				{
-					ID:      uuid1,
-					Name:    "Black Team",
-					Enabled: &tru,
-					Index:   &idx,
-					Users:   nil,
-					Hosts:   nil,
-					Hidden:  &tru,
+					ID:    uuid1,
+					Name:  "Black Team",
+					Pause: &fls,
+					Index: &idx,
+					Users: nil,
+					Hosts: nil,
+					Hide:  &fls,
 				},
 			})
 			if err != nil {
@@ -349,7 +349,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 					return err
 				}
 			}
-			userpb.RegisterUserServiceServer(s, handler.NewUserController(userServ))
+			userpb.RegisterUserServiceServer(s, handler.NewUserController(userServ, policyClient))
 
 			auth.RegisterAuthServiceServer(s, handler.NewAuthController(userServ, jwtManager))
 		}

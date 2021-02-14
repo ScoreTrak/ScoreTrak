@@ -162,7 +162,7 @@ func (interceptor *Interceptor) Unary() grpc.UnaryServerInterceptor {
 			return nil, err
 		}
 		if claims != nil {
-			ctx = context.WithValue(ctx, "claims", claims)
+			ctx = context.WithValue(ctx, KeyClaim, claims)
 		}
 		return handler(ctx, req)
 	}
@@ -176,7 +176,7 @@ type StreamClaimInjector struct {
 
 func (s StreamClaimInjector) Context() context.Context {
 	if s.Claims != nil {
-		return context.WithValue(s.ServerStream.Context(), "claims", s.Claims)
+		return context.WithValue(s.ServerStream.Context(), KeyClaim, s.Claims)
 	} else {
 		return s.ServerStream.Context()
 	}

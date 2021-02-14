@@ -23,14 +23,14 @@ func (p HostGroupController) GetByID(ctx context.Context, request *host_grouppb.
 	if id == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 	uid, err := uuid.FromString(id.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Unable to parse ID: %v", err,
+			unableToParseID+": %v", err,
 		)
 	}
 	hst, err := p.svc.GetByID(ctx, uid)
@@ -57,14 +57,14 @@ func (p HostGroupController) Delete(ctx context.Context, request *host_grouppb.D
 	if id == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
 	uid, err := uuid.FromString(id.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"Unable to parse ID: %v", err,
+			unableToParseID+": %v", err,
 		)
 	}
 	err = p.svc.Delete(ctx, uid)
@@ -126,32 +126,39 @@ func ConvertHostGroupPBtoHostGroup(requireID bool, pb *host_grouppb.HostGroup) (
 		if err != nil {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
-				"Unable to parse ID: %v", err,
+				unableToParseID+": %v", err,
 			)
 		}
 	} else if requireID {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
-			"ID was not specified",
+			idNotSpecified,
 		)
 	}
-	var enabled *bool
-	if pb.GetEnabled() != nil {
-		enabled = &pb.GetEnabled().Value
+	var pause *bool
+	if pb.GetPause() != nil {
+		pause = &pb.GetPause().Value
+	}
+
+	var hide *bool
+	if pb.GetHide() != nil {
+		hide = &pb.GetHide().Value
 	}
 	return &host_group.HostGroup{
-		ID:      id,
-		Name:    pb.GetName(),
-		Enabled: enabled,
-		Hosts:   nil,
+		ID:    id,
+		Name:  pb.GetName(),
+		Pause: pause,
+		Hide:  hide,
+		Hosts: nil,
 	}, nil
 }
 
 func ConvertHostGroupToHostGroupPb(obj *host_group.HostGroup) *host_grouppb.HostGroup {
 	return &host_grouppb.HostGroup{
-		Id:      &utilpb.UUID{Value: obj.ID.String()},
-		Name:    obj.Name,
-		Enabled: &wrappers.BoolValue{Value: *obj.Enabled},
-		Hosts:   nil,
+		Id:    &utilpb.UUID{Value: obj.ID.String()},
+		Name:  obj.Name,
+		Pause: &wrappers.BoolValue{Value: *obj.Pause},
+		Hide:  &wrappers.BoolValue{Value: *obj.Hide},
+		Hosts: nil,
 	}
 }

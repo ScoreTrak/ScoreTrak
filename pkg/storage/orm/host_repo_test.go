@@ -31,8 +31,8 @@ func TestHostSpec(t *testing.T) {
 	Convey("Creating Host Table", t, func() {
 		db.AutoMigrate(&host.Host{})
 		db.AutoMigrate(&team.Team{})
-		db.Exec("INSERT INTO teams (id, name, enabled) VALUES ('11111111-1111-1111-1111-111111111111', 'HostGroup1', true)")
-		db.Exec("INSERT INTO teams (id, name, enabled) VALUES ('22222222-2222-2222-2222-222222222222', 'HostGroup2', false)")
+		db.Exec("INSERT INTO teams (id, name, pause) VALUES ('11111111-1111-1111-1111-111111111111', 'HostGroup1', true)")
+		db.Exec("INSERT INTO teams (id, name, pause) VALUES ('22222222-2222-2222-2222-222222222222', 'HostGroup2', false)")
 		hr := NewHostRepo(db)
 		Reset(func() {
 			db.Migrator().DropTable(&host.Host{})
@@ -50,7 +50,7 @@ func TestHostSpec(t *testing.T) {
 				tr := true
 				s := "127.0.0.1"
 				saddresses := "192.168.0.202/20,127.0.0.1,google.com,test.ubnetdef.org"
-				h := []*host.Host{{ID: uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"), Address: s, AddressListRange: &saddresses, Enabled: &b, EditHost: &tr, TeamID: uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")}}
+				h := []*host.Host{{ID: uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"), Address: s, AddressListRange: &saddresses, Pause: &b, EditHost: &tr, TeamID: uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")}}
 				err = hr.Store(ctx, h)
 				So(err, ShouldBeNil)
 				Convey("Then making sure the entry exists", func() {
@@ -59,7 +59,7 @@ func TestHostSpec(t *testing.T) {
 					So(len(ac), ShouldEqual, 1)
 					So(ac[0].ID, ShouldEqual, uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 					So(ac[0].Address, ShouldEqual, "127.0.0.1")
-					So(*(ac[0].Enabled), ShouldBeFalse)
+					So(*(ac[0].Pause), ShouldBeFalse)
 				})
 
 				Convey("Then getting entry by id", func() {
@@ -67,7 +67,7 @@ func TestHostSpec(t *testing.T) {
 					So(err, ShouldBeNil)
 					So(ac.ID, ShouldEqual, uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 					So(ac.Address, ShouldEqual, "127.0.0.1")
-					So(*(ac.Enabled), ShouldBeFalse)
+					So(*(ac.Pause), ShouldBeFalse)
 				})
 
 				Convey("Then Querying By wrong ID", func() {
@@ -134,9 +134,9 @@ func TestHostSpec(t *testing.T) {
 					So(err, ShouldBeNil)
 				})
 
-				Convey("Then Updating Enabled to true", func() {
+				Convey("Then Updating Pause to true", func() {
 					b := true
-					newHost := host.Host{Enabled: &b}
+					newHost := host.Host{Pause: &b}
 					Convey("For the wrong entry should not update anything", func() {
 						newHost.ID = uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")
 						err = hr.Update(ctx, &newHost)
@@ -144,7 +144,7 @@ func TestHostSpec(t *testing.T) {
 						ac, err := hr.GetAll(ctx)
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
-						So(*(ac[0].Enabled), ShouldBeFalse)
+						So(*(ac[0].Pause), ShouldBeFalse)
 					})
 					Convey("For the correct entry should update", func() {
 						newHost.ID = uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333")
@@ -153,7 +153,7 @@ func TestHostSpec(t *testing.T) {
 						ac, err := hr.GetAll(ctx)
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
-						So(*(ac[0].Enabled), ShouldBeTrue)
+						So(*(ac[0].Pause), ShouldBeTrue)
 					})
 				})
 
@@ -164,8 +164,8 @@ func TestHostSpec(t *testing.T) {
 						db.Migrator().DropTable(&host_group.HostGroup{})
 					})
 					uuid.FromStringOrNil("")
-					db.Exec("INSERT INTO host_groups (id, name, enabled) VALUES ('11111111-1111-1111-1111-111111111111', 'HostGroup1', true)")
-					db.Exec("INSERT INTO host_groups (id, name, enabled) VALUES ('22222222-2222-2222-2222-222222222222', 'HostGroup2', false)")
+					db.Exec("INSERT INTO host_groups (id, name, pause) VALUES ('11111111-1111-1111-1111-111111111111', 'HostGroup1', true)")
+					db.Exec("INSERT INTO host_groups (id, name, pause) VALUES ('22222222-2222-2222-2222-222222222222', 'HostGroup2', false)")
 					var count int64
 					db.Table("host_groups").Count(&count)
 					So(count, ShouldEqual, 2)

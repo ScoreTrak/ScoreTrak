@@ -85,8 +85,7 @@ func TestCheckSpec(t *testing.T) {
 					Users:        orm.NewUserRepo(db),
 				}
 				const bufSize = 1024 * 1024
-				var lis *bufconn.Listener
-				lis = bufconn.Listen(bufSize)
+				lis := bufconn.Listen(bufSize)
 				var opts []grpc.ServerOption
 
 				var middlewareChainsUnary []grpc.UnaryServerInterceptor
@@ -98,7 +97,7 @@ func TestCheckSpec(t *testing.T) {
 					info *grpc.UnaryServerInfo,
 					handler grpc.UnaryHandler,
 				) (interface{}, error) {
-					ctx = context.WithValue(ctx, "claims", claim)
+					ctx = context.WithValue(ctx, auth.KeyClaim, claim)
 					return handler(ctx, req)
 				})
 

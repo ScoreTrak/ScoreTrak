@@ -12,6 +12,10 @@ type Manager struct {
 	tokenDuration time.Duration
 }
 
+type claim string
+
+const KeyClaim claim = "claim"
+
 type UserClaims struct {
 	jwt.StandardClaims
 	Username string `json:"username"`

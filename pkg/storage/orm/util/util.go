@@ -153,10 +153,10 @@ func DataPreload(db *gorm.DB) {
 		panic("There should be 1 entry in config")
 	}
 	//Creating Teams
-	db.Exec("INSERT INTO teams (id, name, enabled) VALUES ('11111111-1111-1111-1111-111111111111', 'TeamOne', true)")
-	db.Exec("INSERT INTO teams (id, name, enabled) VALUES ('22222222-2222-2222-2222-222222222222', 'TeamTwo', false)")
-	db.Exec("INSERT INTO teams (id, name, enabled) VALUES ('33333333-3333-3333-3333-333333333333', 'TeamThree', true)")
-	db.Exec("INSERT INTO teams (id, name, enabled) VALUES ('44444444-4444-4444-4444-444444444444', 'TeamFour', false)")
+	db.Exec("INSERT INTO teams (id, name, pause) VALUES ('11111111-1111-1111-1111-111111111111', 'TeamOne', true)")
+	db.Exec("INSERT INTO teams (id, name, pause) VALUES ('22222222-2222-2222-2222-222222222222', 'TeamTwo', false)")
+	db.Exec("INSERT INTO teams (id, name, pause) VALUES ('33333333-3333-3333-3333-333333333333', 'TeamThree', true)")
+	db.Exec("INSERT INTO teams (id, name, pause) VALUES ('44444444-4444-4444-4444-444444444444', 'TeamFour', false)")
 	db.Table("teams").Count(&count)
 	if count != 4 {
 		panic("There should be 4 entry in teams")
@@ -170,10 +170,10 @@ func DataPreload(db *gorm.DB) {
 		panic("There should be 3 entries in users")
 	}
 	//Creating Host Groups
-	db.Exec("INSERT INTO host_groups (id, name, enabled) VALUES ('11111111-1111-1111-1111-111111111111', 'HostGroup1', true)")
-	db.Exec("INSERT INTO host_groups (id, name, enabled) VALUES ('22222222-2222-2222-2222-222222222222', 'HostGroup2', false)")
-	db.Exec("INSERT INTO host_groups (id, name, enabled) VALUES ('33333333-3333-3333-3333-333333333333', 'HostGroup3', true)")
-	db.Exec("INSERT INTO host_groups (id, name, enabled) VALUES ('44444444-4444-4444-4444-444444444444', 'HostGroup4', false)")
+	db.Exec("INSERT INTO host_groups (id, name, pause) VALUES ('11111111-1111-1111-1111-111111111111', 'HostGroup1', true)")
+	db.Exec("INSERT INTO host_groups (id, name, pause) VALUES ('22222222-2222-2222-2222-222222222222', 'HostGroup2', false)")
+	db.Exec("INSERT INTO host_groups (id, name, pause) VALUES ('33333333-3333-3333-3333-333333333333', 'HostGroup3', true)")
+	db.Exec("INSERT INTO host_groups (id, name, pause) VALUES ('44444444-4444-4444-4444-444444444444', 'HostGroup4', false)")
 	db.Table("host_groups").Count(&count)
 	if count != 4 {
 		panic("There should be 4 entry in host groups")
@@ -188,23 +188,23 @@ func DataPreload(db *gorm.DB) {
 		panic("There should be 4 entry in check_service groups")
 	}
 	//Creating Hosts
-	db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id, enabled, edit_host) VALUES ('11111111-1111-1111-1111-111111111111', '10.0.0.1', '11111111-1111-1111-1111-111111111111', NULL, true, true)")
-	db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id, enabled, edit_host) VALUES ('22222222-2222-2222-2222-222222222222', '10.0.0.2', '22222222-2222-2222-2222-222222222222', NULL, false, true)")
-	db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id, enabled, edit_host) VALUES ('33333333-3333-3333-3333-333333333333', '10.0.0.3', '11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333', true, false)")
-	db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id, enabled, edit_host) VALUES ('44444444-4444-4444-4444-444444444444', '10.0.0.4', '44444444-4444-4444-4444-444444444444', '44444444-4444-4444-4444-444444444444', false, false)")
+	db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id, pause, edit_host) VALUES ('11111111-1111-1111-1111-111111111111', '10.0.0.1', '11111111-1111-1111-1111-111111111111', NULL, true, true)")
+	db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id, pause, edit_host) VALUES ('22222222-2222-2222-2222-222222222222', '10.0.0.2', '22222222-2222-2222-2222-222222222222', NULL, false, true)")
+	db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id, pause, edit_host) VALUES ('33333333-3333-3333-3333-333333333333', '10.0.0.3', '11111111-1111-1111-1111-111111111111', '33333333-3333-3333-3333-333333333333', true, false)")
+	db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id, pause, edit_host) VALUES ('44444444-4444-4444-4444-444444444444', '10.0.0.4', '44444444-4444-4444-4444-444444444444', '44444444-4444-4444-4444-444444444444', false, false)")
 	db.Table("hosts").Count(&count)
 	if count != 4 {
 		panic("There should be 4 entry in hosts")
 	}
 	//Creating Services
-	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, weight, round_units, round_delay, enabled) VALUES ('11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111', 'WINRM', 'host1-service1', 0, 1, 0, true)")
-	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, weight, round_units, round_delay, enabled) VALUES ('22222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-222222222222', 'FTP', 'host2-service2', 40, 23, 2, true)")
-	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, weight, round_units, round_delay, enabled) VALUES ('33333333-3333-3333-3333-333333333333', '44444444-4444-4444-4444-444444444444', '22222222-2222-2222-2222-222222222222', 'SSH', 'host3-service3', 50, 3, 0, true)")
-	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, weight, round_units, round_delay, enabled) VALUES ('44444444-4444-4444-4444-444444444444', '44444444-4444-4444-4444-444444444444', '44444444-4444-4444-4444-444444444444', 'HTTP', 'host4-service4', 200, 4, 3, true)")
-	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, weight, round_units, round_delay, enabled) VALUES ('55555555-5555-5555-5555-555555555555', '11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', 'SSH', 'host1-service2', 30, 5, 4, false)")
-	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, weight, round_units, round_delay, enabled) VALUES ('66666666-6666-6666-6666-666666666666', '22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111', 'SMB', 'host2-service1', 2, 5, 2, true)")
-	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, weight, round_units, round_delay, enabled) VALUES ('77777777-7777-7777-7777-777777777777', '22222222-2222-2222-2222-222222222222', '44444444-4444-4444-4444-444444444444', 'FTP', 'host3-service4', 55, 6, 3, false)")
-	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, weight, round_units, round_delay, enabled) VALUES ('88888888-8888-8888-8888-888888888888', '44444444-4444-4444-4444-444444444444', '44444444-4444-4444-4444-444444444444', 'IMAP', 'host4-service3', 44, 23, 22, false)")
+	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, weight, round_units, round_delay, pause) VALUES ('11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111', 'WINRM', 'host1-service1', 0, 1, 0, true)")
+	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, weight, round_units, round_delay, pause) VALUES ('22222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-222222222222', 'FTP', 'host2-service2', 40, 23, 2, true)")
+	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, weight, round_units, round_delay, pause) VALUES ('33333333-3333-3333-3333-333333333333', '44444444-4444-4444-4444-444444444444', '22222222-2222-2222-2222-222222222222', 'SSH', 'host3-service3', 50, 3, 0, true)")
+	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, weight, round_units, round_delay, pause) VALUES ('44444444-4444-4444-4444-444444444444', '44444444-4444-4444-4444-444444444444', '44444444-4444-4444-4444-444444444444', 'HTTP', 'host4-service4', 200, 4, 3, true)")
+	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, weight, round_units, round_delay, pause) VALUES ('55555555-5555-5555-5555-555555555555', '11111111-1111-1111-1111-111111111111', '22222222-2222-2222-2222-222222222222', 'SSH', 'host1-service2', 30, 5, 4, false)")
+	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, weight, round_units, round_delay, pause) VALUES ('66666666-6666-6666-6666-666666666666', '22222222-2222-2222-2222-222222222222', '11111111-1111-1111-1111-111111111111', 'SMB', 'host2-service1', 2, 5, 2, true)")
+	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, weight, round_units, round_delay, pause) VALUES ('77777777-7777-7777-7777-777777777777', '22222222-2222-2222-2222-222222222222', '44444444-4444-4444-4444-444444444444', 'FTP', 'host3-service4', 55, 6, 3, false)")
+	db.Exec("INSERT INTO services (id, service_group_id, host_id, name, display_name, weight, round_units, round_delay, pause) VALUES ('88888888-8888-8888-8888-888888888888', '44444444-4444-4444-4444-444444444444', '44444444-4444-4444-4444-444444444444', 'IMAP', 'host4-service3', 44, 23, 22, false)")
 	db.Table("services").Count(&count)
 	if count != 8 {
 		panic("There should be 8 entry in services")

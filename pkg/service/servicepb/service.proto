@@ -18,9 +18,10 @@ message Service {
   google.protobuf.UInt64Value round_delay = 7;
   pkg.proto.utilpb.UUID service_group_id = 8;
   pkg.proto.utilpb.UUID host_id = 9;
-  google.protobuf.BoolValue enabled = 10;
-  repeated pkg.property.propertypb.Property properties = 11;
-  repeated pkg.check.checkpb.Check checks = 12;
+  google.protobuf.BoolValue hide = 10;
+  google.protobuf.BoolValue pause = 11;
+  repeated pkg.property.propertypb.Property properties = 12;
+  repeated pkg.check.checkpb.Check checks = 13;
 }
 
 message GetAllRequest{}

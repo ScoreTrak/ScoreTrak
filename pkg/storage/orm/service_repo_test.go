@@ -53,8 +53,8 @@ func TestServiceSpec(t *testing.T) {
 			})
 			Convey("Load Sample Service Group, And Host Data", func() {
 				var count int64
-				db.Exec("INSERT INTO teams (id, name, enabled) VALUES ('11111111-1111-1111-1111-111111111111', 'TeamOne', true)")
-				db.Exec("INSERT INTO teams (id, name, enabled) VALUES ('22222222-2222-2222-2222-222222222222', 'TeamTwo', false)")
+				db.Exec("INSERT INTO teams (id, name, pause) VALUES ('11111111-1111-1111-1111-111111111111', 'TeamOne', true)")
+				db.Exec("INSERT INTO teams (id, name, pause) VALUES ('22222222-2222-2222-2222-222222222222', 'TeamTwo', false)")
 				db.Exec("INSERT INTO hosts (id, address, team_id) VALUES ('55555555-5555-5555-5555-555555555555', '192.168.1.2', '11111111-1111-1111-1111-111111111111')")
 				db.Exec("INSERT INTO hosts (id, address, team_id) VALUES ('44444444-4444-4444-4444-444444444444', '192.168.1.1', '22222222-2222-2222-2222-222222222222')")
 				db.Exec("INSERT INTO service_groups (id, name) VALUES ('77777777-7777-7777-7777-777777777777', 'FTPGroup')")
@@ -115,7 +115,7 @@ func TestServiceSpec(t *testing.T) {
 						})
 						Convey("Then updating regular fields should be allowed", func() {
 							tru := true
-							s[0].Enabled = &tru
+							s[0].Pause = &tru
 							s[0].Name = "SSH"
 							s[0].RoundUnits = 3
 							rd := uint64(2)

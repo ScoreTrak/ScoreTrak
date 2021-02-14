@@ -10,17 +10,16 @@ import (
 
 // Team model represents internal team model of the scoring engine.
 type Team struct {
-
 	// this id refers to ID of a team in web.
 	ID uuid.UUID `json:"id,omitempty" gorm:"type:uuid;primary_key;"`
 
 	Name string `json:"name" gorm:"unique;not null"`
 
-	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default:true"`
+	Pause *bool `json:"pause,omitempty" gorm:"not null;default:false"`
+
+	Hide *bool `json:"hide,omitempty" gorm:"not null;default:false"`
 
 	Index *uint64 `json:"index" gorm:"unique;"`
-
-	Hidden *bool `json:"hide,omitempty" gorm:"not null;default:false"`
 
 	Users []*user.User `gorm:"foreignkey:TeamID;association_foreignkey:ID;constraint:OnUpdate:RESTRICT,OnDelete:CASCADE" json:"-"`
 

@@ -43,7 +43,7 @@ func TestTeamSpec(t *testing.T) {
 			Convey("Adding an entry with empty name", func() {
 				var err error
 				tru := true
-				t := []*team.Team{{Name: "", Enabled: &tru}}
+				t := []*team.Team{{Name: "", Pause: &tru}}
 				err = tr.Store(ctx, t)
 				So(err, ShouldNotBeNil)
 
@@ -57,7 +57,7 @@ func TestTeamSpec(t *testing.T) {
 			Convey("Adding a valid entry", func() {
 				var err error
 				tru := true
-				t := []*team.Team{{Name: "TestTeam", Enabled: &tru}}
+				t := []*team.Team{{Name: "TestTeam", Pause: &tru}}
 				err = tr.Store(ctx, t)
 				So(err, ShouldBeNil)
 				Convey("Should output one entry", func() {
@@ -91,7 +91,7 @@ func TestTeamSpec(t *testing.T) {
 					So(err, ShouldBeNil)
 					Convey("Should output the inserted entry", func() {
 						So(tm.Name, ShouldEqual, "TestTeam")
-						So(*(tm.Enabled), ShouldBeTrue)
+						So(*(tm.Pause), ShouldBeTrue)
 					})
 				})
 
@@ -101,9 +101,9 @@ func TestTeamSpec(t *testing.T) {
 					So(ss, ShouldBeNil)
 				})
 
-				Convey("Then Updating Enabled to true", func() {
+				Convey("Then Updating Pause to true", func() {
 					fls := false
-					newTeam := &team.Team{Enabled: &fls}
+					newTeam := &team.Team{Pause: &fls}
 					Convey("For the wrong entry should not update anything", func() {
 						newTeam.ID = uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")
 						err = tr.Update(ctx, newTeam)
@@ -111,7 +111,7 @@ func TestTeamSpec(t *testing.T) {
 						ac, err := tr.GetAll(ctx)
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
-						So(*(ac[0].Enabled), ShouldBeTrue)
+						So(*(ac[0].Pause), ShouldBeTrue)
 
 					})
 					Convey("For the correct entry should update", func() {
@@ -122,7 +122,7 @@ func TestTeamSpec(t *testing.T) {
 						ac, err := tr.GetAll(ctx)
 						So(err, ShouldBeNil)
 						So(len(ac), ShouldEqual, 1)
-						So(*(ac[0].Enabled), ShouldBeFalse)
+						So(*(ac[0].Pause), ShouldBeFalse)
 
 					})
 				})
@@ -150,9 +150,9 @@ func TestTeamSpec(t *testing.T) {
 							So(len(ac), ShouldEqual, 0)
 						})
 
-						Convey("Updating a team enabled without deleting a host should not yield error", func() {
+						Convey("Updating a team pause without deleting a host should not yield error", func() {
 							tru := true
-							t[0].Enabled = &tru
+							t[0].Pause = &tru
 							err = tr.Update(ctx, t[0])
 							So(err, ShouldBeNil)
 						})

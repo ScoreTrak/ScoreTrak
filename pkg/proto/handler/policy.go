@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_service"
@@ -22,8 +21,9 @@ type PolicyController struct {
 
 func (p PolicyController) Get(request *policypb.GetRequest, server policypb.PolicyService_GetServer) error {
 	rol := user.Anonymous
-	if val, ok := server.Context().Value("claims").(*auth.UserClaims); ok && val != nil {
-		rol = val.Role
+	claims := extractUserClaim(server.Context())
+	if claims != nil {
+		rol = claims.Role
 	}
 
 	err := server.Send(&policypb.GetResponse{

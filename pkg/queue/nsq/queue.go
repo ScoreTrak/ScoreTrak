@@ -39,11 +39,7 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) (ret []*queueing.QCheck, 
 		if err := gob.NewEncoder(buf).Encode(sd); err != nil {
 			return nil, nil, err
 		}
-		if _, ok := m[sd.Service.Group]; ok {
-			m[sd.Service.Group] = append(m[sd.Service.Group], buf.Bytes())
-		} else {
-			m[sd.Service.Group] = [][]byte{buf.Bytes()}
-		}
+		m[sd.Service.Group] = append(m[sd.Service.Group], buf.Bytes())
 	}
 
 	for k, v := range m {
