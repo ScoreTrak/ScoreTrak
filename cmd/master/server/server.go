@@ -24,7 +24,6 @@ import (
 	propertyService "github.com/ScoreTrak/ScoreTrak/pkg/property/property_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property/propertypb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/proto/handler"
-	"github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_client"
@@ -50,6 +49,7 @@ import (
 	"github.com/jackc/pgconn"
 	"go.uber.org/dig"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
@@ -335,14 +335,14 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 			}); err != nil {
 				return err
 			}
-			usr, _ := handler.ConvertUserPBtoUser(true, &userpb.User{
-				Id:       &utilpb.UUID{Value: uuid1.String()},
-				Username: "admin",
-				TeamId:   &utilpb.UUID{Value: uuid1.String()},
-				Password: "changeme",
-				Role:     handler.UserRoleToRolePB(user.Black),
-			})
-			err := userServ.Store(context.Background(), []*user.User{usr})
+			passwordHash, _ := bcrypt.GenerateFromPassword([]byte("changeme"), bcrypt.DefaultCost)
+			err := userServ.Store(context.Background(), []*user.User{{
+				ID:           uuid1,
+				Role:         user.Black,
+				TeamID:       uuid1,
+				Username:     "admin",
+				PasswordHash: string(passwordHash),
+			}})
 			if err != nil {
 				serr, ok := err.(*pgconn.PgError)
 				if !ok || serr.Code != "23505" {

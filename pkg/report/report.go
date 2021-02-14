@@ -57,14 +57,18 @@ type SimpleServiceGroup struct {
 	Enabled bool
 }
 
+type SimpleCheck struct {
+	Passed bool
+	Log    string
+	Err    string
+}
+
 type SimpleService struct {
+	Check              *SimpleCheck
 	Pause              bool
 	Hide               bool
 	Name               string
 	DisplayName        string
-	Passed             bool
-	Log                string
-	Err                string
 	Weight             uint64
 	Points             uint64
 	PointsBoost        uint64

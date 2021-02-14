@@ -341,17 +341,17 @@ func (d dRunner) Score(ctx context.Context, rnd round.Round) {
 							simpSgr = &report.SimpleServiceGroup{ID: sG.ID, Name: sG.Name, Enabled: *sG.Enabled}
 						}
 					}
+
+					sh.Services[s.ID] = &report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Hide: *s.Hide, Pause: *s.Pause, Points: points, Properties: params, PointsBoost: *s.PointsBoost, SimpleServiceGroup: simpSgr, Weight: *s.Weight}
+
 					if len(s.Checks) != 0 {
 						lastCheck := s.Checks[len(s.Checks)-1]
-						sh.Services[s.ID] = &report.SimpleService{Name: s.Name, DisplayName: s.DisplayName, Hide: *s.Hide, Pause: *s.Pause, Points: points, Properties: params, PointsBoost: *s.PointsBoost, SimpleServiceGroup: simpSgr, Weight: *s.Weight}
 						if lastCheck.RoundID == rnd.ID {
-							sh.Services[s.ID].Passed = *lastCheck.Passed
-							sh.Services[s.ID].Log = lastCheck.Log
-							sh.Services[s.ID].Err = lastCheck.Err
-						} else {
-							sh.Services[s.ID].Passed = false
-							sh.Services[s.ID].Log = "Service was not checked because it was disabled"
-							sh.Services[s.ID].Err = ""
+							sh.Services[s.ID].Check = &report.SimpleCheck{
+								Passed: *lastCheck.Passed,
+								Log:    lastCheck.Log,
+								Err:    lastCheck.Err,
+							}
 						}
 					}
 				}
