@@ -223,12 +223,12 @@ func (d dRunner) Score(ctx context.Context, rnd round.Round) {
 				if err != nil {
 					panic(err)
 				}
-				if *t.Pause {
+				if !*t.Pause {
 					var validHost bool
-					if *h.Pause {
+					if !*h.Pause {
 						if h.HostGroupID != nil {
 							for _, hG := range hostGroup {
-								if hG.ID == *h.HostGroupID && *(hG.Pause) {
+								if hG.ID == *h.HostGroupID && !*(hG.Pause) {
 									validHost = true
 								}
 							}
@@ -241,7 +241,7 @@ func (d dRunner) Score(ctx context.Context, rnd round.Round) {
 						if s.RoundDelay != nil {
 							schedule += *(s.RoundDelay)
 						}
-						if *(s.Pause) && rnd.ID%schedule == 0 {
+						if !*(s.Pause) && rnd.ID%schedule == 0 {
 							for _, servGroup := range serviceGroups {
 								if s.ServiceGroupID == servGroup.ID && *(servGroup.Enabled) {
 									sq := queueing.QService{ID: s.ID, Group: servGroup.Name, Name: s.Name}
