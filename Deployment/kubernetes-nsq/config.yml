@@ -16,4 +16,6 @@ platform:
   use: kubernetes
   docker:
     name: kubernetes-nsq
-secret: changeme
+
+jwt:
+  secret: changeme

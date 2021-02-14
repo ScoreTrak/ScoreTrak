@@ -24,7 +24,7 @@ type User struct {
 }
 
 func (u *User) BeforeSave(tx *gorm.DB) (err error) {
-	if u.Username != "" && !govalidator.IsAlpha(u.Username) {
+	if u.Username != "" && !govalidator.IsAlphanumeric(u.Username) {
 		return errors.New("field Name must be alphanumeric")
 	}
 	if u.Role != "" {
