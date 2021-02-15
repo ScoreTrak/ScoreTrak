@@ -120,7 +120,7 @@ func (n WorkerQueue) Receive() {
 				default:
 					err = errors.New("unknown panic")
 				}
-				qc := queueing.QCheck{Service: sd.Service, Passed: false, Log: "Encountered an unexpected error during the check. This is most likely a bug", Err: err.Error(), RoundID: sd.RoundID}
+				qc := queueing.QCheck{Service: sd.Service, Passed: false, Log: "Encountered an unexpected error during the check.", Err: err.Error(), RoundID: sd.RoundID}
 				n.Acknowledge(qc)
 				return
 			}

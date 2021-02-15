@@ -25,7 +25,7 @@ func (n None) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, erro
 					default:
 						err = errors.New("unknown panic")
 					}
-					cq <- queueing.IndexedQueue{Q: &queueing.QCheck{Service: sd.Service, Passed: false, Log: "Encountered an unexpected error during the check. This is most likely a bug", Err: err.Error(), RoundID: sd.RoundID}, I: i}
+					cq <- queueing.IndexedQueue{Q: &queueing.QCheck{Service: sd.Service, Passed: false, Log: "Encountered an unexpected error during the check.", Err: err.Error(), RoundID: sd.RoundID}, I: i}
 					return
 				}
 			}()
