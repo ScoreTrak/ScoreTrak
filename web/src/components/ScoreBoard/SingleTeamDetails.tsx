@@ -329,9 +329,7 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
             for (const [key, property] of Object.entries(simpleService.Properties)) {
                 const obj: PropertiesData = {key, value_used: property.Value, service_id: key, value: "", editable_value: false}
                 results.getPropertiesList().forEach(res => {
-                    console.log(res.getKey(), res.getStatus())
                     if (key === res.getKey() && res.getStatus() === Status.EDIT){
-                        console.log(res.getKey())
                         obj.value = res.getValue()?.getValue() ? res.getValue()?.getValue() : undefined
                         obj.editable_value = true
                     }
