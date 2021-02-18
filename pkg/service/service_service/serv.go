@@ -3,9 +3,9 @@ package service_service
 import (
 	"context"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/cmd/master/run"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host/host_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property/property_repo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
@@ -81,7 +81,7 @@ func (svc *serviceServ) TestService(ctx context.Context, id uuid.UUID) (*check.C
 		return nil, err
 	}
 	response, berr, err := svc.q.Send([]*queueing.ScoringData{
-		{Service: queueing.QService{ID: id, Name: ser.Name, Group: serGrp.Name}, Host: h.Address, Deadline: time.Now().Add(time.Second * 5), RoundID: 0, Properties: run.PropertyToMap(p)},
+		{Service: queueing.QService{ID: id, Name: ser.Name, Group: serGrp.Name}, MasterTime: time.Now(), Host: h.Address, Deadline: time.Now().Add(time.Second * 5), RoundID: 0, Properties: property.PropertiesToMap(p)},
 	})
 	if response == nil || len(response) != 1 || err != nil {
 		return nil, fmt.Errorf("something went wrong, either check took too long to execute, or the workers did not receive the check. err: %v, berr: %v", err, berr)

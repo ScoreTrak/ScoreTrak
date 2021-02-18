@@ -6,9 +6,8 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec/resolver"
-	"log"
-
 	"github.com/gofrs/uuid"
+	"log"
 	"math/rand"
 	"strconv"
 	"time"
@@ -18,6 +17,7 @@ type ScoringData struct {
 	Service    QService
 	Properties map[string]string
 	Deadline   time.Time
+	MasterTime time.Time
 	Host       string
 	RoundID    uint64
 }

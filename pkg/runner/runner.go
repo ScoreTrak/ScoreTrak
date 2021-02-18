@@ -1,4 +1,4 @@
-package run
+package runner
 
 import (
 	"context"
@@ -19,22 +19,18 @@ import (
 	"log"
 	"math"
 	"strings"
-	"sync"
 	"time"
 )
 
 type dRunner struct {
-	db *gorm.DB
-	q  queue.WorkerQueue
-	r  *util.Store
+	db    *gorm.DB
+	q     queue.WorkerQueue
+	r     *util.Store
+	dsync time.Duration
+	cnf   config.StaticConfig
 }
 
-var dsync time.Duration
-var mud sync.RWMutex
-
 func (d dRunner) refreshDsync() error {
-	mud.Lock()
-	defer mud.Unlock()
 	var tm time.Time
 	res, err := d.db.Raw("SELECT current_timestamp;").Rows()
 	if err != nil {
@@ -42,18 +38,13 @@ func (d dRunner) refreshDsync() error {
 	}
 	defer res.Close()
 	for res.Next() {
-		res.Scan(&tm)
+		_ = res.Scan(&tm)
 	}
-	dsync = -time.Since(tm)
-	if float64(time.Second*2) < math.Abs(float64(dsync)) { //Todo: Move runner into its own package, and allow to statically assign the default values
+	d.dsync = -time.Since(tm)
+	if float64(time.Second*2) < math.Abs(float64(d.dsync)) { //Todo: Move runner into its own package, and allow to statically assign the default values
 		return fmt.Errorf("time difference between master, and database is too large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now())
 	}
 	return nil
-}
-func (d dRunner) getDsync() time.Duration {
-	mud.RLock()
-	defer mud.RUnlock()
-	return dsync
 }
 
 func NewRunner(db *gorm.DB, q queue.WorkerQueue, r *util.Store) *dRunner {
@@ -142,7 +133,7 @@ func (d *dRunner) MasterRunner(cnf *config.DynamicConfig) (err error) {
 					scoringLoop = time.NewTicker(config.MinRoundDuration)
 					break
 				}
-				ctx, cancelContext := context.WithTimeout(context.Background(), (time.Duration(cnf.RoundDuration)*time.Second*9/10)+d.getDsync())
+				ctx, cancelContext := context.WithTimeout(context.Background(), (time.Duration(cnf.RoundDuration)*time.Second*9/10)+d.dsync)
 				err = d.r.Round.Store(ctx, rnd)
 				if err != nil {
 					serr, ok := err.(*pgconn.PgError)
@@ -170,7 +161,7 @@ func (d *dRunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64)
 	if rnd == nil || rnd.ID == 0 {
 		return config.MinRoundDuration / 2
 	}
-	dur := rnd.Start.Add(time.Duration(RoundDuration) * time.Second).Sub(time.Now().Add(d.getDsync()))
+	dur := rnd.Start.Add(time.Duration(RoundDuration) * time.Second).Sub(time.Now().Add(d.dsync))
 	if dur <= 1 {
 		return 1
 	}
@@ -245,7 +236,7 @@ func (d dRunner) Score(ctx context.Context, rnd round.Round) {
 							for _, servGroup := range serviceGroups {
 								if s.ServiceGroupID == servGroup.ID && *(servGroup.Enabled) {
 									sq := queueing.QService{ID: s.ID, Group: servGroup.Name, Name: s.Name}
-									params := PropertyToMap(s.Properties)
+									params := property.PropertiesToMap(s.Properties)
 									de, _ := ctx.Deadline()
 									sd := &queueing.ScoringData{
 										Deadline:   de.Add(-time.Second),
@@ -253,6 +244,7 @@ func (d dRunner) Score(ctx context.Context, rnd round.Round) {
 										Service:    sq,
 										Properties: params,
 										RoundID:    rnd.ID,
+										MasterTime: time.Now(),
 									}
 									sds = append(sds, sd)
 								}
@@ -387,7 +379,7 @@ func (d dRunner) Score(ctx context.Context, rnd round.Round) {
 
 func (d dRunner) finalizeRound(ctx context.Context, rnd *round.Round, Note string, Error string) {
 	log.Printf("Note: %s\nError: %s\nRound: %v", Note, Error, rnd)
-	now := time.Now().Add(d.getDsync())
+	now := time.Now().Add(d.dsync)
 	rnd.Finish = &now
 	rnd.Note = Note
 	rnd.Err = Error
@@ -395,12 +387,4 @@ func (d dRunner) finalizeRound(ctx context.Context, rnd *round.Round, Note strin
 	if err != nil {
 		log.Printf("Unable to update round %v", rnd)
 	}
-}
-
-func PropertyToMap(props []*property.Property) map[string]string {
-	params := map[string]string{}
-	for _, p := range props {
-		params[p.Key] = *p.Value
-	}
-	return params
 }
