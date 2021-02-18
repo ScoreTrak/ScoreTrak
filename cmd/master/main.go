@@ -3,13 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/cmd/master/run"
 	"github.com/ScoreTrak/ScoreTrak/cmd/master/server"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	cutil "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/di"
 	diutil "github.com/ScoreTrak/ScoreTrak/pkg/di/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
+	"github.com/ScoreTrak/ScoreTrak/pkg/runner"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	sutil "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"go.uber.org/dig"
@@ -59,7 +59,7 @@ func main() {
 	di.Invoke(func(qu queue.WorkerQueue) {
 		q = qu
 	})
-	dr := run.NewRunner(db, q, store)
+	dr := runner.NewRunner(db, q, store)
 	go func() {
 		handleErr(dr.MasterRunner(cnf))
 	}()

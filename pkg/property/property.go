@@ -48,3 +48,11 @@ func (p *Property) BeforeCreate(tx *gorm.DB) (err error) {
 	}
 	return nil
 }
+
+func PropertiesToMap(props []*Property) map[string]string {
+	params := map[string]string{}
+	for _, p := range props {
+		params[p.Key] = *p.Value
+	}
+	return params
+}

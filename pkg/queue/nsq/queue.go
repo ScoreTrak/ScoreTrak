@@ -10,7 +10,10 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/nsqio/go-nsq"
 	"log"
+	"math"
+	"net"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -128,7 +131,14 @@ func (n WorkerQueue) Receive() {
 		if err := gob.NewDecoder(buf).Decode(&sd); err != nil {
 			panic(err)
 		}
-		qc := queueing.CommonExecute(&sd, sd.Deadline.Add(-3*time.Second))
+
+		dsync := -time.Since(sd.MasterTime)
+		if float64(time.Second*5) < math.Abs(float64(dsync)) {
+			name, _ := os.Hostname()
+			n.Acknowledge(queueing.QCheck{Service: sd.Service, Passed: false, Log: "Please provide the error to Black Team / Competition Administrator", Err: fmt.Sprintf("Worker with IP: %s, Hostname: %s is either out of sync, or worker received the message late", GetOutboundIP(), name), RoundID: sd.RoundID})
+			return nil
+		}
+		qc := queueing.CommonExecute(&sd, sd.Deadline.Add(-3*time.Second+dsync))
 		n.Acknowledge(qc)
 		return nil
 
@@ -141,10 +151,21 @@ func (n WorkerQueue) Receive() {
 	select {}
 }
 
+//https://stackoverflow.com/a/37382208/9296389
+func GetOutboundIP() net.IP {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	return localAddr.IP
+}
+
 func (n WorkerQueue) Ping(group *service_group.ServiceGroup) error {
 	_, bErr, err := n.Send([]*queueing.ScoringData{
 		{
-			Service: queueing.QService{ID: uuid.Nil, Name: "PING", Group: group.Name}, Host: "localhost", Deadline: time.Now().Add(time.Second * 4), RoundID: 0, Properties: map[string]string{},
+			Service: queueing.QService{ID: uuid.Nil, Name: "PING", Group: group.Name}, MasterTime: time.Now(), Host: "localhost", Deadline: time.Now().Add(time.Second * 4), RoundID: 0, Properties: map[string]string{},
 		},
 	})
 	if err != nil {
