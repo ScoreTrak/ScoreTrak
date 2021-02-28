@@ -22,6 +22,7 @@ import (
 	"time"
 )
 
+//CleanAllTables Drops all tables
 func CleanAllTables(db *gorm.DB) {
 	db.Migrator().DropTable(&check.Check{})
 	db.Migrator().DropTable(&property.Property{})
@@ -35,6 +36,7 @@ func CleanAllTables(db *gorm.DB) {
 	db.Migrator().DropTable(&config.DynamicConfig{})
 }
 
+//CreateAllTables migrates all tables
 func CreateAllTables(db *gorm.DB) (err error) {
 	err = db.AutoMigrate(&team.Team{})
 	if err != nil {
@@ -87,8 +89,10 @@ func CreateAllTables(db *gorm.DB) (err error) {
 	return
 }
 
+//uuid1 is a uuid of the initial admin user, and admin team
 var uuid1 = uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 
+//CreateBlackTeam Ensures that black team exists
 func CreateBlackTeam(db *gorm.DB) (err error) {
 	err = db.Create([]*team.Team{{ID: uuid1, Name: "Black Team"}}).Error
 	if err != nil {
@@ -100,6 +104,7 @@ func CreateBlackTeam(db *gorm.DB) (err error) {
 	return nil
 }
 
+//CreateAdminUser ensures Admin user exists with the default password of changeme
 func CreateAdminUser(db *gorm.DB) (err error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("changeme"), bcrypt.DefaultCost)
 	if err != nil {
@@ -115,6 +120,7 @@ func CreateAdminUser(db *gorm.DB) (err error) {
 	return nil
 }
 
+//CreatePolicy Ensure policy.Policy exists
 func CreatePolicy(db *gorm.DB) (*policy.Policy, error) {
 	p := &policy.Policy{ID: 1}
 	err := db.Create(p).Error
@@ -131,6 +137,7 @@ func CreatePolicy(db *gorm.DB) (*policy.Policy, error) {
 	return p, nil
 }
 
+//TruncateAllTables truncates all tables (A little faster than dropping)
 func TruncateAllTables(db *gorm.DB) {
 	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "checks"))
 	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "properties"))

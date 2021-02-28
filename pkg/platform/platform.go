@@ -10,6 +10,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 )
 
+//Platform is an interface that allows ScoreTrak to deploy/remove the worker containers on a given environment like docker, docker swarm, or kubernetes.
 type Platform interface {
 	DeployWorkers(ctx context.Context, info worker.Info) error
 	RemoveWorkers(ctx context.Context, info worker.Info) error

@@ -1,20 +1,20 @@
 package di
 
 import (
-	service5 "github.com/ScoreTrak/ScoreTrak/pkg/check/check_service"
-	service11 "github.com/ScoreTrak/ScoreTrak/pkg/competition/competition_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/check/check_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/competition/competition_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	service6 "github.com/ScoreTrak/ScoreTrak/pkg/config/config_service"
-	service7 "github.com/ScoreTrak/ScoreTrak/pkg/host/host_service"
-	service8 "github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_service"
-	service13 "github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_service"
-	service9 "github.com/ScoreTrak/ScoreTrak/pkg/property/property_service"
-	service10 "github.com/ScoreTrak/ScoreTrak/pkg/report/report_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config/config_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/host/host_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/property/property_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round/round_service"
-	service3 "github.com/ScoreTrak/ScoreTrak/pkg/service/service_service"
-	service2 "github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_group_service"
-	service4 "github.com/ScoreTrak/ScoreTrak/pkg/team/team_service"
-	service12 "github.com/ScoreTrak/ScoreTrak/pkg/user/user_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service/service_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_group_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/team/team_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user/user_service"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
@@ -31,20 +31,19 @@ func BuildMasterContainer() (*dig.Container, error) {
 	ctr = append(ctr,
 		config.GetStaticConfig, config.GetDBConfig, config.GetQueueConfig, config.GetPlatformConfig,
 		storage.LoadDB,
-		orm.NewCheckRepo, service5.NewCheckServ,
-		orm.NewHostGroupRepo, service8.NewHostGroupServ,
-		orm.NewPropertyRepo, service9.NewPropertyServ,
-		orm.NewConfigRepo, service6.NewConfigServ, service6.NewStaticConfigServ,
-		orm.NewHostRepo, service7.NewHostServ,
+		orm.NewCheckRepo, check_service.NewCheckServ,
+		orm.NewHostGroupRepo, host_group_service.NewHostGroupServ,
+		orm.NewPropertyRepo, property_service.NewPropertyServ,
+		orm.NewConfigRepo, config_service.NewConfigServ, config_service.NewStaticConfigServ,
+		orm.NewHostRepo, host_service.NewHostServ,
 		orm.NewRoundRepo, round_service.NewRoundServ,
-		orm.NewServiceGroupRepo, service2.NewServiceGroupServ,
-		orm.NewServiceRepo, service3.NewServiceServ,
-		orm.NewTeamRepo, service4.NewTeamServ,
-		orm.NewUserRepo, service12.NewUserServ,
-		orm.NewPolicyRepo, service13.NewPolicyServ,
-
-		orm.NewReportRepo, service10.NewReportServ,
-		service11.NewCompetitionServ,
+		orm.NewServiceGroupRepo, service_group_service.NewServiceGroupServ,
+		orm.NewServiceRepo, service_service.NewServiceServ,
+		orm.NewTeamRepo, team_service.NewTeamServ,
+		orm.NewUserRepo, user_service.NewUserServ,
+		orm.NewPolicyRepo, policy_service.NewPolicyServ,
+		orm.NewReportRepo, report_service.NewReportServ,
+		competition_service.NewCompetitionServ,
 		queue.NewWorkerQueue, platform.NewPlatform,
 	)
 

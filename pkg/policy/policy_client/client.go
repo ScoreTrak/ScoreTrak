@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+//Policy client allows for eventually consistent way to distribute pkg/Policy struct throughout ScoreTrak instances.
+//This is needed because certain API routes evaluate Policy on every call, and retrieving Policy from database is very expensive, hence having eventually consistent copy is much more efficient.
 type Client struct {
 	policy      *policy.Policy
 	policyMutex *sync.RWMutex
