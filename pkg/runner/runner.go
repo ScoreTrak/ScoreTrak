@@ -30,6 +30,7 @@ type dRunner struct {
 	cnf   config.StaticConfig
 }
 
+//refreshDsync retrieves current timestamp from the database, and ensures that it is within 2 seconds of range when compared to the host's clock.
 func (d dRunner) refreshDsync() error {
 	var tm time.Time
 	res, err := d.db.Raw("SELECT current_timestamp;").Rows()

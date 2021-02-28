@@ -16,6 +16,7 @@ type claim string
 
 const KeyClaim claim = "claim"
 
+//UserClaims represents contents of JWT token.
 type UserClaims struct {
 	jwt.StandardClaims
 	Username string `json:"username"`
@@ -32,6 +33,7 @@ type Config struct {
 	TimeoutInSeconds uint64 `default:"86400"`
 }
 
+//Generate creates user claim based on passed user parameter, and encodes it to JWT token.
 func (manager *Manager) Generate(user *user.User) (string, error) {
 	claims := UserClaims{
 		StandardClaims: jwt.StandardClaims{
@@ -47,6 +49,7 @@ func (manager *Manager) Generate(user *user.User) (string, error) {
 	return token.SignedString([]byte(manager.secretKey))
 }
 
+//Verify ensures that the token provided by the client is valid, after which it extracts the claims and returns them.
 func (manager *Manager) Verify(accessToken string) (*UserClaims, error) {
 	token, err := jwt.ParseWithClaims(
 		accessToken,

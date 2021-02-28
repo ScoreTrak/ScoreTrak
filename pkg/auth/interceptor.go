@@ -26,6 +26,7 @@ type authorizationMap struct {
 	isAllowed isAllowedFunc
 }
 
+//NewAuthInterceptor returns an instance of Interceptor. It takes in Manager struct, and policyClient as input. Policy Client allows to dynamically change authorization policies.
 func NewAuthInterceptor(jwtManager *Manager, policyClient *policy_client.Client) *Interceptor {
 	authMap := map[string][]authorizationMap{}
 	const authService = "/pkg.auth.AuthService/Login"
@@ -150,6 +151,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policy_client.Client)
 	return &Interceptor{jwtManager, authMap}
 }
 
+//Custom Unary( interceptor that adds claim extraction and authorization
 func (interceptor *Interceptor) Unary() grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
@@ -182,6 +184,7 @@ func (s StreamClaimInjector) Context() context.Context {
 	}
 }
 
+//Custom Stream interceptor that adds claim extraction and authorization
 func (interceptor *Interceptor) Stream() grpc.StreamServerInterceptor {
 	return func(
 		srv interface{},
@@ -197,6 +200,7 @@ func (interceptor *Interceptor) Stream() grpc.StreamServerInterceptor {
 	}
 }
 
+//authorize takes in context, extracts roles from the context if there are any, and ensures that a given roles has rights to access a given method. If a given role has no access, it returns permission denied error.
 func (interceptor *Interceptor) authorize(ctx context.Context, method string) (claims *UserClaims, err error) {
 	r := user.Anonymous
 	md, ok := metadata.FromIncomingContext(ctx)

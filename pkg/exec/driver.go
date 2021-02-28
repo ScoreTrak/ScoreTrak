@@ -23,6 +23,7 @@ func NewExec(ctx context.Context, h string, e Executable) *Exec {
 	return &Exec{Context: ctx, Host: h, executable: e}
 }
 
+//Execute first validates the given check, and if validation passes it executes a given check.
 func (e Exec) Execute() (passed bool, log string, err error) {
 	err = e.Validate()
 	if err != nil {
@@ -33,10 +34,13 @@ func (e Exec) Execute() (passed bool, log string, err error) {
 	}
 	return e.executable.Execute(e)
 }
+
+//Validates the service parameters
 func (e Exec) Validate() error {
 	return e.executable.Validate()
 }
 
+//Calculates Deadline of a service
 func (e Exec) Deadline() time.Time {
 	deadline, ok := e.Context.Deadline()
 	if !ok {
@@ -45,6 +49,7 @@ func (e Exec) Deadline() time.Time {
 	return deadline
 }
 
+//UpdateExecutableProperties sets the properties of a given check by extracting them from map(string) => string, and setting them via reflection.
 func UpdateExecutableProperties(v Executable, p map[string]string) (err error) {
 	defer func() {
 		if x := recover(); x != nil {

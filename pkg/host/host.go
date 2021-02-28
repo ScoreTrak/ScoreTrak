@@ -21,19 +21,21 @@ type Host struct {
 	//Comma Separated List of allowed CIDRs, and hostnames
 	AddressListRange *string `json:"address_list_range" gorm:"not null;default:''"`
 
-	// The ID of a host group that the host belongs to.
+	//The ID of a host group that the host belongs to.
 	HostGroupID *uuid.UUID `json:"host_group_id,omitempty" gorm:"type:uuid"`
 
-	// The ID of a team that this host belongs too.
+	//The ID of a team that this host belongs too.
 	TeamID uuid.UUID `json:"team_id,omitempty" gorm:"type:uuid;not null"`
 
+	//Hide is responsible for hiding the host on the scoring table
 	Hide *bool `json:"pause,omitempty" gorm:"not null;default:false"`
-
+	//Pause is responsible for pausing the host on scoring table
 	Pause *bool `json:"hide,omitempty" gorm:"not null;default:false"`
 
-	// Enables to Edit the hostname. If a single host needs to be eddited for one check_service, and kept only visible for other check_service, you can make 2 services that point to same address, and have different edit_host properties.
+	//Enables to Edit the hostname. If a single host needs to be eddited for one check_service, and kept only visible for other check_service, you can make 2 services that point to same address, and have different edit_host properties.
 	EditHost *bool `json:"edit_host,omitempty" gorm:"not null;default:false"`
 
+	//Services is an aggregate of all child Services that belong to a host
 	Services []*service.Service `json:"services,omitempty" gorm:"foreignkey:HostID;constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT"`
 }
 

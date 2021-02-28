@@ -15,6 +15,7 @@ func GetGlobalDB() *gorm.DB {
 	return db
 }
 
+//SetupDB creates a new database, and it recreates one if it already exists by first deleting it
 func SetupDB(c Config) *gorm.DB {
 	var err error
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s sslmode=disable",
@@ -34,6 +35,7 @@ func SetupDB(c Config) *gorm.DB {
 	return db
 }
 
+//LoadDB serves as a singleton that initializes the value of db per package
 func LoadDB(c Config) (*gorm.DB, error) {
 	var err error
 	if db == nil {
@@ -45,6 +47,7 @@ func LoadDB(c Config) (*gorm.DB, error) {
 	return db, nil
 }
 
+//NewDB creates an instance of database based on config
 func NewDB(c Config) (*gorm.DB, error) {
 	var db *gorm.DB
 	var err error
@@ -56,10 +59,12 @@ func NewDB(c Config) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	//validations.RegisterCallbacks(db)
 	return db, nil
 }
 
+// newCockroach is internal method used for initializing cockroach db instance.
+// It modifies few cockroachdb options like kv.range.backpressure_range_size_multiplier and gc.ttlseconds that
+// allows for a single large value to be changed frequently
 func newCockroach(c Config) (*gorm.DB, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s dbname=%s",
 		c.Cockroach.Host,
