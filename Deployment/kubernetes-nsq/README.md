@@ -65,7 +65,7 @@ Requirements:
        ```
        bash CreateCRDBPersistentVolumeAndClaims.sh
        ```
-    4) Install cockroach using helm:
+    4) Install cockroach using helm (Don't wait for the command to finish, and move to step 5):
        ```
        helm install scoretrak --values cockroach-helm-values.yml cockroachdb/cockroachdb
        ```
