@@ -88,7 +88,7 @@ Requirements:
         scoretrak-cockroachdb-2            1/1     Running     0          50s
         scoretrak-cockroachdb-init-4qm9c   0/1     Completed   0          50s        
         ```
-        (If that is not the case, you might have to redo everything starting with step 3. Make sure to follow this guide https://www.cockroachlabs.com/docs/stable/orchestrate-cockroachdb-with-kubernetes.html#stop-the-cluster to delete the failed deployment. Make sure to use Helm)
+        (If that is not the case, you might have to redo everything starting with step 3. Make sure to follow this guide https://www.cockroachlabs.com/docs/stable/orchestrate-cockroachdb-with-kubernetes.html#stop-the-cluster to delete the failed deployment using helm. Make sure to delete secrets.)
         
         If you would like to check cockroach web console, you could run:
            
