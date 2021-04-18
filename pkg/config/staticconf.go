@@ -11,7 +11,8 @@ import (
 	"io/ioutil"
 )
 
-// StaticConfig is a struct of settings that were set at the start of the application
+//StaticConfig is a struct of settings that are set at the start of the application. It contains Configs from other packages defined under pkg/ directory.
+//StaticConfig is read only at the moment, hence there is no lock / prevention to race conditions.
 type StaticConfig struct {
 	DB storage.Config
 
@@ -66,6 +67,7 @@ func GetStaticConfig() StaticConfig {
 	return staticConfig
 }
 
+//
 func GetConfigCopy() (StaticConfig, error) {
 	cp := StaticConfig{}
 	err := copier.Copy(&cp, &staticConfig)
@@ -75,6 +77,7 @@ func GetConfigCopy() (StaticConfig, error) {
 	return cp, nil
 }
 
+//
 func SaveConfigToYamlFile(f string, config StaticConfig) error {
 	b, err := yaml.Marshal(&config)
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+//ExecutableByName converts the name of the service to a specific executable type defined in pkg/exec/services
 func ExecutableByName(s string) exec.Executable {
 	switch strings.ToLower(s) {
 	case "ftp":

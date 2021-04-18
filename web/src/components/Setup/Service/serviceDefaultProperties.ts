@@ -1,6 +1,6 @@
 import {Status} from "../Property/PropertiesMenu";
 
-export type availableChecks = 'WINRM' | 'SSH' | 'SMB' | 'PING' | 'LDAP' | 'IMAP' | 'HTTP' | 'DNS' | 'FTP' | 'SQL'
+export type availableChecks = 'WINRM' | 'SSH' | 'SMB' | 'PING' | 'LDAP' | 'IMAP' | 'HTTP' | 'DNS' | 'FTP' | 'SQL' | 'CalDav'
 export type PropertyType = Record<string, { name: string, type: 'field' | 'select', defaultStatus?: Status, defaultValue?: string, options?: string[]}>
 export type ChecksType = Record<availableChecks, PropertyType>
 
@@ -93,5 +93,16 @@ export const Checks: ChecksType = {
         Command: {name: 'Command', type: 'field', defaultValue: '' },
         MinExpectedRows: {name: 'Minimum Expected Rows', type: 'field'},
         MaxExpectedRows: {name: 'Maximum Expected Rows', type: 'field' },
-    }
+    },
+
+    CalDav: {
+        Username: {name: 'Username', type: 'field'},
+        Password: {name: 'Password', type: 'field',  defaultStatus: Status.Edit},
+        Port: {name: 'Port', type: 'field', defaultValue: '80'},
+        ExpectedOutput: {name: 'Expected Output', type: 'field', },
+        Scheme: {name: 'Scheme', type: 'select', defaultValue: 'http', options: ["http", "https"]},
+        Path: {name: 'Path', type: 'field', },
+        Subdomain: {name: 'Subdomain', type: 'field', }
+    },
+
 }

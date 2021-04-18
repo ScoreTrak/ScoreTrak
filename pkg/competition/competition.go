@@ -15,6 +15,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 )
 
+//Competition is a struct that holds an aggregate of all models. This is used to upload/export competition as a file.
 type Competition struct {
 	Config        *config.DynamicConfig
 	Report        *report.Report

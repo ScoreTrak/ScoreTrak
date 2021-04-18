@@ -15,6 +15,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/user/user_repo"
 )
 
+//Store is a single collection of all Repositories
 type Store struct {
 	Round        round_repo.Repo
 	Host         host_repo.Repo

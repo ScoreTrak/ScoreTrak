@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"net/http"
-	"net/url"
 	"strings"
 )
 
@@ -27,18 +26,7 @@ func (h *HTTP) Validate() error {
 }
 
 func (h *HTTP) Execute(e exec.Exec) (passed bool, log string, err error) {
-	if h.Port == "" {
-		if strings.ToLower(h.Scheme) == "https" {
-			h.Port = "443"
-		} else {
-			h.Port = "80"
-		}
-	}
-	if h.Subdomain != "" && h.Subdomain[len(h.Subdomain)-1:] != "." {
-		h.Subdomain += "."
-	}
-	host := h.Subdomain + e.Host + ":" + h.Port
-	baseURL := url.URL{Path: h.Path, Scheme: h.Scheme, Host: host}
+	baseURL := exec.ConstructURI(h.Port, h.Subdomain, e.Host, e.Host, h.Scheme)
 	req, err := http.NewRequest("GET", baseURL.String(), nil)
 	if err != nil {
 		return false, "Error while crafting the request", err
