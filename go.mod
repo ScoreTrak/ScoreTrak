@@ -15,6 +15,7 @@ require (
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/emersion/go-imap v1.0.5
 	github.com/emersion/go-sasl v0.0.0-20200509203442-7bfe0ed36a21 // indirect
+	github.com/emersion/go-webdav v0.3.0
 	github.com/go-ldap/ldap/v3 v3.2.3
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/golang/protobuf v1.4.3

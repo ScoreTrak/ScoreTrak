@@ -117,7 +117,7 @@ function ServiceMenuTable(props: SetupProps) {
             { title: 'Name', field: "name", lookup: {
                     'PING': 'PING', 'DNS': 'DNS', 'FTP': 'FTP', 'LDAP': 'LDAP',
                     'HTTP': 'HTTP', 'IMAP': 'IMAP', 'SMB': 'SMB', 'SSH': 'SSH',
-                    'WINRM': 'WINRM', "SQL": "SQL"
+                    'WINRM': 'WINRM', "SQL": "SQL", "CalDav": "CalDav"
                 }},
             { title: 'Display Name(Columns on Status page)', field: 'displayName' },
             { title: 'Weight(Points per successful check)', field: 'weight', type: 'numeric', },
