@@ -115,7 +115,7 @@ func (p UserController) Store(ctx context.Context, request *userpb.StoreRequest)
 		if usr.Role == "" {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
-				"Password should not be empty",
+				"Role should not be empty",
 			)
 		}
 
