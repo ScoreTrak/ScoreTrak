@@ -139,12 +139,20 @@ func (p ServiceController) Store(ctx context.Context, request *servicepb.StoreRe
 		if err != nil {
 			return nil, err
 		}
-		if sr.HostID == uuid.Nil || sr.ServiceGroupID == uuid.Nil {
+		if sr.ServiceGroupID == uuid.Nil {
 			return nil, status.Errorf(
 				codes.InvalidArgument,
-				"Host ID And Service ID should not be nil",
+				"Service Group ID should not be nil",
 			)
 		}
+
+		if sr.HostID == uuid.Nil {
+			return nil, status.Errorf(
+				codes.InvalidArgument,
+				"Host ID should not be nil",
+			)
+		}
+
 		props = append(props, sr)
 	}
 	err := p.svc.Store(ctx, props)
