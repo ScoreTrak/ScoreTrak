@@ -7,6 +7,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/jlaffaye/ftp"
 	"io/ioutil"
+	"strings"
 )
 
 type FTP struct {
@@ -75,8 +76,8 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 		if err != nil {
 			return false, "Failed to read file contents, it might be corrupted", err
 		}
-		if f.ExpectedOutput != "" && string(buf) != f.ExpectedOutput {
-			return false, fmt.Sprintf("Fetched file's contents do not match Expected Output. \"%s\" != \"%s\"(Expected Output)", string(buf), f.ExpectedOutput), nil
+		if f.ExpectedOutput != "" && !strings.Contains(string(buf), f.ExpectedOutput) {
+			return false, fmt.Sprintf("Fetched file's contents do not match Expected Output. Output received: %s", string(buf)), nil
 		}
 	}
 	return true, "Success!", nil
