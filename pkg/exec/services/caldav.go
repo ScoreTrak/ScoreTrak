@@ -38,7 +38,7 @@ func (h *CalDav) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to retrieve current user principal", err
 	}
-	if h.ExpectedOutput != "" && !strings.Contains(h.ExpectedOutput, usr) {
+	if h.ExpectedOutput != "" && !strings.Contains(usr, h.ExpectedOutput) {
 		return false, fmt.Sprintf("User Principal did not match expected output"), nil
 	}
 	return true, "", nil
