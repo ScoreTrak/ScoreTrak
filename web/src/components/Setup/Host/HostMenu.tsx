@@ -114,7 +114,7 @@ function HostMenuTable(props: SetupProps) {
             { title: 'Hide from Scoreboard', field: 'hide', type: 'boolean', initialEditValue: false},
             { title: 'Pause Scoring', field: 'pause', type: 'boolean', initialEditValue: false},
             { title: 'Edit Host(Allow users to change Addresses)', field: 'editHost', type: 'boolean' },
-            { title: "Address List Range(comma separated list of allowed CIDR ranges and hostnames)", field: 'addressListRange'}
+            { title: "Address Range(comma separated list of allowed CIDR ranges and hostnames)", field: 'addressListRange'}
         ]
 
     const [state, setState] = React.useState<{columns: any[], loaderTeam: boolean, loaderHost: boolean, loaderHostGroup: boolean, data: hostColumns[]}>({

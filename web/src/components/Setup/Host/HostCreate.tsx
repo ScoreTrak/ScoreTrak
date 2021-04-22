@@ -177,7 +177,7 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
                                 {dt.hostGroups.map((column, column_idx) => (
                                     <TableCell>
                                         <TextField label="Address" id={`id_${column.getId()?.getValue()}_address`} helperText="Ex. 10.1.{index}.1" onChange={event => {templateModification(column.getId()?.getValue() as string, event.target.value, "address")}}/>
-                                        <TextField label="Address List Range" id={`id_${column.getId()?.getValue()}_allowed_range`} helperText="Ex. 10.1.{index}.1/24,10.2.{index}.1/24" onChange={event => {templateModification(column.getId()?.getValue() as string, event.target.value, "addressListRange")}}/>
+                                        <TextField label="Allowed Range" id={`id_${column.getId()?.getValue()}_allowed_range`} helperText="Ex.10.1.{index}.1" onChange={event => {templateModification(column.getId()?.getValue() as string, event.target.value, "addressListRange")}}/>
                                         <FormControlLabel
                                             control={
                                                 <Switch id={`id_${column.getId()?.getValue()}_hide`} checked={dt.hostGroupsTemplateState[column_idx].hideTemplate} onChange={event => {
@@ -263,7 +263,7 @@ const HostCreate = forwardRef((props: SetupProps, ref) => {
                                                             modifyRowDataProperty(val, column, row, "address")
                                                         })}
                                                         />
-                                                        <TextField label="Address List Range" id={`${cell}_allowed_range`} value={rowsData[cell]?.addressListRange || ''} onChange={(event => {
+                                                        <TextField label="Address Range" id={`${cell}_allowed_range`} value={rowsData[cell]?.addressListRange || ''} onChange={(event => {
                                                             const val = event.target.value
                                                             modifyRowDataProperty(val, column, row, "addressListRange")
                                                         })}
