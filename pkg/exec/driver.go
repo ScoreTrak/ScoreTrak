@@ -66,8 +66,10 @@ func UpdateExecutableProperties(v Executable, p map[string]string) (err error) {
 
 	rv := reflect.ValueOf(v).Elem()
 	for key, val := range p {
-		rf := rv.FieldByName(key)
-		rf.SetString(val)
+		if val != "" { //Eliminate unnecessary default value
+			rf := rv.FieldByName(key)
+			rf.SetString(val)
+		}
 	}
 	return nil
 }

@@ -32,7 +32,7 @@ func (p *DNS) Execute(e exec.Exec) (passed bool, log string, err error) {
 		return false, "Encountered an error while looking up the host", err
 	}
 	if p.ExpectedOutput != "" && ip[0].String() != p.ExpectedOutput {
-		return false, fmt.Sprintf("Expected output did not match. \"%s\" != \"%s\"(Expected Output)", ip[0].String(), p.ExpectedOutput), nil
+		return false, fmt.Sprintf("Expected output did not match. Output received: %s", ip[0].String()), nil
 	}
 	return true, "Success!", nil
 }

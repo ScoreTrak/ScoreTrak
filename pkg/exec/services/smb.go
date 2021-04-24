@@ -100,7 +100,7 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 			return false, "Unable to read the file", nil
 		}
 		if s.ExpectedOutput != "" && string(bs) != s.ExpectedOutput {
-			return false, fmt.Sprintf("Contents of the file did not match expected output. \"%s\" != \"%s\"(Expected Output)", string(bs), s.ExpectedOutput), nil
+			return false, fmt.Sprintf("Contents of the file did not match expected output. Output Received: %s", string(bs)), nil
 		}
 	}
 	return true, "Success!", nil
