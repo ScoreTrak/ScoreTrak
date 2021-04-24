@@ -84,7 +84,7 @@ func CommonExecute(sd *ScoringData, execDeadline time.Time) QCheck {
 
 	err := exec.UpdateExecutableProperties(executable, sd.Properties)
 	if err != nil {
-		errLog := fmt.Sprintf("Failed to set properties for %v. Properties provided %v. See Error details for additional information", sd.Service, sd.Properties)
+		errLog := fmt.Sprintf("Failed to set properties for %+v. Resolved Service: %+v. Properties provided %v. See Error details for additional information", sd.Service, executable, sd.Properties)
 		return QCheck{Service: sd.Service, Passed: false, Log: errLog, Err: err.Error(), RoundID: sd.RoundID}
 	}
 
