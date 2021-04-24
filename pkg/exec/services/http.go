@@ -50,7 +50,7 @@ func (h *HTTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 		}
 		newStr := buf.String()
 		if !strings.Contains(newStr, h.ExpectedOutput) {
-			return false, fmt.Sprintf("the page output doesn't contain expected output. \"%s\" does not contain \"%s\"(Expected Output)", newStr, h.ExpectedOutput), nil
+			return false, fmt.Sprintf("the page output doesn't contain expected output. Output received: %s", newStr), nil
 		}
 	}
 	return true, "Success!", nil

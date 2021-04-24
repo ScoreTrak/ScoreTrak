@@ -391,12 +391,12 @@ function SingleTeamDetailsAccordionDetailsBox(props: SingleTeamDetailsAccordionD
     }, []);
 
     return (
-        <Box width="100%" bgcolor="background.paper">
+        <Box width="100%" bgcolor="background.paper" textAlign="left">
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     {simpleService.Check?.Log &&
                     <Alert severity={simpleService.Check?.Passed ? "info" : "warning"}>
-                        <AlertTitle>Response</AlertTitle>
+                        <AlertTitle >Response</AlertTitle>
                         {simpleService.Check?.Log}
                     </Alert>
                     }

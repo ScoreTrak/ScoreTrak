@@ -22,8 +22,8 @@ const useStyles = makeStyles({
         height: '100%'
     },
     tableNavigator: {
-        marginRight: "5vh",
-        marginLeft: "5vh"
+        marginRight: "3vh",
+        marginLeft: "3vh"
     }
 });
 
@@ -37,11 +37,16 @@ export default function Status(props: RanksProps) {
     const classes = useStyles();
     const [rowPage, setRowPage] = React.useState<number>(0);
     const [rowsPerPage, setRowsPerPage] = React.useState<number>(25);
-    const [dense, setDense] = React.useState<boolean>(false);
-    const [hideAddresses, setHideAddresses] = React.useState<boolean>(false);
+    const [dense, setDense] = React.useState<boolean>(true);
+    const [hideAddresses, setHideAddresses] = React.useState<boolean>(true);
+    const [highlightParentTeam, setHighlightParentTeam] = React.useState<boolean>(true);
 
     const toggleHideAddresses = () => {
         setHideAddresses(prevState => !prevState)
+    };
+
+    const toggleHighlightParentTeam = () => {
+        setHighlightParentTeam(prevState => !prevState)
     };
 
     const toggleChangeDense = () => {
@@ -114,7 +119,6 @@ export default function Status(props: RanksProps) {
     dataKeysArray.sort()
     teamNames.sort()
     return (
-        <Paper className={classes.root}>
             <TableContainer>
                 <Table stickyHeader aria-label="sticky table" size={dense ? 'small' : 'medium'}>
                     <TableHead>
@@ -126,7 +130,8 @@ export default function Status(props: RanksProps) {
                             </TableCell>
 
                             {dataKeysArray.slice(columnPage * columnsPerPage, columnPage * columnsPerPage + columnsPerPage).map((column) => (
-                                <TableCell align="center"
+                                <TableCell width={`${100/(dataKeysArray.slice(columnPage * columnsPerPage, columnPage * columnsPerPage + columnsPerPage).length)}%`}
+                                           align="center"
                                     key={column}
                                 >
                                     {column}
@@ -140,18 +145,45 @@ export default function Status(props: RanksProps) {
                         {teamNames.slice(rowPage * rowsPerPage, rowPage * rowsPerPage + rowsPerPage).map((name) => {
                             return (
                                 <TableRow hover tabIndex={-1} key={name}>
-                                    <TableCell key={name}>
+                                    <TableCell style={{ 'whiteSpace': 'nowrap', 'overflow': 'hidden', 'textOverflow': 'ellipsis'}}>
                                         {name}
                                     </TableCell>
                                     {dataKeysArray.slice(columnPage * columnsPerPage, columnPage * columnsPerPage + columnsPerPage).map((column) => (
-                                        <TableCell key={name + column} style={(() => {
+                                        <TableCell key={name + column} width={`${100/(dataKeysArray.slice(columnPage * columnsPerPage, columnPage * columnsPerPage + columnsPerPage).length)}%`} style={(() => {
                                             if (data[name][column]) {
-                                                if (data[name][column].Pause){
-                                                    return {backgroundColor: "orange"}
-                                                } else if (data[name][column].Check !== undefined && data[name][column].Check?.Passed){
-                                                    return {backgroundColor: "green"}
+                                                let style = {}
+                                                if (props.isDarkTheme){
+                                                    if (data[name][column].Pause){
+                                                        style = {backgroundColor: "#DB4905"}
+                                                    } else if (data[name][column].Check !== undefined && data[name][column].Check?.Passed){
+                                                        style =  {backgroundColor: "#259B0B"}
+                                                    } else{
+                                                        style = {backgroundColor: "#d20c23", color: "white"}
+                                                    }
+                                                } else{
+                                                    if (data[name][column].Pause){
+                                                        style = {backgroundColor: "orange"}
+                                                    } else if (data[name][column].Check !== undefined && data[name][column].Check?.Passed){
+                                                        style =  {backgroundColor: "red"}
+                                                    } else{
+                                                        style = {backgroundColor: "green", color: "white"}
+                                                    }
                                                 }
-                                                return {backgroundColor: "red", color: "white"}
+                                                const teamId = token.getCurrentTeamID()
+
+                                                if (teamId !== undefined && teamId in report.Teams && report.Teams[teamId].Name === name && highlightParentTeam) {
+                                                    style = {
+                                                        ...style,
+                                                        borderTop: '1px solid rgba(0, 0, 200, 0.8)',
+                                                        borderBottom: '1px solid rgba(0, 0, 200, 0.8)',
+                                                        borderLeft: '1px solid rgba(0, 0, 0, 0.5)',
+                                                        borderRight: '1px solid rgba(0, 0, 0, 0.5)',
+                                                    }
+                                                } else{
+                                                    style = {...style, border: '1px solid rgba(0, 0, 0, 0.5)'}
+                                                }
+
+                                                return style
                                             }
                                         })()} align="center"
                                         >
@@ -199,6 +231,12 @@ export default function Status(props: RanksProps) {
                                                   label={"Hide Addresses"}
                                 />
                                 }
+                                { (token.isAValidToken()) &&
+                                <FormControlLabel className={classes.tableNavigator}
+                                                  control={<Switch checked={highlightParentTeam} onChange={toggleHighlightParentTeam} />}
+                                                  label={"Highlight Team Cells"}
+                                />
+                                }
                                 <TablePagination
                                     labelRowsPerPage="Columns per page"
                                     rowsPerPageOptions={[1, 5, 10, 25, 100]}
@@ -216,6 +254,5 @@ export default function Status(props: RanksProps) {
                     </TableFooter>
                 </Table>
             </TableContainer>
-        </Paper>
     );
 }
