@@ -164,9 +164,9 @@ export default function Status(props: RanksProps) {
                                                     if (data[name][column].Pause){
                                                         style = {backgroundColor: "orange"}
                                                     } else if (data[name][column].Check !== undefined && data[name][column].Check?.Passed){
-                                                        style =  {backgroundColor: "red"}
+                                                        style =  {backgroundColor: "green"}
                                                     } else{
-                                                        style = {backgroundColor: "green", color: "white"}
+                                                        style = {backgroundColor: "red", color: "white"}
                                                     }
                                                 }
                                                 const teamId = token.getCurrentTeamID()
