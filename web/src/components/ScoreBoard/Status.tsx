@@ -171,7 +171,7 @@ export default function Status(props: RanksProps) {
                                                 }
                                                 const teamId = token.getCurrentTeamID()
 
-                                                if (teamId !== undefined && teamId in report.Teams && report.Teams[teamId].Name === name && highlightParentTeam) {
+                                                if (token.isAValidToken() && teamId !== undefined && teamId in report.Teams && report.Teams[teamId].Name === name && highlightParentTeam) {
                                                     style = {
                                                         ...style,
                                                         borderTop: '1px solid rgba(0, 0, 200, 0.8)',
