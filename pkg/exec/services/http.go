@@ -26,7 +26,7 @@ func (h *HTTP) Validate() error {
 }
 
 func (h *HTTP) Execute(e exec.Exec) (passed bool, log string, err error) {
-	baseURL := exec.ConstructURI(h.Port, h.Subdomain, e.Host, e.Host, h.Scheme)
+	baseURL := exec.ConstructURI(h.Port, h.Subdomain, e.Host, h.Path, h.Scheme)
 	req, err := http.NewRequest("GET", baseURL.String(), nil)
 	if err != nil {
 		return false, "Error while crafting the request", err
