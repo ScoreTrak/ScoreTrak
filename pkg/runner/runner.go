@@ -45,14 +45,14 @@ func (d dRunner) refreshDsync() error {
 	d.dsync = -time.Since(tm)
 	//ensure that drift between database is not larger than DatabaseMaxTimeDriftSeconds
 	if float64(time.Duration(d.staticConfig.DatabaseMaxTimeDriftSeconds)*time.Second) < math.Abs(float64(d.dsync)) {
-		return fmt.Errorf("time difference between master, and database is too large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now())
+		return fmt.Errorf("time difference between master, and database is too large. Please synchronize time\n(The difference should not exceed %d seconds)\nTime on database:%s\nTime on master:%s", d.staticConfig.DatabaseMaxTimeDriftSeconds, tm.String(), time.Now())
 	}
 	return nil
 }
 
-func NewRunner(db *gorm.DB, q queue.WorkerQueue, r *util.Store) *dRunner {
+func NewRunner(db *gorm.DB, q queue.WorkerQueue, r *util.Store, staticConfig config.StaticConfig) *dRunner {
 	return &dRunner{
-		db: db, q: q, r: r,
+		db: db, q: q, r: r, staticConfig: staticConfig,
 	}
 }
 
