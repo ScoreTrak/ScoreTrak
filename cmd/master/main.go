@@ -59,7 +59,7 @@ func main() {
 	di.Invoke(func(qu queue.WorkerQueue) {
 		q = qu
 	})
-	dr := runner.NewRunner(db, q, store)
+	dr := runner.NewRunner(db, q, store, staticConfig)
 	go func() {
 		handleErr(dr.MasterRunner())
 	}()
