@@ -61,7 +61,7 @@ func main() {
 	})
 	dr := runner.NewRunner(db, q, store)
 	go func() {
-		handleErr(dr.MasterRunner(cnf))
+		handleErr(dr.MasterRunner())
 	}()
 	handleErr(server.Start(staticConfig, d, db))
 
