@@ -56,6 +56,9 @@ func (w *Sql) Validate() error {
 func (w *Sql) Execute(e exec.Exec) (passed bool, log string, err error) {
 	var db *gorm.DB
 	if w.DBType == "mysql" {
+		if w.Port == "" {
+			w.Port = "3306"
+		}
 		var dsn string
 		if w.DBName != "" {
 			dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", w.Username, w.Password, e.Host, w.Port, w.DBName)
@@ -69,6 +72,9 @@ func (w *Sql) Execute(e exec.Exec) (passed bool, log string, err error) {
 	}
 
 	if w.DBType == "postgres" {
+		if w.Port == "" {
+			w.Port = "5432"
+		}
 		var dsn string
 		if w.DBName != "" {
 			dsn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",

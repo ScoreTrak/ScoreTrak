@@ -19,8 +19,8 @@ type Exec struct {
 	executable Executable
 }
 
-func NewExec(ctx context.Context, h string, e Executable) *Exec {
-	return &Exec{Context: ctx, Host: h, executable: e}
+func NewExec(ctx context.Context, host string, e Executable) *Exec {
+	return &Exec{Context: ctx, Host: host, executable: e}
 }
 
 //Execute first validates the given check, and if validation passes it executes a given check.
