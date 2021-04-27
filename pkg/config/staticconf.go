@@ -15,6 +15,10 @@ import (
 //StaticConfig is read only at the moment, hence there is no lock / prevention to race conditions.
 type StaticConfig struct {
 	DB storage.Config
+	//This value ideally shouldn't be larger than few seconds
+	DatabaseMaxTimeDriftSeconds uint `default:"2"`
+	//How frequently to pull dynamic configs
+	DynamicConfigPullSeconds uint `default:"5"`
 
 	Queue queueing.Config
 
@@ -67,7 +71,6 @@ func GetStaticConfig() StaticConfig {
 	return staticConfig
 }
 
-//
 func GetConfigCopy() (StaticConfig, error) {
 	cp := StaticConfig{}
 	err := copier.Copy(&cp, &staticConfig)
@@ -77,7 +80,6 @@ func GetConfigCopy() (StaticConfig, error) {
 	return cp, nil
 }
 
-//
 func SaveConfigToYamlFile(f string, config StaticConfig) error {
 	b, err := yaml.Marshal(&config)
 	if err != nil {
