@@ -48,4 +48,4 @@ The above configuration will use one of the IPs as source NAT in a round-robin.
 
 # Caveats
 
-Certan protocols like FTP might not play well with IP randomization.
+Certain protocols like FTP might not play well with IP randomization.
