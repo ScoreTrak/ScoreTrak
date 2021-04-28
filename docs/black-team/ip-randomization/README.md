@@ -44,3 +44,8 @@ NOTE that `--every` is decreasing with every rule. Following explains the behavi
 
 The above configuration will use one of the IPs as source NAT in a round-robin.
 7) Ensure competition workers are routed to the specified IP address
+
+
+# Caveats
+
+Certan protocols like FTP might not play well with IP randomization.
