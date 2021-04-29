@@ -123,9 +123,7 @@ export default function Status(props: RanksProps) {
                 <Table stickyHeader aria-label="sticky table" size={dense ? 'small' : 'medium'}>
                     <TableHead>
                         <TableRow>
-                            <TableCell
-                                key="name"
-                            >
+                            <TableCell>
                                 Team Name
                             </TableCell>
 
@@ -145,7 +143,10 @@ export default function Status(props: RanksProps) {
                         {teamNames.slice(rowPage * rowsPerPage, rowPage * rowsPerPage + rowsPerPage).map((name) => {
                             return (
                                 <TableRow hover tabIndex={-1} key={name}>
-                                    <TableCell style={{ 'whiteSpace': 'nowrap', 'overflow': 'hidden', 'textOverflow': 'ellipsis'}}>
+                                    <TableCell style={{
+                                        'whiteSpace': 'nowrap',
+                                        'overflow': 'hidden',
+                                        'textOverflow': 'ellipsis'}}>
                                         {name}
                                     </TableCell>
                                     {dataKeysArray.slice(columnPage * columnsPerPage, columnPage * columnsPerPage + columnsPerPage).map((column) => (
@@ -174,10 +175,11 @@ export default function Status(props: RanksProps) {
                                                 if (token.isAValidToken() && teamId !== undefined && teamId in report.Teams && report.Teams[teamId].Name === name && highlightParentTeam) {
                                                     style = {
                                                         ...style,
-                                                        borderTop: '1px solid rgba(0, 0, 200, 0.8)',
-                                                        borderBottom: '1px solid rgba(0, 0, 200, 0.8)',
+                                                        borderTop: '2px solid rgba(0, 0, 0, 1)',
+                                                        borderBottom: '2px solid rgba(0, 0, 0, 1)',
                                                         borderLeft: '1px solid rgba(0, 0, 0, 0.5)',
                                                         borderRight: '1px solid rgba(0, 0, 0, 0.5)',
+
                                                     }
                                                 } else{
                                                     style = {...style, border: '1px solid rgba(0, 0, 0, 0.5)'}
