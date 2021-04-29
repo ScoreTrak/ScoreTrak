@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -34,6 +34,9 @@ type RanksProps = {
 }
 
 export default function Status(props: RanksProps) {
+    useEffect(() => {
+        document.title = "Status"
+    }, []);
     const classes = useStyles();
     const [rowPage, setRowPage] = React.useState<number>(0);
     const [rowsPerPage, setRowsPerPage] = React.useState<number>(25);
@@ -123,9 +126,7 @@ export default function Status(props: RanksProps) {
                 <Table stickyHeader aria-label="sticky table" size={dense ? 'small' : 'medium'}>
                     <TableHead>
                         <TableRow>
-                            <TableCell
-                                key="name"
-                            >
+                            <TableCell>
                                 Team Name
                             </TableCell>
 
@@ -145,7 +146,10 @@ export default function Status(props: RanksProps) {
                         {teamNames.slice(rowPage * rowsPerPage, rowPage * rowsPerPage + rowsPerPage).map((name) => {
                             return (
                                 <TableRow hover tabIndex={-1} key={name}>
-                                    <TableCell style={{ 'whiteSpace': 'nowrap', 'overflow': 'hidden', 'textOverflow': 'ellipsis'}}>
+                                    <TableCell style={{
+                                        'whiteSpace': 'nowrap',
+                                        'overflow': 'hidden',
+                                        'textOverflow': 'ellipsis'}}>
                                         {name}
                                     </TableCell>
                                     {dataKeysArray.slice(columnPage * columnsPerPage, columnPage * columnsPerPage + columnsPerPage).map((column) => (
@@ -174,10 +178,11 @@ export default function Status(props: RanksProps) {
                                                 if (token.isAValidToken() && teamId !== undefined && teamId in report.Teams && report.Teams[teamId].Name === name && highlightParentTeam) {
                                                     style = {
                                                         ...style,
-                                                        borderTop: '1px solid rgba(0, 0, 200, 0.8)',
-                                                        borderBottom: '1px solid rgba(0, 0, 200, 0.8)',
+                                                        borderTop: '2px solid rgba(0, 0, 0, 1)',
+                                                        borderBottom: '2px solid rgba(0, 0, 0, 1)',
                                                         borderLeft: '1px solid rgba(0, 0, 0, 0.5)',
                                                         borderRight: '1px solid rgba(0, 0, 0, 0.5)',
+
                                                     }
                                                 } else{
                                                     style = {...style, border: '1px solid rgba(0, 0, 0, 0.5)'}
@@ -185,7 +190,7 @@ export default function Status(props: RanksProps) {
 
                                                 return style
                                             }
-                                        })()} align="center"
+                                        })()} align="center" padding="none"
                                         >
                                             {!hideAddresses && data[name][column] && (() => {
                                                 let msg = ""

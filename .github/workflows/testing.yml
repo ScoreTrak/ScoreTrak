@@ -19,6 +19,10 @@ jobs:
       - name: "Start Cockroach DB in background"
         run: cockroach start-single-node --insecure --background
       - name: "Start golang test"
-        run: go test ./pkg/... --race
+        run: go test ./pkg/... --race -coverprofile=coverage.txt -covermode=atomic
         env:
           AUTO_TEST: "TRUE"
+      - name: "Code Coverage"
+        run: bash <(curl -s https://codecov.io/bash)
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

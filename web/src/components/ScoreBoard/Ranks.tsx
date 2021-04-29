@@ -1,6 +1,6 @@
 import { ResponsiveBar } from '@nivo/bar'
 
-import React from "react";
+import React, {useEffect} from "react";
 import {SimpleReport} from "../../types/types";
 
 const darkTheme = {
@@ -43,6 +43,9 @@ export default function Ranks(props: RanksProps) {
     const report = props.report
     const data: Record<string, number | string> [] = []
     const dataKeys = new Set<string>();
+    useEffect(() => {
+        document.title = "Ranks"
+    }, []);
     if ("Teams" in report){
         for (const team in report.Teams) {
             if (report.Teams.hasOwnProperty(team)) {

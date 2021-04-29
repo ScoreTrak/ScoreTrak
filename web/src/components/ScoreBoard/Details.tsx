@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import SingleTeamDetails from "./SingleTeamDetails";
 import TableContainer from "@material-ui/core/TableContainer";
 import Paper from "@material-ui/core/Paper";
@@ -27,6 +27,9 @@ type DetailsProps = {
 type Row = {team_id: string, team_name: string}
 
 export default function Details(props: DetailsProps) {
+    useEffect(() => {
+        document.title = "Details"
+    }, []);
     const report = props.report
     function BlackTeamPanel() {
         const data: Row [] = []
