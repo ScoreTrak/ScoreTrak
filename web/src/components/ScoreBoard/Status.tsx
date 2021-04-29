@@ -190,7 +190,7 @@ export default function Status(props: RanksProps) {
 
                                                 return style
                                             }
-                                        })()} align="center"
+                                        })()} align="center" padding="none"
                                         >
                                             {!hideAddresses && data[name][column] && (() => {
                                                 let msg = ""
