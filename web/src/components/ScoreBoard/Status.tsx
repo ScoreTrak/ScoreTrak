@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -34,6 +34,9 @@ type RanksProps = {
 }
 
 export default function Status(props: RanksProps) {
+    useEffect(() => {
+        document.title = "Status"
+    }, []);
     const classes = useStyles();
     const [rowPage, setRowPage] = React.useState<number>(0);
     const [rowsPerPage, setRowsPerPage] = React.useState<number>(25);
