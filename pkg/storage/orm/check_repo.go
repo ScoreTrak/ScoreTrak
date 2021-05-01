@@ -103,6 +103,6 @@ func (c *checkRepo) TruncateTable(ctx context.Context) (err error) {
 func ReplaceInvalidCharacters(chck []*check.Check) {
 	for i := range chck {
 		chck[i].Log = strings.ToValidUTF8(chck[i].Log, "�")
-		chck[i].Err = strings.ToValidUTF8(chck[i].Log, "�")
+		chck[i].Err = strings.ToValidUTF8(chck[i].Err, "�")
 	}
 }
