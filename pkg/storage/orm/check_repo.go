@@ -10,6 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strings"
 )
 
 type checkRepo struct {
@@ -74,6 +75,7 @@ func (c *checkRepo) GetByID(ctx context.Context, roundID uint64, serviceID uuid.
 }
 
 func (c *checkRepo) Store(ctx context.Context, chck []*check.Check) error {
+	ReplaceInvalidCharacters(chck)
 	err := c.db.WithContext(ctx).Create(chck).Error
 	if err != nil {
 		return err
@@ -82,6 +84,7 @@ func (c *checkRepo) Store(ctx context.Context, chck []*check.Check) error {
 }
 
 func (c *checkRepo) Upsert(ctx context.Context, chck []*check.Check) error {
+	ReplaceInvalidCharacters(chck)
 	err := c.db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(chck).Error
 	if err != nil {
 		return err
@@ -95,4 +98,11 @@ func (c *checkRepo) TruncateTable(ctx context.Context) (err error) {
 		return err
 	}
 	return nil
+}
+
+func ReplaceInvalidCharacters(chck []*check.Check) {
+	for i := range chck {
+		chck[i].Log = strings.ToValidUTF8(chck[i].Log, "�")
+		chck[i].Err = strings.ToValidUTF8(chck[i].Log, "�")
+	}
 }
