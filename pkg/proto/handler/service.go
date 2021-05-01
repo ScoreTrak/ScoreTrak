@@ -213,13 +213,13 @@ func ConvertServicePBtoService(requireID bool, pb *servicepb.Service) (*service.
 	}
 
 	var pointsBoost *uint64
-	if pb.GetId() != nil {
+	if pb.GetPointsBoost() != nil {
 		pointsBoost = &pb.GetPointsBoost().Value
 	}
 
 	var roundDelay *uint64
 	if pb.GetRoundDelay() != nil {
-		pointsBoost = &pb.GetRoundDelay().Value
+		roundDelay = &pb.GetRoundDelay().Value
 	}
 
 	var pause *bool
