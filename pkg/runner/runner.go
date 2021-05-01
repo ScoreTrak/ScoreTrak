@@ -61,7 +61,7 @@ func (d *dRunner) MasterRunner() (err error) {
 	if err != nil {
 		return err
 	}
-	var scoringLoop *time.Ticker
+	var scoringLoop *time.Timer
 
 	//Pull new config from database
 	cnf, err := d.r.Config.Get(context.TODO())
@@ -72,10 +72,10 @@ func (d *dRunner) MasterRunner() (err error) {
 	lastRound, err := d.r.Round.GetLastRound(context.Background())
 	if lastRound != nil {
 		//if there is a round stored in database, then
-		scoringLoop = time.NewTicker(d.durationUntilNextRound(lastRound, cnf.RoundDuration))
+		scoringLoop = time.NewTimer(d.durationUntilNextRound(lastRound, cnf.RoundDuration))
 	} else if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		//if no round exists, then try to score almost as soon as possible
-		scoringLoop = time.NewTicker(config.MinRoundDuration / 2)
+		scoringLoop = time.NewTimer((time.Duration(d.staticConfig.DynamicConfigPullSeconds) * time.Second) / 2)
 	} else if err != nil {
 		//Some Other error, that is likely connection/database related
 		return err
@@ -106,9 +106,9 @@ func (d *dRunner) MasterRunner() (err error) {
 			scoringLoop.Stop()
 			if lastRound == nil {
 				//If no round exists, retry
-				scoringLoop = time.NewTicker(config.MinRoundDuration / 2)
+				scoringLoop = time.NewTimer((time.Duration(d.staticConfig.DynamicConfigPullSeconds) * time.Second) / 2)
 			} else {
-				scoringLoop = time.NewTicker(d.durationUntilNextRound(lastRound, cnf.RoundDuration))
+				scoringLoop = time.NewTimer(d.durationUntilNextRound(lastRound, cnf.RoundDuration))
 			}
 		case <-scoringLoop.C:
 			//When scoring timer kicks in, stop the timer (so we can later assign a new timer)
@@ -162,7 +162,7 @@ func (d *dRunner) MasterRunner() (err error) {
 					rnd = &round.Round{ID: lastRound.ID + 1}
 				} else {
 					//else, if there is an elapsing round, but that round is not due to be completed yet, we just wait
-					scoringLoop = time.NewTicker(config.MinRoundDuration)
+					scoringLoop = time.NewTimer(config.MinRoundDuration)
 					break
 				}
 				//After everything is figured out, we are reading to move to the next round
@@ -196,7 +196,7 @@ func (d *dRunner) MasterRunner() (err error) {
 				if err != nil {
 					return err
 				}
-				scoringLoop = time.NewTicker(d.durationUntilNextRound(lastRound, cnf.RoundDuration))
+				scoringLoop = time.NewTimer(d.durationUntilNextRound(lastRound, cnf.RoundDuration))
 			}
 		}
 	}
