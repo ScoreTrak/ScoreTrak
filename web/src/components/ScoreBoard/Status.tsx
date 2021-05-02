@@ -158,7 +158,7 @@ export default function Status(props: RanksProps) {
                                                 let style = {}
                                                 if (props.isDarkTheme){
                                                     if (data[name][column].Pause){
-                                                        style = {backgroundColor: "#DB4905"}
+                                                        style = {backgroundColor: "#000000"}
                                                     } else if (data[name][column].Check !== undefined && data[name][column].Check?.Passed){
                                                         style =  {backgroundColor: "#259B0B"}
                                                     } else{
@@ -166,7 +166,7 @@ export default function Status(props: RanksProps) {
                                                     }
                                                 } else{
                                                     if (data[name][column].Pause){
-                                                        style = {backgroundColor: "orange"}
+                                                        style = {backgroundColor: "#000000"}
                                                     } else if (data[name][column].Check !== undefined && data[name][column].Check?.Passed){
                                                         style =  {backgroundColor: "green"}
                                                     } else{
