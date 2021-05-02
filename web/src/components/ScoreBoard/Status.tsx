@@ -168,7 +168,7 @@ export default function Status(props: RanksProps) {
                                                     if (data[name][column].Pause){
                                                         style = {backgroundColor: "#000000"}
                                                     } else if (data[name][column].Check !== undefined && data[name][column].Check?.Passed){
-                                                        style =  {backgroundColor: "green"}
+                                                         style =  {backgroundColor: "green"}
                                                     } else{
                                                         style = {backgroundColor: "red", color: "white"}
                                                     }
