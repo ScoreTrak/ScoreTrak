@@ -3,7 +3,7 @@
 ## Trying/Testing/Development
 For development purposes, it is best to use one of the following:
  - [docker-nsq](./docker-nsq/READEME.md)
- - [docker-standalone](./docker-nsq/READEME.md)
+ - [docker-standalone](./docker-standalone/READEME.md)
  - [local](./local/README.md)
 
 ## Production
