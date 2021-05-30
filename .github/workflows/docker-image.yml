@@ -27,5 +27,5 @@ jobs:
         with:
           push: true
           tags: |
-            docker.pkg.github.com/${{ env.IMAGE_REPOSITORY }}/scoretrak-server:${{ github.sha }}
-            docker.pkg.github.com/${{ env.IMAGE_REPOSITORY }}/scoretrak-server:${{ env.IMAGE_TAG }}
+            ghcr.io/${{ env.IMAGE_REPOSITORY }}/scoretrak-server:${{ github.sha }}
+            ghcr.io/${{ env.IMAGE_REPOSITORY }}/scoretrak-server:${{ env.IMAGE_TAG }}
