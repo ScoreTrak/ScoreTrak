@@ -17,10 +17,15 @@ jobs:
           registry: docker.pkg.github.com
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: PrepareReg Names
+        run: |
+          echo IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+          echo IMAGE_TAG=$(echo ${{ github.ref }} | tr '[:upper:]' '[:lower:]' | awk '{split($0,a,"/"); print a[3]}') >> $GITHUB_ENV
       - name: Build container image
         uses: docker/build-push-action@v2
         with:
           push: true
           tags: |
-            docker.pkg.github.com/${{ github.repository }}/scoretrak-server:${{ github.sha }}
-            docker.pkg.github.com/${{ github.repository }}/scoretrak-server:${{ github.ref }}
+            docker.pkg.github.com/${{ env.IMAGE_REPOSITORY }}/scoretrak-server:${{ github.sha }}
+            docker.pkg.github.com/${{ env.IMAGE_REPOSITORY }}/scoretrak-server:${{ env.IMAGE_TAG }}
