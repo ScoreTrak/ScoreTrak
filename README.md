@@ -26,7 +26,7 @@ $ go mod tidy
 
 ## 2. Deployment
 
-Familiarize yourself with [Deployment options](./Deployment/READEME.md)
+Familiarize yourself with [Deployment options](./Deployment/README.md)
 
 ## 3. Get to know ScoreTrak
  
