@@ -1,37 +1,26 @@
 name: Docker Image CI
-
 on:
-  push:
-    branches: [ master ]
-
+  release:
+    types: [published]
 jobs:
-
-  build-scoretrak:
-
+  build-and-push-scoretrak-server:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
     steps:
-      - name: docker login
-        env:
-          DOCKER_USER:  ${{ secrets.DOCKER_USER }}
-          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-        run: docker login -u $DOCKER_USER -p $DOCKER_TOKEN
-      - uses: actions/checkout@v2
-      - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag l1ghtman/scoretrak:latest
-      - name: Push the Docker image
-        run: docker push l1ghtman/scoretrak:latest
-
-  build-scoretrak-web:
-
-    runs-on: ubuntu-latest
-    steps:
-      - name: docker login
-        env:
-          DOCKER_USER: ${{ secrets.DOCKER_USER }}
-          DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-        run: docker login -u $DOCKER_USER -p $DOCKER_TOKEN
-      - uses: actions/checkout@v2
-      - name: Build the Docker image
-        run: docker build . --file static.Dockerfile --tag l1ghtman/scoretrak-web:latest
-      - name: Push the Docker image
-        run: docker push l1ghtman/scoretrak-web:latest
+      - name: Check out the repo
+        uses: actions/checkout@v2
+      - name: Log in to GitHub Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: docker.pkg.github.com
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build container image
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: |
+            docker.pkg.github.com/${{ github.repository }}/scoretrak-server:${{ github.sha }}
+            docker.pkg.github.com/${{ github.repository }}/scoretrak-server:${{ github.ref }}
