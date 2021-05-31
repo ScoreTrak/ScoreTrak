@@ -1,3 +1,5 @@
 package util
 
-var Image = "docker.io/l1ghtman/scoretrak:latest"
+import "github.com/ScoreTrak/ScoreTrak/pkg/version"
+
+var Image = "ghcr.io/scoretrak/scoretrak/scoretrak-server:" + version.Version
