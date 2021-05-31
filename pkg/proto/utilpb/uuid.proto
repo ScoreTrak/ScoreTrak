@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-package pkg.proto.utilpb;
-option go_package = "github.com/ScoreTrak/ScoreTrak/pkg/proto/utilpb";
-
-
-message UUID {
-  string value = 1;
-}

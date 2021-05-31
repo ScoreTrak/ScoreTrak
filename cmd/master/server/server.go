@@ -6,41 +6,48 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	checkService "github.com/ScoreTrak/ScoreTrak/pkg/check/check_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkpb"
 	competitionService "github.com/ScoreTrak/ScoreTrak/pkg/competition/competition_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/competition/competitionpb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	configService "github.com/ScoreTrak/ScoreTrak/pkg/config/config_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config/configpb"
+	authpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/auth/v1"
+	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"
+	competitionpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/competition/v1"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/di/util"
 	hostService "github.com/ScoreTrak/ScoreTrak/pkg/host/host_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host/hostpb"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/handler"
+	configpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/config/v1"
+	hostpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/host/v1"
+	policypb "github.com/ScoreTrak/ScoreTrak/pkg/proto/policy/v1"
+	teampb "github.com/ScoreTrak/ScoreTrak/pkg/proto/team/v1"
+
 	hostGroupService "github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_grouppb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
 	policyService "github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policypb"
+	host_grouppb "github.com/ScoreTrak/ScoreTrak/pkg/proto/host_group/v1"
+
 	propertyService "github.com/ScoreTrak/ScoreTrak/pkg/property/property_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/property/propertypb"
-	"github.com/ScoreTrak/ScoreTrak/pkg/proto/handler"
+	propertypb "github.com/ScoreTrak/ScoreTrak/pkg/proto/property/v1"
+
+	reportpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/report/v1"
+	roundpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/round/v1"
+	servicepb "github.com/ScoreTrak/ScoreTrak/pkg/proto/service/v1"
+	service_grouppb "github.com/ScoreTrak/ScoreTrak/pkg/proto/service_group/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_client"
 	reportService "github.com/ScoreTrak/ScoreTrak/pkg/report/report_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportpb"
 	roundService "github.com/ScoreTrak/ScoreTrak/pkg/round/round_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/round/roundpb"
 	serviceService "github.com/ScoreTrak/ScoreTrak/pkg/service/service_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service/servicepb"
 	serviceGroupService "github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_group_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_grouppb"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	teamService "github.com/ScoreTrak/ScoreTrak/pkg/team/team_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/team/teampb"
+
+	userpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/user/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	userService "github.com/ScoreTrak/ScoreTrak/pkg/user/user_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/user/userpb"
 	"github.com/gofrs/uuid"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -351,7 +358,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 			}
 			userpb.RegisterUserServiceServer(s, handler.NewUserController(userServ, policyClient))
 
-			auth.RegisterAuthServiceServer(s, handler.NewAuthController(userServ, jwtManager))
+			authpb.RegisterAuthServiceServer(s, handler.NewAuthController(userServ, jwtManager))
 		}
 
 		{
