@@ -22,36 +22,18 @@ static_resources:
                       domains: ["*"]
                       routes:
                         - match:
-                            prefix: "/pkg.policy.policypb.PolicyService/Get"
-                            headers:
-                              - name: "Content-Type"
-                                prefixMatch: "application/grpc-web-text"
-                          route:
-                            cluster: scoretrak
-                            idle_timeout: 0s
-                            max_grpc_timeout: 0s
-                        - match:
-                            prefix: "/pkg.report.reportpb.ReportService/Get"
-                            headers:
-                              - name: "Content-Type"
-                                prefixMatch: "application/grpc-web-text"
-                          route:
-                            cluster: scoretrak
-                            idle_timeout: 0s
-                            max_grpc_timeout: 0s
-                        - match:
                             prefix: "/"
                             headers:
                               - name: "Content-Type"
                                 prefixMatch: "application/grpc-web-text"
                           route:
                             cluster: scoretrak
+                            idle_timeout: 0s
                             max_grpc_timeout: 0s
                         - match:
                             prefix: "/"
                           route:
                             cluster: scoretrak-web
-
                       cors:
                         allow_origin_string_match:
                           - prefix: "*"
