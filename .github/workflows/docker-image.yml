@@ -26,7 +26,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          build_args: IMAGE_TAG=${{IMAGE_TAG}}
+          build_args: IMAGE_TAG=${{ env.IMAGE_TAG }}
           tags: |
             ghcr.io/${{ env.IMAGE_REPOSITORY }}/scoretrak-server:${{ github.sha }}
             ghcr.io/${{ env.IMAGE_REPOSITORY }}/scoretrak-server:${{ env.IMAGE_TAG }}
