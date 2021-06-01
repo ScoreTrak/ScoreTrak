@@ -7,7 +7,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/property/property_repo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -91,7 +91,7 @@ func (p *propertyRepo) Update(ctx context.Context, prop *property.Property) erro
 }
 
 func (p *propertyRepo) TruncateTable(ctx context.Context) (err error) {
-	err = util.TruncateTable(ctx, &property.Property{}, p.db)
+	err = testutil.TruncateTable(ctx, &property.Property{}, p.db)
 	if err != nil {
 		return err
 	}

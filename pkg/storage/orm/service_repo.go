@@ -7,7 +7,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/service/service_repo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -81,7 +81,7 @@ func (s *serviceRepo) Update(ctx context.Context, swm *service.Service) error {
 }
 
 func (s *serviceRepo) TruncateTable(ctx context.Context) (err error) {
-	err = util.TruncateTable(ctx, &service.Service{}, s.db)
+	err = testutil.TruncateTable(ctx, &service.Service{}, s.db)
 	if err != nil {
 		return err
 	}

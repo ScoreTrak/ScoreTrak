@@ -11,7 +11,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/runner"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
-	sutil "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
+	sutil "github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"go.uber.org/dig"
 	"gorm.io/gorm"
 	"log"

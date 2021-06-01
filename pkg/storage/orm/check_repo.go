@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/check_repo"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -93,7 +93,7 @@ func (c *checkRepo) Upsert(ctx context.Context, chck []*check.Check) error {
 }
 
 func (c *checkRepo) TruncateTable(ctx context.Context) (err error) {
-	err = util.TruncateTable(ctx, &check.Check{}, c.db)
+	err = testutil.TruncateTable(ctx, &check.Check{}, c.db)
 	if err != nil {
 		return err
 	}

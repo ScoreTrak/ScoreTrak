@@ -10,7 +10,7 @@ import (
 	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm"
-	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/dgrijalva/jwt-go"

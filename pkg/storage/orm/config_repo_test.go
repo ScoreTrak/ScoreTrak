@@ -5,7 +5,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
-	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
+	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 
 	. "github.com/smartystreets/goconvey/convey"
 	"os"

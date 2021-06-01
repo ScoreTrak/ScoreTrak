@@ -1,4 +1,4 @@
-package util
+package testutil
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
@@ -36,59 +35,6 @@ func CleanAllTables(db *gorm.DB) {
 	db.Migrator().DropTable(&user.User{})
 	db.Migrator().DropTable(&team.Team{})
 	db.Migrator().DropTable(&config.DynamicConfig{})
-}
-
-//CreateAllTables migrates all tables
-func CreateAllTables(db *gorm.DB) (err error) {
-	err = db.AutoMigrate(&team.Team{})
-	if err != nil {
-		return
-	}
-	err = db.AutoMigrate(&user.User{})
-	if err != nil {
-		return
-	}
-	err = db.AutoMigrate(&policy.Policy{})
-	if err != nil {
-		return
-	}
-	err = db.AutoMigrate(&report.Report{})
-	if err != nil {
-		return
-	}
-	err = db.AutoMigrate(&config.DynamicConfig{})
-	if err != nil {
-		return
-	}
-	err = db.AutoMigrate(&host_group.HostGroup{})
-	if err != nil {
-		return
-	}
-	err = db.AutoMigrate(&service_group.ServiceGroup{})
-	if err != nil {
-		return
-	}
-	err = db.AutoMigrate(&host.Host{})
-	if err != nil {
-		return
-	}
-	err = db.AutoMigrate(&round.Round{})
-	if err != nil {
-		return
-	}
-	err = db.AutoMigrate(&service.Service{})
-	if err != nil {
-		return
-	}
-	err = db.AutoMigrate(&check.Check{})
-	if err != nil {
-		return
-	}
-	err = db.AutoMigrate(&property.Property{})
-	if err != nil {
-		return
-	}
-	return
 }
 
 //uuid1 is a uuid of the initial admin user, and admin team
@@ -257,39 +203,6 @@ func DataPreload(db *gorm.DB) {
 
 func DropDB(db *gorm.DB, c config.StaticConfig) {
 	db.Exec(fmt.Sprintf("drop database %s", c.DB.Cockroach.Database))
-}
-
-func LoadConfig(db *gorm.DB, cnf *config.DynamicConfig) error {
-	var count int64
-	db.Table("config").Count(&count)
-	if count != 1 {
-		err := db.Create(cnf).Error
-		if err != nil {
-			serr, ok := err.(*pgconn.PgError)
-			if ok && serr.Code == "23505" {
-				dcc := &config.DynamicConfig{}
-				db.Take(dcc)
-				*cnf = *dcc
-			} else {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-func LoadReport(db *gorm.DB) error {
-	var count int64
-	if count != 1 {
-		err := db.Create(report.NewReport()).Error
-		if err != nil {
-			serr, ok := err.(*pgconn.PgError)
-			if !ok || serr.Code != "23505" {
-				return err
-			}
-		}
-	}
-	return nil
 }
 
 func TruncateTable(ctx context.Context, v interface{}, db *gorm.DB) error {
