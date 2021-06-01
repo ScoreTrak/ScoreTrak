@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   scoretrak:
-    image: l1ghtman/scoretrak:latest
+    image: ghcr.io/scoretrak/scoretrak/scoretrak-server:v0.1.7
     restart: on-failure
     ports:
       - "33333:33333"
@@ -13,7 +13,7 @@ services:
     command: ./master -config /deployments/docker-standalone/config.yml
 
   scoretrak-web:
-    image: l1ghtman/scoretrak-web:latest
+    image: ghcr.io/scoretrak/client/scoretrak-client:v0.1.7
     depends_on:
       - scoretrak
 

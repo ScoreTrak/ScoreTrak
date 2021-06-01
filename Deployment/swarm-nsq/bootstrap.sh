@@ -96,7 +96,7 @@ docker service create \
 --network swarm-nsq_cockroachdb \
 --replicas-max-per-node 1 \
 --config src=scoretrak-config,target=/config.yml \
-l1ghtman/scoretrak:latest ./master -config /config.yml
+ghcr.io/scoretrak/scoretrak/scoretrak-server:v0.1.7 ./master -config /config.yml
 
 docker service create \
 --replicas 3 \
@@ -107,4 +107,4 @@ docker service create \
 --network swarm-nsq_cockroachdb \
 --replicas-max-per-node 1 \
 --config src=scoretrak-config,target=/config.yml \
-l1ghtman/scoretrakweb:latest ./web -config /config.yml
+ghcr.io/scoretrak/client/scoretrak-client:v0.1.7 ./web -config /config.yml
