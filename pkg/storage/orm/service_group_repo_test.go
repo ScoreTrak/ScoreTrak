@@ -7,7 +7,6 @@ import (
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
@@ -24,9 +23,9 @@ func TestServiceGroupSpec(t *testing.T) {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_service_group"
-	db := storage.SetupDB(c.DB)
+	db := SetupCockroachDB(c.DB)
 	ctx := context.Background()
-	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
+	t.Parallel() //t.Parallel should be placed after SetupCockroachDB because gorm has race conditions on Hook register
 	Convey("Creating Service Group Tables", t, func() {
 		db.AutoMigrate(&service_group.ServiceGroup{})
 		sgr := NewServiceGroupRepo(db)

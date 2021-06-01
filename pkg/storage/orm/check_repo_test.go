@@ -7,7 +7,6 @@ import (
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
@@ -25,8 +24,8 @@ func TestCheckSpec(t *testing.T) {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_check"
-	db := storage.SetupDB(c.DB)
-	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
+	db := SetupCockroachDB(c.DB)
+	t.Parallel() //t.Parallel should be placed after SetupCockroachDB because gorm has race conditions on Hook register
 	Convey("Creating Round, Service and Check tables along with their foreign keys", t, func() {
 		db.AutoMigrate(&service.Service{})
 		db.AutoMigrate(&round.Round{})

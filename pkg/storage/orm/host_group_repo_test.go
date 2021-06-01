@@ -6,7 +6,6 @@ import (
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/gofrs/uuid"
 	"os"
@@ -24,8 +23,8 @@ func TestHostGroupSpec(t *testing.T) {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_host_group"
-	db := storage.SetupDB(c.DB)
-	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
+	db := SetupCockroachDB(c.DB)
+	t.Parallel() //t.Parallel should be placed after SetupCockroachDB because gorm has race conditions on Hook register
 	ctx := context.Background()
 	Convey("Creating Host Group Table", t, func() {
 		db.AutoMigrate(&host_group.HostGroup{})

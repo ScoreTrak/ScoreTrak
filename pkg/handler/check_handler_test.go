@@ -9,7 +9,6 @@ import (
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
@@ -36,8 +35,8 @@ func TestCheckSpec(t *testing.T) {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_handler_check"
-	db := storage.SetupDB(c.DB)
-	t.Parallel() //t.Parallel should be placed after SetupDB because gorm has race conditions on Hook register
+	db := SetupCockroachDB(c.DB)
+	t.Parallel() //t.Parallel should be placed after SetupCockroachDB because gorm has race conditions on Hook register
 	err := CreateAllTables(db)
 	if err != nil {
 		panic(err)

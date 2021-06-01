@@ -15,26 +15,6 @@ func GetGlobalDB() *gorm.DB {
 	return db
 }
 
-//SetupDB creates a new database, and it recreates one if it already exists by first deleting it
-func SetupDB(c Config) *gorm.DB {
-	var err error
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s sslmode=disable",
-		c.Cockroach.Host,
-		c.Cockroach.Port,
-		c.Cockroach.UserName)
-	dbPrep, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{})
-	if err != nil {
-		panic(err)
-	}
-	dbPrep.Exec(fmt.Sprintf("drop database if exists  %s", c.Cockroach.Database))
-	dbPrep.Exec(fmt.Sprintf("create database if not exists  %s", c.Cockroach.Database))
-	db, err := NewDB(c)
-	if err != nil {
-		panic(err)
-	}
-	return db
-}
-
 //LoadDB serves as a singleton that initializes the value of db per package
 func LoadDB(c Config) (*gorm.DB, error) {
 	var err error
