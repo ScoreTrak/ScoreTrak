@@ -12,7 +12,6 @@ import (
 	"log"
 	"math"
 	"net"
-	"net/http"
 	"os"
 	"time"
 )
@@ -21,15 +20,12 @@ type WorkerQueue struct {
 	config queueing.Config
 }
 
-func (n WorkerQueue) Send(sds []*queueing.ScoringData) (ret []*queueing.QCheck, bErr error, tErr error) {
+//Send sends scoring data to the NSQD nodes, and returns either a list of checks with a warning, or an error
+func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error) {
 	returningTopicName := queueing.TopicFromServiceRound(sds[0].RoundID)
-	//bErr, tErr := n.TopicAbsent(returningTopicName, addresses)
-	//if tErr != nil {
-	//	return nil, bErr, tErr
-	//}
-	confp := nsq.NewConfig()
-	ProducerConfig(confp, n.config)
-	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", n.config.NSQ.NSQD.Host, n.config.NSQ.NSQD.Port), confp)
+	producerConfig := nsq.NewConfig()
+	nsqProducerConfig(producerConfig, n.config)
+	producer, err := nsq.NewProducer(n.config.NSQ.ProducerNSQD, producerConfig)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -51,35 +47,39 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) (ret []*queueing.QCheck, 
 			return nil, nil, err
 		}
 	}
-	addresses := generateNSQLookupdAddresses(n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port)
-	confc := nsq.NewConfig()
-	ConsumerConfig(confc, n.config)
-	consumer, err := nsq.NewConsumer(returningTopicName, "worker", confc)
+	consumerConfig := nsq.NewConfig()
+	nsqConsumerConfig(consumerConfig, n.config)
+	consumer, err := nsq.NewConsumer(returningTopicName, "worker", consumerConfig)
 	if err != nil {
-		return nil, bErr, err
+		return nil, nil, err
 	}
 	defer consumer.Stop()
-	ret = make([]*queueing.QCheck, len(sds))
+	ret := make([]*queueing.QCheck, len(sds))
 	consumer.ChangeMaxInFlight(len(sds))
 	cq := make(chan queueing.IndexedQueue, 1)
 	consumer.SetLoggerLevel(nsq.LogLevelError)
-	consumer.AddConcurrentHandlers(nsq.HandlerFunc(func(m *nsq.Message) error {
+
+	idIndexMap := make(map[uuid.UUID]int)
+
+	for i, sd := range sds { //Todo: Make this more efficient. Maybe dictionary instead
+		idIndexMap[sd.Service.ID] = i
+	}
+
+	consumer.AddHandler(nsq.HandlerFunc(func(m *nsq.Message) error {
 		buf := bytes.NewBuffer(m.Body)
 		var qc queueing.QCheck
 		if err := gob.NewDecoder(buf).Decode(&qc); err != nil {
 			return err
 		}
-		for i, sd := range sds {
-			if sd.Service.ID == qc.Service.ID {
-				cq <- queueing.IndexedQueue{Q: &qc, I: i}
-				break
-			}
+		if i, ok := idIndexMap[qc.Service.ID]; ok {
+			cq <- queueing.IndexedQueue{Q: &qc, I: i}
+			return nil
 		}
 		return nil
-	}), len(sds))
-	err = consumer.ConnectToNSQLookupds(addresses)
+	}))
+	err = connectConsumer(consumer, n.config)
 	if err != nil {
-		return nil, bErr, err
+		return nil, nil, err
 	}
 	counter := len(sds)
 	for {
@@ -88,22 +88,21 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) (ret []*queueing.QCheck, 
 			ret[res.I] = res.Q
 			counter--
 			if counter == 0 {
-				return ret, bErr, nil
+				return ret, nil, nil
 			}
 		case <-time.After(time.Until(sds[0].Deadline)):
 			if !n.config.NSQ.IgnoreAllScoresIfWorkerFails {
-				return nil, bErr, &queueing.RoundTookTooLongToExecute{Msg: "Round took too long to score. This might be due to many reasons like a worker going down, or the number of rounds being too big for workers to handle"}
+				return nil, nil, &queueing.RoundTookTooLongToExecute{Msg: "Round took too long to score. This might be due to many reasons like a worker going down, or the number of rounds being too big for workers to handle"}
 			} else {
 				return ret, errors.New("some workers failed to receive the checks. Make sure that is by design"), nil
 			}
-
 		}
 	}
 }
 
 func (n WorkerQueue) Receive() {
 	conf := nsq.NewConfig()
-	ConsumerConfig(conf, n.config)
+	nsqConsumerConfig(conf, n.config)
 	consumer, err := nsq.NewConsumer(n.config.NSQ.Topic, "worker", conf)
 	if err != nil {
 		log.Fatalf("Failed to initialize NSQ consumer. Error: %v", err)
@@ -135,7 +134,7 @@ func (n WorkerQueue) Receive() {
 		dsync := -time.Since(sd.MasterTime)
 		if float64(time.Second*5) < math.Abs(float64(dsync)) {
 			name, _ := os.Hostname()
-			n.Acknowledge(queueing.QCheck{Service: sd.Service, Passed: false, Log: "Please provide the error to Black Team / Competition Administrator", Err: fmt.Sprintf("Worker with IP: %s, Hostname: %s is either out of sync, or worker received the message late", GetOutboundIP(), name), RoundID: sd.RoundID})
+			n.Acknowledge(queueing.QCheck{Service: sd.Service, Passed: false, Log: "Please provide the error to Black Team / Competition Administrator", Err: fmt.Sprintf("Worker with IP: %s, Hostname: %s is either out of sync, or worker received the message late", getOutboundIP(), name), RoundID: sd.RoundID})
 			return nil
 		}
 		qc := queueing.CommonExecute(&sd, sd.Deadline.Add(-3*time.Second+dsync))
@@ -143,8 +142,7 @@ func (n WorkerQueue) Receive() {
 		return nil
 
 	}), n.config.NSQ.ConcurrentHandlers)
-	addresses := generateNSQLookupdAddresses(n.config.NSQ.NSQLookupd.Hosts, n.config.NSQ.NSQLookupd.Port)
-	err = consumer.ConnectToNSQLookupds(addresses)
+	err = connectConsumer(consumer, n.config)
 	if err != nil {
 		panic(err)
 	}
@@ -152,7 +150,7 @@ func (n WorkerQueue) Receive() {
 }
 
 //https://stackoverflow.com/a/37382208/9296389
-func GetOutboundIP() net.IP {
+func getOutboundIP() net.IP {
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
 		log.Fatal(err)
@@ -177,18 +175,10 @@ func (n WorkerQueue) Ping(group *service_group.ServiceGroup) error {
 	return nil
 }
 
-func generateNSQLookupdAddresses(hostNames []string, port string) []string {
-	var addresses []string
-	for _, h := range hostNames {
-		addresses = append(addresses, fmt.Sprintf("%s:%s", h, port))
-	}
-	return addresses
-}
-
 func (n WorkerQueue) Acknowledge(q queueing.QCheck) {
 	confp := nsq.NewConfig()
-	ProducerConfig(confp, n.config)
-	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", n.config.NSQ.NSQD.Host, n.config.NSQ.NSQD.Port), confp)
+	nsqProducerConfig(confp, n.config)
+	producer, err := nsq.NewProducer(n.config.NSQ.ProducerNSQD, confp)
 	if err != nil {
 		panic(err)
 	}
@@ -203,90 +193,11 @@ func (n WorkerQueue) Acknowledge(q queueing.QCheck) {
 	producer.Stop()
 }
 
-func ProducerConfig(conf *nsq.Config, config queueing.Config) {
-	tlsConfig(conf, config)
-}
-
-func ConsumerConfig(conf *nsq.Config, config queueing.Config) {
-	conf.LookupdPollInterval = time.Second * 1
-	conf.MaxInFlight = config.NSQ.MaxInFlight
-	tlsConfig(conf, config)
-}
-
-func tlsConfig(conf *nsq.Config, config queueing.Config) {
-	if config.NSQ.AuthSecret != "" {
-		conf.AuthSecret = config.NSQ.AuthSecret
-	}
-	if config.NSQ.ClientCA != "" && config.NSQ.ClientSSLKey != "" && config.NSQ.ClientSSLCert != "" {
-		err := conf.Set("tls_v1", true)
-		if err != nil {
-			panic(err)
-		}
-		err = conf.Set("tls_insecure_skip_verify", false)
-		if err != nil {
-			panic(err)
-		}
-		err = conf.Set("tls_root_ca_file", config.NSQ.ClientCA)
-		if err != nil {
-			panic(err)
-		}
-		err = conf.Set("tls_cert", config.NSQ.ClientSSLCert)
-		if err != nil {
-			panic(err)
-		}
-		err = conf.Set("tls_key", config.NSQ.ClientSSLKey)
-		if err != nil {
-			panic(err)
-		}
-	}
-}
-
-func (n WorkerQueue) DeleteTopic(topic string, nsqAddresses []string) { //This makes NSQ node unusable for a while
-	time.Sleep(time.Second * 5)
-	for _, a := range nsqAddresses {
-		client := http.Client{
-			Timeout: time.Second / 2,
-		}
-		resp, err := client.Post(fmt.Sprintf("http://%s/topic/delete?topic=%s", a, topic), "", nil)
-		if err == nil {
-			resp.Body.Close()
-			return
-		}
-	}
-}
-
-//type topics struct {
-//	Topics []string `json:"topics"`
-//}
-
-//func (n WorkerQueue) TopicAbsent(topic string, nsqAddresses []string) (bErr error, tErr error) {
-//	var err error
-//	for _, a := range nsqAddresses {
-//		client := http.Client{
-//			Timeout: time.Second / 2,
-//		}
-//		resp, err2 := client.Get(fmt.Sprintf("http://%s/topics", a))
-//		if err2 != nil {
-//			err = err2
-//			continue
-//		}
-//		topics := topics{}
-//		errd := json.NewDecoder(resp.Body).Decode(&topics)
-//		if errd != nil {
-//			return err, errd
-//		}
-//		for _, val := range topics.Topics {
-//			if val == topic {
-//				return err, fmt.Errorf("NSQ Topic with the same name as %s exists. Round will be terminated. Please firt clean NSQ queues", topic)
-//			}
-//		}
-//		return err, nil
-//		resp.Body.Close()
-//	}
-//	return err, errors.New("no NSQLookupd instances answered the request")
-//}
-
 func NewNSQWorkerQueue(config queueing.Config) (*WorkerQueue, error) {
+	err := validateNSQConfig(config)
+	if err != nil {
+		return nil, err
+	}
 	return &WorkerQueue{config}, nil
 }
 

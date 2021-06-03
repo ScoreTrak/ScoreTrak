@@ -47,22 +47,17 @@ type Config struct {
 	Kafka struct {
 	}
 	NSQ struct {
-		NSQD struct {
-			Port string `default:"4150"`
-			Host string `default:"nsqd"`
-		}
-		IgnoreAllScoresIfWorkerFails bool   `default:"true"`
-		Topic                        string `default:"default"`
-		MaxInFlight                  int    `default:"200"` //This should be more than min(NumberOfChecks, #NSQD Nodes)
-		AuthSecret                   string `default:""`
-		ClientCA                     string `default:""`
-		ClientSSLKey                 string `default:""`
-		ClientSSLCert                string `default:""`
-		ConcurrentHandlers           int    `default:"200"`
-		NSQLookupd                   struct {
-			Hosts []string `default:"[\"nsqlookupd\"]"`
-			Port  string   `default:"4161"`
-		}
+		ProducerNSQD                 string   `default:"nsqd:4150"`
+		IgnoreAllScoresIfWorkerFails bool     `default:"true"`
+		Topic                        string   `default:"default"`
+		MaxInFlight                  int      `default:"200"` //This should be more than min(NumberOfChecks, #NSQD Nodes)
+		AuthSecret                   string   `default:""`
+		ClientRootCA                 string   `default:""`
+		ClientSSLKey                 string   `default:""`
+		ClientSSLCert                string   `default:""`
+		ConcurrentHandlers           int      `default:"200"`
+		NSQLookupd                   []string `default:"[\"nsqlookupd:4161\"]"`
+		ConsumerNSQDPool             []string `default:"[\"\"]"` //"[\"nsqd:4150\"]"`
 	}
 }
 

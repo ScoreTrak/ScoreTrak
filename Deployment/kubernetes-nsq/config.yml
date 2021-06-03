@@ -3,7 +3,7 @@ queue:
   use: nsq
   nsq:
     nsqlookupd:
-      hosts: ["nsqlookupd-0.nsqlookupd", "nsqlookupd-1.nsqlookupd", "nsqlookupd-2.nsqlookupd"]
+      hosts: ["nsqlookupd-0.nsqlookupd:4161", "nsqlookupd-1.nsqlookupd:4161", "nsqlookupd-2.nsqlookupd:4161 "]
 db:
   cockroach:
     host: scoretrak-cockroachdb-public

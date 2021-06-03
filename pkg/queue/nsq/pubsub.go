@@ -1,7 +1,6 @@
 package nsq
 
 import (
-	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/nsqio/go-nsq"
 	"log"
@@ -16,8 +15,8 @@ type PubSub struct {
 
 func (p PubSub) NotifyTopic(topic string) {
 	confp := nsq.NewConfig()
-	ProducerConfig(confp, p.config)
-	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", p.config.NSQ.NSQD.Host, p.config.NSQ.NSQD.Port), confp)
+	nsqProducerConfig(confp, p.config)
+	producer, err := nsq.NewProducer(p.config.NSQ.ProducerNSQD, confp)
 	if err != nil {
 		log.Fatalf("Unable to initialize producer to notify masters using queue. Ensure that the queue is reachable from master. Error Details: %v", err)
 	}
@@ -32,7 +31,7 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 	n := make(chan struct{})
 	go func() {
 		conf := nsq.NewConfig()
-		ConsumerConfig(conf, p.config)
+		nsqConsumerConfig(conf, p.config)
 		consumer, err := nsq.NewConsumer(topic, "master_"+strconv.Itoa(rand.New(rand.NewSource(time.Now().UnixNano())).Int()), conf)
 		if err != nil {
 			log.Fatalf("Unable to initualize consumer for topic: %s. Error Details: %v", topic, err)
@@ -43,10 +42,9 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 				n <- struct{}{}
 				return nil
 			}))
-		addresses := generateNSQLookupdAddresses(p.config.NSQ.NSQLookupd.Hosts, p.config.NSQ.NSQLookupd.Port)
-		err = consumer.ConnectToNSQLookupds(addresses)
+		err = connectConsumer(consumer, p.config)
 		if err != nil {
-			log.Fatalf("Unable to connect to NSQLookupd instances")
+			log.Fatalf("Unable to establish connection with NSQ")
 		}
 		select {}
 	}()
@@ -54,5 +52,9 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 }
 
 func NewNSQPubSub(config queueing.Config) (*PubSub, error) {
+	err := validateNSQConfig(config)
+	if err != nil {
+		return nil, err
+	}
 	return &PubSub{config}, nil
 }
