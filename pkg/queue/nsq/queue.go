@@ -61,7 +61,7 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, erro
 
 	idIndexMap := make(map[uuid.UUID]int)
 
-	for i, sd := range sds { //Todo: Make this more efficient. Maybe dictionary instead
+	for i, sd := range sds {
 		idIndexMap[sd.Service.ID] = i
 	}
 
