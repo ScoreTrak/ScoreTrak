@@ -55,8 +55,10 @@ func newCockroach(c Config) (*gorm.DB, error) {
 	if c.Cockroach.Password != "" {
 		psqlInfo += " password=" + c.Cockroach.Password
 	}
-	if c.Cockroach.ClientCA != "" && c.Cockroach.ClientSSLKey != "" && c.Cockroach.ClientSSLCert != "" {
+	if c.Cockroach.ClientCA != "" && c.Cockroach.ClientSSLKey != "" && c.Cockroach.ClientSSLCert != "" { //mTLS
 		psqlInfo += fmt.Sprintf(" ssl=true sslmode=verify-full sslrootcert=%s sslkey=%s sslcert=%s", c.Cockroach.ClientCA, c.Cockroach.ClientSSLKey, c.Cockroach.ClientSSLCert)
+	} else if c.Cockroach.ClientCA != "" && c.Cockroach.ClientSSLKey == "" && c.Cockroach.ClientSSLCert == "" { //OneWayTLS
+		psqlInfo += fmt.Sprintf(" ssl=true sslmode=verify-full sslrootcert=%s", c.Cockroach.ClientCA)
 	} else if c.Cockroach.ClientCA != "" || c.Cockroach.ClientSSLKey != "" || c.Cockroach.ClientSSLCert != "" {
 		return nil, fmt.Errorf("you provided some, but not all certificate information. CA: %s, Key: %s, Cert: %s. If you wish to not use certificates for database, make sure to all fields are empty", c.Cockroach.ClientCA, c.Cockroach.ClientSSLKey, c.Cockroach.ClientSSLCert)
 	} else {
