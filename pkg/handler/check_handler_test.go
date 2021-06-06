@@ -37,7 +37,7 @@ func TestCheckSpec(t *testing.T) {
 	c.DB.Cockroach.Database = "scoretrak_test_handler_check"
 	db := SetupCockroachDB(c.DB)
 	t.Parallel() //t.Parallel should be placed after SetupCockroachDB because gorm has race conditions on Hook register
-	err := CreateAllTables(db)
+	err := util.CreateAllTables(db)
 	if err != nil {
 		panic(err)
 	}

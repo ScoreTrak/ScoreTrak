@@ -88,7 +88,6 @@ type Config struct {
 	Use       string `default:"cockroach"`
 	Prefix    string `default:""`
 	Cockroach struct {
-		Enabled           bool   `default:"true"`
 		Host              string `default:"cockroach"`
 		Port              string `default:"26257"`
 		UserName          string `default:"root"`

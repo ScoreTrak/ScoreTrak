@@ -187,6 +187,11 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 		opts = append(opts, grpc_middleware.WithStreamServerChain(middlewareChainsStream...))
 	}
 
+	//Middleware Chaining
+	//{
+	//	opts = append(opts, grpc.MaxRecvMsgSize()) //Todo: Figure out a way to pass parameter for MaxRecvMsgSize (Can help with large competition files)
+	//}
+
 	//{
 	//	opts = append(opts)
 	//}
@@ -207,6 +212,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 		{
 			comptSvc := competitionService.NewCompetitionServ(repoStore)
 			competitionpb.RegisterCompetitionServiceServer(s, handler.NewCompetitionController(comptSvc))
+
 		}
 		{
 			var configSvc configService.Serv
