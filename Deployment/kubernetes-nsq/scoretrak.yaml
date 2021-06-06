@@ -79,7 +79,7 @@ spec:
 
       containers:
         - name: scoretrak
-          image: ghcr.io/scoretrak/scoretrak/scoretrak-server:v0.1.8
+          image: ghcr.io/scoretrak/scoretrak/scoretrak-server:v0.1.9
           imagePullPolicy: Always
           ports:
             - containerPort: 33333
