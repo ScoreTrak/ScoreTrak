@@ -35,7 +35,7 @@ func (c *checkRepo) GetAllByServiceID(ctx context.Context, serviceID uuid.UUID) 
 
 func (c *checkRepo) GetByRoundServiceID(ctx context.Context, roundID uint64, serviceID uuid.UUID) (*check.Check, error) {
 	chk := &check.Check{}
-	err := c.db.WithContext(ctx).Where("round_id = ? AND service_id = ?", roundID, serviceID).First(&chk).Error
+	err := c.db.WithContext(ctx).Where("round_id = ?", roundID).Where("service_id = ?", serviceID).First(&chk).Error
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (c *checkRepo) GetByRoundServiceID(ctx context.Context, roundID uint64, ser
 }
 
 func (c *checkRepo) Delete(ctx context.Context, roundID uint64, serviceID uuid.UUID) error {
-	result := c.db.WithContext(ctx).Delete(&check.Check{}, "round_id = ? AND service_id = ?", roundID, serviceID)
+	result := c.db.WithContext(ctx).Where("round_id = ?", roundID).Where("service_id = ?", serviceID).Delete(&check.Check{})
 	if result.Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the check with rid, sid : %d, %d", roundID, serviceID)
 		return errors.New(errMsg)

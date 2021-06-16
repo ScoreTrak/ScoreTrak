@@ -106,7 +106,7 @@ func TestCheckSpec(t *testing.T) {
 					info *grpc.StreamServerInfo,
 					handler grpc.StreamHandler,
 				) error {
-					return handler(srv, auth.StreamClaimInjector{stream, claim})
+					return handler(srv, auth.StreamClaimInjector{ServerStream: stream, Claims: claim})
 				})
 
 				opts = append(opts, grpc_middleware.WithUnaryServerChain(middlewareChainsUnary...))
