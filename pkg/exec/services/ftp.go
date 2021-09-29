@@ -48,7 +48,7 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	defer func(c *ftp.ServerConn) {
 		err := c.Quit()
 		if err != nil {
-			fmt.Errorf("unable to close ftp connection: %w", err)
+			fmt.Println(fmt.Errorf("unable to close ftp connection: %w", err))
 		}
 	}(c)
 	err = c.Login(f.Username, f.Password)
@@ -58,7 +58,7 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	defer func(c *ftp.ServerConn) {
 		err := c.Logout()
 		if err != nil {
-			fmt.Errorf("unable to logout from FTP: %w", err)
+			fmt.Println(fmt.Errorf("unable to logout from FTP: %w", err))
 		}
 	}(c)
 	if f.Text != "" {
@@ -80,7 +80,7 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 		defer func(r *ftp.Response) {
 			err := r.Close()
 			if err != nil {
-				fmt.Errorf("unable to close file: %w", err)
+				fmt.Println(fmt.Errorf("unable to close file: %w", err))
 			}
 		}(r)
 		if err := c.Quit(); err != nil {

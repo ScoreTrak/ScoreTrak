@@ -49,7 +49,7 @@ func ConfigFlagParser() (string, error) {
 		defer func(f *os.File) {
 			err := f.Close()
 			if err != nil {
-				fmt.Errorf("unable to close the file: %w", err)
+				fmt.Println(fmt.Errorf("unable to close the file: %w", err))
 			}
 		}(f)
 		_, err = f.Write(dec)

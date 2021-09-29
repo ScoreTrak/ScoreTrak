@@ -54,7 +54,7 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 	defer func(conn net.Conn) {
 		err := conn.Close()
 		if err != nil {
-			fmt.Errorf("unable to close the connection: %w", err)
+			fmt.Println(fmt.Errorf("unable to close the connection: %w", err))
 		}
 	}(conn)
 	d := &smb2.Dialer{
@@ -71,7 +71,7 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 	defer func(c *smb2.Client) {
 		err := c.Logoff()
 		if err != nil {
-			fmt.Errorf("unable to logoff: %w", err)
+			fmt.Println(fmt.Errorf("unable to logoff: %w", err))
 		}
 	}(c)
 
@@ -82,7 +82,7 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 	defer func(fs *smb2.RemoteFileSystem) {
 		err := fs.Umount()
 		if err != nil {
-			fmt.Errorf("unable to unmount file system: %w", err)
+			fmt.Println(fmt.Errorf("unable to unmount file system: %w", err))
 		}
 	}(fs)
 	if s.FileName != "" {
@@ -108,7 +108,7 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 		defer func(f *smb2.RemoteFile) {
 			err := f.Close()
 			if err != nil {
-				fmt.Errorf("unable to close remote file: %w", err)
+				fmt.Println(fmt.Errorf("unable to close remote file: %w", err))
 			}
 		}(f)
 		_, err = f.Seek(0, io.SeekStart)

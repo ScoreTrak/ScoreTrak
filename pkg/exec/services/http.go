@@ -41,7 +41,7 @@ func (h *HTTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			fmt.Errorf("unable to close body: %w", err)
+			fmt.Println(fmt.Errorf("unable to close body: %w", err))
 		}
 	}(resp.Body)
 

@@ -103,7 +103,7 @@ func (w *Sql) Execute(e exec.Exec) (passed bool, log string, err error) {
 	defer func(sqlDB *sql.DB) {
 		err := sqlDB.Close()
 		if err != nil {
-			fmt.Errorf("unable to close sql connection: %w", err)
+			fmt.Println(fmt.Errorf("unable to close sql connection: %w", err))
 		}
 	}(sqlDB)
 

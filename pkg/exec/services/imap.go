@@ -50,7 +50,7 @@ func (i *IMAP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	defer func(c *client.Client) {
 		err := c.Close()
 		if err != nil {
-			fmt.Errorf("unable to close client: %w", err)
+			fmt.Println(fmt.Errorf("unable to close client: %w", err))
 		}
 	}(c)
 	if err := c.Login(i.Username, i.Password); err != nil {
@@ -59,7 +59,7 @@ func (i *IMAP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	defer func(c *client.Client) {
 		err := c.Logout()
 		if err != nil {
-			fmt.Errorf("unable to logout: %w", err)
+			fmt.Println(fmt.Errorf("unable to logout: %w", err))
 		}
 	}(c)
 	// List mailboxes

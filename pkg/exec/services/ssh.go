@@ -44,14 +44,19 @@ func (s *SSH) Execute(e exec.Exec) (passed bool, log string, err error) {
 	defer func(client *ssh.Client) {
 		err := client.Close()
 		if err != nil {
-			fmt.Errorf("unable to close ssh client: %w", err)
+			fmt.Println(fmt.Errorf("unable to close ssh client: %w", err))
 		}
 	}(client)
 	session, err := client.NewSession()
 	if err != nil {
 		return false, "Unable to establish the session", err
 	}
-	defer session.Close()
+	defer func(session *ssh.Session) {
+		err := session.Close()
+		if err != nil {
+			fmt.Println(fmt.Errorf("unable to close ssh session: %w", err))
+		}
+	}(session)
 	out, err := session.CombinedOutput(s.Command)
 	if err != nil {
 		return false, "Unable to execute the command", err
