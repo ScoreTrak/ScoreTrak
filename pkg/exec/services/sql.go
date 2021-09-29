@@ -1,6 +1,7 @@
 package services
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
@@ -99,7 +100,12 @@ func (w *Sql) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "unable to fetch the underlying sql driver, this is most likely a bug", err
 	}
-	defer sqlDB.Close()
+	defer func(sqlDB *sql.DB) {
+		err := sqlDB.Close()
+		if err != nil {
+			fmt.Errorf("unable to close sql connection: %w", err)
+		}
+	}(sqlDB)
 
 	result := db.WithContext(e.Context).Raw(w.Command)
 

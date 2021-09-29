@@ -51,7 +51,12 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to dial the host", err
 	}
-	defer conn.Close()
+	defer func(conn net.Conn) {
+		err := conn.Close()
+		if err != nil {
+			fmt.Errorf("unable to close the connection: %w", err)
+		}
+	}(conn)
 	d := &smb2.Dialer{
 		Initiator: &smb2.NTLMInitiator{
 			User:     s.Username,
@@ -63,13 +68,23 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to dial the host", err
 	}
-	defer c.Logoff()
+	defer func(c *smb2.Client) {
+		err := c.Logoff()
+		if err != nil {
+			fmt.Errorf("unable to logoff: %w", err)
+		}
+	}(c)
 
 	fs, err := c.Mount(`\\` + e.Host + `\` + s.Share)
 	if err != nil {
 		return false, "Unable to mount the share", err
 	}
-	defer fs.Umount()
+	defer func(fs *smb2.RemoteFileSystem) {
+		err := fs.Umount()
+		if err != nil {
+			fmt.Errorf("unable to unmount file system: %w", err)
+		}
+	}(fs)
 	if s.FileName != "" {
 		var f *smb2.RemoteFile
 		if strings.Contains(s.Operation, create) {
@@ -90,7 +105,12 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 				return true, "Success!", nil
 			}
 		}
-		defer f.Close()
+		defer func(f *smb2.RemoteFile) {
+			err := f.Close()
+			if err != nil {
+				fmt.Errorf("unable to close remote file: %w", err)
+			}
+		}(f)
 		_, err = f.Seek(0, io.SeekStart)
 		if err != nil {
 			return false, "Unable to read the file", err

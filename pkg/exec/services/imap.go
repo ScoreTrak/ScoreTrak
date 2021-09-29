@@ -3,6 +3,7 @@ package services
 import (
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
@@ -46,11 +47,21 @@ func (i *IMAP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to pass Dial the remote server", err
 	}
-	defer c.Close()
+	defer func(c *client.Client) {
+		err := c.Close()
+		if err != nil {
+			fmt.Errorf("unable to close client: %w", err)
+		}
+	}(c)
 	if err := c.Login(i.Username, i.Password); err != nil {
 		return false, "Unable to login with the credentials provided", err
 	}
-	defer c.Logout()
+	defer func(c *client.Client) {
+		err := c.Logout()
+		if err != nil {
+			fmt.Errorf("unable to logout: %w", err)
+		}
+	}(c)
 	// List mailboxes
 	mailboxes := make(chan *imap.MailboxInfo, 10)
 	done := make(chan error, 1)

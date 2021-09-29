@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"flag"
+	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/jinzhu/copier"
 	"os"
@@ -36,13 +37,21 @@ func ConfigFlagParser() (string, error) {
 			return "", err
 		}
 		tmpPath := filepath.Join(".", "configs")
-		os.MkdirAll(tmpPath, os.ModePerm)
+		err = os.MkdirAll(tmpPath, os.ModePerm)
+		if err != nil {
+			return "", err
+		}
 		path = "configs/config-encoded.yml"
 		f, err := os.Create(path)
 		if err != nil {
 			return "", err
 		}
-		defer f.Close()
+		defer func(f *os.File) {
+			err := f.Close()
+			if err != nil {
+				fmt.Errorf("unable to close the file: %w", err)
+			}
+		}(f)
 		_, err = f.Write(dec)
 		if err != nil {
 			return "", err

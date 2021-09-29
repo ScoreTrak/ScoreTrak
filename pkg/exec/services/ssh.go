@@ -41,7 +41,12 @@ func (s *SSH) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to dial the remote host. Make sure the host is up, and credentials are correct", err
 	}
-	defer client.Close()
+	defer func(client *ssh.Client) {
+		err := client.Close()
+		if err != nil {
+			fmt.Errorf("unable to close ssh client: %w", err)
+		}
+	}(client)
 	session, err := client.NewSession()
 	if err != nil {
 		return false, "Unable to establish the session", err

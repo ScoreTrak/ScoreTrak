@@ -49,7 +49,7 @@ func (w *Winrm) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Port was not open on a remote host", err
 	}
-	conn.Close()
+	_ = conn.Close()
 	endpoint := winrm.NewEndpoint(e.Host, i, isHttps, true, nil, nil, nil, time.Until(e.Deadline()))
 	params := winrm.DefaultParameters
 	params.Dial = (&net.Dialer{

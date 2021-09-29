@@ -67,7 +67,12 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 		if err != nil {
 			return false, "Failed to Retrieve the file from FTP", err
 		}
-		defer r.Close()
+		defer func(r *ftp.Response) {
+			err := r.Close()
+			if err != nil {
+				fmt.Errorf("unable to close file: %w", err)
+			}
+		}(r)
 		if err := c.Quit(); err != nil {
 			return false, "Unable to gracefully exit FTP server", err
 		}

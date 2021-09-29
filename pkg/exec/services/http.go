@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -37,7 +38,12 @@ func (h *HTTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Error while making the request", err
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			fmt.Errorf("unable to close body: %w", err)
+		}
+	}(resp.Body)
 
 	if !(resp.StatusCode >= 200 && resp.StatusCode < 400) {
 		return false, fmt.Sprintf("Invalid response code received: %d", resp.StatusCode), nil
