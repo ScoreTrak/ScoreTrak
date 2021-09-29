@@ -29,10 +29,15 @@ type MasterStreamPubSub interface {
 	ReceiveUpdateFromTopic(topic string) <-chan struct{}
 }
 
+const (
+	Nsq = "nsq"
+	None = "none"
+ )
+
 func NewMasterStreamPubSub(c queueing.Config) (MasterStreamPubSub, error) {
-	if c.Use == "nsq" {
+	if c.Use == Nsq {
 		return nsq.NewNSQPubSub(c)
-	} else if c.Use == "none" {
+	} else if c.Use == None {
 		return none.NewNonePubSub(c)
 	} else {
 		return nil, errors.New("invalid pub-sub selected")
@@ -40,9 +45,9 @@ func NewMasterStreamPubSub(c queueing.Config) (MasterStreamPubSub, error) {
 }
 
 func NewWorkerQueue(c queueing.Config) (WorkerQueue, error) {
-	if c.Use == "nsq" {
+	if c.Use == Nsq {
 		return nsq.NewNSQWorkerQueue(c)
-	} else if c.Use == "none" {
+	} else if c.Use == None {
 		return none.NewNoneQueue()
 	} else {
 		return nil, errors.New("invalid queue selected")

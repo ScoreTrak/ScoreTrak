@@ -32,7 +32,7 @@ type serviceGroupServ struct {
 }
 
 func (svc *serviceGroupServ) Redeploy(ctx context.Context, id uuid.UUID) error {
-	if svc.p == nil || config.GetStaticConfig().Queue.Use == "none" {
+	if svc.p == nil || config.GetStaticConfig().Queue.Use == queue.None {
 		return errors.New("queue was not established, or platform is none, please manually redeploy the workers")
 	}
 
@@ -73,7 +73,7 @@ func (svc *serviceGroupServ) Delete(ctx context.Context, id uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-	if svc.p != nil && config.GetStaticConfig().Queue.Use != "none" {
+	if svc.p != nil && config.GetStaticConfig().Queue.Use != queue.None {
 		wr := worker.Info{Topic: serviceGrp.Name, Label: serviceGrp.Label}
 		err := svc.p.RemoveWorkers(ctx, wr)
 		if err != nil {
@@ -92,7 +92,7 @@ func (svc *serviceGroupServ) GetByID(ctx context.Context, id uuid.UUID) (*servic
 }
 
 func (svc *serviceGroupServ) Store(ctx context.Context, u *service_group.ServiceGroup) error {
-	if svc.p != nil && !u.SkipHelper && config.GetStaticConfig().Queue.Use != "none" {
+	if svc.p != nil && !u.SkipHelper && config.GetStaticConfig().Queue.Use != queue.None {
 		if u.Enabled != nil && *u.Enabled {
 			return status.Errorf(
 				codes.FailedPrecondition,
@@ -117,7 +117,7 @@ func (svc *serviceGroupServ) Update(ctx context.Context, u *service_group.Servic
 			fmt.Sprintf("Service Group not found: %v", err),
 		)
 	}
-	if !u.SkipHelper && config.GetStaticConfig().Queue.Use != "none" {
+	if !u.SkipHelper && config.GetStaticConfig().Queue.Use != queue.None {
 		if u.Enabled != nil && *u.Enabled && !*serviceGrp.Enabled {
 			err = svc.q.Ping(serviceGrp)
 			if err != nil {

@@ -24,5 +24,6 @@ linters:
     - paralleltest
     - nlreturn
     - nestif
-# Todo: re-enable funlen(temporarily)
+# Todo: re-enable funlen,gocognit(temporarily)
     - funlen
+    - gocognit
