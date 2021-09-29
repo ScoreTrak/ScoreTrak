@@ -19,8 +19,8 @@ func SetupConfig(f string) config.StaticConfig {
 	return config.GetStaticConfig()
 }
 
-func NewTestConfigClone() config.StaticConfig{
-	return NewConfigClone(SetupConfig("../../../configs/test-config.yml"))
+func NewTestConfigClone(testConfPath string) config.StaticConfig{
+	return NewConfigClone(SetupConfig(testConfPath))
 }
 
 func NewConfigClone(c config.StaticConfig) config.StaticConfig {
