@@ -27,7 +27,7 @@ func (h *HTTP) Validate() error {
 }
 
 func (h *HTTP) Execute(e exec.Exec) (passed bool, log string, err error) {
-	baseURL := exec.ConstructURI(h.Port, h.Subdomain, e.Host, h.Path, h.Scheme)
+	baseURL := ConstructURI(h.Port, h.Subdomain, e.Host, h.Path, h.Scheme)
 	req, err := http.NewRequest("GET", baseURL.String(), nil)
 	if err != nil {
 		return false, "Error while crafting the request", err
@@ -59,5 +59,5 @@ func (h *HTTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 			return false, fmt.Sprintf("the page output doesn't contain expected output. Output received: %s", newStr), nil
 		}
 	}
-	return true, "Success!", nil
+	return true, Success, nil
 }

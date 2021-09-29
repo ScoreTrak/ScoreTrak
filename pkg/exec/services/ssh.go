@@ -64,5 +64,5 @@ func (s *SSH) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if s.ExpectedOutput != "" && !strings.Contains(string(out), s.ExpectedOutput) {
 		return false, fmt.Sprintf("The output of the command did not match Expected Output. Output Received: %s", string(out)), nil
 	}
-	return true, "Success!", nil
+	return true, Success, nil
 }

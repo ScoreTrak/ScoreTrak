@@ -95,5 +95,5 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 			return false, fmt.Sprintf("Fetched file's contents do not match Expected Output. Output received: %s", string(buf)), nil
 		}
 	}
-	return true, "Success!", nil
+	return true, Success, nil
 }

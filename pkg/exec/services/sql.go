@@ -136,7 +136,7 @@ func (w *Sql) Execute(e exec.Exec) (passed bool, log string, err error) {
 			return false, fmt.Sprintf("Number of rows was less than expected (%d > %d)", num, count), nil
 		}
 	}
-	return true, "Success!", nil
+	return true, Success, nil
 }
 
 //Todo: Implement Content Check

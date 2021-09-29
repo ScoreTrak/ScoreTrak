@@ -23,7 +23,7 @@ func NewPing() *Ping {
 }
 
 func (p *Ping) Validate() error {
-	if exec.ContainsString(ipv4opt, p.Protocol) || exec.ContainsString(ipv6opt, p.Protocol) {
+	if ContainsString(ipv4opt, p.Protocol) || ContainsString(ipv6opt, p.Protocol) {
 		return nil
 	}
 	return fmt.Errorf("protocol parameter should either be '%s' '%s' '%s' for ipv4, or '%s' '%s' '%s' for ipv6", ipv4opt[0], ipv4opt[1], ipv4opt[2], ipv6opt[0], ipv6opt[1], ipv4opt[2])
@@ -32,7 +32,7 @@ func (p *Ping) Validate() error {
 func (p *Ping) Execute(e exec.Exec) (passed bool, log string, err error) {
 	var remoteAddr *net.IPAddr
 	var pinger *ping.Pinger
-	if exec.ContainsString(ipv4opt, p.Protocol) {
+	if ContainsString(ipv4opt, p.Protocol) {
 		if r, err := net.ResolveIPAddr("ip4", e.Host); err != nil {
 			return false, "Unable to resolve remote address", err
 		} else {
@@ -64,7 +64,7 @@ func (p *Ping) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to perform the ping", err
 	}
-	return true, fmt.Sprintf("Success!\nRound trip time: %s", rtt.String()), nil
+	return true, fmt.Sprintf("%s\nRound trip time: %s", Success, rtt.String()), nil
 }
 
 //Below Code has some very nasty errors that are in the underlying library(For instance: https://github.com/sparrc/go-ping/pull/80). Until they are fixed, we will use https://github.com/digineo/go-ping
@@ -85,5 +85,5 @@ func (p *Ping) Execute(e exec.Exec) (passed bool, log string, err error) {
 //	if stats.PacketLoss != 0 {
 //		return false, fmt.Sprintf("Packet loss was not 0%%, instead it was: %.2f%%", stats.PacketLoss), nil
 //	}
-//	return true, "Success!", nil
+//	return true, Success, nil
 //}

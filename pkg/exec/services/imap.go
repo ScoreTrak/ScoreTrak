@@ -30,7 +30,7 @@ func (i *IMAP) Validate() error {
 }
 
 func (i *IMAP) Execute(e exec.Exec) (passed bool, log string, err error) {
-	isHttps := exec.IsSecure(i.Scheme)
+	isHttps := IsSecure(i.Scheme)
 	if i.Port == "" {
 		if isHttps {
 			i.Port = "993"
@@ -68,7 +68,7 @@ func (i *IMAP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	go func() {
 		done <- c.List("", "*", mailboxes)
 	}()
-	log = "Success!\n"
+	log = Success + "\n"
 	for m := range mailboxes {
 		log += "* " + m.Name
 	}

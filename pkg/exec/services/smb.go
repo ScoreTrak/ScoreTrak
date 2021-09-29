@@ -102,7 +102,7 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 				return false, "Unable to open the filename on a remote computer", err
 			}
 			if s.Operation == create {
-				return true, "Success!", nil
+				return true, Success, nil
 			}
 		}
 		defer func(f *smb2.RemoteFile) {
@@ -123,5 +123,5 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 			return false, fmt.Sprintf("Contents of the file did not match expected output. Output Received: %s", string(bs)), nil
 		}
 	}
-	return true, "Success!", nil
+	return true, Success, nil
 }

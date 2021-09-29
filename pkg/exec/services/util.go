@@ -1,9 +1,14 @@
-package exec
+package services
 
 import (
 	"net/url"
 	"strings"
 )
+
+const (
+	Success = "Success!"
+)
+
 
 func IsSecure(s string) bool {
 	return ContainsString([]string{"https", "tls", "ssl", "ldaps"}, strings.ToLower(s))

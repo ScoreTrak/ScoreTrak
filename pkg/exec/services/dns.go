@@ -34,7 +34,7 @@ func (p *DNS) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if p.ExpectedOutput != "" && ip[0].String() != p.ExpectedOutput {
 		return false, fmt.Sprintf("Expected output did not match. Output received: %s", ip[0].String()), nil
 	}
-	return true, "Success!", nil
+	return true, Success, nil
 }
 
 //Todo: Substitute this DNS library with one that is more flexible (Support lookup types other than A)

@@ -36,7 +36,7 @@ func (l *LDAP) Validate() error {
 
 func (l *LDAP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	var ld *ldap.Conn
-	if exec.IsSecure(l.ApplicationProtocol) {
+	if IsSecure(l.ApplicationProtocol) {
 		if l.Port == "" {
 			l.Port = "636"
 		}
@@ -63,7 +63,7 @@ func (l *LDAP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to bind", err
 	}
-	log = "Success!"
+	log = Success
 	if l.BaseDN != "" {
 		attributes := strings.Split(l.Attributes, ",")
 		for i := range attributes {

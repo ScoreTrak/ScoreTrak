@@ -33,7 +33,7 @@ func (w *Winrm) Validate() error {
 }
 
 func (w *Winrm) Execute(e exec.Exec) (passed bool, log string, err error) {
-	isHttps := exec.IsSecure(w.Scheme)
+	isHttps := IsSecure(w.Scheme)
 	if w.Port == "" {
 		if isHttps {
 			w.Port = "5986"
@@ -72,7 +72,7 @@ func (w *Winrm) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if w.ExpectedOutput != "" && !strings.Contains(procStdout, strings.ToLower(w.ExpectedOutput)) {
 		return false, fmt.Sprintf("The output of the command did not match Expected Output. Output Received: %s", procStdout), nil
 	}
-	return true, "Success!", nil
+	return true, Success, nil
 }
 
 //endpoint := winrm.NewEndpoint(e.Host, i, isHttps, true, nil, nil, nil, time.Until(e.Deadline()))
