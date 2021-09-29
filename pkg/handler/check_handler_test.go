@@ -13,7 +13,7 @@ import (
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	. "github.com/smartystreets/goconvey/convey"
 	"google.golang.org/grpc"
@@ -44,19 +44,19 @@ func TestCheckSpec(t *testing.T) {
 
 	userClaims := []*auth.UserClaims{
 		{
-			StandardClaims: jwt.StandardClaims{},
+			RegisteredClaims: jwt.RegisteredClaims{},
 			Username:       "TeamOneUser",
 			TeamID:         "11111111-1111-1111-1111-111111111111",
 			Role:           "black",
 		},
 		{
-			StandardClaims: jwt.StandardClaims{},
+			RegisteredClaims: jwt.RegisteredClaims{},
 			Username:       "TeamTwoUser1",
 			TeamID:         "22222222-2222-2222-2222-222222222222",
 			Role:           "blue",
 		},
 		{
-			StandardClaims: jwt.StandardClaims{},
+			RegisteredClaims: jwt.RegisteredClaims{},
 			Username:       "TeamTwoUser2",
 			TeamID:         "22222222-2222-2222-2222-222222222222",
 			Role:           "red",

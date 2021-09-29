@@ -7,7 +7,6 @@ require (
 	github.com/Microsoft/go-winio v0.4.14 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef
 	github.com/bogdanovich/dns_resolver v0.0.0-20170211073258-a8e42bc6a5b6
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/digineo/go-ping v1.0.0
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v1.13.1
@@ -18,6 +17,7 @@ require (
 	github.com/emersion/go-webdav v0.3.0
 	github.com/go-ldap/ldap/v3 v3.2.3
 	github.com/gofrs/uuid v3.3.0+incompatible
+	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/golang/protobuf v1.5.0
 	github.com/googleapis/gnostic v0.3.1 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
