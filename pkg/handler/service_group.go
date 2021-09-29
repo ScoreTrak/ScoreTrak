@@ -19,19 +19,9 @@ type ServiceGroupController struct {
 }
 
 func (p ServiceGroupController) Redeploy(ctx context.Context, request *service_grouppb.RedeployRequest) (*service_grouppb.RedeployResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
-	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+	uid, err := extractUUID(request)
+	if err != nil{
+		return nil, err
 	}
 	err = p.svc.Redeploy(ctx, uid)
 	if err != nil {
@@ -45,19 +35,9 @@ func (p ServiceGroupController) Redeploy(ctx context.Context, request *service_g
 }
 
 func (p ServiceGroupController) GetByID(ctx context.Context, request *service_grouppb.GetByIDRequest) (*service_grouppb.GetByIDResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
-	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+	uid, err := extractUUID(request)
+	if err != nil{
+		return nil, err
 	}
 	servgrp, err := p.svc.GetByID(ctx, uid)
 	if err != nil {
@@ -79,19 +59,9 @@ func (p ServiceGroupController) GetAll(ctx context.Context, request *service_gro
 }
 
 func (p ServiceGroupController) Delete(ctx context.Context, request *service_grouppb.DeleteRequest) (*service_grouppb.DeleteResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
-	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+	uid, err := extractUUID(request)
+	if err != nil{
+		return nil, err
 	}
 	err = p.svc.Delete(ctx, uid)
 	if err != nil {

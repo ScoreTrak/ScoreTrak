@@ -8,6 +8,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
+	v1 "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
@@ -39,6 +40,28 @@ func deleteErrorParser(err error) error {
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
+}
+
+type retrievableID interface {
+	GetId() *v1.UUID
+}
+
+func extractUUID(r retrievableID) (uuid.UUID, error) {
+	id := r.GetId()
+	if id == nil {
+		return uuid.UUID{}, status.Errorf(
+			codes.InvalidArgument,
+			idNotSpecified,
+		)
+	}
+	uid, err := uuid.FromString(id.GetValue())
+	if err != nil {
+		return uuid.UUID{}, status.Errorf(
+			codes.InvalidArgument,
+			unableToParseID+": %v", err,
+		)
+	}
+	return uid, nil
 }
 
 func extractUserClaim(ctx context.Context) *auth.UserClaims {

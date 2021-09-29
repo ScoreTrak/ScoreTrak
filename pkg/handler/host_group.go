@@ -19,19 +19,9 @@ type HostGroupController struct {
 }
 
 func (p HostGroupController) GetByID(ctx context.Context, request *host_grouppb.GetByIDRequest) (*host_grouppb.GetByIDResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
-	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+	uid, err := extractUUID(request)
+	if err != nil{
+		return nil, err
 	}
 	hst, err := p.svc.GetByID(ctx, uid)
 	if err != nil {
@@ -53,19 +43,9 @@ func (p HostGroupController) GetAll(ctx context.Context, request *host_grouppb.G
 }
 
 func (p HostGroupController) Delete(ctx context.Context, request *host_grouppb.DeleteRequest) (*host_grouppb.DeleteResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
-	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+	uid, err := extractUUID(request)
+	if err != nil{
+		return nil, err
 	}
 	err = p.svc.Delete(ctx, uid)
 	if err != nil {

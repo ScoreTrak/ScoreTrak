@@ -284,7 +284,13 @@ func (d *Docker) PullImage(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	io.Copy(os.Stdout, reader)
-	reader.Close()
+	_, err = io.Copy(os.Stdout, reader)
+	if err != nil {
+		return err
+	}
+	err = reader.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }

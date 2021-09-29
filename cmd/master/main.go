@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/cmd/master/server"
@@ -76,17 +77,28 @@ func handleErr(err error) {
 
 func SetupDB(cont *dig.Container) error {
 	var db *gorm.DB
-	cont.Invoke(func(d *gorm.DB) {
+	err := cont.Invoke(func(d *gorm.DB) {
 		db = d
 	})
+	if err != nil {
+		return err
+	}
 	var tm time.Time
 	res, err := db.Raw("SELECT current_timestamp;").Rows()
 	if err != nil {
 		panic(err)
 	}
-	defer res.Close()
+	defer func(res *sql.Rows) {
+		err := res.Close()
+		if err != nil {
+			log.Fatalln(fmt.Errorf("unable to close the database connection properly: %w", err))
+		}
+	}(res)
 	for res.Next() {
-		res.Scan(&tm)
+		err := res.Scan(&tm)
+		if err != nil {
+			return err
+		}
 	}
 	timeDiff := time.Since(tm)
 	if float64(time.Second*2) < math.Abs(float64(timeDiff)) {

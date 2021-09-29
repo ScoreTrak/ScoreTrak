@@ -23,19 +23,9 @@ type ServiceController struct {
 }
 
 func (p ServiceController) GetByID(ctx context.Context, request *servicepb.GetByIDRequest) (*servicepb.GetByIDResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
-	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+	uid, err := extractUUID(request)
+	if err != nil{
+		return nil, err
 	}
 
 	claim := extractUserClaim(ctx)
@@ -66,19 +56,9 @@ func (p ServiceController) GetByID(ctx context.Context, request *servicepb.GetBy
 }
 
 func (p ServiceController) TestService(ctx context.Context, request *servicepb.TestServiceRequest) (*servicepb.TestServiceResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
-	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+	uid, err := extractUUID(request)
+	if err != nil{
+		return nil, err
 	}
 	chck, err := p.svc.TestService(ctx, uid)
 	if err != nil {
@@ -110,19 +90,9 @@ func (p ServiceController) GetAll(ctx context.Context, request *servicepb.GetAll
 }
 
 func (p ServiceController) Delete(ctx context.Context, request *servicepb.DeleteRequest) (*servicepb.DeleteResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
-	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+	uid, err := extractUUID(request)
+	if err != nil{
+		return nil, err
 	}
 	err = p.svc.Delete(ctx, uid)
 	if err != nil {

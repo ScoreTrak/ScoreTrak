@@ -22,19 +22,9 @@ type HostController struct {
 }
 
 func (p HostController) GetByID(ctx context.Context, request *hostpb.GetByIDRequest) (*hostpb.GetByIDResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
-	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+	uid, err := extractUUID(request)
+	if err != nil{
+		return nil, err
 	}
 
 	claim := extractUserClaim(ctx)
@@ -75,19 +65,9 @@ func (p HostController) GetAll(ctx context.Context, request *hostpb.GetAllReques
 }
 
 func (p HostController) Delete(ctx context.Context, request *hostpb.DeleteRequest) (*hostpb.DeleteResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
-	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+	uid, err := extractUUID(request)
+	if err != nil{
+		return nil, err
 	}
 	err = p.svc.Delete(ctx, uid)
 	if err != nil {

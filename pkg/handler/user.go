@@ -36,19 +36,9 @@ func (p UserController) GetByUsername(ctx context.Context, request *userpb.GetBy
 }
 
 func (p UserController) GetByID(ctx context.Context, request *userpb.GetByIDRequest) (*userpb.GetByIDResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
-	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+	uid, err := extractUUID(request)
+	if err != nil{
+		return nil, err
 	}
 	tm, err := p.svc.GetByID(ctx, uid)
 	if err != nil {
@@ -70,19 +60,9 @@ func (p UserController) GetAll(ctx context.Context, _ *userpb.GetAllRequest) (*u
 }
 
 func (p UserController) Delete(ctx context.Context, request *userpb.DeleteRequest) (*userpb.DeleteResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
-	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+	uid, err := extractUUID(request)
+	if err != nil{
+		return nil, err
 	}
 	err = p.svc.Delete(ctx, uid)
 	if err != nil {
