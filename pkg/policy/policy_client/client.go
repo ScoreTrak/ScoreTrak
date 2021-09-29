@@ -13,8 +13,8 @@ import (
 	"time"
 )
 
-//Policy client allows for eventually consistent way to distribute pkg/Policy struct throughout ScoreTrak instances.
-//This is needed because certain API routes evaluate Policy on every call, and retrieving Policy from database is very expensive, hence having eventually consistent copy is much more efficient.
+// Client Policy allows for eventually consistent way to distribute pkg/Policy struct throughout ScoreTrak instances.
+// This is needed because certain API routes evaluate Policy on every call, and retrieving Policy from database is very expensive, hence having eventually consistent copy is much more efficient.
 type Client struct {
 	policy      *policy.Policy
 	policyMutex *sync.RWMutex
@@ -63,7 +63,8 @@ func (a *Client) Subscribe() (uuid.UUID, <-chan struct{}) {
 	ch := make(chan struct{}, 1)
 	uid, err := uuid.NewV4()
 	if err != nil {
-		log.Fatalf("Unable to generate rabdom UUID")
+		a.signalMutex.Unlock()
+		log.Fatalf("Unable to generate random UUID")
 	}
 	a.signal[uid] = ch
 	return uid, ch

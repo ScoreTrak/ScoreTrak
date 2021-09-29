@@ -37,4 +37,4 @@ func (p *DNS) Execute(e exec.Exec) (passed bool, log string, err error) {
 	return true, Success, nil
 }
 
-//Todo: Substitute this DNS library with one that is more flexible (Support lookup types other than A)
+// Todo: Substitute this DNS library with one that is more flexible (Support lookup types other than A)

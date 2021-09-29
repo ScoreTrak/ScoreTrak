@@ -9,25 +9,25 @@ import (
 	"regexp"
 )
 
-// Serv Group model describes a grouping of services.
+// ServiceGroup model describes a grouping of services.
 type ServiceGroup struct {
 	ID uuid.UUID `json:"id,omitempty" gorm:"type:uuid;primary_key;"`
-	//Name is a name of the service group. This value is typically used when integrating with pkg/platform
+	// Name is a name of the service group. This value is typically used when integrating with pkg/platform
 	Name string `json:"name" gorm:"not null;unique;default:null"`
 
-	//DisplayName is not used for anything other than displaying service group on web-ui
+	// DisplayName is not used for anything other than displaying service group on web-ui
 	DisplayName string `json:"display_name,omitempty" gorm:"unique"`
 
-	//Enabled Enables or Disables the check_service
+	// Enabled enables or disables the check_service
 	Enabled *bool `json:"enabled,omitempty" gorm:"not null;default:false"`
 
-	//SkipHelper  Skips pkg/platform automation
+	// SkipHelper  Skips pkg/platform automation
 	SkipHelper bool `json:"skip_helper,omitempty" gorm:"-"`
 
-	//Label is used to help with deployment of workers when using pkg/platform. For instance, specifying Label:default, will deploy all workers in k8s's daemonset where nodes have a label scoretrak_worker: default
+	// Label is used to help with deployment of workers when using pkg/platform. For instance, specifying Label:default, will deploy all workers in k8s's daemonset where nodes have a label scoretrak_worker: default
 	Label string `json:"label,omitempty"`
 
-	//Services represents all services that are part of a given service group
+	// Services represents all services that are part of a given service group
 	Services []*service.Service `json:"services,omitempty" gorm:"foreignkey:ServiceGroupID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT"`
 }
 

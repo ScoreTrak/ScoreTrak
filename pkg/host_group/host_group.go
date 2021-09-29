@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Host Group model represents a set of hosts that have a common purpose, but are in different teams. For instance team 1 web, and team 2 web would bellong to a host group Web
+// HostGroup model represents a set of hosts that have a common purpose, but are in different teams. For instance team 1 web, and team 2 web would bellong to a host group Web
 type HostGroup struct {
 	ID uuid.UUID `json:"id,omitempty" gorm:"type:uuid;primary_key;"`
 

@@ -15,11 +15,11 @@ const (
 // Property model describes a single key value pair for a check_service(parameters). An example could be a port for HTTP checking
 type Property struct {
 	ServiceID uuid.UUID `json:"service_id" gorm:"type:uuid;not null;primary_key"`
-	//Key represents property for a struct located under exec/services. Example: Port, or Password
+	// Key represents property for a struct located under exec/services. Example: Port, or Password
 	Key string `json:"key" gorm:"not null;primary_key"`
-	//Value represents property value for a struct located under exec/services. Example: 80, or SOME_SECURE_PASSWORD
+	// Value represents property value for a struct located under exec/services. Example: 80, or SOME_SECURE_PASSWORD
 	Value *string `json:"value" gorm:"not null;default:''"`
-	//Status is a type of a property that is either View, Edit, or Hide. View allows users to ONLY view the given property. Edit Allows to both View, and Edit the given property, and finally Hide ensures that property is hidden from the competitor's view
+	// Status is a type of a property that is either View, Edit, or Hide. View allows users to ONLY view the given property. Edit Allows to both View, and Edit the given property, and finally Hide ensures that property is hidden from the competitor's view
 	Status string `json:"status,omitempty" gorm:"not null;default:'View'"`
 }
 
