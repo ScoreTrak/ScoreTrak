@@ -37,7 +37,7 @@ func (h *HTTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Error while making the request", err
 	}
-	defer resp.Body.Close()
+	defer func(){ _ = resp.Body.Close() }()
 
 	if !(resp.StatusCode >= 200 && resp.StatusCode < 400) {
 		return false, fmt.Sprintf("Invalid response code received: %d", resp.StatusCode), nil

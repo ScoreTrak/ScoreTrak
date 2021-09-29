@@ -45,12 +45,12 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to dial FTP Server", err
 	}
-	defer c.Quit()
+	defer func(){ _ = c.Quit() }()
 	err = c.Login(f.Username, f.Password)
 	if err != nil {
 		return false, "Unable to Login", err
 	}
-	defer c.Logout()
+	defer func(){ _ = c.Logout() }()
 	if f.Text != "" {
 		data := bytes.NewBufferString(f.Text)
 		if f.WriteFilename == "" {
@@ -67,7 +67,7 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 		if err != nil {
 			return false, "Failed to Retrieve the file from FTP", err
 		}
-		defer r.Close()
+		defer func(){ _ = r.Close() }()
 		if err := c.Quit(); err != nil {
 			return false, "Unable to gracefully exit FTP server", err
 		}

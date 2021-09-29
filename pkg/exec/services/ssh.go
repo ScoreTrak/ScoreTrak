@@ -41,12 +41,12 @@ func (s *SSH) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to dial the remote host. Make sure the host is up, and credentials are correct", err
 	}
-	defer client.Close()
+	defer func(){ _ = client.Close() }()
 	session, err := client.NewSession()
 	if err != nil {
 		return false, "Unable to establish the session", err
 	}
-	defer session.Close()
+	defer func(){ _ = session.Close() }()
 	out, err := session.CombinedOutput(s.Command)
 	if err != nil {
 		return false, "Unable to execute the command", err

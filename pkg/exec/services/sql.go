@@ -99,7 +99,7 @@ func (w *Sql) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "unable to fetch the underlying sql driver, this is most likely a bug", err
 	}
-	defer sqlDB.Close()
+	defer func(){ _ = sqlDB.Close() }()
 
 	result := db.WithContext(e.Context).Raw(w.Command)
 
