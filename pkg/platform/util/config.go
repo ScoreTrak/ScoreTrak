@@ -22,7 +22,10 @@ func GenerateConfigFile(info worker.Info) (path string, err error) {
 		return "", errors.New("selected queue is not yet supported with platform Docker")
 	}
 	tmpPath := filepath.Join(".", "tmp")
-	os.MkdirAll(tmpPath, os.ModePerm)
+	err = os.MkdirAll(tmpPath, os.ModePerm)
+	if err != nil {
+		return "", err
+	}
 	path = fmt.Sprintf("tmp/config_worker_%s", info.Topic)
 	err = config.SaveConfigToYamlFile(path, cnf)
 	if err != nil {

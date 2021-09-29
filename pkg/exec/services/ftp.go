@@ -45,12 +45,22 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if err != nil {
 		return false, "Unable to dial FTP Server", err
 	}
-	defer c.Quit()
+	defer func(c *ftp.ServerConn) {
+		err := c.Quit()
+		if err != nil {
+			fmt.Errorf("unable to close ftp connection: %w", err)
+		}
+	}(c)
 	err = c.Login(f.Username, f.Password)
 	if err != nil {
 		return false, "Unable to Login", err
 	}
-	defer c.Logout()
+	defer func(c *ftp.ServerConn) {
+		err := c.Logout()
+		if err != nil {
+			fmt.Errorf("unable to logout from FTP: %w", err)
+		}
+	}(c)
 	if f.Text != "" {
 		data := bytes.NewBufferString(f.Text)
 		if f.WriteFilename == "" {

@@ -1,0 +1,26 @@
+run:
+  deadline: 240s
+  tests: false
+  skip-dirs:
+    - vendor
+    - test
+
+linters:
+  enable-all: true
+  disable:
+    - exhaustivestruct
+    - gochecknoinits
+    - gci
+    - maligned
+    - gofumpt
+    - gochecknoglobals
+    - testpackage
+    - wsl
+    - godot
+    - deadcode
+    - gomnd
+    - godox
+    - unused
+    - paralleltest
+    - nlreturn
+    - nestif
