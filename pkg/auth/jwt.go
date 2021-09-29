@@ -3,7 +3,7 @@ package auth
 import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"time"
 )
 
@@ -18,7 +18,7 @@ const KeyClaim claim = "claim"
 
 //UserClaims represents contents of JWT token.
 type UserClaims struct {
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 	Username string `json:"username"`
 	TeamID   string `json:"team_id"`
 	Role     string `json:"role"`
@@ -36,9 +36,9 @@ type Config struct {
 //Generate creates user claim based on passed user parameter, and encodes it to JWT token.
 func (manager *Manager) Generate(user *user.User) (string, error) {
 	claims := UserClaims{
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(manager.tokenDuration).Unix(),
-			Id:        user.ID.String(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(manager.tokenDuration)),
+			ID:        user.ID.String(),
 		},
 		Username: user.Username,
 		Role:     user.Role,
