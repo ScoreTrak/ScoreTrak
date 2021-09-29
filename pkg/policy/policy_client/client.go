@@ -91,13 +91,13 @@ func (a *Client) Notify() {
 func (a *Client) RefreshLocalPolicy() {
 	tempPolicy, err := a.repo.Get(context.Background())
 	if err != nil {
-		log.Fatalf("Unable to retreive policy. Make sure database is reachable")
+		log.Panicf("Unable to retreive policy. Make sure database is reachable")
 	}
 	a.policyMutex.Lock()
 	defer a.policyMutex.Unlock()
 	err = copier.Copy(a.policy, tempPolicy)
 	if err != nil {
-		log.Fatalf("Unable to copy policy into destination policy. This is likely a bug")
+		log.Panicf("Unable to copy policy into destination policy. This is likely a bug")
 	}
 
 }
@@ -123,7 +123,7 @@ func (a *Client) GetPolicy() *policy.Policy {
 	cp := &policy.Policy{}
 	err := copier.Copy(&cp, a.policy)
 	if err != nil {
-		log.Fatalf("Unable to copy policy into destination policy. This is likely a bug")
+		log.Panicf("Unable to copy policy into destination policy. This is likely a bug")
 	}
 	return cp
 }

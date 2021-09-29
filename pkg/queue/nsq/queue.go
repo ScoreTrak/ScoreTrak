@@ -105,7 +105,7 @@ func (n WorkerQueue) Receive() {
 	nsqConsumerConfig(conf, n.config)
 	consumer, err := nsq.NewConsumer(n.config.NSQ.Topic, "worker", conf)
 	if err != nil {
-		log.Fatalf("Failed to initialize NSQ consumer. Error: %v", err)
+		log.Panicf("Failed to initialize NSQ consumer. Error: %v", err)
 	}
 	consumer.SetLoggerLevel(nsq.LogLevelError)
 	consumer.AddConcurrentHandlers(nsq.HandlerFunc(func(m *nsq.Message) error {

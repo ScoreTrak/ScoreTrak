@@ -74,7 +74,7 @@ import (
 func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", staticConfig.Port))
 	if err != nil {
-		log.Fatalf("Failed to listen: %v", err)
+		log.Panicf("Failed to listen: %v", err)
 	}
 	var opts []grpc.ServerOption
 	if staticConfig.CertFile != "" && staticConfig.KeyFile != "" {
@@ -381,13 +381,13 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 		fmt.Println("Starting Server...")
 		if err := s.Serve(lis); err != nil {
 			time.Sleep(time.Second)
-			log.Fatalf("failed to serve: %v", err)
+			log.Panicf("failed to serve: %v", err)
 		}
 	}()
 
 	waitForSignal()
 	if err := lis.Close(); err != nil {
-		log.Fatalf("Error on closing the listener : %v", err)
+		log.Panicf("Error on closing the listener : %v", err)
 	}
 	s.Stop()
 	fmt.Println("Bye!")

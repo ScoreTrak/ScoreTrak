@@ -69,7 +69,7 @@ func main() {
 }
 func handleErr(err error) {
 	if err != nil {
-		log.Fatalf("%v", err)
+		log.Panicf("%v", err)
 	} else {
 		return
 	}
