@@ -28,7 +28,7 @@ func (a *Client) Subscribe() (uuid.UUID, <-chan struct{}) {
 	ch := make(chan struct{}, 1)
 	uid, err := uuid.NewV4()
 	if err != nil {
-		log.Fatalf("Unable to generate rabdom UUID")
+		log.Panicln("Unable to generate rabdom UUID")
 	}
 	a.signal[uid] = ch
 	return uid, ch

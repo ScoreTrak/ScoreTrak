@@ -63,8 +63,7 @@ func (a *Client) Subscribe() (uuid.UUID, <-chan struct{}) {
 	ch := make(chan struct{}, 1)
 	uid, err := uuid.NewV4()
 	if err != nil {
-		a.signalMutex.Unlock()
-		log.Fatalf("Unable to generate random UUID")
+		log.Panicln("Unable to generate random UUID")
 	}
 	a.signal[uid] = ch
 	return uid, ch
