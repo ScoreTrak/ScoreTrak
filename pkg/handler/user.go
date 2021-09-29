@@ -145,7 +145,7 @@ func (p UserController) Update(ctx context.Context, request *userpb.UpdateReques
 	claim := extractUserClaim(ctx)
 
 	if claim.Role != user.Black {
-		if claim.Id != usr.TeamID.String() {
+		if claim.ID != usr.TeamID.String() {
 			return nil, status.Errorf(
 				codes.PermissionDenied,
 				noPermissionsTo+changingUser,
