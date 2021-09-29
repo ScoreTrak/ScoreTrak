@@ -24,3 +24,5 @@ linters:
     - paralleltest
     - nlreturn
     - nestif
+# Todo: re-enable funlen(temporarily)
+    - funlen
