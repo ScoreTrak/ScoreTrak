@@ -3,12 +3,13 @@ package services
 import (
 	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
-	"github.com/masterzen/winrm"
 	"net"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
+	"github.com/masterzen/winrm"
 )
 
 type Winrm struct {
@@ -32,10 +33,10 @@ func (w *Winrm) Validate() error {
 	return errors.New("winrm check_service needs username, and password")
 }
 
-func (w *Winrm) Execute(e exec.Exec) (passed bool, log string, err error) {
-	isHttps := IsSecure(w.Scheme)
+func (w *Winrm) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
+	isHTTPS := IsSecure(w.Scheme)
 	if w.Port == "" {
-		if isHttps {
+		if isHTTPS {
 			w.Port = "5986"
 		} else {
 			w.Port = "5985"
@@ -43,14 +44,14 @@ func (w *Winrm) Execute(e exec.Exec) (passed bool, log string, err error) {
 	}
 	i, err := strconv.Atoi(w.Port)
 	if err != nil {
-		return false, "Unable to convert port number to integer", err
+		return false, "", fmt.Errorf("unable to convert port number to integer: %w", err)
 	}
 	conn, err := net.DialTimeout("tcp", net.JoinHostPort(e.Host, w.Port), time.Until(e.Deadline())/3)
 	if err != nil {
-		return false, "Port was not open on a remote host", err
+		return false, "", fmt.Errorf("port was not open on a remote host: %w", err)
 	}
 	_ = conn.Close()
-	endpoint := winrm.NewEndpoint(e.Host, i, isHttps, true, nil, nil, nil, time.Until(e.Deadline()))
+	endpoint := winrm.NewEndpoint(e.Host, i, isHTTPS, true, nil, nil, nil, time.Until(e.Deadline()))
 	params := winrm.DefaultParameters
 	params.Dial = (&net.Dialer{
 		Timeout: time.Until(e.Deadline()),
@@ -60,17 +61,17 @@ func (w *Winrm) Execute(e exec.Exec) (passed bool, log string, err error) {
 	}
 	client, err := winrm.NewClientWithParameters(endpoint, w.Username, w.Password, params)
 	if err != nil {
-		return false, "Unable to initialize winrm client", err
+		return false, "", fmt.Errorf("unable to initialize winrm client: %w", err)
 	}
 	procStdout, procStderr, returnCode, err := client.RunWithString(w.Command, "")
 	if err != nil {
-		return false, "Unable to execute provided command", err
+		return false, "", fmt.Errorf("unable to execute provided command: %w", err)
 	}
 	if returnCode != 0 {
-		return false, "Process returned a non-zero code", errors.New(procStderr)
+		return false, "", fmt.Errorf("process returned a non-zero code: %w", errors.New(procStderr))
 	}
 	if w.ExpectedOutput != "" && !strings.Contains(procStdout, strings.ToLower(w.ExpectedOutput)) {
-		return false, fmt.Sprintf("The output of the command did not match Expected Output. Output Received: %s", procStdout), nil
+		return false, "", fmt.Errorf("the output of the command did not match Expected Output. Output Received: %s", procStdout)
 	}
 	return true, Success, nil
 }

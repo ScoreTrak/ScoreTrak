@@ -3,10 +3,12 @@ package services
 import (
 	"bytes"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"io"
+	"log"
 	"net/http"
 	"strings"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 )
 
 type HTTP struct {
@@ -26,22 +28,22 @@ func (h *HTTP) Validate() error {
 	return nil
 }
 
-func (h *HTTP) Execute(e exec.Exec) (passed bool, log string, err error) {
+func (h *HTTP) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 	baseURL := ConstructURI(h.Port, h.Subdomain, e.Host, h.Path, h.Scheme)
 	req, err := http.NewRequest("GET", baseURL.String(), nil)
 	if err != nil {
-		return false, "Error while crafting the request", err
+		return false, "", fmt.Errorf("unable to craft the request: %w", err)
 	}
 	req = req.WithContext(e.Context)
 	httpClient := http.DefaultClient
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return false, "Error while making the request", err
+		return false, "", fmt.Errorf("unable to craft the request: %w", err)
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			fmt.Println(fmt.Errorf("unable to close body: %w", err))
+			log.Println(fmt.Errorf("unable to close body: %w", err))
 		}
 	}(resp.Body)
 
@@ -52,7 +54,7 @@ func (h *HTTP) Execute(e exec.Exec) (passed bool, log string, err error) {
 		buf := new(bytes.Buffer)
 		_, err = buf.ReadFrom(resp.Body)
 		if err != nil {
-			return false, "Unable to read response body", err
+			return false, "", fmt.Errorf("unable to read response body: %w", err)
 		}
 		newStr := buf.String()
 		if !strings.Contains(newStr, h.ExpectedOutput) {

@@ -7,7 +7,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/config/config_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host/host_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyService"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property/property_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round/round_service"
@@ -41,7 +41,7 @@ func BuildMasterContainer() (*dig.Container, error) {
 		orm.NewServiceRepo, service_service.NewServiceServ,
 		orm.NewTeamRepo, team_service.NewTeamServ,
 		orm.NewUserRepo, user_service.NewUserServ,
-		orm.NewPolicyRepo, policy_service.NewPolicyServ,
+		orm.NewPolicyRepo, policyService.NewPolicyServ,
 		orm.NewReportRepo, report_service.NewReportServ,
 		competition_service.NewCompetitionServ,
 		queue.NewWorkerQueue, platform.NewPlatform,
@@ -70,8 +70,7 @@ func BuildWorkerContainer() (*dig.Container, error) {
 }
 
 func Invoke(i interface{}) {
-	err := container.Invoke(i)
-	if err != nil {
+	if err := container.Invoke(i); err != nil {
 		panic(err)
 	}
 }

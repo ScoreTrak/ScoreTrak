@@ -2,6 +2,7 @@ package orm
 
 import (
 	"context"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config/config_repo"
 	"gorm.io/gorm"

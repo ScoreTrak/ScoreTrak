@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+
 	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	servicepb "github.com/ScoreTrak/ScoreTrak/pkg/proto/service/v1"
@@ -24,7 +25,7 @@ type ServiceController struct {
 
 func (p ServiceController) GetByID(ctx context.Context, request *servicepb.GetByIDRequest) (*servicepb.GetByIDResponse, error) {
 	uid, err := extractUUID(request)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
@@ -57,7 +58,7 @@ func (p ServiceController) GetByID(ctx context.Context, request *servicepb.GetBy
 
 func (p ServiceController) TestService(ctx context.Context, request *servicepb.TestServiceRequest) (*servicepb.TestServiceResponse, error) {
 	uid, err := extractUUID(request)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	chck, err := p.svc.TestService(ctx, uid)
@@ -82,7 +83,7 @@ func (p ServiceController) GetAll(ctx context.Context, request *servicepb.GetAll
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	var servcspb []*servicepb.Service
+	servcspb := make([]*servicepb.Service, 0, len(props))
 	for i := range props {
 		servcspb = append(servcspb, ConvertServiceToServicePb(props[i]))
 	}
@@ -91,7 +92,7 @@ func (p ServiceController) GetAll(ctx context.Context, request *servicepb.GetAll
 
 func (p ServiceController) Delete(ctx context.Context, request *servicepb.DeleteRequest) (*servicepb.DeleteResponse, error) {
 	uid, err := extractUUID(request)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	err = p.svc.Delete(ctx, uid)
@@ -103,7 +104,7 @@ func (p ServiceController) Delete(ctx context.Context, request *servicepb.Delete
 
 func (p ServiceController) Store(ctx context.Context, request *servicepb.StoreRequest) (*servicepb.StoreResponse, error) {
 	servcspb := request.GetServices()
-	var props []*service.Service
+	props := make([]*service.Service, 0, len(servcspb))
 	for i := range servcspb {
 		sr, err := ConvertServicePBtoService(false, servcspb[i])
 		if err != nil {
@@ -125,14 +126,13 @@ func (p ServiceController) Store(ctx context.Context, request *servicepb.StoreRe
 
 		props = append(props, sr)
 	}
-	err := p.svc.Store(ctx, props)
-	if err != nil {
+	if err := p.svc.Store(ctx, props); err != nil {
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	var ids []*utilpb.UUID
+	ids := make([]*utilpb.UUID, 0, len(props))
 	for i := range props {
 		ids = append(ids, &utilpb.UUID{Value: props[i].ID.String()})
 	}

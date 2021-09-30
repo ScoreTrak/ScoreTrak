@@ -3,6 +3,8 @@ package service_service
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host/host_repo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
@@ -13,7 +15,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/service/service_repo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_group_repo"
 	"github.com/gofrs/uuid"
-	"time"
 )
 
 type Serv interface {

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/check_service"
 	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"
@@ -32,9 +33,8 @@ func (c *CheckController) GetAllByRoundID(ctx context.Context, request *checkpb.
 	chks, err := c.svc.GetAllByRoundID(ctx, roundID)
 	if err != nil {
 		return nil, getErrorParser(err)
-
 	}
-	var chkspb []*checkpb.Check
+	chkspb := make([]*checkpb.Check, 0, len(chks))
 	for i := range chks {
 		chkspb = append(
 			chkspb,
@@ -128,7 +128,7 @@ func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkp
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	var chkspb []*checkpb.Check
+	chkspb := make([]*checkpb.Check, 0, len(chks))
 	for i := range chks {
 		chkspb = append(
 			chkspb,

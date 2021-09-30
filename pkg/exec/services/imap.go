@@ -4,10 +4,12 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"log"
+	"net"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
-	"net"
 )
 
 type IMAP struct {
@@ -29,37 +31,35 @@ func (i *IMAP) Validate() error {
 	return errors.New("IMAP check_service needs password, and username to operate")
 }
 
-func (i *IMAP) Execute(e exec.Exec) (passed bool, log string, err error) {
-	isHttps := IsSecure(i.Scheme)
-	if i.Port == "" {
-		if isHttps {
-			i.Port = "993"
-		} else {
-			i.Port = "143"
-		}
-	}
+func (i *IMAP) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 	var c *client.Client
-	if isHttps {
+	if isHTTPS := IsSecure(i.Scheme); isHTTPS {
+		if i.Port == "" {
+			i.Port = "993"
+		}
 		c, err = client.DialWithDialerTLS(&net.Dialer{Deadline: e.Deadline()}, e.Host+":"+i.Port, &tls.Config{InsecureSkipVerify: true})
 	} else {
+		if i.Port == "" {
+			i.Port = "143"
+		}
 		c, err = client.DialWithDialer(&net.Dialer{Deadline: e.Deadline()}, e.Host+":"+i.Port)
 	}
 	if err != nil {
-		return false, "Unable to pass Dial the remote server", err
+		return false, "", fmt.Errorf("unable to dial the remote server: %w", err)
 	}
 	defer func(c *client.Client) {
 		err := c.Close()
 		if err != nil {
-			fmt.Println(fmt.Errorf("unable to close client: %w", err))
+			log.Println(fmt.Errorf("unable to close client: %w", err))
 		}
 	}(c)
 	if err := c.Login(i.Username, i.Password); err != nil {
-		return false, "Unable to login with the credentials provided", err
+		return false, "", fmt.Errorf("unable to login with the credentials provided: %w", err)
 	}
 	defer func(c *client.Client) {
 		err := c.Logout()
 		if err != nil {
-			fmt.Println(fmt.Errorf("unable to logout: %w", err))
+			log.Println(fmt.Errorf("unable to logout: %w", err))
 		}
 	}(c)
 	// List mailboxes
@@ -68,9 +68,9 @@ func (i *IMAP) Execute(e exec.Exec) (passed bool, log string, err error) {
 	go func() {
 		done <- c.List("", "*", mailboxes)
 	}()
-	log = Success + "\n"
+	logOutput = Success + "\n"
 	for m := range mailboxes {
-		log += "* " + m.Name
+		logOutput += "* " + m.Name
 	}
-	return true, log, nil
+	return true, logOutput, nil
 }

@@ -1,7 +1,9 @@
-package policy_service
+package policyService
 
 import (
 	"context"
+	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	repo2 "github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_repo"
 )
@@ -21,8 +23,17 @@ func NewPolicyServ(repo repo2.Repo) Serv {
 	}
 }
 
-func (svc *policyServ) Get(ctx context.Context) (*policy.Policy, error) { return svc.repo.Get(ctx) }
+func (svc *policyServ) Get(ctx context.Context) (*policy.Policy, error) {
+	p, err := svc.repo.Get(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to make a get call: %w", err)
+	}
+	return p, nil
+}
 
 func (svc *policyServ) Update(ctx context.Context, u *policy.Policy) error {
-	return svc.repo.Update(ctx, u)
+	if err := svc.repo.Update(ctx, u); err != nil {
+		return fmt.Errorf("failed to make update call: %w", err)
+	}
+	return nil
 }

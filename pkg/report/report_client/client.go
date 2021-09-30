@@ -1,12 +1,13 @@
 package report_client
 
 import (
+	"log"
+	"sync"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_repo"
 	"github.com/gofrs/uuid"
-	"log"
-	"sync"
 )
 
 type Client struct {

@@ -4,6 +4,10 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"log"
+	"math"
+	"time"
+
 	"github.com/ScoreTrak/ScoreTrak/cmd/master/server"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	cutil "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
@@ -15,9 +19,6 @@ import (
 	sutil "github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"go.uber.org/dig"
 	"gorm.io/gorm"
-	"log"
-	"math"
-	"time"
 )
 
 func main() {
@@ -65,7 +66,6 @@ func main() {
 		handleErr(dr.MasterRunner())
 	}()
 	handleErr(server.Start(staticConfig, d, db))
-
 }
 func handleErr(err error) {
 	if err != nil {
@@ -86,6 +86,9 @@ func SetupDB(cont *dig.Container) error {
 	var tm time.Time
 	res, err := db.Raw("SELECT current_timestamp;").Rows()
 	if err != nil {
+		panic(err)
+	}
+	if res.Err() != nil {
 		panic(err)
 	}
 	defer func(res *sql.Rows) {

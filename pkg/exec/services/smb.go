@@ -3,12 +3,14 @@ package services
 import (
 	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
-	"github.com/hirochachacha/go-smb2"
 	"io"
 	"io/ioutil"
+	"log"
 	"net"
 	"strings"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
+	"github.com/hirochachacha/go-smb2"
 )
 
 const (
@@ -45,16 +47,16 @@ func (s *SMB) Validate() error {
 	return nil
 }
 
-func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
+func (s *SMB) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 	dial := net.Dialer{}
 	conn, err := dial.DialContext(e.Context, s.TransportProtocol, e.Host+":"+s.Port)
 	if err != nil {
-		return false, "Unable to dial the host", err
+		return false, "", fmt.Errorf("unable to dial the host: %w", err)
 	}
 	defer func(conn net.Conn) {
 		err := conn.Close()
 		if err != nil {
-			fmt.Println(fmt.Errorf("unable to close the connection: %w", err))
+			log.Println(fmt.Errorf("unable to close the connection: %w", err))
 		}
 	}(conn)
 	d := &smb2.Dialer{
@@ -66,12 +68,12 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 	}
 	c, err := d.Dial(conn)
 	if err != nil {
-		return false, "Unable to dial the host", err
+		return false, "", fmt.Errorf("unable to dial the host: %w", err)
 	}
 	defer func(c *smb2.Client) {
 		err := c.Logoff()
 		if err != nil {
-			fmt.Println(fmt.Errorf("unable to logoff: %w", err))
+			log.Println(fmt.Errorf("unable to logoff: %w", err))
 		}
 	}(c)
 
@@ -82,7 +84,7 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 	defer func(fs *smb2.RemoteFileSystem) {
 		err := fs.Umount()
 		if err != nil {
-			fmt.Println(fmt.Errorf("unable to unmount file system: %w", err))
+			log.Println(fmt.Errorf("unable to unmount file system: %w", err))
 		}
 	}(fs)
 	if s.FileName != "" {
@@ -90,16 +92,16 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 		if strings.Contains(s.Operation, create) {
 			f, err = fs.Create(s.FileName)
 			if err != nil {
-				return false, "Unable to create filename on a remote computer", err
+				return false, "", fmt.Errorf("unable to create filename on a remote computer: %w", err)
 			}
 			_, err = f.Write([]byte(s.Text))
 			if err != nil {
-				return false, "Unable to write into file", err
+				return false, "", fmt.Errorf("unable to write into file: %w", err)
 			}
 		} else {
 			f, err = fs.Open(s.FileName)
 			if err != nil {
-				return false, "Unable to open the filename on a remote computer", err
+				return false, "", fmt.Errorf("unable to open the filename on a remote computer: %w", err)
 			}
 			if s.Operation == create {
 				return true, Success, nil
@@ -108,16 +110,16 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, log string, err error) {
 		defer func(f *smb2.RemoteFile) {
 			err := f.Close()
 			if err != nil {
-				fmt.Println(fmt.Errorf("unable to close remote file: %w", err))
+				log.Println(fmt.Errorf("unable to close remote file: %w", err))
 			}
 		}(f)
 		_, err = f.Seek(0, io.SeekStart)
 		if err != nil {
-			return false, "Unable to read the file", err
+			return false, "", fmt.Errorf("unable to read the file: %w", err)
 		}
 		bs, err := ioutil.ReadAll(f)
 		if err != nil {
-			return false, "Unable to read the file", nil
+			return false, "", fmt.Errorf("unable to read the file: %w", err)
 		}
 		if s.ExpectedOutput != "" && string(bs) != s.ExpectedOutput {
 			return false, fmt.Sprintf("Contents of the file did not match expected output. Output Received: %s", string(bs)), nil

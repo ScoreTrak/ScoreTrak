@@ -2,6 +2,7 @@ package team
 
 import (
 	"errors"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
@@ -26,10 +27,12 @@ type Team struct {
 	Hosts []*host.Host `gorm:"foreignkey:TeamID;association_foreignkey:ID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT" json:"hosts,omitempty"`
 }
 
+var NameIsRequiredError = errors.New("field Name is required")
+
 // BeforeCreate ensures UUID is set.
 func (t *Team) BeforeCreate(tx *gorm.DB) (err error) {
 	if t.Name == "" {
-		return errors.New("field Name is a mandatory parameter")
+		return NameIsRequiredError
 	}
 	if t.ID == uuid.Nil {
 		u, err := uuid.NewV4()

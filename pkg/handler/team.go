@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	teampb "github.com/ScoreTrak/ScoreTrak/pkg/proto/team/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
@@ -20,7 +21,7 @@ type TeamController struct {
 
 func (p TeamController) GetByID(ctx context.Context, request *teampb.GetByIDRequest) (*teampb.GetByIDResponse, error) {
 	uid, err := extractUUID(request)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	tm, err := p.svc.GetByID(ctx, uid)
@@ -35,7 +36,7 @@ func (p TeamController) GetAll(ctx context.Context, request *teampb.GetAllReques
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	var tmspb []*teampb.Team
+	tmspb := make([]*teampb.Team, 0, len(tms))
 	for i := range tms {
 		tmspb = append(tmspb, ConvertTeamToTeamPb(tms[i]))
 	}
@@ -44,7 +45,7 @@ func (p TeamController) GetAll(ctx context.Context, request *teampb.GetAllReques
 
 func (p TeamController) Delete(ctx context.Context, request *teampb.DeleteRequest) (*teampb.DeleteResponse, error) {
 	uid, err := extractUUID(request)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	err = p.svc.Delete(ctx, uid)
@@ -56,7 +57,7 @@ func (p TeamController) Delete(ctx context.Context, request *teampb.DeleteReques
 
 func (p TeamController) Store(ctx context.Context, request *teampb.StoreRequest) (*teampb.StoreResponse, error) {
 	tmspb := request.GetTeams()
-	var tms []*team.Team
+	tms := make([]*team.Team, 0, len(tmspb))
 	for i := range tmspb {
 		tm, err := ConvertTeamPBtoTeam(false, tmspb[i])
 		if err != nil {
@@ -64,14 +65,13 @@ func (p TeamController) Store(ctx context.Context, request *teampb.StoreRequest)
 		}
 		tms = append(tms, tm)
 	}
-	err := p.svc.Store(ctx, tms)
-	if err != nil {
+	if err := p.svc.Store(ctx, tms); err != nil {
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	var ids []*utilpb.UUID
+	ids := make([]*utilpb.UUID, 0, len(tms))
 	for i := range tms {
 		ids = append(ids, &utilpb.UUID{Value: tms[i].ID.String()})
 	}

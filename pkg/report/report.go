@@ -1,8 +1,9 @@
 package report
 
 import (
-	"github.com/gofrs/uuid"
 	"time"
+
+	"github.com/gofrs/uuid"
 )
 
 //Report is a structure that represents the state of all checks, services, teams, hosts, at a given round(typically last round).

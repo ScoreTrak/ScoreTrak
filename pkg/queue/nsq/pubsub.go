@@ -1,12 +1,13 @@
 package nsq
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
-	"github.com/nsqio/go-nsq"
 	"log"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
+	"github.com/nsqio/go-nsq"
 )
 
 type PubSub struct {

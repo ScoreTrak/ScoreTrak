@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/property/property_repo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
@@ -34,7 +35,6 @@ func (p *propertyRepo) Delete(ctx context.Context, serviceID uuid.UUID, key stri
 	}
 
 	return nil
-
 }
 
 func (p *propertyRepo) GetAll(ctx context.Context) ([]*property.Property, error) {

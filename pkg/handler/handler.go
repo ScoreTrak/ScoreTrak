@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
@@ -22,17 +23,17 @@ func getErrorParser(err error) error {
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return status.Errorf(
 			codes.NotFound,
-			fmt.Sprintf("Resouce Not Found: %v", err))
+			fmt.Sprintf("Resource Not Found: %v", err))
 	}
 	return status.Errorf(codes.Internal,
 		fmt.Sprintf("Unknown internal error: %v", err))
 }
 
 func deleteErrorParser(err error) error {
-	if _, ok := err.(*orm.NoRowsAffected); ok {
+	if errors.Is(err, &orm.NoRowsAffected{}) {
 		return status.Errorf(
 			codes.NotFound,
-			fmt.Sprintf("Resouce Not Found: %v", err),
+			fmt.Sprintf("Resource Not Found: %v", err),
 		)
 	} else {
 		return status.Errorf(

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	checkService "github.com/ScoreTrak/ScoreTrak/pkg/check/check_service"
 	competitionService "github.com/ScoreTrak/ScoreTrak/pkg/competition/competition_service"
@@ -24,8 +25,8 @@ import (
 
 	hostGroupService "github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
+	policyService "github.com/ScoreTrak/ScoreTrak/pkg/policy/policyService"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
-	policyService "github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_service"
 	host_grouppb "github.com/ScoreTrak/ScoreTrak/pkg/proto/host_group/v1"
 
 	propertyService "github.com/ScoreTrak/ScoreTrak/pkg/property/property_service"
@@ -45,11 +46,18 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	teamService "github.com/ScoreTrak/ScoreTrak/pkg/team/team_service"
 
+	"log"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	userpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/user/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	userService "github.com/ScoreTrak/ScoreTrak/pkg/user/user_service"
 	"github.com/gofrs/uuid"
-	"github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
@@ -63,12 +71,6 @@ import (
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
-	"log"
-	"net"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) error {
@@ -98,7 +100,6 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 			if err != nil {
 				return err
 			}
-
 		} else {
 			zapLogger, err = zap.NewDevelopment()
 			if err != nil {
@@ -120,7 +121,6 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 			grpc_ctxtags.StreamServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
 			grpc_zap.StreamServerInterceptor(zapLogger, logOpts...),
 		}...)
-
 	}
 
 	//Recovery
@@ -148,7 +148,8 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 	p := &policy.Policy{ID: 1}
 	err = db.Create(p).Error
 	if err != nil {
-		serr, ok := err.(*pgconn.PgError)
+		var serr *pgconn.PgError
+		ok := errors.As(err, &serr)
 		if !ok {
 			if serr.Code != "23505" {
 				panic(err)
@@ -212,7 +213,6 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 		{
 			comptSvc := competitionService.NewCompetitionServ(repoStore)
 			competitionpb.RegisterCompetitionServiceServer(s, handler.NewCompetitionController(comptSvc))
-
 		}
 		{
 			var configSvc configService.Serv
@@ -270,7 +270,8 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 			if count != 1 {
 				err := db.Create(report.NewReport()).Error
 				if err != nil {
-					serr, ok := err.(*pgconn.PgError)
+					var serr *pgconn.PgError
+					ok := errors.As(err, &serr)
 					if !ok || serr.Code != "23505" {
 						return err
 					}
@@ -333,7 +334,8 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 				},
 			})
 			if err != nil {
-				serr, ok := err.(*pgconn.PgError)
+				var serr *pgconn.PgError
+				ok := errors.As(err, &serr)
 				if !ok || serr.Code != "23505" {
 					return err
 				}
@@ -357,7 +359,8 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 				PasswordHash: string(passwordHash),
 			}})
 			if err != nil {
-				serr, ok := err.(*pgconn.PgError)
+				var serr *pgconn.PgError
+				ok := errors.As(err, &serr)
 				if !ok || serr.Code != "23505" {
 					return err
 				}
@@ -370,7 +373,6 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 		{
 			policypb.RegisterPolicyServiceServer(s, handler.NewPolicyController(policyServ, policyClient))
 		}
-
 	}
 
 	if !staticConfig.Prod {
@@ -378,7 +380,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 	}
 
 	go func() {
-		fmt.Println("Starting Server...")
+		log.Println("Starting Server...")
 		if err := s.Serve(lis); err != nil {
 			time.Sleep(time.Second)
 			log.Panicf("failed to serve: %v", err)
@@ -390,7 +392,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 		log.Panicf("Error on closing the listener : %v", err)
 	}
 	s.Stop()
-	fmt.Println("Bye!")
+	log.Println("Bye!")
 	return nil
 }
 

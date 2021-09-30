@@ -2,6 +2,7 @@ package testutil
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
@@ -75,7 +76,8 @@ var uuid1 = uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 func CreateBlackTeam(db *gorm.DB) (err error) {
 	err = db.Create([]*team.Team{{ID: uuid1, Name: "Black Team"}}).Error
 	if err != nil {
-		serr, ok := err.(*pgconn.PgError)
+		var serr *pgconn.PgError
+		ok := errors.As(err, &serr)
 		if !ok || serr.Code != "23505" {
 			return err
 		}
@@ -91,7 +93,8 @@ func CreateAdminUser(db *gorm.DB) (err error) {
 	}
 	err = db.Create([]*user.User{{ID: uuid1, TeamID: uuid1, Username: "admin", Role: user.Black, PasswordHash: string(hashedPassword)}}).Error
 	if err != nil {
-		serr, ok := err.(*pgconn.PgError)
+		var serr *pgconn.PgError
+		ok := errors.As(err, &serr)
 		if !ok || serr.Code != "23505" {
 			return err
 		}
@@ -104,7 +107,8 @@ func CreatePolicy(db *gorm.DB) (*policy.Policy, error) {
 	p := &policy.Policy{ID: 1}
 	err := db.Create(p).Error
 	if err != nil {
-		serr, ok := err.(*pgconn.PgError)
+		var serr *pgconn.PgError
+		ok := errors.As(err, &serr)
 		if !ok {
 			if serr.Code != "23505" {
 				panic(err)

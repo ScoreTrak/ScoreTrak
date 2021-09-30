@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	authpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/auth/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user/user_service"

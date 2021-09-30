@@ -5,10 +5,11 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/jinzhu/copier"
 	"os"
 	"path/filepath"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/jinzhu/copier"
 )
 
 func SetupConfig(f string) config.StaticConfig {
@@ -19,22 +20,23 @@ func SetupConfig(f string) config.StaticConfig {
 	return config.GetStaticConfig()
 }
 
-func NewTestConfigClone(testConfPath string) config.StaticConfig{
+func NewTestConfigClone(testConfPath string) config.StaticConfig {
 	return NewConfigClone(SetupConfig(testConfPath))
 }
 
 func NewConfigClone(c config.StaticConfig) config.StaticConfig {
 	cnf := config.StaticConfig{}
-	err := copier.Copy(&cnf, &c)
-	if err != nil {
+	if err := copier.Copy(&cnf, &c); err != nil {
 		panic(err)
 	}
 	return cnf
 }
 
+var UnableToCastFlagToString = errors.New("unable to cast flag to string")
+
 func ConfigFlagParser() (string, error) {
-	path := flag.Lookup("config").Value.(flag.Getter).Get().(string)
-	encodedConfig := flag.Lookup("encoded-config").Value.(flag.Getter).Get().(string)
+	path, _ := flag.Lookup("config").Value.(flag.Getter).Get().(string)
+	encodedConfig, _ := flag.Lookup("encoded-config").Value.(flag.Getter).Get().(string)
 	if encodedConfig != "" {
 		dec, err := base64.StdEncoding.DecodeString(encodedConfig)
 		if err != nil {

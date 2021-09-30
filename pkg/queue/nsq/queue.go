@@ -5,15 +5,16 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
-	"github.com/gofrs/uuid"
-	"github.com/nsqio/go-nsq"
 	"log"
 	"math"
 	"net"
 	"os"
 	"time"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
+	"github.com/gofrs/uuid"
+	"github.com/nsqio/go-nsq"
 )
 
 type WorkerQueue struct {
@@ -140,7 +141,6 @@ func (n WorkerQueue) Receive() {
 		qc := queueing.CommonExecute(&sd, sd.Deadline.Add(-3*time.Second+dsync))
 		n.Acknowledge(qc)
 		return nil
-
 	}), n.config.NSQ.ConcurrentHandlers)
 	err = connectConsumer(consumer, n.config)
 	if err != nil {
@@ -156,7 +156,7 @@ func getOutboundIP() net.IP {
 		log.Fatal(err)
 	}
 	defer conn.Close()
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	localAddr, _ := conn.LocalAddr().(*net.UDPAddr)
 	return localAddr.IP
 }
 

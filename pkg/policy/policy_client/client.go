@@ -2,15 +2,16 @@ package policy_client
 
 import (
 	"context"
+	"log"
+	"sync"
+	"time"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_repo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/gofrs/uuid"
 	"github.com/jinzhu/copier"
-	"log"
-	"sync"
-	"time"
 )
 
 // Client Policy allows for eventually consistent way to distribute pkg/Policy struct throughout ScoreTrak instances.
@@ -91,7 +92,7 @@ func (a *Client) Notify() {
 func (a *Client) RefreshLocalPolicy() {
 	tempPolicy, err := a.repo.Get(context.Background())
 	if err != nil {
-		log.Panicf("Unable to retreive policy. Make sure database is reachable")
+		log.Panicf("Unable to retrieve policy. Make sure database is reachable")
 	}
 	a.policyMutex.Lock()
 	defer a.policyMutex.Unlock()
@@ -99,7 +100,6 @@ func (a *Client) RefreshLocalPolicy() {
 	if err != nil {
 		log.Panicf("Unable to copy policy into destination policy. This is likely a bug")
 	}
-
 }
 
 func (a *Client) PolicyClient() {

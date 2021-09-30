@@ -2,9 +2,10 @@ package auth
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/golang-jwt/jwt/v4"
-	"time"
 )
 
 type Manager struct {

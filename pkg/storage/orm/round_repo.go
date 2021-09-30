@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/round/round_repo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
@@ -33,7 +34,6 @@ func (r *roundRepo) Delete(ctx context.Context, id uint64) error {
 	}
 
 	return nil
-
 }
 
 func (r *roundRepo) GetAll(ctx context.Context) ([]*round.Round, error) {

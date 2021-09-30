@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec/resolver"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
@@ -69,7 +70,7 @@ func (s *Service) BeforeSave(tx *gorm.DB) (err error) {
 			se := Service{}
 			err := tx.Where("id = ?", s.ID).First(&se).Error
 			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("unable to retreive the requested entry, in order to validate round delay. Error: %v", err)
+				return fmt.Errorf("unable to retrieve the requested entry, in order to validate round delay: %w", err)
 			}
 			if s.RoundDelay == nil {
 				s.RoundDelay = se.RoundDelay

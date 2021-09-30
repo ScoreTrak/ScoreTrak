@@ -3,10 +3,11 @@ package storage
 import (
 	"errors"
 	"fmt"
+	"log"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
-	"log"
 )
 
 var db *gorm.DB
@@ -15,7 +16,7 @@ func GetGlobalDB() *gorm.DB {
 	return db
 }
 
-//LoadDB serves as a singleton that initializes the value of db per package
+// LoadDB serves as a singleton that initializes the value of db per package
 func LoadDB(c Config) (*gorm.DB, error) {
 	var err error
 	if db == nil {
@@ -27,14 +28,16 @@ func LoadDB(c Config) (*gorm.DB, error) {
 	return db, nil
 }
 
-//NewDB creates an instance of database based on config
+var DBNotSupported = errors.New("not supported db")
+
+// NewDB creates an instance of database based on config
 func NewDB(c Config) (*gorm.DB, error) {
 	var db *gorm.DB
 	var err error
 	if c.Use == "cockroach" {
 		db, err = newCockroach(c)
 	} else {
-		return nil, errors.New("not supported db")
+		return nil, DBNotSupported
 	}
 	if err != nil {
 		return nil, err
@@ -55,12 +58,14 @@ func newCockroach(c Config) (*gorm.DB, error) {
 	if c.Cockroach.Password != "" {
 		psqlInfo += " password=" + c.Cockroach.Password
 	}
-	if c.Cockroach.ClientCA != "" && c.Cockroach.ClientSSLKey != "" && c.Cockroach.ClientSSLCert != "" { //mTLS
-		psqlInfo += fmt.Sprintf(" ssl=true sslmode=verify-full sslrootcert=%s sslkey=%s sslcert=%s", c.Cockroach.ClientCA, c.Cockroach.ClientSSLKey, c.Cockroach.ClientSSLCert)
-	} else if c.Cockroach.ClientCA != "" && c.Cockroach.ClientSSLKey == "" && c.Cockroach.ClientSSLCert == "" { //OneWayTLS
+	if c.Cockroach.ClientCA != "" && c.Cockroach.ClientSSLKey != "" && c.Cockroach.ClientSSLCert != "" { // mTLS
+		psqlInfo += fmt.Sprintf(" ssl=true sslmode=verify-full sslrootcert=%s sslkey=%s sslcert=%s",
+			c.Cockroach.ClientCA, c.Cockroach.ClientSSLKey, c.Cockroach.ClientSSLCert)
+	} else if c.Cockroach.ClientCA != "" && c.Cockroach.ClientSSLKey == "" && c.Cockroach.ClientSSLCert == "" { // OneWayTLS
 		psqlInfo += fmt.Sprintf(" ssl=true sslmode=verify-full sslrootcert=%s", c.Cockroach.ClientCA)
 	} else if c.Cockroach.ClientCA != "" || c.Cockroach.ClientSSLKey != "" || c.Cockroach.ClientSSLCert != "" {
-		return nil, fmt.Errorf("you provided some, but not all certificate information. CA: %s, Key: %s, Cert: %s. If you wish to not use certificates for database, make sure to all fields are empty", c.Cockroach.ClientCA, c.Cockroach.ClientSSLKey, c.Cockroach.ClientSSLCert)
+		return nil, fmt.Errorf("you provided some, but not all certificate information. CA: %s, Key: %s, Cert: %s. If you wish to not use certificates for database, make sure to all fields are empty",
+			c.Cockroach.ClientCA, c.Cockroach.ClientSSLKey, c.Cockroach.ClientSSLCert)
 	} else {
 		psqlInfo += " sslmode=disable"
 	}

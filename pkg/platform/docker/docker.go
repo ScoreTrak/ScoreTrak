@@ -8,6 +8,12 @@ import (
 	"errors"
 	"fmt"
 
+	"io"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
@@ -16,11 +22,6 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/client"
-	"io"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"strings"
 )
 
 type Docker struct {
@@ -58,6 +59,8 @@ func (d *Docker) GetWorkerContainerStatus(ctx context.Context, info worker.Info)
 	return ctr.Status, nil
 }
 
+var LabelIsEmptyError = errors.New("label should not be empty when creating a check_service on swarm platform")
+
 func (d *Docker) DeployWorkers(ctx context.Context, info worker.Info) (err error) {
 	networkName := d.Name + "_" + d.NetworkName
 	tmp := filepath.Join(".", "tmp")
@@ -80,11 +83,11 @@ func (d *Docker) DeployWorkers(ctx context.Context, info worker.Info) (err error
 		}
 	} else {
 		if info.Label == "" {
-			return errors.New("label should not be empty when creating a check_service on swarm platform")
+			return LabelIsEmptyError
 		}
 		_, err := d.CreateService(info, networkName, path)
 		if err != nil {
-			return nil
+			return err
 		}
 	}
 
@@ -107,6 +110,8 @@ func (d *Docker) RemoveWorkers(ctx context.Context, info worker.Info) error {
 	}
 }
 
+var CheckServiceMissingError = errors.New("unable to find check_service. The workers might have already been removed")
+
 func (d *Docker) GetServiceByName(ctx context.Context, n string) (swarm.Service, error) {
 	services, err := d.Client.ServiceList(ctx, types.ServiceListOptions{})
 	if err != nil {
@@ -118,8 +123,10 @@ func (d *Docker) GetServiceByName(ctx context.Context, n string) (swarm.Service,
 		}
 	}
 
-	return swarm.Service{}, errors.New("unable to find check_service. The workers might have already been removed")
+	return swarm.Service{}, CheckServiceMissingError
 }
+
+var ContainerNotFoundError = errors.New("container not found. The worker might have already been removed")
 
 func (d *Docker) GetContainerByName(ctx context.Context, n string) (types.Container, error) {
 	containers, err := d.Client.ContainerList(ctx, types.ContainerListOptions{})
@@ -133,7 +140,7 @@ func (d *Docker) GetContainerByName(ctx context.Context, n string) (types.Contai
 			}
 		}
 	}
-	return types.Container{}, errors.New("container not found. The worker might have already been removed")
+	return types.Container{}, ContainerNotFoundError
 }
 
 func (d *Docker) CommitWorkerContainerToImage(ctx context.Context, resp container.ContainerCreateCreatedBody, info worker.Info) (string, error) {
@@ -228,7 +235,6 @@ func (d *Docker) CreateWorkerContainer(ctx context.Context, networkName string, 
 }
 
 func (d *Docker) UploadConfigToContainer(ctx context.Context, resp container.ContainerCreateCreatedBody, path string) error {
-
 	buf := new(bytes.Buffer)
 	tw := tar.NewWriter(buf)
 	defer tw.Close()

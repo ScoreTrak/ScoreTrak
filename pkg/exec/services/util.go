@@ -9,7 +9,6 @@ const (
 	Success = "Success!"
 )
 
-
 func IsSecure(s string) bool {
 	return ContainsString([]string{"https", "tls", "ssl", "ldaps"}, strings.ToLower(s))
 }

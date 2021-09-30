@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
@@ -13,7 +15,6 @@ import (
 	"github.com/gofrs/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"strings"
 )
 
 type Serv interface {
@@ -31,9 +32,12 @@ type serviceGroupServ struct {
 	q    queue.WorkerQueue
 }
 
+var ErrRedeployNotAllowed = errors.New("redeploy is not allowed when platform or queue are not specified")
+var ErrRedeployDisableGroup = errors.New("check_service group must first be disabled")
+
 func (svc *serviceGroupServ) Redeploy(ctx context.Context, id uuid.UUID) error {
 	if svc.p == nil || config.GetStaticConfig().Queue.Use == queue.None {
-		return errors.New("queue was not established, or platform is none, please manually redeploy the workers")
+		return ErrRedeployNotAllowed
 	}
 
 	serGrp, err := svc.GetByID(ctx, id)
@@ -41,7 +45,7 @@ func (svc *serviceGroupServ) Redeploy(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 	if *serGrp.Enabled {
-		return errors.New("check_service group must first be disabled")
+		return ErrRedeployDisableGroup
 	}
 	wr := worker.Info{Topic: serGrp.Name, Label: serGrp.Label}
 	err = svc.p.RemoveWorkers(ctx, wr)
@@ -98,7 +102,6 @@ func (svc *serviceGroupServ) Store(ctx context.Context, u *service_group.Service
 				codes.FailedPrecondition,
 				"if you are letting scoretrak manage the workers, 'Enabled' can be set to true, only after workers are deployed.",
 			)
-
 		}
 		wr := worker.Info{Topic: u.Name, Label: u.Label}
 		err := svc.p.DeployWorkers(ctx, wr)

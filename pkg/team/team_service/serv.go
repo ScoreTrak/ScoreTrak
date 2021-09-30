@@ -2,6 +2,7 @@ package team_service
 
 import (
 	"context"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	repo2 "github.com/ScoreTrak/ScoreTrak/pkg/team/team_repo"
 	"github.com/gofrs/uuid"

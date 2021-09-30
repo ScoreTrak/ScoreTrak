@@ -5,6 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"math"
+	"strings"
+	"time"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
@@ -16,13 +21,9 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/jackc/pgconn"
 	"gorm.io/gorm"
-	"log"
-	"math"
-	"strings"
-	"time"
 )
 
-type dRunner struct {
+type Runner struct {
 	db           *gorm.DB
 	q            queue.WorkerQueue
 	r            *util.Store
@@ -31,7 +32,7 @@ type dRunner struct {
 }
 
 //refreshDsync retrieves current timestamp from the database, and ensures that it is within 2 seconds of range when compared to the host's clock.
-func (d dRunner) refreshDsync() error {
+func (d Runner) refreshDsync() error {
 	var tm time.Time
 	//query current timestamp
 	res, err := d.db.Raw("SELECT current_timestamp;").Rows()
@@ -50,13 +51,13 @@ func (d dRunner) refreshDsync() error {
 	return nil
 }
 
-func NewRunner(db *gorm.DB, q queue.WorkerQueue, r *util.Store, staticConfig config.StaticConfig) *dRunner {
-	return &dRunner{
+func NewRunner(db *gorm.DB, q queue.WorkerQueue, r *util.Store, staticConfig config.StaticConfig) *Runner {
+	return &Runner{
 		db: db, q: q, r: r, staticConfig: staticConfig,
 	}
 }
 
-func (d *dRunner) MasterRunner() (err error) {
+func (d *Runner) MasterRunner() (err error) {
 	err = d.refreshDsync()
 	if err != nil {
 		return err
@@ -167,42 +168,47 @@ func (d *dRunner) MasterRunner() (err error) {
 				}
 				//After everything is figured out, we are reading to move to the next round
 				//Create context that will attempt to finish the round a little than Start time + RoundDuration to account for networking delay.
-				ctx, _ := context.WithTimeout(context.Background(), time.Duration(cnf.RoundDuration)*time.Second*9/10)
+				ctx, cancelFunc := context.WithTimeout(context.Background(), time.Duration(cnf.RoundDuration)*time.Second*9/10)
 				//Attempt to Store a new round
 				err = d.r.Round.Store(ctx, rnd)
 				if err != nil {
 					//If attempt to store round failed
-					serr, ok := err.(*pgconn.PgError)
+					var serr *pgconn.PgError
+					ok := errors.As(err, &serr)
 					//and the error tells us that some other master got to store the round before us
 					if ok && serr.Code == "23505" {
-						//we then retreive that round stored by other master
+						//we then retrieve that round stored by other master
 						r, err := d.r.Round.GetByID(ctx, rnd.ID)
 						if err != nil {
+							cancelFunc()
 							return err
 						}
 						*rnd = *r
 						//and set it as our last round
 					} else {
 						//otherwise this error is likely due to networking issues, so we just exit the process
+						cancelFunc()
 						return err
 					}
 				} else {
 					//If we succeeded with saving the round, we proceed with scoring it
-					go d.Score(ctx, rnd)
+					go d.Score(time.Duration(cnf.RoundDuration)*time.Second*9/10, rnd)
 				}
 				//At this point some new round should have been recorded in the database.
-				//Retrieve its start time, and start time, and calculate durationUntilNextRound based on that start time
+				//Retrieve its start time, and calculate durationUntilNextRound based on that start time
 				lastRound, err = d.r.Round.GetLastRound(context.Background())
 				if err != nil {
+					cancelFunc()
 					return err
 				}
 				scoringLoop = time.NewTimer(d.durationUntilNextRound(lastRound, cnf.RoundDuration))
+				cancelFunc()
 			}
 		}
 	}
 }
 
-func (d *dRunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64) time.Duration {
+func (d *Runner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64) time.Duration {
 	//Start time of current round + Round Duration - Current time on database
 	dur := rnd.Start.Add(time.Duration(RoundDuration) * time.Second).Sub(time.Now().Add(d.dsync))
 	//if duration is small, then just return minimum duration
@@ -212,7 +218,9 @@ func (d *dRunner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64)
 	return dur
 }
 
-func (d dRunner) Score(ctx context.Context, rnd *round.Round) {
+func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
+	ctx, c := context.WithTimeout(context.Background(), timeout)
+	defer c()
 	var Note string
 	defer func() {
 		if x := recover(); x != nil {
@@ -227,7 +235,7 @@ func (d dRunner) Score(ctx context.Context, rnd *round.Round) {
 			}
 
 			log.Println(err)
-			d.finalizeRound(ctx, rnd, Note, fmt.Sprintf("A panic has occured. Err:%s", err.Error()))
+			d.finalizeRound(ctx, rnd, Note, fmt.Sprintf("A panic has occurred. Err:%s", err.Error()))
 		}
 	}()
 	log.Printf("Running check for round %d", rnd.ID)
@@ -245,31 +253,33 @@ func (d dRunner) Score(ctx context.Context, rnd *round.Round) {
 		return
 	}
 	var servicesToBeScored []*queueing.ScoringData
-	for _, t := range teams {
+	for t := range teams {
 		//Get Child Hosts for a given team
-		err = d.db.WithContext(ctx).Model(&t).Association("Hosts").Find(&t.Hosts)
+		err = d.db.WithContext(ctx).Model(&teams[t]).Association("Hosts").Find(&teams[t].Hosts)
 		if err != nil {
 			panic(err)
 		}
-		for _, h := range t.Hosts {
+		hosts := teams[t].Hosts
+		for h := range hosts {
 			//Get Child Services for a given Host
-			err = d.db.WithContext(ctx).Model(&h).Association("Services").Find(&h.Services)
+			err = d.db.WithContext(ctx).Model(&hosts[h]).Association("Services").Find(&hosts[h].Services)
 			if err != nil {
 				panic(err)
 			}
-			for _, s := range h.Services {
+			services := hosts[h].Services
+			for s := range services {
 				//Get Child Properties for a given Service
-				err = d.db.WithContext(ctx).Model(&s).Association("Properties").Find(&s.Properties)
+				err = d.db.WithContext(ctx).Model(&services[s]).Association("Properties").Find(&services[s].Properties)
 				if err != nil {
 					panic(err)
 				}
-				if !*t.Pause {
+				if !*teams[t].Pause {
 					var validService bool
-					if !*h.Pause {
+					if !*hosts[h].Pause {
 						//Get all services, which parent objects are not Paused/Disabled
-						if h.HostGroupID != nil {
+						if hosts[h].HostGroupID != nil {
 							for _, hG := range hostGroup {
-								if hG.ID == *h.HostGroupID && !*(hG.Pause) {
+								if hG.ID == *hosts[h].HostGroupID && !*(hG.Pause) {
 									validService = true
 								}
 							}
@@ -279,21 +289,21 @@ func (d dRunner) Score(ctx context.Context, rnd *round.Round) {
 						}
 					}
 					if validService {
-						schedule := s.RoundUnits
-						if s.RoundDelay != nil {
-							schedule += *(s.RoundDelay)
+						schedule := services[s].RoundUnits
+						if services[s].RoundDelay != nil {
+							schedule += *(services[s].RoundDelay)
 						}
-						if !*(s.Pause) && rnd.ID%schedule == 0 {
+						if !*(services[s].Pause) && rnd.ID%schedule == 0 {
 							//If the service is "Valid", and it is scheduled to be run in this round, then
 							for _, servGroup := range serviceGroups {
 								//Create corresponding ScoringData object, which is to be scoring a second before that rounds deadline.
-								if s.ServiceGroupID == servGroup.ID && *(servGroup.Enabled) {
-									sq := queueing.QService{ID: s.ID, Group: servGroup.Name, Name: s.Name}
-									params := property.PropertiesToMap(s.Properties)
+								if services[s].ServiceGroupID == servGroup.ID && *(servGroup.Enabled) {
+									sq := queueing.QService{ID: services[s].ID, Group: servGroup.Name, Name: services[s].Name}
+									params := property.PropertiesToMap(services[s].Properties)
 									de, _ := ctx.Deadline()
 									sd := &queueing.ScoringData{
 										Deadline:   de.Add(-time.Second),
-										Host:       h.Address,
+										Host:       hosts[h].Address,
 										Service:    sq,
 										Properties: params,
 										RoundID:    rnd.ID,
@@ -441,7 +451,7 @@ func (d dRunner) Score(ctx context.Context, rnd *round.Round) {
 	d.finalizeRound(ctx, rnd, Note, "")
 }
 
-func (d dRunner) finalizeRound(ctx context.Context, rnd *round.Round, Note string, Error string) {
+func (d Runner) finalizeRound(ctx context.Context, rnd *round.Round, Note string, Error string) {
 	log.Printf("Note: %s\nError: %s\nRound: %v", Note, Error, rnd)
 	now := time.Now().Add(d.dsync)
 	rnd.Finish = &now

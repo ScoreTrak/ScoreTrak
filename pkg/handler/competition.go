@@ -2,7 +2,9 @@ package handler
 
 import (
 	"context"
-	"fmt"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/competition"
 	"github.com/ScoreTrak/ScoreTrak/pkg/competition/competition_service"
@@ -26,7 +28,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
-	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -37,7 +38,7 @@ type CompetitionController struct {
 }
 
 func (c CompetitionController) LoadCompetition(ctx context.Context, request *competitionpb.LoadCompetitionRequest) (*competitionpb.LoadCompetitionResponse, error) {
-	var hstGrps []*host_group.HostGroup
+	hstGrps := make([]*host_group.HostGroup, 0, len(request.GetCompetition().HostGroups))
 	for i := range request.GetCompetition().HostGroups {
 		hstGrp, err := ConvertHostGroupPBtoHostGroup(true, request.GetCompetition().HostGroups[i])
 		if err != nil {
@@ -45,7 +46,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 		}
 		hstGrps = append(hstGrps, hstGrp)
 	}
-	var hsts []*host.Host
+	hsts := make([]*host.Host, 0, len(request.GetCompetition().Hosts))
 	for i := range request.GetCompetition().Hosts {
 		hst, err := ConvertHostPBtoHost(true, request.GetCompetition().Hosts[i])
 		if err != nil {
@@ -53,7 +54,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 		}
 		hsts = append(hsts, hst)
 	}
-	var tms []*team.Team
+	tms := make([]*team.Team, 0, len(request.GetCompetition().Teams))
 	for i := range request.GetCompetition().Teams {
 		tm, err := ConvertTeamPBtoTeam(true, request.GetCompetition().Teams[i])
 		if err != nil {
@@ -61,7 +62,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 		}
 		tms = append(tms, tm)
 	}
-	var svcs []*service2.Service
+	svcs := make([]*service2.Service, 0, len(request.GetCompetition().Services))
 	for i := range request.GetCompetition().Services {
 		svc, err := ConvertServicePBtoService(true, request.GetCompetition().Services[i])
 		if err != nil {
@@ -69,7 +70,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 		}
 		svcs = append(svcs, svc)
 	}
-	var servGrps []*service_group.ServiceGroup
+	servGrps := make([]*service_group.ServiceGroup, 0, len(request.GetCompetition().ServiceGroups))
 	for i := range request.GetCompetition().ServiceGroups {
 		servGrp, err := ConvertServiceGroupPBtoServiceGroup(true, request.GetCompetition().ServiceGroups[i])
 		if err != nil {
@@ -77,7 +78,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 		}
 		servGrps = append(servGrps, servGrp)
 	}
-	var rnds []*round.Round
+	rnds := make([]*round.Round, 0, len(request.GetCompetition().Rounds))
 	for i := range request.GetCompetition().Rounds {
 		rnd, err := ConvertRoundPBtoRound(true, request.GetCompetition().Rounds[i])
 		if err != nil {
@@ -85,7 +86,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 		}
 		rnds = append(rnds, rnd)
 	}
-	var props []*property.Property
+	props := make([]*property.Property, 0, len(request.GetCompetition().Properties))
 	for i := range request.GetCompetition().Properties {
 		prop, err := ConvertPropertyPBtoProperty(request.GetCompetition().Properties[i])
 		if err != nil {
@@ -93,7 +94,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 		}
 		props = append(props, prop)
 	}
-	var chcks []*check.Check
+	chcks := make([]*check.Check, 0, len(request.GetCompetition().Checks))
 	for i := range request.GetCompetition().Checks {
 		chck, err := ConvertCheckPBtoCheck(request.GetCompetition().Checks[i])
 		if err != nil {
@@ -102,7 +103,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 		chcks = append(chcks, chck)
 	}
 
-	var users []*user.User
+	users := make([]*user.User, 0, len(request.GetCompetition().Users))
 	for i := range request.GetCompetition().Users {
 		usr, err := ConvertUserPBtoUser(true, request.GetCompetition().Users[i])
 		if err != nil {
@@ -172,8 +173,7 @@ func (c CompetitionController) FetchEntireCompetition(ctx context.Context, reque
 }
 
 func (c CompetitionController) ResetScores(ctx context.Context, request *competitionpb.ResetScoresRequest) (*competitionpb.ResetScoresResponse, error) {
-	err := c.svc.ResetScores(ctx)
-	if err != nil {
+	if err := c.svc.ResetScores(ctx); err != nil {
 		return nil, status.Errorf(
 			codes.Internal,
 			"Internal Error when fetching competition: %v", err,
@@ -198,60 +198,48 @@ func NewCompetitionController(svc competition_service.Serv) *CompetitionControll
 }
 
 func ConvertCompetitionToCompetitionPB(comp *competition.Competition) (*competitionpb.Competition, error) {
-
-	var hstGrps []*host_grouppb.HostGroup
+	hstGrps := make([]*host_grouppb.HostGroup, 0, len(comp.HostGroups))
 	for i := range comp.HostGroups {
 		hstGrps = append(hstGrps, ConvertHostGroupToHostGroupPb(comp.HostGroups[i]))
 	}
-	var hsts []*hostpb.Host
+	hsts := make([]*hostpb.Host, 0, len(comp.Hosts))
 	for i := range comp.Hosts {
 		hsts = append(hsts, ConvertHostToHostPb(comp.Hosts[i]))
 	}
-	var tms []*teampb.Team
+	tms := make([]*teampb.Team, 0, len(comp.Teams))
 	for i := range comp.Teams {
 		tms = append(tms, ConvertTeamToTeamPb(comp.Teams[i]))
 	}
-	var svcs []*servicepb.Service
+	svcs := make([]*servicepb.Service, 0, len(comp.Services))
 	for i := range comp.Services {
 		svcs = append(svcs, ConvertServiceToServicePb(comp.Services[i]))
 	}
-	var servGrps []*service_grouppb.ServiceGroup
+	servGrps := make([]*service_grouppb.ServiceGroup, 0, len(comp.ServiceGroups))
 	for i := range comp.ServiceGroups {
 		servGrps = append(servGrps, ConvertServiceGroupToServiceGroupPb(comp.ServiceGroups[i]))
 	}
-	var rnds []*roundpb.Round
+	rnds := make([]*roundpb.Round, 0, len(comp.Rounds))
 	for i := range comp.Rounds {
-		rnd, err := ConvertRoundToRoundPb(comp.Rounds[i])
-		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" round, details: %v", err)
-		}
-		rnds = append(rnds, rnd)
+		rnds = append(rnds, ConvertRoundToRoundPb(comp.Rounds[i]))
 	}
-	var props []*propertypb.Property
+	props := make([]*propertypb.Property, 0, len(comp.Properties))
 	for i := range comp.Properties {
 		props = append(props, ConvertPropertyToPropertyPb(comp.Properties[i]))
 	}
-	var chcks []*checkpb.Check
+	chcks := make([]*checkpb.Check, 0, len(comp.Checks))
 	for i := range comp.Checks {
 		chcks = append(chcks, ConvertCheckToCheckPb(comp.Checks[i]))
 	}
-	var usrs []*userpb.User
+	usrs := make([]*userpb.User, 0, len(comp.Users))
 	for i := range comp.Users {
 		usrs = append(usrs, ConvertUserToUserPb(comp.Users[i]))
 	}
 
 	var rprt *reportpb.Report
 	if comp.Report != nil {
-		uat, err := ptypes.TimestampProto(comp.Report.UpdatedAt)
-		if err != nil {
-			return nil, status.Errorf(
-				codes.Internal,
-				fmt.Sprintf("Unable convert time.date to timestamp(Ideally, this should not happen, perhaps this is a bug): %v", err),
-			)
-		}
 		rprt = &reportpb.Report{
 			Cache:     comp.Report.Cache,
-			UpdatedAt: uat,
+			UpdatedAt: timestamppb.New(comp.Report.UpdatedAt),
 		}
 	}
 

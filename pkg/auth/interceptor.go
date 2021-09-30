@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
 	authpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/auth/v1"
 	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"

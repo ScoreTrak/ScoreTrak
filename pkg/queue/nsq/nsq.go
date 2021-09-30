@@ -2,9 +2,10 @@ package nsq
 
 import (
 	"errors"
+	"time"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/nsqio/go-nsq"
-	"time"
 )
 
 func nsqProducerConfig(conf *nsq.Config, config queueing.Config) {
@@ -51,7 +52,7 @@ func connectConsumer(consumer *nsq.Consumer, config queueing.Config) (err error)
 	} else {
 		err = consumer.ConnectToNSQDs(config.NSQ.ConsumerNSQDPool)
 	}
-	return nil
+	return
 }
 
 func validateNSQConfig(config queueing.Config) error {

@@ -2,9 +2,10 @@ package config
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/jinzhu/configor"
 	"gorm.io/gorm"
-	"reflect"
 )
 
 // Dynamic Config model is a set of columns describing the dynamicConfig of the scoring engine
@@ -30,8 +31,7 @@ func (d DynamicConfig) TableName() string {
 //NewDynamicConfig initializes global config d, but it doesn't need any locking because it is assumed that NewDynamicConfig is ran once at the start of the application
 func NewDynamicConfig(f string) (*DynamicConfig, error) {
 	d := &DynamicConfig{}
-	err := configor.Load(d, f)
-	if err != nil {
+	if err := configor.Load(d, f); err != nil {
 		return nil, err
 	}
 	d.ID = 1

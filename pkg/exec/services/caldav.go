@@ -2,11 +2,12 @@ package services
 
 import (
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
-	"github.com/emersion/go-webdav"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
+	"github.com/emersion/go-webdav"
 )
 
 type CalDav struct {
@@ -27,19 +28,19 @@ func (h *CalDav) Validate() error {
 	return nil
 }
 
-func (h *CalDav) Execute(e exec.Exec) (passed bool, log string, err error) {
+func (h *CalDav) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 	authClient := webdav.HTTPClientWithBasicAuth(&http.Client{Timeout: time.Until(e.Deadline())}, h.Username, h.Password)
 	baseURL := ConstructURI(h.Port, h.Subdomain, e.Host, h.Path, h.Scheme)
 	client, err := webdav.NewClient(authClient, baseURL.String())
 	if err != nil {
-		return false, "Unable to create client", err
+		return false, "", fmt.Errorf("unable to create client :%w", err)
 	}
 	usr, err := client.FindCurrentUserPrincipal()
 	if err != nil {
-		return false, "Unable to retrieve current user principal", err
+		return false, "", fmt.Errorf("unable to retrieve current user principal: %w", err)
 	}
 	if h.ExpectedOutput != "" && !strings.Contains(usr, h.ExpectedOutput) {
-		return false, fmt.Sprintf("User Principal did not match expected output. Output received: %s", usr), nil
+		return false, "", fmt.Errorf("user principal did not match expected output. output received: %s", usr)
 	}
 	return true, "", nil
 }

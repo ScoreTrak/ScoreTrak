@@ -3,6 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
 	reportpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/report/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
@@ -10,19 +13,18 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
-	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-type reportController struct {
+type ReportController struct {
 	svc          report_service.Serv
 	reportClient *report_client.Client
 	policyClient *policy_client.Client
 	reportpb.UnimplementedReportServiceServer
 }
 
-func (r *reportController) filterReport(rol string, tID uuid.UUID, lr *report.Report) (*reportpb.Report, error) {
+func (r *ReportController) filterReport(rol string, tID uuid.UUID, lr *report.Report) (*reportpb.Report, error) {
 	simpleReport := &report.SimpleReport{}
 	err := json.Unmarshal([]byte(lr.Cache), simpleReport)
 	if err != nil {
@@ -104,26 +106,19 @@ func (r *reportController) filterReport(rol string, tID uuid.UUID, lr *report.Re
 	if err != nil {
 		return nil, err
 	}
-	uat, err := ptypes.TimestampProto(lr.UpdatedAt)
-	if err != nil {
-		return nil, status.Errorf(
-			codes.Internal,
-			fmt.Sprintf("Unable convert time.date to timestamp(Ideally, this should not happen, perhaps this is a bug): %v", err),
-		)
-	}
 	return &reportpb.Report{
 		Cache:     string(ret),
-		UpdatedAt: uat,
+		UpdatedAt: timestamppb.New(lr.UpdatedAt),
 	}, nil
 }
 
-func (r *reportController) Get(request *reportpb.GetRequest, server reportpb.ReportService_GetServer) error {
+func (r *ReportController) Get(request *reportpb.GetRequest, server reportpb.ReportService_GetServer) error {
 	rol := user.Anonymous
 	tID := uuid.UUID{}
 	lr, err := r.svc.Get(server.Context())
 	if err != nil {
 		return status.Errorf(codes.Internal,
-			fmt.Sprintf("Unable to retreive report: %v", err))
+			fmt.Sprintf("Unable to retrieve report: %v", err))
 	}
 
 	claims := extractUserClaim(server.Context())
@@ -158,7 +153,7 @@ func (r *reportController) Get(request *reportpb.GetRequest, server reportpb.Rep
 			lr, err := r.svc.Get(server.Context())
 			if err != nil {
 				return status.Errorf(codes.Internal,
-					fmt.Sprintf("Unable to retreive report: %v", err))
+					fmt.Sprintf("Unable to retrieve report: %v", err))
 			}
 			frep, err = r.filterReport(rol, tID, lr)
 			if err != nil {
@@ -175,8 +170,8 @@ func (r *reportController) Get(request *reportpb.GetRequest, server reportpb.Rep
 	}
 }
 
-func NewReportController(svc report_service.Serv, reportClient *report_client.Client, client *policy_client.Client) *reportController {
-	return &reportController{
+func NewReportController(svc report_service.Serv, reportClient *report_client.Client, client *policy_client.Client) *ReportController {
+	return &ReportController{
 		svc:          svc,
 		reportClient: reportClient,
 		policyClient: client,

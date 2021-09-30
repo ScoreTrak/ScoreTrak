@@ -3,12 +3,13 @@ package host
 import (
 	"errors"
 	"fmt"
+	"net"
+	"strings"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/asaskevich/govalidator"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
-	"net"
-	"strings"
 )
 
 // Host model represents a single machine. This could be an IP address or a resolvable hostname
@@ -46,7 +47,7 @@ func (p *Host) BeforeSave(tx *gorm.DB) (err error) {
 			hst := &Host{}
 			err := tx.Where("id = ?", p.ID).First(hst).Error
 			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("unable to retreive the requested entry, in order to validate address. Error: %v", err)
+				return fmt.Errorf("unable to retrieve the requested entry, in order to validate address: %w", err)
 			}
 			if p.AddressListRange == nil {
 				p.AddressListRange = hst.AddressListRange
@@ -66,7 +67,6 @@ func (p *Host) BeforeSave(tx *gorm.DB) (err error) {
 				return err
 			}
 		}
-
 	}
 	return nil
 }

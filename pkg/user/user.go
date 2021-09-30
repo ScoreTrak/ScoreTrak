@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+
 	"github.com/asaskevich/govalidator"
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -43,7 +44,6 @@ func (u *User) BeforeSave(tx *gorm.DB) (err error) {
 			return errors.New("you must specify a correct role")
 		}
 		return nil
-
 	}
 	return nil
 }

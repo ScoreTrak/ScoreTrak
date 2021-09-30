@@ -2,6 +2,7 @@ package queue
 
 import (
 	"errors"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/none"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/nsq"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
@@ -30,9 +31,9 @@ type MasterStreamPubSub interface {
 }
 
 const (
-	Nsq = "nsq"
+	Nsq  = "nsq"
 	None = "none"
- )
+)
 
 func NewMasterStreamPubSub(c queueing.Config) (MasterStreamPubSub, error) {
 	if c.Use == Nsq {

@@ -2,6 +2,7 @@ package property_service
 
 import (
 	"context"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	repo2 "github.com/ScoreTrak/ScoreTrak/pkg/property/property_repo"
 	"github.com/gofrs/uuid"

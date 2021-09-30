@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_repo"
 
@@ -52,7 +53,6 @@ func (h *hostGroupRepo) GetByID(ctx context.Context, id uuid.UUID) (*host_group.
 }
 
 func (h *hostGroupRepo) Store(ctx context.Context, hstgrp []*host_group.HostGroup) error {
-
 	err := h.db.WithContext(ctx).Create(hstgrp).Error
 	if err != nil {
 		return err

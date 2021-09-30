@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_service"
 	host_grouppb "github.com/ScoreTrak/ScoreTrak/pkg/proto/host_group/v1"
@@ -20,7 +21,7 @@ type HostGroupController struct {
 
 func (p HostGroupController) GetByID(ctx context.Context, request *host_grouppb.GetByIDRequest) (*host_grouppb.GetByIDResponse, error) {
 	uid, err := extractUUID(request)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	hst, err := p.svc.GetByID(ctx, uid)
@@ -35,7 +36,7 @@ func (p HostGroupController) GetAll(ctx context.Context, request *host_grouppb.G
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	var hostgrpspb []*host_grouppb.HostGroup
+	hostgrpspb := make([]*host_grouppb.HostGroup, 0, len(hostgrps))
 	for i := range hostgrps {
 		hostgrpspb = append(hostgrpspb, ConvertHostGroupToHostGroupPb(hostgrps[i]))
 	}
@@ -44,7 +45,7 @@ func (p HostGroupController) GetAll(ctx context.Context, request *host_grouppb.G
 
 func (p HostGroupController) Delete(ctx context.Context, request *host_grouppb.DeleteRequest) (*host_grouppb.DeleteResponse, error) {
 	uid, err := extractUUID(request)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	err = p.svc.Delete(ctx, uid)
@@ -56,7 +57,7 @@ func (p HostGroupController) Delete(ctx context.Context, request *host_grouppb.D
 
 func (p HostGroupController) Store(ctx context.Context, request *host_grouppb.StoreRequest) (*host_grouppb.StoreResponse, error) {
 	servcspb := request.GetHostGroups()
-	var props []*host_group.HostGroup
+	props := make([]*host_group.HostGroup, 0, len(servcspb))
 	for i := range servcspb {
 		hstgrp, err := ConvertHostGroupPBtoHostGroup(false, servcspb[i])
 		if err != nil {
@@ -64,14 +65,13 @@ func (p HostGroupController) Store(ctx context.Context, request *host_grouppb.St
 		}
 		props = append(props, hstgrp)
 	}
-	err := p.svc.Store(ctx, props)
-	if err != nil {
+	if err := p.svc.Store(ctx, props); err != nil {
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	var ids []*utilpb.UUID
+	ids := make([]*utilpb.UUID, 0, len(props))
 	for i := range props {
 		ids = append(ids, &utilpb.UUID{Value: props[i].ID.String()})
 	}
@@ -85,7 +85,6 @@ func (p HostGroupController) Update(ctx context.Context, request *host_grouppb.U
 	}
 	err = p.svc.Update(ctx, hstgrp)
 	if err != nil {
-
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Unknown internal error: %v", err),

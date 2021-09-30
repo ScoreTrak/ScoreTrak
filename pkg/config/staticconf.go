@@ -1,6 +1,8 @@
 package config
 
 import (
+	"io/ioutil"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
@@ -8,7 +10,6 @@ import (
 	"github.com/jinzhu/configor"
 	"github.com/jinzhu/copier"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
 )
 
 //StaticConfig is a struct of settings that are set at the start of the application. It contains Configs from other packages defined under pkg/ directory.

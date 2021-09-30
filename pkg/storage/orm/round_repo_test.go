@@ -2,6 +2,7 @@ package orm
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
@@ -77,7 +78,8 @@ func TestRoundSpec(t *testing.T) {
 					r := round.Round{ID: 1}
 					err = rr.Store(ctx, &r)
 					So(err, ShouldNotBeNil)
-					serr, ok := err.(*pgconn.PgError)
+					var serr *pgconn.PgError
+					ok := errors.As(err, &serr)
 					So(ok, ShouldBeTrue)
 					So(serr.Code, ShouldEqual, "23505")
 				})

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user/user_repo"
 	"github.com/gofrs/uuid"

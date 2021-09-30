@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	service_grouppb "github.com/ScoreTrak/ScoreTrak/pkg/proto/service_group/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
@@ -20,7 +21,7 @@ type ServiceGroupController struct {
 
 func (p ServiceGroupController) Redeploy(ctx context.Context, request *service_grouppb.RedeployRequest) (*service_grouppb.RedeployResponse, error) {
 	uid, err := extractUUID(request)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	err = p.svc.Redeploy(ctx, uid)
@@ -36,7 +37,7 @@ func (p ServiceGroupController) Redeploy(ctx context.Context, request *service_g
 
 func (p ServiceGroupController) GetByID(ctx context.Context, request *service_grouppb.GetByIDRequest) (*service_grouppb.GetByIDResponse, error) {
 	uid, err := extractUUID(request)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	servgrp, err := p.svc.GetByID(ctx, uid)
@@ -51,7 +52,8 @@ func (p ServiceGroupController) GetAll(ctx context.Context, request *service_gro
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	var servcspb []*service_grouppb.ServiceGroup
+	servcspb := make([]*service_grouppb.ServiceGroup, 0, len(servgrps))
+
 	for i := range servgrps {
 		servcspb = append(servcspb, ConvertServiceGroupToServiceGroupPb(servgrps[i]))
 	}
@@ -60,7 +62,7 @@ func (p ServiceGroupController) GetAll(ctx context.Context, request *service_gro
 
 func (p ServiceGroupController) Delete(ctx context.Context, request *service_grouppb.DeleteRequest) (*service_grouppb.DeleteResponse, error) {
 	uid, err := extractUUID(request)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	err = p.svc.Delete(ctx, uid)

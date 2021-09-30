@@ -2,6 +2,7 @@ package property
 
 import (
 	"errors"
+
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )

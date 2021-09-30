@@ -4,12 +4,15 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 )
+
+var QueueNotSupportedError = errors.New("selected queue is not yet supported by platform")
 
 func GenerateConfigFile(info worker.Info) (path string, err error) {
 	cnf, err := config.GetConfigCopy()
@@ -19,7 +22,7 @@ func GenerateConfigFile(info worker.Info) (path string, err error) {
 	if cnf.Queue.Use == "nsq" {
 		cnf.Queue.NSQ.Topic = info.Topic
 	} else {
-		return "", errors.New("selected queue is not yet supported with platform Docker")
+		return "", QueueNotSupportedError
 	}
 	tmpPath := filepath.Join(".", "tmp")
 	err = os.MkdirAll(tmpPath, os.ModePerm)

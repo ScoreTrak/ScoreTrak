@@ -2,9 +2,10 @@ package none
 
 import (
 	"errors"
+	"time"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
-	"time"
 )
 
 type None struct{}

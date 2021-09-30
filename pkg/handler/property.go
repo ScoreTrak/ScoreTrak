@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property/property_service"
 	propertypb "github.com/ScoreTrak/ScoreTrak/pkg/proto/property/v1"
@@ -25,9 +26,8 @@ func (p PropertyController) GetAll(ctx context.Context, request *propertypb.GetA
 	props, err := p.svc.GetAll(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
-
 	}
-	var propspb []*propertypb.Property
+	propspb := make([]*propertypb.Property, 0, len(props))
 	for i := range props {
 		propspb = append(propspb, ConvertPropertyToPropertyPb(props[i]))
 	}
@@ -64,7 +64,7 @@ func (p PropertyController) Delete(ctx context.Context, request *propertypb.Dele
 
 func (p PropertyController) Store(ctx context.Context, request *propertypb.StoreRequest) (*propertypb.StoreResponse, error) {
 	propspb := request.GetProperties()
-	var props []*property.Property
+	props := make([]*property.Property, 0, len(propspb))
 	for i := range propspb {
 		prop, err := ConvertPropertyPBtoProperty(propspb[i])
 		if err != nil {
@@ -73,8 +73,7 @@ func (p PropertyController) Store(ctx context.Context, request *propertypb.Store
 		props = append(props, prop)
 	}
 
-	err := p.svc.Store(ctx, props)
-	if err != nil {
+	if err := p.svc.Store(ctx, props); err != nil {
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Unknown internal error: %v", err),
@@ -191,7 +190,7 @@ func (p PropertyController) GetAllByServiceID(ctx context.Context, request *prop
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	var propspb []*propertypb.Property
+	propspb := make([]*propertypb.Property, 0, len(props))
 	for i := range props {
 		propspb = append(propspb, ConvertPropertyToPropertyPb(props[i]))
 	}

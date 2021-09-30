@@ -1,8 +1,9 @@
 package none
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"time"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 )
 
 type PubSub struct {

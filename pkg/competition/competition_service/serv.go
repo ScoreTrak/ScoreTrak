@@ -3,6 +3,8 @@ package competition_service
 import (
 	"context"
 	"errors"
+	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/competition"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
@@ -28,8 +30,12 @@ func NewCompetitionServ(str *util.Store) Serv {
 	}
 }
 
+var (
+	ErrLoadCompetition = errors.New("failed to load the competition")
+)
+
 func (svc *competitionServ) LoadCompetition(ctx context.Context, c *competition.Competition) error {
-	var errAgr []error
+	errAgr := make([]error, 0, 11)
 	err := svc.Store.Config.Update(ctx, c.Config)
 	if err != nil {
 		return err
@@ -71,14 +77,15 @@ func (svc *competitionServ) LoadCompetition(ctx context.Context, c *competition.
 	errStr := ""
 	for i := range errAgr {
 		if errAgr[i] != nil {
-			serr, ok := errAgr[i].(*pgconn.PgError)
+			var serr *pgconn.PgError
+			ok := errors.As(errAgr[i], &serr)
 			if !ok || serr.Code != "23505" {
 				errStr += errAgr[i].Error() + "\n"
 			}
 		}
 	}
 	if errStr != "" {
-		return errors.New(errStr)
+		return fmt.Errorf("%w: %s", ErrLoadCompetition, errStr)
 	}
 	return nil
 }
@@ -87,28 +94,28 @@ func (svc *competitionServ) FetchCoreCompetition(ctx context.Context) (*competit
 	fls := false
 	cnf, err := svc.Store.Config.Get(ctx)
 	if err != nil {
-		return nil, err
+		return nil, wrapError(err, fetch)
 	}
 	pol, err := svc.Store.Policy.Get(ctx)
 	if err != nil {
-		return nil, err
+		return nil, wrapError(err, fetch)
 	}
 	cnf.Enabled = &fls
 	teams, err := svc.Store.Team.GetAll(ctx)
 	if err != nil {
-		return nil, err
+		return nil, wrapError(err, fetch)
 	}
 	users, err := svc.Store.Users.GetAll(ctx)
 	if err != nil {
-		return nil, err
+		return nil, wrapError(err, fetch)
 	}
 	hostsGroup, err := svc.Store.HostGroup.GetAll(ctx)
 	if err != nil {
-		return nil, err
+		return nil, wrapError(err, fetch)
 	}
 	hosts, err := svc.Store.Host.GetAll(ctx)
 	if err != nil {
-		return nil, err
+		return nil, wrapError(err, fetch)
 	}
 	serviceGroups, err := svc.Store.ServiceGroup.GetAll(ctx)
 	if config.GetStaticConfig().Queue.Use != "none" {
@@ -117,15 +124,15 @@ func (svc *competitionServ) FetchCoreCompetition(ctx context.Context) (*competit
 		}
 	}
 	if err != nil {
-		return nil, err
+		return nil, wrapError(err, fetch)
 	}
 	services, err := svc.Store.Service.GetAll(ctx)
 	if err != nil {
-		return nil, err
+		return nil, wrapError(err, fetch)
 	}
 	properties, err := svc.Store.Property.GetAll(ctx)
 	if err != nil {
-		return nil, err
+		return nil, wrapError(err, fetch)
 	}
 	return &competition.Competition{Config: cnf, Teams: teams, HostGroups: hostsGroup, Hosts: hosts, ServiceGroups: serviceGroups, Services: services, Properties: properties, Policy: pol, Users: users}, nil
 }
@@ -133,19 +140,19 @@ func (svc *competitionServ) FetchCoreCompetition(ctx context.Context) (*competit
 func (svc *competitionServ) FetchEntireCompetition(ctx context.Context) (*competition.Competition, error) {
 	cmp, err := svc.FetchCoreCompetition(ctx)
 	if err != nil {
-		return nil, err
+		return nil, wrapError(err, fetch)
 	}
 	rounds, err := svc.Store.Round.GetAll(ctx)
 	if err != nil {
-		return nil, err
+		return nil, wrapError(err, fetch)
 	}
 	checks, err := svc.Store.Check.GetAll(ctx)
 	if err != nil {
-		return nil, err
+		return nil, wrapError(err, fetch)
 	}
 	getReport, err := svc.Store.Report.Get(ctx)
 	if err != nil {
-		return nil, err
+		return nil, wrapError(err, fetch)
 	}
 	cmp.Rounds = rounds
 	cmp.Checks = checks
@@ -156,39 +163,49 @@ func (svc *competitionServ) FetchEntireCompetition(ctx context.Context) (*compet
 func (svc *competitionServ) ResetScores(ctx context.Context) error {
 	err := svc.Store.Check.TruncateTable(ctx)
 	if err != nil {
-		return err
+		return wrapError(err, reset)
 	}
 	err = svc.Store.Round.TruncateTable(ctx)
 	if err != nil {
-		return err
+		return wrapError(err, reset)
 	}
 	err = svc.Store.Report.Update(ctx, &report.Report{Cache: "{}"})
 	if err != nil {
-		return err
+		return wrapError(err, reset)
 	}
 	return nil
 }
 
+func wrapError(err error, action string) error {
+	return fmt.Errorf("failed to %s competition: %w", action, err)
+}
+
+const (
+	remove = "remove"
+	reset  = "reset"
+	fetch  = "fetch"
+)
+
 func (svc *competitionServ) DeleteCompetition(ctx context.Context) error {
 	err := svc.ResetScores(ctx)
 	if err != nil {
-		return err
+		return wrapError(err, remove)
 	}
 	err = svc.Store.Property.TruncateTable(ctx)
 	if err != nil {
-		return err
+		return wrapError(err, remove)
 	}
 	err = svc.Store.Service.TruncateTable(ctx)
 	if err != nil {
-		return err
+		return wrapError(err, remove)
 	}
 	err = svc.Store.Host.TruncateTable(ctx)
 	if err != nil {
-		return err
+		return wrapError(err, remove)
 	}
 	err = svc.Store.HostGroup.TruncateTable(ctx)
 	if err != nil {
-		return err
+		return wrapError(err, remove)
 	}
 	return nil
 }

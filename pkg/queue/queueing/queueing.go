@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
-	"github.com/ScoreTrak/ScoreTrak/pkg/exec/resolver"
-	"github.com/gofrs/uuid"
 	"log"
 	"math/rand"
 	"strconv"
 	"time"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec/resolver"
+	"github.com/gofrs/uuid"
 )
 
 type ScoringData struct {

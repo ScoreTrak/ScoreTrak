@@ -11,9 +11,9 @@ type HostGroup struct {
 	ID uuid.UUID `json:"id,omitempty" gorm:"type:uuid;primary_key;"`
 
 	Name string `json:"name" gorm:"not null; unique"`
-	//Hide is responsible for hiding the Host Group on scoring table
+	// Hide is responsible for hiding the Host Group on scoring table
 	Hide *bool `json:"pause,omitempty" gorm:"not null;default:false"`
-	//Pause is responsible for pausing the Host Group on scoring table
+	// Pause is responsible for pausing the Host Group on scoring table
 	Pause *bool `json:"hide,omitempty" gorm:"not null;default:false"`
 
 	Hosts []*host.Host `json:"hosts,omitempty" gorm:"foreignkey:HostGroupID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT"`

@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	userpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/user/v1"
@@ -37,7 +38,7 @@ func (p UserController) GetByUsername(ctx context.Context, request *userpb.GetBy
 
 func (p UserController) GetByID(ctx context.Context, request *userpb.GetByIDRequest) (*userpb.GetByIDResponse, error) {
 	uid, err := extractUUID(request)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	tm, err := p.svc.GetByID(ctx, uid)
@@ -52,7 +53,7 @@ func (p UserController) GetAll(ctx context.Context, _ *userpb.GetAllRequest) (*u
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	var tmspb []*userpb.User
+	tmspb := make([]*userpb.User, 0, len(tms))
 	for i := range tms {
 		tmspb = append(tmspb, ConvertUserToUserPb(tms[i]))
 	}
@@ -61,7 +62,7 @@ func (p UserController) GetAll(ctx context.Context, _ *userpb.GetAllRequest) (*u
 
 func (p UserController) Delete(ctx context.Context, request *userpb.DeleteRequest) (*userpb.DeleteResponse, error) {
 	uid, err := extractUUID(request)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	err = p.svc.Delete(ctx, uid)
@@ -73,7 +74,7 @@ func (p UserController) Delete(ctx context.Context, request *userpb.DeleteReques
 
 func (p UserController) Store(ctx context.Context, request *userpb.StoreRequest) (*userpb.StoreResponse, error) {
 	usrspb := request.GetUsers()
-	var usrs []*user.User
+	usrs := make([]*user.User, 0, len(usrspb))
 	for i := range usrspb {
 		usr, err := ConvertUserPBtoUser(false, usrspb[i])
 		if err != nil {
@@ -101,14 +102,13 @@ func (p UserController) Store(ctx context.Context, request *userpb.StoreRequest)
 
 		usrs = append(usrs, usr)
 	}
-	err := p.svc.Store(ctx, usrs)
-	if err != nil {
+	if err := p.svc.Store(ctx, usrs); err != nil {
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	var ids []*utilpb.UUID
+	ids := make([]*utilpb.UUID, 0, len(usrs))
 	for i := range usrs {
 		ids = append(ids, &utilpb.UUID{Value: usrs[i].ID.String()})
 	}

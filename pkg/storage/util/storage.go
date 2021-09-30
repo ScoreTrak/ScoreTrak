@@ -1,6 +1,8 @@
 package util
 
 import (
+	"errors"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/check_repo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
@@ -46,56 +48,56 @@ type Store struct {
 }
 
 //CreateAllTables migrates all tables
-func CreateAllTables(db *gorm.DB) (err error) {
-	err = db.AutoMigrate(&team.Team{})
+func CreateAllTables(db *gorm.DB) error {
+	err := db.AutoMigrate(&team.Team{})
 	if err != nil {
-		return
+		return err
 	}
 	err = db.AutoMigrate(&user.User{})
 	if err != nil {
-		return
+		return err
 	}
 	err = db.AutoMigrate(&policy.Policy{})
 	if err != nil {
-		return
+		return err
 	}
 	err = db.AutoMigrate(&report.Report{})
 	if err != nil {
-		return
+		return err
 	}
 	err = db.AutoMigrate(&config.DynamicConfig{})
 	if err != nil {
-		return
+		return err
 	}
 	err = db.AutoMigrate(&host_group.HostGroup{})
 	if err != nil {
-		return
+		return err
 	}
 	err = db.AutoMigrate(&service_group.ServiceGroup{})
 	if err != nil {
-		return
+		return err
 	}
 	err = db.AutoMigrate(&host.Host{})
 	if err != nil {
-		return
+		return err
 	}
 	err = db.AutoMigrate(&round.Round{})
 	if err != nil {
-		return
+		return err
 	}
 	err = db.AutoMigrate(&service.Service{})
 	if err != nil {
-		return
+		return err
 	}
 	err = db.AutoMigrate(&check.Check{})
 	if err != nil {
-		return
+		return err
 	}
 	err = db.AutoMigrate(&property.Property{})
 	if err != nil {
-		return
+		return err
 	}
-	return
+	return nil
 }
 
 func LoadConfig(db *gorm.DB, cnf *config.DynamicConfig) error {
@@ -104,7 +106,8 @@ func LoadConfig(db *gorm.DB, cnf *config.DynamicConfig) error {
 	if count != 1 {
 		err := db.Create(cnf).Error
 		if err != nil {
-			serr, ok := err.(*pgconn.PgError)
+			var serr *pgconn.PgError
+			ok := errors.As(err, &serr)
 			if ok && serr.Code == "23505" {
 				dcc := &config.DynamicConfig{}
 				db.Take(dcc)
@@ -122,7 +125,8 @@ func LoadReport(db *gorm.DB) error {
 	if count != 1 {
 		err := db.Create(report.NewReport()).Error
 		if err != nil {
-			serr, ok := err.(*pgconn.PgError)
+			var serr *pgconn.PgError
+			ok := errors.As(err, &serr)
 			if !ok || serr.Code != "23505" {
 				return err
 			}

@@ -2,6 +2,7 @@ package user_repo
 
 import (
 	"context"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 )

@@ -1,8 +1,9 @@
 package round
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"time"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 )
 
 // Round Model holds the information about all the rounds that have passed

@@ -2,6 +2,7 @@ package host_repo
 
 import (
 	"context"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/gofrs/uuid"
 )

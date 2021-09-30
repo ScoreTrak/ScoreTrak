@@ -3,10 +3,11 @@ package service_group
 import (
 	"errors"
 	"fmt"
+	"regexp"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
-	"regexp"
 )
 
 // ServiceGroup model describes a grouping of services.
