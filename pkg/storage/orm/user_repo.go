@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
-	"github.com/ScoreTrak/ScoreTrak/pkg/user/user_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user/userrepo"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -16,7 +16,7 @@ type userRepo struct {
 	db *gorm.DB
 }
 
-func NewUserRepo(db *gorm.DB) user_repo.Repo {
+func NewUserRepo(db *gorm.DB) userrepo.Repo {
 	return &userRepo{db}
 }
 

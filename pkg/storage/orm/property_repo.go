@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/property/property_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/property/propertyrepo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
@@ -18,7 +18,7 @@ type propertyRepo struct {
 	db *gorm.DB
 }
 
-func NewPropertyRepo(db *gorm.DB) property_repo.Repo {
+func NewPropertyRepo(db *gorm.DB) propertyrepo.Repo {
 	return &propertyRepo{db}
 }
 

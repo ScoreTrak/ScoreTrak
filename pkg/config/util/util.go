@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -32,8 +33,6 @@ func NewConfigClone(c config.StaticConfig) config.StaticConfig {
 	return cnf
 }
 
-var UnableToCastFlagToString = errors.New("unable to cast flag to string")
-
 func ConfigFlagParser() (string, error) {
 	path, _ := flag.Lookup("config").Value.(flag.Getter).Get().(string)
 	encodedConfig, _ := flag.Lookup("encoded-config").Value.(flag.Getter).Get().(string)
@@ -55,7 +54,7 @@ func ConfigFlagParser() (string, error) {
 		defer func(f *os.File) {
 			err := f.Close()
 			if err != nil {
-				fmt.Println(fmt.Errorf("unable to close the file: %w", err))
+				log.Println(fmt.Errorf("unable to close the file: %w", err))
 			}
 		}(f)
 		_, err = f.Write(dec)

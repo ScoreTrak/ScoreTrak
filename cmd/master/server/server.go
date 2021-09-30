@@ -6,16 +6,16 @@ import (
 	"fmt"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
-	checkService "github.com/ScoreTrak/ScoreTrak/pkg/check/check_service"
-	competitionService "github.com/ScoreTrak/ScoreTrak/pkg/competition/competition_service"
+	checkService "github.com/ScoreTrak/ScoreTrak/pkg/check/checkservice"
+	competitionService "github.com/ScoreTrak/ScoreTrak/pkg/competition/competitionservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	configService "github.com/ScoreTrak/ScoreTrak/pkg/config/config_service"
+	configService "github.com/ScoreTrak/ScoreTrak/pkg/config/configservice"
 	authpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/auth/v1"
 	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"
 	competitionpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/competition/v1"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/di/util"
-	hostService "github.com/ScoreTrak/ScoreTrak/pkg/host/host_service"
+	hostService "github.com/ScoreTrak/ScoreTrak/pkg/host/hostservice"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/handler"
 	configpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/config/v1"
@@ -23,13 +23,13 @@ import (
 	policypb "github.com/ScoreTrak/ScoreTrak/pkg/proto/policy/v1"
 	teampb "github.com/ScoreTrak/ScoreTrak/pkg/proto/team/v1"
 
-	hostGroupService "github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_service"
+	hostGroupService "github.com/ScoreTrak/ScoreTrak/pkg/hostgroup/hostgroupservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
-	policyService "github.com/ScoreTrak/ScoreTrak/pkg/policy/policyService"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyclient"
+	policyService "github.com/ScoreTrak/ScoreTrak/pkg/policy/policyservice"
 	host_grouppb "github.com/ScoreTrak/ScoreTrak/pkg/proto/host_group/v1"
 
-	propertyService "github.com/ScoreTrak/ScoreTrak/pkg/property/property_service"
+	propertyService "github.com/ScoreTrak/ScoreTrak/pkg/property/propertyservice"
 	propertypb "github.com/ScoreTrak/ScoreTrak/pkg/proto/property/v1"
 
 	reportpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/report/v1"
@@ -38,13 +38,13 @@ import (
 	service_grouppb "github.com/ScoreTrak/ScoreTrak/pkg/proto/service_group/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_client"
-	reportService "github.com/ScoreTrak/ScoreTrak/pkg/report/report_service"
-	roundService "github.com/ScoreTrak/ScoreTrak/pkg/round/round_service"
-	serviceService "github.com/ScoreTrak/ScoreTrak/pkg/service/service_service"
-	serviceGroupService "github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_group_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportclient"
+	reportService "github.com/ScoreTrak/ScoreTrak/pkg/report/reportservice"
+	roundService "github.com/ScoreTrak/ScoreTrak/pkg/round/roundservice"
+	serviceService "github.com/ScoreTrak/ScoreTrak/pkg/service/serviceservice"
+	serviceGroupService "github.com/ScoreTrak/ScoreTrak/pkg/servicegroup/servicegroupservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
-	teamService "github.com/ScoreTrak/ScoreTrak/pkg/team/team_service"
+	teamService "github.com/ScoreTrak/ScoreTrak/pkg/team/teamservice"
 
 	"log"
 	"net"
@@ -55,7 +55,7 @@ import (
 
 	userpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/user/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
-	userService "github.com/ScoreTrak/ScoreTrak/pkg/user/user_service"
+	userService "github.com/ScoreTrak/ScoreTrak/pkg/user/userservice"
 	"github.com/gofrs/uuid"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -171,7 +171,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 		return err
 	}
 
-	policyClient := policy_client.NewPolicyClient(p, staticConfig.PubSubConfig, repoStore.Policy, pubsub)
+	policyClient := policyclient.NewPolicyClient(p, staticConfig.PubSubConfig, repoStore.Policy, pubsub)
 	go func() {
 		policyClient.PolicyClient()
 	}()
@@ -277,7 +277,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 					}
 				}
 			}
-			reportClient := report_client.NewReportClient(staticConfig.PubSubConfig, repoStore.Report, pubsub)
+			reportClient := reportclient.NewReportClient(staticConfig.PubSubConfig, repoStore.Report, pubsub)
 			go func() {
 				reportClient.ReportClient()
 			}()

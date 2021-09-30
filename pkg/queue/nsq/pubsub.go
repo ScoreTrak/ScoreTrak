@@ -2,9 +2,6 @@ package nsq
 
 import (
 	"log"
-	"math/rand"
-	"strconv"
-	"time"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/nsqio/go-nsq"
@@ -33,7 +30,11 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 	go func() {
 		conf := nsq.NewConfig()
 		nsqConsumerConfig(conf, p.config)
-		consumer, err := nsq.NewConsumer(topic, "master_"+strconv.Itoa(rand.New(rand.NewSource(time.Now().UnixNano())).Int()), conf)
+		rand, err := queueing.RandomInt()
+		if err != nil {
+			log.Panicf("unable to generate random number: %v", err)
+		}
+		consumer, err := nsq.NewConsumer(topic, "master_"+rand, conf)
 		if err != nil {
 			log.Panicf("Unable to initualize consumer for topic: %s. Error Details: %v", topic, err)
 		}

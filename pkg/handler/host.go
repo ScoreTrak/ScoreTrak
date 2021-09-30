@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host/host_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/host/hostservice"
 	hostpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/host/v1"
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
@@ -17,7 +17,7 @@ import (
 )
 
 type HostController struct {
-	svc    host_service.Serv
+	svc    hostservice.Serv
 	client *util.Store
 	hostpb.UnimplementedHostServiceServer
 }
@@ -139,7 +139,7 @@ func (p HostController) Update(ctx context.Context, request *hostpb.UpdateReques
 	return &hostpb.UpdateResponse{}, nil
 }
 
-func NewHostController(svc host_service.Serv, client *util.Store) *HostController {
+func NewHostController(svc hostservice.Serv, client *util.Store) *HostController {
 	return &HostController{svc: svc, client: client}
 }
 

@@ -16,7 +16,7 @@ type Platform interface {
 	RemoveWorkers(ctx context.Context, info worker.Info) error
 }
 
-var InvalidPlatformError = errors.New("invalid platform specified")
+var ErrInvalidPlatform = errors.New("invalid platform specified")
 
 func NewPlatform(config platforming.Config) (Platform, error) {
 	if config.Use == "docker" || config.Use == "swarm" {
@@ -26,5 +26,5 @@ func NewPlatform(config platforming.Config) (Platform, error) {
 	} else if config.Use == "none" {
 		return nil, nil
 	}
-	return nil, InvalidPlatformError
+	return nil, ErrInvalidPlatform
 }

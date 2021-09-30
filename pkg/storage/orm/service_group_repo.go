@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_group_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup/servicegrouprepo"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -17,12 +17,12 @@ type serviceGroupRepo struct {
 	db *gorm.DB
 }
 
-func NewServiceGroupRepo(db *gorm.DB) service_group_repo.Repo {
+func NewServiceGroupRepo(db *gorm.DB) servicegrouprepo.Repo {
 	return &serviceGroupRepo{db}
 }
 
 func (s *serviceGroupRepo) Delete(ctx context.Context, id uuid.UUID) error {
-	result := s.db.WithContext(ctx).Delete(&service_group.ServiceGroup{}, "id = ?", id)
+	result := s.db.WithContext(ctx).Delete(&servicegroup.ServiceGroup{}, "id = ?", id)
 	if result.Error != nil {
 		errMsg := fmt.Sprintf("error while deleting the Service Group with id : %d", id)
 		return errors.New(errMsg)
@@ -33,8 +33,8 @@ func (s *serviceGroupRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (s *serviceGroupRepo) GetAll(ctx context.Context) ([]*service_group.ServiceGroup, error) {
-	serviceGroups := make([]*service_group.ServiceGroup, 0)
+func (s *serviceGroupRepo) GetAll(ctx context.Context) ([]*servicegroup.ServiceGroup, error) {
+	serviceGroups := make([]*servicegroup.ServiceGroup, 0)
 	err := s.db.WithContext(ctx).Find(&serviceGroups).Error
 	if err != nil {
 		return nil, err
@@ -42,8 +42,8 @@ func (s *serviceGroupRepo) GetAll(ctx context.Context) ([]*service_group.Service
 	return serviceGroups, nil
 }
 
-func (s *serviceGroupRepo) GetByID(ctx context.Context, id uuid.UUID) (*service_group.ServiceGroup, error) {
-	sgr := &service_group.ServiceGroup{}
+func (s *serviceGroupRepo) GetByID(ctx context.Context, id uuid.UUID) (*servicegroup.ServiceGroup, error) {
+	sgr := &servicegroup.ServiceGroup{}
 	err := s.db.WithContext(ctx).Where("id = ?", id).First(sgr).Error
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (s *serviceGroupRepo) GetByID(ctx context.Context, id uuid.UUID) (*service_
 	return sgr, nil
 }
 
-func (s *serviceGroupRepo) Store(ctx context.Context, sgr *service_group.ServiceGroup) error {
+func (s *serviceGroupRepo) Store(ctx context.Context, sgr *servicegroup.ServiceGroup) error {
 	err := s.db.WithContext(ctx).Create(sgr).Error
 	if err != nil {
 		return err
@@ -59,7 +59,7 @@ func (s *serviceGroupRepo) Store(ctx context.Context, sgr *service_group.Service
 	return nil
 }
 
-func (s *serviceGroupRepo) Upsert(ctx context.Context, sgr *service_group.ServiceGroup) error {
+func (s *serviceGroupRepo) Upsert(ctx context.Context, sgr *servicegroup.ServiceGroup) error {
 	err := s.db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(sgr).Error
 	if err != nil {
 		return err
@@ -67,8 +67,8 @@ func (s *serviceGroupRepo) Upsert(ctx context.Context, sgr *service_group.Servic
 	return nil
 }
 
-func (s *serviceGroupRepo) Update(ctx context.Context, sgr *service_group.ServiceGroup) error {
-	err := s.db.WithContext(ctx).Model(sgr).Updates(service_group.ServiceGroup{Enabled: sgr.Enabled, DisplayName: sgr.DisplayName}).Error //Updating check_service group names is not supported because check_service group name tightly coupled with platform operations
+func (s *serviceGroupRepo) Update(ctx context.Context, sgr *servicegroup.ServiceGroup) error {
+	err := s.db.WithContext(ctx).Model(sgr).Updates(servicegroup.ServiceGroup{Enabled: sgr.Enabled, DisplayName: sgr.DisplayName}).Error //Updating check_service group names is not supported because check_service group name tightly coupled with platform operations
 	if err != nil {
 		return err
 	}

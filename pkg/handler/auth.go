@@ -5,18 +5,18 @@ import (
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	authpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/auth/v1"
-	"github.com/ScoreTrak/ScoreTrak/pkg/user/user_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user/userservice"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type AuthController struct {
-	svc        user_service.Serv
+	svc        userservice.Serv
 	jwtManager *auth.Manager
 	authpb.UnimplementedAuthServiceServer
 }
 
-func NewAuthController(svc user_service.Serv, jwtManager *auth.Manager) *AuthController {
+func NewAuthController(svc userservice.Serv, jwtManager *auth.Manager) *AuthController {
 	return &AuthController{svc: svc, jwtManager: jwtManager}
 }
 

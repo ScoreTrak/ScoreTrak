@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/service/service_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service/servicerepo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
@@ -18,7 +18,7 @@ type serviceRepo struct {
 	db *gorm.DB
 }
 
-func NewServiceRepo(db *gorm.DB) service_repo.Repo {
+func NewServiceRepo(db *gorm.DB) servicerepo.Repo {
 	return &serviceRepo{db}
 }
 

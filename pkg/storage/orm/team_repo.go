@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/team/team_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/team/teamrepo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/gofrs/uuid"
@@ -17,7 +17,7 @@ type teamRepo struct {
 	db *gorm.DB
 }
 
-func NewTeamRepo(db *gorm.DB) team_repo.Repo {
+func NewTeamRepo(db *gorm.DB) teamrepo.Repo {
 	return &teamRepo{db}
 }
 

@@ -7,12 +7,12 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
@@ -42,7 +42,7 @@ func CleanAllTables(db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
-	err = db.Migrator().DropTable(&host_group.HostGroup{})
+	err = db.Migrator().DropTable(&hostgroup.HostGroup{})
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func CleanAllTables(db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
-	err = db.Migrator().DropTable(&service_group.ServiceGroup{})
+	err = db.Migrator().DropTable(&servicegroup.ServiceGroup{})
 	if err != nil {
 		return err
 	}

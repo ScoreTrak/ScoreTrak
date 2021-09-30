@@ -28,7 +28,7 @@ func LoadDB(c Config) (*gorm.DB, error) {
 	return db, nil
 }
 
-var DBNotSupported = errors.New("not supported db")
+var ErrDBNotSupported = errors.New("not supported db")
 
 // NewDB creates an instance of database based on config
 func NewDB(c Config) (*gorm.DB, error) {
@@ -37,7 +37,7 @@ func NewDB(c Config) (*gorm.DB, error) {
 	if c.Use == "cockroach" {
 		db, err = newCockroach(c)
 	} else {
-		return nil, DBNotSupported
+		return nil, ErrDBNotSupported
 	}
 	if err != nil {
 		return nil, err

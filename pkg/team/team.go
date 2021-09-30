@@ -27,12 +27,12 @@ type Team struct {
 	Hosts []*host.Host `gorm:"foreignkey:TeamID;association_foreignkey:ID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT" json:"hosts,omitempty"`
 }
 
-var NameIsRequiredError = errors.New("field Name is required")
+var ErrNameIsRequired = errors.New("field Name is required")
 
 // BeforeCreate ensures UUID is set.
 func (t *Team) BeforeCreate(tx *gorm.DB) (err error) {
 	if t.Name == "" {
-		return NameIsRequiredError
+		return ErrNameIsRequired
 	}
 	if t.ID == uuid.Nil {
 		u, err := uuid.NewV4()

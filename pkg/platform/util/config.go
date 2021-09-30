@@ -12,7 +12,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 )
 
-var QueueNotSupportedError = errors.New("selected queue is not yet supported by platform")
+var ErrQueueNotSupported = errors.New("selected queue is not yet supported by platform")
 
 func GenerateConfigFile(info worker.Info) (path string, err error) {
 	cnf, err := config.GetConfigCopy()
@@ -22,7 +22,7 @@ func GenerateConfigFile(info worker.Info) (path string, err error) {
 	if cnf.Queue.Use == "nsq" {
 		cnf.Queue.NSQ.Topic = info.Topic
 	} else {
-		return "", QueueNotSupportedError
+		return "", ErrQueueNotSupported
 	}
 	tmpPath := filepath.Join(".", "tmp")
 	err = os.MkdirAll(tmpPath, os.ModePerm)

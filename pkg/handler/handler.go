@@ -35,12 +35,11 @@ func deleteErrorParser(err error) error {
 			codes.NotFound,
 			fmt.Sprintf("Resource Not Found: %v", err),
 		)
-	} else {
-		return status.Errorf(
-			codes.Internal,
-			fmt.Sprintf("Unknown internal error: %v", err),
-		)
 	}
+	return status.Errorf(
+		codes.Internal,
+		fmt.Sprintf("Unknown internal error: %v", err),
+	)
 }
 
 type retrievableID interface {

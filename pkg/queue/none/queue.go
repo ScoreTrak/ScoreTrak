@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 )
 
 type None struct{}
@@ -57,7 +57,7 @@ func (n None) Acknowledge(q queueing.QCheck) {
 	panic(errors.New("you should not call Acknowledge when queue is none"))
 }
 
-func (n None) Ping(group *service_group.ServiceGroup) error {
+func (n None) Ping(group *servicegroup.ServiceGroup) error {
 	return errors.New("you should not call Ping when queue is none")
 }
 

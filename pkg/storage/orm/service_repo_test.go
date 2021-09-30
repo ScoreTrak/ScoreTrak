@@ -9,7 +9,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/gofrs/uuid"
@@ -32,7 +32,7 @@ func TestServiceSpec(t *testing.T) {
 	t.Parallel() //t.Parallel should be placed after SetupCockroachDB because gorm has race conditions on Hook register
 	Convey("Creating Service, Service Group, Host Tables along with their foreign keys", t, func() {
 		db.AutoMigrate(&service.Service{})
-		db.AutoMigrate(&service_group.ServiceGroup{})
+		db.AutoMigrate(&servicegroup.ServiceGroup{})
 		db.AutoMigrate(&team.Team{})
 		db.AutoMigrate(&host.Host{})
 		sr := NewServiceRepo(db)
@@ -203,7 +203,7 @@ func TestServiceSpec(t *testing.T) {
 		Reset(func() {
 			db.Migrator().DropTable(&service.Service{})
 			db.Migrator().DropTable(&host.Host{})
-			db.Migrator().DropTable(&service_group.ServiceGroup{})
+			db.Migrator().DropTable(&servicegroup.ServiceGroup{})
 		})
 	})
 	DropDB(db, c)

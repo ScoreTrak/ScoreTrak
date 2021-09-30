@@ -7,9 +7,9 @@ import (
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/competition"
-	"github.com/ScoreTrak/ScoreTrak/pkg/competition/competition_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/competition/competitionservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"
 	competitionpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/competition/v1"
@@ -25,7 +25,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	service2 "github.com/ScoreTrak/ScoreTrak/pkg/service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"google.golang.org/grpc/codes"
@@ -33,12 +33,12 @@ import (
 )
 
 type CompetitionController struct {
-	svc competition_service.Serv
+	svc competitionservice.Serv
 	competitionpb.UnimplementedCompetitionServiceServer
 }
 
 func (c CompetitionController) LoadCompetition(ctx context.Context, request *competitionpb.LoadCompetitionRequest) (*competitionpb.LoadCompetitionResponse, error) {
-	hstGrps := make([]*host_group.HostGroup, 0, len(request.GetCompetition().HostGroups))
+	hstGrps := make([]*hostgroup.HostGroup, 0, len(request.GetCompetition().HostGroups))
 	for i := range request.GetCompetition().HostGroups {
 		hstGrp, err := ConvertHostGroupPBtoHostGroup(true, request.GetCompetition().HostGroups[i])
 		if err != nil {
@@ -70,7 +70,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 		}
 		svcs = append(svcs, svc)
 	}
-	servGrps := make([]*service_group.ServiceGroup, 0, len(request.GetCompetition().ServiceGroups))
+	servGrps := make([]*servicegroup.ServiceGroup, 0, len(request.GetCompetition().ServiceGroups))
 	for i := range request.GetCompetition().ServiceGroups {
 		servGrp, err := ConvertServiceGroupPBtoServiceGroup(true, request.GetCompetition().ServiceGroups[i])
 		if err != nil {
@@ -142,7 +142,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	return &competitionpb.LoadCompetitionResponse{}, err
 }
 
-func (c CompetitionController) FetchCoreCompetition(ctx context.Context, request *competitionpb.FetchCoreCompetitionRequest) (*competitionpb.FetchCoreCompetitionResponse, error) {
+func (c CompetitionController) FetchCoreCompetition(ctx context.Context, _ *competitionpb.FetchCoreCompetitionRequest) (*competitionpb.FetchCoreCompetitionResponse, error) {
 	comp, err := c.svc.FetchCoreCompetition(ctx)
 	if err != nil {
 		return nil, status.Errorf(
@@ -157,7 +157,7 @@ func (c CompetitionController) FetchCoreCompetition(ctx context.Context, request
 	return &competitionpb.FetchCoreCompetitionResponse{Competition: comppb}, nil
 }
 
-func (c CompetitionController) FetchEntireCompetition(ctx context.Context, request *competitionpb.FetchEntireCompetitionRequest) (*competitionpb.FetchEntireCompetitionResponse, error) {
+func (c CompetitionController) FetchEntireCompetition(ctx context.Context, _ *competitionpb.FetchEntireCompetitionRequest) (*competitionpb.FetchEntireCompetitionResponse, error) {
 	comp, err := c.svc.FetchEntireCompetition(ctx)
 	if err != nil {
 		return nil, status.Errorf(
@@ -172,7 +172,7 @@ func (c CompetitionController) FetchEntireCompetition(ctx context.Context, reque
 	return &competitionpb.FetchEntireCompetitionResponse{Competition: comppb}, nil
 }
 
-func (c CompetitionController) ResetScores(ctx context.Context, request *competitionpb.ResetScoresRequest) (*competitionpb.ResetScoresResponse, error) {
+func (c CompetitionController) ResetScores(ctx context.Context, _ *competitionpb.ResetScoresRequest) (*competitionpb.ResetScoresResponse, error) {
 	if err := c.svc.ResetScores(ctx); err != nil {
 		return nil, status.Errorf(
 			codes.Internal,
@@ -182,7 +182,7 @@ func (c CompetitionController) ResetScores(ctx context.Context, request *competi
 	return &competitionpb.ResetScoresResponse{}, nil
 }
 
-func (c CompetitionController) DeleteCompetition(ctx context.Context, request *competitionpb.DeleteCompetitionRequest) (*competitionpb.DeleteCompetitionResponse, error) {
+func (c CompetitionController) DeleteCompetition(ctx context.Context, _ *competitionpb.DeleteCompetitionRequest) (*competitionpb.DeleteCompetitionResponse, error) {
 	err := c.svc.DeleteCompetition(ctx)
 	if err != nil {
 		return nil, status.Errorf(
@@ -193,7 +193,7 @@ func (c CompetitionController) DeleteCompetition(ctx context.Context, request *c
 	return &competitionpb.DeleteCompetitionResponse{}, nil
 }
 
-func NewCompetitionController(svc competition_service.Serv) *CompetitionController {
+func NewCompetitionController(svc competitionservice.Serv) *CompetitionController {
 	return &CompetitionController{svc: svc}
 }
 

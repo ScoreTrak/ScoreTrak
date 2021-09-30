@@ -45,11 +45,12 @@ func (p *Ping) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 		}
 		pinger = p
 	} else {
-		if r, err := net.ResolveIPAddr("ip6", e.Host); err != nil {
+		r, err := net.ResolveIPAddr("ip6", e.Host)
+		if err != nil {
 			return false, "", fmt.Errorf("unable to resolve remote address: %w", err)
-		} else {
-			remoteAddr = r
 		}
+		remoteAddr = r
+
 		p, err := ping.New("", "::")
 		if err != nil {
 			return false, "", fmt.Errorf("unable to initialize pinger, this is most likely a bug: %w", err)

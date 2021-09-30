@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config/config_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config/configrepo"
 	"gorm.io/gorm"
 )
 
@@ -12,7 +12,7 @@ type configRepo struct {
 	db *gorm.DB
 }
 
-func NewConfigRepo(db *gorm.DB) config_repo.Repo {
+func NewConfigRepo(db *gorm.DB) configrepo.Repo {
 	return &configRepo{db}
 }
 

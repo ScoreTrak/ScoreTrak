@@ -7,7 +7,7 @@ import (
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	teampb "github.com/ScoreTrak/ScoreTrak/pkg/proto/team/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
-	"github.com/ScoreTrak/ScoreTrak/pkg/team/team_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/team/teamservice"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
@@ -15,7 +15,7 @@ import (
 )
 
 type TeamController struct {
-	svc team_service.Serv
+	svc teamservice.Serv
 	teampb.UnimplementedTeamServiceServer
 }
 
@@ -31,7 +31,7 @@ func (p TeamController) GetByID(ctx context.Context, request *teampb.GetByIDRequ
 	return &teampb.GetByIDResponse{Team: ConvertTeamToTeamPb(tm)}, nil
 }
 
-func (p TeamController) GetAll(ctx context.Context, request *teampb.GetAllRequest) (*teampb.GetAllResponse, error) {
+func (p TeamController) GetAll(ctx context.Context, _ *teampb.GetAllRequest) (*teampb.GetAllResponse, error) {
 	tms, err := p.svc.GetAll(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
@@ -94,7 +94,7 @@ func (p TeamController) Update(ctx context.Context, request *teampb.UpdateReques
 	return &teampb.UpdateResponse{}, nil
 }
 
-func NewTeamController(svc team_service.Serv) *TeamController {
+func NewTeamController(svc teamservice.Serv) *TeamController {
 	return &TeamController{svc: svc}
 }
 

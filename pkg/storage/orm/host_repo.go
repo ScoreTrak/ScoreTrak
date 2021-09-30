@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host/host_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/host/hostrepo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/gofrs/uuid"
@@ -18,7 +18,7 @@ type hostRepo struct {
 	db *gorm.DB
 }
 
-func NewHostRepo(db *gorm.DB) host_repo.Repo {
+func NewHostRepo(db *gorm.DB) hostrepo.Repo {
 	return &hostRepo{db}
 }
 

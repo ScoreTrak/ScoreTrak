@@ -6,11 +6,11 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyclient"
 	reportpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/report/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_client"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportclient"
+	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"google.golang.org/grpc/codes"
@@ -18,9 +18,9 @@ import (
 )
 
 type ReportController struct {
-	svc          report_service.Serv
-	reportClient *report_client.Client
-	policyClient *policy_client.Client
+	svc          reportservice.Serv
+	reportClient *reportclient.Client
+	policyClient *policyclient.Client
 	reportpb.UnimplementedReportServiceServer
 }
 
@@ -170,7 +170,7 @@ func (r *ReportController) Get(request *reportpb.GetRequest, server reportpb.Rep
 	}
 }
 
-func NewReportController(svc report_service.Serv, reportClient *report_client.Client, client *policy_client.Client) *ReportController {
+func NewReportController(svc reportservice.Serv, reportClient *reportclient.Client, client *policyclient.Client) *ReportController {
 	return &ReportController{
 		svc:          svc,
 		reportClient: reportClient,

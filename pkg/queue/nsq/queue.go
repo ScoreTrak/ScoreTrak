@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	"github.com/gofrs/uuid"
 	"github.com/nsqio/go-nsq"
 )
@@ -21,9 +21,14 @@ type WorkerQueue struct {
 	config queueing.Config
 }
 
-//Send sends scoring data to the NSQD nodes, and returns either a list of checks with a warning, or an error
+var ErrWorkersFailed = errors.New("some workers failed to receive the checks. Make sure that is by design")
+
+// Send sends scoring data to the NSQD nodes, and returns either a list of checks with a warning, or an error
 func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error) {
-	returningTopicName := queueing.TopicFromServiceRound(sds[0].RoundID)
+	returningTopicName, err := queueing.TopicFromServiceRound(sds[0].RoundID)
+	if err != nil {
+		return nil, nil, err
+	}
 	producerConfig := nsq.NewConfig()
 	nsqProducerConfig(producerConfig, n.config)
 	producer, err := nsq.NewProducer(n.config.NSQ.ProducerNSQD, producerConfig)
@@ -94,9 +99,8 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, erro
 		case <-time.After(time.Until(sds[0].Deadline)):
 			if !n.config.NSQ.IgnoreAllScoresIfWorkerFails {
 				return nil, nil, &queueing.RoundTookTooLongToExecute{Msg: "Round took too long to score. This might be due to many reasons like a worker going down, or the number of rounds being too big for workers to handle"}
-			} else {
-				return ret, errors.New("some workers failed to receive the checks. Make sure that is by design"), nil
 			}
+			return ret, ErrWorkersFailed, nil
 		}
 	}
 }
@@ -160,7 +164,7 @@ func getOutboundIP() net.IP {
 	return localAddr.IP
 }
 
-func (n WorkerQueue) Ping(group *service_group.ServiceGroup) error {
+func (n WorkerQueue) Ping(group *servicegroup.ServiceGroup) error {
 	_, bErr, err := n.Send([]*queueing.ScoringData{
 		{
 			Service: queueing.QService{ID: uuid.Nil, Name: "PING", Group: group.Name}, MasterTime: time.Now(), Host: "localhost", Deadline: time.Now().Add(time.Second * 4), RoundID: 0, Properties: map[string]string{},

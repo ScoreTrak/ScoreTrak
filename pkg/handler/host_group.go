@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
+	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup/hostgroupservice"
 	host_grouppb "github.com/ScoreTrak/ScoreTrak/pkg/proto/host_group/v1"
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	"github.com/gofrs/uuid"
@@ -15,7 +15,7 @@ import (
 )
 
 type HostGroupController struct {
-	svc host_group_service.Serv
+	svc hostgroupservice.Serv
 	host_grouppb.UnimplementedHostGroupServiceServer
 }
 
@@ -57,7 +57,7 @@ func (p HostGroupController) Delete(ctx context.Context, request *host_grouppb.D
 
 func (p HostGroupController) Store(ctx context.Context, request *host_grouppb.StoreRequest) (*host_grouppb.StoreResponse, error) {
 	servcspb := request.GetHostGroups()
-	props := make([]*host_group.HostGroup, 0, len(servcspb))
+	props := make([]*hostgroup.HostGroup, 0, len(servcspb))
 	for i := range servcspb {
 		hstgrp, err := ConvertHostGroupPBtoHostGroup(false, servcspb[i])
 		if err != nil {
@@ -93,11 +93,11 @@ func (p HostGroupController) Update(ctx context.Context, request *host_grouppb.U
 	return &host_grouppb.UpdateResponse{}, nil
 }
 
-func NewHostGroupController(svc host_group_service.Serv) *HostGroupController {
+func NewHostGroupController(svc hostgroupservice.Serv) *HostGroupController {
 	return &HostGroupController{svc: svc}
 }
 
-func ConvertHostGroupPBtoHostGroup(requireID bool, pb *host_grouppb.HostGroup) (*host_group.HostGroup, error) {
+func ConvertHostGroupPBtoHostGroup(requireID bool, pb *host_grouppb.HostGroup) (*hostgroup.HostGroup, error) {
 	var id uuid.UUID
 	var err error
 	if pb.GetId() != nil {
@@ -123,7 +123,7 @@ func ConvertHostGroupPBtoHostGroup(requireID bool, pb *host_grouppb.HostGroup) (
 	if pb.GetHide() != nil {
 		hide = &pb.GetHide().Value
 	}
-	return &host_group.HostGroup{
+	return &hostgroup.HostGroup{
 		ID:    id,
 		Name:  pb.GetName(),
 		Pause: pause,
@@ -132,7 +132,7 @@ func ConvertHostGroupPBtoHostGroup(requireID bool, pb *host_grouppb.HostGroup) (
 	}, nil
 }
 
-func ConvertHostGroupToHostGroupPb(obj *host_group.HostGroup) *host_grouppb.HostGroup {
+func ConvertHostGroupToHostGroupPb(obj *hostgroup.HostGroup) *host_grouppb.HostGroup {
 	return &host_grouppb.HostGroup{
 		Id:    &utilpb.UUID{Value: obj.ID.String()},
 		Name:  obj.Name,

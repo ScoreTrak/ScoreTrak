@@ -1,6 +1,6 @@
 package policy
 
-// Policy is a set of dynamic values that could be edited in runtime. Policy is typically propagated between scoretrak instances via pkg/policy/policy_client
+// Policy is a set of dynamic values that could be edited in runtime. Policy is typically propagated between scoretrak instances via pkg/policy/policyclient
 type Policy struct {
 	ID                                        uint  `json:"-" gorm:"primary_key;"`
 	AllowUnauthenticatedUsers                 *bool `json:"allow_unauthenticated_users" gorm:"not null;default:true"`

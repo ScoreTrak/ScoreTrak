@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/round/round_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/round/roundrepo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
@@ -17,7 +17,7 @@ type roundRepo struct {
 	db *gorm.DB
 }
 
-func NewRoundRepo(db *gorm.DB) round_repo.Repo {
+func NewRoundRepo(db *gorm.DB) roundrepo.Repo {
 	return &roundRepo{db}
 }
 
@@ -98,6 +98,8 @@ func (r *roundRepo) GetLastNonElapsingRound(ctx context.Context) (*round.Round, 
 	return rnd, nil
 }
 
+var ErrNoRoundExecuting = errors.New("there is no round executing at the moment")
+
 func (r *roundRepo) GetLastElapsingRound(ctx context.Context) (*round.Round, error) {
 	rnd, err := r.GetLastRound(ctx)
 	if err != nil {
@@ -105,9 +107,8 @@ func (r *roundRepo) GetLastElapsingRound(ctx context.Context) (*round.Round, err
 	}
 	if rnd.Finish == nil {
 		return rnd, nil
-	} else {
-		return nil, errors.New("there is no round executing at the moment")
 	}
+	return nil, ErrNoRoundExecuting
 }
 
 func (r *roundRepo) GetLastRound(ctx context.Context) (*round.Round, error) {

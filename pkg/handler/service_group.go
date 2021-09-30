@@ -6,8 +6,8 @@ import (
 
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	service_grouppb "github.com/ScoreTrak/ScoreTrak/pkg/proto/service_group/v1"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_group_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup/servicegroupservice"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
@@ -15,7 +15,7 @@ import (
 )
 
 type ServiceGroupController struct {
-	svc service_group_service.Serv
+	svc servicegroupservice.Serv
 	service_grouppb.UnimplementedServiceGroupServiceServer
 }
 
@@ -107,11 +107,11 @@ func (p ServiceGroupController) Update(ctx context.Context, request *service_gro
 	return &service_grouppb.UpdateResponse{}, nil
 }
 
-func NewServiceGroupController(svc service_group_service.Serv) *ServiceGroupController {
+func NewServiceGroupController(svc servicegroupservice.Serv) *ServiceGroupController {
 	return &ServiceGroupController{svc: svc}
 }
 
-func ConvertServiceGroupPBtoServiceGroup(requireID bool, sg *service_grouppb.ServiceGroup) (*service_group.ServiceGroup, error) {
+func ConvertServiceGroupPBtoServiceGroup(requireID bool, sg *service_grouppb.ServiceGroup) (*servicegroup.ServiceGroup, error) {
 	var id uuid.UUID
 	var err error
 	if sg.GetId() != nil {
@@ -132,7 +132,7 @@ func ConvertServiceGroupPBtoServiceGroup(requireID bool, sg *service_grouppb.Ser
 	if sg.GetEnabled() != nil {
 		enabled = &sg.GetEnabled().Value
 	}
-	return &service_group.ServiceGroup{
+	return &servicegroup.ServiceGroup{
 		ID:          id,
 		Name:        sg.Name,
 		DisplayName: sg.DisplayName,
@@ -143,7 +143,7 @@ func ConvertServiceGroupPBtoServiceGroup(requireID bool, sg *service_grouppb.Ser
 	}, nil
 }
 
-func ConvertServiceGroupToServiceGroupPb(obj *service_group.ServiceGroup) *service_grouppb.ServiceGroup {
+func ConvertServiceGroupToServiceGroupPb(obj *servicegroup.ServiceGroup) *service_grouppb.ServiceGroup {
 	return &service_grouppb.ServiceGroup{
 		Id:          &utilpb.UUID{Value: obj.ID.String()},
 		Name:        obj.Name,

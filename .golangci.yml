@@ -35,3 +35,6 @@ linters:
     - gocyclo
     - bodyclose
     - dupl
+    - lll
+    - gosec
+    - gocritic

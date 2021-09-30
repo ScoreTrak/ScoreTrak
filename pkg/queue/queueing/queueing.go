@@ -2,10 +2,12 @@ package queueing
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
 	"fmt"
 	"log"
-	"math/rand"
+	"math"
+	"math/big"
 	"strconv"
 	"time"
 
@@ -67,9 +69,20 @@ type MasterConfig struct {
 	ChannelPrefix             string `default:"master"`
 }
 
-func TopicFromServiceRound(roundID uint64) string {
-	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return "round_" + strconv.FormatUint(roundID, 10) + "_" + strconv.Itoa(seededRand.Int()) + "_ack"
+func RandomInt() (string, error) {
+	n, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt32))
+	if err != nil {
+		return "", err
+	}
+	return n.Text(10), nil
+}
+
+func TopicFromServiceRound(roundID uint64) (string, error) {
+	n, err := RandomInt()
+	if err != nil {
+		return "", err
+	}
+	return "round_" + strconv.FormatUint(roundID, 10) + "_" + n + "_ack", nil
 }
 
 func CommonExecute(sd *ScoringData, execDeadline time.Time) QCheck {

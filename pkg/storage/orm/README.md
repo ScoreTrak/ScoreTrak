@@ -8,7 +8,7 @@ These interfaces typically consist of the following methods:
  - GetAll: Gets all entries
  - GetByID: Get a specific model by ID
  - Store: Stores a new model in the respective table
- - Upsert: Creates new entries, unless the entries already exist(this is useful when loading the competition. Check the details at pkg/competition/competition_service/serv.go)
+ - Upsert: Creates new entries, unless the entries already exist(this is useful when loading the competition. Check the details at pkg/competition/competitionservice/serv.go)
  - Update: Updates the entry
  - Delete: Deletes the entry
  - \<Other\>: Model specific methods.

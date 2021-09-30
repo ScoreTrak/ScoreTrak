@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyclient"
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	userpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/user/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
-	"github.com/ScoreTrak/ScoreTrak/pkg/user/user_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user/userservice"
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
@@ -16,9 +16,9 @@ import (
 )
 
 type UserController struct {
-	svc user_service.Serv
+	svc userservice.Serv
 	userpb.UnimplementedUserServiceServer
-	policyClient *policy_client.Client
+	policyClient *policyclient.Client
 }
 
 func (p UserController) GetByUsername(ctx context.Context, request *userpb.GetByUsernameRequest) (*userpb.GetByUsernameResponse, error) {
@@ -152,7 +152,7 @@ func (p UserController) Update(ctx context.Context, request *userpb.UpdateReques
 	return &userpb.UpdateResponse{}, nil
 }
 
-func NewUserController(svc user_service.Serv, policyClient *policy_client.Client) *UserController {
+func NewUserController(svc userservice.Serv, policyClient *policyclient.Client) *UserController {
 	return &UserController{svc: svc, policyClient: policyClient}
 }
 

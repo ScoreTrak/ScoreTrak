@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
-	"github.com/ScoreTrak/ScoreTrak/pkg/check/check_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkservice"
 	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
@@ -16,7 +16,7 @@ import (
 )
 
 type CheckController struct {
-	svc    check_service.Serv
+	svc    checkservice.Serv
 	client *util.Store
 	checkpb.UnimplementedCheckServiceServer
 }
@@ -138,7 +138,7 @@ func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkp
 	return &checkpb.GetAllByServiceIDResponse{Checks: chkspb}, nil
 }
 
-func NewCheckController(svc check_service.Serv, client *util.Store) *CheckController {
+func NewCheckController(svc checkservice.Serv, client *util.Store) *CheckController {
 	return &CheckController{svc: svc, client: client}
 }
 

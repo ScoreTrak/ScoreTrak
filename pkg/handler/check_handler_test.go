@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
-	"github.com/ScoreTrak/ScoreTrak/pkg/check/check_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"
@@ -68,7 +68,7 @@ func TestCheckSpec(t *testing.T) {
 			DataPreload(db)
 			Convey("Creating Round, Service and Check repos, services, ", func() {
 				cr := orm.NewCheckRepo(db)
-				cs := check_service.NewCheckServ(cr)
+				cs := checkservice.NewCheckServ(cr)
 				us := util.Store{
 					Round:        orm.NewRoundRepo(db),
 					Service:      orm.NewServiceRepo(db),

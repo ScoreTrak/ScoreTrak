@@ -208,9 +208,9 @@ func (d *Runner) MasterRunner() (err error) {
 	}
 }
 
-func (d *Runner) durationUntilNextRound(rnd *round.Round, RoundDuration uint64) time.Duration {
+func (d *Runner) durationUntilNextRound(rnd *round.Round, roundDuration uint64) time.Duration {
 	//Start time of current round + Round Duration - Current time on database
-	dur := rnd.Start.Add(time.Duration(RoundDuration) * time.Second).Sub(time.Now().Add(d.dsync))
+	dur := rnd.Start.Add(time.Duration(roundDuration) * time.Second).Sub(time.Now().Add(d.dsync))
 	//if duration is small, then just return minimum duration
 	if dur <= 1 {
 		return 1
@@ -451,12 +451,12 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 	d.finalizeRound(ctx, rnd, Note, "")
 }
 
-func (d Runner) finalizeRound(ctx context.Context, rnd *round.Round, Note string, Error string) {
-	log.Printf("Note: %s\nError: %s\nRound: %v", Note, Error, rnd)
+func (d Runner) finalizeRound(ctx context.Context, rnd *round.Round, note string, errStr string) {
+	log.Printf("Note: %s\nError: %s\nRound: %v", note, errStr, rnd)
 	now := time.Now().Add(d.dsync)
 	rnd.Finish = &now
-	rnd.Note = Note
-	rnd.Err = Error
+	rnd.Note = note
+	rnd.Err = errStr
 	err := d.r.Round.Update(ctx, rnd)
 	if err != nil {
 		log.Printf("Unable to update round %v", rnd)

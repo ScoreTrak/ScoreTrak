@@ -1,20 +1,20 @@
 package di
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/check/check_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/competition/competition_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkservice"
+	"github.com/ScoreTrak/ScoreTrak/pkg/competition/competitionservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config/config_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host/host_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyService"
-	"github.com/ScoreTrak/ScoreTrak/pkg/property/property_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/round/round_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service/service_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_group_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/team/team_service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/user/user_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config/configservice"
+	"github.com/ScoreTrak/ScoreTrak/pkg/host/hostservice"
+	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup/hostgroupservice"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyservice"
+	"github.com/ScoreTrak/ScoreTrak/pkg/property/propertyservice"
+	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportservice"
+	"github.com/ScoreTrak/ScoreTrak/pkg/round/roundservice"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service/serviceservice"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup/servicegroupservice"
+	"github.com/ScoreTrak/ScoreTrak/pkg/team/teamservice"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user/userservice"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
@@ -31,19 +31,19 @@ func BuildMasterContainer() (*dig.Container, error) {
 	ctr = append(ctr,
 		config.GetStaticConfig, config.GetDBConfig, config.GetQueueConfig, config.GetPlatformConfig,
 		storage.LoadDB,
-		orm.NewCheckRepo, check_service.NewCheckServ,
-		orm.NewHostGroupRepo, host_group_service.NewHostGroupServ,
-		orm.NewPropertyRepo, property_service.NewPropertyServ,
-		orm.NewConfigRepo, config_service.NewConfigServ, config_service.NewStaticConfigServ,
-		orm.NewHostRepo, host_service.NewHostServ,
-		orm.NewRoundRepo, round_service.NewRoundServ,
-		orm.NewServiceGroupRepo, service_group_service.NewServiceGroupServ,
-		orm.NewServiceRepo, service_service.NewServiceServ,
-		orm.NewTeamRepo, team_service.NewTeamServ,
-		orm.NewUserRepo, user_service.NewUserServ,
-		orm.NewPolicyRepo, policyService.NewPolicyServ,
-		orm.NewReportRepo, report_service.NewReportServ,
-		competition_service.NewCompetitionServ,
+		orm.NewCheckRepo, checkservice.NewCheckServ,
+		orm.NewHostGroupRepo, hostgroupservice.NewHostGroupServ,
+		orm.NewPropertyRepo, propertyservice.NewPropertyServ,
+		orm.NewConfigRepo, configservice.NewConfigServ, configservice.NewStaticConfigServ,
+		orm.NewHostRepo, hostservice.NewHostServ,
+		orm.NewRoundRepo, roundservice.NewRoundServ,
+		orm.NewServiceGroupRepo, servicegroupservice.NewServiceGroupServ,
+		orm.NewServiceRepo, serviceservice.NewServiceServ,
+		orm.NewTeamRepo, teamservice.NewTeamServ,
+		orm.NewUserRepo, userservice.NewUserServ,
+		orm.NewPolicyRepo, policyservice.NewPolicyServ,
+		orm.NewReportRepo, reportservice.NewReportServ,
+		competitionservice.NewCompetitionServ,
 		queue.NewWorkerQueue, platform.NewPlatform,
 	)
 

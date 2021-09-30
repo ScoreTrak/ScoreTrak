@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
-	"github.com/ScoreTrak/ScoreTrak/pkg/property/property_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/property/propertyservice"
 	propertypb "github.com/ScoreTrak/ScoreTrak/pkg/proto/property/v1"
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
@@ -17,12 +17,12 @@ import (
 )
 
 type PropertyController struct {
-	svc    property_service.Serv
+	svc    propertyservice.Serv
 	client *util.Store
 	propertypb.UnimplementedPropertyServiceServer
 }
 
-func (p PropertyController) GetAll(ctx context.Context, request *propertypb.GetAllRequest) (*propertypb.GetAllResponse, error) {
+func (p PropertyController) GetAll(ctx context.Context, _ *propertypb.GetAllRequest) (*propertypb.GetAllResponse, error) {
 	props, err := p.svc.GetAll(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
@@ -197,7 +197,7 @@ func (p PropertyController) GetAllByServiceID(ctx context.Context, request *prop
 	return &propertypb.GetAllByServiceIDResponse{Properties: propspb}, nil
 }
 
-func NewPropertyController(svc property_service.Serv, client *util.Store) *PropertyController {
+func NewPropertyController(svc propertyservice.Serv, client *util.Store) *PropertyController {
 	return &PropertyController{svc: svc, client: client}
 }
 

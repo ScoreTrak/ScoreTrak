@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
-	"github.com/ScoreTrak/ScoreTrak/pkg/check/check_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkrepo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
@@ -18,7 +18,7 @@ type checkRepo struct {
 	db *gorm.DB
 }
 
-func NewCheckRepo(db *gorm.DB) check_repo.Repo {
+func NewCheckRepo(db *gorm.DB) checkrepo.Repo {
 	return &checkRepo{db}
 }
 
@@ -43,12 +43,12 @@ func (c *checkRepo) GetByRoundServiceID(ctx context.Context, roundID uint64, ser
 	return chk, err
 }
 
-var DeleteFailedError = errors.New("error while deleting the check with")
+var ErrDeleteFailed = errors.New("error while deleting the check with")
 
 func (c *checkRepo) Delete(ctx context.Context, roundID uint64, serviceID uuid.UUID) error {
 	result := c.db.WithContext(ctx).Where("round_id = ?", roundID).Where("service_id = ?", serviceID).Delete(&check.Check{})
 	if result.Error != nil {
-		return fmt.Errorf("%w: round id: %d, service id: %d", DeleteFailedError, roundID, serviceID)
+		return fmt.Errorf("%w: round id: %d, service id: %d", ErrDeleteFailed, roundID, serviceID)
 	}
 
 	if result.RowsAffected == 0 {

@@ -8,7 +8,7 @@ import (
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	servicepb "github.com/ScoreTrak/ScoreTrak/pkg/proto/service/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
-	service2 "github.com/ScoreTrak/ScoreTrak/pkg/service/service_service"
+	service2 "github.com/ScoreTrak/ScoreTrak/pkg/service/serviceservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
