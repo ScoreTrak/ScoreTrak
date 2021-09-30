@@ -81,7 +81,7 @@ func (d *Runner) handleConfigLoop(scoringLoop *time.Timer, cnf *config.DynamicCo
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
-	if lr != nil{
+	if lr != nil {
 		*lastRound = *lr
 	}
 	err = d.refreshDsync()
