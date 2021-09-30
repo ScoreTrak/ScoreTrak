@@ -2,12 +2,17 @@ package runner
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
+	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
@@ -38,7 +43,15 @@ func (d Runner) refreshDsync() error {
 	if err != nil {
 		panic(err)
 	}
-	defer res.Close()
+	defer func(res *sql.Rows) {
+		err := res.Close()
+		if err != nil {
+			log.Printf("unable to close rows: %v", err)
+		}
+	}(res)
+	if res.Err() != nil {
+		panic(res.Err())
+	}
 	for res.Next() {
 		_ = res.Scan(&tm)
 	}
@@ -55,61 +68,43 @@ func NewRunner(db *gorm.DB, q queue.WorkerQueue, r *util.Store, staticConfig con
 	}
 }
 
-func (d *Runner) MasterRunner() (err error) {
+func (d *Runner) handleConfigLoop(scoringLoop *time.Timer, cnf *config.DynamicConfig, lastRound *round.Round) error {
+	// When config timer kicks in, we re-pull the new config.
+	newConfig, err := d.r.Config.Get(context.Background())
+	if err != nil {
+		return err
+	}
+	// We then update contents of cnf, with contents of new config
+	*cnf = *newConfig
+	// Update last known round
+	lr, err := d.r.Round.GetLastRound(context.Background())
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	*lastRound = *lr
 	err = d.refreshDsync()
 	if err != nil {
 		return err
 	}
-	var scoringLoop *time.Timer
-
-	// Pull new config from database
-	cnf, err := d.r.Config.Get(context.TODO())
-	if err != nil {
-		return err
+	// restart scoring loop based on lastRound
+	scoringLoop.Stop()
+	if lastRound == nil {
+		// If no round exists, retry
+		*scoringLoop = *time.NewTimer((time.Duration(d.staticConfig.DynamicConfigPullSeconds) * time.Second) / 2)
+	} else {
+		*scoringLoop = *time.NewTimer(d.durationUntilNextRound(lastRound, cnf.RoundDuration))
 	}
+	return nil
+}
 
-	lastRound, err := d.r.Round.GetLastRound(context.Background())
-	switch {
-	case lastRound != nil:
-		// if there is a round stored in database, then
-		scoringLoop = time.NewTimer(d.durationUntilNextRound(lastRound, cnf.RoundDuration))
-	case err != nil && errors.Is(err, gorm.ErrRecordNotFound):
-		// if no round exists, then try to score almost as soon as possible
-		scoringLoop = time.NewTimer((time.Duration(d.staticConfig.DynamicConfigPullSeconds) * time.Second) / 2)
-	case err != nil:
-		// Some Other error, that is likely connection/database related
-		return err
-	}
-	// Re-Pull config every DynamicConfigPullSeconds
-	configLoop := time.NewTicker(time.Duration(d.staticConfig.DynamicConfigPullSeconds) * time.Second)
-
+func (d *Runner) run(configLoop *time.Ticker, scoringLoop *time.Timer, cnf *config.DynamicConfig, lastRound *round.Round) (err error) {
 	for {
 	runnerSelect:
 		select {
 		case <-configLoop.C:
-			// When config timer kicks in, we re-pull the new config.
-			newConfig, err := d.r.Config.Get(context.Background())
+			err := d.handleConfigLoop(scoringLoop, cnf, lastRound)
 			if err != nil {
 				return err
-			}
-			// We then update contents of cnf, with contents of new config
-			*cnf = *newConfig
-			// Update last known round
-			lastRound, err = d.r.Round.GetLastRound(context.Background())
-			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-				return err
-			}
-			err = d.refreshDsync()
-			if err != nil {
-				return err
-			}
-			// restart scoring loop based on lastRound
-			scoringLoop.Stop()
-			if lastRound == nil {
-				// If no round exists, retry
-				scoringLoop = time.NewTimer((time.Duration(d.staticConfig.DynamicConfigPullSeconds) * time.Second) / 2)
-			} else {
-				scoringLoop = time.NewTimer(d.durationUntilNextRound(lastRound, cnf.RoundDuration))
 			}
 		case <-scoringLoop.C:
 			// When scoring timer kicks in, stop the timer (so we can later assign a new timer)
@@ -167,7 +162,6 @@ func (d *Runner) MasterRunner() (err error) {
 					scoringLoop = time.NewTimer(config.MinRoundDuration)
 					break runnerSelect
 				}
-
 				// After everything is figured out, we are reading to move to the next round
 				// Create context that will attempt to finish the round a little than Start time + RoundDuration to account for networking delay.
 				ctx, cancelFunc := context.WithTimeout(context.Background(), time.Duration(cnf.RoundDuration)*time.Second*9/10)
@@ -210,6 +204,37 @@ func (d *Runner) MasterRunner() (err error) {
 	}
 }
 
+func (d *Runner) MasterRunner() (err error) {
+	err = d.refreshDsync()
+	if err != nil {
+		return err
+	}
+	var scoringLoop *time.Timer
+
+	// Pull new config from database
+	cnf, err := d.r.Config.Get(context.TODO())
+	if err != nil {
+		return err
+	}
+
+	lastRound, err := d.r.Round.GetLastRound(context.Background())
+	switch {
+	case lastRound != nil:
+		// if there is a round stored in database, then
+		scoringLoop = time.NewTimer(d.durationUntilNextRound(lastRound, cnf.RoundDuration))
+	case err != nil && errors.Is(err, gorm.ErrRecordNotFound):
+		// if no round exists, then try to score almost as soon as possible
+		scoringLoop = time.NewTimer((time.Duration(d.staticConfig.DynamicConfigPullSeconds) * time.Second) / 2)
+	case err != nil:
+		// Some Other error, that is likely connection/database related
+		return err
+	}
+	// Re-Pull config every DynamicConfigPullSeconds
+	configLoop := time.NewTicker(time.Duration(d.staticConfig.DynamicConfigPullSeconds) * time.Second)
+
+	return d.run(configLoop, scoringLoop, cnf, lastRound)
+}
+
 func (d *Runner) durationUntilNextRound(rnd *round.Round, roundDuration uint64) time.Duration {
 	// Start time of current round + Round Duration - Current time on database
 	dur := rnd.Start.Add(time.Duration(roundDuration) * time.Second).Sub(time.Now().Add(d.dsync))
@@ -223,44 +248,11 @@ func (d *Runner) durationUntilNextRound(rnd *round.Round, roundDuration uint64) 
 var ErrUnknownPanic = errors.New("unknown panic")
 var ErrPanic = errors.New("panic")
 
-func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
-	ctx, c := context.WithTimeout(context.Background(), timeout)
-	defer c()
-	var Note string
-	defer func() {
-		if x := recover(); x != nil {
-			var err error
-			switch x := x.(type) {
-			case string:
-				err = fmt.Errorf("%w: %s", ErrPanic, x)
-			case error:
-				err = x
-			default:
-				err = ErrUnknownPanic
-			}
-
-			log.Println(err)
-			d.finalizeRound(ctx, rnd, Note, fmt.Sprintf("A panic has occurred. Err:%s", err.Error()))
-		}
-	}()
-	log.Printf("Running check for round %d", rnd.ID)
-	// Get All teams
-	teams, err := d.r.Team.GetAll(ctx)
-	if err != nil {
-		d.finalizeRound(ctx, rnd, Note, "No Teams Detected")
-		return
-	}
-	// Get All Host groups, and Service groups
-	hostGroup, _ := d.r.HostGroup.GetAll(ctx)
-	serviceGroups, err := d.r.ServiceGroup.GetAll(ctx)
-	if err != nil {
-		d.finalizeRound(ctx, rnd, Note, "No Service Groups Detected")
-		return
-	}
+func (d Runner) generateScoredServices(ctx context.Context, teams []*team.Team, hostGroup []*hostgroup.HostGroup, serviceGroups []*servicegroup.ServiceGroup, rnd *round.Round) []*queueing.ScoringData {
 	var servicesToBeScored []*queueing.ScoringData
 	for t := range teams {
 		// Get Child Hosts for a given team
-		err = d.db.WithContext(ctx).Model(&teams[t]).Association("Hosts").Find(&teams[t].Hosts)
+		err := d.db.WithContext(ctx).Model(&teams[t]).Association("Hosts").Find(&teams[t].Hosts)
 		if err != nil {
 			panic(err)
 		}
@@ -323,6 +315,44 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 			}
 		}
 	}
+	return servicesToBeScored
+}
+
+func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
+	ctx, c := context.WithTimeout(context.Background(), timeout)
+	defer c()
+	var Note string
+	defer func() {
+		if x := recover(); x != nil {
+			var err error
+			switch x := x.(type) {
+			case string:
+				err = fmt.Errorf("%w: %s", ErrPanic, x)
+			case error:
+				err = x
+			default:
+				err = ErrUnknownPanic
+			}
+
+			log.Println(err)
+			d.finalizeRound(ctx, rnd, Note, fmt.Sprintf("A panic has occurred. Err:%s", err.Error()))
+		}
+	}()
+	log.Printf("Running check for round %d", rnd.ID)
+	// Get All teams
+	teams, err := d.r.Team.GetAll(ctx)
+	if err != nil {
+		d.finalizeRound(ctx, rnd, Note, "No Teams Detected")
+		return
+	}
+	// Get All Host groups, and Service groups
+	hostGroup, _ := d.r.HostGroup.GetAll(ctx)
+	serviceGroups, err := d.r.ServiceGroup.GetAll(ctx)
+	if err != nil {
+		d.finalizeRound(ctx, rnd, Note, "No Service Groups Detected")
+		return
+	}
+	servicesToBeScored := d.generateScoredServices(ctx, teams, hostGroup, serviceGroups, rnd)
 
 	// If no services are to be scored, then finalize the round
 	if len(servicesToBeScored) == 0 {
@@ -342,25 +372,7 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 		d.finalizeRound(ctx, rnd, Note, err.Error())
 		return
 	}
-	var checks []*check.Check
-	for _, t := range teams {
-		for _, h := range t.Hosts {
-			for _, s := range h.Services {
-				for i, c := range servicesToBeScored {
-					if c.Service.ID == s.ID {
-						if chks[i] == nil {
-							// If check returned nil (could be due to failing worker, timeout, etc)
-							fls := false
-							s.Checks = append(s.Checks, &check.Check{Passed: &fls, Log: "", ServiceID: c.Service.ID, RoundID: rnd.ID, Err: "Unable to hear back from the worker that was responsible for performing the check. Make sure worker is able to connect back to scoretrak"})
-						} else {
-							s.Checks = append(s.Checks, &check.Check{Passed: &chks[i].Passed, Log: chks[i].Log, ServiceID: c.Service.ID, RoundID: rnd.ID, Err: chks[i].Err})
-						}
-						checks = append(checks, s.Checks[len(s.Checks)-1])
-					}
-				}
-			}
-		}
-	}
+	checks := d.storeChecks(teams, chks, servicesToBeScored, rnd)
 
 	// Check if we are still on the last round.
 	r, _ := d.r.Round.GetLastRound(ctx)
@@ -383,8 +395,38 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 		return
 	}
 
+	simpleTeamReport := d.generateSimpleTeamReport(teams, hostGroup, serviceGroups, rnd, tp)
+
+	// Generate new report, and upload it to db
+	ch := report.NewReport()
+	bt, err := json.Marshal(&report.SimpleReport{Teams: simpleTeamReport, Round: rnd.ID})
+	if err != nil {
+		d.finalizeRound(ctx, rnd, Note, fmt.Sprintf("Error while saving report. Err: %s", err.Error()))
+		return
+	}
+
+	ch.Cache = string(bt)
+	err = d.r.Report.Update(ctx, ch)
+	if err != nil {
+		if strings.Contains(err.Error(), "split failed while applying backpressure to") {
+			Note += "\nPossible solution to error: decrease: gc.ttlseconds for database. "
+		}
+		d.finalizeRound(ctx, rnd, Note, fmt.Sprintf("Error while saving report. Err: %s", err.Error()))
+		return
+	}
+	// Notify all of the listening clients that a new report was generated
+	pubsub, err := queue.NewMasterStreamPubSub(config.GetQueueConfig())
+	if err != nil {
+		d.finalizeRound(ctx, rnd, Note, fmt.Sprintf("Error while notifying report update. Err: %s", err.Error()))
+		return
+	}
+	pubsub.NotifyTopic(config.GetPubSubConfig().ChannelPrefix + "_report")
+	d.finalizeRound(ctx, rnd, Note, "")
+}
+
+func (d Runner) generateSimpleTeamReport(teams []*team.Team, hostGroup []*hostgroup.HostGroup, serviceGroups []*servicegroup.ServiceGroup, rnd *round.Round, tp map[uuid.UUID]uint64) map[uuid.UUID]*report.SimpleTeam {
 	// Create a minified cumulative report of all previous rounds
-	simpTeams := make(map[uuid.UUID]*report.SimpleTeam)
+	simpleTeamReport := make(map[uuid.UUID]*report.SimpleTeam)
 	{
 		for _, t := range teams {
 			st := &report.SimpleTeam{Name: t.Name, Pause: *t.Pause, Hide: *t.Hide}
@@ -427,33 +469,33 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 				}
 				st.Hosts[h.ID] = &sh
 			}
-			simpTeams[t.ID] = st
+			simpleTeamReport[t.ID] = st
 		}
 	}
-	// Generate new report, and upload it to db
-	ch := report.NewReport()
-	bt, err := json.Marshal(&report.SimpleReport{Teams: simpTeams, Round: rnd.ID})
-	if err != nil {
-		d.finalizeRound(ctx, rnd, Note, fmt.Sprintf("Error while saving report. Err: %s", err.Error()))
-		return
-	}
-	ch.Cache = string(bt)
-	err = d.r.Report.Update(ctx, ch)
-	if err != nil {
-		if strings.Contains(err.Error(), "split failed while applying backpressure to") {
-			Note += "\nPossible solution to error: decrease: gc.ttlseconds for database. "
+	return simpleTeamReport
+}
+
+func (d Runner) storeChecks(teams []*team.Team, chks []*queueing.QCheck, servicesToBeScored []*queueing.ScoringData, rnd *round.Round) []*check.Check {
+	var checks []*check.Check
+	for _, t := range teams {
+		for _, h := range t.Hosts {
+			for _, s := range h.Services {
+				for i, c := range servicesToBeScored {
+					if c.Service.ID == s.ID {
+						if chks[i] == nil {
+							// If check returned nil (could be due to failing worker, timeout, etc)
+							fls := false
+							s.Checks = append(s.Checks, &check.Check{Passed: &fls, Log: "", ServiceID: c.Service.ID, RoundID: rnd.ID, Err: "Unable to hear back from the worker that was responsible for performing the check. Make sure worker is able to connect back to scoretrak"})
+						} else {
+							s.Checks = append(s.Checks, &check.Check{Passed: &chks[i].Passed, Log: chks[i].Log, ServiceID: c.Service.ID, RoundID: rnd.ID, Err: chks[i].Err})
+						}
+						checks = append(checks, s.Checks[len(s.Checks)-1])
+					}
+				}
+			}
 		}
-		d.finalizeRound(ctx, rnd, Note, fmt.Sprintf("Error while saving report. Err: %s", err.Error()))
-		return
 	}
-	// Notify all of the listening clients that a new report was generated
-	pubsub, err := queue.NewMasterStreamPubSub(config.GetQueueConfig())
-	if err != nil {
-		d.finalizeRound(ctx, rnd, Note, fmt.Sprintf("Error while notifying report update. Err: %s", err.Error()))
-		return
-	}
-	pubsub.NotifyTopic(config.GetPubSubConfig().ChannelPrefix + "_report")
-	d.finalizeRound(ctx, rnd, Note, "")
+	return checks
 }
 
 func (d Runner) finalizeRound(ctx context.Context, rnd *round.Round, note string, errStr string) {

@@ -60,8 +60,9 @@ func (w *SQL) Validate() error {
 	return nil
 }
 
-func (w *SQL) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
+func (w *SQL) setupDB(e exec.Exec) (*gorm.DB, error) {
 	var db *gorm.DB
+	var err error
 	if w.DBType == "mysql" {
 		if w.Port == "" {
 			w.Port = "3306"
@@ -74,7 +75,7 @@ func (w *SQL) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 		}
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 		if err != nil {
-			return false, "", fmt.Errorf("unable to initialize mysql client: %w", err)
+			return nil, fmt.Errorf("unable to initialize mysql client: %w", err)
 		}
 	}
 
@@ -99,8 +100,16 @@ func (w *SQL) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 		}
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 		if err != nil {
-			return false, "", fmt.Errorf("unable to initialize postgres client: %w", err)
+			return nil, fmt.Errorf("unable to initialize postgres client: %w", err)
 		}
+	}
+	return db, nil
+}
+
+func (w *SQL) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
+	db, err := w.setupDB(e)
+	if err != nil {
+		return false, "", err
 	}
 	sqlDB, err := db.DB()
 	if err != nil {

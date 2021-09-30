@@ -17,7 +17,7 @@ var ErrQueueNotSupported = errors.New("selected queue is not yet supported by pl
 func GenerateConfigFile(info worker.Info) (path string, err error) {
 	cnf, err := config.GetConfigCopy()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get config copy: %w", err)
 	}
 	if cnf.Queue.Use == "nsq" {
 		cnf.Queue.NSQ.Topic = info.Topic
@@ -27,7 +27,7 @@ func GenerateConfigFile(info worker.Info) (path string, err error) {
 	tmpPath := filepath.Join(".", "tmp")
 	err = os.MkdirAll(tmpPath, os.ModePerm)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create temporary path for config: %w", err)
 	}
 	path = fmt.Sprintf("tmp/config_worker_%s", info.Topic)
 	err = config.SaveConfigToYamlFile(path, cnf)

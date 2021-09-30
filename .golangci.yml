@@ -24,15 +24,15 @@ linters:
     - paralleltest
     - nlreturn
     - nestif
+
+    # Todo: re-enable
     - lll # This one really should be AutoFixed
     - sqlclosecheck # https://github.com/ryanrolds/sqlclosecheck/issues/7
     - bodyclose # similar issue to sqlclosecheck
     - tagliatelle # This one is iffy. I think I will keep this muted until we figure out weather we are using native gorm structs for protobuf calls.
-# Todo: re-enable funlen,gocognit(temporarily)
+    - wrapcheck # a little bit noisy in repo/serv files.
+    #temporarily disable until runner, and other functions are simplified
     - funlen
-    - gocognit
-    - wrapcheck
     - cyclop
-    - gocyclo
     - dupl
-
+    - gocognit
