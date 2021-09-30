@@ -3,10 +3,11 @@ package handler
 import (
 	"context"
 	"fmt"
+
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	service_grouppb "github.com/ScoreTrak/ScoreTrak/pkg/proto/service_group/v1"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_group_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup/servicegroupservice"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
@@ -14,24 +15,14 @@ import (
 )
 
 type ServiceGroupController struct {
-	svc service_group_service.Serv
+	svc servicegroupservice.Serv
 	service_grouppb.UnimplementedServiceGroupServiceServer
 }
 
 func (p ServiceGroupController) Redeploy(ctx context.Context, request *service_grouppb.RedeployRequest) (*service_grouppb.RedeployResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
+	uid, err := extractUUID(request)
 	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+		return nil, err
 	}
 	err = p.svc.Redeploy(ctx, uid)
 	if err != nil {
@@ -45,19 +36,9 @@ func (p ServiceGroupController) Redeploy(ctx context.Context, request *service_g
 }
 
 func (p ServiceGroupController) GetByID(ctx context.Context, request *service_grouppb.GetByIDRequest) (*service_grouppb.GetByIDResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
+	uid, err := extractUUID(request)
 	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+		return nil, err
 	}
 	servgrp, err := p.svc.GetByID(ctx, uid)
 	if err != nil {
@@ -71,7 +52,8 @@ func (p ServiceGroupController) GetAll(ctx context.Context, request *service_gro
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	var servcspb []*service_grouppb.ServiceGroup
+	servcspb := make([]*service_grouppb.ServiceGroup, 0, len(servgrps))
+
 	for i := range servgrps {
 		servcspb = append(servcspb, ConvertServiceGroupToServiceGroupPb(servgrps[i]))
 	}
@@ -79,19 +61,9 @@ func (p ServiceGroupController) GetAll(ctx context.Context, request *service_gro
 }
 
 func (p ServiceGroupController) Delete(ctx context.Context, request *service_grouppb.DeleteRequest) (*service_grouppb.DeleteResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
+	uid, err := extractUUID(request)
 	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+		return nil, err
 	}
 	err = p.svc.Delete(ctx, uid)
 	if err != nil {
@@ -135,11 +107,11 @@ func (p ServiceGroupController) Update(ctx context.Context, request *service_gro
 	return &service_grouppb.UpdateResponse{}, nil
 }
 
-func NewServiceGroupController(svc service_group_service.Serv) *ServiceGroupController {
+func NewServiceGroupController(svc servicegroupservice.Serv) *ServiceGroupController {
 	return &ServiceGroupController{svc: svc}
 }
 
-func ConvertServiceGroupPBtoServiceGroup(requireID bool, sg *service_grouppb.ServiceGroup) (*service_group.ServiceGroup, error) {
+func ConvertServiceGroupPBtoServiceGroup(requireID bool, sg *service_grouppb.ServiceGroup) (*servicegroup.ServiceGroup, error) {
 	var id uuid.UUID
 	var err error
 	if sg.GetId() != nil {
@@ -160,7 +132,7 @@ func ConvertServiceGroupPBtoServiceGroup(requireID bool, sg *service_grouppb.Ser
 	if sg.GetEnabled() != nil {
 		enabled = &sg.GetEnabled().Value
 	}
-	return &service_group.ServiceGroup{
+	return &servicegroup.ServiceGroup{
 		ID:          id,
 		Name:        sg.Name,
 		DisplayName: sg.DisplayName,
@@ -171,7 +143,7 @@ func ConvertServiceGroupPBtoServiceGroup(requireID bool, sg *service_grouppb.Ser
 	}, nil
 }
 
-func ConvertServiceGroupToServiceGroupPb(obj *service_group.ServiceGroup) *service_grouppb.ServiceGroup {
+func ConvertServiceGroupToServiceGroupPb(obj *servicegroup.ServiceGroup) *service_grouppb.ServiceGroup {
 	return &service_grouppb.ServiceGroup{
 		Id:          &utilpb.UUID{Value: obj.ID.String()},
 		Name:        obj.Name,

@@ -2,6 +2,7 @@ package orm
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
@@ -19,7 +20,7 @@ func TestRoundSpec(t *testing.T) {
 	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
-		c = NewConfigClone(SetupConfig("../../../../configs/test-config.yml"))
+		c = NewTestConfigClone("../../../configs/test-config.yml")
 	} else {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
@@ -77,7 +78,8 @@ func TestRoundSpec(t *testing.T) {
 					r := round.Round{ID: 1}
 					err = rr.Store(ctx, &r)
 					So(err, ShouldNotBeNil)
-					serr, ok := err.(*pgconn.PgError)
+					var serr *pgconn.PgError
+					ok := errors.As(err, &serr)
 					So(ok, ShouldBeTrue)
 					So(serr.Code, ShouldEqual, "23505")
 				})

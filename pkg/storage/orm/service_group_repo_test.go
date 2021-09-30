@@ -6,7 +6,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
@@ -18,7 +18,7 @@ func TestServiceGroupSpec(t *testing.T) {
 	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
-		c = NewConfigClone(SetupConfig("../../../../configs/test-config.yml"))
+		c = NewTestConfigClone("../../../configs/test-config.yml")
 	} else {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
@@ -27,7 +27,7 @@ func TestServiceGroupSpec(t *testing.T) {
 	ctx := context.Background()
 	t.Parallel() //t.Parallel should be placed after SetupCockroachDB because gorm has race conditions on Hook register
 	Convey("Creating Service Group Tables", t, func() {
-		db.AutoMigrate(&service_group.ServiceGroup{})
+		db.AutoMigrate(&servicegroup.ServiceGroup{})
 		sgr := NewServiceGroupRepo(db)
 
 		Convey("When the Service Group table is empty", func() {
@@ -39,7 +39,7 @@ func TestServiceGroupSpec(t *testing.T) {
 
 			Convey("Adding a valid entry", func() {
 				var err error
-				s := service_group.ServiceGroup{Name: "TestServiceGroup"}
+				s := servicegroup.ServiceGroup{Name: "TestServiceGroup"}
 				err = sgr.Store(ctx, &s)
 				So(err, ShouldBeNil)
 
@@ -51,7 +51,7 @@ func TestServiceGroupSpec(t *testing.T) {
 
 				Convey("And then creating an entry with same name", func() {
 					tru := true
-					t2 := service_group.ServiceGroup{Name: "TestServiceGroup", Enabled: &tru}
+					t2 := servicegroup.ServiceGroup{Name: "TestServiceGroup", Enabled: &tru}
 					err = sgr.Store(ctx, &t2)
 					So(err, ShouldNotBeNil)
 					Convey("Should not create a new entry", func() {
@@ -98,7 +98,7 @@ func TestServiceGroupSpec(t *testing.T) {
 
 				Convey("Then Updating Enabled to true", func() {
 					tru := true
-					newSgr := &service_group.ServiceGroup{Enabled: &tru}
+					newSgr := &servicegroup.ServiceGroup{Enabled: &tru}
 					Convey("For the wrong entry should not update anything", func() {
 						newSgr.ID = uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")
 						err = sgr.Update(ctx, newSgr)
@@ -143,7 +143,7 @@ func TestServiceGroupSpec(t *testing.T) {
 			})
 		})
 		Reset(func() {
-			db.Migrator().DropTable(&service_group.ServiceGroup{})
+			db.Migrator().DropTable(&servicegroup.ServiceGroup{})
 		})
 	})
 	DropDB(db, c)

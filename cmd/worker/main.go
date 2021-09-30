@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
+	"log"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	cutil "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
-	"log"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 )
@@ -28,7 +29,7 @@ func main() {
 
 func handleErr(err error) {
 	if err != nil {
-		log.Fatalf("%v", err)
+		log.Panicf("%v", err)
 	} else {
 		return
 	}

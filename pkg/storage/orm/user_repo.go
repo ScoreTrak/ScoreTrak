@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
-	"github.com/ScoreTrak/ScoreTrak/pkg/user/user_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user/userrepo"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -15,15 +16,16 @@ type userRepo struct {
 	db *gorm.DB
 }
 
-func NewUserRepo(db *gorm.DB) user_repo.Repo {
+func NewUserRepo(db *gorm.DB) userrepo.Repo {
 	return &userRepo{db}
 }
+
+var ErrDeletingUser = errors.New("error deleting user")
 
 func (h *userRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	result := h.db.WithContext(ctx).Delete(&user.User{}, "id = ?", id)
 	if result.Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the user with id : %d", id)
-		return errors.New(errMsg)
+		return fmt.Errorf("%w, id: %d", ErrDeletingUser, id)
 	}
 	return nil
 }

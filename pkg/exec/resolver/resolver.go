@@ -1,12 +1,13 @@
 package resolver
 
 import (
+	"strings"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec/services"
-	"strings"
 )
 
-//ExecutableByName converts the name of the service to a specific executable type defined in pkg/exec/services
+// ExecutableByName converts the name of the service to a specific executable type defined in pkg/exec/services
 func ExecutableByName(s string) exec.Executable {
 	switch strings.ToLower(s) {
 	case "ftp":
@@ -28,10 +29,9 @@ func ExecutableByName(s string) exec.Executable {
 	case "imap":
 		return services.NewIMAP()
 	case "sql":
-		return services.NewSql()
+		return services.NewSQL()
 	case "caldav":
 		return services.NewCalDav()
 	}
 	return nil
-
 }

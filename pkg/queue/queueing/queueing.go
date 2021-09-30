@@ -2,15 +2,17 @@ package queueing
 
 import (
 	"context"
-	"errors"
+	"crypto/rand"
 	"fmt"
+	"log"
+	"math"
+	"math/big"
+	"strconv"
+	"time"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec/resolver"
 	"github.com/gofrs/uuid"
-	"log"
-	"math/rand"
-	"strconv"
-	"time"
 )
 
 type ScoringData struct {
@@ -50,14 +52,14 @@ type Config struct {
 		ProducerNSQD                 string   `default:"nsqd:4150"`
 		IgnoreAllScoresIfWorkerFails bool     `default:"true"`
 		Topic                        string   `default:"default"`
-		MaxInFlight                  int      `default:"200"` //This should be more than min(NumberOfChecks, #NSQD Nodes)
+		MaxInFlight                  int      `default:"200"` // This should be more than min(NumberOfChecks, #NSQD Nodes)
 		AuthSecret                   string   `default:""`
 		ClientRootCA                 string   `default:""`
 		ClientSSLKey                 string   `default:""`
 		ClientSSLCert                string   `default:""`
 		ConcurrentHandlers           int      `default:"200"`
 		NSQLookupd                   []string `default:"[\"nsqlookupd:4161\"]"`
-		ConsumerNSQDPool             []string `default:"[\"\"]"` //"[\"nsqd:4150\"]"`
+		ConsumerNSQDPool             []string `default:"[\"\"]"` // "[\"nsqd:4150\"]"`
 	}
 }
 
@@ -66,9 +68,20 @@ type MasterConfig struct {
 	ChannelPrefix             string `default:"master"`
 }
 
-func TopicFromServiceRound(roundID uint64) string {
-	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return "round_" + strconv.FormatUint(roundID, 10) + "_" + strconv.Itoa(seededRand.Int()) + "_ack"
+func RandomInt() (string, error) {
+	n, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt32))
+	if err != nil {
+		return "", err
+	}
+	return n.Text(10), nil
+}
+
+func TopicFromServiceRound(roundID uint64) (string, error) {
+	n, err := RandomInt()
+	if err != nil {
+		return "", err
+	}
+	return "round_" + strconv.FormatUint(roundID, 10) + "_" + n + "_ack", nil
 }
 
 func CommonExecute(sd *ScoringData, execDeadline time.Time) QCheck {
@@ -106,8 +119,8 @@ func CommonExecute(sd *ScoringData, execDeadline time.Time) QCheck {
 		}
 		return QCheck{Service: sd.Service, Passed: res.passed, Log: res.log, Err: errstr, RoundID: sd.RoundID}
 	case <-time.After(time.Until(execDeadline.Add(time.Second))):
-		log.Println("Check is possibly causing resource leakage", sd.Service, execDeadline)
-		panic(errors.New("check timed out. this is most likely due to services timing out"))
+		log.Panicln("check is possibly causing resource leakage", sd.Service, execDeadline)
+		return QCheck{}
 	}
 }
 

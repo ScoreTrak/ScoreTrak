@@ -4,10 +4,13 @@ import (
 	"encoding/base64"
 	"errors"
 	"flag"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/jinzhu/copier"
+	"fmt"
+	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/jinzhu/copier"
 )
 
 func SetupConfig(f string) config.StaticConfig {
@@ -18,31 +21,44 @@ func SetupConfig(f string) config.StaticConfig {
 	return config.GetStaticConfig()
 }
 
+func NewTestConfigClone(testConfPath string) config.StaticConfig {
+	return NewConfigClone(SetupConfig(testConfPath))
+}
+
 func NewConfigClone(c config.StaticConfig) config.StaticConfig {
 	cnf := config.StaticConfig{}
-	err := copier.Copy(&cnf, &c)
-	if err != nil {
+	if err := copier.Copy(&cnf, &c); err != nil {
 		panic(err)
 	}
 	return cnf
 }
 
+var ErrCreatingConfig = errors.New("unable to create the config file")
+
 func ConfigFlagParser() (string, error) {
-	path := flag.Lookup("config").Value.(flag.Getter).Get().(string)
-	encodedConfig := flag.Lookup("encoded-config").Value.(flag.Getter).Get().(string)
+	path, _ := flag.Lookup("config").Value.(flag.Getter).Get().(string)
+	encodedConfig, _ := flag.Lookup("encoded-config").Value.(flag.Getter).Get().(string)
 	if encodedConfig != "" {
 		dec, err := base64.StdEncoding.DecodeString(encodedConfig)
 		if err != nil {
 			return "", err
 		}
 		tmpPath := filepath.Join(".", "configs")
-		os.MkdirAll(tmpPath, os.ModePerm)
+		err = os.MkdirAll(tmpPath, os.ModePerm)
+		if err != nil {
+			return "", err
+		}
 		path = "configs/config-encoded.yml"
 		f, err := os.Create(path)
 		if err != nil {
 			return "", err
 		}
-		defer f.Close()
+		defer func(f *os.File) {
+			err := f.Close()
+			if err != nil {
+				log.Println(fmt.Errorf("unable to close the file: %w", err))
+			}
+		}(f)
 		_, err = f.Write(dec)
 		if err != nil {
 			return "", err
@@ -54,7 +70,7 @@ func ConfigFlagParser() (string, error) {
 	} else if !ConfigExists(path) {
 		err := CreateFile(path)
 		if err != nil {
-			return "", errors.New("unable to create the config file")
+			return "", ErrCreatingConfig
 		}
 	}
 	return path, nil

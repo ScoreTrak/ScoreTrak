@@ -1,12 +1,10 @@
 package nsq
 
 import (
+	"log"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/nsqio/go-nsq"
-	"log"
-	"math/rand"
-	"strconv"
-	"time"
 )
 
 type PubSub struct {
@@ -18,11 +16,11 @@ func (p PubSub) NotifyTopic(topic string) {
 	nsqProducerConfig(confp, p.config)
 	producer, err := nsq.NewProducer(p.config.NSQ.ProducerNSQD, confp)
 	if err != nil {
-		log.Fatalf("Unable to initialize producer to notify masters using queue. Ensure that the queue is reachable from master. Error Details: %v", err)
+		log.Panicf("Unable to initialize producer to notify masters using queue. Ensure that the queue is reachable from master. Error Details: %v", err)
 	}
 	err = producer.Publish(topic, make([]byte, 1))
 	if err != nil {
-		log.Fatalf("Unable to publish to topic to notify masters. Ensure that the queue is reachable from master. Error Details: %v", err)
+		log.Panicf("Unable to publish to topic to notify masters. Ensure that the queue is reachable from master. Error Details: %v", err)
 	}
 	producer.Stop()
 }
@@ -32,9 +30,13 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 	go func() {
 		conf := nsq.NewConfig()
 		nsqConsumerConfig(conf, p.config)
-		consumer, err := nsq.NewConsumer(topic, "master_"+strconv.Itoa(rand.New(rand.NewSource(time.Now().UnixNano())).Int()), conf)
+		rand, err := queueing.RandomInt()
 		if err != nil {
-			log.Fatalf("Unable to initualize consumer for topic: %s. Error Details: %v", topic, err)
+			log.Panicf("unable to generate random number: %v", err)
+		}
+		consumer, err := nsq.NewConsumer(topic, "master_"+rand, conf)
+		if err != nil {
+			log.Panicf("Unable to initualize consumer for topic: %s. Error Details: %v", topic, err)
 		}
 		consumer.SetLoggerLevel(nsq.LogLevelError)
 		consumer.AddHandler(
@@ -44,7 +46,7 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 			}))
 		err = connectConsumer(consumer, p.config)
 		if err != nil {
-			log.Fatalf("Unable to establish connection with NSQ")
+			log.Panicf("Unable to establish connection with NSQ")
 		}
 		select {}
 	}()

@@ -3,11 +3,13 @@ package services
 import (
 	"crypto/tls"
 	"errors"
-	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
-	"github.com/go-ldap/ldap/v3"
+	"fmt"
 	"net"
 	"strings"
 	"time"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
+	"github.com/go-ldap/ldap/v3"
 )
 
 type LDAP struct {
@@ -27,22 +29,24 @@ func NewLDAP() *LDAP {
 	return &f
 }
 
+var ErrLDAPRequiresUsernamePasswordDomain = errors.New("LDAP check_service needs password, username, and Domain to operate")
+
 func (l *LDAP) Validate() error {
 	if l.Password != "" && l.Username != "" && l.Domain != "" {
 		return nil
 	}
-	return errors.New("LDAP check_service needs password, username, and Domain to operate")
+	return ErrLDAPRequiresUsernamePasswordDomain
 }
 
-func (l *LDAP) Execute(e exec.Exec) (passed bool, log string, err error) {
+func (l *LDAP) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 	var ld *ldap.Conn
-	if exec.IsSecure(l.ApplicationProtocol) {
+	if IsSecure(l.ApplicationProtocol) {
 		if l.Port == "" {
 			l.Port = "636"
 		}
-		c, err := tls.DialWithDialer(&net.Dialer{Deadline: e.Deadline()}, l.TransportProtocol, e.Host+":"+l.Port, &tls.Config{InsecureSkipVerify: true}) //https://github.com/golang/go/issues/39489
+		c, err := tls.DialWithDialer(&net.Dialer{Deadline: e.Deadline()}, l.TransportProtocol, e.Host+":"+l.Port, &tls.Config{InsecureSkipVerify: true}) //nolint:gosec //https://github.com/golang/go/issues/39489
 		if err != nil {
-			return false, "Unable to dial remote ldap server", err
+			return false, "", fmt.Errorf("unable to dial remote ldap server: %w", err)
 		}
 		ld = ldap.NewConn(c, true)
 		ld.Start()
@@ -52,7 +56,7 @@ func (l *LDAP) Execute(e exec.Exec) (passed bool, log string, err error) {
 		}
 		c, err := net.DialTimeout(l.TransportProtocol, e.Host+":"+l.Port, time.Until(e.Deadline()))
 		if err != nil {
-			return false, "Unable to dial remote ldap server", err
+			return false, "", fmt.Errorf("unable to dial remote ldap server: %w", err)
 		}
 		ld = ldap.NewConn(c, false)
 		ld.Start()
@@ -61,9 +65,9 @@ func (l *LDAP) Execute(e exec.Exec) (passed bool, log string, err error) {
 
 	err = ld.Bind(l.Username+"@"+l.Domain, l.Password)
 	if err != nil {
-		return false, "Unable to bind", err
+		return false, "", fmt.Errorf("unable to bind: %w", err)
 	}
-	log = "Success!"
+	logOutput = Success
 	if l.BaseDN != "" {
 		attributes := strings.Split(l.Attributes, ",")
 		for i := range attributes {
@@ -75,11 +79,11 @@ func (l *LDAP) Execute(e exec.Exec) (passed bool, log string, err error) {
 		)
 		sr, err := ld.Search(searchRequest)
 		if err != nil {
-			return false, "Unable to search based on the parameters provided", err
+			return false, "", fmt.Errorf("unable to search based on the parameters provided: %w", err)
 		}
 		for _, entry := range sr.Entries {
-			log += "\n" + entry.DN
+			logOutput += "\n" + entry.DN
 		}
 	}
-	return true, log, nil
+	return true, logOutput, nil
 }

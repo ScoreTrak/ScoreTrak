@@ -4,7 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/property/property_repo"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/property/propertyrepo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
@@ -17,16 +18,17 @@ type propertyRepo struct {
 	db *gorm.DB
 }
 
-func NewPropertyRepo(db *gorm.DB) property_repo.Repo {
+func NewPropertyRepo(db *gorm.DB) propertyrepo.Repo {
 	return &propertyRepo{db}
 }
+
+var ErrDeletingProperty = errors.New("error while deleting the property with service_id")
 
 func (p *propertyRepo) Delete(ctx context.Context, serviceID uuid.UUID, key string) error {
 	result := p.db.WithContext(ctx).Delete(&property.Property{}, "service_id = ? AND key = ?", serviceID, key)
 
 	if result.Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the property with service_id : %d and key: %s", serviceID, key)
-		return errors.New(errMsg)
+		return fmt.Errorf("%w: %d and key: %s", ErrDeletingProperty, serviceID, key)
 	}
 
 	if result.RowsAffected == 0 {
@@ -34,7 +36,6 @@ func (p *propertyRepo) Delete(ctx context.Context, serviceID uuid.UUID, key stri
 	}
 
 	return nil
-
 }
 
 func (p *propertyRepo) GetAll(ctx context.Context) ([]*property.Property, error) {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
-	"github.com/ScoreTrak/ScoreTrak/pkg/check/check_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"
@@ -30,7 +30,7 @@ func TestCheckSpec(t *testing.T) {
 	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
-		c = NewConfigClone(SetupConfig("../../../configs/test-config.yml"))
+		c = NewTestConfigClone("../../configs/test-config.yml")
 	} else {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
@@ -45,21 +45,21 @@ func TestCheckSpec(t *testing.T) {
 	userClaims := []*auth.UserClaims{
 		{
 			RegisteredClaims: jwt.RegisteredClaims{},
-			Username:       "TeamOneUser",
-			TeamID:         "11111111-1111-1111-1111-111111111111",
-			Role:           "black",
+			Username:         "TeamOneUser",
+			TeamID:           "11111111-1111-1111-1111-111111111111",
+			Role:             "black",
 		},
 		{
 			RegisteredClaims: jwt.RegisteredClaims{},
-			Username:       "TeamTwoUser1",
-			TeamID:         "22222222-2222-2222-2222-222222222222",
-			Role:           "blue",
+			Username:         "TeamTwoUser1",
+			TeamID:           "22222222-2222-2222-2222-222222222222",
+			Role:             "blue",
 		},
 		{
 			RegisteredClaims: jwt.RegisteredClaims{},
-			Username:       "TeamTwoUser2",
-			TeamID:         "22222222-2222-2222-2222-222222222222",
-			Role:           "red",
+			Username:         "TeamTwoUser2",
+			TeamID:           "22222222-2222-2222-2222-222222222222",
+			Role:             "red",
 		},
 	}
 
@@ -68,7 +68,7 @@ func TestCheckSpec(t *testing.T) {
 			DataPreload(db)
 			Convey("Creating Round, Service and Check repos, services, ", func() {
 				cr := orm.NewCheckRepo(db)
-				cs := check_service.NewCheckServ(cr)
+				cs := checkservice.NewCheckServ(cr)
 				us := util.Store{
 					Round:        orm.NewRoundRepo(db),
 					Service:      orm.NewServiceRepo(db),
@@ -106,7 +106,7 @@ func TestCheckSpec(t *testing.T) {
 					info *grpc.StreamServerInfo,
 					handler grpc.StreamHandler,
 				) error {
-					return handler(srv, auth.StreamClaimInjector{stream, claim})
+					return handler(srv, auth.StreamClaimInjector{ServerStream: stream, Claims: claim})
 				})
 
 				opts = append(opts, grpc_middleware.WithUnaryServerChain(middlewareChainsUnary...))
@@ -117,7 +117,7 @@ func TestCheckSpec(t *testing.T) {
 
 				go func() {
 					if err := s.Serve(lis); err != nil {
-						log.Fatalf("Server exited with error: %v", err)
+						log.Panicf("Server exited with error: %v", err)
 					}
 				}()
 

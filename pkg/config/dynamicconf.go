@@ -1,13 +1,15 @@
 package config
 
 import (
+	"errors"
 	"fmt"
+	"reflect"
+
 	"github.com/jinzhu/configor"
 	"gorm.io/gorm"
-	"reflect"
 )
 
-// Dynamic Config model is a set of columns describing the dynamicConfig of the scoring engine
+// DynamicConfig model is a set of columns describing the dynamicConfig of the scoring engine
 type DynamicConfig struct {
 	ID uint64 `json:"id,omitempty"`
 	// Describes how long each round unit takes to execute in seconds. This value shuold have a minimum value enforced (something like 20 seconds)
@@ -16,9 +18,11 @@ type DynamicConfig struct {
 	Enabled *bool `json:"enabled,omitempty" default:"false" gorm:"not null;default:false"`
 }
 
+var ErrRoundDurationLargerThanMinRoundDuration = errors.New("round Duration should not be larger than MinRoundDuration")
+
 func (d *DynamicConfig) BeforeSave(tx *gorm.DB) (err error) {
 	if d.RoundDuration != 0 && d.RoundDuration < uint64(MinRoundDuration.Seconds()) {
-		return fmt.Errorf("round Duration should not be larger than MinRoundDuration, which is %d", uint64(MinRoundDuration.Seconds()))
+		return fmt.Errorf("%w, MinRoundDuration: %d", ErrRoundDurationLargerThanMinRoundDuration, uint64(MinRoundDuration.Seconds()))
 	}
 	return nil
 }
@@ -27,11 +31,10 @@ func (d DynamicConfig) TableName() string {
 	return "config"
 }
 
-//NewDynamicConfig initializes global config d, but it doesn't need any locking because it is assumed that NewDynamicConfig is ran once at the start of the application
+// NewDynamicConfig initializes global config d, but it doesn't need any locking because it is assumed that NewDynamicConfig is ran once at the start of the application
 func NewDynamicConfig(f string) (*DynamicConfig, error) {
 	d := &DynamicConfig{}
-	err := configor.Load(d, f)
-	if err != nil {
+	if err := configor.Load(d, f); err != nil {
 		return nil, err
 	}
 	d.ID = 1

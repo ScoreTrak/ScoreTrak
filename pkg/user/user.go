@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+
 	"github.com/asaskevich/govalidator"
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -10,11 +11,11 @@ import (
 
 // Following are available user roles.
 const (
-	//Black is an administrator role. Black Team - an Administrator team responsible for Infrastructure
+	// Black is an administrator role. Black Team - an Administrator team responsible for Infrastructure
 	Black = "black"
-	//Blue is a competitor role.
+	// Blue is a competitor role.
 	Blue = "blue"
-	//Red is a role of Hackers.
+	// Red is a role of Hackers.
 	Red       = "red"
 	Anonymous = ""
 )
@@ -27,10 +28,13 @@ type User struct {
 	Role         string    `json:"role" gorm:"default:'blue'"`
 }
 
-//BeforeSave ensures that user is part of either Black, Blue, or Red roles. It also ensures that username is alphanumeric
-func (u *User) BeforeSave(tx *gorm.DB) (err error) {
+var ErrNameMustBeAlphanumeric = errors.New("name must be alphanumeric")
+var ErrInvalidRoleSpecified = errors.New("incorrect role specified")
+
+// BeforeSave ensures that user is part of either Black, Blue, or Red roles. It also ensures that username is alphanumeric
+func (u *User) BeforeSave(_ *gorm.DB) (err error) {
 	if u.Username != "" && !govalidator.IsAlphanumeric(u.Username) {
-		return errors.New("field Name must be alphanumeric")
+		return ErrNameMustBeAlphanumeric
 	}
 	if u.Role != "" {
 		var validStatus bool
@@ -40,10 +44,9 @@ func (u *User) BeforeSave(tx *gorm.DB) (err error) {
 			}
 		}
 		if !validStatus {
-			return errors.New("you must specify a correct role")
+			return ErrInvalidRoleSpecified
 		}
 		return nil
-
 	}
 	return nil
 }
@@ -60,7 +63,7 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	return nil
 }
 
-//IsCorrectPassword compares password to the hash
+// IsCorrectPassword compares password to the hash
 func (u *User) IsCorrectPassword(password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
 	return err == nil

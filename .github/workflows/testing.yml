@@ -17,7 +17,7 @@ jobs:
       - name: "Move Cockroach DB to /usr/local/bin/"
         run: sudo cp -i cockroach-v20.1.1.linux-amd64/cockroach /usr/local/bin/
       - name: "Start Cockroach DB in background"
-        run: cockroach start-single-node --insecure --background
+        run: cockroach start-single-node --insecure --background --listen-addr=localhost:26257
       - name: "Start golang test"
         run: go test ./pkg/... --race -coverprofile=coverage.txt -covermode=atomic
         env:

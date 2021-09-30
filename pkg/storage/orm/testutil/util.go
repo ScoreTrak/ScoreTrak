@@ -2,16 +2,17 @@ package testutil
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
@@ -24,17 +25,48 @@ import (
 )
 
 //CleanAllTables Drops all tables
-func CleanAllTables(db *gorm.DB) {
-	db.Migrator().DropTable(&check.Check{})
-	db.Migrator().DropTable(&property.Property{})
-	db.Migrator().DropTable(&service.Service{})
-	db.Migrator().DropTable(&host.Host{})
-	db.Migrator().DropTable(&host_group.HostGroup{})
-	db.Migrator().DropTable(&round.Round{})
-	db.Migrator().DropTable(&service_group.ServiceGroup{})
-	db.Migrator().DropTable(&user.User{})
-	db.Migrator().DropTable(&team.Team{})
-	db.Migrator().DropTable(&config.DynamicConfig{})
+func CleanAllTables(db *gorm.DB) error {
+	err := db.Migrator().DropTable(&check.Check{})
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().DropTable(&property.Property{})
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().DropTable(&service.Service{})
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().DropTable(&host.Host{})
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().DropTable(&hostgroup.HostGroup{})
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().DropTable(&round.Round{})
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().DropTable(&servicegroup.ServiceGroup{})
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().DropTable(&user.User{})
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().DropTable(&team.Team{})
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().DropTable(&config.DynamicConfig{})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 //uuid1 is a uuid of the initial admin user, and admin team
@@ -44,7 +76,8 @@ var uuid1 = uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 func CreateBlackTeam(db *gorm.DB) (err error) {
 	err = db.Create([]*team.Team{{ID: uuid1, Name: "Black Team"}}).Error
 	if err != nil {
-		serr, ok := err.(*pgconn.PgError)
+		var serr *pgconn.PgError
+		ok := errors.As(err, &serr)
 		if !ok || serr.Code != "23505" {
 			return err
 		}
@@ -60,7 +93,8 @@ func CreateAdminUser(db *gorm.DB) (err error) {
 	}
 	err = db.Create([]*user.User{{ID: uuid1, TeamID: uuid1, Username: "admin", Role: user.Black, PasswordHash: string(hashedPassword)}}).Error
 	if err != nil {
-		serr, ok := err.(*pgconn.PgError)
+		var serr *pgconn.PgError
+		ok := errors.As(err, &serr)
 		if !ok || serr.Code != "23505" {
 			return err
 		}
@@ -73,7 +107,8 @@ func CreatePolicy(db *gorm.DB) (*policy.Policy, error) {
 	p := &policy.Policy{ID: 1}
 	err := db.Create(p).Error
 	if err != nil {
-		serr, ok := err.(*pgconn.PgError)
+		var serr *pgconn.PgError
+		ok := errors.As(err, &serr)
 		if !ok {
 			if serr.Code != "23505" {
 				panic(err)

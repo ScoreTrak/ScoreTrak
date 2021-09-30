@@ -5,7 +5,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/gofrs/uuid"
 	"os"
@@ -18,7 +18,7 @@ func TestHostGroupSpec(t *testing.T) {
 	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
-		c = NewConfigClone(SetupConfig("../../../../configs/test-config.yml"))
+		c = NewTestConfigClone("../../../configs/test-config.yml")
 	} else {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
@@ -27,10 +27,10 @@ func TestHostGroupSpec(t *testing.T) {
 	t.Parallel() //t.Parallel should be placed after SetupCockroachDB because gorm has race conditions on Hook register
 	ctx := context.Background()
 	Convey("Creating Host Group Table", t, func() {
-		db.AutoMigrate(&host_group.HostGroup{})
+		db.AutoMigrate(&hostgroup.HostGroup{})
 		hg := NewHostGroupRepo(db)
 		Reset(func() {
-			db.Migrator().DropTable(&host_group.HostGroup{})
+			db.Migrator().DropTable(&hostgroup.HostGroup{})
 		})
 		Convey("When the Teams table is empty", func() {
 			Convey("There should be no entries", func() {
@@ -41,7 +41,7 @@ func TestHostGroupSpec(t *testing.T) {
 
 			Convey("Adding an valid entry", func() {
 				var err error
-				h := []*host_group.HostGroup{{ID: uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"), Name: "host group"}}
+				h := []*hostgroup.HostGroup{{ID: uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"), Name: "host group"}}
 				err = hg.Store(ctx, h)
 				So(err, ShouldBeNil)
 				Convey("Then making sure the entry exists", func() {
@@ -87,7 +87,7 @@ func TestHostGroupSpec(t *testing.T) {
 
 				Convey("Then Updating Pause to true", func() {
 					tru := true
-					newHostGroup := &host_group.HostGroup{Pause: &tru}
+					newHostGroup := &hostgroup.HostGroup{Pause: &tru}
 					Convey("For the wrong entry should not update anything", func() {
 						newHostGroup.ID = uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")
 						err = hg.Update(ctx, newHostGroup)

@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config/config_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config/configservice"
 	configpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/config/v1"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
@@ -13,7 +14,7 @@ import (
 )
 
 type ConfigController struct {
-	svc config_service.Serv
+	svc configservice.Serv
 	configpb.UnimplementedDynamicConfigServiceServer
 }
 
@@ -44,7 +45,7 @@ func (p ConfigController) Update(ctx context.Context, request *configpb.UpdateRe
 	return &configpb.UpdateResponse{}, nil
 }
 
-func NewConfigController(svc config_service.Serv) *ConfigController {
+func NewConfigController(svc configservice.Serv) *ConfigController {
 	return &ConfigController{svc: svc}
 }
 
@@ -66,12 +67,12 @@ func ConvertDynamicConfigToDynamicConfigPB(obj *config.DynamicConfig) *configpb.
 	}
 }
 
-func NewStaticConfigController(svc config_service.StaticServ) *StaticConfigController {
+func NewStaticConfigController(svc configservice.StaticServ) *StaticConfigController {
 	return &StaticConfigController{svc: svc}
 }
 
 type StaticConfigController struct {
-	svc config_service.StaticServ
+	svc configservice.StaticServ
 	configpb.UnimplementedStaticConfigServiceServer
 }
 

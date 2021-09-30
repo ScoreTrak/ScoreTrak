@@ -1,71 +1,71 @@
 package util
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/check/check_repo"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config/config_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkrepo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config/configrepo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/di"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host/host_repo"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_repo"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_repo"
-	"github.com/ScoreTrak/ScoreTrak/pkg/property/property_repo"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_repo"
-	"github.com/ScoreTrak/ScoreTrak/pkg/round/round_repo"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service/service_repo"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group/service_group_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/host/hostrepo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup/hostgrouprepo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyrepo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/property/propertyrepo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportrepo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/round/roundrepo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/service/servicerepo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup/servicegrouprepo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
-	"github.com/ScoreTrak/ScoreTrak/pkg/team/team_repo"
-	"github.com/ScoreTrak/ScoreTrak/pkg/user/user_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/team/teamrepo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user/userrepo"
 )
 
 func NewStore() *util.Store {
-	var hostGroupRepo host_group_repo.Repo
-	di.Invoke(func(re host_group_repo.Repo) {
+	var hostGroupRepo hostgrouprepo.Repo
+	di.Invoke(func(re hostgrouprepo.Repo) {
 		hostGroupRepo = re
 	})
-	var hostRepo host_repo.Repo
-	di.Invoke(func(re host_repo.Repo) {
+	var hostRepo hostrepo.Repo
+	di.Invoke(func(re hostrepo.Repo) {
 		hostRepo = re
 	})
-	var roundRepo round_repo.Repo
-	di.Invoke(func(re round_repo.Repo) {
+	var roundRepo roundrepo.Repo
+	di.Invoke(func(re roundrepo.Repo) {
 		roundRepo = re
 	})
-	var serviceRepo service_repo.Repo
-	di.Invoke(func(re service_repo.Repo) {
+	var serviceRepo servicerepo.Repo
+	di.Invoke(func(re servicerepo.Repo) {
 		serviceRepo = re
 	})
-	var serviceGroupRepo service_group_repo.Repo
-	di.Invoke(func(re service_group_repo.Repo) {
+	var serviceGroupRepo servicegrouprepo.Repo
+	di.Invoke(func(re servicegrouprepo.Repo) {
 		serviceGroupRepo = re
 	})
-	var propertyRepo property_repo.Repo
-	di.Invoke(func(re property_repo.Repo) {
+	var propertyRepo propertyrepo.Repo
+	di.Invoke(func(re propertyrepo.Repo) {
 		propertyRepo = re
 	})
-	var checkRepo check_repo.Repo
-	di.Invoke(func(re check_repo.Repo) {
+	var checkRepo checkrepo.Repo
+	di.Invoke(func(re checkrepo.Repo) {
 		checkRepo = re
 	})
-	var teamRepo team_repo.Repo
-	di.Invoke(func(re team_repo.Repo) {
+	var teamRepo teamrepo.Repo
+	di.Invoke(func(re teamrepo.Repo) {
 		teamRepo = re
 	})
-	var configRepo config_repo.Repo
-	di.Invoke(func(re config_repo.Repo) {
+	var configRepo configrepo.Repo
+	di.Invoke(func(re configrepo.Repo) {
 		configRepo = re
 	})
-	var reportRepo report_repo.Repo
-	di.Invoke(func(re report_repo.Repo) {
+	var reportRepo reportrepo.Repo
+	di.Invoke(func(re reportrepo.Repo) {
 		reportRepo = re
 	})
 
-	var policyRepo policy_repo.Repo
-	di.Invoke(func(re policy_repo.Repo) {
+	var policyRepo policyrepo.Repo
+	di.Invoke(func(re policyrepo.Repo) {
 		policyRepo = re
 	})
 
-	var userRepo user_repo.Repo
-	di.Invoke(func(re user_repo.Repo) {
+	var userRepo userrepo.Repo
+	di.Invoke(func(re userrepo.Repo) {
 		userRepo = re
 	})
 

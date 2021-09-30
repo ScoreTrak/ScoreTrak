@@ -4,7 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/round/round_repo"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/round/roundrepo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
@@ -16,16 +17,16 @@ type roundRepo struct {
 	db *gorm.DB
 }
 
-func NewRoundRepo(db *gorm.DB) round_repo.Repo {
+func NewRoundRepo(db *gorm.DB) roundrepo.Repo {
 	return &roundRepo{db}
 }
 
+var ErrDeletingByID = errors.New("error while deleting the round by id")
+
 func (r *roundRepo) Delete(ctx context.Context, id uint64) error {
 	result := r.db.WithContext(ctx).Delete(&round.Round{}, "id = ?", id)
-
 	if result.Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the round with id : %d", id)
-		return errors.New(errMsg)
+		return fmt.Errorf("%w: id: %d", ErrDeletingByID, id)
 	}
 
 	if result.RowsAffected == 0 {
@@ -33,7 +34,6 @@ func (r *roundRepo) Delete(ctx context.Context, id uint64) error {
 	}
 
 	return nil
-
 }
 
 func (r *roundRepo) GetAll(ctx context.Context) ([]*round.Round, error) {
@@ -54,9 +54,11 @@ func (r *roundRepo) GetByID(ctx context.Context, id uint64) (*round.Round, error
 	return tea, nil
 }
 
+var ErrIDMissing = errors.New("the ID should be provided")
+
 func (r *roundRepo) Store(ctx context.Context, rn *round.Round) error {
 	if rn.ID == 0 {
-		return errors.New("the ID should be provided")
+		return ErrIDMissing
 	}
 	err := r.db.WithContext(ctx).Create(rn).Error
 	if err != nil {
@@ -98,6 +100,8 @@ func (r *roundRepo) GetLastNonElapsingRound(ctx context.Context) (*round.Round, 
 	return rnd, nil
 }
 
+var ErrNoRoundExecuting = errors.New("there is no round executing at the moment")
+
 func (r *roundRepo) GetLastElapsingRound(ctx context.Context) (*round.Round, error) {
 	rnd, err := r.GetLastRound(ctx)
 	if err != nil {
@@ -105,9 +109,8 @@ func (r *roundRepo) GetLastElapsingRound(ctx context.Context) (*round.Round, err
 	}
 	if rnd.Finish == nil {
 		return rnd, nil
-	} else {
-		return nil, errors.New("there is no round executing at the moment")
 	}
+	return nil, ErrNoRoundExecuting
 }
 
 func (r *roundRepo) GetLastRound(ctx context.Context) (*round.Round, error) {

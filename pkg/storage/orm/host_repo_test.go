@@ -5,7 +5,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
+	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
@@ -19,7 +19,7 @@ func TestHostSpec(t *testing.T) {
 	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
-		c = NewConfigClone(SetupConfig("../../../../configs/test-config.yml"))
+		c = NewTestConfigClone("../../../configs/test-config.yml")
 	} else {
 		c = NewConfigClone(SetupConfig("dev-config.yml"))
 	}
@@ -157,10 +157,10 @@ func TestHostSpec(t *testing.T) {
 				})
 
 				Convey("Then add a host group", func() {
-					db.AutoMigrate(&host_group.HostGroup{})
+					db.AutoMigrate(&hostgroup.HostGroup{})
 					Reset(func() {
 						db.Migrator().DropTable(&host.Host{})
-						db.Migrator().DropTable(&host_group.HostGroup{})
+						db.Migrator().DropTable(&hostgroup.HostGroup{})
 					})
 					uuid.FromStringOrNil("")
 					db.Exec("INSERT INTO host_groups (id, name, pause) VALUES ('11111111-1111-1111-1111-111111111111', 'HostGroup1', true)")

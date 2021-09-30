@@ -2,6 +2,7 @@ package property
 
 import (
 	"errors"
+
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 )
@@ -15,17 +16,19 @@ const (
 // Property model describes a single key value pair for a check_service(parameters). An example could be a port for HTTP checking
 type Property struct {
 	ServiceID uuid.UUID `json:"service_id" gorm:"type:uuid;not null;primary_key"`
-	//Key represents property for a struct located under exec/services. Example: Port, or Password
+	// Key represents property for a struct located under exec/services. Example: Port, or Password
 	Key string `json:"key" gorm:"not null;primary_key"`
-	//Value represents property value for a struct located under exec/services. Example: 80, or SOME_SECURE_PASSWORD
+	// Value represents property value for a struct located under exec/services. Example: 80, or SOME_SECURE_PASSWORD
 	Value *string `json:"value" gorm:"not null;default:''"`
-	//Status is a type of a property that is either View, Edit, or Hide. View allows users to ONLY view the given property. Edit Allows to both View, and Edit the given property, and finally Hide ensures that property is hidden from the competitor's view
+	// Status is a type of a property that is either View, Edit, or Hide. View allows users to ONLY view the given property. Edit Allows to both View, and Edit the given property, and finally Hide ensures that property is hidden from the competitor's view
 	Status string `json:"status,omitempty" gorm:"not null;default:'View'"`
 }
 
 func (Property) TableName() string {
 	return "properties"
 }
+
+var ErrInvalidStatus = errors.New("property Status should either be View, Edit, or Hide")
 
 func (p *Property) BeforeSave(tx *gorm.DB) (err error) {
 	if p.Status != "" {
@@ -36,15 +39,17 @@ func (p *Property) BeforeSave(tx *gorm.DB) (err error) {
 			}
 		}
 		if !validStatus {
-			return errors.New("property Status should either be View, Edit, or Hide")
+			return ErrInvalidStatus
 		}
 	}
 	return nil
 }
 
-func (p *Property) BeforeCreate(tx *gorm.DB) (err error) {
+var ErrPropertyKeyShouldNotBeEmpty = errors.New("property key should not be empty")
+
+func (p *Property) BeforeCreate(_ *gorm.DB) (err error) {
 	if p.Key == "" {
-		return errors.New("key should not be empty")
+		return ErrPropertyKeyShouldNotBeEmpty
 	}
 	return nil
 }

@@ -8,6 +8,12 @@ import (
 	"errors"
 	"fmt"
 
+	"io"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
@@ -16,11 +22,6 @@ import (
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/client"
-	"io"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"strings"
 )
 
 type Docker struct {
@@ -43,12 +44,12 @@ func NewDocker(cnf platforming.Config) (d *Docker, err error) {
 	return d, nil
 }
 
-//func (d *Docker) GetWorkerServiceStatus(info worker.Info)(status string, err error){
-//	s, err := d.GetServiceByName("worker_"+info.Topic)
-//	if err != nil{
-//		return "", err
-//	}
-//}
+// func (d *Docker) GetWorkerServiceStatus(info worker.Info)(status string, err error){
+// 	s, err := d.GetServiceByName("worker_"+info.Topic)
+// 	if err != nil{
+// 		return "", err
+// 	}
+// }
 
 func (d *Docker) GetWorkerContainerStatus(ctx context.Context, info worker.Info) (status string, err error) {
 	ctr, err := d.GetContainerByName(ctx, "worker_"+info.Topic)
@@ -57,6 +58,8 @@ func (d *Docker) GetWorkerContainerStatus(ctx context.Context, info worker.Info)
 	}
 	return ctr.Status, nil
 }
+
+var ErrLabelIsEmpty = errors.New("label should not be empty when creating a check_service on swarm platform")
 
 func (d *Docker) DeployWorkers(ctx context.Context, info worker.Info) (err error) {
 	networkName := d.Name + "_" + d.NetworkName
@@ -80,11 +83,11 @@ func (d *Docker) DeployWorkers(ctx context.Context, info worker.Info) (err error
 		}
 	} else {
 		if info.Label == "" {
-			return errors.New("label should not be empty when creating a check_service on swarm platform")
+			return ErrLabelIsEmpty
 		}
 		_, err := d.CreateService(info, networkName, path)
 		if err != nil {
-			return nil
+			return err
 		}
 	}
 
@@ -98,14 +101,15 @@ func (d *Docker) RemoveWorkers(ctx context.Context, info worker.Info) error {
 			return err
 		}
 		return d.Client.ServiceRemove(ctx, s.ID)
-	} else {
-		ctr, err := d.GetContainerByName(ctx, "worker_"+info.Topic)
-		if err != nil {
-			return err
-		}
-		return d.Client.ContainerRemove(ctx, ctr.ID, types.ContainerRemoveOptions{Force: true})
 	}
+	ctr, err := d.GetContainerByName(ctx, "worker_"+info.Topic)
+	if err != nil {
+		return err
+	}
+	return d.Client.ContainerRemove(ctx, ctr.ID, types.ContainerRemoveOptions{Force: true})
 }
+
+var ErrCheckServiceMissing = errors.New("unable to find check_service. The workers might have already been removed")
 
 func (d *Docker) GetServiceByName(ctx context.Context, n string) (swarm.Service, error) {
 	services, err := d.Client.ServiceList(ctx, types.ServiceListOptions{})
@@ -118,8 +122,10 @@ func (d *Docker) GetServiceByName(ctx context.Context, n string) (swarm.Service,
 		}
 	}
 
-	return swarm.Service{}, errors.New("unable to find check_service. The workers might have already been removed")
+	return swarm.Service{}, ErrCheckServiceMissing
 }
+
+var ErrContainerNotFound = errors.New("container not found. The worker might have already been removed")
 
 func (d *Docker) GetContainerByName(ctx context.Context, n string) (types.Container, error) {
 	containers, err := d.Client.ContainerList(ctx, types.ContainerListOptions{})
@@ -133,7 +139,7 @@ func (d *Docker) GetContainerByName(ctx context.Context, n string) (types.Contai
 			}
 		}
 	}
-	return types.Container{}, errors.New("container not found. The worker might have already been removed")
+	return types.Container{}, ErrContainerNotFound
 }
 
 func (d *Docker) CommitWorkerContainerToImage(ctx context.Context, resp container.ContainerCreateCreatedBody, info worker.Info) (string, error) {
@@ -228,7 +234,6 @@ func (d *Docker) CreateWorkerContainer(ctx context.Context, networkName string, 
 }
 
 func (d *Docker) UploadConfigToContainer(ctx context.Context, resp container.ContainerCreateCreatedBody, path string) error {
-
 	buf := new(bytes.Buffer)
 	tw := tar.NewWriter(buf)
 	defer tw.Close()
@@ -267,15 +272,15 @@ func (d *Docker) StartContainer(ctx context.Context, resp container.ContainerCre
 	if err := d.Client.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		return err
 	}
-	//_, err := d.Client.ContainerWait(ctx, resp.ID)
-	//fmt.Println("But not Here!")
-	//if err != nil{
-	//	return err
-	//}
-	//_, err = d.Client.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true})
-	//if err != nil {
-	//	return err
-	//}
+	// _, err := d.Client.ContainerWait(ctx, resp.ID)
+	// fmt.Println("But not Here!")
+	// if err != nil{
+	// 	return err
+	// }
+	// _, err = d.Client.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true})
+	// if err != nil {
+	// 	return err
+	// }
 	return nil
 }
 
@@ -284,7 +289,13 @@ func (d *Docker) PullImage(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	io.Copy(os.Stdout, reader)
-	reader.Close()
+	_, err = io.Copy(os.Stdout, reader)
+	if err != nil {
+		return err
+	}
+	err = reader.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }

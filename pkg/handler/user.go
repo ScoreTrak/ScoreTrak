@@ -3,11 +3,12 @@ package handler
 import (
 	"context"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyclient"
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	userpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/user/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
-	"github.com/ScoreTrak/ScoreTrak/pkg/user/user_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/user/userservice"
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
@@ -15,9 +16,9 @@ import (
 )
 
 type UserController struct {
-	svc user_service.Serv
+	svc userservice.Serv
 	userpb.UnimplementedUserServiceServer
-	policyClient *policy_client.Client
+	policyClient *policyclient.Client
 }
 
 func (p UserController) GetByUsername(ctx context.Context, request *userpb.GetByUsernameRequest) (*userpb.GetByUsernameResponse, error) {
@@ -36,19 +37,9 @@ func (p UserController) GetByUsername(ctx context.Context, request *userpb.GetBy
 }
 
 func (p UserController) GetByID(ctx context.Context, request *userpb.GetByIDRequest) (*userpb.GetByIDResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
+	uid, err := extractUUID(request)
 	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+		return nil, err
 	}
 	tm, err := p.svc.GetByID(ctx, uid)
 	if err != nil {
@@ -62,7 +53,7 @@ func (p UserController) GetAll(ctx context.Context, _ *userpb.GetAllRequest) (*u
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	var tmspb []*userpb.User
+	tmspb := make([]*userpb.User, 0, len(tms))
 	for i := range tms {
 		tmspb = append(tmspb, ConvertUserToUserPb(tms[i]))
 	}
@@ -70,19 +61,9 @@ func (p UserController) GetAll(ctx context.Context, _ *userpb.GetAllRequest) (*u
 }
 
 func (p UserController) Delete(ctx context.Context, request *userpb.DeleteRequest) (*userpb.DeleteResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
+	uid, err := extractUUID(request)
 	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+		return nil, err
 	}
 	err = p.svc.Delete(ctx, uid)
 	if err != nil {
@@ -93,7 +74,7 @@ func (p UserController) Delete(ctx context.Context, request *userpb.DeleteReques
 
 func (p UserController) Store(ctx context.Context, request *userpb.StoreRequest) (*userpb.StoreResponse, error) {
 	usrspb := request.GetUsers()
-	var usrs []*user.User
+	usrs := make([]*user.User, 0, len(usrspb))
 	for i := range usrspb {
 		usr, err := ConvertUserPBtoUser(false, usrspb[i])
 		if err != nil {
@@ -121,14 +102,13 @@ func (p UserController) Store(ctx context.Context, request *userpb.StoreRequest)
 
 		usrs = append(usrs, usr)
 	}
-	err := p.svc.Store(ctx, usrs)
-	if err != nil {
+	if err := p.svc.Store(ctx, usrs); err != nil {
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	var ids []*utilpb.UUID
+	ids := make([]*utilpb.UUID, 0, len(usrs))
 	for i := range usrs {
 		ids = append(ids, &utilpb.UUID{Value: usrs[i].ID.String()})
 	}
@@ -145,7 +125,7 @@ func (p UserController) Update(ctx context.Context, request *userpb.UpdateReques
 	claim := extractUserClaim(ctx)
 
 	if claim.Role != user.Black {
-		if claim.Id != usr.TeamID.String() {
+		if claim.ID != usr.TeamID.String() {
 			return nil, status.Errorf(
 				codes.PermissionDenied,
 				noPermissionsTo+changingUser,
@@ -172,7 +152,7 @@ func (p UserController) Update(ctx context.Context, request *userpb.UpdateReques
 	return &userpb.UpdateResponse{}, nil
 }
 
-func NewUserController(svc user_service.Serv, policyClient *policy_client.Client) *UserController {
+func NewUserController(svc userservice.Serv, policyClient *policyclient.Client) *UserController {
 	return &UserController{svc: svc, policyClient: policyClient}
 }
 
@@ -206,13 +186,13 @@ func ConvertUserPBtoUser(requireID bool, pb *userpb.User) (*user.User, error) {
 	}
 
 	var passwordHash []byte
-
-	if pb.GetPassword() != "" && pb.GetPasswordHash() != "" {
+	switch {
+	case pb.GetPassword() != "" && pb.GetPasswordHash() != "":
 		return nil, status.Errorf(
 			codes.InvalidArgument,
 			"You should provide either password or hash, but not both",
 		)
-	} else if pb.GetPassword() != "" {
+	case pb.GetPassword() != "":
 		passwordHash, err = bcrypt.GenerateFromPassword([]byte(pb.GetPassword()), bcrypt.DefaultCost)
 		if err != nil {
 			return nil, status.Errorf(
@@ -220,18 +200,21 @@ func ConvertUserPBtoUser(requireID bool, pb *userpb.User) (*user.User, error) {
 				"Unable to get password hash: %v", err,
 			)
 		}
-	} else if pb.GetPasswordHash() != "" {
+	case pb.GetPasswordHash() != "":
 		passwordHash = []byte(pb.GetPasswordHash())
 	}
 
 	var r string
 
-	if pb.GetRole() == userpb.Role_ROLE_BLUE {
+	switch pb.GetRole() {
+	case userpb.Role_ROLE_BLUE:
 		r = user.Blue
-	} else if pb.GetRole() == userpb.Role_ROLE_RED {
+	case userpb.Role_ROLE_RED:
 		r = user.Red
-	} else if pb.GetRole() == userpb.Role_ROLE_BLACK {
+	case userpb.Role_ROLE_BLACK:
 		r = user.Black
+	case userpb.Role_ROLE_UNSPECIFIED:
+		r = ""
 	}
 
 	return &user.User{
@@ -255,11 +238,12 @@ func ConvertUserToUserPb(obj *user.User) *userpb.User {
 
 func UserRoleToRolePB(r string) userpb.Role {
 	var rpb userpb.Role
-	if r == user.Blue {
+	switch {
+	case r == user.Blue:
 		rpb = userpb.Role_ROLE_BLUE
-	} else if r == user.Red {
+	case r == user.Red:
 		rpb = userpb.Role_ROLE_RED
-	} else if r == user.Black {
+	case r == user.Black:
 		rpb = userpb.Role_ROLE_BLACK
 	}
 	return rpb

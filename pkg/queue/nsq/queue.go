@@ -5,24 +5,30 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service_group"
-	"github.com/gofrs/uuid"
-	"github.com/nsqio/go-nsq"
 	"log"
 	"math"
 	"net"
 	"os"
 	"time"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
+	"github.com/gofrs/uuid"
+	"github.com/nsqio/go-nsq"
 )
 
 type WorkerQueue struct {
 	config queueing.Config
 }
 
-//Send sends scoring data to the NSQD nodes, and returns either a list of checks with a warning, or an error
+var ErrWorkersFailed = errors.New("some workers failed to receive the checks. Make sure that is by design")
+
+// Send sends scoring data to the NSQD nodes, and returns either a list of checks with a warning, or an error
 func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error) {
-	returningTopicName := queueing.TopicFromServiceRound(sds[0].RoundID)
+	returningTopicName, err := queueing.TopicFromServiceRound(sds[0].RoundID)
+	if err != nil {
+		return nil, nil, err
+	}
 	producerConfig := nsq.NewConfig()
 	nsqProducerConfig(producerConfig, n.config)
 	producer, err := nsq.NewProducer(n.config.NSQ.ProducerNSQD, producerConfig)
@@ -93,19 +99,21 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, erro
 		case <-time.After(time.Until(sds[0].Deadline)):
 			if !n.config.NSQ.IgnoreAllScoresIfWorkerFails {
 				return nil, nil, &queueing.RoundTookTooLongToExecute{Msg: "Round took too long to score. This might be due to many reasons like a worker going down, or the number of rounds being too big for workers to handle"}
-			} else {
-				return ret, errors.New("some workers failed to receive the checks. Make sure that is by design"), nil
 			}
+			return ret, ErrWorkersFailed, nil
 		}
 	}
 }
+
+var ErrUnknownPanic = errors.New("unknown panic")
+var ErrPanic = errors.New("panic")
 
 func (n WorkerQueue) Receive() {
 	conf := nsq.NewConfig()
 	nsqConsumerConfig(conf, n.config)
 	consumer, err := nsq.NewConsumer(n.config.NSQ.Topic, "worker", conf)
 	if err != nil {
-		log.Fatalf("Failed to initialize NSQ consumer. Error: %v", err)
+		log.Panicf("Failed to initialize NSQ consumer. Error: %v", err)
 	}
 	consumer.SetLoggerLevel(nsq.LogLevelError)
 	consumer.AddConcurrentHandlers(nsq.HandlerFunc(func(m *nsq.Message) error {
@@ -116,11 +124,11 @@ func (n WorkerQueue) Receive() {
 				var err error
 				switch x := x.(type) {
 				case string:
-					err = errors.New(x)
+					err = fmt.Errorf("%w: %s", ErrPanic, x)
 				case error:
 					err = x
 				default:
-					err = errors.New("unknown panic")
+					err = ErrUnknownPanic
 				}
 				qc := queueing.QCheck{Service: sd.Service, Passed: false, Log: "Encountered an unexpected error during the check.", Err: err.Error(), RoundID: sd.RoundID}
 				n.Acknowledge(qc)
@@ -140,7 +148,6 @@ func (n WorkerQueue) Receive() {
 		qc := queueing.CommonExecute(&sd, sd.Deadline.Add(-3*time.Second+dsync))
 		n.Acknowledge(qc)
 		return nil
-
 	}), n.config.NSQ.ConcurrentHandlers)
 	err = connectConsumer(consumer, n.config)
 	if err != nil {
@@ -156,11 +163,11 @@ func getOutboundIP() net.IP {
 		log.Fatal(err)
 	}
 	defer conn.Close()
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	localAddr, _ := conn.LocalAddr().(*net.UDPAddr)
 	return localAddr.IP
 }
 
-func (n WorkerQueue) Ping(group *service_group.ServiceGroup) error {
+func (n WorkerQueue) Ping(group *servicegroup.ServiceGroup) error {
 	_, bErr, err := n.Send([]*queueing.ScoringData{
 		{
 			Service: queueing.QService{ID: uuid.Nil, Name: "PING", Group: group.Name}, MasterTime: time.Now(), Host: "localhost", Deadline: time.Now().Add(time.Second * 4), RoundID: 0, Properties: map[string]string{},

@@ -3,9 +3,10 @@ package handler
 import (
 	"context"
 	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyclient"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyservice"
 	policypb "github.com/ScoreTrak/ScoreTrak/pkg/proto/policy/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/golang/protobuf/ptypes/wrappers"
@@ -14,12 +15,12 @@ import (
 )
 
 type PolicyController struct {
-	svc          policy_service.Serv
-	policyClient *policy_client.Client
+	svc          policyservice.Serv
+	policyClient *policyclient.Client
 	policypb.UnimplementedPolicyServiceServer
 }
 
-func (p PolicyController) Get(request *policypb.GetRequest, server policypb.PolicyService_GetServer) error {
+func (p PolicyController) Get(_ *policypb.GetRequest, server policypb.PolicyService_GetServer) error {
 	rol := user.Anonymous
 	claims := extractUserClaim(server.Context())
 	if claims != nil {
@@ -66,7 +67,7 @@ func (p PolicyController) Update(ctx context.Context, request *policypb.UpdateRe
 	return &policypb.UpdateResponse{}, nil
 }
 
-func NewPolicyController(svc policy_service.Serv, client *policy_client.Client) *PolicyController {
+func NewPolicyController(svc policyservice.Serv, client *policyclient.Client) *PolicyController {
 	return &PolicyController{
 		svc:          svc,
 		policyClient: client,
@@ -106,7 +107,6 @@ func ConvertPolicyPBToPolicy(pb *policypb.Policy) *policy.Policy {
 		ShowPoints:    sp,
 		ShowAddresses: sa,
 	}
-
 }
 
 func ConvertPolicyToPolicyPB(obj *policy.Policy) *policypb.Policy {

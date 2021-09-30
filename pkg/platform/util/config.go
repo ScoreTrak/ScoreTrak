@@ -4,25 +4,31 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 )
+
+var ErrQueueNotSupported = errors.New("selected queue is not yet supported by platform")
 
 func GenerateConfigFile(info worker.Info) (path string, err error) {
 	cnf, err := config.GetConfigCopy()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get config copy: %w", err)
 	}
 	if cnf.Queue.Use == "nsq" {
 		cnf.Queue.NSQ.Topic = info.Topic
 	} else {
-		return "", errors.New("selected queue is not yet supported with platform Docker")
+		return "", ErrQueueNotSupported
 	}
 	tmpPath := filepath.Join(".", "tmp")
-	os.MkdirAll(tmpPath, os.ModePerm)
+	err = os.MkdirAll(tmpPath, os.ModePerm)
+	if err != nil {
+		return "", fmt.Errorf("failed to create temporary path for config: %w", err)
+	}
 	path = fmt.Sprintf("tmp/config_worker_%s", info.Topic)
 	err = config.SaveConfigToYamlFile(path, cnf)
 	if err != nil {

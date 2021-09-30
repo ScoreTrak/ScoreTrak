@@ -1,8 +1,12 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
+	"log"
+	"time"
+
 	"github.com/ScoreTrak/ScoreTrak/cmd/master/server"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	cutil "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
@@ -14,9 +18,6 @@ import (
 	sutil "github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"go.uber.org/dig"
 	"gorm.io/gorm"
-	"log"
-	"math"
-	"time"
 )
 
 func main() {
@@ -64,11 +65,10 @@ func main() {
 		handleErr(dr.MasterRunner())
 	}()
 	handleErr(server.Start(staticConfig, d, db))
-
 }
 func handleErr(err error) {
 	if err != nil {
-		log.Fatalf("%v", err)
+		log.Panicf("%v", err)
 	} else {
 		return
 	}
@@ -76,21 +76,35 @@ func handleErr(err error) {
 
 func SetupDB(cont *dig.Container) error {
 	var db *gorm.DB
-	cont.Invoke(func(d *gorm.DB) {
+	err := cont.Invoke(func(d *gorm.DB) {
 		db = d
 	})
+	if err != nil {
+		return err
+	}
 	var tm time.Time
 	res, err := db.Raw("SELECT current_timestamp;").Rows()
 	if err != nil {
 		panic(err)
 	}
-	defer res.Close()
-	for res.Next() {
-		res.Scan(&tm)
+	if res.Err() != nil {
+		panic(err)
 	}
-	timeDiff := time.Since(tm)
-	if float64(time.Second*2) < math.Abs(float64(timeDiff)) {
-		panic(fmt.Errorf("time difference between master host, and database host are is large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now()))
+	defer func(res *sql.Rows) {
+		err := res.Close()
+		if err != nil {
+			log.Fatalln(fmt.Errorf("unable to close the database connection properly: %w", err))
+		}
+	}(res)
+	for res.Next() {
+		err := res.Scan(&tm)
+		if err != nil {
+			return err
+		}
+	}
+	err = sutil.DatabaseOutOfSync(tm)
+	if err != nil {
+		return err
 	}
 	return nil
 }

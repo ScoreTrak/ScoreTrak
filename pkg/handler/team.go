@@ -3,10 +3,11 @@ package handler
 import (
 	"context"
 	"fmt"
+
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	teampb "github.com/ScoreTrak/ScoreTrak/pkg/proto/team/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
-	"github.com/ScoreTrak/ScoreTrak/pkg/team/team_service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/team/teamservice"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"google.golang.org/grpc/codes"
@@ -14,24 +15,14 @@ import (
 )
 
 type TeamController struct {
-	svc team_service.Serv
+	svc teamservice.Serv
 	teampb.UnimplementedTeamServiceServer
 }
 
 func (p TeamController) GetByID(ctx context.Context, request *teampb.GetByIDRequest) (*teampb.GetByIDResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
+	uid, err := extractUUID(request)
 	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+		return nil, err
 	}
 	tm, err := p.svc.GetByID(ctx, uid)
 	if err != nil {
@@ -40,12 +31,12 @@ func (p TeamController) GetByID(ctx context.Context, request *teampb.GetByIDRequ
 	return &teampb.GetByIDResponse{Team: ConvertTeamToTeamPb(tm)}, nil
 }
 
-func (p TeamController) GetAll(ctx context.Context, request *teampb.GetAllRequest) (*teampb.GetAllResponse, error) {
+func (p TeamController) GetAll(ctx context.Context, _ *teampb.GetAllRequest) (*teampb.GetAllResponse, error) {
 	tms, err := p.svc.GetAll(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	var tmspb []*teampb.Team
+	tmspb := make([]*teampb.Team, 0, len(tms))
 	for i := range tms {
 		tmspb = append(tmspb, ConvertTeamToTeamPb(tms[i]))
 	}
@@ -53,19 +44,9 @@ func (p TeamController) GetAll(ctx context.Context, request *teampb.GetAllReques
 }
 
 func (p TeamController) Delete(ctx context.Context, request *teampb.DeleteRequest) (*teampb.DeleteResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
+	uid, err := extractUUID(request)
 	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+		return nil, err
 	}
 	err = p.svc.Delete(ctx, uid)
 	if err != nil {
@@ -76,7 +57,7 @@ func (p TeamController) Delete(ctx context.Context, request *teampb.DeleteReques
 
 func (p TeamController) Store(ctx context.Context, request *teampb.StoreRequest) (*teampb.StoreResponse, error) {
 	tmspb := request.GetTeams()
-	var tms []*team.Team
+	tms := make([]*team.Team, 0, len(tmspb))
 	for i := range tmspb {
 		tm, err := ConvertTeamPBtoTeam(false, tmspb[i])
 		if err != nil {
@@ -84,14 +65,13 @@ func (p TeamController) Store(ctx context.Context, request *teampb.StoreRequest)
 		}
 		tms = append(tms, tm)
 	}
-	err := p.svc.Store(ctx, tms)
-	if err != nil {
+	if err := p.svc.Store(ctx, tms); err != nil {
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	var ids []*utilpb.UUID
+	ids := make([]*utilpb.UUID, 0, len(tms))
 	for i := range tms {
 		ids = append(ids, &utilpb.UUID{Value: tms[i].ID.String()})
 	}
@@ -114,7 +94,7 @@ func (p TeamController) Update(ctx context.Context, request *teampb.UpdateReques
 	return &teampb.UpdateResponse{}, nil
 }
 
-func NewTeamController(svc team_service.Serv) *TeamController {
+func NewTeamController(svc teamservice.Serv) *TeamController {
 	return &TeamController{svc: svc}
 }
 

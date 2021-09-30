@@ -2,8 +2,9 @@ package orm
 
 import (
 	"context"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report/report_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportrepo"
 	"github.com/gofrs/uuid"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
@@ -14,7 +15,7 @@ type reportRepo struct {
 	db *gorm.DB
 }
 
-func NewReportRepo(db *gorm.DB) report_repo.Repo {
+func NewReportRepo(db *gorm.DB) reportrepo.Repo {
 	return &reportRepo{db}
 }
 

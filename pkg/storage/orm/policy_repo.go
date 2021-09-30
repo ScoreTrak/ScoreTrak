@@ -2,8 +2,9 @@ package orm
 
 import (
 	"context"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyrepo"
 	"gorm.io/gorm"
 )
 
@@ -11,7 +12,7 @@ type policyRepo struct {
 	db *gorm.DB
 }
 
-func NewPolicyRepo(db *gorm.DB) policy_repo.Repo {
+func NewPolicyRepo(db *gorm.DB) policyrepo.Repo {
 	return &policyRepo{db}
 }
 

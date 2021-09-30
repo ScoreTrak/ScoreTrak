@@ -3,8 +3,9 @@ package handler
 import (
 	"context"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host_group/host_group_service"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
+	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup/hostgroupservice"
 	host_grouppb "github.com/ScoreTrak/ScoreTrak/pkg/proto/host_group/v1"
 	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	"github.com/gofrs/uuid"
@@ -14,24 +15,14 @@ import (
 )
 
 type HostGroupController struct {
-	svc host_group_service.Serv
+	svc hostgroupservice.Serv
 	host_grouppb.UnimplementedHostGroupServiceServer
 }
 
 func (p HostGroupController) GetByID(ctx context.Context, request *host_grouppb.GetByIDRequest) (*host_grouppb.GetByIDResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
+	uid, err := extractUUID(request)
 	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+		return nil, err
 	}
 	hst, err := p.svc.GetByID(ctx, uid)
 	if err != nil {
@@ -45,7 +36,7 @@ func (p HostGroupController) GetAll(ctx context.Context, request *host_grouppb.G
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	var hostgrpspb []*host_grouppb.HostGroup
+	hostgrpspb := make([]*host_grouppb.HostGroup, 0, len(hostgrps))
 	for i := range hostgrps {
 		hostgrpspb = append(hostgrpspb, ConvertHostGroupToHostGroupPb(hostgrps[i]))
 	}
@@ -53,19 +44,9 @@ func (p HostGroupController) GetAll(ctx context.Context, request *host_grouppb.G
 }
 
 func (p HostGroupController) Delete(ctx context.Context, request *host_grouppb.DeleteRequest) (*host_grouppb.DeleteResponse, error) {
-	id := request.GetId()
-	if id == nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			idNotSpecified,
-		)
-	}
-	uid, err := uuid.FromString(id.GetValue())
+	uid, err := extractUUID(request)
 	if err != nil {
-		return nil, status.Errorf(
-			codes.InvalidArgument,
-			unableToParseID+": %v", err,
-		)
+		return nil, err
 	}
 	err = p.svc.Delete(ctx, uid)
 	if err != nil {
@@ -76,7 +57,7 @@ func (p HostGroupController) Delete(ctx context.Context, request *host_grouppb.D
 
 func (p HostGroupController) Store(ctx context.Context, request *host_grouppb.StoreRequest) (*host_grouppb.StoreResponse, error) {
 	servcspb := request.GetHostGroups()
-	var props []*host_group.HostGroup
+	props := make([]*hostgroup.HostGroup, 0, len(servcspb))
 	for i := range servcspb {
 		hstgrp, err := ConvertHostGroupPBtoHostGroup(false, servcspb[i])
 		if err != nil {
@@ -84,14 +65,13 @@ func (p HostGroupController) Store(ctx context.Context, request *host_grouppb.St
 		}
 		props = append(props, hstgrp)
 	}
-	err := p.svc.Store(ctx, props)
-	if err != nil {
+	if err := p.svc.Store(ctx, props); err != nil {
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	var ids []*utilpb.UUID
+	ids := make([]*utilpb.UUID, 0, len(props))
 	for i := range props {
 		ids = append(ids, &utilpb.UUID{Value: props[i].ID.String()})
 	}
@@ -105,7 +85,6 @@ func (p HostGroupController) Update(ctx context.Context, request *host_grouppb.U
 	}
 	err = p.svc.Update(ctx, hstgrp)
 	if err != nil {
-
 		return nil, status.Errorf(
 			codes.Internal,
 			fmt.Sprintf("Unknown internal error: %v", err),
@@ -114,11 +93,11 @@ func (p HostGroupController) Update(ctx context.Context, request *host_grouppb.U
 	return &host_grouppb.UpdateResponse{}, nil
 }
 
-func NewHostGroupController(svc host_group_service.Serv) *HostGroupController {
+func NewHostGroupController(svc hostgroupservice.Serv) *HostGroupController {
 	return &HostGroupController{svc: svc}
 }
 
-func ConvertHostGroupPBtoHostGroup(requireID bool, pb *host_grouppb.HostGroup) (*host_group.HostGroup, error) {
+func ConvertHostGroupPBtoHostGroup(requireID bool, pb *host_grouppb.HostGroup) (*hostgroup.HostGroup, error) {
 	var id uuid.UUID
 	var err error
 	if pb.GetId() != nil {
@@ -144,7 +123,7 @@ func ConvertHostGroupPBtoHostGroup(requireID bool, pb *host_grouppb.HostGroup) (
 	if pb.GetHide() != nil {
 		hide = &pb.GetHide().Value
 	}
-	return &host_group.HostGroup{
+	return &hostgroup.HostGroup{
 		ID:    id,
 		Name:  pb.GetName(),
 		Pause: pause,
@@ -153,7 +132,7 @@ func ConvertHostGroupPBtoHostGroup(requireID bool, pb *host_grouppb.HostGroup) (
 	}, nil
 }
 
-func ConvertHostGroupToHostGroupPb(obj *host_group.HostGroup) *host_grouppb.HostGroup {
+func ConvertHostGroupToHostGroupPb(obj *hostgroup.HostGroup) *host_grouppb.HostGroup {
 	return &host_grouppb.HostGroup{
 		Id:    &utilpb.UUID{Value: obj.ID.String()},
 		Name:  obj.Name,

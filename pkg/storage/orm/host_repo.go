@@ -4,8 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host/host_repo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/host/hostrepo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/gofrs/uuid"
@@ -17,15 +18,16 @@ type hostRepo struct {
 	db *gorm.DB
 }
 
-func NewHostRepo(db *gorm.DB) host_repo.Repo {
+func NewHostRepo(db *gorm.DB) hostrepo.Repo {
 	return &hostRepo{db}
 }
+
+var ErrDeletingHost = errors.New("error while deleting the host")
 
 func (h *hostRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	result := h.db.WithContext(ctx).Delete(&host.Host{}, "id = ?", id)
 	if result.Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the host with id : %d", id)
-		return errors.New(errMsg)
+		return fmt.Errorf("%w, id: %d", ErrDeletingHost, id)
 	}
 	if result.RowsAffected == 0 {
 		return &NoRowsAffected{"no model found"}

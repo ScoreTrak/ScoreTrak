@@ -2,10 +2,14 @@ package services
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
+	"io"
+	"log"
 	"net/http"
 	"strings"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 )
 
 type HTTP struct {
@@ -14,6 +18,7 @@ type HTTP struct {
 	Port           string
 	Path           string
 	Subdomain      string
+	// Todo: Implement Expected response code
 }
 
 func NewHTTP() *HTTP {
@@ -25,33 +30,40 @@ func (h *HTTP) Validate() error {
 	return nil
 }
 
-func (h *HTTP) Execute(e exec.Exec) (passed bool, log string, err error) {
-	baseURL := exec.ConstructURI(h.Port, h.Subdomain, e.Host, h.Path, h.Scheme)
+var ErrInvalidResponseCodeReceived = errors.New("invalid response code received")
+
+func (h *HTTP) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
+	baseURL := ConstructURI(h.Port, h.Subdomain, e.Host, h.Path, h.Scheme)
 	req, err := http.NewRequest("GET", baseURL.String(), nil)
 	if err != nil {
-		return false, "Error while crafting the request", err
+		return false, "", fmt.Errorf("unable to craft the request: %w", err)
 	}
 	req = req.WithContext(e.Context)
 	httpClient := http.DefaultClient
-	resp, err := httpClient.Do(req)
+	resp, err := httpClient.Do(req) //nolint:bodyclose
 	if err != nil {
-		return false, "Error while making the request", err
+		return false, "", fmt.Errorf("unable to craft the request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Println(fmt.Errorf("unable to close body: %w", err))
+		}
+	}(resp.Body)
 
 	if !(resp.StatusCode >= 200 && resp.StatusCode < 400) {
-		return false, fmt.Sprintf("Invalid response code received: %d", resp.StatusCode), nil
+		return false, "", fmt.Errorf("%w: %d", ErrInvalidResponseCodeReceived, resp.StatusCode)
 	}
 	if h.ExpectedOutput != "" {
 		buf := new(bytes.Buffer)
 		_, err = buf.ReadFrom(resp.Body)
 		if err != nil {
-			return false, "Unable to read response body", err
+			return false, "", fmt.Errorf("unable to read response body: %w", err)
 		}
 		newStr := buf.String()
 		if !strings.Contains(newStr, h.ExpectedOutput) {
-			return false, fmt.Sprintf("the page output doesn't contain expected output. Output received: %s", newStr), nil
+			return false, "", fmt.Errorf("%w. Output Received: %s", ErrDidNotMatchExpectedOutput, newStr)
 		}
 	}
-	return true, "Success!", nil
+	return true, Success, nil
 }

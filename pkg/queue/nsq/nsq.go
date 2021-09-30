@@ -2,9 +2,10 @@ package nsq
 
 import (
 	"errors"
+	"time"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/nsqio/go-nsq"
-	"time"
 )
 
 func nsqProducerConfig(conf *nsq.Config, config queueing.Config) {
@@ -51,16 +52,19 @@ func connectConsumer(consumer *nsq.Consumer, config queueing.Config) (err error)
 	} else {
 		err = consumer.ConnectToNSQDs(config.NSQ.ConsumerNSQDPool)
 	}
-	return nil
+	return
 }
+
+var ErrProvidedBothNSQLookupdAndNSQD = errors.New("must either provide a list of nsqlookupd nodes, or list of nsqd nodes for the consumer, but not both")
+var ErrNSQDProducerAddressNotProvided = errors.New("must provide nsqd producer address")
 
 func validateNSQConfig(config queueing.Config) error {
 	if config.NSQ.ProducerNSQD == "" {
-		return errors.New("must provide nsqd producer address")
+		return ErrNSQDProducerAddressNotProvided
 	}
-	//Emulates exclusive-or
+	// Emulates exclusive-or
 	if (len(config.NSQ.NSQLookupd) != 0) != (len(config.NSQ.ConsumerNSQDPool) != 0) {
-		return errors.New("must either provide a list of nsqlookupd nodes, or list of nsqd nodes for the consumer, but not both")
+		return ErrProvidedBothNSQLookupdAndNSQD
 	}
 	return nil
 }

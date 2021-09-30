@@ -1,16 +1,19 @@
 package services
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
+	"log"
+	"strconv"
+	"strings"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"strconv"
-	"strings"
 )
 
-type Sql struct {
+type SQL struct {
 	Username        string
 	Password        string
 	Port            string
@@ -21,19 +24,23 @@ type Sql struct {
 	MaxExpectedRows string
 }
 
-func NewSql() *Sql {
-	return &Sql{}
+func NewSQL() *SQL {
+	return &SQL{}
 }
 
-func (w *Sql) Validate() error {
+var ErrSQLRequiresCommand = errors.New("sql check needs a command parameter")
+var ErrUnsupportedDBType = errors.New("DBType should either be mysql, or postgres")
+var ErrSQLNeedsUsernameOrPassword = errors.New("sql check_service needs username, and password")
+
+func (w *SQL) Validate() error {
 	if w.Password == "" || w.Username == "" {
-		return errors.New("sql check_service needs username, and password")
+		return ErrSQLNeedsUsernameOrPassword
 	}
 	if strings.ToLower(w.DBType) != "mysql" && strings.ToLower(w.DBType) != "postgres" {
-		return errors.New("DBType should either be mysql, or postgres")
+		return ErrUnsupportedDBType
 	}
 	if w.Command == "" {
-		return errors.New("sql check needs a command parameter")
+		return ErrSQLRequiresCommand
 	}
 
 	if w.MaxExpectedRows != "" {
@@ -53,8 +60,9 @@ func (w *Sql) Validate() error {
 	return nil
 }
 
-func (w *Sql) Execute(e exec.Exec) (passed bool, log string, err error) {
+func (w *SQL) setupDB(e exec.Exec) (*gorm.DB, error) {
 	var db *gorm.DB
+	var err error
 	if w.DBType == "mysql" {
 		if w.Port == "" {
 			w.Port = "3306"
@@ -67,7 +75,7 @@ func (w *Sql) Execute(e exec.Exec) (passed bool, log string, err error) {
 		}
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 		if err != nil {
-			return false, "Unable to initialize the database client", err
+			return nil, fmt.Errorf("unable to initialize mysql client: %w", err)
 		}
 	}
 
@@ -92,24 +100,46 @@ func (w *Sql) Execute(e exec.Exec) (passed bool, log string, err error) {
 		}
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 		if err != nil {
-			return false, "Unable to initialize the database client", err
+			return nil, fmt.Errorf("unable to initialize postgres client: %w", err)
 		}
+	}
+	return db, nil
+}
+
+func (w *SQL) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
+	db, err := w.setupDB(e)
+	if err != nil {
+		return false, "", err
 	}
 	sqlDB, err := db.DB()
 	if err != nil {
-		return false, "unable to fetch the underlying sql driver, this is most likely a bug", err
+		return false, "", fmt.Errorf("unable to fetch the underlying sql driver, this is most likely a bug: %w", err)
 	}
-	defer sqlDB.Close()
+	defer func(sqlDB *sql.DB) {
+		err := sqlDB.Close()
+		if err != nil {
+			log.Println(fmt.Errorf("unable to close sql connection: %w", err))
+		}
+	}(sqlDB)
 
 	result := db.WithContext(e.Context).Raw(w.Command)
 
 	if result.Error != nil {
-		return false, "Unable to execute the provided command", result.Error
+		return false, "", fmt.Errorf("unable to execute the provided command: %w", result.Error)
 	}
 
 	rows, err := result.Rows()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(fmt.Errorf("failed to close rows: %w", err))
+		}
+	}(rows)
 	if err != nil {
-		return false, "Encountered a problem when retrieving Rows", err
+		return false, "", fmt.Errorf("encountered a problem when retrieving rows: %w", err)
+	}
+	if rows.Err() != nil {
+		return false, "", fmt.Errorf("encountered a problem during row iteration: %w", err)
 	}
 
 	var count int64
@@ -120,17 +150,20 @@ func (w *Sql) Execute(e exec.Exec) (passed bool, log string, err error) {
 	if w.MaxExpectedRows != "" {
 		num, _ := strconv.ParseInt(w.MaxExpectedRows, 10, 64)
 		if num < count {
-			return false, fmt.Sprintf("Number of rows was more than expected (%d < %d)", num, count), nil
+			return false, "", fmt.Errorf("%w (%d < %d)", ErrNumberOfRowsMoreThanExpected, num, count)
 		}
 	}
 
 	if w.MinExpectedRows != "" {
 		num, _ := strconv.ParseInt(w.MinExpectedRows, 10, 64)
 		if num > count {
-			return false, fmt.Sprintf("Number of rows was less than expected (%d > %d)", num, count), nil
+			return false, "", fmt.Errorf("%w: (%d > %d)", ErrNumberOfRowsLessThanExpected, num, count)
 		}
 	}
-	return true, "Success!", nil
+	return true, Success, nil
 }
 
-//Todo: Implement Content Check
+var ErrNumberOfRowsLessThanExpected = errors.New("number of rows was less than expected")
+var ErrNumberOfRowsMoreThanExpected = errors.New("number of rows was more than expected")
+
+// Todo: Implement Content Check

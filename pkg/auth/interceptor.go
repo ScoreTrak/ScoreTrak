@@ -3,7 +3,8 @@ package auth
 import (
 	"context"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policy_client"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyclient"
 	authpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/auth/v1"
 	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"
 	hostpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/host/v1"
@@ -35,8 +36,8 @@ type authorizationMap struct {
 	isAllowed isAllowedFunc
 }
 
-//NewAuthInterceptor returns an instance of Interceptor. It takes in Manager struct, and policyClient as input. Policy Client allows to dynamically change authorization policies.
-func NewAuthInterceptor(jwtManager *Manager, policyClient *policy_client.Client) *Interceptor {
+// NewAuthInterceptor returns an instance of Interceptor. It takes in Manager struct, and policyClient as input. Policy Client allows to dynamically change authorization policies.
+func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) *Interceptor {
 	authMap := map[string][]authorizationMap{}
 
 	authServicePath := fmt.Sprintf("/%s/Login", authpb.AuthService_ServiceDesc.ServiceName)
@@ -160,7 +161,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policy_client.Client)
 	return &Interceptor{jwtManager, authMap}
 }
 
-//Custom Unary( interceptor that adds claim extraction and authorization
+// Custom Unary( interceptor that adds claim extraction and authorization
 func (interceptor *Interceptor) Unary() grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
@@ -179,7 +180,7 @@ func (interceptor *Interceptor) Unary() grpc.UnaryServerInterceptor {
 	}
 }
 
-//Custom Stream that allows embedding of user claims for stream grpc (Similar to what describe in: https://stackoverflow.com/questions/60982406/how-to-safely-add-values-to-grpc-serverstream-in-interceptor)
+// Custom Stream that allows embedding of user claims for stream grpc (Similar to what describe in: https://stackoverflow.com/questions/60982406/how-to-safely-add-values-to-grpc-serverstream-in-interceptor)
 type StreamClaimInjector struct {
 	grpc.ServerStream
 	Claims *UserClaims
@@ -188,12 +189,11 @@ type StreamClaimInjector struct {
 func (s StreamClaimInjector) Context() context.Context {
 	if s.Claims != nil {
 		return context.WithValue(s.ServerStream.Context(), KeyClaim, s.Claims)
-	} else {
-		return s.ServerStream.Context()
 	}
+	return s.ServerStream.Context()
 }
 
-//Custom Stream interceptor that adds claim extraction and authorization
+// Custom Stream interceptor that adds claim extraction and authorization
 func (interceptor *Interceptor) Stream() grpc.StreamServerInterceptor {
 	return func(
 		srv interface{},
@@ -209,7 +209,7 @@ func (interceptor *Interceptor) Stream() grpc.StreamServerInterceptor {
 	}
 }
 
-//authorize takes in context, extracts roles from the context if there are any, and ensures that a given roles has rights to access a given method. If a given role has no access, it returns permission denied error.
+// authorize takes in context, extracts roles from the context if there are any, and ensures that a given roles has rights to access a given method. If a given role has no access, it returns permission denied error.
 func (interceptor *Interceptor) authorize(ctx context.Context, method string) (claims *UserClaims, err error) {
 	r := user.Anonymous
 	md, ok := metadata.FromIncomingContext(ctx)
@@ -226,11 +226,10 @@ func (interceptor *Interceptor) authorize(ctx context.Context, method string) (c
 	}
 	if r == user.Black {
 		return
-	} else {
-		for i := range interceptor.accessibleRoles[method] {
-			if (r == interceptor.accessibleRoles[method][i].role || user.Anonymous == interceptor.accessibleRoles[method][i].role) && interceptor.accessibleRoles[method][i].isAllowed() {
-				return
-			}
+	}
+	for i := range interceptor.accessibleRoles[method] {
+		if (r == interceptor.accessibleRoles[method][i].role || user.Anonymous == interceptor.accessibleRoles[method][i].role) && interceptor.accessibleRoles[method][i].isAllowed() {
+			return
 		}
 	}
 	return nil, status.Error(codes.PermissionDenied, "no permission to access this RPC")
