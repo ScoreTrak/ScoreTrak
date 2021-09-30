@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"math"
 	"strings"
 	"time"
 
@@ -31,10 +30,10 @@ type Runner struct {
 	staticConfig config.StaticConfig
 }
 
-//refreshDsync retrieves current timestamp from the database, and ensures that it is within 2 seconds of range when compared to the host's clock.
+// refreshDsync retrieves current timestamp from the database, and ensures that it is within 2 seconds of range when compared to the host's clock.
 func (d Runner) refreshDsync() error {
 	var tm time.Time
-	//query current timestamp
+	// query current timestamp
 	res, err := d.db.Raw("SELECT current_timestamp;").Rows()
 	if err != nil {
 		panic(err)
@@ -43,10 +42,9 @@ func (d Runner) refreshDsync() error {
 	for res.Next() {
 		_ = res.Scan(&tm)
 	}
-	d.dsync = -time.Since(tm)
-	//ensure that drift between database is not larger than DatabaseMaxTimeDriftSeconds
-	if float64(time.Duration(d.staticConfig.DatabaseMaxTimeDriftSeconds)*time.Second) < math.Abs(float64(d.dsync)) {
-		return fmt.Errorf("time difference between master, and database is too large. Please synchronize time\n(The difference should not exceed %d seconds)\nTime on database:%s\nTime on master:%s", d.staticConfig.DatabaseMaxTimeDriftSeconds, tm.String(), time.Now())
+	err = util.DatabaseOutOfSync(tm)
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -64,37 +62,39 @@ func (d *Runner) MasterRunner() (err error) {
 	}
 	var scoringLoop *time.Timer
 
-	//Pull new config from database
+	// Pull new config from database
 	cnf, err := d.r.Config.Get(context.TODO())
 	if err != nil {
 		return err
 	}
 
 	lastRound, err := d.r.Round.GetLastRound(context.Background())
-	if lastRound != nil {
-		//if there is a round stored in database, then
+	switch {
+	case lastRound != nil:
+		// if there is a round stored in database, then
 		scoringLoop = time.NewTimer(d.durationUntilNextRound(lastRound, cnf.RoundDuration))
-	} else if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-		//if no round exists, then try to score almost as soon as possible
+	case err != nil && errors.Is(err, gorm.ErrRecordNotFound):
+		// if no round exists, then try to score almost as soon as possible
 		scoringLoop = time.NewTimer((time.Duration(d.staticConfig.DynamicConfigPullSeconds) * time.Second) / 2)
-	} else if err != nil {
-		//Some Other error, that is likely connection/database related
+	case err != nil:
+		// Some Other error, that is likely connection/database related
 		return err
 	}
-	//Re-Pull config every DynamicConfigPullSeconds
+	// Re-Pull config every DynamicConfigPullSeconds
 	configLoop := time.NewTicker(time.Duration(d.staticConfig.DynamicConfigPullSeconds) * time.Second)
 
 	for {
+	runnerSelect:
 		select {
 		case <-configLoop.C:
-			//When config timer kicks in, we re-pull the new config.
+			// When config timer kicks in, we re-pull the new config.
 			newConfig, err := d.r.Config.Get(context.Background())
 			if err != nil {
 				return err
 			}
-			//We then update contents of cnf, with contents of new config
+			// We then update contents of cnf, with contents of new config
 			*cnf = *newConfig
-			//Update last known round
+			// Update last known round
 			lastRound, err = d.r.Round.GetLastRound(context.Background())
 			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				return err
@@ -103,52 +103,53 @@ func (d *Runner) MasterRunner() (err error) {
 			if err != nil {
 				return err
 			}
-			//restart scoring loop based on lastRound
+			// restart scoring loop based on lastRound
 			scoringLoop.Stop()
 			if lastRound == nil {
-				//If no round exists, retry
+				// If no round exists, retry
 				scoringLoop = time.NewTimer((time.Duration(d.staticConfig.DynamicConfigPullSeconds) * time.Second) / 2)
 			} else {
 				scoringLoop = time.NewTimer(d.durationUntilNextRound(lastRound, cnf.RoundDuration))
 			}
 		case <-scoringLoop.C:
-			//When scoring timer kicks in, stop the timer (so we can later assign a new timer)
+			// When scoring timer kicks in, stop the timer (so we can later assign a new timer)
 			scoringLoop.Stop()
-			//re-pull config
+			// re-pull config
 			dcc, err := d.r.Config.Get(context.Background())
 			if err != nil {
 				return err
 			}
 			*cnf = *dcc
 			var rnd *round.Round
-			//If we are allowed to score, aka competition is enabled
+			// If we are allowed to score, aka competition is enabled
 			if *cnf.Enabled {
-				//Update last known round
+				// Update last known round
 				lastRound, err = d.r.Round.GetLastRound(context.Background())
-				if err != nil {
+				switch {
+				case err != nil:
 					if errors.Is(err, gorm.ErrRecordNotFound) {
-						//If there are no known rounds, start with round 1
+						// If there are no known rounds, start with round 1
 						rnd = &round.Round{ID: 1}
 					} else {
 						return err
 					}
-				} else if lastRound.Finish != nil {
-					//if last known round is already finished (aka, currently no, new rounds are elapsing), start the new round with ID of old round incremented
+				case lastRound.Finish != nil:
+					// if last known round is already finished (aka, currently no, new rounds are elapsing), start the new round with ID of old round incremented
 					rnd = &round.Round{ID: lastRound.ID + 1}
-				} else if time.Now().After(lastRound.Start.Add(time.Duration(cnf.RoundDuration) * time.Second).Add(config.MinRoundDuration)) {
-					//If last round did not finish, and some long time has passed since the start (Likely because master of the previous round has failed to score),
-					//then we create a new transaction, that
+				case time.Now().After(lastRound.Start.Add(time.Duration(cnf.RoundDuration) * time.Second).Add(config.MinRoundDuration)):
+					// If last round did not finish, and some long time has passed since the start (Likely because master of the previous round has failed to score),
+					// then we create a new transaction, that
 					err = d.db.Transaction(func(tx *gorm.DB) error {
 						delayedLastRound := &round.Round{}
-						//gets the last known round
+						// gets the last known round
 						err := tx.Last(delayedLastRound).Error
 						if err != nil {
 							return err
 						}
-						//compares it to the lastRound, and ensures that Finish is still nil (aka, at the time of the transaction, the round is still not complete),
+						// compares it to the lastRound, and ensures that Finish is still nil (aka, at the time of the transaction, the round is still not complete),
 						if lastRound.ID == delayedLastRound.ID && delayedLastRound.Finish == nil {
 							now := time.Now()
-							//finalizes the round that failed to score
+							// finalizes the round that failed to score
 							err = tx.Model(delayedLastRound).Updates(round.Round{Finish: &now, Note: "This round did not score!", Err: "this round is now skipped because it took to long to score. This could be due to too low round duration, dead master, or a time desync between master instances."}).Error
 							if err != nil {
 								return err
@@ -159,43 +160,44 @@ func (d *Runner) MasterRunner() (err error) {
 					if err != nil {
 						return err
 					}
-					//and attempts to start a new round
+					// and attempts to start a new round
 					rnd = &round.Round{ID: lastRound.ID + 1}
-				} else {
-					//else, if there is an elapsing round, but that round is not due to be completed yet, we just wait
+				default:
+					// else, if there is an elapsing round, but that round is not due to be completed yet, we just wait
 					scoringLoop = time.NewTimer(config.MinRoundDuration)
-					break
+					break runnerSelect
 				}
-				//After everything is figured out, we are reading to move to the next round
-				//Create context that will attempt to finish the round a little than Start time + RoundDuration to account for networking delay.
+
+				// After everything is figured out, we are reading to move to the next round
+				// Create context that will attempt to finish the round a little than Start time + RoundDuration to account for networking delay.
 				ctx, cancelFunc := context.WithTimeout(context.Background(), time.Duration(cnf.RoundDuration)*time.Second*9/10)
-				//Attempt to Store a new round
+				// Attempt to Store a new round
 				err = d.r.Round.Store(ctx, rnd)
 				if err != nil {
-					//If attempt to store round failed
+					// If attempt to store round failed
 					var serr *pgconn.PgError
 					ok := errors.As(err, &serr)
-					//and the error tells us that some other master got to store the round before us
+					// and the error tells us that some other master got to store the round before us
 					if ok && serr.Code == "23505" {
-						//we then retrieve that round stored by other master
+						// we then retrieve that round stored by other master
 						r, err := d.r.Round.GetByID(ctx, rnd.ID)
 						if err != nil {
 							cancelFunc()
 							return err
 						}
 						*rnd = *r
-						//and set it as our last round
+						// and set it as our last round
 					} else {
-						//otherwise this error is likely due to networking issues, so we just exit the process
+						// otherwise this error is likely due to networking issues, so we just exit the process
 						cancelFunc()
 						return err
 					}
 				} else {
-					//If we succeeded with saving the round, we proceed with scoring it
+					// If we succeeded with saving the round, we proceed with scoring it
 					go d.Score(time.Duration(cnf.RoundDuration)*time.Second*9/10, rnd)
 				}
-				//At this point some new round should have been recorded in the database.
-				//Retrieve its start time, and calculate durationUntilNextRound based on that start time
+				// At this point some new round should have been recorded in the database.
+				// Retrieve its start time, and calculate durationUntilNextRound based on that start time
 				lastRound, err = d.r.Round.GetLastRound(context.Background())
 				if err != nil {
 					cancelFunc()
@@ -209,14 +211,17 @@ func (d *Runner) MasterRunner() (err error) {
 }
 
 func (d *Runner) durationUntilNextRound(rnd *round.Round, roundDuration uint64) time.Duration {
-	//Start time of current round + Round Duration - Current time on database
+	// Start time of current round + Round Duration - Current time on database
 	dur := rnd.Start.Add(time.Duration(roundDuration) * time.Second).Sub(time.Now().Add(d.dsync))
-	//if duration is small, then just return minimum duration
+	// if duration is small, then just return minimum duration
 	if dur <= 1 {
 		return 1
 	}
 	return dur
 }
+
+var ErrUnknownPanic = errors.New("unknown panic")
+var ErrPanic = errors.New("panic")
 
 func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 	ctx, c := context.WithTimeout(context.Background(), timeout)
@@ -227,11 +232,11 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 			var err error
 			switch x := x.(type) {
 			case string:
-				err = errors.New(x)
+				err = fmt.Errorf("%w: %s", ErrPanic, x)
 			case error:
 				err = x
 			default:
-				err = errors.New("unknown panic")
+				err = ErrUnknownPanic
 			}
 
 			log.Println(err)
@@ -239,13 +244,13 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 		}
 	}()
 	log.Printf("Running check for round %d", rnd.ID)
-	//Get All teams
+	// Get All teams
 	teams, err := d.r.Team.GetAll(ctx)
 	if err != nil {
 		d.finalizeRound(ctx, rnd, Note, "No Teams Detected")
 		return
 	}
-	//Get All Host groups, and Service groups
+	// Get All Host groups, and Service groups
 	hostGroup, _ := d.r.HostGroup.GetAll(ctx)
 	serviceGroups, err := d.r.ServiceGroup.GetAll(ctx)
 	if err != nil {
@@ -254,21 +259,21 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 	}
 	var servicesToBeScored []*queueing.ScoringData
 	for t := range teams {
-		//Get Child Hosts for a given team
+		// Get Child Hosts for a given team
 		err = d.db.WithContext(ctx).Model(&teams[t]).Association("Hosts").Find(&teams[t].Hosts)
 		if err != nil {
 			panic(err)
 		}
 		hosts := teams[t].Hosts
 		for h := range hosts {
-			//Get Child Services for a given Host
+			// Get Child Services for a given Host
 			err = d.db.WithContext(ctx).Model(&hosts[h]).Association("Services").Find(&hosts[h].Services)
 			if err != nil {
 				panic(err)
 			}
 			services := hosts[h].Services
 			for s := range services {
-				//Get Child Properties for a given Service
+				// Get Child Properties for a given Service
 				err = d.db.WithContext(ctx).Model(&services[s]).Association("Properties").Find(&services[s].Properties)
 				if err != nil {
 					panic(err)
@@ -276,7 +281,7 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 				if !*teams[t].Pause {
 					var validService bool
 					if !*hosts[h].Pause {
-						//Get all services, which parent objects are not Paused/Disabled
+						// Get all services, which parent objects are not Paused/Disabled
 						if hosts[h].HostGroupID != nil {
 							for _, hG := range hostGroup {
 								if hG.ID == *hosts[h].HostGroupID && !*(hG.Pause) {
@@ -284,7 +289,7 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 								}
 							}
 						} else {
-							//and set them to be "valid"
+							// and set them to be "valid"
 							validService = true
 						}
 					}
@@ -294,9 +299,9 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 							schedule += *(services[s].RoundDelay)
 						}
 						if !*(services[s].Pause) && rnd.ID%schedule == 0 {
-							//If the service is "Valid", and it is scheduled to be run in this round, then
+							// If the service is "Valid", and it is scheduled to be run in this round, then
 							for _, servGroup := range serviceGroups {
-								//Create corresponding ScoringData object, which is to be scoring a second before that rounds deadline.
+								// Create corresponding ScoringData object, which is to be scoring a second before that rounds deadline.
 								if services[s].ServiceGroupID == servGroup.ID && *(servGroup.Enabled) {
 									sq := queueing.QService{ID: services[s].ID, Group: servGroup.Name, Name: services[s].Name}
 									params := property.PropertiesToMap(services[s].Properties)
@@ -319,20 +324,20 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 		}
 	}
 
-	//If no services are to be scored, then finalize the round
+	// If no services are to be scored, then finalize the round
 	if len(servicesToBeScored) == 0 {
 		d.finalizeRound(ctx, rnd, Note, "No scorable services detected")
 		return
 	}
 	var chks []*queueing.QCheck
 	var nonCriticalErr error
-	//Queue the services to be scored
+	// Queue the services to be scored
 	chks, nonCriticalErr, err = d.q.Send(servicesToBeScored)
-	//If there is an error that is not critical, then append it to the log of that round
+	// If there is an error that is not critical, then append it to the log of that round
 	if nonCriticalErr != nil {
 		Note += nonCriticalErr.Error()
 	}
-	//If error is critical, terminate the round
+	// If error is critical, terminate the round
 	if err != nil {
 		d.finalizeRound(ctx, rnd, Note, err.Error())
 		return
@@ -344,7 +349,7 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 				for i, c := range servicesToBeScored {
 					if c.Service.ID == s.ID {
 						if chks[i] == nil {
-							//If check returned nil (could be due to failing worker, timeout, etc)
+							// If check returned nil (could be due to failing worker, timeout, etc)
 							fls := false
 							s.Checks = append(s.Checks, &check.Check{Passed: &fls, Log: "", ServiceID: c.Service.ID, RoundID: rnd.ID, Err: "Unable to hear back from the worker that was responsible for performing the check. Make sure worker is able to connect back to scoretrak"})
 						} else {
@@ -357,28 +362,28 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 		}
 	}
 
-	//Check if we are still on the last round.
+	// Check if we are still on the last round.
 	r, _ := d.r.Round.GetLastRound(ctx)
 	if r == nil || r.ID != rnd.ID {
 		d.finalizeRound(ctx, rnd, Note, "Error while saving checks. Err: a different round started before current round was able to finish. The scores will not be committed")
 		return
 	}
 
-	//Attempt to store all of the checks performed.
+	// Attempt to store all of the checks performed.
 	err = d.r.Check.Store(ctx, checks)
 	if err != nil {
 		d.finalizeRound(ctx, rnd, Note, fmt.Sprintf("Error while saving checks. Err: %s", err.Error()))
 		return
 	}
 
-	//Calculates total score for a given service using an SQL query.
+	// Calculates total score for a given service using an SQL query.
 	tp, err := d.r.Report.CountPassedPerService(ctx)
 	if err != nil {
 		d.finalizeRound(ctx, rnd, Note, fmt.Sprintf("Error while generating report. Err: %s", err.Error()))
 		return
 	}
 
-	//Create a minified cumulative report of all previous rounds
+	// Create a minified cumulative report of all previous rounds
 	simpTeams := make(map[uuid.UUID]*report.SimpleTeam)
 	{
 		for _, t := range teams {
@@ -425,7 +430,7 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 			simpTeams[t.ID] = st
 		}
 	}
-	//Generate new report, and upload it to db
+	// Generate new report, and upload it to db
 	ch := report.NewReport()
 	bt, err := json.Marshal(&report.SimpleReport{Teams: simpTeams, Round: rnd.ID})
 	if err != nil {
@@ -441,7 +446,7 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 		d.finalizeRound(ctx, rnd, Note, fmt.Sprintf("Error while saving report. Err: %s", err.Error()))
 		return
 	}
-	//Notify all of the listening clients that a new report was generated
+	// Notify all of the listening clients that a new report was generated
 	pubsub, err := queue.NewMasterStreamPubSub(config.GetQueueConfig())
 	if err != nil {
 		d.finalizeRound(ctx, rnd, Note, fmt.Sprintf("Error while notifying report update. Err: %s", err.Error()))

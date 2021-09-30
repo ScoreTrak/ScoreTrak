@@ -230,12 +230,15 @@ func ConvertPropertyPBtoProperty(pb *propertypb.Property) (*property.Property, e
 	}
 	var st string
 
-	if pb.GetStatus() == propertypb.Status_STATUS_VIEW {
+	switch pb.GetStatus() {
+	case propertypb.Status_STATUS_VIEW:
 		st = property.View
-	} else if pb.GetStatus() == propertypb.Status_STATUS_EDIT {
+	case propertypb.Status_STATUS_EDIT:
 		st = property.Edit
-	} else if pb.GetStatus() == propertypb.Status_STATUS_HIDE {
+	case propertypb.Status_STATUS_HIDE:
 		st = property.Hide
+	case propertypb.Status_STATUS_UNSPECIFIED:
+		st = ""
 	}
 
 	return &property.Property{
@@ -252,13 +255,15 @@ func ConvertPropertyToPropertyPb(obj *property.Property) *propertypb.Property {
 		value = &wrappers.StringValue{Value: *obj.Value}
 	}
 	var st propertypb.Status
-	if obj.Status == property.View {
+	switch obj.Status {
+	case property.View:
 		st = propertypb.Status_STATUS_VIEW
-	} else if obj.Status == property.Edit {
+	case property.Edit:
 		st = propertypb.Status_STATUS_EDIT
-	} else if obj.Status == property.Hide {
+	case property.Hide:
 		st = propertypb.Status_STATUS_HIDE
 	}
+
 	return &propertypb.Property{
 		ServiceId: &utilpb.UUID{Value: obj.ServiceID.String()},
 		Key:       obj.Key,

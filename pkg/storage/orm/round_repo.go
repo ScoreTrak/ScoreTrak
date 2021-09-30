@@ -21,12 +21,12 @@ func NewRoundRepo(db *gorm.DB) roundrepo.Repo {
 	return &roundRepo{db}
 }
 
+var ErrDeletingByID = errors.New("error while deleting the round by id")
+
 func (r *roundRepo) Delete(ctx context.Context, id uint64) error {
 	result := r.db.WithContext(ctx).Delete(&round.Round{}, "id = ?", id)
-
 	if result.Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the round with id : %d", id)
-		return errors.New(errMsg)
+		return fmt.Errorf("%w: id: %d", ErrDeletingByID, id)
 	}
 
 	if result.RowsAffected == 0 {
@@ -54,9 +54,11 @@ func (r *roundRepo) GetByID(ctx context.Context, id uint64) (*round.Round, error
 	return tea, nil
 }
 
+var ErrIDMissing = errors.New("the ID should be provided")
+
 func (r *roundRepo) Store(ctx context.Context, rn *round.Round) error {
 	if rn.ID == 0 {
-		return errors.New("the ID should be provided")
+		return ErrIDMissing
 	}
 	err := r.db.WithContext(ctx).Create(rn).Error
 	if err != nil {

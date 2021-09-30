@@ -30,7 +30,7 @@ func (r *ReportController) filterReport(rol string, tID uuid.UUID, lr *report.Re
 	if err != nil {
 		return nil, err
 	}
-	//Filter out Disabled, and Hidden Services
+	// Filter out Disabled, and Hidden Services
 	{
 		for t := range simpleReport.Teams {
 			if simpleReport.Teams[t].Hide {
@@ -52,7 +52,7 @@ func (r *ReportController) filterReport(rol string, tID uuid.UUID, lr *report.Re
 		}
 	}
 
-	//Calculate TotalPoints
+	// Calculate TotalPoints
 	{
 		for t := range simpleReport.Teams {
 			for h := range simpleReport.Teams[t].Hosts {

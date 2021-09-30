@@ -24,8 +24,7 @@ func NewTeamRepo(db *gorm.DB) teamrepo.Repo {
 func (t *teamRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	result := t.db.WithContext(ctx).Delete(&team.Team{}, "id = ?", id)
 	if result.Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the team with id : %d", id)
-		return errors.New(errMsg)
+		return fmt.Errorf("%w, id: %d", ErrDeletingTeam, id)
 	}
 
 	if result.RowsAffected == 0 {
@@ -34,14 +33,15 @@ func (t *teamRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
+var ErrDeletingTeam = errors.New("error while deleting the team")
+
 func (t *teamRepo) DeleteByName(ctx context.Context, name string) error {
 	if name == "" {
-		return errors.New("you must specify the name of the team you are trying to update")
+		return ErrTeamNameMissing
 	}
 	result := t.db.WithContext(ctx).Delete(&team.Team{}, "name = ?", name)
 	if result.Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the team with name : %s", name)
-		return errors.New(errMsg)
+		return fmt.Errorf("%w, name: %s", ErrDeletingTeam, name)
 	}
 	if result.RowsAffected == 0 {
 		return &NoRowsAffected{"no model found"}
@@ -69,7 +69,7 @@ func (t *teamRepo) GetByID(ctx context.Context, id uuid.UUID) (*team.Team, error
 
 func (t *teamRepo) GetByName(ctx context.Context, name string) (*team.Team, error) {
 	if name == "" {
-		return nil, errors.New("you must specify the name of the team you are trying to update")
+		return nil, ErrTeamNameMissing
 	}
 	tea := &team.Team{}
 	err := t.db.WithContext(ctx).Where("name = ?", name).First(tea).Error
@@ -103,9 +103,11 @@ func (t *teamRepo) Update(ctx context.Context, tm *team.Team) error {
 	return nil
 }
 
+var ErrTeamNameMissing = errors.New("team name missing")
+
 func (t *teamRepo) UpdateByName(ctx context.Context, tm *team.Team) error {
 	if tm.Name == "" {
-		return errors.New("you must specify the name of the team you are trying to update")
+		return ErrTeamNameMissing
 	}
 	err := t.db.WithContext(ctx).Model(tm).Where("name = ?", tm.Name).Updates(team.Team{Pause: tm.Pause}).Error
 	if err != nil {

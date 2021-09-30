@@ -28,15 +28,19 @@ func NewSQL() *SQL {
 	return &SQL{}
 }
 
+var ErrSQLRequiresCommand = errors.New("sql check needs a command parameter")
+var ErrUnsupportedDBType = errors.New("DBType should either be mysql, or postgres")
+var ErrSQLNeedsUsernameOrPassword = errors.New("sql check_service needs username, and password")
+
 func (w *SQL) Validate() error {
 	if w.Password == "" || w.Username == "" {
-		return errors.New("sql check_service needs username, and password")
+		return ErrSQLNeedsUsernameOrPassword
 	}
 	if strings.ToLower(w.DBType) != "mysql" && strings.ToLower(w.DBType) != "postgres" {
-		return errors.New("DBType should either be mysql, or postgres")
+		return ErrUnsupportedDBType
 	}
 	if w.Command == "" {
-		return errors.New("sql check needs a command parameter")
+		return ErrSQLRequiresCommand
 	}
 
 	if w.MaxExpectedRows != "" {
@@ -137,17 +141,20 @@ func (w *SQL) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 	if w.MaxExpectedRows != "" {
 		num, _ := strconv.ParseInt(w.MaxExpectedRows, 10, 64)
 		if num < count {
-			return false, "", fmt.Errorf("number of rows was more than expected (%d < %d)", num, count)
+			return false, "", fmt.Errorf("%w (%d < %d)", ErrNumberOfRowsMoreThanExpected, num, count)
 		}
 	}
 
 	if w.MinExpectedRows != "" {
 		num, _ := strconv.ParseInt(w.MinExpectedRows, 10, 64)
 		if num > count {
-			return false, "", fmt.Errorf("number of rows was less than expected (%d > %d)", num, count)
+			return false, "", fmt.Errorf("%w: (%d > %d)", ErrNumberOfRowsLessThanExpected, num, count)
 		}
 	}
 	return true, Success, nil
 }
+
+var ErrNumberOfRowsLessThanExpected = errors.New("number of rows was less than expected")
+var ErrNumberOfRowsMoreThanExpected = errors.New("number of rows was more than expected")
 
 // Todo: Implement Content Check

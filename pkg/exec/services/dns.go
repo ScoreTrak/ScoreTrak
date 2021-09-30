@@ -18,11 +18,13 @@ func NewDNS() *DNS {
 	return &f
 }
 
+var ErrDNSLookupMissing = errors.New("you must pass a lookup parameter for DNS test")
+
 func (p *DNS) Validate() error {
 	if p.Lookup != "" {
 		return nil
 	}
-	return errors.New("you must pass a lookup parameter for DNS test")
+	return ErrDNSLookupMissing
 }
 
 func (p *DNS) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
@@ -33,7 +35,7 @@ func (p *DNS) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 		return false, "", fmt.Errorf("encountered an error while looking up the host: %w", err)
 	}
 	if p.ExpectedOutput != "" && ip[0].String() != p.ExpectedOutput {
-		return false, "", fmt.Errorf("expected output did not match. Output received: %s", ip[0].String())
+		return false, "", fmt.Errorf("%w. Output Received: %s", ErrDidNotMatchExpectedOutput, ip[0].String())
 	}
 	return true, Success, nil
 }

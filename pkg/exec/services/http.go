@@ -2,6 +2,7 @@ package services
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -17,6 +18,7 @@ type HTTP struct {
 	Port           string
 	Path           string
 	Subdomain      string
+	// Todo: Implement Expected response code
 }
 
 func NewHTTP() *HTTP {
@@ -28,6 +30,8 @@ func (h *HTTP) Validate() error {
 	return nil
 }
 
+var ErrInvalidResponseCodeReceived = errors.New("invalid response code received")
+
 func (h *HTTP) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 	baseURL := ConstructURI(h.Port, h.Subdomain, e.Host, h.Path, h.Scheme)
 	req, err := http.NewRequest("GET", baseURL.String(), nil)
@@ -36,7 +40,7 @@ func (h *HTTP) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 	}
 	req = req.WithContext(e.Context)
 	httpClient := http.DefaultClient
-	resp, err := httpClient.Do(req)
+	resp, err := httpClient.Do(req) //nolint:bodyclose
 	if err != nil {
 		return false, "", fmt.Errorf("unable to craft the request: %w", err)
 	}
@@ -48,7 +52,7 @@ func (h *HTTP) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 	}(resp.Body)
 
 	if !(resp.StatusCode >= 200 && resp.StatusCode < 400) {
-		return false, fmt.Sprintf("Invalid response code received: %d", resp.StatusCode), nil
+		return false, "", fmt.Errorf("%w: %d", ErrInvalidResponseCodeReceived, resp.StatusCode)
 	}
 	if h.ExpectedOutput != "" {
 		buf := new(bytes.Buffer)
@@ -58,7 +62,7 @@ func (h *HTTP) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 		}
 		newStr := buf.String()
 		if !strings.Contains(newStr, h.ExpectedOutput) {
-			return false, fmt.Sprintf("the page output doesn't contain expected output. Output received: %s", newStr), nil
+			return false, "", fmt.Errorf("%w. Output Received: %s", ErrDidNotMatchExpectedOutput, newStr)
 		}
 	}
 	return true, Success, nil

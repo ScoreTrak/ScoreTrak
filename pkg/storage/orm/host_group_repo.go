@@ -22,11 +22,12 @@ func NewHostGroupRepo(db *gorm.DB) hostgrouprepo.Repo {
 	return &hostGroupRepo{db}
 }
 
+var ErrDeletingHostGroup = errors.New("error while deleting the host group with id")
+
 func (h *hostGroupRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	result := h.db.WithContext(ctx).Delete(&hostgroup.HostGroup{}, "id = ?", id)
 	if result.Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the host with id : %d", id)
-		return errors.New(errMsg)
+		return fmt.Errorf("%w: %d", ErrDeletingHostGroup, id)
 	}
 	if result.RowsAffected == 0 {
 		return &NoRowsAffected{"no model found"}

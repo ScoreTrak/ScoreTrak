@@ -186,13 +186,13 @@ func ConvertUserPBtoUser(requireID bool, pb *userpb.User) (*user.User, error) {
 	}
 
 	var passwordHash []byte
-
-	if pb.GetPassword() != "" && pb.GetPasswordHash() != "" {
+	switch {
+	case pb.GetPassword() != "" && pb.GetPasswordHash() != "":
 		return nil, status.Errorf(
 			codes.InvalidArgument,
 			"You should provide either password or hash, but not both",
 		)
-	} else if pb.GetPassword() != "" {
+	case pb.GetPassword() != "":
 		passwordHash, err = bcrypt.GenerateFromPassword([]byte(pb.GetPassword()), bcrypt.DefaultCost)
 		if err != nil {
 			return nil, status.Errorf(
@@ -200,18 +200,21 @@ func ConvertUserPBtoUser(requireID bool, pb *userpb.User) (*user.User, error) {
 				"Unable to get password hash: %v", err,
 			)
 		}
-	} else if pb.GetPasswordHash() != "" {
+	case pb.GetPasswordHash() != "":
 		passwordHash = []byte(pb.GetPasswordHash())
 	}
 
 	var r string
 
-	if pb.GetRole() == userpb.Role_ROLE_BLUE {
+	switch pb.GetRole() {
+	case userpb.Role_ROLE_BLUE:
 		r = user.Blue
-	} else if pb.GetRole() == userpb.Role_ROLE_RED {
+	case userpb.Role_ROLE_RED:
 		r = user.Red
-	} else if pb.GetRole() == userpb.Role_ROLE_BLACK {
+	case userpb.Role_ROLE_BLACK:
 		r = user.Black
+	case userpb.Role_ROLE_UNSPECIFIED:
+		r = ""
 	}
 
 	return &user.User{
@@ -235,11 +238,12 @@ func ConvertUserToUserPb(obj *user.User) *userpb.User {
 
 func UserRoleToRolePB(r string) userpb.Role {
 	var rpb userpb.Role
-	if r == user.Blue {
+	switch {
+	case r == user.Blue:
 		rpb = userpb.Role_ROLE_BLUE
-	} else if r == user.Red {
+	case r == user.Red:
 		rpb = userpb.Role_ROLE_RED
-	} else if r == user.Black {
+	case r == user.Black:
 		rpb = userpb.Role_ROLE_BLACK
 	}
 	return rpb

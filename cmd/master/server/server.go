@@ -73,6 +73,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var ErrProdCertMissing = errors.New("production requires certfile, and keyfile")
+
 func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", staticConfig.Port))
 	if err != nil {
@@ -86,13 +88,13 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 		}
 		opts = append(opts, grpc.Creds(creds))
 	} else if config.GetStaticConfig().Prod {
-		return errors.New("you must specify certfile, and keyfile when running in production")
+		return ErrProdCertMissing
 	}
 
 	var middlewareChainsUnary []grpc.UnaryServerInterceptor
 	var middlewareChainsStream []grpc.StreamServerInterceptor
 
-	//Logging & Recovery
+	// Logging & Recovery
 	{
 		var zapLogger *zap.Logger
 		if staticConfig.Prod {
@@ -123,7 +125,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 		}...)
 	}
 
-	//Recovery
+	// Recovery
 	{
 		customFunc := func(p interface{}) (err error) {
 			return status.Errorf(codes.Unknown, "panic triggered: %v", p)
@@ -138,7 +140,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 		}
 	}
 
-	//Load policy into DB & Create Policy service
+	// Load policy into DB & Create Policy service
 	var policyServ policyService.Serv
 	if err := d.Invoke(func(s policyService.Serv) {
 		policyServ = s
@@ -159,10 +161,10 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 		}
 	}
 
-	//Repo Store
+	// Repo Store
 	repoStore := util.NewStore()
 
-	//Authorization And Authentication Middleware
+	// Authorization And Authentication Middleware
 	jwtManager := auth.NewJWTManager(config.GetJWTConfig().Secret, time.Duration(config.GetJWTConfig().TimeoutInSeconds)*time.Second)
 	var pubsub queue.MasterStreamPubSub
 
@@ -182,24 +184,23 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 		middlewareChainsStream = append(middlewareChainsStream, ai.Stream())
 	}
 
-	//Middleware Chaining
+	// Middleware Chaining
 	{
 		opts = append(opts, grpc_middleware.WithUnaryServerChain(middlewareChainsUnary...))
 		opts = append(opts, grpc_middleware.WithStreamServerChain(middlewareChainsStream...))
 	}
 
-	//Middleware Chaining
-	//{
-	//	opts = append(opts, grpc.MaxRecvMsgSize()) //Todo: Figure out a way to pass parameter for MaxRecvMsgSize (Can help with large competition files)
-	//}
-
-	//{
-	//	opts = append(opts)
-	//}
+	// Middleware Chaining
+	// {
+	// 	opts = append(opts, grpc.MaxRecvMsgSize()) //Todo: Figure out a way to pass parameter for MaxRecvMsgSize (Can help with large competition files)
+	// }
+	// {
+	// 	opts = append(opts)
+	// }
 
 	s := grpc.NewServer(opts...)
 
-	//Routes
+	// Routes
 	{
 		{
 			var checkSvc checkService.Serv

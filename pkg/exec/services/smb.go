@@ -37,12 +37,15 @@ func NewSMB() *SMB {
 	return &f
 }
 
+var ErrShareShouldNotBeEmpty = errors.New("parameter Share should not be empty")
+var ErrParameterShouldBeEither = errors.New("parameter Operation should be one of the following")
+
 func (s *SMB) Validate() error {
 	if s.Operation != create && s.Operation != createAndOpen && s.Operation != open {
-		return fmt.Errorf("parameter should Operation be either: %s, %s, or %s", create, open, createAndOpen)
+		return fmt.Errorf("%w: %s, %s, %s", ErrParameterShouldBeEither, create, open, createAndOpen)
 	}
 	if s.Share == "" {
-		return errors.New("parameter Share should not be empty")
+		return ErrShareShouldNotBeEmpty
 	}
 	return nil
 }
@@ -79,7 +82,7 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 
 	fs, err := c.Mount(`\\` + e.Host + `\` + s.Share)
 	if err != nil {
-		return false, "Unable to mount the share", err
+		return false, "", fmt.Errorf("unable to mount the share: %w", err)
 	}
 	defer func(fs *smb2.RemoteFileSystem) {
 		err := fs.Umount()
@@ -122,7 +125,7 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 			return false, "", fmt.Errorf("unable to read the file: %w", err)
 		}
 		if s.ExpectedOutput != "" && string(bs) != s.ExpectedOutput {
-			return false, fmt.Sprintf("Contents of the file did not match expected output. Output Received: %s", string(bs)), nil
+			return false, "", fmt.Errorf("%w. Output Received: %s", ErrDidNotMatchExpectedOutput, string(bs))
 		}
 	}
 	return true, Success, nil

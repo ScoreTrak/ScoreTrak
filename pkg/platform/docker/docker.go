@@ -44,12 +44,12 @@ func NewDocker(cnf platforming.Config) (d *Docker, err error) {
 	return d, nil
 }
 
-//func (d *Docker) GetWorkerServiceStatus(info worker.Info)(status string, err error){
-//	s, err := d.GetServiceByName("worker_"+info.Topic)
-//	if err != nil{
-//		return "", err
-//	}
-//}
+// func (d *Docker) GetWorkerServiceStatus(info worker.Info)(status string, err error){
+// 	s, err := d.GetServiceByName("worker_"+info.Topic)
+// 	if err != nil{
+// 		return "", err
+// 	}
+// }
 
 func (d *Docker) GetWorkerContainerStatus(ctx context.Context, info worker.Info) (status string, err error) {
 	ctr, err := d.GetContainerByName(ctx, "worker_"+info.Topic)
@@ -272,15 +272,15 @@ func (d *Docker) StartContainer(ctx context.Context, resp container.ContainerCre
 	if err := d.Client.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{}); err != nil {
 		return err
 	}
-	//_, err := d.Client.ContainerWait(ctx, resp.ID)
-	//fmt.Println("But not Here!")
-	//if err != nil{
-	//	return err
-	//}
-	//_, err = d.Client.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true})
-	//if err != nil {
-	//	return err
-	//}
+	// _, err := d.Client.ContainerWait(ctx, resp.ID)
+	// fmt.Println("But not Here!")
+	// if err != nil{
+	// 	return err
+	// }
+	// _, err = d.Client.ContainerLogs(ctx, resp.ID, types.ContainerLogsOptions{ShowStdout: true})
+	// if err != nil {
+	// 	return err
+	// }
 	return nil
 }
 

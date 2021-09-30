@@ -40,6 +40,8 @@ type Host struct {
 	Services []*service.Service `json:"services,omitempty" gorm:"foreignkey:HostID;constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT"`
 }
 
+var ErrInvalidHostNameOrIPAddress = errors.New("invalid Hostname, or IP address")
+
 func (p *Host) BeforeSave(tx *gorm.DB) (err error) {
 	if p.AddressListRange != nil || p.Address != "" {
 		p.Address = strings.ReplaceAll(p.Address, " ", "")
@@ -58,7 +60,7 @@ func (p *Host) BeforeSave(tx *gorm.DB) (err error) {
 		}
 
 		if !govalidator.IsHost(p.Address) {
-			return fmt.Errorf("provided address: \"%s\" is not a valid Hostname, nor a valid IP address", p.Address)
+			return fmt.Errorf("%w: %s", ErrInvalidHostNameOrIPAddress, p.Address)
 		}
 		if p.AddressListRange != nil {
 			*p.AddressListRange = strings.ReplaceAll(*p.AddressListRange, " ", "")
@@ -82,24 +84,27 @@ func (p *Host) BeforeCreate(tx *gorm.DB) (err error) {
 	return nil
 }
 
+var ErrAddressNotInRange = errors.New("the provided ip address was not in allowed range")
+var ErrNotAValidHostname = errors.New("not a valid hostname")
+
 func validateIfAddressInRange(addr string, addresses string) (err error) {
 	if addresses == "" {
 		return nil
 	}
 	addressList := strings.Split(addresses, ",")
 	for i := range addressList {
-		_, network, err := net.ParseCIDR(addressList[i])
-		if err == nil {
+		switch _, network, err := net.ParseCIDR(addressList[i]); {
+		case err == nil:
 			if network.Contains(net.ParseIP(addr)) {
 				return nil
 			}
-		} else if govalidator.IsHost(addressList[i]) {
+		case govalidator.IsHost(addressList[i]):
 			if strings.EqualFold(addressList[i], addr) {
 				return nil
 			}
-		} else {
-			return fmt.Errorf("%s is not a valid hostname or CIDR", addressList[i])
+		default:
+			return fmt.Errorf("%w: %s", ErrNotAValidHostname, addressList[i])
 		}
 	}
-	return fmt.Errorf("the provided ip address was not in allowed range")
+	return ErrAddressNotInRange
 }

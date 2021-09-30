@@ -28,10 +28,13 @@ type User struct {
 	Role         string    `json:"role" gorm:"default:'blue'"`
 }
 
+var ErrNameMustBeAlphanumeric = errors.New("name must be alphanumeric")
+var ErrInvalidRoleSpecified = errors.New("incorrect role specified")
+
 // BeforeSave ensures that user is part of either Black, Blue, or Red roles. It also ensures that username is alphanumeric
-func (u *User) BeforeSave(tx *gorm.DB) (err error) {
+func (u *User) BeforeSave(_ *gorm.DB) (err error) {
 	if u.Username != "" && !govalidator.IsAlphanumeric(u.Username) {
-		return errors.New("field Name must be alphanumeric")
+		return ErrNameMustBeAlphanumeric
 	}
 	if u.Role != "" {
 		var validStatus bool
@@ -41,7 +44,7 @@ func (u *User) BeforeSave(tx *gorm.DB) (err error) {
 			}
 		}
 		if !validStatus {
-			return errors.New("you must specify a correct role")
+			return ErrInvalidRoleSpecified
 		}
 		return nil
 	}

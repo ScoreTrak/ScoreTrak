@@ -24,11 +24,13 @@ func NewIMAP() *IMAP {
 	return &f
 }
 
+var ErrIMAPRequiresUsernameAndPassword = errors.New("IMAP check_service needs password, and username to operate")
+
 func (i *IMAP) Validate() error {
 	if i.Password != "" && i.Username != "" {
 		return nil
 	}
-	return errors.New("IMAP check_service needs password, and username to operate")
+	return ErrIMAPRequiresUsernameAndPassword
 }
 
 func (i *IMAP) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
@@ -37,7 +39,7 @@ func (i *IMAP) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 		if i.Port == "" {
 			i.Port = "993"
 		}
-		c, err = client.DialWithDialerTLS(&net.Dialer{Deadline: e.Deadline()}, e.Host+":"+i.Port, &tls.Config{InsecureSkipVerify: true})
+		c, err = client.DialWithDialerTLS(&net.Dialer{Deadline: e.Deadline()}, e.Host+":"+i.Port, &tls.Config{InsecureSkipVerify: true}) //nolint:gosec
 	} else {
 		if i.Port == "" {
 			i.Port = "143"

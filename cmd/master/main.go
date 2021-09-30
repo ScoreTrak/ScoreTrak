@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"math"
 	"time"
 
 	"github.com/ScoreTrak/ScoreTrak/cmd/master/server"
@@ -103,9 +102,9 @@ func SetupDB(cont *dig.Container) error {
 			return err
 		}
 	}
-	timeDiff := time.Since(tm)
-	if float64(time.Second*2) < math.Abs(float64(timeDiff)) {
-		panic(fmt.Errorf("time difference between master host, and database host are is large. Please synchronize time\n(The difference should not exceed 2 seconds)\nTime on database:%s\nTime on master:%s", tm.String(), time.Now()))
+	err = sutil.DatabaseOutOfSync(tm)
+	if err != nil {
+		return err
 	}
 	return nil
 }

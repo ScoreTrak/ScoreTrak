@@ -6,9 +6,9 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-//Report is a structure that represents the state of all checks, services, teams, hosts, at a given round(typically last round).
-//The report strips out all of the unnecessary details from the checks, and forwards the generated output to the client. The API can additionally perform
-//any sorts of filtering on the report in case it needs to (Ex: Hiding sensitive details of team blue2 from team blue1's users)
+// Report is a structure that represents the state of all checks, services, teams, hosts, at a given round(typically last round).
+// The report strips out all of the unnecessary details from the checks, and forwards the generated output to the client. The API can additionally perform
+// any sorts of filtering on the report in case it needs to (Ex: Hiding sensitive details of team blue2 from team blue1's users)
 type Report struct {
 	ID        uint64    `json:"id,omitempty"`
 	Cache     string    `json:"cache,omitempty" gorm:"not null;default:'{}'"`

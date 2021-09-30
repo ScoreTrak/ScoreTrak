@@ -28,6 +28,8 @@ func (Property) TableName() string {
 	return "properties"
 }
 
+var ErrInvalidStatus = errors.New("property Status should either be View, Edit, or Hide")
+
 func (p *Property) BeforeSave(tx *gorm.DB) (err error) {
 	if p.Status != "" {
 		var validStatus bool
@@ -37,15 +39,17 @@ func (p *Property) BeforeSave(tx *gorm.DB) (err error) {
 			}
 		}
 		if !validStatus {
-			return errors.New("property Status should either be View, Edit, or Hide")
+			return ErrInvalidStatus
 		}
 	}
 	return nil
 }
 
-func (p *Property) BeforeCreate(tx *gorm.DB) (err error) {
+var ErrPropertyKeyShouldNotBeEmpty = errors.New("property key should not be empty")
+
+func (p *Property) BeforeCreate(_ *gorm.DB) (err error) {
 	if p.Key == "" {
-		return errors.New("key should not be empty")
+		return ErrPropertyKeyShouldNotBeEmpty
 	}
 	return nil
 }

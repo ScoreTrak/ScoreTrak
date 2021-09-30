@@ -105,6 +105,9 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, erro
 	}
 }
 
+var ErrUnknownPanic = errors.New("unknown panic")
+var ErrPanic = errors.New("panic")
+
 func (n WorkerQueue) Receive() {
 	conf := nsq.NewConfig()
 	nsqConsumerConfig(conf, n.config)
@@ -121,11 +124,11 @@ func (n WorkerQueue) Receive() {
 				var err error
 				switch x := x.(type) {
 				case string:
-					err = errors.New(x)
+					err = fmt.Errorf("%w: %s", ErrPanic, x)
 				case error:
 					err = x
 				default:
-					err = errors.New("unknown panic")
+					err = ErrUnknownPanic
 				}
 				qc := queueing.QCheck{Service: sd.Service, Passed: false, Log: "Encountered an unexpected error during the check.", Err: err.Error(), RoundID: sd.RoundID}
 				n.Acknowledge(qc)

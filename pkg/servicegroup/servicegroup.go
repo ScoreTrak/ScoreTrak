@@ -2,7 +2,6 @@ package servicegroup
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
@@ -36,21 +35,25 @@ func (ServiceGroup) TableName() string {
 	return "service_groups"
 }
 
+var ErrNameDoesNotPassValidation = errors.New(`name must pass following regex: "^[\.a-zA-Z0-9_-]+(#ephemeral)?$", and be less than 64 characters`)
+
 // BeforeSave ensures that name is set to correct value. In particular, the name should adhere to ^[\.a-zA-Z0-9_-]+(#ephemeral)?$ regex as per https://github.com/nsqio/go-nsq/blob/04552936c57a26026c39e10a8993805e0f5a73d0/protocol.go
 func (s *ServiceGroup) BeforeSave(tx *gorm.DB) (err error) {
 	if s.Name != "" {
 		if len(s.Name) > 1 && len(s.Name) <= 64 && regexp.MustCompile(`^[\.a-zA-Z0-9_-]+(#ephemeral)?$`).MatchString(s.Name) {
 			return
 		}
-		return fmt.Errorf("name %s doesn't resolve to scorable check_service", s.Name)
+		return ErrNameDoesNotPassValidation
 	}
 	return nil
 }
 
+var ErrNameIsRequired = errors.New("name is required")
+
 // BeforeCreate ensures UUID is set.
 func (s *ServiceGroup) BeforeCreate(tx *gorm.DB) (err error) {
 	if s.Name == "" {
-		return errors.New("field Name is a mandatory parameter")
+		return ErrNameIsRequired
 	}
 	if s.ID == uuid.Nil {
 		u, err := uuid.NewV4()

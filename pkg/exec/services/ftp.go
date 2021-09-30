@@ -31,14 +31,17 @@ func NewFTP() *FTP {
 	return &f
 }
 
+var ErrFTPNeedsUsernameAndPassword = errors.New("FTP check_service needs username and password")
+var ErrFTPNeedsEitherTextOrReadFile = errors.New("FTP check_service needs either text, or read_file parameter")
+
 func (f *FTP) Validate() error {
 	if f.Password != "" && f.Username != "" {
 		if f.Text != "" || f.ReadFilename != "" {
 			return nil
 		}
-		return errors.New("FTP check_service needs either text, or read_file parameter")
+		return ErrFTPNeedsEitherTextOrReadFile
 	}
-	return errors.New("FTP check_service needs username and password")
+	return ErrFTPNeedsUsernameAndPassword
 }
 
 func (f *FTP) Execute(e exec.Exec) (passed bool, l string, err error) {
@@ -94,7 +97,7 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, l string, err error) {
 			return false, "", fmt.Errorf("failed to read file contents, it might be corrupted: %w", err)
 		}
 		if f.ExpectedOutput != "" && !strings.Contains(string(buf), f.ExpectedOutput) {
-			return false, "", fmt.Errorf("fetched file's contents do not match Expected Output. Output received: %s", string(buf))
+			return false, "", fmt.Errorf("%w. Output Received: %s", ErrDidNotMatchExpectedOutput, string(buf))
 		}
 	}
 	return true, Success, nil

@@ -21,11 +21,12 @@ func NewServiceGroupRepo(db *gorm.DB) servicegrouprepo.Repo {
 	return &serviceGroupRepo{db}
 }
 
+var ErrDeletingServiceGroup = errors.New("error while deleting the Service Group with id")
+
 func (s *serviceGroupRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	result := s.db.WithContext(ctx).Delete(&servicegroup.ServiceGroup{}, "id = ?", id)
 	if result.Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the Service Group with id : %d", id)
-		return errors.New(errMsg)
+		return fmt.Errorf("%w: %d", ErrDeletingServiceGroup, id)
 	}
 	if result.RowsAffected == 0 {
 		return &NoRowsAffected{"no model found"}
@@ -68,7 +69,7 @@ func (s *serviceGroupRepo) Upsert(ctx context.Context, sgr *servicegroup.Service
 }
 
 func (s *serviceGroupRepo) Update(ctx context.Context, sgr *servicegroup.ServiceGroup) error {
-	err := s.db.WithContext(ctx).Model(sgr).Updates(servicegroup.ServiceGroup{Enabled: sgr.Enabled, DisplayName: sgr.DisplayName}).Error //Updating check_service group names is not supported because check_service group name tightly coupled with platform operations
+	err := s.db.WithContext(ctx).Model(sgr).Updates(servicegroup.ServiceGroup{Enabled: sgr.Enabled, DisplayName: sgr.DisplayName}).Error // Updating check_service group names is not supported because check_service group name tightly coupled with platform operations
 	if err != nil {
 		return err
 	}

@@ -29,11 +29,13 @@ func NewLDAP() *LDAP {
 	return &f
 }
 
+var ErrLDAPRequiresUsernamePasswordDomain = errors.New("LDAP check_service needs password, username, and Domain to operate")
+
 func (l *LDAP) Validate() error {
 	if l.Password != "" && l.Username != "" && l.Domain != "" {
 		return nil
 	}
-	return errors.New("LDAP check_service needs password, username, and Domain to operate")
+	return ErrLDAPRequiresUsernamePasswordDomain
 }
 
 func (l *LDAP) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
@@ -42,7 +44,7 @@ func (l *LDAP) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 		if l.Port == "" {
 			l.Port = "636"
 		}
-		c, err := tls.DialWithDialer(&net.Dialer{Deadline: e.Deadline()}, l.TransportProtocol, e.Host+":"+l.Port, &tls.Config{InsecureSkipVerify: true}) //https://github.com/golang/go/issues/39489
+		c, err := tls.DialWithDialer(&net.Dialer{Deadline: e.Deadline()}, l.TransportProtocol, e.Host+":"+l.Port, &tls.Config{InsecureSkipVerify: true}) //nolint:gosec //https://github.com/golang/go/issues/39489
 		if err != nil {
 			return false, "", fmt.Errorf("unable to dial remote ldap server: %w", err)
 		}

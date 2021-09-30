@@ -20,11 +20,12 @@ func NewUserRepo(db *gorm.DB) userrepo.Repo {
 	return &userRepo{db}
 }
 
+var ErrDeletingUser = errors.New("error deleting user")
+
 func (h *userRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	result := h.db.WithContext(ctx).Delete(&user.User{}, "id = ?", id)
 	if result.Error != nil {
-		errMsg := fmt.Sprintf("error while deleting the user with id : %d", id)
-		return errors.New(errMsg)
+		return fmt.Errorf("%w, id: %d", ErrDeletingUser, id)
 	}
 	return nil
 }

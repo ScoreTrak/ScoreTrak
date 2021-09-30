@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"net/url"
 	"strings"
 )
@@ -8,6 +9,8 @@ import (
 const (
 	Success = "Success!"
 )
+
+var ErrDidNotMatchExpectedOutput = errors.New("did not match Expected Output")
 
 func IsSecure(s string) bool {
 	return ContainsString([]string{"https", "tls", "ssl", "ldaps"}, strings.ToLower(s))

@@ -10,7 +10,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 )
 
-//Platform is an interface that allows ScoreTrak to deploy/remove the worker containers on a given environment like docker, docker swarm, or kubernetes.
+// Platform is an interface that allows ScoreTrak to deploy/remove the worker containers on a given environment like docker, docker swarm, or kubernetes.
 type Platform interface {
 	DeployWorkers(ctx context.Context, info worker.Info) error
 	RemoveWorkers(ctx context.Context, info worker.Info) error
@@ -18,13 +18,22 @@ type Platform interface {
 
 var ErrInvalidPlatform = errors.New("invalid platform specified")
 
+const (
+	Docker     = "docker"
+	Swarm      = "swarm"
+	Kubernetes = "kubernetes"
+	None       = "none"
+)
+
 func NewPlatform(config platforming.Config) (Platform, error) {
-	if config.Use == "docker" || config.Use == "swarm" {
+	switch config.Use {
+	case Docker, Swarm:
 		return docker.NewDocker(config)
-	} else if config.Use == "kubernetes" {
+	case Kubernetes:
 		return kubernetes.NewKubernetes(config)
-	} else if config.Use == "none" {
+	case None:
 		return nil, nil
+	default:
+		return nil, ErrInvalidPlatform
 	}
-	return nil, ErrInvalidPlatform
 }

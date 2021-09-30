@@ -2,6 +2,9 @@ package util
 
 import (
 	"errors"
+	"fmt"
+	"math"
+	"time"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkrepo"
@@ -31,7 +34,7 @@ import (
 	"gorm.io/gorm"
 )
 
-//Store is a single collection of all Repositories
+// Store is a single collection of all Repositories
 type Store struct {
 	Round        roundrepo.Repo
 	Host         hostrepo.Repo
@@ -47,7 +50,18 @@ type Store struct {
 	Users        userrepo.Repo
 }
 
-//CreateAllTables migrates all tables
+var ErrTimeDifferenceTooLarge = errors.New("time difference between master host, and database host are is large. The difference should not exceed 2 seconds")
+
+// DatabaseOutOfSync ensures that drift between database is not larger than DatabaseMaxTimeDriftSeconds
+func DatabaseOutOfSync(dbTime time.Time) error {
+	timeDiff := time.Since(dbTime)
+	if float64(time.Second*time.Duration(config.GetStaticConfig().DatabaseMaxTimeDriftSeconds)) < math.Abs(float64(timeDiff)) {
+		return fmt.Errorf("%w: Time on database:%s, Time on master:%s", ErrTimeDifferenceTooLarge, dbTime.String(), time.Now())
+	}
+	return nil
+}
+
+// CreateAllTables migrates all tables
 func CreateAllTables(db *gorm.DB) error {
 	err := db.AutoMigrate(&team.Team{})
 	if err != nil {

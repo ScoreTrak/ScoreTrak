@@ -40,7 +40,7 @@ func (h *CalDav) Execute(e exec.Exec) (passed bool, logOutput string, err error)
 		return false, "", fmt.Errorf("unable to retrieve current user principal: %w", err)
 	}
 	if h.ExpectedOutput != "" && !strings.Contains(usr, h.ExpectedOutput) {
-		return false, "", fmt.Errorf("user principal did not match expected output. output received: %s", usr)
+		return false, "", fmt.Errorf("%w. Output Received: %s", ErrDidNotMatchExpectedOutput, usr)
 	}
 	return true, "", nil
 }

@@ -36,7 +36,7 @@ type authorizationMap struct {
 	isAllowed isAllowedFunc
 }
 
-//NewAuthInterceptor returns an instance of Interceptor. It takes in Manager struct, and policyClient as input. Policy Client allows to dynamically change authorization policies.
+// NewAuthInterceptor returns an instance of Interceptor. It takes in Manager struct, and policyClient as input. Policy Client allows to dynamically change authorization policies.
 func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) *Interceptor {
 	authMap := map[string][]authorizationMap{}
 
@@ -161,7 +161,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 	return &Interceptor{jwtManager, authMap}
 }
 
-//Custom Unary( interceptor that adds claim extraction and authorization
+// Custom Unary( interceptor that adds claim extraction and authorization
 func (interceptor *Interceptor) Unary() grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
@@ -180,7 +180,7 @@ func (interceptor *Interceptor) Unary() grpc.UnaryServerInterceptor {
 	}
 }
 
-//Custom Stream that allows embedding of user claims for stream grpc (Similar to what describe in: https://stackoverflow.com/questions/60982406/how-to-safely-add-values-to-grpc-serverstream-in-interceptor)
+// Custom Stream that allows embedding of user claims for stream grpc (Similar to what describe in: https://stackoverflow.com/questions/60982406/how-to-safely-add-values-to-grpc-serverstream-in-interceptor)
 type StreamClaimInjector struct {
 	grpc.ServerStream
 	Claims *UserClaims
@@ -193,7 +193,7 @@ func (s StreamClaimInjector) Context() context.Context {
 	return s.ServerStream.Context()
 }
 
-//Custom Stream interceptor that adds claim extraction and authorization
+// Custom Stream interceptor that adds claim extraction and authorization
 func (interceptor *Interceptor) Stream() grpc.StreamServerInterceptor {
 	return func(
 		srv interface{},
@@ -209,7 +209,7 @@ func (interceptor *Interceptor) Stream() grpc.StreamServerInterceptor {
 	}
 }
 
-//authorize takes in context, extracts roles from the context if there are any, and ensures that a given roles has rights to access a given method. If a given role has no access, it returns permission denied error.
+// authorize takes in context, extracts roles from the context if there are any, and ensures that a given roles has rights to access a given method. If a given role has no access, it returns permission denied error.
 func (interceptor *Interceptor) authorize(ctx context.Context, method string) (claims *UserClaims, err error) {
 	r := user.Anonymous
 	md, ok := metadata.FromIncomingContext(ctx)

@@ -2,6 +2,7 @@ package none
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
@@ -9,6 +10,9 @@ import (
 )
 
 type None struct{}
+
+var ErrUnknownPanic = errors.New("unknown panic")
+var ErrPanic = errors.New("panic")
 
 func (n None) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error) {
 	ret := make([]*queueing.QCheck, len(sds))
@@ -20,11 +24,11 @@ func (n None) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, erro
 					var err error
 					switch x := x.(type) {
 					case string:
-						err = errors.New(x)
+						err = fmt.Errorf("%w: %s", ErrPanic, x)
 					case error:
 						err = x
 					default:
-						err = errors.New("unknown panic")
+						err = ErrUnknownPanic
 					}
 					cq <- queueing.IndexedQueue{Q: &queueing.QCheck{Service: sd.Service, Passed: false, Log: "Encountered an unexpected error during the check.", Err: err.Error(), RoundID: sd.RoundID}, I: i}
 					return
@@ -44,21 +48,25 @@ func (n None) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, erro
 				return ret, nil, nil
 			}
 		case <-time.After(time.Until(sds[0].Deadline)):
-			return nil, nil, errors.New("round took too long to score. this might be due to many reasons like a worker going down, or the number of rounds being too big for one master")
+			return nil, nil, ErrRoundTookTooLongToScore
 		}
 	}
 }
 
+var ErrRoundTookTooLongToScore = errors.New("round took too long to score. this might be due to many reasons like a worker going down, or the number of rounds being too big for one master")
+
+var ErrMethodNotSupportedForNoneQueue = errors.New("method not supported when queue is none")
+
 func (n None) Receive() {
-	panic(errors.New("you should not call Receive when queue is none"))
+	panic(ErrMethodNotSupportedForNoneQueue)
 }
 
 func (n None) Acknowledge(q queueing.QCheck) {
-	panic(errors.New("you should not call Acknowledge when queue is none"))
+	panic(ErrMethodNotSupportedForNoneQueue)
 }
 
 func (n None) Ping(group *servicegroup.ServiceGroup) error {
-	return errors.New("you should not call Ping when queue is none")
+	return ErrMethodNotSupportedForNoneQueue
 }
 
 func NewNoneQueue() (*None, error) {

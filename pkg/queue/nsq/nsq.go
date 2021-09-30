@@ -55,13 +55,16 @@ func connectConsumer(consumer *nsq.Consumer, config queueing.Config) (err error)
 	return
 }
 
+var ErrProvidedBothNSQLookupdAndNSQD = errors.New("must either provide a list of nsqlookupd nodes, or list of nsqd nodes for the consumer, but not both")
+var ErrNSQDProducerAddressNotProvided = errors.New("must provide nsqd producer address")
+
 func validateNSQConfig(config queueing.Config) error {
 	if config.NSQ.ProducerNSQD == "" {
-		return errors.New("must provide nsqd producer address")
+		return ErrNSQDProducerAddressNotProvided
 	}
-	//Emulates exclusive-or
+	// Emulates exclusive-or
 	if (len(config.NSQ.NSQLookupd) != 0) != (len(config.NSQ.ConsumerNSQDPool) != 0) {
-		return errors.New("must either provide a list of nsqlookupd nodes, or list of nsqd nodes for the consumer, but not both")
+		return ErrProvidedBothNSQLookupdAndNSQD
 	}
 	return nil
 }

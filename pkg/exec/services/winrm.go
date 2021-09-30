@@ -26,11 +26,13 @@ func NewWinrm() *Winrm {
 	return &Winrm{Command: "whoami", Scheme: "http", ClientType: "NTLM"}
 }
 
+var ErrWinrmRequiresUsernameAndPassword = errors.New("winrm check_service needs username, and password")
+
 func (w *Winrm) Validate() error {
 	if w.Password != "" && w.Username != "" {
 		return nil
 	}
-	return errors.New("winrm check_service needs username, and password")
+	return ErrWinrmRequiresUsernameAndPassword
 }
 
 func (w *Winrm) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
@@ -68,17 +70,19 @@ func (w *Winrm) Execute(e exec.Exec) (passed bool, logOutput string, err error) 
 		return false, "", fmt.Errorf("unable to execute provided command: %w", err)
 	}
 	if returnCode != 0 {
-		return false, "", fmt.Errorf("process returned a non-zero code: %w", errors.New(procStderr))
+		return false, "", fmt.Errorf("%w: %s", ErrNonZeroReturn, procStderr)
 	}
 	if w.ExpectedOutput != "" && !strings.Contains(procStdout, strings.ToLower(w.ExpectedOutput)) {
-		return false, "", fmt.Errorf("the output of the command did not match Expected Output. Output Received: %s", procStdout)
+		return false, "", fmt.Errorf("%w. Output Received: %s", ErrDidNotMatchExpectedOutput, procStdout)
 	}
 	return true, Success, nil
 }
 
-//endpoint := winrm.NewEndpoint(e.Host, i, isHttps, true, nil, nil, nil, time.Until(e.Deadline()))
-////params := winrm.NewParameters(strconv.Itoa(int(time.Until(e.Deadline()).Seconds()))+"S", "en-US", 153600)
-//client, err := winrm.NewClient(endpoint, w.Username, w.Password)
-//if err != nil {
+var ErrNonZeroReturn = errors.New("process returned a non-zero code")
+
+// endpoint := winrm.NewEndpoint(e.Host, i, isHttps, true, nil, nil, nil, time.Until(e.Deadline()))
+// // params := winrm.NewParameters(strconv.Itoa(int(time.Until(e.Deadline()).Seconds()))+"S", "en-US", 153600)
+// client, err := winrm.NewClient(endpoint, w.Username, w.Password)
+// if err != nil {
 //	return false, "Unable to initialize winrm client", err
-//}
+// }

@@ -33,6 +33,8 @@ func NewConfigClone(c config.StaticConfig) config.StaticConfig {
 	return cnf
 }
 
+var ErrCreatingConfig = errors.New("unable to create the config file")
+
 func ConfigFlagParser() (string, error) {
 	path, _ := flag.Lookup("config").Value.(flag.Getter).Get().(string)
 	encodedConfig, _ := flag.Lookup("encoded-config").Value.(flag.Getter).Get().(string)
@@ -68,7 +70,7 @@ func ConfigFlagParser() (string, error) {
 	} else if !ConfigExists(path) {
 		err := CreateFile(path)
 		if err != nil {
-			return "", errors.New("unable to create the config file")
+			return "", ErrCreatingConfig
 		}
 	}
 	return path, nil
