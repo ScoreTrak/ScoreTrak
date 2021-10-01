@@ -2,8 +2,11 @@ package services
 
 import (
 	"errors"
+	"fmt"
+	"net"
 	"net/url"
 	"strings"
+	"time"
 )
 
 const (
@@ -11,6 +14,15 @@ const (
 )
 
 var ErrDidNotMatchExpectedOutput = errors.New("did not match Expected Output")
+
+func tcpPortDial(host string, timeout time.Duration) error {
+	conn, err := net.DialTimeout("tcp", host, timeout)
+	if err != nil {
+		return fmt.Errorf("port was not open on a remote host: %w", err)
+	}
+	_ = conn.Close()
+	return nil
+}
 
 func IsSecure(s string) bool {
 	return ContainsString([]string{"https", "tls", "ssl", "ldaps"}, strings.ToLower(s))

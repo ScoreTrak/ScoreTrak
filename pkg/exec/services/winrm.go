@@ -48,11 +48,12 @@ func (w *Winrm) Execute(e exec.Exec) (passed bool, logOutput string, err error) 
 	if err != nil {
 		return false, "", fmt.Errorf("unable to convert port number to integer: %w", err)
 	}
-	conn, err := net.DialTimeout("tcp", net.JoinHostPort(e.Host, w.Port), time.Until(e.Deadline())/3)
+
+	err = tcpPortDial(net.JoinHostPort(e.Host, w.Port), time.Until(e.Deadline())/3)
 	if err != nil {
-		return false, "", fmt.Errorf("port was not open on a remote host: %w", err)
+		return false, "", err
 	}
-	_ = conn.Close()
+
 	endpoint := winrm.NewEndpoint(e.Host, i, isHTTPS, true, nil, nil, nil, time.Until(e.Deadline()))
 	params := winrm.DefaultParameters
 	params.Dial = (&net.Dialer{
