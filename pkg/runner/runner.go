@@ -68,7 +68,6 @@ func NewRunner(db *gorm.DB, q queue.WorkerQueue, r *util.Store, staticConfig con
 	}
 }
 
-
 func (d *Runner) run(configLoop *time.Ticker, scoringLoop *time.Timer, cnf *config.DynamicConfig, lastRound *round.Round) (err error) {
 	for {
 	runnerSelect:
