@@ -84,7 +84,7 @@ func (svc *serviceServ) TestService(ctx context.Context, id uuid.UUID) (*check.C
 	response, berr, err := svc.q.Send([]*queueing.ScoringData{
 		{Service: queueing.QService{ID: id, Name: ser.Name, Group: serGrp.Name}, MasterTime: time.Now(), Host: h.Address, Deadline: time.Now().Add(time.Second * 5), RoundID: 0, Properties: property.PropertiesToMap(p)},
 	})
-	if response == nil || len(response) != 1 || err != nil {
+	if response == nil || len(response) != 1 || response[0] == nil || err != nil {
 		return nil, fmt.Errorf("something went wrong, either check took too long to execute, or the workers did not receive the check. err: %w, berr: %v", err, berr)
 	}
 	if berr != nil {
