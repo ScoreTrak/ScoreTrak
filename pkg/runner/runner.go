@@ -68,43 +68,36 @@ func NewRunner(db *gorm.DB, q queue.WorkerQueue, r *util.Store, staticConfig con
 	}
 }
 
-func (d *Runner) handleConfigLoop(scoringLoop *time.Timer, cnf *config.DynamicConfig, lastRound *round.Round) error {
-	// When config timer kicks in, we re-pull the new config.
-	newConfig, err := d.r.Config.Get(context.Background())
-	if err != nil {
-		return err
-	}
-	// We then update contents of cnf, with contents of new config
-	*cnf = *newConfig
-	// Update last known round
-	lr, err := d.r.Round.GetLastRound(context.Background())
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return err
-	}
-	if lr != nil {
-		*lastRound = *lr
-	}
-	err = d.refreshDsync()
-	if err != nil {
-		return err
-	}
-	// restart scoring loop based on lastRound
-	scoringLoop.Stop()
-	if lastRound == nil {
-		// If no round exists, retry
-		*scoringLoop = *time.NewTimer((time.Duration(d.staticConfig.DynamicConfigPullSeconds) * time.Second) / 2)
-	} else {
-		*scoringLoop = *time.NewTimer(d.durationUntilNextRound(lastRound, cnf.RoundDuration))
-	}
-	return nil
-}
 
 func (d *Runner) run(configLoop *time.Ticker, scoringLoop *time.Timer, cnf *config.DynamicConfig, lastRound *round.Round) (err error) {
 	for {
 	runnerSelect:
 		select {
 		case <-configLoop.C:
-			err := d.handleConfigLoop(scoringLoop, cnf, lastRound)
+			// When config timer kicks in, we re-pull the new config.
+			newConfig, err := d.r.Config.Get(context.Background())
+			if err != nil {
+				return err
+			}
+			// We then update contents of cnf, with contents of new config
+			*cnf = *newConfig
+			// Update last known round
+			lastRound, err = d.r.Round.GetLastRound(context.Background())
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				return err
+			}
+			err = d.refreshDsync()
+			if err != nil {
+				return err
+			}
+			// restart scoring loop based on lastRound
+			scoringLoop.Stop()
+			if lastRound == nil {
+				// If no round exists, retry
+				scoringLoop = time.NewTimer((time.Duration(d.staticConfig.DynamicConfigPullSeconds) * time.Second) / 2)
+			} else {
+				scoringLoop = time.NewTimer(d.durationUntilNextRound(lastRound, cnf.RoundDuration))
+			}
 			if err != nil {
 				return err
 			}
