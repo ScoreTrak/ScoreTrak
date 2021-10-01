@@ -44,7 +44,7 @@ func (e Exec) Validate() error {
 	return e.executable.Validate()
 }
 
-// Deadline calculates of a service
+// Deadline calculates deadline of a service
 func (e Exec) Deadline() time.Time {
 	deadline, ok := e.Context.Deadline()
 	if !ok {
