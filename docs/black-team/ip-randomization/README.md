@@ -49,3 +49,4 @@ The above configuration will use one of the IPs as source NAT in a round-robin.
 # Caveats
 
 Certain protocols like FTP might not play well with IP randomization.
+In case IP randomization would not work for certain protocols, it might be best to send the packets directly to the team's gateway from the worker node(instead of sending them to IP randomizing gateway)
