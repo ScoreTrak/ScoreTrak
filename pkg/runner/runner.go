@@ -493,7 +493,7 @@ func (d Runner) storeChecks(teams []*team.Team, chks []*queueing.QCheck, service
 }
 
 func (d Runner) finalizeRound(ctx context.Context, rnd *round.Round, note string, errStr string) {
-	log.Printf("Note: %s\nError: %s\nRound: %v", note, errStr, rnd)
+	log.Printf("\nNote: %s\nError: %s\nRound: %v", note, errStr, rnd)
 	now := time.Now().Add(d.dsync)
 	rnd.Finish = &now
 	rnd.Note = note
