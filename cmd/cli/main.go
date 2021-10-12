@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	authpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/auth/v1"
 	v1 "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
@@ -11,8 +14,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
-	"log"
-	"os"
 )
 
 func main() {
