@@ -2,22 +2,18 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	authpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/auth/v1"
 	v1 "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	userpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/user/v1"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/urfave/cli/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"log"
 	"os"
-
-	"github.com/urfave/cli/v2"
 )
-
-var ErrInvalidAction = errors.New("invalid action selected")
 
 func main() {
 	app := &cli.App{
