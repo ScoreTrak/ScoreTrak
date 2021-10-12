@@ -363,12 +363,12 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 		}); err != nil {
 			return err
 		}
-		passwordHash, _ := bcrypt.GenerateFromPassword([]byte("changeme"), bcrypt.DefaultCost)
+		passwordHash, _ := bcrypt.GenerateFromPassword([]byte(staticConfig.AdminPassword), bcrypt.DefaultCost)
 		err := userServ.Store(context.Background(), []*user.User{{
 			ID:           uuid1,
 			Role:         user.Black,
 			TeamID:       uuid1,
-			Username:     "admin",
+			Username:     staticConfig.AdminUsername,
 			PasswordHash: string(passwordHash),
 		}})
 		if err != nil {

@@ -18,7 +18,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/jackc/pgconn"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"time"
@@ -75,23 +74,6 @@ var uuid1 = uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 //CreateBlackTeam Ensures that black team exists
 func CreateBlackTeam(db *gorm.DB) (err error) {
 	err = db.Create([]*team.Team{{ID: uuid1, Name: "Black Team"}}).Error
-	if err != nil {
-		var serr *pgconn.PgError
-		ok := errors.As(err, &serr)
-		if !ok || serr.Code != "23505" {
-			return err
-		}
-	}
-	return nil
-}
-
-//CreateAdminUser ensures Admin user exists with the default password of changeme
-func CreateAdminUser(db *gorm.DB) (err error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("changeme"), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-	err = db.Create([]*user.User{{ID: uuid1, TeamID: uuid1, Username: "admin", Role: user.Black, PasswordHash: string(hashedPassword)}}).Error
 	if err != nil {
 		var serr *pgconn.PgError
 		ok := errors.As(err, &serr)

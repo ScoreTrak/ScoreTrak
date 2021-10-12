@@ -27,6 +27,10 @@ type StaticConfig struct {
 
 	PubSubConfig queueing.MasterConfig
 
+	AdminUsername string `default:"admin"`
+
+	AdminPassword string `default:"changeme"`
+
 	Port string `default:"33333"`
 
 	Prod bool `default:"false"`
