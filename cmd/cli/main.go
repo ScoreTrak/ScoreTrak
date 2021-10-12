@@ -26,7 +26,6 @@ func main() {
 				Name:  "create-super-user",
 				Usage: "create new super user",
 				Action: func(c *cli.Context) error {
-
 					return createNewSuperUser(c.String("address"), c.String("admin-name"), c.String("admin-password"), c.String("new-user-name"), c.String("new-user-password"), c.String("team-id"))
 				},
 				Flags: []cli.Flag{
@@ -65,8 +64,7 @@ func main() {
 		},
 	}
 
-	err := app.Run(os.Args)
-	if err != nil {
+	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -98,13 +96,12 @@ func createNewSuperUser(address string, adminUsername string, adminPassword stri
 		if teamID == "" {
 			teamID = claims.TeamID
 		}
-		_, err = userCli.Store(ctx, &userpb.StoreRequest{Users: []*userpb.User{{
+		if _, err = userCli.Store(ctx, &userpb.StoreRequest{Users: []*userpb.User{{
 			Username: newUsername,
 			TeamId:   &v1.UUID{Value: teamID},
 			Password: newPassword,
 			Role:     userpb.Role_ROLE_BLACK,
-		}}})
-		if err != nil {
+		}}}); err != nil {
 			return fmt.Errorf("failed to create user: %w", err)
 		}
 	} else {
