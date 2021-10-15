@@ -24,7 +24,7 @@ func NewTeamRepo(db *gorm.DB) teamrepo.Repo {
 func (t *teamRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	result := t.db.WithContext(ctx).Delete(&team.Team{}, "id = ?", id)
 	if result.Error != nil {
-		return fmt.Errorf("%w, id: %d", ErrDeletingTeam, id)
+		return fmt.Errorf("error deleting team with id: %s, err: %w", id.String(), result.Error)
 	}
 
 	if result.RowsAffected == 0 {
@@ -33,15 +33,13 @@ func (t *teamRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-var ErrDeletingTeam = errors.New("error while deleting the team")
-
 func (t *teamRepo) DeleteByName(ctx context.Context, name string) error {
 	if name == "" {
 		return ErrTeamNameMissing
 	}
 	result := t.db.WithContext(ctx).Delete(&team.Team{}, "name = ?", name)
 	if result.Error != nil {
-		return fmt.Errorf("%w, name: %s", ErrDeletingTeam, name)
+		return fmt.Errorf("error deleting team with name: %s, err: %w", name, result.Error)
 	}
 	if result.RowsAffected == 0 {
 		return &NoRowsAffected{"no model found"}

@@ -2,7 +2,6 @@ package orm
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/service/servicerepo"
@@ -22,13 +21,11 @@ func NewServiceRepo(db *gorm.DB) servicerepo.Repo {
 	return &serviceRepo{db}
 }
 
-var ErrDeletingCheckService = errors.New("error while deleting the check_service with id")
-
 func (s *serviceRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	result := s.db.WithContext(ctx).Delete(&service.Service{}, "id = ?", id)
 
 	if result.Error != nil {
-		return fmt.Errorf("%w: %d", ErrDeletingCheckService, id)
+		return fmt.Errorf("error while deleting the check_service with id: %d, err: %w", id, result.Error)
 	}
 
 	if result.RowsAffected == 0 {

@@ -2,7 +2,6 @@ package orm
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
@@ -22,12 +21,10 @@ func NewHostGroupRepo(db *gorm.DB) hostgrouprepo.Repo {
 	return &hostGroupRepo{db}
 }
 
-var ErrDeletingHostGroup = errors.New("error while deleting the host group with id")
-
 func (h *hostGroupRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	result := h.db.WithContext(ctx).Delete(&hostgroup.HostGroup{}, "id = ?", id)
 	if result.Error != nil {
-		return fmt.Errorf("%w: %d", ErrDeletingHostGroup, id)
+		return fmt.Errorf("error while deleting the host group with id: %d, err: %w", id, result.Error)
 	}
 	if result.RowsAffected == 0 {
 		return &NoRowsAffected{"no model found"}

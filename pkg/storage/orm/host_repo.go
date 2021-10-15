@@ -2,7 +2,6 @@ package orm
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
@@ -22,12 +21,10 @@ func NewHostRepo(db *gorm.DB) hostrepo.Repo {
 	return &hostRepo{db}
 }
 
-var ErrDeletingHost = errors.New("error while deleting the host")
-
 func (h *hostRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	result := h.db.WithContext(ctx).Delete(&host.Host{}, "id = ?", id)
 	if result.Error != nil {
-		return fmt.Errorf("%w, id: %d", ErrDeletingHost, id)
+		return fmt.Errorf("error deleting host with id: %s, err: %w", id.String(), result.Error)
 	}
 	if result.RowsAffected == 0 {
 		return &NoRowsAffected{"no model found"}

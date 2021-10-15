@@ -2,7 +2,6 @@ package orm
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/property/propertyrepo"
@@ -22,13 +21,11 @@ func NewPropertyRepo(db *gorm.DB) propertyrepo.Repo {
 	return &propertyRepo{db}
 }
 
-var ErrDeletingProperty = errors.New("error while deleting the property with service_id")
-
 func (p *propertyRepo) Delete(ctx context.Context, serviceID uuid.UUID, key string) error {
 	result := p.db.WithContext(ctx).Delete(&property.Property{}, "service_id = ? AND key = ?", serviceID, key)
 
 	if result.Error != nil {
-		return fmt.Errorf("%w: %d and key: %s", ErrDeletingProperty, serviceID, key)
+		return fmt.Errorf("error while deleting the property with service_id %d and key: %s, err: %w", serviceID, key, result.Error)
 	}
 
 	if result.RowsAffected == 0 {

@@ -2,7 +2,6 @@ package orm
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -43,12 +42,10 @@ func (c *checkRepo) GetByRoundServiceID(ctx context.Context, roundID uint64, ser
 	return chk, err
 }
 
-var ErrDeleteFailed = errors.New("error while deleting the check with")
-
 func (c *checkRepo) Delete(ctx context.Context, roundID uint64, serviceID uuid.UUID) error {
 	result := c.db.WithContext(ctx).Where("round_id = ?", roundID).Where("service_id = ?", serviceID).Delete(&check.Check{})
 	if result.Error != nil {
-		return fmt.Errorf("%w: round id: %d, service id: %d", ErrDeleteFailed, roundID, serviceID)
+		return fmt.Errorf("error while deleting the check with round id: %d, service id: %d, err: %w", roundID, serviceID, result.Error)
 	}
 
 	if result.RowsAffected == 0 {

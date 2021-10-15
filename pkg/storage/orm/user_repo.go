@@ -2,7 +2,6 @@ package orm
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
@@ -20,12 +19,10 @@ func NewUserRepo(db *gorm.DB) userrepo.Repo {
 	return &userRepo{db}
 }
 
-var ErrDeletingUser = errors.New("error deleting user")
-
 func (h *userRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	result := h.db.WithContext(ctx).Delete(&user.User{}, "id = ?", id)
 	if result.Error != nil {
-		return fmt.Errorf("%w, id: %d", ErrDeletingUser, id)
+		return fmt.Errorf("error deleting user with id: %s, err: %w", id.String(), result.Error)
 	}
 	return nil
 }

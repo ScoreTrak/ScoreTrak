@@ -2,7 +2,6 @@ package orm
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup/servicegrouprepo"
@@ -21,12 +20,10 @@ func NewServiceGroupRepo(db *gorm.DB) servicegrouprepo.Repo {
 	return &serviceGroupRepo{db}
 }
 
-var ErrDeletingServiceGroup = errors.New("error while deleting the Service Group with id")
-
 func (s *serviceGroupRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	result := s.db.WithContext(ctx).Delete(&servicegroup.ServiceGroup{}, "id = ?", id)
 	if result.Error != nil {
-		return fmt.Errorf("%w: %d", ErrDeletingServiceGroup, id)
+		return fmt.Errorf("error while deleting the Service Group with id: %d, err: %w", id, result.Error)
 	}
 	if result.RowsAffected == 0 {
 		return &NoRowsAffected{"no model found"}
