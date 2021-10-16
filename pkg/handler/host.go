@@ -126,7 +126,7 @@ func (p HostController) Update(ctx context.Context, request *hostpb.UpdateReques
 				noPermissionsTo+genericErr,
 			)
 		}
-		hst = &host.Host{Address: prop.Address, ID: hst.ID}
+		hst = &host.Host{Address: hst.Address, ID: hst.ID}
 	}
 
 	err = p.svc.Update(ctx, hst)
