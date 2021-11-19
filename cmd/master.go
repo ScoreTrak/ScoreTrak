@@ -1,22 +1,32 @@
-package server
+/*
+Copyright © 2021 NAME HERE <EMAIL ADDRESS>
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+package cmd
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
-	"log"
-	"net"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	checkService "github.com/ScoreTrak/ScoreTrak/pkg/check/checkservice"
 	competitionService "github.com/ScoreTrak/ScoreTrak/pkg/competition/competitionservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	configService "github.com/ScoreTrak/ScoreTrak/pkg/config/configservice"
-	"github.com/ScoreTrak/ScoreTrak/pkg/di/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/di"
+	diutil "github.com/ScoreTrak/ScoreTrak/pkg/di/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/handler"
 	hostService "github.com/ScoreTrak/ScoreTrak/pkg/host/hostservice"
 	hostGroupService "github.com/ScoreTrak/ScoreTrak/pkg/hostgroup/hostgroupservice"
@@ -37,19 +47,19 @@ import (
 	servicepb "github.com/ScoreTrak/ScoreTrak/pkg/proto/service/v1"
 	service_grouppb "github.com/ScoreTrak/ScoreTrak/pkg/proto/service_group/v1"
 	teampb "github.com/ScoreTrak/ScoreTrak/pkg/proto/team/v1"
+	userpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/user/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportclient"
 	reportService "github.com/ScoreTrak/ScoreTrak/pkg/report/reportservice"
 	roundService "github.com/ScoreTrak/ScoreTrak/pkg/round/roundservice"
+	"github.com/ScoreTrak/ScoreTrak/pkg/runner"
 	serviceService "github.com/ScoreTrak/ScoreTrak/pkg/service/serviceservice"
 	serviceGroupService "github.com/ScoreTrak/ScoreTrak/pkg/servicegroup/servicegroupservice"
-	util2 "github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
+	sutil "github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	teamService "github.com/ScoreTrak/ScoreTrak/pkg/team/teamservice"
-	"golang.org/x/crypto/bcrypt"
-
-	userpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/user/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	userService "github.com/ScoreTrak/ScoreTrak/pkg/user/userservice"
 	"github.com/gofrs/uuid"
@@ -60,13 +70,125 @@ import (
 	"github.com/jackc/pgconn"
 	"go.uber.org/dig"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"log"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/spf13/cobra"
 )
+
+// masterCmd represents the master command
+var masterCmd = &cobra.Command{
+	Use:   "master",
+	Short: "A brief description of your command",
+	Long: `A longer description that spans multiple lines and likely contains examples
+and usage of using your command. For example:
+
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("master called")
+
+		d, err := di.BuildMasterContainer()
+		if err != nil {
+			log.Panicf("%v", err)
+		}
+
+		err = SetupDB(d)
+		if err != nil {
+			log.Panicf("%v", err)
+		}
+
+		db := storage.GetGlobalDB()
+
+		sutil.CreateAllTables(db)
+
+		err = sutil.LoadConfig(db, &D)
+		if err != nil {
+			log.Panicf("%v", err)
+		}
+
+		store := diutil.NewStore()
+
+		var q queue.WorkerQueue
+		di.Invoke(func(qu queue.WorkerQueue) {
+			q = qu
+		})
+
+		dr := runner.NewRunner(db, q, store, C)
+		go func() {
+			err := dr.MasterRunner()
+			if err != nil {
+				log.Panicf("%v", err)
+			}
+		}()
+
+		err = Start(C, d, db)
+		if err != nil {
+			log.Panicf("%v", err)
+		}
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(masterCmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// masterCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// masterCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func SetupDB(cont *dig.Container) error {
+	var db *gorm.DB
+	err := cont.Invoke(func(d *gorm.DB) {
+		db = d
+	})
+	if err != nil {
+		return err
+	}
+	var tm time.Time
+	res, err := db.Raw("SELECT current_timestamp;").Rows()
+	if err != nil {
+		panic(err)
+	}
+	if res.Err() != nil {
+		panic(err)
+	}
+	defer func(res *sql.Rows) {
+		err := res.Close()
+		if err != nil {
+			log.Fatalln(fmt.Errorf("unable to close the database connection properly: %w", err))
+		}
+	}(res)
+	for res.Next() {
+		err := res.Scan(&tm)
+		if err != nil {
+			return err
+		}
+	}
+	err = sutil.DatabaseOutOfSync(tm)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 var ErrProdCertMissing = errors.New("production requires certfile, and keyfile")
 
@@ -151,7 +273,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 	}
 
 	// Repo Store
-	repoStore := util.NewStore()
+	repoStore := diutil.NewStore()
 
 	// Authorization And Authentication Middleware
 	jwtManager := auth.NewJWTManager(config.GetJWTConfig().Secret, time.Duration(config.GetJWTConfig().TimeoutInSeconds)*time.Second)
@@ -213,7 +335,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 	return nil
 }
 
-func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc.ServiceRegistrar, repoStore *util2.Store, db *gorm.DB, pubsub queue.MasterStreamPubSub, policyClient *policyclient.Client, jwtManager *auth.Manager) error {
+func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc.ServiceRegistrar, repoStore *sutil.Store, db *gorm.DB, pubsub queue.MasterStreamPubSub, policyClient *policyclient.Client, jwtManager *auth.Manager) error {
 	{
 		var checkSvc checkService.Serv
 		if err := d.Invoke(func(s checkService.Serv) {
