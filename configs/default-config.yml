@@ -3,6 +3,7 @@ roundduration: 60
 enabled: False
 
 db:
+  use: "cockroach"
   cockroach:
     host: localhost
     username: root

@@ -100,14 +100,14 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("master called")
 
-		d, err := di.BuildMasterContainer()
+		d, err := di.BuildMasterContainer(C)
 		if err != nil {
 			log.Panicf("%v", err)
 		}
 
 		err = SetupDB(d)
 		if err != nil {
-			log.Panicf("%v", err)
+			log.Panicf("Error setting up the database: %v", err)
 		}
 
 		db := storage.GetGlobalDB()

@@ -7,8 +7,10 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/config/configservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup/hostgroupservice"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property/propertyservice"
+	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round/roundservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service/serviceservice"
@@ -25,11 +27,19 @@ import (
 
 var container = dig.New()
 
-func BuildMasterContainer() (*dig.Container, error) {
+func BuildMasterContainer(c config.StaticConfig) (*dig.Container, error) {
 	var ctr []interface{}
 
 	ctr = append(ctr,
-		config.GetStaticConfig, config.GetDBConfig, config.GetQueueConfig, config.GetPlatformConfig,
+		func() config.StaticConfig {
+			return c
+		}, func() storage.Config {
+			return c.DB
+		}, func() queueing.Config {
+			return c.Queue
+		}, func() platforming.Config {
+			return c.Platform
+		},
 		storage.LoadDB,
 		orm.NewCheckRepo, checkservice.NewCheckServ,
 		orm.NewHostGroupRepo, hostgroupservice.NewHostGroupServ,
