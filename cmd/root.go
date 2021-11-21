@@ -57,12 +57,12 @@ func initConfig() {
 	if encodedCfg != "" {
 		decodedCfg, err := base64.StdEncoding.DecodeString(encodedCfg)
 		if err != nil {
-			fmt.Printf("Error decoding string: %s ", err.Error())
+			log.Printf("Error decoding string: %s ", err.Error())
 			return
 		}
 		err = viper.ReadConfig(bytes.NewBuffer(decodedCfg))
 		if err != nil {
-			fmt.Printf("Error reading decoded config %s", err.Error())
+			log.Printf("Error reading decoded config %s", err.Error())
 		}
 	} else if cfgFile != "" {
 		// Use config file from the flag.
