@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
 	"github.com/spf13/cobra"
 	"log"
@@ -11,6 +13,7 @@ import (
 )
 
 var cfgFile string
+var encodedCfg string
 var C config.StaticConfig
 var D config.DynamicConfig
 
@@ -42,7 +45,8 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.scoretrak.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/scoretrak.yaml)")
+	rootCmd.PersistentFlags().StringVar(&encodedCfg, "encoded-config", "", "base64 encoded config")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -51,7 +55,17 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if cfgFile != "" {
+	if encodedCfg != "" {
+		decodedCfg, err := base64.StdEncoding.DecodeString(encodedCfg)
+		if err != nil {
+			fmt.Printf("Error decoding string: %s ", err.Error())
+			return
+		}
+		err = viper.ReadConfig(bytes.NewBuffer(decodedCfg))
+		if err != nil {
+			fmt.Printf("Error reading decoded config %s", err.Error())
+		}
+	} else if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
