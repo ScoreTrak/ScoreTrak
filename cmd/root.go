@@ -1,18 +1,3 @@
-/*
-Copyright © 2021 NAME HERE <EMAIL ADDRESS>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package cmd
 
 import (
@@ -81,7 +66,50 @@ func initConfig() {
 		viper.SetConfigName(".scoretrak")
 	}
 
+	// Scoretrak Defaults
+	viper.SetDefault("adminUsername", "admin")
+	viper.SetDefault("adminPassword", "changeme")
+	viper.SetDefault("port", 33333)
+	viper.SetDefault("prod", false)
+	viper.SetDefault("databaseMaxTimeDriftSeconds", 2)
+	viper.SetDefault("dynamicConfigPullSeconds", 5)
+
+	// Database Defaults
 	viper.SetDefault("db.use", "cockroach")
+
+	// Cockroach Database Defaults
+	viper.SetDefault("db.cockroach.host", "cockroach")
+	viper.SetDefault("db.cockroach.port", 26257)
+	viper.SetDefault("db.cockroach.username", "root")
+	viper.SetDefault("db.cockroach.database", "scoretrak")
+	viper.SetDefault("db.cockroach.configureZones", true)
+	viper.SetDefault("db.cockroach.defaultZoneConfig.gcTtlseconds", 600)
+	viper.SetDefault("db.cockroach.defaultZoneConfig.backpressueRangeSizeMultiplier", 0)
+
+	// Queue Defaults
+	viper.SetDefault("queue.use", false)
+	viper.SetDefault("queue.nsq.producerNSQD", "nsqd:4150")
+	viper.SetDefault("queue.nsq.ignoreAllScoresIfWorkerFails", true)
+	viper.SetDefault("queue.nsq.topic", "default")
+	viper.SetDefault("queue.nsq.maxInFlight", 200)
+	viper.SetDefault("queue.nsq.concurrentHandlers", 200)
+	viper.SetDefault("queue.nsq.NSQLookupd", []string{"nsqlookupd:4161"})
+	viper.SetDefault("queue.nsq.consumerNSQDPool", []string{})
+
+	// Platform Config
+	viper.SetDefault("platform.use", "none")
+	viper.SetDefault("platform.docker.name", "scoretrak")
+	viper.SetDefault("platform.docker.host", "unix:///var/run/docker.sock")
+	viper.SetDefault("platform.docker.network", "default")
+	viper.SetDefault("platform.kubernetes.namespace", "default")
+
+	// PubSubConfig
+	viper.SetDefault("pubSubConfig.reportForceRefreshSeconds", 60)
+	viper.SetDefault("pubSubConfig.channelPrefix", "master")
+
+	// JWT Config
+	viper.SetDefault("jwt.secret", "changeme")
+	viper.SetDefault("jwt.timeooutInSeconds", 86400)
 
 	viper.AutomaticEnv() // read in environment variables that match
 
