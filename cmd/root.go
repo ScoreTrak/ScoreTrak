@@ -76,6 +76,7 @@ func initConfig() {
 		cobra.CheckErr(err)
 
 		// Search config in home directory with name ".scoretrak" (without extension).
+		viper.AddConfigPath(".")
 		viper.AddConfigPath(home)
 		viper.AddConfigPath("/etc/scoretrak")
 		viper.SetConfigType("yaml")
