@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -11,7 +11,7 @@ var pingCmd = &cobra.Command{
 	Use:   "ping",
 	Short: "ping",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("pong")
+		log.Println("pong")
 	},
 }
 
