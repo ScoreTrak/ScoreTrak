@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/spf13/cobra"
@@ -10,6 +12,7 @@ import (
 )
 
 var cfgFile string
+var encodedCfg string
 var C config.StaticConfig
 var D config.DynamicConfig
 
@@ -41,7 +44,8 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.scoretrak.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/scoretrak.yaml)")
+	rootCmd.PersistentFlags().StringVar(&encodedCfg, "encoded-config", "", "base64 encoded config")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -50,7 +54,17 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if cfgFile != "" {
+	if encodedCfg != "" {
+		decodedCfg, err := base64.StdEncoding.DecodeString(encodedCfg)
+		if err != nil {
+			fmt.Printf("Error decoding string: %s ", err.Error())
+			return
+		}
+		err = viper.ReadConfig(bytes.NewBuffer(decodedCfg))
+		if err != nil {
+			fmt.Printf("Error reading decoded config %s", err.Error())
+		}
+	} else if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
@@ -58,11 +72,11 @@ func initConfig() {
 		home, err := os.UserHomeDir()
 		cobra.CheckErr(err)
 
-		// Search config in home directory with name ".scoretrak" (without extension).
+		// Search config in home directory with name "scoretrak" (without extension).
 		viper.AddConfigPath(home)
 		viper.AddConfigPath("/etc/scoretrak")
 		viper.SetConfigType("yaml")
-		viper.SetConfigName(".scoretrak")
+		viper.SetConfigName("scoretrak")
 	}
 
 	// Scoretrak Defaults
@@ -108,9 +122,10 @@ func initConfig() {
 
 	// JWT Config
 	viper.SetDefault("jwt.secret", "changeme")
-	viper.SetDefault("jwt.timeooutInSeconds", 86400)
+	viper.SetDefault("jwt.timeoutInSeconds", 86400)
 
-	viper.AutomaticEnv() // read in environment variables that match
+	viper.SetEnvPrefix("ST") // set the environment prefix
+	viper.AutomaticEnv()     // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
