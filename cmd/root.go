@@ -2,12 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"log"
 	"os"
-
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/spf13/viper"
 )
 
 var cfgFile string
