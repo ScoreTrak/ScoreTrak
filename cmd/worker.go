@@ -23,8 +23,6 @@ to quickly create a Cobra application.`,
 		q, err := queue.NewWorkerQueue(C.Queue)
 		if err != nil {
 			log.Panicf("%v", err)
-		} else {
-			return
 		}
 
 		q.Receive()
