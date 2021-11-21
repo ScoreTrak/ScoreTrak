@@ -58,7 +58,7 @@ func (k *Kubernetes) DeployWorkers(ctx context.Context, info worker.Info) error 
 							{
 								Name:    "worker",
 								Image:   util.Image,
-								Command: []string{"./worker", "-encoded-config", cEnc},
+								Command: []string{"worker", "--encoded-config", cEnc},
 							},
 						},
 					},
