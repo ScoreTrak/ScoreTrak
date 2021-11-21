@@ -3,13 +3,14 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"log"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	authpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/auth/v1"
 	v1 "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	userpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/user/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
-	"log"
 
 	"github.com/golang-jwt/jwt/v4"
 
@@ -21,7 +22,7 @@ var adminPassword string
 var newUserName string
 var newUserPassword string
 var address string
-var teamId string
+var teamID string
 
 // createSuperUserCmd represents the createSuperUser command
 var createSuperUserCmd = &cobra.Command{
@@ -35,7 +36,10 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("createSuperUser called")
-		createNewSuperUser(address, adminName, adminPassword, newUserName, newUserPassword, teamId)
+		err := createNewSuperUser(address, adminName, adminPassword, newUserName, newUserPassword, teamID)
+		if err != nil {
+			fmt.Printf("%v", err)
+		}
 	},
 }
 
@@ -56,7 +60,7 @@ func init() {
 	createSuperUserCmd.Flags().StringVarP(&newUserName, "new-user-name", "", "", "Username of the new user")
 	createSuperUserCmd.Flags().StringVarP(&newUserPassword, "new-user-password", "", "", "Password of the new user")
 	createSuperUserCmd.Flags().StringVarP(&address, "address", "", "", "Address of the scoretrak node")
-	createSuperUserCmd.Flags().StringVarP(&teamId, "team-id", "", "", "ID of the team to which the user will be assigned, by default uses same team-id as admin user")
+	createSuperUserCmd.Flags().StringVarP(&teamID, "team-id", "", "", "ID of the team to which the user will be assigned, by default uses same team-id as admin user")
 }
 
 func createNewSuperUser(address string, adminUsername string, adminPassword string, newUsername string, newPassword string, teamID string) error {

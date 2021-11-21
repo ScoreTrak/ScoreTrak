@@ -5,6 +5,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	checkService "github.com/ScoreTrak/ScoreTrak/pkg/check/checkservice"
 	competitionService "github.com/ScoreTrak/ScoreTrak/pkg/competition/competitionservice"
@@ -62,12 +69,6 @@ import (
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
-	"log"
-	"net"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -97,7 +98,10 @@ to quickly create a Cobra application.`,
 
 		db := storage.GetGlobalDB()
 
-		sutil.CreateAllTables(db)
+		err = sutil.CreateAllTables(db)
+		if err != nil {
+			log.Panicf("%v", err)
+		}
 
 		err = sutil.LoadConfig(db, &D)
 		if err != nil {
