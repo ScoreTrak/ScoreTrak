@@ -54,7 +54,8 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if encodedCfg != "" {
+	switch {
+	case encodedCfg != "":
 		decodedCfg, err := base64.StdEncoding.DecodeString(encodedCfg)
 		if err != nil {
 			log.Printf("Error decoding string: %s ", err.Error())
@@ -64,10 +65,10 @@ func initConfig() {
 		if err != nil {
 			log.Printf("Error reading decoded config %s", err.Error())
 		}
-	} else if cfgFile != "" {
+	case cfgFile != "":
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
-	} else {
+	default:
 		// Find home directory.
 		home, err := os.UserHomeDir()
 		cobra.CheckErr(err)
