@@ -153,7 +153,7 @@ func SetupDB(cont *dig.Container) error {
 	var tm time.Time
 	res, err := db.Raw("SELECT current_timestamp;").Rows()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	if res.Err() != nil {
 		panic(err)
