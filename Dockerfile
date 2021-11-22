@@ -7,8 +7,9 @@ COPY cmd/ cmd/
 COPY main.go main.go
 COPY go.mod go.mod
 COPY go.sum go.sum
-RUN go mod tidy
+RUN go mod download
 RUN go build -o scoretrak -ldflags "-X 'github.com/Scoretrak/Scoretrak/pkg/version.Version=${IMAGE_TAG}'"
 RUN chmod +x scoretrak
-ENTRYPOINT ["./scoretrak"]
+RUN go install && mv /go/bin/ScoreTrak /go/bin/scoretrak
+ENTRYPOINT ["/go/bin/scoretrak"]
 CMD ["master"]
