@@ -88,7 +88,7 @@ func initConfig() {
 
 	// Database Defaults
 	viper.SetDefault("DB.Use", "cockroach")
-	//viper.SetDefault("DB.Prefix", "st")
+	// viper.SetDefault("DB.Prefix", "st")
 
 	// Cockroach Database Defaults
 	viper.SetDefault("DB.Cockroach.Host", "cockroach")
