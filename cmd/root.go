@@ -139,7 +139,7 @@ func initConfig() {
 		}
 
 		if C.Prod {
-			log.SetFlags((log.LstdFlags | log.Lshortfile))
+			log.SetFlags(log.LstdFlags | log.Lshortfile)
 		}
 
 		err = viper.Unmarshal(&D)
