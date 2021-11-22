@@ -77,14 +77,17 @@ func initConfig() {
 		viper.SetConfigName(".scoretrak")
 	}
 
-	// Scoretrak Defaults
-	viper.SetDefault("Enabled", "false")
+	// Scoretrak Static Defaults
 	viper.SetDefault("AdminUsername", "admin")
 	viper.SetDefault("AdminPassword", "changeme")
 	viper.SetDefault("Port", 33333)
 	viper.SetDefault("Prod", false)
 	viper.SetDefault("DatabaseMaxTimeDriftSeconds", 2)
 	viper.SetDefault("DynamicConfigPullSeconds", 5)
+
+	// Scoretrak Dynamic Defaults
+	viper.SetDefault("Enabled", "false")
+	viper.SetDefault("RoundDuration", 60)
 
 	// Database Defaults
 	viper.SetDefault("DB.Use", "cockroach")
