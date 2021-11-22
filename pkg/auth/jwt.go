@@ -31,8 +31,8 @@ func NewJWTManager(secretKey string, tokenDuration time.Duration) *Manager {
 }
 
 type Config struct {
-	Secret           string `default:"changeme"`
-	TimeoutInSeconds uint64 `default:"86400"`
+	Secret           string
+	TimeoutInSeconds uint64
 }
 
 // Generate creates user claim based on passed user parameter, and encodes it to JWT token.

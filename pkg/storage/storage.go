@@ -94,21 +94,21 @@ func newCockroach(c Config) (*gorm.DB, error) {
 }
 
 type Config struct {
-	Use       string `default:"cockroach"`
-	Prefix    string `default:""`
+	Use       string
+	Prefix    string
 	Cockroach struct {
-		Host              string `default:"cockroach"`
-		Port              string `default:"26257"`
-		UserName          string `default:"root"`
-		Password          string `default:""`
-		ClientCA          string `default:""`
-		ClientSSLKey      string `default:""`
-		ClientSSLCert     string `default:""`
-		Database          string `default:"scoretrak"`
-		ConfigureZones    bool   `default:"true"`
+		Host              string
+		Port              string
+		UserName          string
+		Password          string
+		ClientCA          string
+		ClientSSLKey      string
+		ClientSSLCert     string
+		Database          string
+		ConfigureZones    bool
 		DefaultZoneConfig struct {
-			GcTtlseconds                    uint64 `default:"600"`
-			BackpressureRangeSizeMultiplier uint64 `default:"0"`
+			GcTtlseconds                    uint64
+			BackpressureRangeSizeMultiplier uint64
 		}
 	}
 }

@@ -45,27 +45,27 @@ type IndexedQueue struct {
 }
 
 type Config struct {
-	Use   string `default:"none"`
+	Use   string
 	Kafka struct {
 	}
 	NSQ struct {
-		ProducerNSQD                 string   `default:"nsqd:4150"`
-		IgnoreAllScoresIfWorkerFails bool     `default:"true"`
-		Topic                        string   `default:"default"`
-		MaxInFlight                  int      `default:"200"` // This should be more than min(NumberOfChecks, #NSQD Nodes)
-		AuthSecret                   string   `default:""`
-		ClientRootCA                 string   `default:""`
-		ClientSSLKey                 string   `default:""`
-		ClientSSLCert                string   `default:""`
-		ConcurrentHandlers           int      `default:"200"`
-		NSQLookupd                   []string `default:"[\"nsqlookupd:4161\"]"`
-		ConsumerNSQDPool             []string `default:"[\"\"]"` // "[\"nsqd:4150\"]"`
+		ProducerNSQD                 string
+		IgnoreAllScoresIfWorkerFails bool
+		Topic                        string
+		MaxInFlight                  int
+		AuthSecret                   string
+		ClientRootCA                 string
+		ClientSSLKey                 string
+		ClientSSLCert                string
+		ConcurrentHandlers           int
+		NSQLookupd                   []string
+		ConsumerNSQDPool             []string
 	}
 }
 
 type MasterConfig struct {
-	ReportForceRefreshSeconds uint   `default:"60"`
-	ChannelPrefix             string `default:"master"`
+	ReportForceRefreshSeconds uint
+	ChannelPrefix             string
 }
 
 func RandomInt() (string, error) {

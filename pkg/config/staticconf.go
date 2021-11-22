@@ -17,9 +17,9 @@ import (
 type StaticConfig struct {
 	DB storage.Config
 	// This value ideally shouldn't be larger than few seconds
-	DatabaseMaxTimeDriftSeconds uint `default:"2"`
+	DatabaseMaxTimeDriftSeconds uint
 	// How frequently to pull dynamic configs
-	DynamicConfigPullSeconds uint `default:"5"`
+	DynamicConfigPullSeconds uint
 
 	Queue queueing.Config
 
@@ -27,17 +27,17 @@ type StaticConfig struct {
 
 	PubSubConfig queueing.MasterConfig
 
-	AdminUsername string `default:"admin"`
+	AdminUsername string
 
-	AdminPassword string `default:"changeme"`
+	AdminPassword string
 
-	Port string `default:"33333"`
+	Port string
 
-	Prod bool `default:"false"`
+	Prod bool
 
-	CertFile string `default:""`
+	CertFile string
 
-	KeyFile string `default:""`
+	KeyFile string
 
 	JWT auth.Config
 }
