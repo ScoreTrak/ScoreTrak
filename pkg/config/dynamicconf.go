@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/jinzhu/configor"
 	"gorm.io/gorm"
 )
 
@@ -29,16 +28,6 @@ func (d *DynamicConfig) BeforeSave(tx *gorm.DB) (err error) {
 
 func (d DynamicConfig) TableName() string {
 	return "config"
-}
-
-// NewDynamicConfig initializes global config d, but it doesn't need any locking because it is assumed that NewDynamicConfig is ran once at the start of the application
-func NewDynamicConfig(f string) (*DynamicConfig, error) {
-	d := &DynamicConfig{}
-	if err := configor.Load(d, f); err != nil {
-		return nil, err
-	}
-	d.ID = 1
-	return d, nil
 }
 
 func (d *DynamicConfig) IsEqual(dc *DynamicConfig) bool {

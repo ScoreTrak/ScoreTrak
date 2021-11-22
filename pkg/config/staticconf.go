@@ -44,26 +44,6 @@ type StaticConfig struct {
 
 var staticConfig StaticConfig
 
-func GetPlatformConfig() platforming.Config {
-	return staticConfig.Platform
-}
-
-func GetQueueConfig() queueing.Config {
-	return staticConfig.Queue
-}
-
-func GetDBConfig() storage.Config {
-	return staticConfig.DB
-}
-
-func GetJWTConfig() auth.Config {
-	return staticConfig.JWT
-}
-
-func GetPubSubConfig() queueing.MasterConfig {
-	return staticConfig.PubSubConfig
-}
-
 func NewStaticConfig(f string) error {
 	err := configor.Load(&staticConfig, f)
 	if err != nil {
