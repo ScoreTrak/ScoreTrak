@@ -66,19 +66,6 @@ func BuildMasterContainer(c config.StaticConfig) (*dig.Container, error) {
 	return container, nil
 }
 
-func BuildWorkerContainer() (*dig.Container, error) {
-	var ctr []interface{}
-	ctr = append(ctr, config.GetStaticConfig)
-
-	for _, i := range ctr {
-		err := container.Provide(i)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return container, nil
-}
-
 func Invoke(i interface{}) {
 	if err := container.Invoke(i); err != nil {
 		panic(err)

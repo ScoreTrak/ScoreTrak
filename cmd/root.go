@@ -21,13 +21,7 @@ var D config.DynamicConfig
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "scoretrak",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Scoretrak, a cyber defense scoring engine!",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
@@ -84,57 +78,62 @@ func initConfig() {
 	}
 
 	// Scoretrak Defaults
-	viper.SetDefault("adminUsername", "admin")
-	viper.SetDefault("adminPassword", "changeme")
-	viper.SetDefault("port", 33333)
-	viper.SetDefault("prod", false)
-	viper.SetDefault("databaseMaxTimeDriftSeconds", 2)
-	viper.SetDefault("dynamicConfigPullSeconds", 5)
+	viper.SetDefault("Enabled", "false")
+	viper.SetDefault("AdminUsername", "admin")
+	viper.SetDefault("AdminPassword", "changeme")
+	viper.SetDefault("Port", 33333)
+	viper.SetDefault("Prod", false)
+	viper.SetDefault("DatabaseMaxTimeDriftSeconds", 2)
+	viper.SetDefault("DynamicConfigPullSeconds", 5)
 
 	// Database Defaults
-	viper.SetDefault("db.use", "cockroach")
+	viper.SetDefault("DB.Use", "cockroach")
+	//viper.SetDefault("DB.Prefix", "st")
 
 	// Cockroach Database Defaults
-	viper.SetDefault("db.cockroach.host", "cockroach")
-	viper.SetDefault("db.cockroach.port", 26257)
-	viper.SetDefault("db.cockroach.username", "root")
-	viper.SetDefault("db.cockroach.database", "scoretrak")
-	viper.SetDefault("db.cockroach.configureZones", true)
-	viper.SetDefault("db.cockroach.defaultZoneConfig.gcTtlseconds", 600)
-	viper.SetDefault("db.cockroach.defaultZoneConfig.backpressueRangeSizeMultiplier", 0)
+	viper.SetDefault("DB.Cockroach.Host", "cockroach")
+	viper.SetDefault("DB.Cockroach.Port", 26257)
+	viper.SetDefault("DB.Cockroach.Username", "root")
+	viper.SetDefault("DB.Cockroach.Database", "scoretrak")
+	viper.SetDefault("DB.Cockroach.ConfigureZones", true)
+	viper.SetDefault("DB.Cockroach.DefaultZoneConfig.GcTtlseconds", 600)
+	viper.SetDefault("DB.Cockroach.DefaultZoneConfig.BackpressueRangeSizeMultiplier", 0)
 
 	// Queue Defaults
-	viper.SetDefault("queue.use", false)
-	viper.SetDefault("queue.nsq.producerNSQD", "nsqd:4150")
-	viper.SetDefault("queue.nsq.ignoreAllScoresIfWorkerFails", true)
-	viper.SetDefault("queue.nsq.topic", "default")
-	viper.SetDefault("queue.nsq.maxInFlight", 200)
-	viper.SetDefault("queue.nsq.concurrentHandlers", 200)
-	viper.SetDefault("queue.nsq.NSQLookupd", []string{"nsqlookupd:4161"})
-	viper.SetDefault("queue.nsq.consumerNSQDPool", []string{})
+	viper.SetDefault("Queue.Use", "none")
+	viper.SetDefault("Queue.NSQ.ProducerNSQD", "nsqd:4150")
+	viper.SetDefault("Queue.NSQ.IgnoreAllScoresIfWorkerFails", true)
+	viper.SetDefault("Queue.NSQ.Topic", "default")
+	viper.SetDefault("Queue.NSQ.MaxInFlight", 200)
+	viper.SetDefault("Queue.NSQ.ConcurrentHandlers", 200)
+	viper.SetDefault("Queue.NSQ.NSQLookupd", []string{"nsqlookupd:4161"})
+	viper.SetDefault("Queue.NSQ.ConsumerNSQDPool", []string{})
 
 	// Platform Config
-	viper.SetDefault("platform.use", "none")
-	viper.SetDefault("platform.docker.name", "scoretrak")
-	viper.SetDefault("platform.docker.host", "unix:///var/run/docker.sock")
-	viper.SetDefault("platform.docker.network", "default")
-	viper.SetDefault("platform.kubernetes.namespace", "default")
+	viper.SetDefault("Platform.Use", "none")
+	viper.SetDefault("Platform.Docker.Name", "scoretrak")
+	viper.SetDefault("Platform.Docker.Host", "unix:///var/run/docker.sock")
+	viper.SetDefault("Platform.Docker.Network", "default")
+	viper.SetDefault("Platform.Kubernetes.Namespace", "default")
 
 	// PubSubConfig
-	viper.SetDefault("pubSubConfig.reportForceRefreshSeconds", 60)
-	viper.SetDefault("pubSubConfig.channelPrefix", "master")
+	viper.SetDefault("PubSubConfig.ReportForceRefreshSeconds", 60)
+	viper.SetDefault("PubSubConfig.ChannelPrefix", "master")
 
 	// JWT Config
-	viper.SetDefault("jwt.secret", "changeme")
-	viper.SetDefault("jwt.timeooutInSeconds", 86400)
+	viper.SetDefault("JWT.Secret", "changeme")
+	viper.SetDefault("JWT.TimeoutInSeconds", 86400)
 
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+		_, err := fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+		if err != nil {
+			log.Fatalf("unable to print to standard error, %v", err)
+		}
 
-		err := viper.Unmarshal(&C)
+		err = viper.Unmarshal(&C)
 		if err != nil {
 			log.Fatalf("unable to decode static config into struct, %v", err)
 		}

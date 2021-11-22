@@ -76,13 +76,7 @@ import (
 // masterCmd represents the master command
 var masterCmd = &cobra.Command{
 	Use:   "master",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "master runs the grpc server and runner if in single-node mode",
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Println("master called")
 
@@ -104,6 +98,10 @@ to quickly create a Cobra application.`,
 		}
 
 		err = sutil.LoadConfig(db, &D)
+		if err != nil {
+			log.Panicf("%v", err)
+		}
+		err = sutil.LoadReport(db)
 		if err != nil {
 			log.Panicf("%v", err)
 		}
@@ -172,7 +170,7 @@ func SetupDB(cont *dig.Container) error {
 			return err
 		}
 	}
-	err = sutil.DatabaseOutOfSync(tm)
+	err = sutil.DatabaseOutOfSync(C, tm)
 	if err != nil {
 		return err
 	}
@@ -193,7 +191,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 			return err
 		}
 		opts = append(opts, grpc.Creds(creds))
-	} else if config.GetStaticConfig().Prod {
+	} else if staticConfig.Prod {
 		return ErrProdCertMissing
 	}
 
@@ -265,7 +263,7 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 	repoStore := diutil.NewStore()
 
 	// Authorization And Authentication Middleware
-	jwtManager := auth.NewJWTManager(config.GetJWTConfig().Secret, time.Duration(config.GetJWTConfig().TimeoutInSeconds)*time.Second)
+	jwtManager := auth.NewJWTManager(C.JWT.Secret, time.Duration(C.JWT.TimeoutInSeconds)*time.Second)
 	var pubsub queue.MasterStreamPubSub
 
 	pubsub, err = queue.NewMasterStreamPubSub(staticConfig.Queue)
@@ -335,7 +333,7 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 		checkpb.RegisterCheckServiceServer(server, handler.NewCheckController(checkSvc, repoStore))
 	}
 	{
-		comptSvc := competitionService.NewCompetitionServ(repoStore)
+		comptSvc := competitionService.NewCompetitionServ(repoStore, staticConfig)
 		competitionpb.RegisterCompetitionServiceServer(server, handler.NewCompetitionController(comptSvc))
 	}
 	{

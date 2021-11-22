@@ -30,13 +30,14 @@ type serviceGroupServ struct {
 	repo repo2.Repo
 	p    platform.Platform
 	q    queue.WorkerQueue
+	C    config.StaticConfig
 }
 
 var ErrRedeployNotAllowed = errors.New("redeploy is not allowed when platform or queue are not specified")
 var ErrRedeployDisableGroup = errors.New("check_service group must first be disabled")
 
 func (svc *serviceGroupServ) Redeploy(ctx context.Context, id uuid.UUID) error {
-	if svc.p == nil || config.GetStaticConfig().Queue.Use == queue.None {
+	if svc.p == nil || svc.C.Queue.Use == queue.None {
 		return ErrRedeployNotAllowed
 	}
 
@@ -59,9 +60,9 @@ func (svc *serviceGroupServ) Redeploy(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func NewServiceGroupServ(repo repo2.Repo, plat platform.Platform, q queue.WorkerQueue) Serv {
+func NewServiceGroupServ(repo repo2.Repo, plat platform.Platform, q queue.WorkerQueue, c config.StaticConfig) Serv {
 	return &serviceGroupServ{
-		repo: repo, p: plat, q: q,
+		repo: repo, p: plat, q: q, C: c,
 	}
 }
 
@@ -77,7 +78,7 @@ func (svc *serviceGroupServ) Delete(ctx context.Context, id uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-	if svc.p != nil && config.GetStaticConfig().Queue.Use != queue.None {
+	if svc.p != nil && svc.C.Queue.Use != queue.None {
 		wr := worker.Info{Topic: serviceGrp.Name, Label: serviceGrp.Label}
 		err := svc.p.RemoveWorkers(ctx, wr)
 		if err != nil {
@@ -96,7 +97,7 @@ func (svc *serviceGroupServ) GetByID(ctx context.Context, id uuid.UUID) (*servic
 }
 
 func (svc *serviceGroupServ) Store(ctx context.Context, u *servicegroup.ServiceGroup) error {
-	if svc.p != nil && !u.SkipHelper && config.GetStaticConfig().Queue.Use != queue.None {
+	if svc.p != nil && !u.SkipHelper && svc.C.Queue.Use != queue.None {
 		if u.Enabled != nil && *u.Enabled {
 			return status.Errorf(
 				codes.FailedPrecondition,
@@ -120,7 +121,7 @@ func (svc *serviceGroupServ) Update(ctx context.Context, u *servicegroup.Service
 			fmt.Sprintf("Service Group not found: %v", err),
 		)
 	}
-	if !u.SkipHelper && config.GetStaticConfig().Queue.Use != queue.None {
+	if !u.SkipHelper && svc.C.Queue.Use != queue.None {
 		if u.Enabled != nil && *u.Enabled && !*serviceGrp.Enabled {
 			err = svc.q.Ping(serviceGrp)
 			if err != nil {

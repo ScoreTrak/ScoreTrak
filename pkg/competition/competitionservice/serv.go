@@ -22,11 +22,13 @@ type Serv interface {
 
 type competitionServ struct {
 	Store *util.Store
+	C     config.StaticConfig
 }
 
-func NewCompetitionServ(str *util.Store) Serv {
+func NewCompetitionServ(str *util.Store, c config.StaticConfig) Serv {
 	return &competitionServ{
 		Store: str,
+		C:     c,
 	}
 }
 
@@ -118,7 +120,7 @@ func (svc *competitionServ) FetchCoreCompetition(ctx context.Context) (*competit
 		return nil, wrapError(err, fetch)
 	}
 	serviceGroups, err := svc.Store.ServiceGroup.GetAll(ctx)
-	if config.GetStaticConfig().Queue.Use != "none" {
+	if svc.C.Queue.Use != "none" {
 		for i := range serviceGroups {
 			serviceGroups[i].Enabled = &fls
 		}
