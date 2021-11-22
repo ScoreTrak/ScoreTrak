@@ -142,7 +142,6 @@ func initConfig() {
 		log.Fatalf("unable to decode static config into struct, %v", err)
 	}
 
-	fmt.Println(C.Queue)
 	if C.Prod {
 		log.SetFlags(log.LstdFlags | log.Lshortfile)
 	}
