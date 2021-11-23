@@ -41,7 +41,7 @@ func (d Runner) refreshDsync() error {
 	// query current timestamp
 	res, err := d.db.Raw("SELECT current_timestamp;").Rows()
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer func(res *sql.Rows) {
 		err := res.Close()
@@ -50,7 +50,7 @@ func (d Runner) refreshDsync() error {
 		}
 	}(res)
 	if res.Err() != nil {
-		panic(res.Err())
+		return res.Err()
 	}
 	for res.Next() {
 		_ = res.Scan(&tm)

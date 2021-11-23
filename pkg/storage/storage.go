@@ -46,17 +46,21 @@ func NewDB(c Config) (*gorm.DB, error) {
 }
 
 var ErrIncompleteCertInformationProvided = errors.New("you provided some, but not all certificate information")
+var ErrDBNameNotSpecified = errors.New("db name not specified")
 
 // newCockroach is internal method used for initializing cockroach db instance.
 // It modifies few cockroachdb options like kv.range.backpressure_range_size_multiplier and gc.ttlseconds that
 // allows for a single large value to be changed frequently
 func newCockroach(c Config) (*gorm.DB, error) {
+	err := validateCockroachDB(c)
+	if err != nil {
+		return nil, err
+	}
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s dbname=%s",
 		c.Cockroach.Host,
 		c.Cockroach.Port,
 		c.Cockroach.UserName,
 		c.Cockroach.Database)
-
 	if c.Cockroach.Password != "" {
 		psqlInfo += " password=" + c.Cockroach.Password
 	}
@@ -91,6 +95,13 @@ func newCockroach(c Config) (*gorm.DB, error) {
 		log.Println("You have chosen not to allow master configure database zones. Make sure you set gc.ttlseconds to something below 1200, so that report generation is not affected")
 	}
 	return db, nil
+}
+
+func validateCockroachDB(c Config) error {
+	if c.Cockroach.Database == "" {
+		return ErrDBNameNotSpecified
+	}
+	return nil
 }
 
 type Config struct {
