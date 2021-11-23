@@ -135,19 +135,19 @@ func initConfig() {
 		if err != nil {
 			log.Fatalf("unable to print to standard error, %v", err)
 		}
+	}
 
-		err = viper.Unmarshal(&C)
-		if err != nil {
-			log.Fatalf("unable to decode static config into struct, %v", err)
-		}
+	err := viper.Unmarshal(&C)
+	if err != nil {
+		log.Fatalf("unable to decode static config into struct, %v", err)
+	}
 
-		if C.Prod {
-			log.SetFlags(log.LstdFlags | log.Lshortfile)
-		}
+	if C.Prod {
+		log.SetFlags(log.LstdFlags | log.Lshortfile)
+	}
 
-		err = viper.Unmarshal(&D)
-		if err != nil {
-			log.Fatalf("unable to decode dynamic config into struct, %v", err)
-		}
+	err = viper.Unmarshal(&D)
+	if err != nil {
+		log.Fatalf("unable to decode dynamic config into struct, %v", err)
 	}
 }
