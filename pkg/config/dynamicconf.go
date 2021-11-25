@@ -20,6 +20,7 @@ type DynamicConfig struct {
 var ErrRoundDurationLargerThanMinRoundDuration = errors.New("round Duration should not be larger than MinRoundDuration")
 
 func (d *DynamicConfig) BeforeSave(tx *gorm.DB) (err error) {
+	d.ID = 1
 	if d.RoundDuration != 0 && d.RoundDuration < uint64(MinRoundDuration.Seconds()) {
 		return fmt.Errorf("%w, MinRoundDuration: %d", ErrRoundDurationLargerThanMinRoundDuration, uint64(MinRoundDuration.Seconds()))
 	}
