@@ -2,6 +2,7 @@ package kubernetes
 
 import (
 	"context"
+	"encoding/base64"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/util"
@@ -16,9 +17,10 @@ import (
 type Kubernetes struct {
 	Client    *kubernetes.Clientset
 	Namespace string
+	mainCfg   string
 }
 
-func NewKubernetes(cnf platforming.Config) (d *Kubernetes, err error) {
+func NewKubernetes(mainCfg string, cnf platforming.Config) (d *Kubernetes, err error) {
 	c, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, err
@@ -27,21 +29,15 @@ func NewKubernetes(cnf platforming.Config) (d *Kubernetes, err error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Kubernetes{Client: clientset, Namespace: cnf.Kubernetes.Namespace}, nil
+	return &Kubernetes{Client: clientset, Namespace: cnf.Kubernetes.Namespace, mainCfg: mainCfg}, nil
 }
 
 func (k *Kubernetes) DeployWorkers(ctx context.Context, info worker.Info) error {
 	name := info.Label + "-" + info.Topic
 	labels := map[string]string{"scoretrak_worker": info.Label}
-	path, err := util.GenerateConfigFile(info)
-	if err != nil {
-		return err
-	}
-	cEnc, err := util.EncodeConfigFile(path)
-	if err != nil {
-		return err
-	}
-	_, err = k.Client.AppsV1().DaemonSets(k.Namespace).Create(ctx,
+	cfgBytes := []byte(k.mainCfg)
+	encodedCfg := base64.StdEncoding.EncodeToString(cfgBytes)
+	_, err := k.Client.AppsV1().DaemonSets(k.Namespace).Create(ctx,
 		&appv1.DaemonSet{ObjectMeta: metav1.ObjectMeta{
 			Name: name},
 			Spec: appv1.DaemonSetSpec{
@@ -58,7 +54,7 @@ func (k *Kubernetes) DeployWorkers(ctx context.Context, info worker.Info) error 
 							{
 								Name:    "worker",
 								Image:   util.Image,
-								Command: []string{"worker", "--encoded-config", cEnc},
+								Command: []string{"worker", "--encoded-config", encodedCfg},
 							},
 						},
 					},

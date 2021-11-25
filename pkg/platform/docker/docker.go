@@ -7,9 +7,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -29,10 +27,11 @@ type Docker struct {
 	Name        string
 	IsSwarm     bool
 	Client      *client.Client
+	mainCfg     string
 }
 
-func NewDocker(cnf platforming.Config) (d *Docker, err error) {
-	d = &Docker{NetworkName: cnf.Docker.Network, Name: cnf.Docker.Name}
+func NewDocker(mainCfg string, cnf platforming.Config) (d *Docker, err error) {
+	d = &Docker{NetworkName: cnf.Docker.Network, Name: cnf.Docker.Name, mainCfg: mainCfg}
 	if cnf.Use == "swarm" { //https://github.com/openbaton/go-docker-vnfm/blob/8d0a99b48e57d4b94fa14cdb377abe07eaa6c0aa/handler/docker_utils.go#L113
 		d.IsSwarm = true
 	}
@@ -41,6 +40,7 @@ func NewDocker(cnf platforming.Config) (d *Docker, err error) {
 	if err != nil {
 		return nil, err
 	}
+	d.mainCfg = mainCfg
 	return d, nil
 }
 
@@ -68,12 +68,8 @@ func (d *Docker) DeployWorkers(ctx context.Context, info worker.Info) (err error
 	if err != nil {
 		return err
 	}
-	path, err := util.GenerateConfigFile(info)
-	if err != nil {
-		return err
-	}
 	if !d.IsSwarm {
-		resp, err := d.CreateWorkerContainer(ctx, networkName, info, path)
+		resp, err := d.CreateWorkerContainer(ctx, networkName, info)
 		if err != nil {
 			return err
 		}
@@ -85,7 +81,7 @@ func (d *Docker) DeployWorkers(ctx context.Context, info worker.Info) (err error
 		if info.Label == "" {
 			return ErrLabelIsEmpty
 		}
-		_, err := d.CreateService(info, networkName, path)
+		_, err := d.CreateService(info, networkName)
 		if err != nil {
 			return err
 		}
@@ -182,11 +178,9 @@ func (d *Docker) BuildWorkerImage(ctx context.Context) error {
 	return nil
 }
 
-func (d *Docker) CreateService(info worker.Info, networkName string, configPath string) (types.ServiceCreateResponse, error) {
-	cEnc, err := util.EncodeConfigFile(configPath)
-	if err != nil {
-		return types.ServiceCreateResponse{}, err
-	}
+func (d *Docker) CreateService(info worker.Info, networkName string) (types.ServiceCreateResponse, error) {
+	cfgBytes := []byte(d.mainCfg)
+	encodedCfg := base64.StdEncoding.EncodeToString(cfgBytes)
 	maxAttempts := uint64(1)
 	spec := swarm.ServiceSpec{
 		Annotations: swarm.Annotations{Name: "worker_" + info.Topic},
@@ -198,7 +192,7 @@ func (d *Docker) CreateService(info worker.Info, networkName string, configPath 
 			},
 			ContainerSpec: swarm.ContainerSpec{
 				Image:   util.Image,
-				Command: []string{"worker", "--encoded-config", cEnc},
+				Command: []string{"worker", "--encoded-config", encodedCfg},
 			},
 			Networks: []swarm.NetworkAttachmentConfig{{Target: networkName}},
 			Placement: &swarm.Placement{
@@ -215,17 +209,14 @@ func (d *Docker) CreateService(info worker.Info, networkName string, configPath 
 	return createResponse, nil
 }
 
-func (d *Docker) CreateWorkerContainer(ctx context.Context, networkName string, info worker.Info, configPath string) (container.ContainerCreateCreatedBody, error) {
-	content, err := ioutil.ReadFile(configPath)
-	if err != nil {
-		return container.ContainerCreateCreatedBody{}, err
-	}
-	cEnc := base64.StdEncoding.EncodeToString(content)
+func (d *Docker) CreateWorkerContainer(ctx context.Context, networkName string, info worker.Info) (container.ContainerCreateCreatedBody, error) {
+	cfgBytes := []byte(d.mainCfg)
+	encodedCfg := base64.StdEncoding.EncodeToString(cfgBytes)
 
 	resp, err := d.Client.ContainerCreate(ctx, &container.Config{
 		Image: util.Image,
 		Tty:   true,
-		Cmd:   []string{"worker", "--encoded-config", cEnc},
+		Cmd:   []string{"worker", "--encoded-config", encodedCfg},
 	}, nil, &network.NetworkingConfig{EndpointsConfig: map[string]*network.EndpointSettings{networkName: {}}}, "worker_"+info.Topic)
 	if err != nil {
 		return container.ContainerCreateCreatedBody{}, err
