@@ -7,12 +7,12 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 	"github.com/docker/docker/api/types"
@@ -27,20 +27,19 @@ type Docker struct {
 	Name        string
 	IsSwarm     bool
 	Client      *client.Client
-	mainCfg     string
+	cfg         config.StaticConfig
 }
 
-func NewDocker(mainCfg string, cnf platforming.Config) (d *Docker, err error) {
-	d = &Docker{NetworkName: cnf.Docker.Network, Name: cnf.Docker.Name, mainCfg: mainCfg}
-	if cnf.Use == "swarm" { //https://github.com/openbaton/go-docker-vnfm/blob/8d0a99b48e57d4b94fa14cdb377abe07eaa6c0aa/handler/docker_utils.go#L113
+func NewDocker(mainCfg config.StaticConfig) (d *Docker, err error) {
+	d = &Docker{NetworkName: mainCfg.Platform.Docker.Network, Name: mainCfg.Platform.Docker.Name, cfg: mainCfg}
+	if mainCfg.Platform.Use == "swarm" { //https://github.com/openbaton/go-docker-vnfm/blob/8d0a99b48e57d4b94fa14cdb377abe07eaa6c0aa/handler/docker_utils.go#L113
 		d.IsSwarm = true
 	}
 	defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
-	d.Client, err = client.NewClient(cnf.Docker.Host, "v1.40", nil, defaultHeaders)
+	d.Client, err = client.NewClient(mainCfg.Platform.Docker.Host, "v1.40", nil, defaultHeaders)
 	if err != nil {
 		return nil, err
 	}
-	d.mainCfg = mainCfg
 	return d, nil
 }
 
@@ -179,8 +178,12 @@ func (d *Docker) BuildWorkerImage(ctx context.Context) error {
 }
 
 func (d *Docker) CreateService(info worker.Info, networkName string) (types.ServiceCreateResponse, error) {
-	cfgBytes := []byte(d.mainCfg)
-	encodedCfg := base64.StdEncoding.EncodeToString(cfgBytes)
+	workerCfg, err := util.GenerateWorkerConfig(d.cfg, info)
+	if err != nil {
+		return types.ServiceCreateResponse{}, err
+	}
+	workerCfgString := fmt.Sprintf("%v", workerCfg)
+	encodedCfg := base64.StdEncoding.EncodeToString([]byte(workerCfgString))
 	maxAttempts := uint64(1)
 	spec := swarm.ServiceSpec{
 		Annotations: swarm.Annotations{Name: "worker_" + info.Topic},
@@ -210,8 +213,12 @@ func (d *Docker) CreateService(info worker.Info, networkName string) (types.Serv
 }
 
 func (d *Docker) CreateWorkerContainer(ctx context.Context, networkName string, info worker.Info) (container.ContainerCreateCreatedBody, error) {
-	cfgBytes := []byte(d.mainCfg)
-	encodedCfg := base64.StdEncoding.EncodeToString(cfgBytes)
+	workerCfg, err := util.GenerateWorkerConfig(d.cfg, info)
+	if err != nil {
+		return container.ContainerCreateCreatedBody{}, err
+	}
+	workerCfgString := fmt.Sprintf("%v", workerCfg)
+	encodedCfg := base64.StdEncoding.EncodeToString([]byte(workerCfgString))
 
 	resp, err := d.Client.ContainerCreate(ctx, &container.Config{
 		Image: util.Image,
