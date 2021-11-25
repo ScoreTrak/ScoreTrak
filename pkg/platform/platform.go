@@ -3,6 +3,8 @@ package platform
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/docker"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/kubernetes"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
@@ -24,12 +26,13 @@ const (
 	None       = "none"
 )
 
-func NewPlatform(mainCfg string, platformCfg platforming.Config) (Platform, error) {
+func NewPlatform(mainCfg config.StaticConfig, platformCfg platforming.Config) (Platform, error) {
+	cfg := fmt.Sprintf("%v", mainCfg)
 	switch platformCfg.Use {
 	case Docker, Swarm:
-		return docker.NewDocker(mainCfg, platformCfg)
+		return docker.NewDocker(cfg, platformCfg)
 	case Kubernetes:
-		return kubernetes.NewKubernetes(mainCfg, platformCfg)
+		return kubernetes.NewKubernetes(cfg, platformCfg)
 	case None:
 		return nil, nil
 	default:
