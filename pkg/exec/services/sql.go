@@ -140,7 +140,7 @@ func (w *SQL) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 
 	rows, err := result.Rows()
 	defer func(rows *sql.Rows) {
-		if rows != nil{
+		if rows != nil {
 			err := rows.Close()
 			if err != nil {
 				log.Println(fmt.Errorf("failed to close rows: %w", err))
