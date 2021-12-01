@@ -3,6 +3,7 @@ package queueing
 import (
 	"context"
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -84,6 +85,9 @@ func TopicFromServiceRound(roundID uint64) (string, error) {
 	return "round_" + strconv.FormatUint(roundID, 10) + "_" + n + "_ack", nil
 }
 
+var ErrUnknownPanic = errors.New("unknown panic")
+var ErrPanic = errors.New("panic")
+
 func CommonExecute(sd *ScoringData, execDeadline time.Time) QCheck {
 	if time.Now().After(sd.Deadline) {
 		return QCheck{Service: sd.Service, Passed: false, Log: "", Err: "The check arrived late to the worker. Make sure the time is synced between workers and masters, and there are enough workers to handle the load", RoundID: sd.RoundID}
@@ -108,6 +112,21 @@ func CommonExecute(sd *ScoringData, execDeadline time.Time) QCheck {
 	}
 	cq := make(chan checkRet)
 	go func() {
+		defer func() {
+			if x := recover(); x != nil {
+				var err error
+				switch x := x.(type) {
+				case string:
+					err = fmt.Errorf("%w: %s", ErrPanic, x)
+				case error:
+					err = x
+				default:
+					err = ErrUnknownPanic
+				}
+				log.Println(fmt.Errorf("unable to perform a check on scoring data %+v: %w", *sd, err))
+				return
+			}
+		}()
 		passed, l, err := e.Execute()
 		cq <- checkRet{passed: passed, log: l, err: err}
 	}()
