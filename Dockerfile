@@ -1,14 +1,15 @@
-FROM golang:latest
+FROM golang:1.17
 ARG IMAGE_TAG
+RUN mkdir -p /go/src/github.com/ScoreTrak/ScoreTrak
 WORKDIR /go/src/github.com/ScoreTrak/ScoreTrak
 COPY pkg/ pkg/
 COPY cmd/ cmd/
+COPY main.go main.go
 COPY go.mod go.mod
 COPY go.sum go.sum
-RUN go mod tidy
-RUN go build -o master -ldflags "-X 'github.com/ScoreTrak/ScoreTrak/pkg/version.Version=${IMAGE_TAG}'" cmd/master/main.go
-RUN go build -o worker -ldflags "-X 'github.com/ScoreTrak/ScoreTrak/pkg/version.Version=${IMAGE_TAG}'" cmd/worker/main.go
-RUN go build -o cli -ldflags "-X 'github.com/ScoreTrak/ScoreTrak/pkg/version.Version=${IMAGE_TAG}'" cmd/cli/main.go
-RUN chmod +x master worker
-
-#Set Context Path as ScoreTrak directory
+RUN go mod download
+RUN go build -o scoretrak -ldflags "-X 'github.com/Scoretrak/Scoretrak/pkg/version.Version=${IMAGE_TAG}'"
+RUN chmod +x scoretrak
+RUN go install && mv /go/bin/ScoreTrak /go/bin/scoretrak
+ENTRYPOINT ["/go/bin/scoretrak"]
+CMD ["master"]
