@@ -137,7 +137,7 @@ func initConfig() {
 		}
 	}
 
-	if err := viper.Unmarshal(C); err != nil {
+	if err := viper.Unmarshal(&C); err != nil {
 		log.Fatalf("unable to decode static config into struct, %v", err)
 	}
 	config.SetStaticConfig(C)
