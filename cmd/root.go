@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"github.com/ScoreTrak/ScoreTrak/pkg/version"
 	"log"
 	"os"
 
@@ -24,7 +25,9 @@ var rootCmd = &cobra.Command{
 	Short: "Scoretrak, a cyber defense scoring engine!",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Printf("scoretrak %s", version.Version)
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -43,9 +46,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is './.scoretrak.yaml', '$HOME/.scoretrak.yaml', '/etc/scoretrak/.scoretrak.yaml' in that order)")
 	rootCmd.PersistentFlags().StringVar(&encodedCfg, "encoded-config", "", "base64 encoded config")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.Flags().BoolP("version", "v", false, "version")
 }
 
 // initConfig reads in config file and ENV variables if set.
