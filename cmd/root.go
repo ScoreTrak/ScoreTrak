@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/version"
 	"log"
 	"os"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/ScoreTrak/ScoreTrak/pkg/version"
 )
 
 var cfgFile string
@@ -26,7 +26,7 @@ var rootCmd = &cobra.Command{
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("scoretrak %s", version.Version)
+		fmt.Printf("scoretrak %s", version.Version) //nolint:forbidigo // Keeping fmt as log will add undesired timestamp
 	},
 }
 
