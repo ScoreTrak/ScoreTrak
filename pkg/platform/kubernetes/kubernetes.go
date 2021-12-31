@@ -56,9 +56,9 @@ func (k *Kubernetes) DeployWorkers(ctx context.Context, info worker.Info) error 
 						NodeSelector: labels,
 						Containers: []corev1.Container{
 							{
-								Name:    "worker",
-								Image:   util.Image,
-								Command: []string{"worker", "--encoded-config", cEnc},
+								Name:  "worker",
+								Image: util.Image,
+								Args:  []string{"worker", "--encoded-config", cEnc},
 							},
 						},
 					},

@@ -197,8 +197,8 @@ func (d *Docker) CreateService(info worker.Info, networkName string, configPath 
 				Condition:   swarm.RestartPolicyConditionOnFailure,
 			},
 			ContainerSpec: swarm.ContainerSpec{
-				Image:   util.Image,
-				Command: []string{"worker", "--encoded-config", cEnc},
+				Image: util.Image,
+				Args:  []string{"worker", "--encoded-config", cEnc},
 			},
 			Networks: []swarm.NetworkAttachmentConfig{{Target: networkName}},
 			Placement: &swarm.Placement{
