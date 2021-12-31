@@ -51,11 +51,6 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	}
-
 	// Find home directory.
 	home, err := os.UserHomeDir()
 	cobra.CheckErr(err)
@@ -66,6 +61,9 @@ func initConfig() {
 	viper.AddConfigPath("/etc/scoretrak")
 	viper.SetConfigType("yaml")
 	viper.SetConfigName(".scoretrak")
+
+	// Use config file flag value.
+	viper.SetConfigFile(cfgFile)
 
 	// Scoretrak Static Defaults
 	viper.SetDefault("AdminUsername", "admin")
@@ -119,9 +117,9 @@ func initConfig() {
 
 	viper.AutomaticEnv() // read in environment variables that match
 
-	// If an encodedConfig flag is provided, read it.
+	// If an encodedConfig flag is provided, read it. Else read found config file
 	if encodedCfg != "" {
-		log.Printf("Using encoded config")
+		log.Printf("Using encoded config file: %s", encodedCfg)
 		decodedCfg, err := base64.StdEncoding.DecodeString(encodedCfg)
 		if err != nil {
 			log.Printf("Error decoding string: %s ", err.Error())
@@ -131,12 +129,12 @@ func initConfig() {
 		if err != nil {
 			log.Printf("Error reading decoded config %s", err.Error())
 		}
-	}
-	// Else, if a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		_, err := fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
-		if err != nil {
-			log.Fatalf("unable to print to standard error, %v", err)
+	} else {
+		if err := viper.ReadInConfig(); err == nil {
+			_, err := fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+			if err != nil {
+				log.Fatalf("unable to print to standard error, %v", err)
+			}
 		}
 	}
 
