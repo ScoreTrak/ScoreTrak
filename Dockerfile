@@ -8,7 +8,7 @@ COPY main.go main.go
 COPY go.mod go.mod
 COPY go.sum go.sum
 RUN go mod download
-RUN go build -o scoretrak -ldflags "-X 'github.com/Scoretrak/Scoretrak/pkg/version.Version=${IMAGE_TAG}'"
+RUN go build -o scoretrak -ldflags "-X 'github.com/ScoreTrak/ScoreTrak/pkg/version.Version=${IMAGE_TAG}'"
 RUN chmod +x scoretrak
 ENTRYPOINT ["./scoretrak"]
 CMD ["master"]
