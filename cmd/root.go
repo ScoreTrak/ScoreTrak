@@ -51,32 +51,21 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	switch {
-	case encodedCfg != "":
-		decodedCfg, err := base64.StdEncoding.DecodeString(encodedCfg)
-		if err != nil {
-			log.Printf("Error decoding string: %s ", err.Error())
-			return
-		}
-		err = viper.ReadConfig(bytes.NewBuffer(decodedCfg))
-		if err != nil {
-			log.Printf("Error reading decoded config %s", err.Error())
-		}
-	case cfgFile != "":
+	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
-	default:
-		// Find home directory.
-		home, err := os.UserHomeDir()
-		cobra.CheckErr(err)
-
-		// Search config in home directory with name ".scoretrak" (without extension).
-		viper.AddConfigPath(".")
-		viper.AddConfigPath(home)
-		viper.AddConfigPath("/etc/scoretrak")
-		viper.SetConfigType("yaml")
-		viper.SetConfigName(".scoretrak")
 	}
+
+	// Find home directory.
+	home, err := os.UserHomeDir()
+	cobra.CheckErr(err)
+
+	// Search config in home directory with name ".scoretrak" (without extension).
+	viper.AddConfigPath(".")
+	viper.AddConfigPath(home)
+	viper.AddConfigPath("/etc/scoretrak")
+	viper.SetConfigType("yaml")
+	viper.SetConfigName(".scoretrak")
 
 	// Scoretrak Static Defaults
 	viper.SetDefault("AdminUsername", "admin")
@@ -130,7 +119,20 @@ func initConfig() {
 
 	viper.AutomaticEnv() // read in environment variables that match
 
-	// If a config file is found, read it in.
+	// If an encodedConfig flag is provided, read it.
+	if encodedCfg != "" {
+		log.Printf("Using encoded config")
+		decodedCfg, err := base64.StdEncoding.DecodeString(encodedCfg)
+		if err != nil {
+			log.Printf("Error decoding string: %s ", err.Error())
+			return
+		}
+		err = viper.ReadConfig(bytes.NewBuffer(decodedCfg))
+		if err != nil {
+			log.Printf("Error reading decoded config %s", err.Error())
+		}
+	}
+	// Else, if a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		_, err := fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 		if err != nil {
