@@ -5,7 +5,6 @@ enabled: False
 db:
   cockroach:
     host: localhost
+    database: "scoretrak"
     username: root
     password: ""
-
-port: 8080

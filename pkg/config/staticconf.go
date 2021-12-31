@@ -72,6 +72,10 @@ func NewStaticConfig(f string) error {
 	return nil
 }
 
+func SetStaticConfig(config StaticConfig) {
+	staticConfig = config
+}
+
 func GetStaticConfig() StaticConfig {
 	return staticConfig
 }
