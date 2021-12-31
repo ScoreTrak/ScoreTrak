@@ -129,12 +129,10 @@ func initConfig() {
 		if err != nil {
 			log.Printf("Error reading decoded config %s", err.Error())
 		}
-	} else {
-		if err := viper.ReadInConfig(); err == nil {
-			_, err := fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
-			if err != nil {
-				log.Fatalf("unable to print to standard error, %v", err)
-			}
+	} else if err := viper.ReadInConfig(); err == nil {
+		_, err := fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+		if err != nil {
+			log.Fatalf("unable to print to standard error, %v", err)
 		}
 	}
 
