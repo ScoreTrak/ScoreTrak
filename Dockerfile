@@ -1,14 +1,24 @@
-FROM golang:1.17
+FROM golang:alpine as builder
 ARG IMAGE_TAG
+
 RUN mkdir -p /go/src/github.com/ScoreTrak/ScoreTrak
 WORKDIR /go/src/github.com/ScoreTrak/ScoreTrak
+
 COPY pkg/ pkg/
 COPY cmd/ cmd/
 COPY main.go main.go
 COPY go.mod go.mod
 COPY go.sum go.sum
-RUN go mod download
-RUN go build -o scoretrak -ldflags "-X 'github.com/ScoreTrak/ScoreTrak/pkg/version.Version=${IMAGE_TAG}'"
-RUN chmod +x scoretrak
-ENTRYPOINT ["./scoretrak"]
+
+ENV CGO_ENABLED=0
+RUN go mod download && go build -o scoretrak -ldflags "-X 'github.com/ScoreTrak/ScoreTrak/pkg/version.Version=${IMAGE_TAG}'"
+
+FROM alpine:latest
+RUN mkdir -p /scoretrak
+WORKDIR /scoretrak
+COPY --from=builder \
+    /go/src/github.com/ScoreTrak/ScoreTrak/scoretrak \
+    /scoretrak/scoretrak
+
+ENTRYPOINT ["/scoretrak/scoretrak"]
 CMD ["master"]
