@@ -7,8 +7,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
-	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"
-	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
@@ -16,6 +14,8 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	. "github.com/smartystreets/goconvey/convey"
+	checkv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/check/v1"
+	protov1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/proto/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -113,7 +113,7 @@ func TestCheckSpec(t *testing.T) {
 				opts = append(opts, grpc_middleware.WithStreamServerChain(middlewareChainsStream...))
 
 				s := grpc.NewServer(opts...)
-				checkpb.RegisterCheckServiceServer(s, NewCheckController(cs, &us))
+				checkv1.RegisterCheckServiceServer(s, NewCheckController(cs, &us))
 
 				go func() {
 					if err := s.Serve(lis); err != nil {
@@ -129,7 +129,7 @@ func TestCheckSpec(t *testing.T) {
 					t.Fatalf("Failed to dial bufnet: %v", err)
 				}
 				defer conn.Close()
-				client := checkpb.NewCheckServiceClient(conn)
+				client := checkv1.NewCheckServiceClient(conn)
 
 				Convey("Then run GetAllByRoundID", func() {
 
@@ -142,8 +142,8 @@ func TestCheckSpec(t *testing.T) {
 				Convey("Then run GetByRoundServiceID", func() {
 					Convey("With Correct parameters", func() {
 						if claim.Role == user.Black {
-							resp, err := client.GetByRoundServiceID(ctx, &checkpb.GetByRoundServiceIDRequest{
-								ServiceId: &utilpb.UUID{Value: "11111111-1111-1111-1111-111111111111"},
+							resp, err := client.GetByRoundServiceID(ctx, &checkv1.GetByRoundServiceIDRequest{
+								ServiceId: &protov1.UUID{Value: "11111111-1111-1111-1111-111111111111"},
 								RoundId:   1,
 							})
 							So(err, ShouldBeNil)
@@ -151,15 +151,15 @@ func TestCheckSpec(t *testing.T) {
 							So(resp.Check.Log, ShouldEqual, "Successful Check One!")
 						}
 						if claim.Role == user.Blue {
-							resp, err := client.GetByRoundServiceID(ctx, &checkpb.GetByRoundServiceIDRequest{
-								ServiceId: &utilpb.UUID{Value: "22222222-2222-2222-2222-222222222222"},
+							resp, err := client.GetByRoundServiceID(ctx, &checkv1.GetByRoundServiceIDRequest{
+								ServiceId: &protov1.UUID{Value: "22222222-2222-2222-2222-222222222222"},
 								RoundId:   2,
 							})
 							So(err, ShouldBeNil)
 							So(resp.Check, ShouldNotBeNil)
 							So(resp.Check.Log, ShouldEqual, "Successful Check Two!")
-							resp, err = client.GetByRoundServiceID(ctx, &checkpb.GetByRoundServiceIDRequest{
-								ServiceId: &utilpb.UUID{Value: "11111111-1111-1111-1111-111111111111"},
+							resp, err = client.GetByRoundServiceID(ctx, &checkv1.GetByRoundServiceIDRequest{
+								ServiceId: &protov1.UUID{Value: "11111111-1111-1111-1111-111111111111"},
 								RoundId:   1,
 							})
 							So(err, ShouldNotBeNil)
@@ -175,8 +175,8 @@ func TestCheckSpec(t *testing.T) {
 					Convey("With following incorrect parameters", func() {
 						Convey("ServiceId", func() {
 							Convey("Set to non existing ID", func() {
-								resp, err := client.GetByRoundServiceID(ctx, &checkpb.GetByRoundServiceIDRequest{
-									ServiceId: &utilpb.UUID{Value: "55555555-5555-5555-5555-555555555500"},
+								resp, err := client.GetByRoundServiceID(ctx, &checkv1.GetByRoundServiceIDRequest{
+									ServiceId: &protov1.UUID{Value: "55555555-5555-5555-5555-555555555500"},
 									RoundId:   1,
 								})
 								So(err, ShouldNotBeNil)
@@ -187,7 +187,7 @@ func TestCheckSpec(t *testing.T) {
 								So(resp, ShouldBeNil)
 							})
 							Convey("Set to null", func() {
-								resp, err := client.GetByRoundServiceID(ctx, &checkpb.GetByRoundServiceIDRequest{
+								resp, err := client.GetByRoundServiceID(ctx, &checkv1.GetByRoundServiceIDRequest{
 									ServiceId: nil,
 									RoundId:   1,
 								})
@@ -200,8 +200,8 @@ func TestCheckSpec(t *testing.T) {
 							})
 
 							Convey("Set null uuid", func() {
-								resp, err := client.GetByRoundServiceID(ctx, &checkpb.GetByRoundServiceIDRequest{
-									ServiceId: &utilpb.UUID{},
+								resp, err := client.GetByRoundServiceID(ctx, &checkv1.GetByRoundServiceIDRequest{
+									ServiceId: &protov1.UUID{},
 									RoundId:   1,
 								})
 								So(err, ShouldNotBeNil)

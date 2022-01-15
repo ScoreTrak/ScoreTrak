@@ -5,40 +5,40 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	roundpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/round/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round/roundservice"
 	"github.com/golang/protobuf/ptypes/timestamp"
+	roundv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/round/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type RoundController struct {
 	svc roundservice.Serv
-	roundpb.UnimplementedRoundServiceServer
+	roundv1.UnimplementedRoundServiceServer
 }
 
-func (r RoundController) GetLastNonElapsingRound(ctx context.Context, _ *roundpb.GetLastNonElapsingRoundRequest) (*roundpb.GetLastNonElapsingRoundResponse, error) {
+func (r RoundController) GetLastNonElapsingRound(ctx context.Context, _ *roundv1.GetLastNonElapsingRoundRequest) (*roundv1.GetLastNonElapsingRoundResponse, error) {
 	rnd, err := r.svc.GetLastNonElapsingRound(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	return &roundpb.GetLastNonElapsingRoundResponse{Round: ConvertRoundToRoundPb(rnd)}, nil
+	return &roundv1.GetLastNonElapsingRoundResponse{Round: ConvertRoundToRoundPb(rnd)}, nil
 }
 
-func (r RoundController) GetAll(ctx context.Context, _ *roundpb.GetAllRequest) (*roundpb.GetAllResponse, error) {
+func (r RoundController) GetAll(ctx context.Context, _ *roundv1.GetAllRequest) (*roundv1.GetAllResponse, error) {
 	rnds, err := r.svc.GetAll(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	rndspb := make([]*roundpb.Round, 0, len(rnds))
+	rndspb := make([]*roundv1.Round, 0, len(rnds))
 	for i := range rnds {
 		rndspb = append(rndspb, ConvertRoundToRoundPb(rnds[i]))
 	}
-	return &roundpb.GetAllResponse{Rounds: rndspb}, nil
+	return &roundv1.GetAllResponse{Rounds: rndspb}, nil
 }
 
-func (r RoundController) GetByID(ctx context.Context, request *roundpb.GetByIDRequest) (*roundpb.GetByIDResponse, error) {
+func (r RoundController) GetByID(ctx context.Context, request *roundv1.GetByIDRequest) (*roundv1.GetByIDResponse, error) {
 	roundID := request.GetId()
 	if roundID == 0 {
 		return nil, status.Errorf(
@@ -51,22 +51,22 @@ func (r RoundController) GetByID(ctx context.Context, request *roundpb.GetByIDRe
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	return &roundpb.GetByIDResponse{Round: ConvertRoundToRoundPb(rnd)}, nil
+	return &roundv1.GetByIDResponse{Round: ConvertRoundToRoundPb(rnd)}, nil
 }
 
-func (r RoundController) GetLastRound(ctx context.Context, _ *roundpb.GetLastRoundRequest) (*roundpb.GetLastRoundResponse, error) {
+func (r RoundController) GetLastRound(ctx context.Context, _ *roundv1.GetLastRoundRequest) (*roundv1.GetLastRoundResponse, error) {
 	rnd, err := r.svc.GetLastRound(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	return &roundpb.GetLastRoundResponse{Round: ConvertRoundToRoundPb(rnd)}, nil
+	return &roundv1.GetLastRoundResponse{Round: ConvertRoundToRoundPb(rnd)}, nil
 }
 
 func NewRoundController(svc roundservice.Serv) *RoundController {
 	return &RoundController{svc: svc}
 }
 
-func ConvertRoundPBtoRound(requireID bool, pb *roundpb.Round) (*round.Round, error) {
+func ConvertRoundPBtoRound(requireID bool, pb *roundv1.Round) (*round.Round, error) {
 	if pb.Id == 0 && requireID {
 		return nil, status.Error(
 			codes.InvalidArgument,
@@ -84,13 +84,13 @@ func ConvertRoundPBtoRound(requireID bool, pb *roundpb.Round) (*round.Round, err
 	}, nil
 }
 
-func ConvertRoundToRoundPb(obj *round.Round) *roundpb.Round {
+func ConvertRoundToRoundPb(obj *round.Round) *roundv1.Round {
 	tss := timestamppb.New(obj.Start)
 	var tsf *timestamp.Timestamp
 	if obj.Finish != nil {
 		tsf = timestamppb.New(*obj.Finish)
 	}
-	return &roundpb.Round{
+	return &roundv1.Round{
 		Id:     obj.ID,
 		Start:  tss,
 		Note:   obj.Note,

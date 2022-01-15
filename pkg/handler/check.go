@@ -5,12 +5,12 @@ import (
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkservice"
-	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"
-	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
+	checkv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/check/v1"
+	protov1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/proto/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -18,10 +18,10 @@ import (
 type CheckController struct {
 	svc    checkservice.Serv
 	client *util.Store
-	checkpb.UnimplementedCheckServiceServer
+	checkv1.UnimplementedCheckServiceServer
 }
 
-func (c *CheckController) GetAllByRoundID(ctx context.Context, request *checkpb.GetAllByRoundIDRequest) (*checkpb.GetAllByRoundIDResponse, error) {
+func (c *CheckController) GetAllByRoundID(ctx context.Context, request *checkv1.GetAllByRoundIDRequest) (*checkv1.GetAllByRoundIDResponse, error) {
 	roundID := request.GetRoundId()
 	if roundID == 0 {
 		return nil, status.Errorf(
@@ -34,17 +34,17 @@ func (c *CheckController) GetAllByRoundID(ctx context.Context, request *checkpb.
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	chkspb := make([]*checkpb.Check, 0, len(chks))
+	chkspb := make([]*checkv1.Check, 0, len(chks))
 	for i := range chks {
 		chkspb = append(
 			chkspb,
 			ConvertCheckToCheckPb(chks[i]),
 		)
 	}
-	return &checkpb.GetAllByRoundIDResponse{Checks: chkspb}, nil
+	return &checkv1.GetAllByRoundIDResponse{Checks: chkspb}, nil
 }
 
-func (c *CheckController) GetByRoundServiceID(ctx context.Context, request *checkpb.GetByRoundServiceIDRequest) (*checkpb.GetByRoundServiceIDResponse, error) {
+func (c *CheckController) GetByRoundServiceID(ctx context.Context, request *checkv1.GetByRoundServiceIDRequest) (*checkv1.GetByRoundServiceIDResponse, error) {
 	serviceID := request.GetServiceId()
 	if serviceID == nil {
 		return nil, status.Errorf(
@@ -90,10 +90,10 @@ func (c *CheckController) GetByRoundServiceID(ctx context.Context, request *chec
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	return &checkpb.GetByRoundServiceIDResponse{Check: ConvertCheckToCheckPb(chk)}, nil
+	return &checkv1.GetByRoundServiceIDResponse{Check: ConvertCheckToCheckPb(chk)}, nil
 }
 
-func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkpb.GetAllByServiceIDRequest) (*checkpb.GetAllByServiceIDResponse, error) {
+func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkv1.GetAllByServiceIDRequest) (*checkv1.GetAllByServiceIDResponse, error) {
 	serviceID := request.GetServiceId()
 	if serviceID == nil {
 		return nil, status.Errorf(
@@ -128,23 +128,23 @@ func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkp
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	chkspb := make([]*checkpb.Check, 0, len(chks))
+	chkspb := make([]*checkv1.Check, 0, len(chks))
 	for i := range chks {
 		chkspb = append(
 			chkspb,
 			ConvertCheckToCheckPb(chks[i]),
 		)
 	}
-	return &checkpb.GetAllByServiceIDResponse{Checks: chkspb}, nil
+	return &checkv1.GetAllByServiceIDResponse{Checks: chkspb}, nil
 }
 
 func NewCheckController(svc checkservice.Serv, client *util.Store) *CheckController {
 	return &CheckController{svc: svc, client: client}
 }
 
-func ConvertCheckToCheckPb(obj *check.Check) *checkpb.Check {
-	return &checkpb.Check{
-		ServiceId: &utilpb.UUID{Value: obj.ServiceID.String()},
+func ConvertCheckToCheckPb(obj *check.Check) *checkv1.Check {
+	return &checkv1.Check{
+		ServiceId: &protov1.UUID{Value: obj.ServiceID.String()},
 		RoundId:   obj.RoundID,
 		Log:       obj.Log,
 		Err:       obj.Err,
@@ -152,7 +152,7 @@ func ConvertCheckToCheckPb(obj *check.Check) *checkpb.Check {
 	}
 }
 
-func ConvertCheckPBtoCheck(pb *checkpb.Check) (*check.Check, error) {
+func ConvertCheckPBtoCheck(pb *checkv1.Check) (*check.Check, error) {
 	var sID uuid.UUID
 	var err error
 	if pb.GetServiceId() != nil {

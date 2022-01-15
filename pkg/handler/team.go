@@ -4,22 +4,22 @@ import (
 	"context"
 	"fmt"
 
-	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
-	teampb "github.com/ScoreTrak/ScoreTrak/pkg/proto/team/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team/teamservice"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
+	utilv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/proto/v1"
+	teamv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/team/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type TeamController struct {
 	svc teamservice.Serv
-	teampb.UnimplementedTeamServiceServer
+	teamv1.UnimplementedTeamServiceServer
 }
 
-func (p TeamController) GetByID(ctx context.Context, request *teampb.GetByIDRequest) (*teampb.GetByIDResponse, error) {
+func (p TeamController) GetByID(ctx context.Context, request *teamv1.GetByIDRequest) (*teamv1.GetByIDResponse, error) {
 	uid, err := extractUUID(request)
 	if err != nil {
 		return nil, err
@@ -28,22 +28,22 @@ func (p TeamController) GetByID(ctx context.Context, request *teampb.GetByIDRequ
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	return &teampb.GetByIDResponse{Team: ConvertTeamToTeamPb(tm)}, nil
+	return &teamv1.GetByIDResponse{Team: ConvertTeamToTeamPb(tm)}, nil
 }
 
-func (p TeamController) GetAll(ctx context.Context, _ *teampb.GetAllRequest) (*teampb.GetAllResponse, error) {
+func (p TeamController) GetAll(ctx context.Context, _ *teamv1.GetAllRequest) (*teamv1.GetAllResponse, error) {
 	tms, err := p.svc.GetAll(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	tmspb := make([]*teampb.Team, 0, len(tms))
+	tmspb := make([]*teamv1.Team, 0, len(tms))
 	for i := range tms {
 		tmspb = append(tmspb, ConvertTeamToTeamPb(tms[i]))
 	}
-	return &teampb.GetAllResponse{Teams: tmspb}, nil
+	return &teamv1.GetAllResponse{Teams: tmspb}, nil
 }
 
-func (p TeamController) Delete(ctx context.Context, request *teampb.DeleteRequest) (*teampb.DeleteResponse, error) {
+func (p TeamController) Delete(ctx context.Context, request *teamv1.DeleteRequest) (*teamv1.DeleteResponse, error) {
 	uid, err := extractUUID(request)
 	if err != nil {
 		return nil, err
@@ -52,10 +52,10 @@ func (p TeamController) Delete(ctx context.Context, request *teampb.DeleteReques
 	if err != nil {
 		return nil, deleteErrorParser(err)
 	}
-	return &teampb.DeleteResponse{}, nil
+	return &teamv1.DeleteResponse{}, nil
 }
 
-func (p TeamController) Store(ctx context.Context, request *teampb.StoreRequest) (*teampb.StoreResponse, error) {
+func (p TeamController) Store(ctx context.Context, request *teamv1.StoreRequest) (*teamv1.StoreResponse, error) {
 	tmspb := request.GetTeams()
 	tms := make([]*team.Team, 0, len(tmspb))
 	for i := range tmspb {
@@ -71,14 +71,14 @@ func (p TeamController) Store(ctx context.Context, request *teampb.StoreRequest)
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	ids := make([]*utilpb.UUID, 0, len(tms))
+	ids := make([]*utilv1.UUID, 0, len(tms))
 	for i := range tms {
-		ids = append(ids, &utilpb.UUID{Value: tms[i].ID.String()})
+		ids = append(ids, &utilv1.UUID{Value: tms[i].ID.String()})
 	}
-	return &teampb.StoreResponse{Ids: ids}, nil
+	return &teamv1.StoreResponse{Ids: ids}, nil
 }
 
-func (p TeamController) Update(ctx context.Context, request *teampb.UpdateRequest) (*teampb.UpdateResponse, error) {
+func (p TeamController) Update(ctx context.Context, request *teamv1.UpdateRequest) (*teamv1.UpdateResponse, error) {
 	tmspb := request.GetTeam()
 	tm, err := ConvertTeamPBtoTeam(true, tmspb)
 	if err != nil {
@@ -91,14 +91,14 @@ func (p TeamController) Update(ctx context.Context, request *teampb.UpdateReques
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	return &teampb.UpdateResponse{}, nil
+	return &teamv1.UpdateResponse{}, nil
 }
 
 func NewTeamController(svc teamservice.Serv) *TeamController {
 	return &TeamController{svc: svc}
 }
 
-func ConvertTeamPBtoTeam(requireID bool, pb *teampb.Team) (*team.Team, error) {
+func ConvertTeamPBtoTeam(requireID bool, pb *teamv1.Team) (*team.Team, error) {
 	var id uuid.UUID
 	var err error
 	if pb.GetId() != nil {
@@ -141,13 +141,13 @@ func ConvertTeamPBtoTeam(requireID bool, pb *teampb.Team) (*team.Team, error) {
 	}, nil
 }
 
-func ConvertTeamToTeamPb(obj *team.Team) *teampb.Team {
+func ConvertTeamToTeamPb(obj *team.Team) *teamv1.Team {
 	var idx uint64
 	if obj.Index != nil {
 		idx = *obj.Index
 	}
-	return &teampb.Team{
-		Id:    &utilpb.UUID{Value: obj.ID.String()},
+	return &teamv1.Team{
+		Id:    &utilv1.UUID{Value: obj.ID.String()},
 		Name:  obj.Name,
 		Hide:  &wrappers.BoolValue{Value: *obj.Hide},
 		Hosts: nil,

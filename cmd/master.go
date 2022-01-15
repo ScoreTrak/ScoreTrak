@@ -26,20 +26,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyclient"
 	policyService "github.com/ScoreTrak/ScoreTrak/pkg/policy/policyservice"
 	propertyService "github.com/ScoreTrak/ScoreTrak/pkg/property/propertyservice"
-	authpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/auth/v1"
-	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"
-	competitionpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/competition/v1"
-	configpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/config/v1"
-	hostpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/host/v1"
-	host_grouppb "github.com/ScoreTrak/ScoreTrak/pkg/proto/host_group/v1"
-	policypb "github.com/ScoreTrak/ScoreTrak/pkg/proto/policy/v1"
-	propertypb "github.com/ScoreTrak/ScoreTrak/pkg/proto/property/v1"
-	reportpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/report/v1"
-	roundpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/round/v1"
-	servicepb "github.com/ScoreTrak/ScoreTrak/pkg/proto/service/v1"
-	service_grouppb "github.com/ScoreTrak/ScoreTrak/pkg/proto/service_group/v1"
-	teampb "github.com/ScoreTrak/ScoreTrak/pkg/proto/team/v1"
-	userpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/user/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportclient"
@@ -60,6 +46,20 @@ import (
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	"github.com/jackc/pgconn"
+	authv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/auth/v1"
+	checkv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/check/v1"
+	competitionv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/competition/v1"
+	configv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/config/v1"
+	hostv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/host/v1"
+	host_groupv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/host_group/v1"
+	policyv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/policy/v1"
+	propertyv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/property/v1"
+	reportv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/report/v1"
+	roundv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/round/v1"
+	servicev1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/service/v1"
+	service_groupv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/service_group/v1"
+	teamv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/team/v1"
+	userv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/user/v1"
 	"go.uber.org/dig"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
@@ -330,11 +330,11 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 		}); err != nil {
 			return err
 		}
-		checkpb.RegisterCheckServiceServer(server, handler.NewCheckController(checkSvc, repoStore))
+		checkv1.RegisterCheckServiceServer(server, handler.NewCheckController(checkSvc, repoStore))
 	}
 	{
 		comptSvc := competitionService.NewCompetitionServ(repoStore)
-		competitionpb.RegisterCompetitionServiceServer(server, handler.NewCompetitionController(comptSvc))
+		competitionv1.RegisterCompetitionServiceServer(server, handler.NewCompetitionController(comptSvc))
 	}
 	{
 		var configSvc configService.Serv
@@ -343,7 +343,7 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 		}); err != nil {
 			return err
 		}
-		configpb.RegisterDynamicConfigServiceServer(server, handler.NewConfigController(configSvc))
+		configv1.RegisterDynamicConfigServiceServer(server, handler.NewConfigController(configSvc))
 
 		var staticConfigSvc configService.StaticServ
 		if err := d.Invoke(func(s configService.StaticServ) {
@@ -351,7 +351,7 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 		}); err != nil {
 			return err
 		}
-		configpb.RegisterStaticConfigServiceServer(server, handler.NewStaticConfigController(staticConfigSvc))
+		configv1.RegisterStaticConfigServiceServer(server, handler.NewStaticConfigController(staticConfigSvc))
 	}
 	{
 		var hostSvc hostService.Serv
@@ -360,7 +360,7 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 		}); err != nil {
 			return err
 		}
-		hostpb.RegisterHostServiceServer(server, handler.NewHostController(hostSvc, repoStore))
+		hostv1.RegisterHostServiceServer(server, handler.NewHostController(hostSvc, repoStore))
 	}
 	{
 		var hostGroupSvc hostGroupService.Serv
@@ -369,7 +369,7 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 		}); err != nil {
 			return err
 		}
-		host_grouppb.RegisterHostGroupServiceServer(server, handler.NewHostGroupController(hostGroupSvc))
+		host_groupv1.RegisterHostGroupServiceServer(server, handler.NewHostGroupController(hostGroupSvc))
 	}
 	{
 		var propertySvc propertyService.Serv
@@ -378,7 +378,7 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 		}); err != nil {
 			return err
 		}
-		propertypb.RegisterPropertyServiceServer(server, handler.NewPropertyController(propertySvc, repoStore))
+		propertyv1.RegisterPropertyServiceServer(server, handler.NewPropertyController(propertySvc, repoStore))
 	}
 	{
 		var reportSvc reportService.Serv
@@ -403,7 +403,7 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 		go func() {
 			reportClient.ReportClient()
 		}()
-		reportpb.RegisterReportServiceServer(server, handler.NewReportController(reportSvc, reportClient, policyClient))
+		reportv1.RegisterReportServiceServer(server, handler.NewReportController(reportSvc, reportClient, policyClient))
 	}
 	{
 		var roundSvc roundService.Serv
@@ -412,7 +412,7 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 		}); err != nil {
 			return err
 		}
-		roundpb.RegisterRoundServiceServer(server, handler.NewRoundController(roundSvc))
+		roundv1.RegisterRoundServiceServer(server, handler.NewRoundController(roundSvc))
 	}
 	{
 		var serviceSvc serviceService.Serv
@@ -421,7 +421,7 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 		}); err != nil {
 			return err
 		}
-		servicepb.RegisterServiceServiceServer(server, handler.NewServiceController(serviceSvc, repoStore))
+		servicev1.RegisterServiceServiceServer(server, handler.NewServiceController(serviceSvc, repoStore))
 	}
 
 	{
@@ -431,7 +431,7 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 		}); err != nil {
 			return err
 		}
-		service_grouppb.RegisterServiceGroupServiceServer(server, handler.NewServiceGroupController(serviceGroupSvc))
+		service_groupv1.RegisterServiceGroupServiceServer(server, handler.NewServiceGroupController(serviceGroupSvc))
 	}
 
 	var uuid1 = uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
@@ -462,7 +462,7 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 				return err
 			}
 		}
-		teampb.RegisterTeamServiceServer(server, handler.NewTeamController(teamSvc))
+		teamv1.RegisterTeamServiceServer(server, handler.NewTeamController(teamSvc))
 	}
 
 	{
@@ -487,9 +487,9 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 				return err
 			}
 		}
-		userpb.RegisterUserServiceServer(server, handler.NewUserController(userServ, policyClient))
+		userv1.RegisterUserServiceServer(server, handler.NewUserController(userServ, policyClient))
 
-		authpb.RegisterAuthServiceServer(server, handler.NewAuthController(userServ, jwtManager))
+		authv1.RegisterAuthServiceServer(server, handler.NewAuthController(userServ, jwtManager))
 	}
 
 	// Create Policy service
@@ -501,7 +501,7 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 	}
 
 	{
-		policypb.RegisterPolicyServiceServer(server, handler.NewPolicyController(policyServ, policyClient))
+		policyv1.RegisterPolicyServiceServer(server, handler.NewPolicyController(policyServ, policyClient))
 	}
 	return nil
 }
