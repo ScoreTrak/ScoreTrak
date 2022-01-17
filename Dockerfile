@@ -13,7 +13,7 @@ COPY go.sum go.sum
 ENV CGO_ENABLED=0
 RUN go mod download && go build -o scoretrak -ldflags "-X 'github.com/ScoreTrak/ScoreTrak/pkg/version.Version=${IMAGE_TAG}'"
 
-FROM alpine:latest
+FROM alpine:3.14.3
 RUN mkdir -p /scoretrak
 WORKDIR /scoretrak
 COPY --from=builder \
