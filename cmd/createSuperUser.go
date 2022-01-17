@@ -6,9 +6,9 @@ import (
 	"log"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
-	authpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/auth/v1"
-	v1 "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
-	userpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/user/v1"
+	authv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/auth/v1"
+	protov1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/proto/v1"
+	userv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/user/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
@@ -68,8 +68,8 @@ func createNewSuperUser(address string, adminUsername string, adminPassword stri
 	if err != nil {
 		log.Fatal("cannot dial server: ", err)
 	}
-	authClient := authpb.NewAuthServiceClient(cc)
-	resp, err := authClient.Login(context.Background(), &authpb.LoginRequest{Password: adminPassword, Username: adminUsername})
+	authClient := authv1.NewAuthServiceClient(cc)
+	resp, err := authClient.Login(context.Background(), &authv1.LoginRequest{Password: adminPassword, Username: adminUsername})
 	if err != nil {
 		return err
 	}
@@ -84,17 +84,17 @@ func createNewSuperUser(address string, adminUsername string, adminPassword stri
 	log.Println("Authentication token is valid until " + claims.ExpiresAt.Time.String())
 
 	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("authorization", resp.AccessToken))
-	userCli := userpb.NewUserServiceClient(cc)
-	userResponse, err := userCli.GetByUsername(ctx, &userpb.GetByUsernameRequest{Username: newUsername})
+	userCli := userv1.NewUserServiceClient(cc)
+	userResponse, err := userCli.GetByUsername(ctx, &userv1.GetByUsernameRequest{Username: newUsername})
 	if err != nil || userResponse.GetUser() == nil || userResponse.GetUser().Username != newUsername {
 		if teamID == "" {
 			teamID = claims.TeamID
 		}
-		if _, err = userCli.Store(ctx, &userpb.StoreRequest{Users: []*userpb.User{{
+		if _, err = userCli.Store(ctx, &userv1.StoreRequest{Users: []*userv1.User{{
 			Username: newUsername,
-			TeamId:   &v1.UUID{Value: teamID},
+			TeamId:   &protov1.UUID{Value: teamID},
 			Password: newPassword,
-			Role:     userpb.Role_ROLE_BLACK,
+			Role:     userv1.Role_ROLE_BLACK,
 		}}}); err != nil {
 			return fmt.Errorf("failed to create user: %w", err)
 		}

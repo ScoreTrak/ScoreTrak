@@ -6,12 +6,12 @@ import (
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host/hostservice"
-	hostpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/host/v1"
-	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
+	hostv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/host/v1"
+	protov1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/proto/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -19,10 +19,10 @@ import (
 type HostController struct {
 	svc    hostservice.Serv
 	client *util.Store
-	hostpb.UnimplementedHostServiceServer
+	hostv1.UnimplementedHostServiceServer
 }
 
-func (p HostController) GetByID(ctx context.Context, request *hostpb.GetByIDRequest) (*hostpb.GetByIDResponse, error) {
+func (p HostController) GetByID(ctx context.Context, request *hostv1.GetByIDRequest) (*hostv1.GetByIDResponse, error) {
 	uid, err := extractUUID(request)
 	if err != nil {
 		return nil, err
@@ -50,22 +50,22 @@ func (p HostController) GetByID(ctx context.Context, request *hostpb.GetByIDRequ
 			return nil, getErrorParser(err)
 		}
 	}
-	return &hostpb.GetByIDResponse{Host: ConvertHostToHostPb(hst)}, nil
+	return &hostv1.GetByIDResponse{Host: ConvertHostToHostPb(hst)}, nil
 }
 
-func (p HostController) GetAll(ctx context.Context, _ *hostpb.GetAllRequest) (*hostpb.GetAllResponse, error) {
+func (p HostController) GetAll(ctx context.Context, _ *hostv1.GetAllRequest) (*hostv1.GetAllResponse, error) {
 	props, err := p.svc.GetAll(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	servcspb := make([]*hostpb.Host, 0, len(props))
+	servcspb := make([]*hostv1.Host, 0, len(props))
 	for i := range props {
 		servcspb = append(servcspb, ConvertHostToHostPb(props[i]))
 	}
-	return &hostpb.GetAllResponse{Hosts: servcspb}, nil
+	return &hostv1.GetAllResponse{Hosts: servcspb}, nil
 }
 
-func (p HostController) Delete(ctx context.Context, request *hostpb.DeleteRequest) (*hostpb.DeleteResponse, error) {
+func (p HostController) Delete(ctx context.Context, request *hostv1.DeleteRequest) (*hostv1.DeleteResponse, error) {
 	uid, err := extractUUID(request)
 	if err != nil {
 		return nil, err
@@ -74,10 +74,10 @@ func (p HostController) Delete(ctx context.Context, request *hostpb.DeleteReques
 	if err != nil {
 		return nil, deleteErrorParser(err)
 	}
-	return &hostpb.DeleteResponse{}, nil
+	return &hostv1.DeleteResponse{}, nil
 }
 
-func (p HostController) Store(ctx context.Context, request *hostpb.StoreRequest) (*hostpb.StoreResponse, error) {
+func (p HostController) Store(ctx context.Context, request *hostv1.StoreRequest) (*hostv1.StoreResponse, error) {
 	servcspb := request.GetHosts()
 	props := make([]*host.Host, 0, len(servcspb))
 	for i := range servcspb {
@@ -100,14 +100,14 @@ func (p HostController) Store(ctx context.Context, request *hostpb.StoreRequest)
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	ids := make([]*utilpb.UUID, 0, len(props))
+	ids := make([]*protov1.UUID, 0, len(props))
 	for i := range props {
-		ids = append(ids, &utilpb.UUID{Value: props[i].ID.String()})
+		ids = append(ids, &protov1.UUID{Value: props[i].ID.String()})
 	}
-	return &hostpb.StoreResponse{Ids: ids}, nil
+	return &hostv1.StoreResponse{Ids: ids}, nil
 }
 
-func (p HostController) Update(ctx context.Context, request *hostpb.UpdateRequest) (*hostpb.UpdateResponse, error) {
+func (p HostController) Update(ctx context.Context, request *hostv1.UpdateRequest) (*hostv1.UpdateResponse, error) {
 	hst, err := ConvertHostPBtoHost(true, request.GetHost())
 	if err != nil {
 		return nil, err
@@ -136,14 +136,14 @@ func (p HostController) Update(ctx context.Context, request *hostpb.UpdateReques
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	return &hostpb.UpdateResponse{}, nil
+	return &hostv1.UpdateResponse{}, nil
 }
 
 func NewHostController(svc hostservice.Serv, client *util.Store) *HostController {
 	return &HostController{svc: svc, client: client}
 }
 
-func ConvertHostPBtoHost(requireID bool, pb *hostpb.Host) (*host.Host, error) {
+func ConvertHostPBtoHost(requireID bool, pb *hostv1.Host) (*host.Host, error) {
 	var err error
 	var id uuid.UUID
 	if pb.GetId() != nil {
@@ -222,10 +222,10 @@ func ConvertHostPBtoHost(requireID bool, pb *hostpb.Host) (*host.Host, error) {
 	}, nil
 }
 
-func ConvertHostToHostPb(obj *host.Host) *hostpb.Host {
-	var hstGrpID *utilpb.UUID
+func ConvertHostToHostPb(obj *host.Host) *hostv1.Host {
+	var hstGrpID *protov1.UUID
 	if obj.HostGroupID != nil {
-		hstGrpID = &utilpb.UUID{Value: obj.HostGroupID.String()}
+		hstGrpID = &protov1.UUID{Value: obj.HostGroupID.String()}
 	}
 
 	var addressList *wrappers.StringValue
@@ -233,11 +233,11 @@ func ConvertHostToHostPb(obj *host.Host) *hostpb.Host {
 		addressList = &wrappers.StringValue{Value: *obj.AddressListRange}
 	}
 
-	return &hostpb.Host{
-		Id:               &utilpb.UUID{Value: obj.ID.String()},
+	return &hostv1.Host{
+		Id:               &protov1.UUID{Value: obj.ID.String()},
 		Address:          obj.Address,
 		HostGroupId:      hstGrpID,
-		TeamId:           &utilpb.UUID{Value: obj.TeamID.String()},
+		TeamId:           &protov1.UUID{Value: obj.TeamID.String()},
 		Pause:            &wrappers.BoolValue{Value: *obj.Pause},
 		Hide:             &wrappers.BoolValue{Value: *obj.Hide},
 		EditHost:         &wrappers.BoolValue{Value: *obj.EditHost},

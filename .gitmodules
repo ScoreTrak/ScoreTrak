@@ -1,5 +1,0 @@
-[submodule "scoretrakapis"]
-	path = scoretrakapis
-	url = https://github.com/ScoreTrak/scoretrakapis
-[submodule ".\\scoretrakapis"]
-	branch = master

@@ -6,12 +6,12 @@ import (
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property/propertyservice"
-	propertypb "github.com/ScoreTrak/ScoreTrak/pkg/proto/property/v1"
-	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
+	propertyv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/property/v1"
+	protov1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/proto/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -19,22 +19,22 @@ import (
 type PropertyController struct {
 	svc    propertyservice.Serv
 	client *util.Store
-	propertypb.UnimplementedPropertyServiceServer
+	propertyv1.UnimplementedPropertyServiceServer
 }
 
-func (p PropertyController) GetAll(ctx context.Context, _ *propertypb.GetAllRequest) (*propertypb.GetAllResponse, error) {
+func (p PropertyController) GetAll(ctx context.Context, _ *propertyv1.GetAllRequest) (*propertyv1.GetAllResponse, error) {
 	props, err := p.svc.GetAll(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	propspb := make([]*propertypb.Property, 0, len(props))
+	propspb := make([]*propertyv1.Property, 0, len(props))
 	for i := range props {
 		propspb = append(propspb, ConvertPropertyToPropertyPb(props[i]))
 	}
-	return &propertypb.GetAllResponse{Properties: propspb}, nil
+	return &propertyv1.GetAllResponse{Properties: propspb}, nil
 }
 
-func (p PropertyController) Delete(ctx context.Context, request *propertypb.DeleteRequest) (*propertypb.DeleteResponse, error) {
+func (p PropertyController) Delete(ctx context.Context, request *propertyv1.DeleteRequest) (*propertyv1.DeleteResponse, error) {
 	id := request.GetServiceId()
 	if id == nil {
 		return nil, status.Errorf(
@@ -59,10 +59,10 @@ func (p PropertyController) Delete(ctx context.Context, request *propertypb.Dele
 	if err != nil {
 		return nil, deleteErrorParser(err)
 	}
-	return &propertypb.DeleteResponse{}, nil
+	return &propertyv1.DeleteResponse{}, nil
 }
 
-func (p PropertyController) Store(ctx context.Context, request *propertypb.StoreRequest) (*propertypb.StoreResponse, error) {
+func (p PropertyController) Store(ctx context.Context, request *propertyv1.StoreRequest) (*propertyv1.StoreResponse, error) {
 	propspb := request.GetProperties()
 	props := make([]*property.Property, 0, len(propspb))
 	for i := range propspb {
@@ -79,10 +79,10 @@ func (p PropertyController) Store(ctx context.Context, request *propertypb.Store
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	return &propertypb.StoreResponse{}, nil
+	return &propertyv1.StoreResponse{}, nil
 }
 
-func (p PropertyController) Update(ctx context.Context, request *propertypb.UpdateRequest) (*propertypb.UpdateResponse, error) {
+func (p PropertyController) Update(ctx context.Context, request *propertyv1.UpdateRequest) (*propertyv1.UpdateResponse, error) {
 	pr, err := ConvertPropertyPBtoProperty(request.Property)
 	if err != nil {
 		return nil, err
@@ -110,10 +110,10 @@ func (p PropertyController) Update(ctx context.Context, request *propertypb.Upda
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	return &propertypb.UpdateResponse{}, nil
+	return &propertyv1.UpdateResponse{}, nil
 }
 
-func (p PropertyController) GetByServiceIDKey(ctx context.Context, request *propertypb.GetByServiceIDKeyRequest) (*propertypb.GetByServiceIDKeyResponse, error) {
+func (p PropertyController) GetByServiceIDKey(ctx context.Context, request *propertyv1.GetByServiceIDKeyRequest) (*propertyv1.GetByServiceIDKeyResponse, error) {
 	id := request.GetServiceId()
 	if id == nil {
 		return nil, status.Errorf(
@@ -152,10 +152,10 @@ func (p PropertyController) GetByServiceIDKey(ctx context.Context, request *prop
 			return nil, getErrorParser(err)
 		}
 	}
-	return &propertypb.GetByServiceIDKeyResponse{Property: ConvertPropertyToPropertyPb(chk)}, nil
+	return &propertyv1.GetByServiceIDKeyResponse{Property: ConvertPropertyToPropertyPb(chk)}, nil
 }
 
-func (p PropertyController) GetAllByServiceID(ctx context.Context, request *propertypb.GetAllByServiceIDRequest) (*propertypb.GetAllByServiceIDResponse, error) {
+func (p PropertyController) GetAllByServiceID(ctx context.Context, request *propertyv1.GetAllByServiceIDRequest) (*propertyv1.GetAllByServiceIDResponse, error) {
 	id := request.GetServiceId()
 	if id == nil {
 		return nil, status.Errorf(
@@ -190,18 +190,18 @@ func (p PropertyController) GetAllByServiceID(ctx context.Context, request *prop
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	propspb := make([]*propertypb.Property, 0, len(props))
+	propspb := make([]*propertyv1.Property, 0, len(props))
 	for i := range props {
 		propspb = append(propspb, ConvertPropertyToPropertyPb(props[i]))
 	}
-	return &propertypb.GetAllByServiceIDResponse{Properties: propspb}, nil
+	return &propertyv1.GetAllByServiceIDResponse{Properties: propspb}, nil
 }
 
 func NewPropertyController(svc propertyservice.Serv, client *util.Store) *PropertyController {
 	return &PropertyController{svc: svc, client: client}
 }
 
-func ConvertPropertyPBtoProperty(pb *propertypb.Property) (*property.Property, error) {
+func ConvertPropertyPBtoProperty(pb *propertyv1.Property) (*property.Property, error) {
 	var id uuid.UUID
 	var err error
 	if pb.GetServiceId() != nil {
@@ -231,13 +231,13 @@ func ConvertPropertyPBtoProperty(pb *propertypb.Property) (*property.Property, e
 	var st string
 
 	switch pb.GetStatus() {
-	case propertypb.Status_STATUS_VIEW:
+	case propertyv1.Status_STATUS_VIEW:
 		st = property.View
-	case propertypb.Status_STATUS_EDIT:
+	case propertyv1.Status_STATUS_EDIT:
 		st = property.Edit
-	case propertypb.Status_STATUS_HIDE:
+	case propertyv1.Status_STATUS_HIDE:
 		st = property.Hide
-	case propertypb.Status_STATUS_UNSPECIFIED:
+	case propertyv1.Status_STATUS_UNSPECIFIED:
 		st = ""
 	}
 
@@ -249,23 +249,23 @@ func ConvertPropertyPBtoProperty(pb *propertypb.Property) (*property.Property, e
 	}, nil
 }
 
-func ConvertPropertyToPropertyPb(obj *property.Property) *propertypb.Property {
+func ConvertPropertyToPropertyPb(obj *property.Property) *propertyv1.Property {
 	var value *wrappers.StringValue
 	if obj.Value != nil {
 		value = &wrappers.StringValue{Value: *obj.Value}
 	}
-	var st propertypb.Status
+	var st propertyv1.Status
 	switch obj.Status {
 	case property.View:
-		st = propertypb.Status_STATUS_VIEW
+		st = propertyv1.Status_STATUS_VIEW
 	case property.Edit:
-		st = propertypb.Status_STATUS_EDIT
+		st = propertyv1.Status_STATUS_EDIT
 	case property.Hide:
-		st = propertypb.Status_STATUS_HIDE
+		st = propertyv1.Status_STATUS_HIDE
 	}
 
-	return &propertypb.Property{
-		ServiceId: &utilpb.UUID{Value: obj.ServiceID.String()},
+	return &propertyv1.Property{
+		ServiceId: &protov1.UUID{Value: obj.ServiceID.String()},
 		Key:       obj.Key,
 		Value:     value,
 		Status:    st,

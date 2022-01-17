@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 
-	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"
-	utilpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/proto/v1"
-	servicepb "github.com/ScoreTrak/ScoreTrak/pkg/proto/service/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	service2 "github.com/ScoreTrak/ScoreTrak/pkg/service/serviceservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
+	checkv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/check/v1"
+	protov1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/proto/v1"
+	servicev1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/service/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -20,10 +20,10 @@ import (
 type ServiceController struct {
 	svc    service2.Serv
 	client *util.Store
-	servicepb.UnimplementedServiceServiceServer
+	servicev1.UnimplementedServiceServiceServer
 }
 
-func (p ServiceController) GetByID(ctx context.Context, request *servicepb.GetByIDRequest) (*servicepb.GetByIDResponse, error) {
+func (p ServiceController) GetByID(ctx context.Context, request *servicev1.GetByIDRequest) (*servicev1.GetByIDResponse, error) {
 	uid, err := extractUUID(request)
 	if err != nil {
 		return nil, err
@@ -53,10 +53,10 @@ func (p ServiceController) GetByID(ctx context.Context, request *servicepb.GetBy
 		}
 	}
 
-	return &servicepb.GetByIDResponse{Service: ConvertServiceToServicePb(serv)}, nil
+	return &servicev1.GetByIDResponse{Service: ConvertServiceToServicePb(serv)}, nil
 }
 
-func (p ServiceController) TestService(ctx context.Context, request *servicepb.TestServiceRequest) (*servicepb.TestServiceResponse, error) {
+func (p ServiceController) TestService(ctx context.Context, request *servicev1.TestServiceRequest) (*servicev1.TestServiceResponse, error) {
 	uid, err := extractUUID(request)
 	if err != nil {
 		return nil, err
@@ -69,8 +69,8 @@ func (p ServiceController) TestService(ctx context.Context, request *servicepb.T
 		)
 	}
 
-	return &servicepb.TestServiceResponse{Check: &checkpb.Check{
-		ServiceId: &utilpb.UUID{Value: chck.ServiceID.String()},
+	return &servicev1.TestServiceResponse{Check: &checkv1.Check{
+		ServiceId: &protov1.UUID{Value: chck.ServiceID.String()},
 		RoundId:   0,
 		Log:       chck.Log,
 		Err:       chck.Err,
@@ -78,19 +78,19 @@ func (p ServiceController) TestService(ctx context.Context, request *servicepb.T
 	}}, err
 }
 
-func (p ServiceController) GetAll(ctx context.Context, request *servicepb.GetAllRequest) (*servicepb.GetAllResponse, error) {
+func (p ServiceController) GetAll(ctx context.Context, request *servicev1.GetAllRequest) (*servicev1.GetAllResponse, error) {
 	props, err := p.svc.GetAll(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	servcspb := make([]*servicepb.Service, 0, len(props))
+	servcspb := make([]*servicev1.Service, 0, len(props))
 	for i := range props {
 		servcspb = append(servcspb, ConvertServiceToServicePb(props[i]))
 	}
-	return &servicepb.GetAllResponse{Services: servcspb}, nil
+	return &servicev1.GetAllResponse{Services: servcspb}, nil
 }
 
-func (p ServiceController) Delete(ctx context.Context, request *servicepb.DeleteRequest) (*servicepb.DeleteResponse, error) {
+func (p ServiceController) Delete(ctx context.Context, request *servicev1.DeleteRequest) (*servicev1.DeleteResponse, error) {
 	uid, err := extractUUID(request)
 	if err != nil {
 		return nil, err
@@ -99,10 +99,10 @@ func (p ServiceController) Delete(ctx context.Context, request *servicepb.Delete
 	if err != nil {
 		return nil, deleteErrorParser(err)
 	}
-	return &servicepb.DeleteResponse{}, nil
+	return &servicev1.DeleteResponse{}, nil
 }
 
-func (p ServiceController) Store(ctx context.Context, request *servicepb.StoreRequest) (*servicepb.StoreResponse, error) {
+func (p ServiceController) Store(ctx context.Context, request *servicev1.StoreRequest) (*servicev1.StoreResponse, error) {
 	servcspb := request.GetServices()
 	props := make([]*service.Service, 0, len(servcspb))
 	for i := range servcspb {
@@ -132,14 +132,14 @@ func (p ServiceController) Store(ctx context.Context, request *servicepb.StoreRe
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	ids := make([]*utilpb.UUID, 0, len(props))
+	ids := make([]*protov1.UUID, 0, len(props))
 	for i := range props {
-		ids = append(ids, &utilpb.UUID{Value: props[i].ID.String()})
+		ids = append(ids, &protov1.UUID{Value: props[i].ID.String()})
 	}
-	return &servicepb.StoreResponse{Ids: ids}, nil
+	return &servicev1.StoreResponse{Ids: ids}, nil
 }
 
-func (p ServiceController) Update(ctx context.Context, request *servicepb.UpdateRequest) (*servicepb.UpdateResponse, error) {
+func (p ServiceController) Update(ctx context.Context, request *servicev1.UpdateRequest) (*servicev1.UpdateResponse, error) {
 	srvpb := request.GetService()
 	sr, err := ConvertServicePBtoService(true, srvpb)
 	if err != nil {
@@ -152,14 +152,14 @@ func (p ServiceController) Update(ctx context.Context, request *servicepb.Update
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	return &servicepb.UpdateResponse{}, nil
+	return &servicev1.UpdateResponse{}, nil
 }
 
 func NewServiceController(svc service2.Serv, client *util.Store) *ServiceController {
 	return &ServiceController{svc: svc, client: client}
 }
 
-func ConvertServicePBtoService(requireID bool, pb *servicepb.Service) (*service.Service, error) {
+func ConvertServicePBtoService(requireID bool, pb *servicev1.Service) (*service.Service, error) {
 	var id uuid.UUID
 	var err error
 	if pb.GetId() != nil {
@@ -241,17 +241,17 @@ func ConvertServicePBtoService(requireID bool, pb *servicepb.Service) (*service.
 	}, nil
 }
 
-func ConvertServiceToServicePb(obj *service.Service) *servicepb.Service {
-	return &servicepb.Service{
-		Id:             &utilpb.UUID{Value: obj.ID.String()},
+func ConvertServiceToServicePb(obj *service.Service) *servicev1.Service {
+	return &servicev1.Service{
+		Id:             &protov1.UUID{Value: obj.ID.String()},
 		Name:           obj.Name,
 		DisplayName:    obj.DisplayName,
 		Weight:         &wrappers.UInt64Value{Value: *obj.Weight},
 		PointsBoost:    &wrappers.UInt64Value{Value: *obj.PointsBoost},
 		RoundUnits:     obj.RoundUnits,
 		RoundDelay:     &wrappers.UInt64Value{Value: *obj.RoundDelay},
-		ServiceGroupId: &utilpb.UUID{Value: obj.ServiceGroupID.String()},
-		HostId:         &utilpb.UUID{Value: obj.HostID.String()},
+		ServiceGroupId: &protov1.UUID{Value: obj.ServiceGroupID.String()},
+		HostId:         &protov1.UUID{Value: obj.HostID.String()},
 		Pause:          &wrappers.BoolValue{Value: *obj.Pause},
 		Hide:           &wrappers.BoolValue{Value: *obj.Hide},
 		Properties:     nil,

@@ -7,26 +7,26 @@ import (
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config/configservice"
-	configpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/config/v1"
 	"github.com/golang/protobuf/ptypes/wrappers"
+	configv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/config/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type ConfigController struct {
 	svc configservice.Serv
-	configpb.UnimplementedDynamicConfigServiceServer
+	configv1.UnimplementedDynamicConfigServiceServer
 }
 
-func (p ConfigController) Get(ctx context.Context, _ *configpb.GetRequest) (*configpb.GetResponse, error) {
+func (p ConfigController) Get(ctx context.Context, _ *configv1.GetRequest) (*configv1.GetResponse, error) {
 	cnf, err := p.svc.Get(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	return &configpb.GetResponse{DynamicConfig: ConvertDynamicConfigToDynamicConfigPB(cnf)}, nil
+	return &configv1.GetResponse{DynamicConfig: ConvertDynamicConfigToDynamicConfigPB(cnf)}, nil
 }
 
-func (p ConfigController) Update(ctx context.Context, request *configpb.UpdateRequest) (*configpb.UpdateResponse, error) {
+func (p ConfigController) Update(ctx context.Context, request *configv1.UpdateRequest) (*configv1.UpdateResponse, error) {
 	tmspb := request.GetDynamicConfig()
 	var enabled *bool
 	if tmspb.GetEnabled() != nil {
@@ -42,14 +42,14 @@ func (p ConfigController) Update(ctx context.Context, request *configpb.UpdateRe
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	return &configpb.UpdateResponse{}, nil
+	return &configv1.UpdateResponse{}, nil
 }
 
 func NewConfigController(svc configservice.Serv) *ConfigController {
 	return &ConfigController{svc: svc}
 }
 
-func ConvertDynamicConfigPBToDynamicConfig(pb *configpb.DynamicConfig) *config.DynamicConfig {
+func ConvertDynamicConfigPBToDynamicConfig(pb *configv1.DynamicConfig) *config.DynamicConfig {
 	var enabled *bool
 	if pb.GetEnabled() != nil {
 		enabled = &pb.GetEnabled().Value
@@ -60,8 +60,8 @@ func ConvertDynamicConfigPBToDynamicConfig(pb *configpb.DynamicConfig) *config.D
 	}
 }
 
-func ConvertDynamicConfigToDynamicConfigPB(obj *config.DynamicConfig) *configpb.DynamicConfig {
-	return &configpb.DynamicConfig{
+func ConvertDynamicConfigToDynamicConfigPB(obj *config.DynamicConfig) *configv1.DynamicConfig {
+	return &configv1.DynamicConfig{
 		RoundDuration: obj.RoundDuration,
 		Enabled:       &wrappers.BoolValue{Value: *obj.Enabled},
 	}
@@ -73,10 +73,10 @@ func NewStaticConfigController(svc configservice.StaticServ) *StaticConfigContro
 
 type StaticConfigController struct {
 	svc configservice.StaticServ
-	configpb.UnimplementedStaticConfigServiceServer
+	configv1.UnimplementedStaticConfigServiceServer
 }
 
-func (s StaticConfigController) Get(ctx context.Context, request *configpb.GetStaticConfigRequest) (*configpb.GetStaticConfigResponse, error) {
+func (s StaticConfigController) Get(ctx context.Context, request *configv1.GetStaticConfigRequest) (*configv1.GetStaticConfigResponse, error) {
 	sc, err := s.svc.Get()
 	if err != nil {
 		return nil, status.Errorf(
@@ -93,7 +93,7 @@ func (s StaticConfigController) Get(ctx context.Context, request *configpb.GetSt
 		)
 	}
 
-	return &configpb.GetStaticConfigResponse{
+	return &configv1.GetStaticConfigResponse{
 		StaticConfig: string(ret),
 	}, nil
 }

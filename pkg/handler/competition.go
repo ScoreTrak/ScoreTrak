@@ -11,33 +11,33 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
-	checkpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/check/v1"
-	competitionpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/competition/v1"
-	hostpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/host/v1"
-	host_grouppb "github.com/ScoreTrak/ScoreTrak/pkg/proto/host_group/v1"
-	propertypb "github.com/ScoreTrak/ScoreTrak/pkg/proto/property/v1"
-	reportpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/report/v1"
-	roundpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/round/v1"
-	servicepb "github.com/ScoreTrak/ScoreTrak/pkg/proto/service/v1"
-	service_grouppb "github.com/ScoreTrak/ScoreTrak/pkg/proto/service_group/v1"
-	teampb "github.com/ScoreTrak/ScoreTrak/pkg/proto/team/v1"
-	userpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/user/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	service2 "github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
+	checkv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/check/v1"
+	competitionv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/competition/v1"
+	hostv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/host/v1"
+	host_groupv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/host_group/v1"
+	propertyv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/property/v1"
+	reportv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/report/v1"
+	roundv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/round/v1"
+	servicev1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/service/v1"
+	service_groupv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/service_group/v1"
+	teamv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/team/v1"
+	userv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/user/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type CompetitionController struct {
 	svc competitionservice.Serv
-	competitionpb.UnimplementedCompetitionServiceServer
+	competitionv1.UnimplementedCompetitionServiceServer
 }
 
-func (c CompetitionController) LoadCompetition(ctx context.Context, request *competitionpb.LoadCompetitionRequest) (*competitionpb.LoadCompetitionResponse, error) {
+func (c CompetitionController) LoadCompetition(ctx context.Context, request *competitionv1.LoadCompetitionRequest) (*competitionv1.LoadCompetitionResponse, error) {
 	hstGrps := make([]*hostgroup.HostGroup, 0, len(request.GetCompetition().HostGroups))
 	for i := range request.GetCompetition().HostGroups {
 		hstGrp, err := ConvertHostGroupPBtoHostGroup(true, request.GetCompetition().HostGroups[i])
@@ -139,10 +139,10 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 			"Internal Error when loading competition: %v", err,
 		)
 	}
-	return &competitionpb.LoadCompetitionResponse{}, err
+	return &competitionv1.LoadCompetitionResponse{}, err
 }
 
-func (c CompetitionController) FetchCoreCompetition(ctx context.Context, _ *competitionpb.FetchCoreCompetitionRequest) (*competitionpb.FetchCoreCompetitionResponse, error) {
+func (c CompetitionController) FetchCoreCompetition(ctx context.Context, _ *competitionv1.FetchCoreCompetitionRequest) (*competitionv1.FetchCoreCompetitionResponse, error) {
 	comp, err := c.svc.FetchCoreCompetition(ctx)
 	if err != nil {
 		return nil, status.Errorf(
@@ -154,10 +154,10 @@ func (c CompetitionController) FetchCoreCompetition(ctx context.Context, _ *comp
 	if err != nil {
 		return nil, err
 	}
-	return &competitionpb.FetchCoreCompetitionResponse{Competition: comppb}, nil
+	return &competitionv1.FetchCoreCompetitionResponse{Competition: comppb}, nil
 }
 
-func (c CompetitionController) FetchEntireCompetition(ctx context.Context, _ *competitionpb.FetchEntireCompetitionRequest) (*competitionpb.FetchEntireCompetitionResponse, error) {
+func (c CompetitionController) FetchEntireCompetition(ctx context.Context, _ *competitionv1.FetchEntireCompetitionRequest) (*competitionv1.FetchEntireCompetitionResponse, error) {
 	comp, err := c.svc.FetchEntireCompetition(ctx)
 	if err != nil {
 		return nil, status.Errorf(
@@ -169,20 +169,20 @@ func (c CompetitionController) FetchEntireCompetition(ctx context.Context, _ *co
 	if err != nil {
 		return nil, err
 	}
-	return &competitionpb.FetchEntireCompetitionResponse{Competition: comppb}, nil
+	return &competitionv1.FetchEntireCompetitionResponse{Competition: comppb}, nil
 }
 
-func (c CompetitionController) ResetScores(ctx context.Context, _ *competitionpb.ResetScoresRequest) (*competitionpb.ResetScoresResponse, error) {
+func (c CompetitionController) ResetScores(ctx context.Context, _ *competitionv1.ResetScoresRequest) (*competitionv1.ResetScoresResponse, error) {
 	if err := c.svc.ResetScores(ctx); err != nil {
 		return nil, status.Errorf(
 			codes.Internal,
 			"Internal Error when fetching competition: %v", err,
 		)
 	}
-	return &competitionpb.ResetScoresResponse{}, nil
+	return &competitionv1.ResetScoresResponse{}, nil
 }
 
-func (c CompetitionController) DeleteCompetition(ctx context.Context, _ *competitionpb.DeleteCompetitionRequest) (*competitionpb.DeleteCompetitionResponse, error) {
+func (c CompetitionController) DeleteCompetition(ctx context.Context, _ *competitionv1.DeleteCompetitionRequest) (*competitionv1.DeleteCompetitionResponse, error) {
 	err := c.svc.DeleteCompetition(ctx)
 	if err != nil {
 		return nil, status.Errorf(
@@ -190,60 +190,60 @@ func (c CompetitionController) DeleteCompetition(ctx context.Context, _ *competi
 			"Internal Error when fetching competition: %v", err,
 		)
 	}
-	return &competitionpb.DeleteCompetitionResponse{}, nil
+	return &competitionv1.DeleteCompetitionResponse{}, nil
 }
 
 func NewCompetitionController(svc competitionservice.Serv) *CompetitionController {
 	return &CompetitionController{svc: svc}
 }
 
-func ConvertCompetitionToCompetitionPB(comp *competition.Competition) (*competitionpb.Competition, error) {
-	hstGrps := make([]*host_grouppb.HostGroup, 0, len(comp.HostGroups))
+func ConvertCompetitionToCompetitionPB(comp *competition.Competition) (*competitionv1.Competition, error) {
+	hstGrps := make([]*host_groupv1.HostGroup, 0, len(comp.HostGroups))
 	for i := range comp.HostGroups {
 		hstGrps = append(hstGrps, ConvertHostGroupToHostGroupPb(comp.HostGroups[i]))
 	}
-	hsts := make([]*hostpb.Host, 0, len(comp.Hosts))
+	hsts := make([]*hostv1.Host, 0, len(comp.Hosts))
 	for i := range comp.Hosts {
 		hsts = append(hsts, ConvertHostToHostPb(comp.Hosts[i]))
 	}
-	tms := make([]*teampb.Team, 0, len(comp.Teams))
+	tms := make([]*teamv1.Team, 0, len(comp.Teams))
 	for i := range comp.Teams {
 		tms = append(tms, ConvertTeamToTeamPb(comp.Teams[i]))
 	}
-	svcs := make([]*servicepb.Service, 0, len(comp.Services))
+	svcs := make([]*servicev1.Service, 0, len(comp.Services))
 	for i := range comp.Services {
 		svcs = append(svcs, ConvertServiceToServicePb(comp.Services[i]))
 	}
-	servGrps := make([]*service_grouppb.ServiceGroup, 0, len(comp.ServiceGroups))
+	servGrps := make([]*service_groupv1.ServiceGroup, 0, len(comp.ServiceGroups))
 	for i := range comp.ServiceGroups {
 		servGrps = append(servGrps, ConvertServiceGroupToServiceGroupPb(comp.ServiceGroups[i]))
 	}
-	rnds := make([]*roundpb.Round, 0, len(comp.Rounds))
+	rnds := make([]*roundv1.Round, 0, len(comp.Rounds))
 	for i := range comp.Rounds {
 		rnds = append(rnds, ConvertRoundToRoundPb(comp.Rounds[i]))
 	}
-	props := make([]*propertypb.Property, 0, len(comp.Properties))
+	props := make([]*propertyv1.Property, 0, len(comp.Properties))
 	for i := range comp.Properties {
 		props = append(props, ConvertPropertyToPropertyPb(comp.Properties[i]))
 	}
-	chcks := make([]*checkpb.Check, 0, len(comp.Checks))
+	chcks := make([]*checkv1.Check, 0, len(comp.Checks))
 	for i := range comp.Checks {
 		chcks = append(chcks, ConvertCheckToCheckPb(comp.Checks[i]))
 	}
-	usrs := make([]*userpb.User, 0, len(comp.Users))
+	usrs := make([]*userv1.User, 0, len(comp.Users))
 	for i := range comp.Users {
 		usrs = append(usrs, ConvertUserToUserPb(comp.Users[i]))
 	}
 
-	var rprt *reportpb.Report
+	var rprt *reportv1.Report
 	if comp.Report != nil {
-		rprt = &reportpb.Report{
+		rprt = &reportv1.Report{
 			Cache:     comp.Report.Cache,
 			UpdatedAt: timestamppb.New(comp.Report.UpdatedAt),
 		}
 	}
 
-	return &competitionpb.Competition{
+	return &competitionv1.Competition{
 		DynamicConfig: ConvertDynamicConfigToDynamicConfigPB(comp.Config),
 		Report:        rprt,
 		HostGroups:    hstGrps,

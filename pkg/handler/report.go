@@ -9,12 +9,12 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyclient"
-	reportpb "github.com/ScoreTrak/ScoreTrak/pkg/proto/report/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportclient"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
+	reportv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/report/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -23,7 +23,7 @@ type ReportController struct {
 	svc          reportservice.Serv
 	reportClient *reportclient.Client
 	policyClient *policyclient.Client
-	reportpb.UnimplementedReportServiceServer
+	reportv1.UnimplementedReportServiceServer
 }
 
 func removeDisabledAndHidden(simpleReport *report.SimpleReport) {
@@ -96,7 +96,7 @@ func filterBlueTeams(simpleReport *report.SimpleReport, tID uuid.UUID, p *policy
 	}
 }
 
-func (r *ReportController) filterReport(rol string, tID uuid.UUID, lr *report.Report) (*reportpb.Report, error) {
+func (r *ReportController) filterReport(rol string, tID uuid.UUID, lr *report.Report) (*reportv1.Report, error) {
 	simpleReport := &report.SimpleReport{}
 	err := json.Unmarshal([]byte(lr.Cache), simpleReport)
 	if err != nil {
@@ -111,13 +111,13 @@ func (r *ReportController) filterReport(rol string, tID uuid.UUID, lr *report.Re
 	if err != nil {
 		return nil, err
 	}
-	return &reportpb.Report{
+	return &reportv1.Report{
 		Cache:     string(ret),
 		UpdatedAt: timestamppb.New(lr.UpdatedAt),
 	}, nil
 }
 
-func (r *ReportController) Get(_ *reportpb.GetRequest, server reportpb.ReportService_GetServer) error {
+func (r *ReportController) Get(_ *reportv1.GetRequest, server reportv1.ReportService_GetServer) error {
 	rol := user.Anonymous
 	tID := uuid.UUID{}
 	lr, err := r.svc.Get(server.Context())
@@ -141,7 +141,7 @@ func (r *ReportController) Get(_ *reportpb.GetRequest, server reportpb.ReportSer
 		return status.Errorf(codes.Internal,
 			fmt.Sprintf("Unable to filter report: %v", err))
 	}
-	err = server.Send(&reportpb.GetResponse{Report: frep})
+	err = server.Send(&reportv1.GetResponse{Report: frep})
 	if err != nil {
 		return err
 	}
@@ -165,7 +165,7 @@ func (r *ReportController) Get(_ *reportpb.GetRequest, server reportpb.ReportSer
 				return status.Errorf(codes.Internal,
 					fmt.Sprintf("Unable to filter report: %v", err))
 			}
-			err = server.Send(&reportpb.GetResponse{Report: frep})
+			err = server.Send(&reportv1.GetResponse{Report: frep})
 			if err != nil {
 				return err
 			}
