@@ -16,7 +16,7 @@ require (
 	github.com/emersion/go-webdav v0.3.1
 	github.com/go-asn1-ber/asn1-ber v1.5.3 // indirect
 	github.com/go-ldap/ldap/v3 v3.4.1
-	github.com/gofrs/uuid v4.0.0+incompatible
+	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/golang/protobuf v1.5.2
 	github.com/googleapis/gnostic v0.3.1 // indirect
