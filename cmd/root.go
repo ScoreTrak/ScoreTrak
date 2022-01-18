@@ -86,9 +86,6 @@ func initConfig() {
 	viper.SetDefault("DB.Cockroach.Port", 26257)
 	viper.SetDefault("DB.Cockroach.Username", "root")
 	viper.SetDefault("DB.Cockroach.Database", "scoretrak")
-	viper.SetDefault("DB.Cockroach.ConfigureZones", true)
-	viper.SetDefault("DB.Cockroach.DefaultZoneConfig.GcTtlseconds", 600)
-	viper.SetDefault("DB.Cockroach.DefaultZoneConfig.BackpressueRangeSizeMultiplier", 0)
 
 	// Queue Defaults
 	viper.SetDefault("Queue.Use", "none")
