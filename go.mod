@@ -23,14 +23,11 @@ require (
 	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/hirochachacha/go-smb2 v1.0.10
-	github.com/jackc/pgconn v1.6.4
-	github.com/jackc/pgproto3/v2 v2.0.3 // indirect
-	github.com/jackc/pgx/v4 v4.8.1 // indirect
+	github.com/jackc/pgconn v1.10.1
 	github.com/jinzhu/configor v1.2.0
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
 	github.com/jlaffaye/ftp v0.0.0-20210307004419-5d4190119067
 	github.com/kr/text v0.2.0 // indirect
-	github.com/lib/pq v1.9.0 // indirect
 	github.com/masterzen/simplexml v0.0.0-20190410153822-31eea3082786 // indirect
 	github.com/masterzen/winrm v0.0.0-20210623064412-3b76017826b0
 	github.com/miekg/dns v1.1.43 // indirect
@@ -38,7 +35,6 @@ require (
 	github.com/nsqio/go-nsq v1.1.0
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/smartystreets/assertions v1.1.1 // indirect
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/spf13/cobra v1.2.1
@@ -49,14 +45,13 @@ require (
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	golang.org/x/net v0.0.0-20210929193557-e81a3d93ecf6 // indirect
 	golang.org/x/sys v0.0.0-20211001092434-39dca1131b70 // indirect
-	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba // indirect
 	google.golang.org/grpc v1.40.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/mysql v1.1.2
-	gorm.io/driver/postgres v0.2.6
+	gorm.io/driver/postgres v1.2.3
 	gorm.io/gorm v1.22.5
 	k8s.io/api v0.18.6
 	k8s.io/apimachinery v0.18.6
