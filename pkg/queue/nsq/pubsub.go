@@ -18,6 +18,7 @@ func (p PubSub) NotifyTopic(topic string) {
 	if err != nil {
 		log.Panicf("Unable to initialize producer to notify masters using queue. Ensure that the queue is reachable from master. Error Details: %v", err)
 	}
+	producer.SetLoggerLevel(nsq.LogLevelWarning)
 	err = producer.Publish(topic, make([]byte, 1))
 	if err != nil {
 		log.Panicf("Unable to publish to topic to notify masters. Ensure that the queue is reachable from master. Error Details: %v", err)
@@ -38,7 +39,7 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 		if err != nil {
 			log.Panicf("Unable to initualize consumer for topic: %s. Error Details: %v", topic, err)
 		}
-		consumer.SetLoggerLevel(nsq.LogLevelError)
+		consumer.SetLoggerLevel(nsq.LogLevelWarning)
 		consumer.AddHandler(
 			nsq.HandlerFunc(func(m *nsq.Message) error {
 				n <- struct{}{}

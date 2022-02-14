@@ -35,6 +35,7 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, erro
 	if err != nil {
 		return nil, nil, err
 	}
+	producer.SetLoggerLevel(nsq.LogLevelWarning)
 	defer producer.Stop()
 
 	m := make(map[string][][]byte)
@@ -63,7 +64,7 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, erro
 	ret := make([]*queueing.QCheck, len(sds))
 	consumer.ChangeMaxInFlight(len(sds))
 	cq := make(chan queueing.IndexedQueue, 1)
-	consumer.SetLoggerLevel(nsq.LogLevelError)
+	consumer.SetLoggerLevel(nsq.LogLevelWarning)
 
 	idIndexMap := make(map[uuid.UUID]int)
 
@@ -115,7 +116,7 @@ func (n WorkerQueue) Receive() {
 	if err != nil {
 		log.Panicf("Failed to initialize NSQ consumer. Error: %v", err)
 	}
-	consumer.SetLoggerLevel(nsq.LogLevelError)
+	consumer.SetLoggerLevel(nsq.LogLevelWarning)
 	consumer.AddConcurrentHandlers(nsq.HandlerFunc(func(m *nsq.Message) error {
 		buf := bytes.NewBuffer(m.Body)
 		var sd queueing.ScoringData
@@ -189,6 +190,7 @@ func (n WorkerQueue) Acknowledge(q queueing.QCheck) {
 	if err != nil {
 		panic(err)
 	}
+	producer.SetLoggerLevel(nsq.LogLevelWarning)
 	buf := &bytes.Buffer{}
 	if err := gob.NewEncoder(buf).Encode(&q); err != nil {
 		panic(err)
