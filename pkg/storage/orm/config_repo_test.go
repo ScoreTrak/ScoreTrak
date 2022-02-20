@@ -17,9 +17,9 @@ func TestConfigSpec(t *testing.T) {
 	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
-		c, _ = LoadConfig("../../../configs/test-config.yml")
+		c, _ = LoadViperConfig("../../../configs/test-config.yml")
 	} else {
-		c, _ = LoadConfig("dev-config.yml")
+		c, _ = LoadViperConfig("dev-config.yml")
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_config"
 	db := SetupCockroachDB(c.DB)
