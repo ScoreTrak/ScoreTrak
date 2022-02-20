@@ -19,6 +19,7 @@ require (
 	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/golang/protobuf v1.5.2
+	github.com/golang/snappy v0.0.4 // indirect
 	github.com/googleapis/gnostic v0.3.1 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
