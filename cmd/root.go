@@ -17,7 +17,7 @@ import (
 var cfgFile string
 var encodedCfg string
 var C config.StaticConfig
-var D *config.DynamicConfig
+var D config.DynamicConfig
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -145,9 +145,8 @@ func initConfig() {
 		log.SetFlags(log.LstdFlags | log.Lshortfile)
 	}
 
-	dynamicConfig, err := config.NewDynamicConfig(cfgFile)
+	err = viper.Unmarshal(&D)
 	if err != nil {
-		return
+		log.Fatalf("unable to decode dynamic config into struct, %v", err)
 	}
-	D = dynamicConfig
 }
