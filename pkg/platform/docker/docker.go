@@ -12,7 +12,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 	"github.com/docker/docker/api/types"

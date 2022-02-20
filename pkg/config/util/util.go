@@ -2,9 +2,10 @@ package util
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/spf13/viper"
-	"os"
 )
 
 func LoadViperConfig(path string) (config config.StaticConfig, err error) {

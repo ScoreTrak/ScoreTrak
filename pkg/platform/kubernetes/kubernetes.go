@@ -2,8 +2,8 @@ package kubernetes
 
 import (
 	"context"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 	appv1 "k8s.io/api/apps/v1"
