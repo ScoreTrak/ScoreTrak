@@ -1,15 +1,11 @@
 package config
 
 import (
-	"io/ioutil"
-
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	"github.com/jinzhu/configor"
-	"github.com/jinzhu/copier"
-	"gopkg.in/yaml.v2"
 )
 
 // StaticConfig is a struct of settings that are set at the start of the application. It contains Configs from other packages defined under pkg/ directory.
@@ -56,10 +52,6 @@ func GetDBConfig() storage.Config {
 	return staticConfig.DB
 }
 
-func GetJWTConfig() auth.Config {
-	return staticConfig.JWT
-}
-
 func GetPubSubConfig() queueing.MasterConfig {
 	return staticConfig.PubSubConfig
 }
@@ -78,25 +70,4 @@ func SetStaticConfig(config StaticConfig) {
 
 func GetStaticConfig() StaticConfig {
 	return staticConfig
-}
-
-func GetConfigCopy() (StaticConfig, error) {
-	cp := StaticConfig{}
-	err := copier.Copy(&cp, &staticConfig)
-	if err != nil {
-		return cp, err
-	}
-	return cp, nil
-}
-
-func SaveConfigToYamlFile(f string, config StaticConfig) error {
-	b, err := yaml.Marshal(&config)
-	if err != nil {
-		return err
-	}
-	err = ioutil.WriteFile(f, b, 0600)
-	if err != nil {
-		return err
-	}
-	return nil
 }

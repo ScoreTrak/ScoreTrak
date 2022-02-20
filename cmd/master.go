@@ -80,7 +80,7 @@ var masterCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Println("master called")
 
-		d, err := di.BuildMasterContainer()
+		d, err := di.BuildMasterContainer(C)
 		if err != nil {
 			log.Panicf("%v", err)
 		}
@@ -97,7 +97,7 @@ var masterCmd = &cobra.Command{
 			log.Panicf("%v", err)
 		}
 
-		err = sutil.LoadConfig(db, D)
+		err = sutil.LoadConfig(db, &D)
 		if err != nil {
 			log.Panicf("%v", err)
 		}

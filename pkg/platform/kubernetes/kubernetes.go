@@ -2,8 +2,8 @@ package kubernetes
 
 import (
 	"context"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 	appv1 "k8s.io/api/apps/v1"
@@ -16,9 +16,10 @@ import (
 type Kubernetes struct {
 	Client    *kubernetes.Clientset
 	Namespace string
+	Config    config.StaticConfig
 }
 
-func NewKubernetes(cnf platforming.Config) (d *Kubernetes, err error) {
+func NewKubernetes(cfg config.StaticConfig) (d *Kubernetes, err error) {
 	c, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, err
@@ -27,17 +28,13 @@ func NewKubernetes(cnf platforming.Config) (d *Kubernetes, err error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Kubernetes{Client: clientset, Namespace: cnf.Kubernetes.Namespace}, nil
+	return &Kubernetes{Client: clientset, Namespace: cfg.Platform.Kubernetes.Namespace, Config: cfg}, nil
 }
 
 func (k *Kubernetes) DeployWorkers(ctx context.Context, info worker.Info) error {
 	name := info.Label + "-" + info.Topic
 	labels := map[string]string{"scoretrak_worker": info.Label}
-	path, err := util.GenerateConfigFile(info)
-	if err != nil {
-		return err
-	}
-	cEnc, err := util.EncodeConfigFile(path)
+	encWorkerCfg, err := util.GenerateEncodedWorkerCfg(k.Config, info)
 	if err != nil {
 		return err
 	}
@@ -58,7 +55,7 @@ func (k *Kubernetes) DeployWorkers(ctx context.Context, info worker.Info) error 
 							{
 								Name:  "worker",
 								Image: util.Image,
-								Args:  []string{"worker", "--encoded-config", cEnc},
+								Args:  []string{"worker", "--encoded-config", encWorkerCfg},
 							},
 						},
 					},
