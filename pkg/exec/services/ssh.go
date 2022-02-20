@@ -54,12 +54,6 @@ func (s *SSH) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 	if err != nil {
 		return false, "", fmt.Errorf("unable to establish the session: %w", err)
 	}
-	defer func(session *ssh.Session) {
-		err := session.Close()
-		if err != nil {
-			log.Println(fmt.Errorf("unable to close ssh session: %w", err))
-		}
-	}(session)
 	out, err := session.CombinedOutput(s.Command)
 	if err != nil {
 		return false, "", fmt.Errorf("unable to execute the command: %w", err)
