@@ -25,8 +25,8 @@ const (
 	None       = "none"
 )
 
-func NewPlatform(config platforming.Config) (Platform, error) {
-	switch config.Use {
+func NewPlatform(config config.StaticConfig) (Platform, error) {
+	switch config.Platform.Use {
 	case Docker, Swarm:
 		return docker.NewDocker(config)
 	case Kubernetes:

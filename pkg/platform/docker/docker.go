@@ -29,13 +29,13 @@ type Docker struct {
 	Config      config.StaticConfig
 }
 
-func NewDocker(cfg config.StaticConfig, cnf platforming.Config) (d *Docker, err error) {
+func NewDocker(cfg config.StaticConfig) (d *Docker, err error) {
 	d = &Docker{NetworkName: cfg.Platform.Docker.Network, Name: cfg.Platform.Docker.Name, Config: cfg}
-	if cnf.Use == "swarm" { //https://github.com/openbaton/go-docker-vnfm/blob/8d0a99b48e57d4b94fa14cdb377abe07eaa6c0aa/handler/docker_utils.go#L113
+	if cfg.Platform.Use == "swarm" { //https://github.com/openbaton/go-docker-vnfm/blob/8d0a99b48e57d4b94fa14cdb377abe07eaa6c0aa/handler/docker_utils.go#L113
 		d.IsSwarm = true
 	}
 	defaultHeaders := map[string]string{"User-Agent": "engine-api-cli-1.0"}
-	d.Client, err = client.NewClient(cnf.Docker.Host, "v1.40", nil, defaultHeaders)
+	d.Client, err = client.NewClient(cfg.Platform.Docker.Host, "v1.40", nil, defaultHeaders)
 	if err != nil {
 		return nil, err
 	}
