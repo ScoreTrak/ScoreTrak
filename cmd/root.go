@@ -146,11 +146,15 @@ func initConfig() {
 		if err != nil {
 			log.Printf("Error reading decoded config %s", err.Error())
 		}
+		// Read config file and generated encoded config string
 	} else if err := viper.ReadInConfig(); err == nil {
 		_, err := fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 		if err != nil {
 			log.Fatalf("unable to print to standard error, %v", err)
 		}
+
+		cfgString := fmt.Sprintf("%v", C)
+		encodedCfg = base64.StdEncoding.EncodeToString([]byte(cfgString))
 	}
 
 	if err := viper.Unmarshal(&C); err != nil {
