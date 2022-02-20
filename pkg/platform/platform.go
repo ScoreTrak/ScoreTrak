@@ -3,8 +3,8 @@ package platform
 import (
 	"context"
 	"errors"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/docker"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/kubernetes"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
