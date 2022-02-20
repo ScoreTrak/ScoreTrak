@@ -19,9 +19,9 @@ func TestHostSpec(t *testing.T) {
 	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
 	if autoTest == "TRUE" {
-		c = NewTestConfigClone("../../../configs/test-config.yml")
+		c, _ = LoadConfig("../../../configs/test-config.yml")
 	} else {
-		c = NewConfigClone(SetupConfig("dev-config.yml"))
+		c, _ = LoadConfig("dev-config.yml")
 	}
 	c.DB.Cockroach.Database = "scoretrak_test_orm_host"
 	db := SetupCockroachDB(c.DB)

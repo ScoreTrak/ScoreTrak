@@ -49,6 +49,23 @@ func init() {
 	rootCmd.Flags().BoolP("version", "v", false, "version")
 }
 
+func LoadConfig(path string) (config config.StaticConfig, err error) {
+	viper.SetConfigFile(cfgFile)
+
+	if err := viper.ReadInConfig(); err == nil {
+		_, err := fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+		if err != nil {
+			return config, err
+		}
+	}
+
+	if err := viper.Unmarshal(&config); err != nil {
+		return config, err
+	}
+
+	return config, nil
+}
+
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	// Find home directory.
