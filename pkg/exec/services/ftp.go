@@ -88,9 +88,6 @@ func (f *FTP) Execute(e exec.Exec) (passed bool, l string, err error) {
 				log.Println(fmt.Errorf("unable to close file: %w", err))
 			}
 		}(r)
-		if err := c.Quit(); err != nil {
-			return false, "", fmt.Errorf("unable to gracefully exit FTP server: %w", err)
-		}
 
 		buf, err := ioutil.ReadAll(r)
 		if err != nil {
