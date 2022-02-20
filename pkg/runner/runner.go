@@ -55,7 +55,7 @@ func (d Runner) refreshDsync() error {
 	for res.Next() {
 		_ = res.Scan(&tm)
 	}
-	err = util.DatabaseOutOfSync(tm)
+	err = util.DatabaseOutOfSync(tm, d.staticConfig)
 	if err != nil {
 		return err
 	}
@@ -409,12 +409,12 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 		return
 	}
 	// Notify all of the listening clients that a new report was generated
-	pubsub, err := queue.NewMasterStreamPubSub(config.GetQueueConfig())
+	pubsub, err := queue.NewMasterStreamPubSub(d.staticConfig.Queue)
 	if err != nil {
 		d.finalizeRound(ctx, rnd, Note, fmt.Sprintf("Error while notifying report update. Err: %s", err.Error()))
 		return
 	}
-	pubsub.NotifyTopic(config.GetPubSubConfig().ChannelPrefix + "_report")
+	pubsub.NotifyTopic(d.staticConfig.PubSubConfig.ChannelPrefix + "_report")
 	d.finalizeRound(ctx, rnd, Note, "")
 }
 

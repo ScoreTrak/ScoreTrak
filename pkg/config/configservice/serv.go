@@ -34,13 +34,15 @@ type StaticServ interface {
 	Get() (*config.StaticConfig, error)
 }
 
-type configStaticServ struct{}
+type configStaticServ struct {
+	Config config.StaticConfig
+}
 
-func NewStaticConfigServ() StaticServ {
-	return &configStaticServ{}
+func NewStaticConfigServ(cfg config.StaticConfig) StaticServ {
+	return &configStaticServ{Config: cfg}
 }
 
 func (svc *configStaticServ) Get() (*config.StaticConfig, error) {
-	sc := config.GetStaticConfig()
+	sc := svc.Config
 	return &sc, nil
 }

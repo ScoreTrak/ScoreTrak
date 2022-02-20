@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func LoadConfig(path string) (config config.StaticConfig, err error) {
+func LoadViperConfig(path string) (config config.StaticConfig, err error) {
 	viper.SetConfigFile(path)
 
 	if err := viper.ReadInConfig(); err == nil {

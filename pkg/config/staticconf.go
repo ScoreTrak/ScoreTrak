@@ -5,7 +5,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
-	"github.com/jinzhu/configor"
 )
 
 // StaticConfig is a struct of settings that are set at the start of the application. It contains Configs from other packages defined under pkg/ directory.
@@ -36,38 +35,4 @@ type StaticConfig struct {
 	KeyFile string `default:""`
 
 	JWT auth.Config
-}
-
-var staticConfig StaticConfig
-
-func GetPlatformConfig() platforming.Config {
-	return staticConfig.Platform
-}
-
-func GetQueueConfig() queueing.Config {
-	return staticConfig.Queue
-}
-
-func GetDBConfig() storage.Config {
-	return staticConfig.DB
-}
-
-func GetPubSubConfig() queueing.MasterConfig {
-	return staticConfig.PubSubConfig
-}
-
-func NewStaticConfig(f string) error {
-	err := configor.Load(&staticConfig, f)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func SetStaticConfig(config StaticConfig) {
-	staticConfig = config
-}
-
-func GetStaticConfig() StaticConfig {
-	return staticConfig
 }

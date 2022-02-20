@@ -66,9 +66,9 @@ func BuildMasterContainer(cfg config.StaticConfig) (*dig.Container, error) {
 	return container, nil
 }
 
-func BuildWorkerContainer() (*dig.Container, error) {
+func BuildWorkerContainer(cfg config.StaticConfig) (*dig.Container, error) {
 	var ctr []interface{}
-	ctr = append(ctr, config.GetStaticConfig)
+	ctr = append(ctr, cfg)
 
 	for _, i := range ctr {
 		err := container.Provide(i)
