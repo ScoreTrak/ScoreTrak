@@ -53,9 +53,9 @@ type Store struct {
 var ErrTimeDifferenceTooLarge = errors.New("time difference between master host, and database host are is large. The difference should not exceed 2 seconds")
 
 // DatabaseOutOfSync ensures that drift between database is not larger than DatabaseMaxTimeDriftSeconds
-func DatabaseOutOfSync(dbTime time.Time) error {
+func DatabaseOutOfSync(dbTime time.Time, config config.StaticConfig) error {
 	timeDiff := time.Since(dbTime)
-	if float64(time.Second*time.Duration(config.GetStaticConfig().DatabaseMaxTimeDriftSeconds)) < math.Abs(float64(timeDiff)) {
+	if float64(time.Second*time.Duration(config.DatabaseMaxTimeDriftSeconds)) < math.Abs(float64(timeDiff)) {
 		return fmt.Errorf("%w: Time on database:%s, Time on master:%s", ErrTimeDifferenceTooLarge, dbTime.String(), time.Now())
 	}
 	return nil

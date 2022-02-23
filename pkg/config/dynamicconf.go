@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/jinzhu/configor"
 	"gorm.io/gorm"
 )
 
@@ -21,6 +20,7 @@ type DynamicConfig struct {
 var ErrRoundDurationLargerThanMinRoundDuration = errors.New("round Duration should not be larger than MinRoundDuration")
 
 func (d *DynamicConfig) BeforeSave(tx *gorm.DB) (err error) {
+	d.ID = 1
 	if d.RoundDuration != 0 && d.RoundDuration < uint64(MinRoundDuration.Seconds()) {
 		return fmt.Errorf("%w, MinRoundDuration: %d", ErrRoundDurationLargerThanMinRoundDuration, uint64(MinRoundDuration.Seconds()))
 	}
@@ -29,16 +29,6 @@ func (d *DynamicConfig) BeforeSave(tx *gorm.DB) (err error) {
 
 func (d DynamicConfig) TableName() string {
 	return "config"
-}
-
-// NewDynamicConfig initializes global config d, but it doesn't need any locking because it is assumed that NewDynamicConfig is ran once at the start of the application
-func NewDynamicConfig(f string) (*DynamicConfig, error) {
-	d := &DynamicConfig{}
-	if err := configor.Load(d, f); err != nil {
-		return nil, err
-	}
-	d.ID = 1
-	return d, nil
 }
 
 func (d *DynamicConfig) IsEqual(dc *DynamicConfig) bool {

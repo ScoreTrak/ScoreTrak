@@ -80,7 +80,7 @@ var masterCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Println("master called")
 
-		d, err := di.BuildMasterContainer()
+		d, err := di.BuildMasterContainer(C)
 		if err != nil {
 			log.Panicf("%v", err)
 		}
@@ -97,7 +97,7 @@ var masterCmd = &cobra.Command{
 			log.Panicf("%v", err)
 		}
 
-		err = sutil.LoadConfig(db, D)
+		err = sutil.LoadConfig(db, &D)
 		if err != nil {
 			log.Panicf("%v", err)
 		}
@@ -170,7 +170,7 @@ func SetupDB(cont *dig.Container) error {
 			return err
 		}
 	}
-	err = sutil.DatabaseOutOfSync(tm)
+	err = sutil.DatabaseOutOfSync(tm, C)
 	if err != nil {
 		return err
 	}
@@ -333,7 +333,7 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 		checkv1.RegisterCheckServiceServer(server, handler.NewCheckController(checkSvc, repoStore))
 	}
 	{
-		comptSvc := competitionService.NewCompetitionServ(repoStore)
+		comptSvc := competitionService.NewCompetitionServ(repoStore, staticConfig.Queue)
 		competitionv1.RegisterCompetitionServiceServer(server, handler.NewCompetitionController(comptSvc))
 	}
 	{

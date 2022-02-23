@@ -17,7 +17,7 @@ import (
 var cfgFile string
 var encodedCfg string
 var C config.StaticConfig
-var D *config.DynamicConfig
+var D config.DynamicConfig
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -125,29 +125,32 @@ func initConfig() {
 			log.Printf("Error decoding string: %s ", err.Error())
 			return
 		}
+		viper.SetConfigType("json")
 		err = viper.ReadConfig(bytes.NewBuffer(decodedCfg))
 		if err != nil {
 			log.Printf("Error reading decoded config %s", err.Error())
 		}
+		// Read config file and generated encoded config string
 	} else if err := viper.ReadInConfig(); err == nil {
 		_, err := fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 		if err != nil {
 			log.Fatalf("unable to print to standard error, %v", err)
 		}
+
+		cfgString := fmt.Sprintf("%v", C)
+		encodedCfg = base64.StdEncoding.EncodeToString([]byte(cfgString))
 	}
 
 	if err := viper.Unmarshal(&C); err != nil {
 		log.Fatalf("unable to decode static config into struct, %v", err)
 	}
-	config.SetStaticConfig(C)
 
 	if C.Prod {
 		log.SetFlags(log.LstdFlags | log.Lshortfile)
 	}
 
-	dynamicConfig, err := config.NewDynamicConfig(cfgFile)
+	err = viper.Unmarshal(&D)
 	if err != nil {
-		return
+		log.Fatalf("unable to decode dynamic config into struct, %v", err)
 	}
-	D = dynamicConfig
 }

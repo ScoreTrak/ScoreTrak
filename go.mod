@@ -25,7 +25,6 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/hirochachacha/go-smb2 v1.0.10
 	github.com/jackc/pgconn v1.10.1
-	github.com/jinzhu/configor v1.2.0
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
 	github.com/jlaffaye/ftp v0.0.0-20210307004419-5d4190119067
 	github.com/kr/text v0.2.0 // indirect
@@ -49,7 +48,6 @@ require (
 	google.golang.org/grpc v1.42.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
-	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/driver/mysql v1.2.3
 	gorm.io/driver/postgres v1.2.3
 	gorm.io/gorm v1.22.5

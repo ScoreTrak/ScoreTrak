@@ -2,46 +2,50 @@ package util
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"errors"
-	"fmt"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
+	"github.com/jinzhu/copier"
 )
 
 var ErrQueueNotSupported = errors.New("selected queue is not yet supported by platform")
 
-func GenerateConfigFile(info worker.Info) (path string, err error) {
-	cnf, err := config.GetConfigCopy()
+func GenerateWorkerCfg(originalCfg config.StaticConfig, info worker.Info) (workerCfg config.StaticConfig, err error) {
+	workerCfg = config.StaticConfig{}
+	err = copier.Copy(&workerCfg, &originalCfg)
 	if err != nil {
-		return "", fmt.Errorf("failed to get config copy: %w", err)
+		return workerCfg, err
 	}
-	if cnf.Queue.Use == "nsq" {
-		cnf.Queue.NSQ.Topic = info.Topic
+
+	if workerCfg.Queue.Use == "nsq" {
+		workerCfg.Queue.NSQ.Topic = info.Topic
 	} else {
-		return "", ErrQueueNotSupported
+		return workerCfg, ErrQueueNotSupported
 	}
-	tmpPath := filepath.Join(".", "tmp")
-	err = os.MkdirAll(tmpPath, os.ModePerm)
-	if err != nil {
-		return "", fmt.Errorf("failed to create temporary path for config: %w", err)
-	}
-	path = fmt.Sprintf("tmp/config_worker_%s", info.Topic)
-	err = config.SaveConfigToYamlFile(path, cnf)
-	if err != nil {
-		return "", err
-	}
-	return path, nil
+
+	return workerCfg, nil
 }
 
-func EncodeConfigFile(configPath string) (string, error) {
-	content, err := ioutil.ReadFile(configPath)
+func EncodeCfg(config config.StaticConfig) (string, error) {
+	out, err := json.Marshal(config)
 	if err != nil {
 		return "", err
 	}
-	cEnc := base64.StdEncoding.EncodeToString(content)
-	return cEnc, nil
+	encodedCfg := base64.StdEncoding.EncodeToString(out)
+	return encodedCfg, nil
+}
+
+func GenerateEncodedWorkerCfg(originalCfg config.StaticConfig, info worker.Info) (string, error) {
+	workerCfg, err := GenerateWorkerCfg(originalCfg, info)
+	if err != nil {
+		return "", err
+	}
+
+	encodedWorkerCfg, err := EncodeCfg(workerCfg)
+	if err != nil {
+		return "", err
+	}
+	return encodedWorkerCfg, nil
 }

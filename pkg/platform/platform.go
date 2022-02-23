@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/docker"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/kubernetes"
-	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 )
 
@@ -25,8 +25,8 @@ const (
 	None       = "none"
 )
 
-func NewPlatform(config platforming.Config) (Platform, error) {
-	switch config.Use {
+func NewPlatform(config config.StaticConfig) (Platform, error) {
+	switch config.Platform.Use {
 	case Docker, Swarm:
 		return docker.NewDocker(config)
 	case Kubernetes:

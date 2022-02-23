@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/competition"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/jackc/pgconn"
@@ -21,12 +21,14 @@ type Serv interface {
 }
 
 type competitionServ struct {
-	Store *util.Store
+	Store  *util.Store
+	Config queueing.Config
 }
 
-func NewCompetitionServ(str *util.Store) Serv {
+func NewCompetitionServ(str *util.Store, cfg queueing.Config) Serv {
 	return &competitionServ{
-		Store: str,
+		Store:  str,
+		Config: cfg,
 	}
 }
 
@@ -118,7 +120,7 @@ func (svc *competitionServ) FetchCoreCompetition(ctx context.Context) (*competit
 		return nil, wrapError(err, fetch)
 	}
 	serviceGroups, err := svc.Store.ServiceGroup.GetAll(ctx)
-	if config.GetStaticConfig().Queue.Use != "none" {
+	if svc.Config.Use != "none" {
 		for i := range serviceGroups {
 			serviceGroups[i].Enabled = &fls
 		}
