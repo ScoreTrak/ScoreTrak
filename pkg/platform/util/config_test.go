@@ -19,31 +19,34 @@ func TestGenerateWorkerCfg(t *testing.T) {
 		wantWorkerCfg config.StaticConfig
 		wantErr       bool
 	}{
-		{name: "Working Config", args: args{originalCfg: config.StaticConfig{Queue: queueing.Config{Use: "nsq", NSQ: struct {
-			ProducerNSQD                 string   `default:"nsqd:4150"`
-			IgnoreAllScoresIfWorkerFails bool     `default:"true"`
-			Topic                        string   `default:"default"`
-			MaxInFlight                  int      `default:"200"`
-			AuthSecret                   string   `default:""`
-			ClientRootCA                 string   `default:""`
-			ClientSSLKey                 string   `default:""`
-			ClientSSLCert                string   `default:""`
-			ConcurrentHandlers           int      `default:"200"`
-			NSQLookupd                   []string `default:"[\"nsqlookupd:4161\"]"`
-			ConsumerNSQDPool             []string `default:"[\"\"]"`
-		}{}}}, info: worker.Info{Topic: "ping", Label: "internal"}}, wantWorkerCfg: config.StaticConfig{Queue: queueing.Config{Use: "nsq", NSQ: struct {
-			ProducerNSQD                 string   `default:"nsqd:4150"`
-			IgnoreAllScoresIfWorkerFails bool     `default:"true"`
-			Topic                        string   `default:"default"`
-			MaxInFlight                  int      `default:"200"`
-			AuthSecret                   string   `default:""`
-			ClientRootCA                 string   `default:""`
-			ClientSSLKey                 string   `default:""`
-			ClientSSLCert                string   `default:""`
-			ConcurrentHandlers           int      `default:"200"`
-			NSQLookupd                   []string `default:"[\"nsqlookupd:4161\"]"`
-			ConsumerNSQDPool             []string `default:"[\"\"]"`
-		}{Topic: "ping"}}}, wantErr: false},
+		{name: "Working Config",
+			args: args{originalCfg: config.StaticConfig{Queue: queueing.Config{Use: "nsq", NSQ: struct {
+				ProducerNSQD                 string   `default:"nsqd:4150"`
+				IgnoreAllScoresIfWorkerFails bool     `default:"true"`
+				Topic                        string   `default:"default"`
+				MaxInFlight                  int      `default:"200"`
+				AuthSecret                   string   `default:""`
+				ClientRootCA                 string   `default:""`
+				ClientSSLKey                 string   `default:""`
+				ClientSSLCert                string   `default:""`
+				ConcurrentHandlers           int      `default:"200"`
+				NSQLookupd                   []string `default:"[\"nsqlookupd:4161\"]"`
+				ConsumerNSQDPool             []string `default:"[\"\"]"`
+			}{}}}, info: worker.Info{Topic: "ping", Label: "internal"}},
+			wantWorkerCfg: config.StaticConfig{Queue: queueing.Config{Use: "nsq", NSQ: struct {
+				ProducerNSQD                 string   `default:"nsqd:4150"`
+				IgnoreAllScoresIfWorkerFails bool     `default:"true"`
+				Topic                        string   `default:"default"`
+				MaxInFlight                  int      `default:"200"`
+				AuthSecret                   string   `default:""`
+				ClientRootCA                 string   `default:""`
+				ClientSSLKey                 string   `default:""`
+				ClientSSLCert                string   `default:""`
+				ConcurrentHandlers           int      `default:"200"`
+				NSQLookupd                   []string `default:"[\"nsqlookupd:4161\"]"`
+				ConsumerNSQDPool             []string `default:"[\"\"]"`
+			}{Topic: "ping"}}},
+			wantErr: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
