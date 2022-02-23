@@ -14,7 +14,7 @@ var ErrQueueNotSupported = errors.New("selected queue is not yet supported by pl
 
 func GenerateWorkerCfg(originalCfg config.StaticConfig, info worker.Info) (workerCfg config.StaticConfig, err error) {
 	workerCfg = config.StaticConfig{}
-	err = copier.Copy(&originalCfg, &workerCfg)
+	err = copier.Copy(&workerCfg, &originalCfg)
 	if err != nil {
 		return workerCfg, err
 	}
