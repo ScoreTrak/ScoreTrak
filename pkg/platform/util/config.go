@@ -2,9 +2,8 @@ package util
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"errors"
-	"fmt"
-
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 	"github.com/jinzhu/copier"
@@ -28,10 +27,13 @@ func GenerateWorkerCfg(originalCfg config.StaticConfig, info worker.Info) (worke
 	return workerCfg, nil
 }
 
-func EncodeCfg(config config.StaticConfig) string {
-	cfgString := fmt.Sprintf("%v", config)
-	encodedCfg := base64.StdEncoding.EncodeToString([]byte(cfgString))
-	return encodedCfg
+func EncodeCfg(config config.StaticConfig) (string, error) {
+	out, err := json.Marshal(config)
+	if err != nil {
+		return "", err
+	}
+	encodedCfg := base64.StdEncoding.EncodeToString(out)
+	return encodedCfg, nil
 }
 
 func GenerateEncodedWorkerCfg(originalCfg config.StaticConfig, info worker.Info) (string, error) {
@@ -40,6 +42,9 @@ func GenerateEncodedWorkerCfg(originalCfg config.StaticConfig, info worker.Info)
 		return "", err
 	}
 
-	encodedWorkerCfg := EncodeCfg(workerCfg)
+	encodedWorkerCfg, err := EncodeCfg(workerCfg)
+	if err != nil {
+		return "", err
+	}
 	return encodedWorkerCfg, nil
 }

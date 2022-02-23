@@ -125,6 +125,7 @@ func initConfig() {
 			log.Printf("Error decoding string: %s ", err.Error())
 			return
 		}
+		viper.SetConfigType("json")
 		err = viper.ReadConfig(bytes.NewBuffer(decodedCfg))
 		if err != nil {
 			log.Printf("Error reading decoded config %s", err.Error())
