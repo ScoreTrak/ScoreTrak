@@ -333,7 +333,7 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 		checkv1.RegisterCheckServiceServer(server, handler.NewCheckController(checkSvc, repoStore))
 	}
 	{
-		comptSvc := competitionService.NewCompetitionServ(repoStore, staticConfig)
+		comptSvc := competitionService.NewCompetitionServ(repoStore, staticConfig.Queue)
 		competitionv1.RegisterCompetitionServiceServer(server, handler.NewCompetitionController(comptSvc))
 	}
 	{
