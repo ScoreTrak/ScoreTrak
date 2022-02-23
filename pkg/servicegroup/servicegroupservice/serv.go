@@ -60,9 +60,9 @@ func (svc *serviceGroupServ) Redeploy(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func NewServiceGroupServ(repo repo2.Repo, plat platform.Platform, q queue.WorkerQueue) Serv {
+func NewServiceGroupServ(repo repo2.Repo, plat platform.Platform, q queue.WorkerQueue, config config.StaticConfig) Serv {
 	return &serviceGroupServ{
-		repo: repo, p: plat, q: q,
+		repo: repo, p: plat, q: q, Config: config,
 	}
 }
 
