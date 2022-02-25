@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	healthv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/grpc/health/v1"
 	"log"
 	"net"
 	"os"
@@ -502,6 +503,9 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 
 	{
 		policyv1.RegisterPolicyServiceServer(server, handler.NewPolicyController(policyServ, policyClient))
+	}
+	{
+		healthv1.RegisterHealthServer(server, handler.NewHealthController())
 	}
 	return nil
 }
