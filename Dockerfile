@@ -1,4 +1,4 @@
-FROM golang:1.17
+FROM golang:1.17-alpine as builder
 ARG IMAGE_TAG
 RUN mkdir -p /go/src/github.com/ScoreTrak/ScoreTrak
 WORKDIR /go/src/github.com/ScoreTrak/ScoreTrak
@@ -10,5 +10,18 @@ COPY go.sum go.sum
 RUN go mod download
 RUN go build -o scoretrak -ldflags "-X 'github.com/ScoreTrak/ScoreTrak/pkg/version.Version=${IMAGE_TAG}'"
 RUN chmod +x scoretrak
-ENTRYPOINT ["./scoretrak"]
+
+
+FROM golang:1.17-alpine
+
+COPY --from=builder \
+    /go/src/github.com/ScoreTrak/ScoreTrak/scoretrak \
+    /go/bin/scoretrak
+
+# Setup grpc-health-probe
+RUN GRPC_HEALTH_PROBE_VERSION=v0.4.8 && \
+    wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
+    chmod +x /bin/grpc_health_probe
+
+ENTRYPOINT ["/go/bin/scoretrak"]
 CMD ["master"]
