@@ -46,6 +46,7 @@ import (
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	"github.com/jackc/pgconn"
+	healthv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/grpc/health/v1"
 	authv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/auth/v1"
 	checkv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/check/v1"
 	competitionv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/competition/v1"
@@ -502,6 +503,9 @@ func setupRoutes(staticConfig config.StaticConfig, d *dig.Container, server grpc
 
 	{
 		policyv1.RegisterPolicyServiceServer(server, handler.NewPolicyController(policyServ, policyClient))
+	}
+	{
+		healthv1.RegisterHealthServer(server, handler.NewHealthController())
 	}
 	return nil
 }
