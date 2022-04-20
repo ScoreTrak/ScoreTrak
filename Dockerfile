@@ -12,7 +12,7 @@ RUN go build -o scoretrak -ldflags "-X 'github.com/ScoreTrak/ScoreTrak/pkg/versi
 RUN chmod +x scoretrak
 
 
-FROM golang:1.17-alpine
+FROM alpine:3.15
 
 COPY --from=builder \
     /go/src/github.com/ScoreTrak/ScoreTrak/scoretrak \
