@@ -9,7 +9,7 @@ require (
 	github.com/bogdanovich/dns_resolver v0.0.0-20170211073258-a8e42bc6a5b6
 	github.com/digineo/go-ping v1.0.1
 	github.com/docker/distribution v2.7.1+incompatible // indirect
-	github.com/docker/docker v1.13.1
+	github.com/docker/docker v20.10.15+incompatible
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/emersion/go-imap v1.2.0
@@ -31,15 +31,17 @@ require (
 	github.com/masterzen/simplexml v0.0.0-20190410153822-31eea3082786 // indirect
 	github.com/masterzen/winrm v0.0.0-20210623064412-3b76017826b0
 	github.com/miekg/dns v1.1.43 // indirect
+	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
+	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/nsqio/go-nsq v1.1.0
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
+	github.com/opencontainers/image-spec v1.0.2 // indirect
 	github.com/smartystreets/assertions v1.1.1 // indirect
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.0
-	go.buf.build/grpc/go/scoretrak/scoretrakapis v1.2.5 // indirect
+	go.buf.build/grpc/go/scoretrak/scoretrakapis v1.2.5
 	go.buf.build/library/go-grpc/scoretrak/scoretrakapis v1.4.3
 	go.uber.org/dig v1.13.0
 	go.uber.org/zap v1.17.0
@@ -52,6 +54,7 @@ require (
 	gorm.io/driver/mysql v1.2.3
 	gorm.io/driver/postgres v1.2.3
 	gorm.io/gorm v1.22.5
+	gotest.tools/v3 v3.2.0 // indirect
 	k8s.io/api v0.18.6
 	k8s.io/apimachinery v0.18.6
 	k8s.io/client-go v0.18.6
