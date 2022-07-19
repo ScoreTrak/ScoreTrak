@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
 	"github.com/jlaffaye/ftp"
@@ -45,7 +46,7 @@ func (f *FTP) Validate() error {
 }
 
 func (f *FTP) Execute(e exec.Exec) (passed bool, l string, err error) {
-	dialOptions := ftp.DialWithContext(e.Context)
+	dialOptions := ftp.DialWithTimeout(time.Until(e.Deadline()))
 	c, err := ftp.Dial(fmt.Sprintf("%s:%s", e.Host, f.Port), dialOptions) // For passive FTP allow Data Channel Port Range. In addition, Allow FTP as an APP in windows firewall, and allow port 20, 21, 1024-65535
 	if err != nil {
 		return false, "", fmt.Errorf("unable to dial FTP Server: %w", err)
