@@ -1,6 +1,9 @@
 db:
+  use: "cockroach"
   cockroach:
     host: localhost
+    port: 26257
+    username: root
 
 logger:
   environment: dev

@@ -1,0 +1,28 @@
+name: Codecov
+on: [push]
+jobs:
+  codecov:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    env:
+      OS: ${{ matrix.os }}
+      AUTO_TEST: TRUE
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - run: |
+          curl https://binaries.cockroachdb.com/cockroach-v22.1.4.linux-amd64.tgz | tar -xzv
+          cp -i cockroach-v22.1.4.linux-amd64/cockroach /usr/local/bin/
+          cockroach start-single-node --insecure --background --listen-addr=localhost:26257
+      - name: Generate coverage report
+        run: |
+          go test -race -covermode=atomic -coverprofile=coverage.out ./pkg/...
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
