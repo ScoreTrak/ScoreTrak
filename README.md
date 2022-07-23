@@ -2,6 +2,8 @@
 
 <h1 align="center">Security Competition Scoring Engine</h1>
 
+[![codecov](https://codecov.io/gh/ScoreTrak/ScoreTrak/branch/master/graph/badge.svg?token=WCHRWVG6B0)](https://codecov.io/gh/ScoreTrak/ScoreTrak)
+
 ## Key Features
 
 * Fault Tolerant(Supports multiple scoring masters)
