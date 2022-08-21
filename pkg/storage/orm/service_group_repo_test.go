@@ -17,7 +17,7 @@ import (
 func TestServiceGroupSpec(t *testing.T) {
 	var c config.StaticConfig
 	autoTest := os.Getenv("AUTO_TEST")
-	if autoTest == "TRUE" {
+	if autoTest == "true" {
 		c, _ = LoadViperConfig("../../../configs/test-config.yml")
 	} else {
 		c, _ = LoadViperConfig("dev-config.yml")
