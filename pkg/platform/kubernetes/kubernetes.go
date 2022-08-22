@@ -2,6 +2,9 @@ package kubernetes
 
 import (
 	"context"
+	"io/ioutil"
+	"os"
+	"strings"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/util"
@@ -19,6 +22,24 @@ type Kubernetes struct {
 	Config    config.StaticConfig
 }
 
+// https://stackoverflow.com/questions/53283347/how-to-get-current-namespace-of-an-in-cluster-go-kubernetes-client
+func Namespace() string {
+	// This way assumes you've set the POD_NAMESPACE environment variable using the downward API.
+	// This check has to be done first for backwards compatibility with the way InClusterConfig was originally set up
+	if ns, ok := os.LookupEnv("POD_NAMESPACE"); ok {
+		return ns
+	}
+
+	// Fall back to the namespace associated with the service account token, if available
+	if data, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace"); err == nil {
+		if ns := strings.TrimSpace(string(data)); len(ns) > 0 {
+			return ns
+		}
+	}
+
+	return "default"
+}
+
 func NewKubernetes(cfg config.StaticConfig) (d *Kubernetes, err error) {
 	c, err := rest.InClusterConfig()
 	if err != nil {
@@ -28,7 +49,13 @@ func NewKubernetes(cfg config.StaticConfig) (d *Kubernetes, err error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Kubernetes{Client: clientset, Namespace: cfg.Platform.Kubernetes.Namespace, Config: cfg}, nil
+
+	namespace := cfg.Platform.Kubernetes.Namespace
+	if namespace == "" {
+		namespace = Namespace()
+	}
+
+	return &Kubernetes{Client: clientset, Namespace: namespace, Config: cfg}, nil
 }
 
 func (k *Kubernetes) DeployWorkers(ctx context.Context, info worker.Info) error {
