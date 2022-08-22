@@ -143,8 +143,8 @@ func CommonExecute(sd *ScoringData, execDeadline time.Time) QCheck {
 	}
 }
 
-type RoundTookTooLongToExecute struct {
+type RoundTookTooLongToExecuteError struct {
 	Msg string
 }
 
-func (e *RoundTookTooLongToExecute) Error() string { return e.Msg }
+func (e *RoundTookTooLongToExecuteError) Error() string { return e.Msg }

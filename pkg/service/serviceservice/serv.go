@@ -65,24 +65,24 @@ func (svc *serviceServ) Update(ctx context.Context, u *service.Service) error {
 }
 
 func (svc *serviceServ) TestService(ctx context.Context, id uuid.UUID) (*check.Check, error) {
-	ser, err := svc.repo.GetByID(ctx, id)
+	currentService, err := svc.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	p, err := svc.propertyRepo.GetAllByServiceID(ctx, id)
+	properties, err := svc.propertyRepo.GetAllByServiceID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	h, err := svc.hostRepo.GetByID(ctx, ser.HostID)
+	hosts, err := svc.hostRepo.GetByID(ctx, currentService.HostID)
 	if err != nil {
 		return nil, err
 	}
-	serGrp, err := svc.serviceGroupRepo.GetByID(ctx, ser.ServiceGroupID)
+	serGrp, err := svc.serviceGroupRepo.GetByID(ctx, currentService.ServiceGroupID)
 	if err != nil {
 		return nil, err
 	}
 	response, berr, err := svc.q.Send([]*queueing.ScoringData{
-		{Service: queueing.QService{ID: id, Name: ser.Name, Group: serGrp.Name}, MasterTime: time.Now(), Host: h.Address, Deadline: time.Now().Add(time.Second * 5), RoundID: 0, Properties: property.PropertiesToMap(p)},
+		{Service: queueing.QService{ID: id, Name: currentService.Name, Group: serGrp.Name}, MasterTime: time.Now(), Host: hosts.Address, Deadline: time.Now().Add(time.Second * 5), RoundID: 0, Properties: property.PropertiesToMap(properties)},
 	})
 	if response == nil || len(response) != 1 || response[0] == nil || err != nil {
 		return nil, fmt.Errorf("something went wrong, either check took too long to execute, or the workers did not receive the check. err: %w, berr: %v", err, berr)

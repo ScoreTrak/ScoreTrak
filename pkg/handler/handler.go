@@ -30,7 +30,7 @@ func getErrorParser(err error) error {
 }
 
 func deleteErrorParser(err error) error {
-	if errors.Is(err, &orm.NoRowsAffected{}) {
+	if errors.Is(err, &orm.NoRowsAffectedError{}) {
 		return status.Errorf(
 			codes.NotFound,
 			fmt.Sprintf("Resource Not Found: %v", err),

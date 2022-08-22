@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func TarRecurse(path string, tw *tar.Writer, skipMatch string) error {
+func TarRecurse(path string, tarWriter *tar.Writer, skipMatch string) error {
 	file, err := os.Open(path)
 	if err != nil {
 		return err
@@ -17,24 +17,24 @@ func TarRecurse(path string, tw *tar.Writer, skipMatch string) error {
 	if strings.Contains(file.Name(), skipMatch) {
 		return nil
 	}
-	s, err := file.Stat()
+	fileInfo, err := file.Stat()
 	if err != nil {
 		return err
 	}
-	if s.IsDir() {
+	if fileInfo.IsDir() {
 		rdr, err := file.Readdir(0)
 		if err != nil {
 			return err
 		}
 		for _, fi := range rdr {
 			dir := fmt.Sprintf("%s/%s", path, fi.Name())
-			err := TarRecurse(dir, tw, skipMatch)
+			err := TarRecurse(dir, tarWriter, skipMatch)
 			if err != nil {
 				return err
 			}
 		}
 	} else {
-		err := TarWrite(path, tw, s)
+		err := TarWrite(path, tarWriter, fileInfo)
 		if err != nil {
 			return err
 		}
@@ -43,11 +43,11 @@ func TarRecurse(path string, tw *tar.Writer, skipMatch string) error {
 }
 
 func TarWrite(_path string, tw *tar.Writer, fi os.FileInfo) error {
-	fr, err := os.Open(_path)
+	file, err := os.Open(_path)
 	if err != nil {
 		return err
 	}
-	defer fr.Close()
+	defer file.Close()
 	tarHeader := &tar.Header{
 		Name: _path,
 		Size: fi.Size(),
@@ -57,7 +57,7 @@ func TarWrite(_path string, tw *tar.Writer, fi os.FileInfo) error {
 	if err != nil {
 		return err
 	}
-	_, err = io.Copy(tw, fr)
+	_, err = io.Copy(tw, file)
 	if err != nil {
 		return err
 	}

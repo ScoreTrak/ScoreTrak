@@ -28,7 +28,7 @@ func (t *teamRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 
 	if result.RowsAffected == 0 {
-		return &NoRowsAffected{"no model found"}
+		return &NoRowsAffectedError{"no model found"}
 	}
 	return nil
 }
@@ -42,7 +42,7 @@ func (t *teamRepo) DeleteByName(ctx context.Context, name string) error {
 		return fmt.Errorf("error deleting team with name: %s, err: %w", name, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return &NoRowsAffected{"no model found"}
+		return &NoRowsAffectedError{"no model found"}
 	}
 	return nil
 }

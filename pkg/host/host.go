@@ -92,18 +92,18 @@ func validateIfAddressInRange(addr string, addresses string) (err error) {
 		return nil
 	}
 	addressList := strings.Split(addresses, ",")
-	for i := range addressList {
-		switch _, network, err := net.ParseCIDR(addressList[i]); {
+	for idx := range addressList {
+		switch _, network, err := net.ParseCIDR(addressList[idx]); {
 		case err == nil:
 			if network.Contains(net.ParseIP(addr)) {
 				return nil
 			}
-		case govalidator.IsHost(addressList[i]):
-			if strings.EqualFold(addressList[i], addr) {
+		case govalidator.IsHost(addressList[idx]):
+			if strings.EqualFold(addressList[idx], addr) {
 				return nil
 			}
 		default:
-			return fmt.Errorf("%w: %s", ErrNotAValidHostname, addressList[i])
+			return fmt.Errorf("%w: %s", ErrNotAValidHostname, addressList[idx])
 		}
 	}
 	return ErrAddressNotInRange
