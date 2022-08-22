@@ -5,29 +5,19 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/jackc/pgconn"
 	. "github.com/smartystreets/goconvey/convey"
-	"os"
 	"testing"
 	"time"
 )
 
 func TestRoundSpec(t *testing.T) {
-	var c config.StaticConfig
-	autoTest := os.Getenv("AUTO_TEST")
-	if autoTest == "true" {
-		c, _ = LoadViperConfig("../../../configs/test-config.yml")
-	} else {
-		c, _ = LoadViperConfig("dev-config.yml")
-	}
-	c.DB.Cockroach.Database = "scoretrak_test_orm_round"
-	db := SetupCockroachDB(c.DB)
+	c, _ := LoadViperConfig("../../../configs/test-config.yml")
+	db := SetupSqliteDB(c.DB)
 	ctx := context.Background()
-	t.Parallel() //t.Parallel should be placed after SetupCockroachDB because gorm has race conditions on Hook register
 	Convey("Creating Round Tables", t, func() {
 		db.AutoMigrate(&round.Round{})
 		rr := NewRoundRepo(db)

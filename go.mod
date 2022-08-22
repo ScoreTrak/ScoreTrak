@@ -24,7 +24,7 @@ require (
 	github.com/gopherjs/gopherjs v0.0.0-20200217142428-fce0ec30dd00 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/hirochachacha/go-smb2 v1.0.10
-	github.com/jackc/pgconn v1.10.1
+	github.com/jackc/pgconn v1.12.1
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
 	github.com/jlaffaye/ftp v0.0.0-20210307004419-5d4190119067
 	github.com/kr/text v0.2.0 // indirect
@@ -39,7 +39,7 @@ require (
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.0
-	go.buf.build/grpc/go/scoretrak/scoretrakapis v1.2.5 // indirect
+	go.buf.build/grpc/go/scoretrak/scoretrakapis v1.2.5
 	go.buf.build/library/go-grpc/scoretrak/scoretrakapis v1.4.3
 	go.uber.org/dig v1.13.0
 	go.uber.org/zap v1.17.0
@@ -49,9 +49,10 @@ require (
 	google.golang.org/grpc v1.42.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
-	gorm.io/driver/mysql v1.2.3
-	gorm.io/driver/postgres v1.2.3
-	gorm.io/gorm v1.22.5
+	gorm.io/driver/mysql v1.3.6
+	gorm.io/driver/postgres v1.3.9
+	gorm.io/driver/sqlite v1.3.6
+	gorm.io/gorm v1.23.8
 	k8s.io/api v0.18.6
 	k8s.io/apimachinery v0.18.6
 	k8s.io/client-go v0.18.6

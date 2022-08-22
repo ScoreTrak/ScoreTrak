@@ -1,9 +1,8 @@
 db:
-  use: "cockroach"
-  cockroach:
-    host: localhost
-    port: 26257
-    username: root
+  use: "sqlite"
+  sqlite:
+    path: "./scoretrak.db"
+    database: "scoretrak"
 
 logger:
   environment: dev

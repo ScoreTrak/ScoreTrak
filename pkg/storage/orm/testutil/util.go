@@ -18,8 +18,8 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/jackc/pgconn"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"os"
 	"time"
 )
 
@@ -219,7 +219,10 @@ func DataPreload(db *gorm.DB) {
 }
 
 func DropDB(db *gorm.DB, c config.StaticConfig) {
-	db.Exec(fmt.Sprintf("drop database %s", c.DB.Cockroach.Database))
+	err := os.Remove(c.DB.Sqlite.Path)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func TruncateTable(ctx context.Context, v interface{}, db *gorm.DB) error {
@@ -231,20 +234,11 @@ func TruncateTable(ctx context.Context, v interface{}, db *gorm.DB) error {
 	return db.WithContext(ctx).Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", stmt.Schema.Table)).Error //POSTGRES SPECIFIC. FOR MYSQL, CHANGE THIS TO  SET FOREIGN_KEY_CHECKS=0 ; <TRUNCATE> ; SET FOREIGN_KEY_CHECKS=1
 }
 
-//SetupCockroachDB creates a new database instance using
-func SetupCockroachDB(c storage.Config) *gorm.DB {
+//SetupSqliteDB creates a new database instance using
+func SetupSqliteDB(c storage.Config) (db *gorm.DB) {
 	var err error
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s sslmode=disable",
-		c.Cockroach.Host,
-		c.Cockroach.Port,
-		c.Cockroach.UserName)
-	dbPrep, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{})
-	if err != nil {
-		panic(err)
-	}
-	dbPrep.Exec(fmt.Sprintf("drop database if exists  %s", c.Cockroach.Database))
-	dbPrep.Exec(fmt.Sprintf("create database if not exists  %s", c.Cockroach.Database))
-	db, err := storage.NewDB(c)
+
+	db, err = storage.NewDB(c)
 	if err != nil {
 		panic(err)
 	}
