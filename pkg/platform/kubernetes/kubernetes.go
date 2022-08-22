@@ -39,10 +39,15 @@ func (k *Kubernetes) DeployWorkers(ctx context.Context, info worker.Info) error 
 		return err
 	}
 	_, err = k.Client.AppsV1().DaemonSets(k.Namespace).Create(ctx,
-		&appv1.DaemonSet{ObjectMeta: metav1.ObjectMeta{
-			Name: name},
+		&appv1.DaemonSet{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: k.Namespace,
+			},
 			Spec: appv1.DaemonSetSpec{
-				Selector: &metav1.LabelSelector{MatchLabels: labels},
+				Selector: &metav1.LabelSelector{
+					MatchLabels: labels,
+				},
 				Template: corev1.PodTemplateSpec{
 					ObjectMeta: metav1.ObjectMeta{
 						Name:      name,
