@@ -39,7 +39,7 @@ require (
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.0
-	go.buf.build/grpc/go/scoretrak/scoretrakapis v1.2.5 // indirect
+	go.buf.build/grpc/go/scoretrak/scoretrakapis v1.2.5
 	go.buf.build/library/go-grpc/scoretrak/scoretrakapis v1.4.3
 	go.uber.org/dig v1.13.0
 	go.uber.org/zap v1.17.0

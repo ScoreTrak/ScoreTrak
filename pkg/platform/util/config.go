@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/worker"
 	"github.com/jinzhu/copier"
@@ -14,7 +13,7 @@ var ErrQueueNotSupported = errors.New("selected queue is not yet supported by pl
 
 func GenerateWorkerCfg(originalCfg config.StaticConfig, info worker.Info) (workerCfg config.StaticConfig, err error) {
 	workerCfg = config.StaticConfig{}
-	err = copier.Copy(&workerCfg, &originalCfg)
+	err = copier.Copy(&workerCfg.Queue, &originalCfg.Queue)
 	if err != nil {
 		return workerCfg, err
 	}

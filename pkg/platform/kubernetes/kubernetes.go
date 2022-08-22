@@ -2,6 +2,9 @@ package kubernetes
 
 import (
 	"context"
+	"io/ioutil"
+	"os"
+	"strings"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/util"
@@ -14,9 +17,28 @@ import (
 )
 
 type Kubernetes struct {
-	Client    *kubernetes.Clientset
+	Client *kubernetes.Clientset
+	// Namespace in which worker nodes are to be deployed.
 	Namespace string
 	Config    config.StaticConfig
+}
+
+// https://stackoverflow.com/questions/53283347/how-to-get-current-namespace-of-an-in-cluster-go-kubernetes-client
+func Namespace() string {
+	// This way assumes you've set the POD_NAMESPACE environment variable using the downward API.
+	// This check has to be done first for backwards compatibility with the way InClusterConfig was originally set up
+	if ns, ok := os.LookupEnv("POD_NAMESPACE"); ok {
+		return ns
+	}
+
+	// Fall back to the namespace associated with the service account token, if available
+	if data, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace"); err == nil {
+		if ns := strings.TrimSpace(string(data)); len(ns) > 0 {
+			return ns
+		}
+	}
+
+	return "default"
 }
 
 func NewKubernetes(cfg config.StaticConfig) (d *Kubernetes, err error) {
@@ -28,7 +50,13 @@ func NewKubernetes(cfg config.StaticConfig) (d *Kubernetes, err error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Kubernetes{Client: clientset, Namespace: cfg.Platform.Kubernetes.Namespace, Config: cfg}, nil
+
+	namespace := cfg.Platform.Kubernetes.Namespace
+	if namespace == "" {
+		namespace = Namespace()
+	}
+
+	return &Kubernetes{Client: clientset, Namespace: namespace, Config: cfg}, nil
 }
 
 func (k *Kubernetes) DeployWorkers(ctx context.Context, info worker.Info) error {
@@ -39,14 +67,20 @@ func (k *Kubernetes) DeployWorkers(ctx context.Context, info worker.Info) error 
 		return err
 	}
 	_, err = k.Client.AppsV1().DaemonSets(k.Namespace).Create(ctx,
-		&appv1.DaemonSet{ObjectMeta: metav1.ObjectMeta{
-			Name: name},
+		&appv1.DaemonSet{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: k.Namespace,
+			},
 			Spec: appv1.DaemonSetSpec{
-				Selector: &metav1.LabelSelector{MatchLabels: labels},
+				Selector: &metav1.LabelSelector{
+					MatchLabels: labels,
+				},
 				Template: corev1.PodTemplateSpec{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:   name,
-						Labels: labels,
+						Name:      name,
+						Namespace: k.Namespace,
+						Labels:    labels,
 					},
 					Spec: corev1.PodSpec{
 						Tolerations:  []corev1.Toleration{{Key: "node-role.kubernetes.io/master", Effect: corev1.TaintEffectPreferNoSchedule}},
