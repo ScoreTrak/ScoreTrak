@@ -29,7 +29,7 @@ func (p *propertyRepo) Delete(ctx context.Context, serviceID uuid.UUID, key stri
 	}
 
 	if result.RowsAffected == 0 {
-		return &NoRowsAffected{"no model found"}
+		return &NoRowsAffectedError{"no model found"}
 	}
 
 	return nil

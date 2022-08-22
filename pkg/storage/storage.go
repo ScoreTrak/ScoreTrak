@@ -50,47 +50,47 @@ var ErrIncompleteCertInformationProvided = errors.New("you provided some, but no
 // newCockroach is internal method used for initializing cockroach db instance.
 // It modifies few cockroachdb options like kv.range.backpressure_range_size_multiplier and gc.ttlseconds that
 // allows for a single large value to be changed frequently
-func newCockroach(c Config) (*gorm.DB, error) {
+func newCockroach(config Config) (*gorm.DB, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s dbname=%s",
-		c.Cockroach.Host,
-		c.Cockroach.Port,
-		c.Cockroach.UserName,
-		c.Cockroach.Database)
+		config.Cockroach.Host,
+		config.Cockroach.Port,
+		config.Cockroach.UserName,
+		config.Cockroach.Database)
 
-	if c.Cockroach.Password != "" {
-		psqlInfo += " password=" + c.Cockroach.Password
+	if config.Cockroach.Password != "" {
+		psqlInfo += " password=" + config.Cockroach.Password
 	}
 	switch {
-	case c.Cockroach.ClientCA != "" && c.Cockroach.ClientSSLKey != "" && c.Cockroach.ClientSSLCert != "": // mTLS
+	case config.Cockroach.ClientCA != "" && config.Cockroach.ClientSSLKey != "" && config.Cockroach.ClientSSLCert != "": // mTLS
 		psqlInfo += fmt.Sprintf(" ssl=true sslmode=verify-full sslrootcert=%s sslkey=%s sslcert=%s",
-			c.Cockroach.ClientCA, c.Cockroach.ClientSSLKey, c.Cockroach.ClientSSLCert)
-	case c.Cockroach.ClientCA != "" && c.Cockroach.ClientSSLKey == "" && c.Cockroach.ClientSSLCert == "": // OneWayTLS
-		psqlInfo += fmt.Sprintf(" ssl=true sslmode=verify-full sslrootcert=%s", c.Cockroach.ClientCA)
-	case c.Cockroach.ClientCA != "" || c.Cockroach.ClientSSLKey != "" || c.Cockroach.ClientSSLCert != "":
+			config.Cockroach.ClientCA, config.Cockroach.ClientSSLKey, config.Cockroach.ClientSSLCert)
+	case config.Cockroach.ClientCA != "" && config.Cockroach.ClientSSLKey == "" && config.Cockroach.ClientSSLCert == "": // OneWayTLS
+		psqlInfo += fmt.Sprintf(" ssl=true sslmode=verify-full sslrootcert=%s", config.Cockroach.ClientCA)
+	case config.Cockroach.ClientCA != "" || config.Cockroach.ClientSSLKey != "" || config.Cockroach.ClientSSLCert != "":
 		return nil, fmt.Errorf("%w, CA: %s, Key: %s, Cert: %s",
-			ErrIncompleteCertInformationProvided, c.Cockroach.ClientCA, c.Cockroach.ClientSSLKey, c.Cockroach.ClientSSLCert)
+			ErrIncompleteCertInformationProvided, config.Cockroach.ClientCA, config.Cockroach.ClientSSLKey, config.Cockroach.ClientSSLCert)
 	default:
 		psqlInfo += " sslmode=disable"
 	}
-	db, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{NamingStrategy: schema.NamingStrategy{
-		TablePrefix: c.Prefix,
+	DB, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{NamingStrategy: schema.NamingStrategy{
+		TablePrefix: config.Prefix,
 	}})
 	if err != nil {
 		return nil, err
 	}
-	if c.Cockroach.ConfigureZones {
-		err := db.Exec("ALTER RANGE default CONFIGURE ZONE USING gc.ttlseconds = ?;", c.Cockroach.DefaultZoneConfig.GcTtlseconds).Error
+	if config.Cockroach.ConfigureZones {
+		err := DB.Exec("ALTER RANGE default CONFIGURE ZONE USING gc.ttlseconds = ?;", config.Cockroach.DefaultZoneConfig.GcTtlseconds).Error
 		if err != nil {
 			return nil, err
 		}
-		err = db.Exec("SET CLUSTER SETTING kv.range.backpressure_range_size_multiplier= ?;", c.Cockroach.DefaultZoneConfig.BackpressureRangeSizeMultiplier).Error
+		err = DB.Exec("SET CLUSTER SETTING kv.range.backpressure_range_size_multiplier= ?;", config.Cockroach.DefaultZoneConfig.BackpressureRangeSizeMultiplier).Error
 		if err != nil {
 			return nil, err
 		}
 	} else {
 		log.Println("You have chosen not to allow master configure database zones. Make sure you set gc.ttlseconds to something below 1200, so that report generation is not affected")
 	}
-	return db, nil
+	return DB, nil
 }
 
 type Config struct {

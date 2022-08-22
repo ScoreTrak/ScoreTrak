@@ -36,3 +36,5 @@ linters:
     - cyclop
     - dupl
     - gocognit
+    - varnamelen
+    - ireturn

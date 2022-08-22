@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/util"
 	"strings"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
@@ -33,11 +34,11 @@ type serviceGroupServ struct {
 	Config config.StaticConfig
 }
 
-var ErrRedeployNotAllowed = errors.New("redeploy is not allowed when platform or queue are not specified")
+var ErrRedeployNotAllowed = errors.New("redeploy is not allowed when queue is not specified")
 var ErrRedeployDisableGroup = errors.New("check_service group must first be disabled")
 
 func (svc *serviceGroupServ) Redeploy(ctx context.Context, id uuid.UUID) error {
-	if svc.p == nil || svc.Config.Queue.Use == queue.None {
+	if svc.Config.Queue.Use == queue.None {
 		return ErrRedeployNotAllowed
 	}
 
@@ -78,10 +79,10 @@ func (svc *serviceGroupServ) Delete(ctx context.Context, id uuid.UUID) error {
 	if err != nil {
 		return err
 	}
-	if svc.p != nil && svc.Config.Queue.Use != queue.None {
+	if svc.Config.Queue.Use != queue.None {
 		wr := worker.Info{Topic: serviceGrp.Name, Label: serviceGrp.Label}
 		err := svc.p.RemoveWorkers(ctx, wr)
-		if err != nil {
+		if err != nil && !errors.Is(err, util.ErrSkippedOperation) {
 			return fmt.Errorf("element was removed from database, however, we were unable to remove workers from platform. Error: %w", err)
 		}
 	}
@@ -96,38 +97,38 @@ func (svc *serviceGroupServ) GetByID(ctx context.Context, id uuid.UUID) (*servic
 	return svc.repo.GetByID(ctx, id)
 }
 
-func (svc *serviceGroupServ) Store(ctx context.Context, u *servicegroup.ServiceGroup) error {
-	if svc.p != nil && !u.SkipHelper && svc.Config.Queue.Use != queue.None {
-		if u.Enabled != nil && *u.Enabled {
+func (svc *serviceGroupServ) Store(ctx context.Context, serviceGroup *servicegroup.ServiceGroup) error {
+	if !serviceGroup.SkipHelper && svc.Config.Queue.Use != queue.None {
+		if serviceGroup.Enabled != nil && *serviceGroup.Enabled {
 			return status.Errorf(
 				codes.FailedPrecondition,
 				"if you are letting scoretrak manage the workers, 'Enabled' can be set to true, only after workers are deployed.",
 			)
 		}
-		wr := worker.Info{Topic: u.Name, Label: u.Label}
+		wr := worker.Info{Topic: serviceGroup.Name, Label: serviceGroup.Label}
 		err := svc.p.DeployWorkers(ctx, wr)
-		if err != nil {
+		if err != nil && !errors.Is(err, util.ErrSkippedOperation) {
 			return err
 		}
 	}
-	return svc.repo.Store(ctx, u)
+	return svc.repo.Store(ctx, serviceGroup)
 }
 
-func (svc *serviceGroupServ) Update(ctx context.Context, u *servicegroup.ServiceGroup) error {
-	serviceGrp, err := svc.GetByID(ctx, u.ID)
+func (svc *serviceGroupServ) Update(ctx context.Context, serviceGroup *servicegroup.ServiceGroup) error {
+	serviceGrp, err := svc.GetByID(ctx, serviceGroup.ID)
 	if err != nil {
 		return status.Errorf(
 			codes.NotFound,
 			fmt.Sprintf("Service Group not found: %v", err),
 		)
 	}
-	if !u.SkipHelper && svc.Config.Queue.Use != queue.None {
-		if u.Enabled != nil && *u.Enabled && !*serviceGrp.Enabled {
+	if !serviceGroup.SkipHelper && svc.Config.Queue.Use != queue.None {
+		if serviceGroup.Enabled != nil && *serviceGroup.Enabled && !*serviceGrp.Enabled {
 			err = svc.q.Ping(serviceGrp)
 			if err != nil {
 				return err
 			}
 		}
 	}
-	return svc.repo.Update(ctx, u)
+	return svc.repo.Update(ctx, serviceGroup)
 }

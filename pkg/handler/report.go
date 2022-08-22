@@ -58,38 +58,38 @@ func calculateTotalPoints(simpleReport *report.SimpleReport) {
 }
 
 func filterBlueTeams(simpleReport *report.SimpleReport, tID uuid.UUID, p *policy.Policy) {
-	for t := range simpleReport.Teams {
-		for h := range simpleReport.Teams[t].Hosts {
-			for s := range simpleReport.Teams[t].Hosts[h].Services {
+	for teamIdx := range simpleReport.Teams {
+		for hostIdx := range simpleReport.Teams[teamIdx].Hosts {
+			for serviceIdx := range simpleReport.Teams[teamIdx].Hosts[hostIdx].Services {
 				propFilterHide := map[string]*report.SimpleProperty{}
-				for key, val := range simpleReport.Teams[t].Hosts[h].Services[s].Properties {
+				for key, val := range simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].Properties {
 					if val.Status != "Hide" {
 						propFilterHide[key] = val
 					}
 				}
-				simpleReport.Teams[t].Hosts[h].Services[s].Properties = propFilterHide
-				if t != tID {
-					if simpleReport.Teams[t].Hosts[h].Services[s].Check != nil {
-						simpleReport.Teams[t].Hosts[h].Services[s].Check.Err = ""
-						simpleReport.Teams[t].Hosts[h].Services[s].Check.Log = ""
+				simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].Properties = propFilterHide
+				if teamIdx != tID {
+					if simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].Check != nil {
+						simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].Check.Err = ""
+						simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].Check.Log = ""
 					}
 					prop := map[string]*report.SimpleProperty{}
 					if *p.ShowAddresses {
-						if val, ok := simpleReport.Teams[t].Hosts[h].Services[s].Properties["Port"]; ok {
+						if val, ok := simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].Properties["Port"]; ok {
 							prop["Port"] = val
 						}
 					}
-					simpleReport.Teams[t].Hosts[h].Services[s].Properties = prop
+					simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].Properties = prop
 					if !*p.ShowPoints {
-						simpleReport.Teams[t].Hosts[h].Services[s].Points = 0
-						simpleReport.Teams[t].Hosts[h].Services[s].PointsBoost = 0
-						simpleReport.Teams[t].TotalPoints = 0
+						simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].Points = 0
+						simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].PointsBoost = 0
+						simpleReport.Teams[teamIdx].TotalPoints = 0
 					}
 				}
 			}
-			if t != tID {
+			if teamIdx != tID {
 				if !*p.ShowAddresses {
-					simpleReport.Teams[t].Hosts[h].Address = ""
+					simpleReport.Teams[teamIdx].Hosts[hostIdx].Address = ""
 				}
 			}
 		}

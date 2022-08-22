@@ -1,7 +1,7 @@
 package orm
 
-type NoRowsAffected struct {
+type NoRowsAffectedError struct {
 	msg string // description of error
 }
 
-func (e *NoRowsAffected) Error() string { return e.msg }
+func (e *NoRowsAffectedError) Error() string { return e.msg }

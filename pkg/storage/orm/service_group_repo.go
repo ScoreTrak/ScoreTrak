@@ -26,7 +26,7 @@ func (s *serviceGroupRepo) Delete(ctx context.Context, id uuid.UUID) error {
 		return fmt.Errorf("error while deleting the Service Group with id: %d, err: %w", id, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return &NoRowsAffected{"no model found"}
+		return &NoRowsAffectedError{"no model found"}
 	}
 	return nil
 }

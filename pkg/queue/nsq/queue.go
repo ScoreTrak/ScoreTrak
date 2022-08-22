@@ -24,8 +24,8 @@ type WorkerQueue struct {
 var ErrWorkersFailed = errors.New("some workers failed to receive the checks. Make sure that is by design")
 
 // Send sends scoring data to the NSQD nodes, and returns either a list of checks with a warning, or an error
-func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, error, error) {
-	returningTopicName, err := queueing.TopicFromServiceRound(sds[0].RoundID)
+func (n WorkerQueue) Send(scoringDataAggregate []*queueing.ScoringData) ([]*queueing.QCheck, error, error) {
+	returningTopicName, err := queueing.TopicFromServiceRound(scoringDataAggregate[0].RoundID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -39,13 +39,13 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, erro
 	defer producer.Stop()
 
 	m := make(map[string][][]byte)
-	for _, sd := range sds {
-		sd.Service.ReturningTopic = returningTopicName
+	for _, scoringData := range scoringDataAggregate {
+		scoringData.Service.ReturningTopic = returningTopicName
 		buf := &bytes.Buffer{}
-		if err := gob.NewEncoder(buf).Encode(sd); err != nil {
+		if err := gob.NewEncoder(buf).Encode(scoringData); err != nil {
 			return nil, nil, err
 		}
-		m[sd.Service.Group] = append(m[sd.Service.Group], buf.Bytes())
+		m[scoringData.Service.Group] = append(m[scoringData.Service.Group], buf.Bytes())
 	}
 
 	for k, v := range m {
@@ -61,14 +61,14 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, erro
 		return nil, nil, err
 	}
 	defer consumer.Stop()
-	ret := make([]*queueing.QCheck, len(sds))
-	consumer.ChangeMaxInFlight(len(sds))
-	cq := make(chan queueing.IndexedQueue, 1)
+	ret := make([]*queueing.QCheck, len(scoringDataAggregate))
+	consumer.ChangeMaxInFlight(len(scoringDataAggregate))
+	qCheckChannel := make(chan queueing.IndexedQueue, 1)
 	consumer.SetLoggerLevel(nsq.LogLevelWarning)
 
 	idIndexMap := make(map[uuid.UUID]int)
 
-	for i, sd := range sds {
+	for i, sd := range scoringDataAggregate {
 		idIndexMap[sd.Service.ID] = i
 	}
 
@@ -79,7 +79,7 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, erro
 			return err
 		}
 		if i, ok := idIndexMap[qc.Service.ID]; ok {
-			cq <- queueing.IndexedQueue{Q: &qc, I: i}
+			qCheckChannel <- queueing.IndexedQueue{Q: &qc, I: i}
 			return nil
 		}
 		return nil
@@ -88,18 +88,18 @@ func (n WorkerQueue) Send(sds []*queueing.ScoringData) ([]*queueing.QCheck, erro
 	if err != nil {
 		return nil, nil, err
 	}
-	counter := len(sds)
+	counter := len(scoringDataAggregate)
 	for {
 		select {
-		case res := <-cq:
+		case res := <-qCheckChannel:
 			ret[res.I] = res.Q
 			counter--
 			if counter == 0 {
 				return ret, nil, nil
 			}
-		case <-time.After(time.Until(sds[0].Deadline)):
+		case <-time.After(time.Until(scoringDataAggregate[0].Deadline)):
 			if !n.config.NSQ.IgnoreAllScoresIfWorkerFails {
-				return nil, nil, &queueing.RoundTookTooLongToExecute{Msg: "Round took too long to score. This might be due to many reasons like a worker going down, or the number of rounds being too big for workers to handle"}
+				return nil, nil, &queueing.RoundTookTooLongToExecuteError{Msg: "Round took too long to score. This might be due to many reasons like a worker going down, or the number of rounds being too big for workers to handle"}
 			}
 			return ret, ErrWorkersFailed, nil
 		}
@@ -183,7 +183,7 @@ func (n WorkerQueue) Ping(group *servicegroup.ServiceGroup) error {
 	return nil
 }
 
-func (n WorkerQueue) Acknowledge(q queueing.QCheck) {
+func (n WorkerQueue) Acknowledge(qCheck queueing.QCheck) {
 	confp := nsq.NewConfig()
 	nsqProducerConfig(confp, n.config)
 	producer, err := nsq.NewProducer(n.config.NSQ.ProducerNSQD, confp)
@@ -192,10 +192,10 @@ func (n WorkerQueue) Acknowledge(q queueing.QCheck) {
 	}
 	producer.SetLoggerLevel(nsq.LogLevelWarning)
 	buf := &bytes.Buffer{}
-	if err := gob.NewEncoder(buf).Encode(&q); err != nil {
+	if err := gob.NewEncoder(buf).Encode(&qCheck); err != nil {
 		panic(err)
 	}
-	err = producer.Publish(q.Service.ReturningTopic, buf.Bytes())
+	err = producer.Publish(qCheck.Service.ReturningTopic, buf.Bytes())
 	if err != nil {
 		panic(err)
 	}

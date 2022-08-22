@@ -27,7 +27,7 @@ func (h *hostGroupRepo) Delete(ctx context.Context, id uuid.UUID) error {
 		return fmt.Errorf("error while deleting the host group with id: %d, err: %w", id, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return &NoRowsAffected{"no model found"}
+		return &NoRowsAffectedError{"no model found"}
 	}
 	return nil
 }

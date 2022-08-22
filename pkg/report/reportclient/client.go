@@ -28,13 +28,13 @@ func NewReportClient(cnf queueing.MasterConfig, repo reportrepo.Repo, pubsub que
 func (a *Client) Subscribe() (uuid.UUID, <-chan struct{}) {
 	a.signalMutex.Lock()
 	defer a.signalMutex.Unlock()
-	ch := make(chan struct{}, 1)
+	channel := make(chan struct{}, 1)
 	uid, err := uuid.NewV4()
 	if err != nil {
 		log.Panicln("Unable to generate rabdom UUID")
 	}
-	a.signal[uid] = ch
-	return uid, ch
+	a.signal[uid] = channel
+	return uid, channel
 }
 
 func (a *Client) Unsubscribe(uid uuid.UUID) {
