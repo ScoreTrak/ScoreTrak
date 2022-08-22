@@ -45,8 +45,9 @@ func (k *Kubernetes) DeployWorkers(ctx context.Context, info worker.Info) error 
 				Selector: &metav1.LabelSelector{MatchLabels: labels},
 				Template: corev1.PodTemplateSpec{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:   name,
-						Labels: labels,
+						Name:      name,
+						Namespace: k.Namespace,
+						Labels:    labels,
 					},
 					Spec: corev1.PodSpec{
 						Tolerations:  []corev1.Toleration{{Key: "node-role.kubernetes.io/master", Effect: corev1.TaintEffectPreferNoSchedule}},
