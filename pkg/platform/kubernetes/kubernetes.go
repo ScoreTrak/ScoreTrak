@@ -17,7 +17,8 @@ import (
 )
 
 type Kubernetes struct {
-	Client    *kubernetes.Clientset
+	Client *kubernetes.Clientset
+	// Namespace in which worker nodes are to be deployed.
 	Namespace string
 	Config    config.StaticConfig
 }
