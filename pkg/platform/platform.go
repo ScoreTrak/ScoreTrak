@@ -3,6 +3,7 @@ package platform
 import (
 	"context"
 	"errors"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/none"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
