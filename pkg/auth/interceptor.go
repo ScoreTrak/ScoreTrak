@@ -212,7 +212,7 @@ func (interceptor *Interceptor) Stream() grpc.StreamServerInterceptor {
 
 // authorize takes in context, extracts roles from the context if there are any, and ensures that a given roles has rights to access a given method. If a given role has no access, it returns permission denied error.
 func (interceptor *Interceptor) authorize(ctx context.Context, method string) (claims *UserClaims, err error) {
-	newCtx, span := otel.Tracer("scoretrak/master").Start(ctx, "Authorize JWT")
+	_, span := otel.Tracer("scoretrak/master").Start(ctx, "Authorize JWT")
 	defer span.End()
 	role := user.Anonymous
 	md, ok := metadata.FromIncomingContext(ctx)
@@ -220,7 +220,7 @@ func (interceptor *Interceptor) authorize(ctx context.Context, method string) (c
 		values := md["authorization"]
 		if len(values) != 0 {
 			accessToken := values[0]
-			claims, err = interceptor.jwtManager.Verify(newCtx, accessToken)
+			claims, err = interceptor.jwtManager.Verify(accessToken)
 			if err != nil {
 				return nil, status.Errorf(codes.Unauthenticated, "access token is invalid: %v", err)
 			}
