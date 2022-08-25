@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
+	"go.opentelemetry.io/otel"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyclient"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
@@ -211,13 +212,15 @@ func (interceptor *Interceptor) Stream() grpc.StreamServerInterceptor {
 
 // authorize takes in context, extracts roles from the context if there are any, and ensures that a given roles has rights to access a given method. If a given role has no access, it returns permission denied error.
 func (interceptor *Interceptor) authorize(ctx context.Context, method string) (claims *UserClaims, err error) {
+	newCtx, span := otel.Tracer("scoretrak/master").Start(ctx, "Authorize JWT")
+	defer span.End()
 	role := user.Anonymous
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		values := md["authorization"]
 		if len(values) != 0 {
 			accessToken := values[0]
-			claims, err = interceptor.jwtManager.Verify(accessToken)
+			claims, err = interceptor.jwtManager.Verify(newCtx, accessToken)
 			if err != nil {
 				return nil, status.Errorf(codes.Unauthenticated, "access token is invalid: %v", err)
 			}

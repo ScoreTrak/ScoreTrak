@@ -5,6 +5,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/spf13/viper"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"log"
 	"net"
 	"os"
@@ -116,7 +124,7 @@ var masterCmd = &cobra.Command{
 
 		dr := runner.NewRunner(db, q, store, C)
 		go func() {
-			err := dr.MasterRunner()
+			err := dr.MasterRunner(context.TODO())
 			if err != nil {
 				log.Panicf("%v", err)
 			}
@@ -132,15 +140,6 @@ var masterCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(masterCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// masterCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// masterCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 func SetupDB(cont *dig.Container) error {
@@ -228,6 +227,37 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 			grpc_ctxtags.StreamServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
 			grpc_zap.StreamServerInterceptor(zapLogger, logOpts...),
 		}...)
+	}
+
+	// OpenTracing
+	{
+		exp, err := jaeger.New(jaeger.WithCollectorEndpoint(
+			jaeger.WithEndpoint(viper.GetString("jaeger.endpoint")),
+			jaeger.WithUsername(viper.GetString("jaeger.username")),
+			jaeger.WithPassword(viper.GetString("jaeger.password")),
+		))
+		if err != nil {
+			return err
+		}
+		tp := trace.NewTracerProvider(
+			trace.WithBatcher(exp),
+			trace.WithResource(
+				resource.NewWithAttributes(
+					semconv.SchemaURL,
+					semconv.ServiceNameKey.String("scoretrak/master"),
+					attribute.String("production", viper.GetString("prod")),
+				),
+			),
+		)
+		defer func() {
+			if err := tp.Shutdown(context.Background()); err != nil {
+				log.Panicf("Error shutting down tracer provider: %v", err)
+			}
+		}()
+
+		otel.SetTracerProvider(tp)
+		middlewareChainsUnary = append(middlewareChainsUnary, otelgrpc.UnaryServerInterceptor())
+		middlewareChainsStream = append(middlewareChainsStream, otelgrpc.StreamServerInterceptor())
 	}
 
 	// Recovery

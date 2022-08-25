@@ -2,6 +2,9 @@ package handler
 
 import (
 	"context"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user/userservice"
@@ -21,12 +24,15 @@ func NewAuthController(svc userservice.Serv, jwtManager *auth.Manager) *AuthCont
 }
 
 func (a AuthController) Login(ctx context.Context, request *authv1.LoginRequest) (*authv1.LoginResponse, error) {
+	ctx, span := otel.Tracer("scoretrak/master").Start(ctx, "Login", trace.WithAttributes(attribute.String("username", request.Username)))
+	defer span.End()
 	if request.GetUsername() == "" || request.GetPassword() == "" {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
 			"Username and password should not be empty",
 		)
 	}
+
 	usr, err := a.svc.GetByUsername(ctx, request.GetUsername())
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "cannot retrieve user: %v", err)
