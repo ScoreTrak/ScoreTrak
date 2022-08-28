@@ -232,9 +232,9 @@ func Start(staticConfig config.StaticConfig, d *dig.Container, db *gorm.DB) erro
 	// OpenTracing
 	{
 		exp, err := jaeger.New(jaeger.WithCollectorEndpoint(
-			jaeger.WithEndpoint(viper.GetString("jaeger.endpoint")),
-			jaeger.WithUsername(viper.GetString("jaeger.username")),
-			jaeger.WithPassword(viper.GetString("jaeger.password")),
+			jaeger.WithEndpoint(viper.GetString("open-telemetry.jaeger.endpoint")),
+			jaeger.WithUsername(viper.GetString("open-telemetry.jaeger.username")),
+			jaeger.WithPassword(viper.GetString("open-telemetry.jaeger.password")),
 		))
 		if err != nil {
 			return err
