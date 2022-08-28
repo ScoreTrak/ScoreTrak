@@ -35,11 +35,12 @@ var ErrDBNotSupported = errors.New("not supported db")
 func NewDB(c Config) (*gorm.DB, error) {
 	var db *gorm.DB
 	var err error
-	if c.Use == "cockroach" {
+	switch c.Use {
+	case "cockroach":
 		db, err = newCockroach(c)
-	} else if c.Use == "sqlite" {
+	case "sqlite":
 		db, err = newSqlite(c)
-	} else {
+	default:
 		return nil, ErrDBNotSupported
 	}
 	if err != nil {
