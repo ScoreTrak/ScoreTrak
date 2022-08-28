@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"google.golang.org/grpc/credentials/insecure"
 	"log"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
@@ -64,7 +65,7 @@ func init() {
 }
 
 func createNewSuperUser(address string, adminUsername string, adminPassword string, newUsername string, newPassword string, teamID string) error {
-	cc, err := grpc.Dial(address, grpc.WithInsecure())
+	cc, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatal("cannot dial server: ", err)
 	}

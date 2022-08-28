@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"fmt"
-	"go.opentelemetry.io/otel"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyclient"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
@@ -15,6 +14,7 @@ import (
 	reportv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/report/v1"
 	servicev1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/service/v1"
 	userv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/user/v1"
+	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"

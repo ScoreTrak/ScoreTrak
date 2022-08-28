@@ -5,14 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/spf13/viper"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/jaeger"
-	"go.opentelemetry.io/otel/sdk/resource"
-	"go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"log"
 	"net"
 	"os"
@@ -54,6 +46,8 @@ import (
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	"github.com/jackc/pgconn"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	healthv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/grpc/health/v1"
 	authv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/auth/v1"
 	checkv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/check/v1"
@@ -69,6 +63,13 @@ import (
 	service_groupv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/service_group/v1"
 	teamv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/team/v1"
 	userv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/user/v1"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"go.uber.org/dig"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
@@ -78,8 +79,6 @@ import (
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
-
-	"github.com/spf13/cobra"
 )
 
 // masterCmd represents the master command
@@ -139,7 +138,6 @@ var masterCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(masterCmd)
-
 }
 
 func SetupDB(cont *dig.Container) error {
