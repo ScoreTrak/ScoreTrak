@@ -3,29 +3,19 @@ package orm
 import (
 	"context"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
-	"os"
 	"testing"
 )
 
 func TestServiceGroupSpec(t *testing.T) {
-	var c config.StaticConfig
-	autoTest := os.Getenv("AUTO_TEST")
-	if autoTest == "TRUE" {
-		c, _ = LoadViperConfig("../../../configs/test-config.yml")
-	} else {
-		c, _ = LoadViperConfig("dev-config.yml")
-	}
-	c.DB.Cockroach.Database = "scoretrak_test_orm_service_group"
-	db := SetupCockroachDB(c.DB)
+	c, _ := LoadViperConfig("../../../configs/test-config.yml")
+	db := SetupDB(c.DB)
 	ctx := context.Background()
-	t.Parallel() //t.Parallel should be placed after SetupCockroachDB because gorm has race conditions on Hook register
 	Convey("Creating Service Group Tables", t, func() {
 		db.AutoMigrate(&servicegroup.ServiceGroup{})
 		sgr := NewServiceGroupRepo(db)

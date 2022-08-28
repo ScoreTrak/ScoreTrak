@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
@@ -34,14 +35,28 @@ var ErrDBNotSupported = errors.New("not supported db")
 func NewDB(c Config) (*gorm.DB, error) {
 	var db *gorm.DB
 	var err error
-	if c.Use == "cockroach" {
+	switch c.Use {
+	case "cockroach":
 		db, err = newCockroach(c)
-	} else {
+	case "sqlite":
+		db, err = newSqlite(c)
+	default:
 		return nil, ErrDBNotSupported
 	}
 	if err != nil {
 		return nil, err
 	}
+	return db, nil
+}
+
+func newSqlite(c Config) (*gorm.DB, error) {
+	db, err := gorm.Open(sqlite.Open(c.Sqlite.Path), &gorm.Config{NamingStrategy: schema.NamingStrategy{
+		TablePrefix: c.Prefix,
+	}})
+	if err != nil {
+		return nil, err
+	}
+
 	return db, nil
 }
 
@@ -110,5 +125,9 @@ type Config struct {
 			GcTtlseconds                    uint64 `default:"600"`
 			BackpressureRangeSizeMultiplier uint64 `default:"0"`
 		}
+	}
+	Sqlite struct {
+		Path     string `default:"scoretrak.db"`
+		Database string `default:"scoretrak"`
 	}
 }

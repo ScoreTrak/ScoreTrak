@@ -20,10 +20,11 @@ import (
 	"github.com/jackc/pgconn"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"os"
 	"time"
 )
 
-//CleanAllTables Drops all tables
+// CleanAllTables Drops all tables
 func CleanAllTables(db *gorm.DB) error {
 	err := db.Migrator().DropTable(&check.Check{})
 	if err != nil {
@@ -68,10 +69,10 @@ func CleanAllTables(db *gorm.DB) error {
 	return nil
 }
 
-//uuid1 is a uuid of the initial admin user, and admin team
+// uuid1 is a uuid of the initial admin user, and admin team
 var uuid1 = uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 
-//CreateBlackTeam Ensures that black team exists
+// CreateBlackTeam Ensures that black team exists
 func CreateBlackTeam(db *gorm.DB) (err error) {
 	err = db.Create([]*team.Team{{ID: uuid1, Name: "Black Team"}}).Error
 	if err != nil {
@@ -84,7 +85,7 @@ func CreateBlackTeam(db *gorm.DB) (err error) {
 	return nil
 }
 
-//CreatePolicy Ensure policy.Policy exists
+// CreatePolicy Ensure policy.Policy exists
 func CreatePolicy(db *gorm.DB) (*policy.Policy, error) {
 	p := &policy.Policy{ID: 1}
 	err := db.Create(p).Error
@@ -102,7 +103,7 @@ func CreatePolicy(db *gorm.DB) (*policy.Policy, error) {
 	return p, nil
 }
 
-//TruncateAllTables truncates all tables (A little faster than dropping)
+// TruncateAllTables truncates all tables (A little faster than dropping)
 func TruncateAllTables(db *gorm.DB) {
 	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "checks"))
 	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "properties"))
@@ -219,7 +220,14 @@ func DataPreload(db *gorm.DB) {
 }
 
 func DropDB(db *gorm.DB, c config.StaticConfig) {
-	db.Exec(fmt.Sprintf("drop database %s", c.DB.Cockroach.Database))
+	if c.DB.Use == "cockroach" {
+		db.Exec(fmt.Sprintf("drop database %s", c.DB.Cockroach.Database))
+	} else if c.DB.Use == "sqlite" {
+		err := os.RemoveAll(c.DB.Sqlite.Path)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 }
 
 func TruncateTable(ctx context.Context, v interface{}, db *gorm.DB) error {
@@ -231,7 +239,17 @@ func TruncateTable(ctx context.Context, v interface{}, db *gorm.DB) error {
 	return db.WithContext(ctx).Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", stmt.Schema.Table)).Error //POSTGRES SPECIFIC. FOR MYSQL, CHANGE THIS TO  SET FOREIGN_KEY_CHECKS=0 ; <TRUNCATE> ; SET FOREIGN_KEY_CHECKS=1
 }
 
-//SetupCockroachDB creates a new database instance using
+func SetupDB(c storage.Config) *gorm.DB {
+	var db *gorm.DB
+	if c.Use == "cockroach" {
+		db = SetupCockroachDB(c)
+	} else if c.Use == "sqlite" {
+		db = SetupSqliteDB(c)
+	}
+	return db
+}
+
+// SetupCockroachDB
 func SetupCockroachDB(c storage.Config) *gorm.DB {
 	var err error
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s sslmode=disable",
@@ -246,6 +264,20 @@ func SetupCockroachDB(c storage.Config) *gorm.DB {
 	dbPrep.Exec(fmt.Sprintf("create database if not exists  %s", c.Cockroach.Database))
 	db, err := storage.NewDB(c)
 	if err != nil {
+		panic(err)
+	}
+	return db
+}
+
+// SetupSqliteDB creates a new database instance using
+func SetupSqliteDB(c storage.Config) (db *gorm.DB) {
+	var err error
+
+	db, err = storage.NewDB(c)
+	if err != nil {
+		panic(err)
+	}
+	if res := db.Exec("PRAGMA foreign_keys = ON", nil); res.Error != nil {
 		panic(err)
 	}
 	return db

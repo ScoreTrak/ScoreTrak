@@ -2,29 +2,19 @@ package orm
 
 import (
 	"context"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/gofrs/uuid"
-	"os"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestHostGroupSpec(t *testing.T) {
-	var c config.StaticConfig
-	autoTest := os.Getenv("AUTO_TEST")
-	if autoTest == "TRUE" {
-		c, _ = LoadViperConfig("../../../configs/test-config.yml")
-	} else {
-		c, _ = LoadViperConfig("dev-config.yml")
-	}
-	c.DB.Cockroach.Database = "scoretrak_test_orm_host_group"
-	db := SetupCockroachDB(c.DB)
-	t.Parallel() //t.Parallel should be placed after SetupCockroachDB because gorm has race conditions on Hook register
+	c, _ := LoadViperConfig("../../../configs/test-config.yml")
+	db := SetupDB(c.DB)
 	ctx := context.Background()
 	Convey("Creating Host Group Table", t, func() {
 		db.AutoMigrate(&hostgroup.HostGroup{})
@@ -115,6 +105,7 @@ func TestHostGroupSpec(t *testing.T) {
 						db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id) VALUES ('44444444-4444-4444-4444-444444444444', '192.168.1.1', '44444444-4444-4444-4444-444444444444', '33333333-3333-3333-3333-333333333333')")
 						db.Table("hosts").Count(&count)
 						So(count, ShouldEqual, 1)
+						// Ignoring this check as hostgroup model is not properly setup to fail when it has hosts
 						Convey("Delete a host group without deleting a host", func() {
 							err = hg.Delete(ctx, uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333"))
 							So(err, ShouldNotBeNil)
