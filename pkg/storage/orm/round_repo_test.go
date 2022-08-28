@@ -2,32 +2,20 @@ package orm
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
-	"github.com/jackc/pgconn"
 	. "github.com/smartystreets/goconvey/convey"
-	"os"
 	"testing"
 	"time"
 )
 
 func TestRoundSpec(t *testing.T) {
-	var c config.StaticConfig
-	autoTest := os.Getenv("AUTO_TEST")
-	if autoTest == "TRUE" {
-		c, _ = LoadViperConfig("../../../configs/test-config.yml")
-	} else {
-		c, _ = LoadViperConfig("dev-config.yml")
-	}
-	c.DB.Cockroach.Database = "scoretrak_test_orm_round"
-	db := SetupCockroachDB(c.DB)
+	c, _ := LoadViperConfig("../../../configs/test-config.yml")
+	db := SetupDB(c.DB)
 	ctx := context.Background()
-	t.Parallel() //t.Parallel should be placed after SetupCockroachDB because gorm has race conditions on Hook register
 	Convey("Creating Round Tables", t, func() {
 		db.AutoMigrate(&round.Round{})
 		rr := NewRoundRepo(db)
@@ -78,10 +66,11 @@ func TestRoundSpec(t *testing.T) {
 					r := round.Round{ID: 1}
 					err = rr.Store(ctx, &r)
 					So(err, ShouldNotBeNil)
-					var serr *pgconn.PgError
-					ok := errors.As(err, &serr)
-					So(ok, ShouldBeTrue)
-					So(serr.Code, ShouldEqual, "23505")
+					// Ignored as using sqlite conn
+					//var serr *pgconn.PgError
+					//ok := errors.As(err, &serr)
+					//So(ok, ShouldBeTrue)
+					//So(serr.Code, ShouldEqual, "23505")
 				})
 
 				Convey("Then Deleting a wrong entry", func() {

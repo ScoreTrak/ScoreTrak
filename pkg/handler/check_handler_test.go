@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkservice"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
@@ -22,21 +21,12 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 	"log"
 	"net"
-	"os"
 	"testing"
 )
 
 func TestCheckSpec(t *testing.T) {
-	var c config.StaticConfig
-	autoTest := os.Getenv("AUTO_TEST")
-	if autoTest == "TRUE" {
-		c, _ = LoadViperConfig("../../configs/test-config.yml")
-	} else {
-		c, _ = LoadViperConfig("dev-config.yml")
-	}
-	c.DB.Cockroach.Database = "scoretrak_test_handler_check"
-	db := SetupCockroachDB(c.DB)
-	t.Parallel() //t.Parallel should be placed after SetupCockroachDB because gorm has race conditions on Hook register
+	c, _ := LoadViperConfig("../../configs/test-config.yml")
+	db := SetupDB(c.DB)
 	err := util.CreateAllTables(db)
 	if err != nil {
 		panic(err)

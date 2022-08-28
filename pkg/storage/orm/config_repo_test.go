@@ -8,22 +8,13 @@ import (
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 
 	. "github.com/smartystreets/goconvey/convey"
-	"os"
 	"testing"
 	"time"
 )
 
 func TestConfigSpec(t *testing.T) {
-	var c config.StaticConfig
-	autoTest := os.Getenv("AUTO_TEST")
-	if autoTest == "TRUE" {
-		c, _ = LoadViperConfig("../../../configs/test-config.yml")
-	} else {
-		c, _ = LoadViperConfig("dev-config.yml")
-	}
-	c.DB.Cockroach.Database = "scoretrak_test_orm_config"
-	db := SetupCockroachDB(c.DB)
-	t.Parallel() //t.Parallel should be placed after SetupCockroachDB because gorm has race conditions on Hook register
+	c, _ := LoadViperConfig("../../../configs/test-config.yml")
+	db := SetupDB(c.DB)
 	Convey("Creating Config Table and Insert sample config", t, func() {
 		db.AutoMigrate(&config.DynamicConfig{})
 		db.AutoMigrate(&report.Report{})
