@@ -14,7 +14,7 @@ import (
 
 func TestServiceGroupSpec(t *testing.T) {
 	c, _ := LoadViperConfig("../../../configs/test-config.yml")
-	db := SetupSqliteDB(c.DB)
+	db := SetupDB(c.DB)
 	ctx := context.Background()
 	Convey("Creating Service Group Tables", t, func() {
 		db.AutoMigrate(&servicegroup.ServiceGroup{})

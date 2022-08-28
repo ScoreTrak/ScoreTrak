@@ -15,7 +15,7 @@ import (
 
 func TestHostSpec(t *testing.T) {
 	c, _ := LoadViperConfig("../../../configs/test-config.yml")
-	db := SetupSqliteDB(c.DB)
+	db := SetupDB(c.DB)
 	ctx := context.Background()
 	Convey("Creating Host Table", t, func() {
 		db.AutoMigrate(&host.Host{})

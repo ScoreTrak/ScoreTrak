@@ -14,7 +14,7 @@ import (
 
 func TestConfigSpec(t *testing.T) {
 	c, _ := LoadViperConfig("../../../configs/test-config.yml")
-	db := SetupSqliteDB(c.DB)
+	db := SetupDB(c.DB)
 	Convey("Creating Config Table and Insert sample config", t, func() {
 		db.AutoMigrate(&config.DynamicConfig{})
 		db.AutoMigrate(&report.Report{})

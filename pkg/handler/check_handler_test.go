@@ -25,8 +25,8 @@ import (
 )
 
 func TestCheckSpec(t *testing.T) {
-	c, _ := LoadViperConfig("../../../configs/test-config.yml")
-	db := SetupSqliteDB(c.DB)
+	c, _ := LoadViperConfig("../../configs/test-config.yml")
+	db := SetupDB(c.DB)
 	err := util.CreateAllTables(db)
 	if err != nil {
 		panic(err)

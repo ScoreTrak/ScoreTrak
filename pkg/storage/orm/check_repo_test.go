@@ -15,7 +15,7 @@ import (
 
 func TestCheckSpec(t *testing.T) {
 	c, _ := LoadViperConfig("../../../configs/test-config.yml")
-	db := SetupSqliteDB(c.DB)
+	db := SetupDB(c.DB)
 	Convey("Creating Round, Service and Check tables along with their foreign keys", t, func() {
 		db.AutoMigrate(&service.Service{})
 		db.AutoMigrate(&round.Round{})

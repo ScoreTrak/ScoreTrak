@@ -14,7 +14,7 @@ import (
 
 func TestTeamSpec(t *testing.T) {
 	c, _ := LoadViperConfig("../../../configs/test-config.yml")
-	db := SetupSqliteDB(c.DB)
+	db := SetupDB(c.DB)
 	ctx := context.Background()
 	Convey("Creating Team Tables", t, func() {
 		db.AutoMigrate(&team.Team{})
