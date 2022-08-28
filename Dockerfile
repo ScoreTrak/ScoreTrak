@@ -18,6 +18,9 @@ COPY --from=builder \
     /go/src/github.com/ScoreTrak/ScoreTrak/scoretrak \
     /go/bin/scoretrak
 
+RUN apt-get update \
+  && apt-get install -y wget \
+  && rm -rf /var/lib/apt/lists/*
 # Setup grpc-health-probe
 RUN GRPC_HEALTH_PROBE_VERSION=v0.4.8 && \
     wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
