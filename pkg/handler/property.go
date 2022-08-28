@@ -156,14 +156,14 @@ func (p PropertyController) GetByServiceIDKey(ctx context.Context, request *prop
 }
 
 func (p PropertyController) GetAllByServiceID(ctx context.Context, request *propertyv1.GetAllByServiceIDRequest) (*propertyv1.GetAllByServiceIDResponse, error) {
-	id := request.GetServiceId()
-	if id == nil {
+	ID := request.GetServiceId()
+	if ID == nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
 			idNotSpecified,
 		)
 	}
-	uid, err := uuid.FromString(id.GetValue())
+	uid, err := uuid.FromString(ID.GetValue())
 	if err != nil {
 		return nil, status.Errorf(
 			codes.InvalidArgument,

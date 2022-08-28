@@ -36,45 +36,45 @@ var (
 	ErrLoadCompetition = errors.New("failed to load the competition")
 )
 
-func (svc *competitionServ) LoadCompetition(ctx context.Context, c *competition.Competition) error {
+func (svc *competitionServ) LoadCompetition(ctx context.Context, comp *competition.Competition) error {
 	errAgr := make([]error, 0, 11)
-	err := svc.Store.Config.Update(ctx, c.Config)
+	err := svc.Store.Config.Update(ctx, comp.Config)
 	if err != nil {
 		return err
 	}
-	if len(c.Teams) != 0 {
-		errAgr = append(errAgr, svc.Store.Team.Upsert(ctx, c.Teams))
+	if len(comp.Teams) != 0 {
+		errAgr = append(errAgr, svc.Store.Team.Upsert(ctx, comp.Teams))
 	}
-	if len(c.HostGroups) != 0 {
-		errAgr = append(errAgr, svc.Store.HostGroup.Upsert(ctx, c.HostGroups))
+	if len(comp.HostGroups) != 0 {
+		errAgr = append(errAgr, svc.Store.HostGroup.Upsert(ctx, comp.HostGroups))
 	}
 
-	if len(c.Hosts) != 0 {
-		errAgr = append(errAgr, svc.Store.Host.Upsert(ctx, c.Hosts))
+	if len(comp.Hosts) != 0 {
+		errAgr = append(errAgr, svc.Store.Host.Upsert(ctx, comp.Hosts))
 	}
-	for i := range c.ServiceGroups {
-		errAgr = append(errAgr, svc.Store.ServiceGroup.Upsert(ctx, c.ServiceGroups[i]))
+	for i := range comp.ServiceGroups {
+		errAgr = append(errAgr, svc.Store.ServiceGroup.Upsert(ctx, comp.ServiceGroups[i]))
 	}
-	if len(c.Services) != 0 {
-		errAgr = append(errAgr, svc.Store.Service.Upsert(ctx, c.Services))
+	if len(comp.Services) != 0 {
+		errAgr = append(errAgr, svc.Store.Service.Upsert(ctx, comp.Services))
 	}
-	if len(c.Properties) != 0 {
-		errAgr = append(errAgr, svc.Store.Property.Upsert(ctx, c.Properties))
+	if len(comp.Properties) != 0 {
+		errAgr = append(errAgr, svc.Store.Property.Upsert(ctx, comp.Properties))
 	}
-	if len(c.Rounds) != 0 {
-		errAgr = append(errAgr, svc.Store.Round.Upsert(ctx, c.Rounds))
+	if len(comp.Rounds) != 0 {
+		errAgr = append(errAgr, svc.Store.Round.Upsert(ctx, comp.Rounds))
 	}
-	if len(c.Checks) != 0 {
-		errAgr = append(errAgr, svc.Store.Check.Upsert(ctx, c.Checks))
+	if len(comp.Checks) != 0 {
+		errAgr = append(errAgr, svc.Store.Check.Upsert(ctx, comp.Checks))
 	}
-	if c.Report != nil {
-		errAgr = append(errAgr, svc.Store.Report.Update(ctx, c.Report))
+	if comp.Report != nil {
+		errAgr = append(errAgr, svc.Store.Report.Update(ctx, comp.Report))
 	}
-	if c.Policy != nil {
-		errAgr = append(errAgr, svc.Store.Policy.Update(ctx, c.Policy))
+	if comp.Policy != nil {
+		errAgr = append(errAgr, svc.Store.Policy.Update(ctx, comp.Policy))
 	}
-	if c.Users != nil {
-		errAgr = append(errAgr, svc.Store.Users.Upsert(ctx, c.Users))
+	if comp.Users != nil {
+		errAgr = append(errAgr, svc.Store.Users.Upsert(ctx, comp.Users))
 	}
 	errStr := ""
 	for i := range errAgr {

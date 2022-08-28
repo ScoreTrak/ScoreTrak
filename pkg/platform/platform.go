@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/none"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/docker"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/kubernetes"
@@ -32,7 +34,7 @@ func NewPlatform(config config.StaticConfig) (Platform, error) {
 	case Kubernetes:
 		return kubernetes.NewKubernetes(config)
 	case None:
-		return nil, nil
+		return none.NewNonePlatform()
 	default:
 		return nil, ErrInvalidPlatform
 	}

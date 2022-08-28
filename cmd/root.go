@@ -105,7 +105,7 @@ func initConfig() {
 	viper.SetDefault("Platform.Docker.Name", "scoretrak")
 	viper.SetDefault("Platform.Docker.Host", "unix:///var/run/docker.sock")
 	viper.SetDefault("Platform.Docker.Network", "default")
-	viper.SetDefault("Platform.Kubernetes.Namespace", "default")
+	viper.SetDefault("Platform.Kubernetes.Namespace", "")
 
 	// PubSubConfig
 	viper.SetDefault("PubSubConfig.ReportForceRefreshSeconds", 60)

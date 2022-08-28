@@ -28,7 +28,7 @@ func (r *roundRepo) Delete(ctx context.Context, id uint64) error {
 	}
 
 	if result.RowsAffected == 0 {
-		return &NoRowsAffected{"no model found"}
+		return &NoRowsAffectedError{"no model found"}
 	}
 
 	return nil

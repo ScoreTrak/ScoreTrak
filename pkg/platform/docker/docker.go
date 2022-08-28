@@ -73,7 +73,7 @@ func (d *Docker) DeployWorkers(ctx context.Context, info worker.Info) (err error
 		if info.Label == "" {
 			return ErrLabelIsEmpty
 		}
-		_, err := d.CreateService(info, networkName)
+		_, err := d.CreateService(ctx, info, networkName)
 		if err != nil {
 			return err
 		}
@@ -99,13 +99,13 @@ func (d *Docker) RemoveWorkers(ctx context.Context, info worker.Info) error {
 
 var ErrCheckServiceMissing = errors.New("unable to find check_service. The workers might have already been removed")
 
-func (d *Docker) GetServiceByName(ctx context.Context, n string) (swarm.Service, error) {
+func (d *Docker) GetServiceByName(ctx context.Context, serviceName string) (swarm.Service, error) {
 	services, err := d.Client.ServiceList(ctx, types.ServiceListOptions{})
 	if err != nil {
 		return swarm.Service{}, err
 	}
 	for _, service := range services {
-		if strings.Contains(service.Spec.Name, n) {
+		if strings.Contains(service.Spec.Name, serviceName) {
 			return service, nil
 		}
 	}
@@ -115,14 +115,14 @@ func (d *Docker) GetServiceByName(ctx context.Context, n string) (swarm.Service,
 
 var ErrContainerNotFound = errors.New("container not found. The worker might have already been removed")
 
-func (d *Docker) GetContainerByName(ctx context.Context, n string) (types.Container, error) {
+func (d *Docker) GetContainerByName(ctx context.Context, containerName string) (types.Container, error) {
 	containers, err := d.Client.ContainerList(ctx, types.ContainerListOptions{})
 	if err != nil {
 		return types.Container{}, err
 	}
 	for _, ctr := range containers {
 		for _, name := range ctr.Names {
-			if strings.Contains(name, n) {
+			if strings.Contains(name, containerName) {
 				return ctr, nil
 			}
 		}
@@ -170,7 +170,7 @@ func (d *Docker) BuildWorkerImage(ctx context.Context) error {
 	return nil
 }
 
-func (d *Docker) CreateService(info worker.Info, networkName string) (types.ServiceCreateResponse, error) {
+func (d *Docker) CreateService(ctx context.Context, info worker.Info, networkName string) (types.ServiceCreateResponse, error) {
 	encWorkerCfg, err := util.GenerateEncodedWorkerCfg(d.Config, info)
 	if err != nil {
 		return types.ServiceCreateResponse{}, err
@@ -196,7 +196,7 @@ func (d *Docker) CreateService(info worker.Info, networkName string) (types.Serv
 	}
 	spec.Mode.Global = &swarm.GlobalService{}
 	createOptions := types.ServiceCreateOptions{}
-	createResponse, err := d.Client.ServiceCreate(context.Background(), spec, createOptions)
+	createResponse, err := d.Client.ServiceCreate(ctx, spec, createOptions)
 	if err != nil {
 		return types.ServiceCreateResponse{}, err
 	}
@@ -221,28 +221,28 @@ func (d *Docker) CreateWorkerContainer(ctx context.Context, networkName string, 
 
 func (d *Docker) UploadConfigToContainer(ctx context.Context, resp container.ContainerCreateCreatedBody, path string) error {
 	buf := new(bytes.Buffer)
-	tw := tar.NewWriter(buf)
-	defer tw.Close()
+	writer := tar.NewWriter(buf)
+	defer writer.Close()
 	file, err := os.Open(path)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 	defer os.Remove(path)
-	s, err := file.Stat()
+	fileInfo, err := file.Stat()
 	if err != nil {
 		return err
 	}
 	tarHeader := &tar.Header{
 		Name: "configs/config.yml",
-		Size: s.Size(),
-		Mode: int64(s.Mode()),
+		Size: fileInfo.Size(),
+		Mode: int64(fileInfo.Mode()),
 	}
-	err = tw.WriteHeader(tarHeader)
+	err = writer.WriteHeader(tarHeader)
 	if err != nil {
 		return err
 	}
-	_, err = io.Copy(tw, file)
+	_, err = io.Copy(writer, file)
 	if err != nil {
 		return err
 	}

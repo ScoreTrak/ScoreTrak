@@ -49,7 +49,7 @@ func (c *checkRepo) Delete(ctx context.Context, roundID uint64, serviceID uuid.U
 	}
 
 	if result.RowsAffected == 0 {
-		return &NoRowsAffected{"no model found for round ID, and check_service id provided"}
+		return &NoRowsAffectedError{"no model found for round ID, and check_service id provided"}
 	}
 
 	return nil

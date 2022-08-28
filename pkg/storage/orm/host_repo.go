@@ -27,7 +27,7 @@ func (h *hostRepo) Delete(ctx context.Context, id uuid.UUID) error {
 		return fmt.Errorf("error deleting host with id: %s, err: %w", id.String(), result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return &NoRowsAffected{"no model found"}
+		return &NoRowsAffectedError{"no model found"}
 	}
 	return nil
 }

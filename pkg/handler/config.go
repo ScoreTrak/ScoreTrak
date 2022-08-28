@@ -77,7 +77,7 @@ type StaticConfigController struct {
 }
 
 func (s StaticConfigController) Get(ctx context.Context, request *configv1.GetStaticConfigRequest) (*configv1.GetStaticConfigResponse, error) {
-	sc, err := s.svc.Get()
+	staticConfig, err := s.svc.Get()
 	if err != nil {
 		return nil, status.Errorf(
 			codes.Internal,
@@ -85,7 +85,7 @@ func (s StaticConfigController) Get(ctx context.Context, request *configv1.GetSt
 		)
 	}
 
-	ret, err := json.Marshal(sc)
+	ret, err := json.Marshal(staticConfig)
 	if err != nil {
 		return nil, status.Errorf(
 			codes.Internal,

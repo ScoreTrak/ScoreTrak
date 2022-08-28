@@ -27,7 +27,7 @@ func (p PubSub) NotifyTopic(topic string) {
 }
 
 func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
-	n := make(chan struct{})
+	channel := make(chan struct{})
 	go func() {
 		conf := nsq.NewConfig()
 		nsqConsumerConfig(conf, p.config)
@@ -42,7 +42,7 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 		consumer.SetLoggerLevel(nsq.LogLevelWarning)
 		consumer.AddHandler(
 			nsq.HandlerFunc(func(m *nsq.Message) error {
-				n <- struct{}{}
+				channel <- struct{}{}
 				return nil
 			}))
 		err = connectConsumer(consumer, p.config)
@@ -51,7 +51,7 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 		}
 		select {}
 	}()
-	return n
+	return channel
 }
 
 func NewNSQPubSub(config queueing.Config) (*PubSub, error) {

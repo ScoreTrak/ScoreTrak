@@ -211,7 +211,7 @@ func (interceptor *Interceptor) Stream() grpc.StreamServerInterceptor {
 
 // authorize takes in context, extracts roles from the context if there are any, and ensures that a given roles has rights to access a given method. If a given role has no access, it returns permission denied error.
 func (interceptor *Interceptor) authorize(ctx context.Context, method string) (claims *UserClaims, err error) {
-	r := user.Anonymous
+	role := user.Anonymous
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		values := md["authorization"]
@@ -221,14 +221,14 @@ func (interceptor *Interceptor) authorize(ctx context.Context, method string) (c
 			if err != nil {
 				return nil, status.Errorf(codes.Unauthenticated, "access token is invalid: %v", err)
 			}
-			r = claims.Role
+			role = claims.Role
 		}
 	}
-	if r == user.Black {
+	if role == user.Black {
 		return
 	}
 	for i := range interceptor.accessibleRoles[method] {
-		if (r == interceptor.accessibleRoles[method][i].role || user.Anonymous == interceptor.accessibleRoles[method][i].role) && interceptor.accessibleRoles[method][i].isAllowed() {
+		if (role == interceptor.accessibleRoles[method][i].role || user.Anonymous == interceptor.accessibleRoles[method][i].role) && interceptor.accessibleRoles[method][i].isAllowed() {
 			return
 		}
 	}
