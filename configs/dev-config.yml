@@ -11,7 +11,7 @@ db:
 
 open-telemetry:
   jaeger:
-    endpoint: "http://localhost:4318/api/traces"
+#    endpoint: "http://localhost:14268/api/traces"
 #    username: ""
 #    password: ""
 
