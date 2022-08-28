@@ -124,7 +124,7 @@ var masterCmd = &cobra.Command{
 
 		dr := runner.NewRunner(db, q, store, C)
 		go func() {
-			err := dr.MasterRunner(context.TODO())
+			err := dr.MasterRunner()
 			if err != nil {
 				log.Panicf("%v", err)
 			}
