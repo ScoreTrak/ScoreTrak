@@ -30,4 +30,3 @@ cmd/debug_worker
 *.log
 
 configs/config.yml
-dev-config.yml

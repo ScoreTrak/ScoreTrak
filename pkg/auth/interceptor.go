@@ -14,6 +14,7 @@ import (
 	reportv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/report/v1"
 	servicev1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/service/v1"
 	userv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/user/v1"
+	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -211,13 +212,15 @@ func (interceptor *Interceptor) Stream() grpc.StreamServerInterceptor {
 
 // authorize takes in context, extracts roles from the context if there are any, and ensures that a given roles has rights to access a given method. If a given role has no access, it returns permission denied error.
 func (interceptor *Interceptor) authorize(ctx context.Context, method string) (claims *UserClaims, err error) {
+	_, span := otel.Tracer("scoretrak/master").Start(ctx, "Authorize JWT")
+	defer span.End()
 	role := user.Anonymous
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		values := md["authorization"]
 		if len(values) != 0 {
 			accessToken := values[0]
-			claims, err = interceptor.jwtManager.Verify(accessToken)
+			claims, err = interceptor.jwtManager.Verify(ctx, accessToken)
 			if err != nil {
 				return nil, status.Errorf(codes.Unauthenticated, "access token is invalid: %v", err)
 			}

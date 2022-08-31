@@ -6,15 +6,14 @@ import (
 	"log"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
+	"github.com/golang-jwt/jwt/v4"
+	"github.com/spf13/cobra"
 	authv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/auth/v1"
 	protov1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/proto/v1"
 	userv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/user/v1"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
-
-	"github.com/golang-jwt/jwt/v4"
-
-	"github.com/spf13/cobra"
 )
 
 var adminName string
@@ -64,7 +63,7 @@ func init() {
 }
 
 func createNewSuperUser(address string, adminUsername string, adminPassword string, newUsername string, newPassword string, teamID string) error {
-	cc, err := grpc.Dial(address, grpc.WithInsecure())
+	cc, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatal("cannot dial server: ", err)
 	}

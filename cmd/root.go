@@ -90,6 +90,9 @@ func initConfig() {
 	viper.SetDefault("DB.Cockroach.DefaultZoneConfig.GcTtlseconds", 600)
 	viper.SetDefault("DB.Cockroach.DefaultZoneConfig.BackpressueRangeSizeMultiplier", 0)
 
+	// Opentelemetry Defaults
+	viper.SetDefault("open-telemetry.jaeger.endpoint", "http://localhost:14268/api/traces")
+
 	// Queue Defaults
 	viper.SetDefault("Queue.Use", "none")
 	viper.SetDefault("Queue.NSQ.ProducerNSQD", "nsqd:4150")
