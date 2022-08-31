@@ -37,10 +37,10 @@ func (a AuthController) Login(ctx context.Context, request *authv1.LoginRequest)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "cannot retrieve user: %v", err)
 	}
-	if usr == nil || !usr.IsCorrectPassword(request.GetPassword()) {
+	if usr == nil || !usr.IsCorrectPassword(ctx, request.GetPassword()) {
 		return nil, status.Errorf(codes.NotFound, "incorrect username/password")
 	}
-	token, err := a.jwtManager.Generate(usr)
+	token, err := a.jwtManager.Generate(ctx, usr)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "cannot generate access token")
 	}
