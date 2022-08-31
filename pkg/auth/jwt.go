@@ -39,7 +39,7 @@ type Config struct {
 
 // Generate creates user claim based on passed user parameter, and encodes it to JWT token.
 func (manager *Manager) Generate(ctx context.Context, user *user.User) (string, error) {
-	ctx, span := otel.Tracer("scoretrak/master").Start(ctx, "Generate JWT")
+	_, span := otel.Tracer("scoretrak/master").Start(ctx, "Generate JWT")
 	defer span.End()
 	claims := UserClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -59,7 +59,7 @@ var ErrUnexpectedSigningToken = errors.New("unexpected token signing method")
 
 // Verify ensures that the token provided by the client is valid, after which it extracts the claims and returns them.
 func (manager *Manager) Verify(ctx context.Context, accessToken string) (*UserClaims, error) {
-	ctx, span := otel.Tracer("scoretrak/master").Start(ctx, "Verify JWT")
+	_, span := otel.Tracer("scoretrak/master").Start(ctx, "Verify JWT")
 	defer span.End()
 	token, err := jwt.ParseWithClaims(
 		accessToken,

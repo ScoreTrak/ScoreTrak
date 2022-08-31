@@ -67,7 +67,7 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 
 // IsCorrectPassword compares password to the hash
 func (u *User) IsCorrectPassword(ctx context.Context, password string) bool {
-	ctx, span := otel.Tracer("scoretrak/master").Start(ctx, "Password Comparison")
+	_, span := otel.Tracer("scoretrak/master").Start(ctx, "Password Comparison")
 	defer span.End()
 
 	err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
