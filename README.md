@@ -28,5 +28,5 @@ $ go mod tidy
 
 # Get to know ScoreTrak
 
-Familiarize yourself with deployment options and documentation at https://scoretrak.github.io
+Familiarize yourself with deployment options in the deployment [dir](./Deployment/README.md) and documentation [site](https://scoretrak.github.io).
 
