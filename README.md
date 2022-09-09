@@ -15,7 +15,7 @@
 * And More!
 # Getting Started
 
-## 1. Clone the repo and install the dependencies
+## Clone the repo and install the dependencies
 ```bash
 # Clone ScoreTrak repository
 $ git clone https://github.com/ScoreTrak/ScoreTrak
@@ -26,11 +26,7 @@ $ cd ScoreTrak
 $ go mod tidy
 ```
 
-## 2. Deployment
+# Get to know ScoreTrak
 
-Familiarize yourself with [Deployment options](./Deployment/READEME.md)
-
-## 3. Get to know ScoreTrak
- 
-Check out [Documentations](./docs/README.md) directory for more info!
+Familiarize yourself with deployment options in the deployment [dir](./Deployment/README.md) and documentation [site](https://scoretrak.github.io).
 
