@@ -14,7 +14,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
-	reportv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/report/v1"
+	reportv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/report/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
