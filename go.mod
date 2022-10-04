@@ -32,7 +32,7 @@ require (
 	go.uber.org/dig v1.13.0
 	go.uber.org/zap v1.23.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	google.golang.org/grpc v1.48.0
+	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
 	gorm.io/driver/mysql v1.3.6
 	gorm.io/driver/postgres v1.3.9
