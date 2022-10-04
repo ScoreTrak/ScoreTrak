@@ -9,7 +9,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	policyv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/policy/v1"
+	policyv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/policy/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

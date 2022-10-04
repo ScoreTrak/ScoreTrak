@@ -8,7 +8,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config/configservice"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	configv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/config/v1"
+	configv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/config/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

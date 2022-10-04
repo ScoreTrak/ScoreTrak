@@ -8,7 +8,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round/roundservice"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	roundv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/round/v1"
+	roundv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/round/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

@@ -8,8 +8,8 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup/servicegroupservice"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	protov1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/proto/v1"
-	service_groupv1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/service_group/v1"
+	protov1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/proto/v1"
+	service_groupv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/service_group/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

@@ -13,7 +13,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/gofrs/uuid"
-	protov1 "go.buf.build/library/go-grpc/scoretrak/scoretrakapis/scoretrak/proto/v1"
+	protov1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/proto/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
