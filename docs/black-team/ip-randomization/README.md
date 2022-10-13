@@ -43,6 +43,7 @@ iptables -t nat -I POSTROUTING -d 0.0.0.0/0 -m state --state NEW -m statistic --
 NOTE that `--every` is decreasing with every rule. Following explains the behavior: https://serverfault.com/questions/490854/rotating-outgoing-ips-using-iptables/491517#491517
 
 The above configuration will use one of the IPs as source NAT in a round-robin.
+
 7) Ensure competition workers are routed to the specified IP address
 
 
