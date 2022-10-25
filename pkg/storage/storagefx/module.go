@@ -26,7 +26,7 @@ var Module = fx.Options(
 	),
 	fx.Invoke(
 		util.CheckDBTimeSync,
-		//util.CreateAllTables,
+		util.CreateAllTables,
 		util.LoadConfig,
 		util.LoadReport,
 	),
