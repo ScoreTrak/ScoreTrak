@@ -10,6 +10,9 @@ type Check struct {
 	// RoundID is a parent round of a given check
 	RoundID uint64 `json:"round_id,omitempty" gorm:"primary_key;auto_increment:false"`
 
+	// UpdateToken
+	UpdateToken uuid.UUID `json:"update_token,omitempty"`
+
 	// Log represents an comment/log of a check. This will be helpful for debugging purposes during the competition
 	Log string `json:"log,omitempty"`
 

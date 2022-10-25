@@ -4,6 +4,10 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
+	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
+	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	"log"
 	"os"
 
@@ -100,7 +104,6 @@ func initConfig() {
 	viper.SetDefault("Queue.NSQ.Topic", "default")
 	viper.SetDefault("Queue.NSQ.MaxInFlight", 200)
 	viper.SetDefault("Queue.NSQ.ConcurrentHandlers", 200)
-	viper.SetDefault("Queue.NSQ.NSQLookupd", []string{"nsqlookupd:4161"})
 	viper.SetDefault("Queue.NSQ.ConsumerNSQDPool", []string{})
 
 	// Platform Config
@@ -156,4 +159,32 @@ func initConfig() {
 	if err != nil {
 		log.Fatalf("unable to decode dynamic config into struct, %v", err)
 	}
+}
+
+func NewStaticConfig() config.StaticConfig {
+	return C
+}
+
+func NewDynamicConfig() *config.DynamicConfig {
+	return &D
+}
+
+func NewStorageConfig(staticConfig config.StaticConfig) storage.Config {
+	return staticConfig.DB
+}
+
+func NewQueueConfig(staticConfig config.StaticConfig) queueing.Config {
+	return staticConfig.Queue
+}
+
+func NewPlatformConfig(staticConfig config.StaticConfig) platforming.Config {
+	return staticConfig.Platform
+}
+
+func NewMasterQueueConfig(staticConfig config.StaticConfig) queueing.MasterConfig {
+	return staticConfig.PubSubConfig
+}
+
+func NewJWTConfig(staticConfig config.StaticConfig) auth.Config {
+	return staticConfig.JWT
 }

@@ -2,6 +2,7 @@ package policyclient
 
 import (
 	"context"
+	"go.uber.org/fx"
 	"log"
 	"sync"
 	"time"
@@ -126,4 +127,18 @@ func (a *Client) GetPolicy() *policy.Policy {
 		log.Panicf("Unable to copy policy into destination policy. This is likely a bug")
 	}
 	return cp
+}
+
+func InitPolicyClient(lc fx.Lifecycle, policyClient *Client) {
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			log.Println("Starting Policy Client")
+			go policyClient.PolicyClient()
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			log.Println("Stopping Policy Client")
+			return nil
+		},
+	})
 }

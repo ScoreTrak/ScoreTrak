@@ -59,7 +59,7 @@ type Config struct {
 		ClientSSLKey                 string   `default:""`
 		ClientSSLCert                string   `default:""`
 		ConcurrentHandlers           int      `default:"200"`
-		NSQLookupd                   []string `default:"[\"nsqlookupd:4161\"]"`
+		NSQLookupd                   []string `default:"[]"`
 		ConsumerNSQDPool             []string `default:"[\"\"]"` // "[\"nsqd:4150\"]"`
 	}
 }

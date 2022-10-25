@@ -1,8 +1,10 @@
 package util
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"time"
 
@@ -48,6 +50,32 @@ type Store struct {
 	Report       reportrepo.Repo
 	Policy       policyrepo.Repo
 	Users        userrepo.Repo
+}
+
+// CheckDBTimeSync gets the current time reported by the database and return an error if out of sync
+func CheckDBTimeSync(db *gorm.DB, staticConfig config.StaticConfig) error {
+	var tm time.Time
+	res, err := db.Raw("SELECT current_timestamp;").Rows()
+	if err != nil || res.Err() != nil {
+		return err
+	}
+
+	defer func(res *sql.Rows) {
+		err := res.Close()
+		if err != nil {
+			log.Fatalln(fmt.Errorf("unable to close the database connection properly: %w", err))
+		}
+	}(res)
+
+	for res.Next() {
+		err := res.Scan(&tm)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = DatabaseOutOfSync(tm, staticConfig)
+	return err
 }
 
 var ErrTimeDifferenceTooLarge = errors.New("time difference between master host, and database host are is large. The difference should not exceed 2 seconds")
@@ -136,6 +164,7 @@ func LoadConfig(db *gorm.DB, cnf *config.DynamicConfig) error {
 
 func LoadReport(db *gorm.DB) error {
 	var count int64
+	db.Table("report").Count(&count)
 	if count != 1 {
 		err := db.Create(report.NewReport()).Error
 		if err != nil {
@@ -147,4 +176,21 @@ func LoadReport(db *gorm.DB) error {
 		}
 	}
 	return nil
+}
+
+func NewRepoStore(roundrepo roundrepo.Repo, hostrepo hostrepo.Repo, hostgrouprepo hostgrouprepo.Repo, servicerepo servicerepo.Repo, servicegrouprepo servicegrouprepo.Repo, teamrepo teamrepo.Repo, checkrepo checkrepo.Repo, propertyrepo propertyrepo.Repo, configrepo configrepo.Repo, reportrepo reportrepo.Repo, policyrepo policyrepo.Repo, userrepo userrepo.Repo) *Store {
+	return &Store{
+		Round:        roundrepo,
+		Host:         hostrepo,
+		HostGroup:    hostgrouprepo,
+		Service:      servicerepo,
+		ServiceGroup: servicegrouprepo,
+		Team:         teamrepo,
+		Check:        checkrepo,
+		Property:     propertyrepo,
+		Config:       configrepo,
+		Report:       reportrepo,
+		Policy:       policyrepo,
+		Users:        userrepo,
+	}
 }

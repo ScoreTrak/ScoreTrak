@@ -1,6 +1,8 @@
 package reportclient
 
 import (
+	"context"
+	"go.uber.org/fx"
 	"log"
 	"sync"
 
@@ -61,4 +63,18 @@ func (a *Client) ReportClient() {
 		<-recvChannel
 		a.Publish()
 	}
+}
+
+func InitReportClient(lc fx.Lifecycle, reportClient *Client) {
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			log.Println("Starting Report Client")
+			go reportClient.ReportClient()
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			log.Println("Stopping Report Client")
+			return nil
+		},
+	})
 }

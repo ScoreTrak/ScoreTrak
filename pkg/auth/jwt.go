@@ -28,8 +28,8 @@ type UserClaims struct {
 	Role     string `json:"role"`
 }
 
-func NewJWTManager(secretKey string, tokenDuration time.Duration) *Manager {
-	return &Manager{secretKey, tokenDuration}
+func NewJWTManager(config Config) *Manager {
+	return &Manager{config.Secret, time.Duration(config.TimeoutInSeconds) * time.Second}
 }
 
 type Config struct {
