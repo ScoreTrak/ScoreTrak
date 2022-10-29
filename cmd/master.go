@@ -56,28 +56,24 @@ var masterCmd = &cobra.Command{
 			fx.Provide(queue.NewMasterStreamPubSub),
 			fx.Provide(queue.NewWorkerQueue),
 
-			// Create starter objects
-			fx.Supply(&policy.Policy{ID: 1}),
-			fx.Supply(&report.Report{ID: 1, Cache: "{}"}),
-
 			// Create policy and report clients
 			fx.Provide(
+				policy.NewPolicy,
 				policyclient.NewPolicyClient,
 				reportclient.NewReportClient,
 			),
 
-			// Create stuff
-			fx.Provide(
-				platform.NewPlatform,
-				auth.NewJWTManager,
-				auth.NewAuthInterceptor,
-			),
+			// Create platform
+			fx.Provide(platform.NewPlatform),
+
+			// Create auth deps
+			fx.Provide(auth.NewJWTManager, auth.NewAuthInterceptor),
 
 			// Create server components
 			fx.Provide(NewGrpcServer),
 			handlerfx.Module,
 
-			// Runner
+			// Create runner
 			fx.Provide(runner.NewRunner),
 
 			// Register Lifecycle hooks for the server, runner, policy/report client
