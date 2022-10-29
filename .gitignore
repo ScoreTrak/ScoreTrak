@@ -37,3 +37,6 @@ cockroach-data
 
 # nsq data
 *.dat
+
+# scoretrak binary
+scoretrak
