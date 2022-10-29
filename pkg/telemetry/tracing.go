@@ -71,12 +71,15 @@ func NewOtlpGrpcExporter() *otlptrace.Exporter {
 }
 
 func NewResource(config config.StaticConfig) *resource.Resource {
-	resourceWithAttributes := resource.NewWithAttributes(
-		semconv.SchemaURL,
-		semconv.ServiceNameKey.String(ServiceName),
-		attribute.Bool("production", config.Prod),
-		attribute.String("version", version.Version),
+	r, _ := resource.Merge(
+		resource.Default(),
+		resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String(ServiceName),
+			semconv.ServiceVersionKey.String(version.Version),
+			attribute.Bool("production", config.Prod),
+		),
 	)
 
-	return resourceWithAttributes
+	return r
 }

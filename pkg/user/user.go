@@ -1,12 +1,10 @@
 package user
 
 import (
-	"context"
 	"errors"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/gofrs/uuid"
-	"go.opentelemetry.io/otel"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -66,10 +64,7 @@ func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 // IsCorrectPassword compares password to the hash
-func (u *User) IsCorrectPassword(ctx context.Context, password string) bool {
-	_, span := otel.Tracer("scoretrak/master").Start(ctx, "Password Comparison")
-	defer span.End()
-
+func (u *User) IsCorrectPassword(password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
 	return err == nil
 }

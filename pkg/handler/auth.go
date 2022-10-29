@@ -6,9 +6,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user/userservice"
 	authv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/auth/v1"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -24,8 +21,6 @@ func NewAuthController(svc userservice.Serv, jwtManager *auth.Manager) *AuthCont
 }
 
 func (a AuthController) Login(ctx context.Context, request *authv1.LoginRequest) (*authv1.LoginResponse, error) {
-	ctx, span := otel.Tracer("scoretrak/master").Start(ctx, "Login", trace.WithAttributes(attribute.String("username", request.Username)))
-	defer span.End()
 	if request.GetUsername() == "" || request.GetPassword() == "" {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
@@ -37,7 +32,7 @@ func (a AuthController) Login(ctx context.Context, request *authv1.LoginRequest)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "cannot retrieve user: %v", err)
 	}
-	if usr == nil || !usr.IsCorrectPassword(ctx, request.GetPassword()) {
+	if usr == nil || !usr.IsCorrectPassword(request.GetPassword()) {
 		return nil, status.Errorf(codes.NotFound, "incorrect username/password")
 	}
 	token, err := a.jwtManager.Generate(ctx, usr)
