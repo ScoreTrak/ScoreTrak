@@ -35,6 +35,8 @@ import (
 	"time"
 )
 
+var autoMigrate bool
+
 // masterCmd represents the master command
 var masterCmd = &cobra.Command{
 	Use:   "master",
@@ -82,9 +84,9 @@ var masterCmd = &cobra.Command{
 			fx.Provide(runner.NewRunner),
 
 			// Register Lifecycle hooks for the server, runner, policy/report client
-			fx.Invoke(InitGrpcServer),
-			fx.Invoke(runner.InitRunner),
 			fx.Invoke(policyclient.InitPolicyClient, reportclient.InitReportClient),
+			fx.Invoke(runner.InitRunner),
+			fx.Invoke(InitGrpcServer),
 		)
 
 		app.Run()
@@ -93,6 +95,8 @@ var masterCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(masterCmd)
+
+	masterCmd.LocalFlags().BoolVar(&autoMigrate, "auto-migrate", false, "auto migrate tables (create and auto migrate tables)")
 }
 
 func NewGrpcServer(staticConfig config.StaticConfig, logger *zap.Logger, authInterceptor *auth.Interceptor) (*grpc.Server, error) {

@@ -109,9 +109,10 @@ func newCockroach(config Config) (*gorm.DB, error) {
 }
 
 type Config struct {
-	Use       string `default:"cockroach"`
-	Prefix    string `default:""`
-	Cockroach struct {
+	Use         string `default:"cockroach"`
+	Prefix      string `default:""`
+	AutoMigrate bool   `default:"false"`
+	Cockroach   struct {
 		Host              string `default:"cockroach"`
 		Port              string `default:"26257"`
 		UserName          string `default:"root"`
