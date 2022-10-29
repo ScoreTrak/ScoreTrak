@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	"log"
 	"math"
 	"time"
@@ -91,12 +90,10 @@ func DatabaseOutOfSync(dbTime time.Time, config config.StaticConfig) error {
 }
 
 // AutoMigrate migrates all tables
-func AutoMigrate(db *gorm.DB, storageConfig storage.Config) error {
-	if storageConfig.AutoMigrate {
-		err := db.AutoMigrate(&team.Team{}, &user.User{}, &policy.Policy{}, &report.Report{}, &config.DynamicConfig{}, &hostgroup.HostGroup{}, &servicegroup.ServiceGroup{}, &host.Host{}, &round.Round{}, &service.Service{}, &check.Check{}, &property.Property{})
-		if err != nil {
-			return err
-		}
+func AutoMigrate(db *gorm.DB) error {
+	err := db.AutoMigrate(&team.Team{}, &user.User{}, &policy.Policy{}, &report.Report{}, &config.DynamicConfig{}, &hostgroup.HostGroup{}, &servicegroup.ServiceGroup{}, &host.Host{}, &round.Round{}, &service.Service{}, &check.Check{}, &property.Property{})
+	if err != nil {
+		return err
 	}
 	return nil
 }

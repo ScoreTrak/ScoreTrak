@@ -27,7 +27,7 @@ import (
 func TestCheckSpec(t *testing.T) {
 	c, _ := LoadViperConfig("../../configs/test-config.yml")
 	db := SetupDB(c.DB)
-	err := util.AutoMigrate(db, c.DB)
+	err := util.AutoMigrate(db)
 	if err != nil {
 		panic(err)
 	}
