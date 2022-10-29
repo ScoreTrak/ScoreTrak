@@ -9,3 +9,10 @@ type Policy struct {
 	ShowPoints                                *bool `json:"allow_to_see_points" gorm:"not null;default:true"`
 	ShowAddresses                             *bool `json:"show_addresses" gorm:"not null;default:true"`
 }
+
+func NewPolicy() *Policy {
+	tru := true
+	fls := false
+
+	return &Policy{ID: 1, AllowUnauthenticatedUsers: &tru, AllowChangingUsernamesAndPasswords: &fls, AllowRedTeamLaunchingServiceTestsManually: &fls, ShowPoints: &tru, ShowAddresses: &tru}
+}

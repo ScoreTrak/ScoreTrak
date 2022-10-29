@@ -134,6 +134,24 @@ func LoadReport(db *gorm.DB) error {
 	return nil
 }
 
+func LoadPolicy(db *gorm.DB, pol *policy.Policy) error {
+	var count int64
+	db.Table("policy").Count(&count)
+	if count != 1 {
+		err := db.Create(pol).Error
+		if err != nil {
+			var serr *pgconn.PgError
+			ok := errors.As(err, &serr)
+			if !ok || serr.Code != "23505" {
+				return err
+			}
+		} else {
+			db.Take(pol)
+		}
+	}
+	return nil
+}
+
 func NewRepoStore(roundrepo roundrepo.Repo, hostrepo hostrepo.Repo, hostgrouprepo hostgrouprepo.Repo, servicerepo servicerepo.Repo, servicegrouprepo servicegrouprepo.Repo, teamrepo teamrepo.Repo, checkrepo checkrepo.Repo, propertyrepo propertyrepo.Repo, configrepo configrepo.Repo, reportrepo reportrepo.Repo, policyrepo policyrepo.Repo, userrepo userrepo.Repo) *Store {
 	return &Store{
 		Round:        roundrepo,

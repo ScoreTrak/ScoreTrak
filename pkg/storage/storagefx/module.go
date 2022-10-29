@@ -29,5 +29,6 @@ var Module = fx.Options(
 		util.AutoMigrate,
 		util.LoadConfig,
 		util.LoadReport,
+		util.LoadPolicy,
 	),
 )

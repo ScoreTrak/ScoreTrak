@@ -11,7 +11,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyclient"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportclient"
 	"github.com/ScoreTrak/ScoreTrak/pkg/runner"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/seed"
