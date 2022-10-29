@@ -93,51 +93,7 @@ func DatabaseOutOfSync(dbTime time.Time, config config.StaticConfig) error {
 // AutoMigrate migrates all tables
 func AutoMigrate(db *gorm.DB, storageConfig storage.Config) error {
 	if storageConfig.AutoMigrate {
-		err := db.AutoMigrate(&team.Team{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&user.User{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&policy.Policy{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&report.Report{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&config.DynamicConfig{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&hostgroup.HostGroup{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&servicegroup.ServiceGroup{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&host.Host{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&round.Round{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&service.Service{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&check.Check{})
-		if err != nil {
-			return err
-		}
-		err = db.AutoMigrate(&property.Property{})
+		err := db.AutoMigrate(&team.Team{}, &user.User{}, &policy.Policy{}, &report.Report{}, &config.DynamicConfig{}, &hostgroup.HostGroup{}, &servicegroup.ServiceGroup{}, &host.Host{}, &round.Round{}, &service.Service{}, &check.Check{}, &property.Property{})
 		if err != nil {
 			return err
 		}

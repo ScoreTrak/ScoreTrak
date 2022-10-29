@@ -35,8 +35,6 @@ import (
 	"time"
 )
 
-var autoMigrate bool
-
 // masterCmd represents the master command
 var masterCmd = &cobra.Command{
 	Use:   "master",
@@ -95,8 +93,6 @@ var masterCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(masterCmd)
-
-	masterCmd.LocalFlags().BoolVar(&autoMigrate, "auto-migrate", false, "auto migrate tables (create and auto migrate tables)")
 }
 
 func NewGrpcServer(staticConfig config.StaticConfig, logger *zap.Logger, authInterceptor *auth.Interceptor) (*grpc.Server, error) {
