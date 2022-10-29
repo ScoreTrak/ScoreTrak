@@ -3,7 +3,6 @@ roundduration: 60
 enabled: False
 
 db:
-  automigrate: true
   cockroach:
     host: localhost
     database: "scoretrak"
