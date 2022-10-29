@@ -9,7 +9,7 @@ nsqadmin: nsqadmin --nsqd-http-address=127.0.0.1:4150
 # Database
 cockroachdb: cockroach start-single-node --insecure --listen-addr=localhost:26257
 
-#server: go run main.go master --config ./configs/default-config.yaml
+#server: sudo go run main.go master --config ./configs/default-config.yaml
 #worker: go run main.go worker --config ./configs/dev-config.yaml
 envoy: envoy -c ./configs/envoy/config.yaml
 grpcui: while ! grpcui -plaintext localhost:33333 2> /dev/null ; do sleep 1 ; done ;
