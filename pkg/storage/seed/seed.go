@@ -3,6 +3,7 @@ package seed
 import (
 	"context"
 	"errors"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
@@ -14,7 +15,7 @@ import (
 // create black team
 // create admin user
 
-func SeedDB(store *util.Store) error {
+func SeedDB(store *util.Store, staticConfig config.StaticConfig) error {
 	ctx := context.Background()
 
 	var firstUUID = uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
@@ -38,12 +39,12 @@ func SeedDB(store *util.Store) error {
 		}
 	}
 
-	passwordHash, _ := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)
+	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(staticConfig.AdminPassword), bcrypt.DefaultCost)
 	err = store.Users.Store(context.Background(), []*user.User{{
 		ID:           firstUUID,
 		Role:         user.Black,
 		TeamID:       firstUUID,
-		Username:     "admin",
+		Username:     staticConfig.AdminUsername,
 		PasswordHash: string(passwordHash),
 	}})
 	if err != nil {
