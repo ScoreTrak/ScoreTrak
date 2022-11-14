@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"go.uber.org/fx"
 	"log"
 	"strings"
 	"time"
@@ -66,6 +67,21 @@ func NewRunner(db *gorm.DB, q queue.WorkerQueue, r *util.Store, staticConfig con
 	return &Runner{
 		db: db, q: q, r: r, staticConfig: staticConfig,
 	}
+}
+
+func InitRunner(lc fx.Lifecycle, runner *Runner) {
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			log.Println("Starting runner")
+			go func() {
+				err := runner.MasterRunner()
+				if err != nil {
+					log.Panicf("%v", err)
+				}
+			}()
+			return nil
+		},
+	})
 }
 
 func (d *Runner) run(configLoop *time.Ticker, scoringLoop *time.Timer, cnf *config.DynamicConfig, lastRound *round.Round) (err error) {
@@ -353,6 +369,9 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 		d.finalizeRound(ctx, rnd, Note, "No scorable services detected")
 		return
 	}
+
+	// Create checks (with idempotent token) in the database to be updated once received the workers
+
 	var chks []*queueing.QCheck
 	var nonCriticalErr error
 	// Queue the services to be scored
@@ -366,7 +385,7 @@ func (d Runner) Score(timeout time.Duration, rnd *round.Round) {
 		d.finalizeRound(ctx, rnd, Note, err.Error())
 		return
 	}
-	checks := d.storeChecks(teams, chks, servicesToBeScored, rnd)
+	checks := d.transformChecks(teams, chks, servicesToBeScored, rnd)
 
 	// Check if we are still on the last round.
 	r, _ := d.r.Round.GetLastRound(ctx)
@@ -469,7 +488,7 @@ func (d Runner) generateSimpleTeamReport(teams []*team.Team, hostGroup []*hostgr
 	return simpleTeamReport
 }
 
-func (d Runner) storeChecks(teams []*team.Team, chks []*queueing.QCheck, servicesToBeScored []*queueing.ScoringData, rnd *round.Round) []*check.Check {
+func (d Runner) transformChecks(teams []*team.Team, chks []*queueing.QCheck, servicesToBeScored []*queueing.ScoringData, rnd *round.Round) []*check.Check {
 	var checks []*check.Check
 	for _, t := range teams {
 		for _, h := range t.Hosts {

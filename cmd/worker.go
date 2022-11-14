@@ -1,10 +1,11 @@
 package cmd
 
 import (
-	"log"
-
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
+	"github.com/ScoreTrak/ScoreTrak/pkg/telemetry/telemetryfx"
+	"github.com/ScoreTrak/ScoreTrak/pkg/worker"
 	"github.com/spf13/cobra"
+	"go.uber.org/fx"
 )
 
 // workerCmd represents the worker command
@@ -12,27 +13,21 @@ var workerCmd = &cobra.Command{
 	Use:   "worker",
 	Short: "worker to perform checks on systems",
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("worker called")
+		app := fx.New(
+			fx.Provide(NewStaticConfig, NewQueueConfig),
+			telemetryfx.Module,
 
-		q, err := queue.NewWorkerQueue(C.Queue)
-		if err != nil {
-			log.Panicf("%v", err)
-		}
+			fx.Provide(
+				queue.NewWorkerQueue,
+			),
 
-		q.Receive()
+			fx.Invoke(worker.InitWorker),
+		)
+
+		app.Run()
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(workerCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// workerCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// workerCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
+	healthv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/grpc/health/v1"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyclient"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
@@ -14,7 +15,6 @@ import (
 	reportv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/report/v1"
 	servicev1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/service/v1"
 	userv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/user/v1"
-	"go.opentelemetry.io/otel"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -40,6 +40,12 @@ type authorizationMap struct {
 // NewAuthInterceptor returns an instance of Interceptor. It takes in Manager struct, and policyClient as input. Policy Client allows to dynamically change authorization policies.
 func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) *Interceptor {
 	authMap := map[string][]authorizationMap{}
+
+	healthServicePath := fmt.Sprintf("/%s", healthv1.Health_ServiceDesc.ServiceName)
+	authMap[healthServicePath] = []authorizationMap{{
+		role:      user.Anonymous,
+		isAllowed: AlwaysAllowFunc,
+	}}
 
 	authServicePath := fmt.Sprintf("/%s/Login", authv1.AuthService_ServiceDesc.ServiceName)
 	authMap[authServicePath] = []authorizationMap{{
@@ -212,8 +218,6 @@ func (interceptor *Interceptor) Stream() grpc.StreamServerInterceptor {
 
 // authorize takes in context, extracts roles from the context if there are any, and ensures that a given roles has rights to access a given method. If a given role has no access, it returns permission denied error.
 func (interceptor *Interceptor) authorize(ctx context.Context, method string) (claims *UserClaims, err error) {
-	_, span := otel.Tracer("scoretrak/master").Start(ctx, "Authorize JWT")
-	defer span.End()
 	role := user.Anonymous
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {

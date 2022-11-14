@@ -30,7 +30,7 @@ func TestGenerateWorkerCfg(t *testing.T) {
 				ClientSSLKey                 string   `default:""`
 				ClientSSLCert                string   `default:""`
 				ConcurrentHandlers           int      `default:"200"`
-				NSQLookupd                   []string `default:"[\"nsqlookupd:4161\"]"`
+				NSQLookupd                   []string `default:"[\"\"]"`
 				ConsumerNSQDPool             []string `default:"[\"\"]"`
 			}{}}}, info: worker.Info{Topic: "ping", Label: "internal"}},
 			wantWorkerCfg: config.StaticConfig{Queue: queueing.Config{Use: "nsq", NSQ: struct {
@@ -43,7 +43,7 @@ func TestGenerateWorkerCfg(t *testing.T) {
 				ClientSSLKey                 string   `default:""`
 				ClientSSLCert                string   `default:""`
 				ConcurrentHandlers           int      `default:"200"`
-				NSQLookupd                   []string `default:"[\"nsqlookupd:4161\"]"`
+				NSQLookupd                   []string `default:"[\"\"]"`
 				ConsumerNSQDPool             []string `default:"[\"\"]"`
 			}{Topic: "ping"}}},
 			wantErr: false},

@@ -25,6 +25,7 @@ var ErrWorkersFailed = errors.New("some workers failed to receive the checks. Ma
 
 // Send sends scoring data to the NSQD nodes, and returns either a list of checks with a warning, or an error
 func (n WorkerQueue) Send(scoringDataAggregate []*queueing.ScoringData) ([]*queueing.QCheck, error, error) {
+	// change this just the checks channel
 	returningTopicName, err := queueing.TopicFromServiceRound(scoringDataAggregate[0].RoundID)
 	if err != nil {
 		return nil, nil, err
@@ -157,7 +158,7 @@ func (n WorkerQueue) Receive() {
 	select {}
 }
 
-//https://stackoverflow.com/a/37382208/9296389
+// https://stackoverflow.com/a/37382208/9296389
 func getOutboundIP() net.IP {
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {

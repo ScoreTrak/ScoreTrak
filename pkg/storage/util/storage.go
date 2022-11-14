@@ -1,8 +1,10 @@
 package util
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"time"
 
@@ -50,6 +52,32 @@ type Store struct {
 	Users        userrepo.Repo
 }
 
+// CheckDBTimeSync gets the current time reported by the database and return an error if out of sync
+func CheckDBTimeSync(db *gorm.DB, staticConfig config.StaticConfig) error {
+	var tm time.Time
+	res, err := db.Raw("SELECT current_timestamp;").Rows()
+	if err != nil || res.Err() != nil {
+		return err
+	}
+
+	defer func(res *sql.Rows) {
+		err := res.Close()
+		if err != nil {
+			log.Fatalln(fmt.Errorf("unable to close the database connection properly: %w", err))
+		}
+	}(res)
+
+	for res.Next() {
+		err := res.Scan(&tm)
+		if err != nil {
+			return err
+		}
+	}
+
+	err = DatabaseOutOfSync(tm, staticConfig)
+	return err
+}
+
 var ErrTimeDifferenceTooLarge = errors.New("time difference between master host, and database host are is large. The difference should not exceed 2 seconds")
 
 // DatabaseOutOfSync ensures that drift between database is not larger than DatabaseMaxTimeDriftSeconds
@@ -61,53 +89,9 @@ func DatabaseOutOfSync(dbTime time.Time, config config.StaticConfig) error {
 	return nil
 }
 
-// CreateAllTables migrates all tables
-func CreateAllTables(db *gorm.DB) error {
-	err := db.AutoMigrate(&team.Team{})
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(&user.User{})
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(&policy.Policy{})
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(&report.Report{})
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(&config.DynamicConfig{})
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(&hostgroup.HostGroup{})
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(&servicegroup.ServiceGroup{})
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(&host.Host{})
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(&round.Round{})
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(&service.Service{})
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(&check.Check{})
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(&property.Property{})
+// AutoMigrate migrates all tables
+func AutoMigrate(db *gorm.DB) error {
+	err := db.AutoMigrate(&team.Team{}, &user.User{}, &policy.Policy{}, &report.Report{}, &config.DynamicConfig{}, &hostgroup.HostGroup{}, &servicegroup.ServiceGroup{}, &host.Host{}, &round.Round{}, &service.Service{}, &check.Check{}, &property.Property{})
 	if err != nil {
 		return err
 	}
@@ -136,6 +120,7 @@ func LoadConfig(db *gorm.DB, cnf *config.DynamicConfig) error {
 
 func LoadReport(db *gorm.DB) error {
 	var count int64
+	db.Table("report").Count(&count)
 	if count != 1 {
 		err := db.Create(report.NewReport()).Error
 		if err != nil {
@@ -147,4 +132,39 @@ func LoadReport(db *gorm.DB) error {
 		}
 	}
 	return nil
+}
+
+func LoadPolicy(db *gorm.DB, pol *policy.Policy) error {
+	var count int64
+	db.Table("policy").Count(&count)
+	if count != 1 {
+		err := db.Create(pol).Error
+		if err != nil {
+			var serr *pgconn.PgError
+			ok := errors.As(err, &serr)
+			if !ok || serr.Code != "23505" {
+				return err
+			}
+		} else {
+			db.Take(pol)
+		}
+	}
+	return nil
+}
+
+func NewRepoStore(roundrepo roundrepo.Repo, hostrepo hostrepo.Repo, hostgrouprepo hostgrouprepo.Repo, servicerepo servicerepo.Repo, servicegrouprepo servicegrouprepo.Repo, teamrepo teamrepo.Repo, checkrepo checkrepo.Repo, propertyrepo propertyrepo.Repo, configrepo configrepo.Repo, reportrepo reportrepo.Repo, policyrepo policyrepo.Repo, userrepo userrepo.Repo) *Store {
+	return &Store{
+		Round:        roundrepo,
+		Host:         hostrepo,
+		HostGroup:    hostgrouprepo,
+		Service:      servicerepo,
+		ServiceGroup: servicegrouprepo,
+		Team:         teamrepo,
+		Check:        checkrepo,
+		Property:     propertyrepo,
+		Config:       configrepo,
+		Report:       reportrepo,
+		Policy:       policyrepo,
+		Users:        userrepo,
+	}
 }
