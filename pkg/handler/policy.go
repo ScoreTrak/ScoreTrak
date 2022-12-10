@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"fmt"
-
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyclient"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyservice"
@@ -52,6 +51,11 @@ func (p PolicyController) Get(_ *policyv1.GetRequest, server policyv1.PolicyServ
 			return nil
 		}
 	}
+}
+
+func (p PolicyController) GetUnary(context.Context, *policyv1.GetUnaryRequest) (*policyv1.GetUnaryResponse, error) {
+	pol := ConvertPolicyToPolicyPB(p.policyClient.GetPolicy())
+	return &policyv1.GetUnaryResponse{Policy: pol}, nil
 }
 
 func (p PolicyController) Update(ctx context.Context, request *policyv1.UpdateRequest) (*policyv1.UpdateResponse, error) {

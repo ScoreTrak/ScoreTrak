@@ -144,8 +144,30 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		isAllowed: policyClient.GetAllowUnauthenticatedUsers,
 	}}
 
+	authMap[reportServicePath+"GetUnary"] = []authorizationMap{{
+		role:      user.Blue,
+		isAllowed: AlwaysAllowFunc,
+	}, {
+		role:      user.Red,
+		isAllowed: AlwaysAllowFunc,
+	}, {
+		role:      user.Anonymous,
+		isAllowed: policyClient.GetAllowUnauthenticatedUsers,
+	}}
+
 	policyServicePath := fmt.Sprintf("/%s/", policyv1.PolicyService_ServiceDesc.ServiceName)
 	authMap[policyServicePath+"Get"] = []authorizationMap{{
+		role:      user.Blue,
+		isAllowed: AlwaysAllowFunc,
+	}, {
+		role:      user.Red,
+		isAllowed: AlwaysAllowFunc,
+	}, {
+		role:      user.Anonymous,
+		isAllowed: policyClient.GetAllowUnauthenticatedUsers,
+	}}
+
+	authMap[policyServicePath+"GetUnary"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {

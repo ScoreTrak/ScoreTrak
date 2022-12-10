@@ -1,9 +1,9 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -115,6 +115,34 @@ func (r *ReportController) filterReport(rol string, tID uuid.UUID, lr *report.Re
 		Cache:     string(ret),
 		UpdatedAt: timestamppb.New(lr.UpdatedAt),
 	}, nil
+}
+
+func (r *ReportController) GetUnary(ctx context.Context, _ *reportv1.GetUnaryRequest) (*reportv1.GetUnaryResponse, error) {
+	rol := user.Anonymous
+	tID := uuid.UUID{}
+	lr, err := r.svc.Get(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal,
+			fmt.Sprintf("Unable to retrieve report: %v", err))
+	}
+
+	claims := extractUserClaim(ctx)
+	if claims != nil {
+		rol = claims.Role
+		tID = uuid.FromStringOrNil(claims.TeamID)
+	}
+
+	if rol == user.Anonymous && !r.policyClient.GetAllowUnauthenticatedUsers() {
+		return nil, status.Error(codes.PermissionDenied, "You must login in order to access this resource")
+	}
+
+	frep, err := r.filterReport(rol, tID, lr)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal,
+			fmt.Sprintf("Unable to filter report: %v", err))
+	}
+
+	return &reportv1.GetUnaryResponse{Report: frep}, nil
 }
 
 func (r *ReportController) Get(_ *reportv1.GetRequest, server reportv1.ReportService_GetServer) error {

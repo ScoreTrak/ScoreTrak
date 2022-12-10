@@ -587,8 +587,8 @@ github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9de
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/zenazn/goji v0.9.0/go.mod h1:7S9M489iMyHBNxwZnk9/EHS098H4/F6TATF2mIxtB1Q=
-go.buf.build/grpc/go/scoretrak/scoretrakapis v1.4.11 h1:3jdcoE/3bxj8ZzpIKO7dOe8zeJIMe3ht6zPTGeScc5Q=
-go.buf.build/grpc/go/scoretrak/scoretrakapis v1.4.11/go.mod h1:B4tmAN5wLfO7WGp5JE5SWmFcxGctyrkTlBI+VjWYzOA=
+go.buf.build/grpc/go/scoretrak/scoretrakapis v1.4.13 h1:7GFM2C8fl9qRTZye+lch8029fJMXS5xjBiV6dY7mXXU=
+go.buf.build/grpc/go/scoretrak/scoretrakapis v1.4.13/go.mod h1:B4tmAN5wLfO7WGp5JE5SWmFcxGctyrkTlBI+VjWYzOA=
 go.etcd.io/etcd/api/v3 v3.5.1/go.mod h1:cbVKeC6lCfl7j/8jBhAK6aIYO9XOjdptoxU/nLQcPvs=
 go.etcd.io/etcd/client/pkg/v3 v3.5.1/go.mod h1:IJHfcCEKxYu1Os13ZdwCwIUTUVGYTSAM3YSwc9/Ac1g=
 go.etcd.io/etcd/client/v2 v2.305.1/go.mod h1:pMEacxZW7o8pg4CrFE7pquyCJJzZvkvdD2RibOCCCGs=
