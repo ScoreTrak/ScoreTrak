@@ -103,7 +103,7 @@ func TestCheckSpec(t *testing.T) {
 				opts = append(opts, grpc_middleware.WithStreamServerChain(middlewareChainsStream...))
 
 				s := grpc.NewServer(opts...)
-				checkv1.RegisterCheckServiceServer(s, NewCheckController(cs, &us))
+				checkv1.RegisterCheckServiceServer(s, NewCheckV1Controller(cs, &us))
 
 				go func() {
 					if err := s.Serve(lis); err != nil {

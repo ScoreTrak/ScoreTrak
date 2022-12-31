@@ -1,20 +1,7 @@
 package handlerfx
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkservice"
-	"github.com/ScoreTrak/ScoreTrak/pkg/competition/competitionservice"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config/configservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/handler"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host/hostservice"
-	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup/hostgroupservice"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyservice"
-	"github.com/ScoreTrak/ScoreTrak/pkg/property/propertyservice"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportservice"
-	"github.com/ScoreTrak/ScoreTrak/pkg/round/roundservice"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service/serviceservice"
-	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup/servicegroupservice"
-	"github.com/ScoreTrak/ScoreTrak/pkg/team/teamservice"
-	"github.com/ScoreTrak/ScoreTrak/pkg/user/userservice"
 	healthv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/grpc/health/v1"
 	authv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/auth/v1"
 	checkv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/check/v1"
@@ -30,52 +17,46 @@ import (
 	service_groupv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/service_group/v1"
 	teamv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/team/v1"
 	userv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/user/v1"
+	userv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/user/v2"
 	"go.uber.org/fx"
-	"google.golang.org/grpc"
 )
 
-var Module = fx.Options(
-	// Add Service Pattern Implementations
+//var ConnectModule = fx.Options(
+//	// Create connect handlers
+//	fx.Provide(
+//		fx.Annotate(handler.NewAuthV1ConnectServer, fx.As(new(authv1connect.AuthServiceHandler))),
+//		fx.Annotate(handler.NewAuthV2ConnectServer, fx.As(new(authv2connect.AuthServiceHandler))),
+//	),
+//
+//	// Register them to the connect server
+//	fx.Provide(
+//		authv1connect.NewAuthServiceHandler,
+//		authv2connect.NewAuthServiceHandler,
+//	),
+//)
+
+var GrpcModule = fx.Options(
+	// Create controller/handlers
 	fx.Provide(
-		checkservice.NewCheckServ,
-		hostgroupservice.NewHostGroupServ,
-		hostservice.NewHostServ,
-		propertyservice.NewPropertyServ,
-		configservice.NewConfigServ,
-		configservice.NewStaticConfigServ,
-		competitionservice.NewCompetitionServ,
-		policyservice.NewPolicyServ,
-		reportservice.NewReportServ,
-		userservice.NewUserServ,
-		teamservice.NewTeamServ,
-		servicegroupservice.NewServiceGroupServ,
-		roundservice.NewRoundServ,
-		serviceservice.NewServiceServ,
+		fx.Annotate(handler.NewHealthV1Controller, fx.As(new(healthv1.HealthServer))),
+		fx.Annotate(handler.NewPolicyV1Controller, fx.As(new(policyv1.PolicyServiceServer))),
+		fx.Annotate(handler.NewAuthV1Controller, fx.As(new(authv1.AuthServiceServer))),
+		fx.Annotate(handler.NewUserV1Controller, fx.As(new(userv1.UserServiceServer))),
+		fx.Annotate(handler.NewUserV2Controller, fx.As(new(userv2.UserServiceServer))),
+		fx.Annotate(handler.NewTeamV1Controller, fx.As(new(teamv1.TeamServiceServer))),
+		fx.Annotate(handler.NewServiceV1Controller, fx.As(new(servicev1.ServiceServiceServer))),
+		fx.Annotate(handler.NewServiceGroupV1Controller, fx.As(new(service_groupv1.ServiceGroupServiceServer))),
+		fx.Annotate(handler.NewRoundV1Controller, fx.As(new(roundv1.RoundServiceServer))),
+		fx.Annotate(handler.NewReportV1Controller, fx.As(new(reportv1.ReportServiceServer))),
+		fx.Annotate(handler.NewPropertyV1Controller, fx.As(new(propertyv1.PropertyServiceServer))),
+		fx.Annotate(handler.NewHostGroupV1Controller, fx.As(new(host_groupv1.HostGroupServiceServer))),
+		fx.Annotate(handler.NewHostV1Controller, fx.As(new(hostv1.HostServiceServer))),
+		fx.Annotate(handler.NewStaticConfigV1Controller, fx.As(new(configv1.StaticConfigServiceServer))),
+		fx.Annotate(handler.NewConfigV1Controller, fx.As(new(configv1.DynamicConfigServiceServer))),
+		fx.Annotate(handler.NewCompetitionV1Controller, fx.As(new(competitionv1.CompetitionServiceServer))),
+		fx.Annotate(handler.NewCheckV1Controller, fx.As(new(checkv1.CheckServiceServer))),
 	),
 
-	// Add Handlers/grpc server
-	fx.Provide(
-		fx.Annotate(handler.NewHealthController, fx.As(new(healthv1.HealthServer))),
-		fx.Annotate(handler.NewPolicyController, fx.As(new(policyv1.PolicyServiceServer))),
-		fx.Annotate(handler.NewAuthController, fx.As(new(authv1.AuthServiceServer))),
-		fx.Annotate(handler.NewUserController, fx.As(new(userv1.UserServiceServer))),
-		fx.Annotate(handler.NewTeamController, fx.As(new(teamv1.TeamServiceServer))),
-		fx.Annotate(handler.NewServiceController, fx.As(new(servicev1.ServiceServiceServer))),
-		fx.Annotate(handler.NewServiceGroupController, fx.As(new(service_groupv1.ServiceGroupServiceServer))),
-		fx.Annotate(handler.NewRoundController, fx.As(new(roundv1.RoundServiceServer))),
-		fx.Annotate(handler.NewReportController, fx.As(new(reportv1.ReportServiceServer))),
-		fx.Annotate(handler.NewPropertyController, fx.As(new(propertyv1.PropertyServiceServer))),
-		fx.Annotate(handler.NewHostGroupController, fx.As(new(host_groupv1.HostGroupServiceServer))),
-		fx.Annotate(handler.NewHostController, fx.As(new(hostv1.HostServiceServer))),
-		fx.Annotate(handler.NewStaticConfigController, fx.As(new(configv1.StaticConfigServiceServer))),
-		fx.Annotate(handler.NewConfigController, fx.As(new(configv1.DynamicConfigServiceServer))),
-		fx.Annotate(handler.NewCompetitionController, fx.As(new(competitionv1.CompetitionServiceServer))),
-		fx.Annotate(handler.NewCheckController, fx.As(new(checkv1.CheckServiceServer))),
-	),
-
-	fx.Provide(func(server *grpc.Server) grpc.ServiceRegistrar {
-		return server
-	}),
 	// Add them to the grpc server object
 	fx.Invoke(
 		checkv1.RegisterCheckServiceServer,
@@ -91,6 +72,7 @@ var Module = fx.Options(
 		service_groupv1.RegisterServiceGroupServiceServer,
 		teamv1.RegisterTeamServiceServer,
 		userv1.RegisterUserServiceServer,
+		userv2.RegisterUserServiceServer,
 		authv1.RegisterAuthServiceServer,
 		policyv1.RegisterPolicyServiceServer,
 		healthv1.RegisterHealthServer,

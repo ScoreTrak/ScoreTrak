@@ -1,3 +1,9 @@
+buf.build/gen/go/scoretrak/scoretrakapis/grpc/go v1.2.0-20221203173709-56a222ed45c7.4 h1:pVUJOZdWcsU31gMarYmENF7gED5T5OFa67vvSG0KnB4=
+buf.build/gen/go/scoretrak/scoretrakapis/grpc/go v1.2.0-20221203173709-56a222ed45c7.4/go.mod h1:CpeJlIiazPbGoX2QdtvM0i7W9S+AgqFE2q9RZBiJ2xM=
+buf.build/gen/go/scoretrak/scoretrakapis/grpc/go v1.2.0-20221227215455-215d0a0f6c9e.4 h1:4iT8jspzDrTdAqktAwz81yUCwCl3GPzv4/KPCVsiL3k=
+buf.build/gen/go/scoretrak/scoretrakapis/grpc/go v1.2.0-20221227215455-215d0a0f6c9e.4/go.mod h1:yiavNA9iJSnjP0FK7DR96ZfuNYcMNZ/rAXWjicLYoKk=
+buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go v1.28.1-20221203173709-56a222ed45c7.4/go.mod h1:cCQK7H6CWENc76ap+Lqkucrz83pcDhz3xNbFXpej2WA=
+buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go v1.28.1-20221227215455-215d0a0f6c9e.4/go.mod h1:cCQK7H6CWENc76ap+Lqkucrz83pcDhz3xNbFXpej2WA=
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 cloud.google.com/go v0.38.0/go.mod h1:990N+gfupTy94rShfmMCWGDn0LpTmnzTp2qbd1dvSRU=
@@ -569,7 +575,6 @@ github.com/spf13/viper v1.10.0 h1:mXH0UwHS4D2HwWZa75im4xIQynLfblmWV7qcWpfv0yk=
 github.com/spf13/viper v1.10.0/go.mod h1:SoyBPwAtKDzypXNDFKN5kzH7ppppbGZtls1UpIy5AsM=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
-github.com/stretchr/objx v0.2.0 h1:Hbg2NidpLE8veEBkEZTL3CvlkUIVzuU9jDplZO54c48=
 github.com/stretchr/objx v0.2.0/go.mod h1:qt09Ya8vawLte6SNmTgCsAVtYtaKzEcn8ATUoHMkEqE=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
@@ -587,8 +592,8 @@ github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9de
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.3.5/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=
 github.com/zenazn/goji v0.9.0/go.mod h1:7S9M489iMyHBNxwZnk9/EHS098H4/F6TATF2mIxtB1Q=
-go.buf.build/grpc/go/scoretrak/scoretrakapis v1.4.13 h1:7GFM2C8fl9qRTZye+lch8029fJMXS5xjBiV6dY7mXXU=
-go.buf.build/grpc/go/scoretrak/scoretrakapis v1.4.13/go.mod h1:B4tmAN5wLfO7WGp5JE5SWmFcxGctyrkTlBI+VjWYzOA=
+go.buf.build/grpc/go/scoretrak/scoretrakapis v1.4.14 h1:Ed+HWe4dRfKTvsa2ABqW3NlRpEMzXYA0arVKb3DkkbQ=
+go.buf.build/grpc/go/scoretrak/scoretrakapis v1.4.14/go.mod h1:B4tmAN5wLfO7WGp5JE5SWmFcxGctyrkTlBI+VjWYzOA=
 go.etcd.io/etcd/api/v3 v3.5.1/go.mod h1:cbVKeC6lCfl7j/8jBhAK6aIYO9XOjdptoxU/nLQcPvs=
 go.etcd.io/etcd/client/pkg/v3 v3.5.1/go.mod h1:IJHfcCEKxYu1Os13ZdwCwIUTUVGYTSAM3YSwc9/Ac1g=
 go.etcd.io/etcd/client/v2 v2.305.1/go.mod h1:pMEacxZW7o8pg4CrFE7pquyCJJzZvkvdD2RibOCCCGs=
@@ -603,8 +608,6 @@ go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.3
 go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.36.4/go.mod h1:05eWWy6ZWzmpeImD3UowLTB3VjDMU1yxQ+ENuVWDM3c=
 go.opentelemetry.io/otel v1.11.1 h1:4WLLAmcfkmDk2ukNXJyq3/kiz/3UzCaYq6PskJsaou4=
 go.opentelemetry.io/otel v1.11.1/go.mod h1:1nNhXBbWSD0nsL38H6btgnFN2k4i0sNLHNNMZMSbUGE=
-go.opentelemetry.io/otel/exporters/jaeger v1.9.0 h1:gAEgEVGDWwFjcis9jJTOJqZNxDzoZfR12WNIxr7g9Ww=
-go.opentelemetry.io/otel/exporters/jaeger v1.9.0/go.mod h1:hquezOLVAybNW6vanIxkdLXTXvzlj2Vn3wevSP15RYs=
 go.opentelemetry.io/otel/exporters/otlp/internal/retry v1.10.0 h1:TaB+1rQhddO1sF71MpZOZAuSPW1klK2M8XxfrBMfK7Y=
 go.opentelemetry.io/otel/exporters/otlp/internal/retry v1.10.0/go.mod h1:78XhIg8Ht9vR4tbLNUhXsiOnE2HOuSeKAiAcoVQEpOY=
 go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.10.0 h1:pDDYmo0QadUPal5fwXoY1pmMpFcdyhXOmL5drCrI3vU=
@@ -1072,6 +1075,7 @@ google.golang.org/grpc v1.39.1/go.mod h1:PImNr+rS9TWYb2O4/emRugxiyHZ5JyHW5F+RPnD
 google.golang.org/grpc v1.40.0/go.mod h1:ogyxbiOoUXAkP+4+xa6PZSE9DZgIHtSpzjDTB9KAK34=
 google.golang.org/grpc v1.40.1/go.mod h1:ogyxbiOoUXAkP+4+xa6PZSE9DZgIHtSpzjDTB9KAK34=
 google.golang.org/grpc v1.42.0/go.mod h1:k+4IHHFw41K8+bbowsex27ge2rCb65oeWqe4jJ590SU=
+google.golang.org/grpc v1.43.0/go.mod h1:k+4IHHFw41K8+bbowsex27ge2rCb65oeWqe4jJ590SU=
 google.golang.org/grpc v1.50.1 h1:DS/BukOZWp8s6p4Dt/tOaJaTQyPyOoCcrjroHuCeLzY=
 google.golang.org/grpc v1.50.1/go.mod h1:ZgQEeidpAuNRZ8iRrlBKXZQP1ghovWIVhdJRyCDK+GI=
 google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.1.0/go.mod h1:6Kw0yEErY5E/yWrBtf03jp27GLLJujG4z/JK95pnjjw=

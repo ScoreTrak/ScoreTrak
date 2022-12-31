@@ -17,13 +17,13 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type ServiceController struct {
+type ServiceV1Controller struct {
 	svc    service2.Serv
 	client *util.Store
 	servicev1.UnimplementedServiceServiceServer
 }
 
-func (p ServiceController) GetByID(ctx context.Context, request *servicev1.GetByIDRequest) (*servicev1.GetByIDResponse, error) {
+func (p ServiceV1Controller) GetByID(ctx context.Context, request *servicev1.GetByIDRequest) (*servicev1.GetByIDResponse, error) {
 	uid, err := extractUUID(request)
 	if err != nil {
 		return nil, err
@@ -53,10 +53,10 @@ func (p ServiceController) GetByID(ctx context.Context, request *servicev1.GetBy
 		}
 	}
 
-	return &servicev1.GetByIDResponse{Service: ConvertServiceToServicePb(serv)}, nil
+	return &servicev1.GetByIDResponse{Service: ConvertServiceToServiceV1Pb(serv)}, nil
 }
 
-func (p ServiceController) TestService(ctx context.Context, request *servicev1.TestServiceRequest) (*servicev1.TestServiceResponse, error) {
+func (p ServiceV1Controller) TestService(ctx context.Context, request *servicev1.TestServiceRequest) (*servicev1.TestServiceResponse, error) {
 	uid, err := extractUUID(request)
 	if err != nil {
 		return nil, err
@@ -78,19 +78,19 @@ func (p ServiceController) TestService(ctx context.Context, request *servicev1.T
 	}}, err
 }
 
-func (p ServiceController) GetAll(ctx context.Context, request *servicev1.GetAllRequest) (*servicev1.GetAllResponse, error) {
+func (p ServiceV1Controller) GetAll(ctx context.Context, request *servicev1.GetAllRequest) (*servicev1.GetAllResponse, error) {
 	props, err := p.svc.GetAll(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
 	servcspb := make([]*servicev1.Service, 0, len(props))
 	for i := range props {
-		servcspb = append(servcspb, ConvertServiceToServicePb(props[i]))
+		servcspb = append(servcspb, ConvertServiceToServiceV1Pb(props[i]))
 	}
 	return &servicev1.GetAllResponse{Services: servcspb}, nil
 }
 
-func (p ServiceController) Delete(ctx context.Context, request *servicev1.DeleteRequest) (*servicev1.DeleteResponse, error) {
+func (p ServiceV1Controller) Delete(ctx context.Context, request *servicev1.DeleteRequest) (*servicev1.DeleteResponse, error) {
 	uid, err := extractUUID(request)
 	if err != nil {
 		return nil, err
@@ -102,11 +102,11 @@ func (p ServiceController) Delete(ctx context.Context, request *servicev1.Delete
 	return &servicev1.DeleteResponse{}, nil
 }
 
-func (p ServiceController) Store(ctx context.Context, request *servicev1.StoreRequest) (*servicev1.StoreResponse, error) {
+func (p ServiceV1Controller) Store(ctx context.Context, request *servicev1.StoreRequest) (*servicev1.StoreResponse, error) {
 	servcspb := request.GetServices()
 	props := make([]*service.Service, 0, len(servcspb))
 	for i := range servcspb {
-		sr, err := ConvertServicePBtoService(false, servcspb[i])
+		sr, err := ConvertServiceV1PBtoService(false, servcspb[i])
 		if err != nil {
 			return nil, err
 		}
@@ -139,9 +139,9 @@ func (p ServiceController) Store(ctx context.Context, request *servicev1.StoreRe
 	return &servicev1.StoreResponse{Ids: ids}, nil
 }
 
-func (p ServiceController) Update(ctx context.Context, request *servicev1.UpdateRequest) (*servicev1.UpdateResponse, error) {
+func (p ServiceV1Controller) Update(ctx context.Context, request *servicev1.UpdateRequest) (*servicev1.UpdateResponse, error) {
 	srvpb := request.GetService()
-	sr, err := ConvertServicePBtoService(true, srvpb)
+	sr, err := ConvertServiceV1PBtoService(true, srvpb)
 	if err != nil {
 		return nil, err
 	}
@@ -155,11 +155,11 @@ func (p ServiceController) Update(ctx context.Context, request *servicev1.Update
 	return &servicev1.UpdateResponse{}, nil
 }
 
-func NewServiceController(svc service2.Serv, client *util.Store) *ServiceController {
-	return &ServiceController{svc: svc, client: client}
+func NewServiceV1Controller(svc service2.Serv, client *util.Store) *ServiceV1Controller {
+	return &ServiceV1Controller{svc: svc, client: client}
 }
 
-func ConvertServicePBtoService(requireID bool, pb *servicev1.Service) (*service.Service, error) {
+func ConvertServiceV1PBtoService(requireID bool, pb *servicev1.Service) (*service.Service, error) {
 	var id uuid.UUID
 	var err error
 	if pb.GetId() != nil {
@@ -241,7 +241,7 @@ func ConvertServicePBtoService(requireID bool, pb *servicev1.Service) (*service.
 	}, nil
 }
 
-func ConvertServiceToServicePb(obj *service.Service) *servicev1.Service {
+func ConvertServiceToServiceV1Pb(obj *service.Service) *servicev1.Service {
 	return &servicev1.Service{
 		Id:             &protov1.UUID{Value: obj.ID.String()},
 		Name:           obj.Name,

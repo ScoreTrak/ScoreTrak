@@ -2,6 +2,17 @@ package handler
 
 import (
 	"context"
+	checkv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/check/v2"
+	competitionv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/competition/v2"
+	hostv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/host/v2"
+	host_groupv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/host_group/v2"
+	propertyv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/property/v2"
+	reportv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/report/v2"
+	roundv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/round/v2"
+	servicev2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/service/v2"
+	service_groupv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/service_group/v2"
+	teamv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/team/v2"
+	userv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/user/v2"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -17,30 +28,19 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
-	checkv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/check/v1"
-	competitionv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/competition/v1"
-	hostv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/host/v1"
-	host_groupv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/host_group/v1"
-	propertyv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/property/v1"
-	reportv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/report/v1"
-	roundv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/round/v1"
-	servicev1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/service/v1"
-	service_groupv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/service_group/v1"
-	teamv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/team/v1"
-	userv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/user/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-type CompetitionController struct {
+type CompetitionV2Controller struct {
 	svc competitionservice.Serv
-	competitionv1.UnimplementedCompetitionServiceServer
+	competitionv2.UnimplementedCompetitionServiceServer
 }
 
-func (c CompetitionController) LoadCompetition(ctx context.Context, request *competitionv1.LoadCompetitionRequest) (*competitionv1.LoadCompetitionResponse, error) {
+func (c CompetitionV2Controller) LoadCompetition(ctx context.Context, request *competitionv2.CompetitionServiceLoadCompetitionRequest) (*competitionv2.CompetitionServiceLoadCompetitionResponse, error) {
 	hstGrps := make([]*hostgroup.HostGroup, 0, len(request.GetCompetition().HostGroups))
 	for i := range request.GetCompetition().HostGroups {
-		hstGrp, err := ConvertHostGroupPBtoHostGroup(true, request.GetCompetition().HostGroups[i])
+		hstGrp, err := ConvertHostGroupV2PBtoHostGroup(true, request.GetCompetition().HostGroups[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" host groups, details: %v", err)
 		}
@@ -48,7 +48,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	}
 	hsts := make([]*host.Host, 0, len(request.GetCompetition().Hosts))
 	for i := range request.GetCompetition().Hosts {
-		hst, err := ConvertHostPBtoHost(true, request.GetCompetition().Hosts[i])
+		hst, err := ConvertHostV2PBtoHost(true, request.GetCompetition().Hosts[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" host, details: %v", err)
 		}
@@ -56,7 +56,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	}
 	tms := make([]*team.Team, 0, len(request.GetCompetition().Teams))
 	for i := range request.GetCompetition().Teams {
-		tm, err := ConvertTeamPBtoTeam(true, request.GetCompetition().Teams[i])
+		tm, err := ConvertTeamV2PBtoTeam(true, request.GetCompetition().Teams[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" team, details: %v", err)
 		}
@@ -64,7 +64,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	}
 	svcs := make([]*service2.Service, 0, len(request.GetCompetition().Services))
 	for i := range request.GetCompetition().Services {
-		svc, err := ConvertServicePBtoService(true, request.GetCompetition().Services[i])
+		svc, err := ConvertServiceV2PBtoService(true, request.GetCompetition().Services[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" check_service groups, details: %v", err)
 		}
@@ -72,7 +72,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	}
 	servGrps := make([]*servicegroup.ServiceGroup, 0, len(request.GetCompetition().ServiceGroups))
 	for i := range request.GetCompetition().ServiceGroups {
-		servGrp, err := ConvertServiceGroupPBtoServiceGroup(true, request.GetCompetition().ServiceGroups[i])
+		servGrp, err := ConvertServiceGroupV2PBtoServiceGroup(true, request.GetCompetition().ServiceGroups[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" service groups, details: %v", err)
 		}
@@ -80,7 +80,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	}
 	rnds := make([]*round.Round, 0, len(request.GetCompetition().Rounds))
 	for i := range request.GetCompetition().Rounds {
-		rnd, err := ConvertRoundPBtoRound(true, request.GetCompetition().Rounds[i])
+		rnd, err := ConvertRoundV2PBtoRound(true, request.GetCompetition().Rounds[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" round, details: %v", err)
 		}
@@ -88,7 +88,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	}
 	props := make([]*property.Property, 0, len(request.GetCompetition().Properties))
 	for i := range request.GetCompetition().Properties {
-		prop, err := ConvertPropertyPBtoProperty(request.GetCompetition().Properties[i])
+		prop, err := ConvertPropertyV2PBtoProperty(request.GetCompetition().Properties[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" property, details: %v", err)
 		}
@@ -96,7 +96,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	}
 	chcks := make([]*check.Check, 0, len(request.GetCompetition().Checks))
 	for i := range request.GetCompetition().Checks {
-		chck, err := ConvertCheckPBtoCheck(request.GetCompetition().Checks[i])
+		chck, err := ConvertCheckV2PBtoCheck(request.GetCompetition().Checks[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" check, details: %v", err)
 		}
@@ -105,7 +105,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 
 	users := make([]*user.User, 0, len(request.GetCompetition().Users))
 	for i := range request.GetCompetition().Users {
-		usr, err := ConvertUserPBtoUser(true, request.GetCompetition().Users[i])
+		usr, err := ConvertUserV2PBtoUser(true, request.GetCompetition().Users[i])
 		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, unableToParse+" check, details: %v", err)
 		}
@@ -118,7 +118,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 	}
 
 	err := c.svc.LoadCompetition(ctx, &competition.Competition{
-		Config: ConvertDynamicConfigPBToDynamicConfig(request.GetCompetition().DynamicConfig),
+		Config: ConvertDynamicConfigV2PBToDynamicConfig(request.GetCompetition().DynamicConfig),
 		Report: &report.Report{
 			Cache: cache,
 		},
@@ -131,7 +131,7 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 		Properties:    props,
 		Checks:        chcks,
 		Users:         users,
-		Policy:        ConvertPolicyPBToPolicy(request.GetCompetition().Policy),
+		Policy:        ConvertPolicyV2PBToPolicy(request.GetCompetition().Policy),
 	})
 	if err != nil {
 		return nil, status.Errorf(
@@ -139,10 +139,10 @@ func (c CompetitionController) LoadCompetition(ctx context.Context, request *com
 			"Internal Error when loading competition: %v", err,
 		)
 	}
-	return &competitionv1.LoadCompetitionResponse{}, err
+	return &competitionv2.CompetitionServiceLoadCompetitionResponse{}, err
 }
 
-func (c CompetitionController) FetchCoreCompetition(ctx context.Context, _ *competitionv1.FetchCoreCompetitionRequest) (*competitionv1.FetchCoreCompetitionResponse, error) {
+func (c CompetitionV2Controller) FetchCoreCompetition(ctx context.Context, _ *competitionv2.CompetitionServiceFetchCoreCompetitionRequest) (*competitionv2.CompetitionServiceFetchCoreCompetitionResponse, error) {
 	comp, err := c.svc.FetchCoreCompetition(ctx)
 	if err != nil {
 		return nil, status.Errorf(
@@ -150,14 +150,14 @@ func (c CompetitionController) FetchCoreCompetition(ctx context.Context, _ *comp
 			"Internal Error when fetching competition: %v", err,
 		)
 	}
-	comppb, err := ConvertCompetitionToCompetitionPB(comp)
+	comppb, err := ConvertCompetitionToCompetitionV2PB(comp)
 	if err != nil {
 		return nil, err
 	}
-	return &competitionv1.FetchCoreCompetitionResponse{Competition: comppb}, nil
+	return &competitionv2.CompetitionServiceFetchCoreCompetitionResponse{Competition: comppb}, nil
 }
 
-func (c CompetitionController) FetchEntireCompetition(ctx context.Context, _ *competitionv1.FetchEntireCompetitionRequest) (*competitionv1.FetchEntireCompetitionResponse, error) {
+func (c CompetitionV2Controller) FetchEntireCompetition(ctx context.Context, _ *competitionv2.CompetitionServiceFetchEntireCompetitionRequest) (*competitionv2.CompetitionServiceFetchEntireCompetitionResponse, error) {
 	comp, err := c.svc.FetchEntireCompetition(ctx)
 	if err != nil {
 		return nil, status.Errorf(
@@ -165,24 +165,24 @@ func (c CompetitionController) FetchEntireCompetition(ctx context.Context, _ *co
 			"Internal Error when fetching competition: %v", err,
 		)
 	}
-	comppb, err := ConvertCompetitionToCompetitionPB(comp)
+	comppb, err := ConvertCompetitionToCompetitionV2PB(comp)
 	if err != nil {
 		return nil, err
 	}
-	return &competitionv1.FetchEntireCompetitionResponse{Competition: comppb}, nil
+	return &competitionv2.CompetitionServiceFetchEntireCompetitionResponse{Competition: comppb}, nil
 }
 
-func (c CompetitionController) ResetScores(ctx context.Context, _ *competitionv1.ResetScoresRequest) (*competitionv1.ResetScoresResponse, error) {
+func (c CompetitionV2Controller) ResetScores(ctx context.Context, _ *competitionv2.CompetitionServiceResetScoresRequest) (*competitionv2.CompetitionServiceResetScoresResponse, error) {
 	if err := c.svc.ResetScores(ctx); err != nil {
 		return nil, status.Errorf(
 			codes.Internal,
 			"Internal Error when fetching competition: %v", err,
 		)
 	}
-	return &competitionv1.ResetScoresResponse{}, nil
+	return &competitionv2.CompetitionServiceResetScoresResponse{}, nil
 }
 
-func (c CompetitionController) DeleteCompetition(ctx context.Context, _ *competitionv1.DeleteCompetitionRequest) (*competitionv1.DeleteCompetitionResponse, error) {
+func (c CompetitionV2Controller) DeleteCompetition(ctx context.Context, _ *competitionv2.CompetitionServiceDeleteCompetitionRequest) (*competitionv2.CompetitionServiceDeleteCompetitionResponse, error) {
 	err := c.svc.DeleteCompetition(ctx)
 	if err != nil {
 		return nil, status.Errorf(
@@ -190,61 +190,61 @@ func (c CompetitionController) DeleteCompetition(ctx context.Context, _ *competi
 			"Internal Error when fetching competition: %v", err,
 		)
 	}
-	return &competitionv1.DeleteCompetitionResponse{}, nil
+	return &competitionv2.CompetitionServiceDeleteCompetitionResponse{}, nil
 }
 
-func NewCompetitionController(svc competitionservice.Serv) *CompetitionController {
-	return &CompetitionController{svc: svc}
+func NewCompetitionV2Controller(svc competitionservice.Serv) *CompetitionV2Controller {
+	return &CompetitionV2Controller{svc: svc}
 }
 
-func ConvertCompetitionToCompetitionPB(comp *competition.Competition) (*competitionv1.Competition, error) {
-	hstGrps := make([]*host_groupv1.HostGroup, 0, len(comp.HostGroups))
+func ConvertCompetitionToCompetitionV2PB(comp *competition.Competition) (*competitionv2.Competition, error) {
+	hstGrps := make([]*host_groupv2.HostGroup, 0, len(comp.HostGroups))
 	for i := range comp.HostGroups {
-		hstGrps = append(hstGrps, ConvertHostGroupToHostGroupPb(comp.HostGroups[i]))
+		hstGrps = append(hstGrps, ConvertHostGroupToHostGroupV2Pb(comp.HostGroups[i]))
 	}
-	hsts := make([]*hostv1.Host, 0, len(comp.Hosts))
+	hsts := make([]*hostv2.Host, 0, len(comp.Hosts))
 	for i := range comp.Hosts {
-		hsts = append(hsts, ConvertHostToHostPb(comp.Hosts[i]))
+		hsts = append(hsts, ConvertHostToHostV2Pb(comp.Hosts[i]))
 	}
-	tms := make([]*teamv1.Team, 0, len(comp.Teams))
+	tms := make([]*teamv2.Team, 0, len(comp.Teams))
 	for i := range comp.Teams {
-		tms = append(tms, ConvertTeamToTeamPb(comp.Teams[i]))
+		tms = append(tms, ConvertTeamToTeamV2Pb(comp.Teams[i]))
 	}
-	svcs := make([]*servicev1.Service, 0, len(comp.Services))
+	svcs := make([]*servicev2.Service, 0, len(comp.Services))
 	for i := range comp.Services {
-		svcs = append(svcs, ConvertServiceToServicePb(comp.Services[i]))
+		svcs = append(svcs, ConvertServiceToServiceV2Pb(comp.Services[i]))
 	}
-	servGrps := make([]*service_groupv1.ServiceGroup, 0, len(comp.ServiceGroups))
+	servGrps := make([]*service_groupv2.ServiceGroup, 0, len(comp.ServiceGroups))
 	for i := range comp.ServiceGroups {
-		servGrps = append(servGrps, ConvertServiceGroupToServiceGroupPb(comp.ServiceGroups[i]))
+		servGrps = append(servGrps, ConvertServiceGroupToServiceGroupV2Pb(comp.ServiceGroups[i]))
 	}
-	rnds := make([]*roundv1.Round, 0, len(comp.Rounds))
+	rnds := make([]*roundv2.Round, 0, len(comp.Rounds))
 	for i := range comp.Rounds {
-		rnds = append(rnds, ConvertRoundToRoundPb(comp.Rounds[i]))
+		rnds = append(rnds, ConvertRoundToRoundV2Pb(comp.Rounds[i]))
 	}
-	props := make([]*propertyv1.Property, 0, len(comp.Properties))
+	props := make([]*propertyv2.Property, 0, len(comp.Properties))
 	for i := range comp.Properties {
-		props = append(props, ConvertPropertyToPropertyPb(comp.Properties[i]))
+		props = append(props, ConvertPropertyToPropertyV2Pb(comp.Properties[i]))
 	}
-	chcks := make([]*checkv1.Check, 0, len(comp.Checks))
+	chcks := make([]*checkv2.Check, 0, len(comp.Checks))
 	for i := range comp.Checks {
-		chcks = append(chcks, ConvertCheckToCheckPb(comp.Checks[i]))
+		chcks = append(chcks, ConvertCheckToCheckV2Pb(comp.Checks[i]))
 	}
-	usrs := make([]*userv1.User, 0, len(comp.Users))
+	usrs := make([]*userv2.User, 0, len(comp.Users))
 	for i := range comp.Users {
-		usrs = append(usrs, ConvertUserToUserPb(comp.Users[i]))
+		usrs = append(usrs, ConvertUserToUserV2Pb(comp.Users[i]))
 	}
 
-	var rprt *reportv1.Report
+	var rprt *reportv2.Report
 	if comp.Report != nil {
-		rprt = &reportv1.Report{
+		rprt = &reportv2.Report{
 			Cache:     comp.Report.Cache,
 			UpdatedAt: timestamppb.New(comp.Report.UpdatedAt),
 		}
 	}
 
-	return &competitionv1.Competition{
-		DynamicConfig: ConvertDynamicConfigToDynamicConfigPB(comp.Config),
+	return &competitionv2.Competition{
+		DynamicConfig: ConvertDynamicConfigToDynamicConfigV2PB(comp.Config),
 		Report:        rprt,
 		HostGroups:    hstGrps,
 		Hosts:         hsts,
@@ -255,6 +255,6 @@ func ConvertCompetitionToCompetitionPB(comp *competition.Competition) (*competit
 		Properties:    props,
 		Checks:        chcks,
 		Users:         usrs,
-		Policy:        ConvertPolicyToPolicyPB(comp.Policy),
+		Policy:        ConvertPolicyToPolicyV2PB(comp.Policy),
 	}, nil
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
+	reportv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/report/v2"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -14,16 +15,15 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
-	reportv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/report/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-type ReportController struct {
+type ReportV2Controller struct {
 	svc          reportservice.Serv
 	reportClient *reportclient.Client
 	policyClient *policyclient.Client
-	reportv1.UnimplementedReportServiceServer
+	reportv2.UnimplementedReportServiceServer
 }
 
 func removeDisabledAndHidden(simpleReport *report.SimpleReport) {
@@ -96,7 +96,7 @@ func filterBlueTeams(simpleReport *report.SimpleReport, tID uuid.UUID, p *policy
 	}
 }
 
-func (r *ReportController) filterReport(rol string, tID uuid.UUID, lr *report.Report) (*reportv1.Report, error) {
+func (r *ReportV2Controller) filterReport(rol string, tID uuid.UUID, lr *report.Report) (*reportv2.Report, error) {
 	simpleReport := &report.SimpleReport{}
 	err := json.Unmarshal([]byte(lr.Cache), simpleReport)
 	if err != nil {
@@ -111,13 +111,13 @@ func (r *ReportController) filterReport(rol string, tID uuid.UUID, lr *report.Re
 	if err != nil {
 		return nil, err
 	}
-	return &reportv1.Report{
+	return &reportv2.Report{
 		Cache:     string(ret),
 		UpdatedAt: timestamppb.New(lr.UpdatedAt),
 	}, nil
 }
 
-func (r *ReportController) GetUnary(ctx context.Context, _ *reportv1.GetUnaryRequest) (*reportv1.GetUnaryResponse, error) {
+func (r *ReportV2Controller) GetUnary(ctx context.Context, _ *reportv2.GetUnaryRequest) (*reportv2.GetUnaryResponse, error) {
 	rol := user.Anonymous
 	tID := uuid.UUID{}
 	lr, err := r.svc.Get(ctx)
@@ -142,10 +142,10 @@ func (r *ReportController) GetUnary(ctx context.Context, _ *reportv1.GetUnaryReq
 			fmt.Sprintf("Unable to filter report: %v", err))
 	}
 
-	return &reportv1.GetUnaryResponse{Report: frep}, nil
+	return &reportv2.Get{Report: frep}, nil
 }
 
-func (r *ReportController) Get(_ *reportv1.GetRequest, server reportv1.ReportService_GetServer) error {
+func (r *ReportV2Controller) Get(_ *reportv2.ReportServiceGetRequest, server reportv2.ReportService_GetServer) error {
 	rol := user.Anonymous
 	tID := uuid.UUID{}
 	lr, err := r.svc.Get(server.Context())
@@ -169,7 +169,7 @@ func (r *ReportController) Get(_ *reportv1.GetRequest, server reportv1.ReportSer
 		return status.Errorf(codes.Internal,
 			fmt.Sprintf("Unable to filter report: %v", err))
 	}
-	err = server.Send(&reportv1.GetResponse{Report: frep})
+	err = server.Send(&reportv2.ReportServiceGetResponse{Report: frep})
 	if err != nil {
 		return err
 	}
@@ -193,7 +193,7 @@ func (r *ReportController) Get(_ *reportv1.GetRequest, server reportv1.ReportSer
 				return status.Errorf(codes.Internal,
 					fmt.Sprintf("Unable to filter report: %v", err))
 			}
-			err = server.Send(&reportv1.GetResponse{Report: frep})
+			err = server.Send(&reportv2.ReportServiceGetResponse{Report: frep})
 			if err != nil {
 				return err
 			}
@@ -203,8 +203,8 @@ func (r *ReportController) Get(_ *reportv1.GetRequest, server reportv1.ReportSer
 	}
 }
 
-func NewReportController(svc reportservice.Serv, reportClient *reportclient.Client, client *policyclient.Client) *ReportController {
-	return &ReportController{
+func NewReportV2Controller(svc reportservice.Serv, reportClient *reportclient.Client, client *policyclient.Client) *ReportV1Controller {
+	return &ReportV2Controller{
 		svc:          svc,
 		reportClient: reportClient,
 		policyClient: client,
