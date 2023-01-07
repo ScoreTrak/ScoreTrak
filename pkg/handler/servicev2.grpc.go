@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+	checkv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/check/v2"
 	servicev2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/service/v2"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
@@ -11,7 +12,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	checkv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/check/v1"
 	protov1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/proto/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -69,7 +69,7 @@ func (p ServiceV2Controller) TestService(ctx context.Context, request *servicev2
 		)
 	}
 
-	return &servicev2.ServiceServiceTestServiceResponse{Check: &checkv1.Check{
+	return &servicev2.ServiceServiceTestServiceResponse{Check: &checkv2.Check{
 		ServiceId: &protov1.UUID{Value: chck.ServiceID.String()},
 		RoundId:   0,
 		Log:       chck.Log,

@@ -8,7 +8,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	policyv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/policy/v1"
+	policyv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/policy/v2"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -16,17 +16,17 @@ import (
 type PolicyV2Controller struct {
 	svc          policyservice.Serv
 	policyClient *policyclient.Client
-	policyv1.UnimplementedPolicyServiceServer
+	policyv2.UnimplementedPolicyServiceServer
 }
 
-func (p PolicyV2Controller) Get(_ *policyv1.GetRequest, server policyv1.PolicyService_GetServer) error {
+func (p PolicyV2Controller) Get(_ *policyv2.PolicyServiceGetRequest, server policyv2.PolicyService_GetServer) error {
 	rol := user.Anonymous
 	claims := extractUserClaim(server.Context())
 	if claims != nil {
 		rol = claims.Role
 	}
 
-	err := server.Send(&policyv1.GetResponse{
+	err := server.Send(&policyv2.PolicyServiceGetResponse{
 		Policy: ConvertPolicyToPolicyV2PB(p.policyClient.GetPolicy()),
 	})
 	if err != nil {
@@ -41,7 +41,7 @@ func (p PolicyV2Controller) Get(_ *policyv1.GetRequest, server policyv1.PolicySe
 			if !p.policyClient.GetAllowUnauthenticatedUsers() && rol == user.Anonymous {
 				return status.Error(codes.PermissionDenied, "You must login in order to access this resource")
 			}
-			err := server.Send(&policyv1.GetResponse{
+			err := server.Send(&policyv2.PolicyServiceGetResponse{
 				Policy: ConvertPolicyToPolicyV2PB(p.policyClient.GetPolicy()),
 			})
 			if err != nil {
@@ -53,12 +53,12 @@ func (p PolicyV2Controller) Get(_ *policyv1.GetRequest, server policyv1.PolicySe
 	}
 }
 
-func (p PolicyV2Controller) GetUnary(context.Context, *policyv1.GetUnaryRequest) (*policyv1.GetUnaryResponse, error) {
+func (p PolicyV2Controller) GetUnary(context.Context, *policyv2.PolicyServiceGetUnaryRequest) (*policyv2.PolicyServiceGetUnaryResponse, error) {
 	pol := ConvertPolicyToPolicyV2PB(p.policyClient.GetPolicy())
-	return &policyv1.GetUnaryResponse{Policy: pol}, nil
+	return &policyv2.PolicyServiceGetUnaryResponse{Policy: pol}, nil
 }
 
-func (p PolicyV2Controller) Update(ctx context.Context, request *policyv1.UpdateRequest) (*policyv1.UpdateResponse, error) {
+func (p PolicyV2Controller) Update(ctx context.Context, request *policyv2.PolicyServiceUpdateRequest) (*policyv2.PolicyServiceUpdateResponse, error) {
 	polpb := request.GetPolicy()
 	err := p.svc.Update(ctx, ConvertPolicyV2PBToPolicy(polpb))
 	if err != nil {
@@ -68,7 +68,7 @@ func (p PolicyV2Controller) Update(ctx context.Context, request *policyv1.Update
 		)
 	}
 	p.policyClient.Notify()
-	return &policyv1.UpdateResponse{}, nil
+	return &policyv2.PolicyServiceUpdateResponse{}, nil
 }
 
 func NewPolicyV2Controller(svc policyservice.Serv, client *policyclient.Client) *PolicyV2Controller {
@@ -78,7 +78,7 @@ func NewPolicyV2Controller(svc policyservice.Serv, client *policyclient.Client) 
 	}
 }
 
-func ConvertPolicyV2PBToPolicy(pb *policyv1.Policy) *policy.Policy {
+func ConvertPolicyV2PBToPolicy(pb *policyv2.Policy) *policy.Policy {
 	var auu *bool
 	if pb.GetAllowUnauthenticatedUsers() != nil {
 		auu = &pb.GetAllowUnauthenticatedUsers().Value
@@ -113,8 +113,8 @@ func ConvertPolicyV2PBToPolicy(pb *policyv1.Policy) *policy.Policy {
 	}
 }
 
-func ConvertPolicyToPolicyV2PB(obj *policy.Policy) *policyv1.Policy {
-	return &policyv1.Policy{
+func ConvertPolicyToPolicyV2PB(obj *policy.Policy) *policyv2.Policy {
+	return &policyv2.Policy{
 		AllowUnauthenticatedUsers:                 &wrappers.BoolValue{Value: *obj.AllowUnauthenticatedUsers},
 		AllowChangingUsernamesAndPasswords:        &wrappers.BoolValue{Value: *obj.AllowChangingUsernamesAndPasswords},
 		ShowPoints:                                &wrappers.BoolValue{Value: *obj.ShowPoints},

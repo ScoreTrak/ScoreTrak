@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	reportv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/report/v2"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -24,76 +23,6 @@ type ReportV2Controller struct {
 	reportClient *reportclient.Client
 	policyClient *policyclient.Client
 	reportv2.UnimplementedReportServiceServer
-}
-
-func removeDisabledAndHidden(simpleReport *report.SimpleReport) {
-	for t := range simpleReport.Teams {
-		if simpleReport.Teams[t].Hide {
-			delete(simpleReport.Teams, t)
-			continue
-		}
-		for h := range simpleReport.Teams[t].Hosts {
-			if simpleReport.Teams[t].Hosts[h].Hide || (simpleReport.Teams[t].Hosts[h].HostGroup != nil && simpleReport.Teams[t].Hosts[h].HostGroup.Hide) {
-				delete(simpleReport.Teams[t].Hosts, h)
-				continue
-			}
-			for s := range simpleReport.Teams[t].Hosts[h].Services {
-				if simpleReport.Teams[t].Hosts[h].Services[s].Hide || !simpleReport.Teams[t].Hosts[h].Services[s].SimpleServiceGroup.Enabled {
-					delete(simpleReport.Teams[t].Hosts[h].Services, s)
-					continue
-				}
-			}
-		}
-	}
-}
-
-func calculateTotalPoints(simpleReport *report.SimpleReport) {
-	for t := range simpleReport.Teams {
-		for h := range simpleReport.Teams[t].Hosts {
-			for s := range simpleReport.Teams[t].Hosts[h].Services {
-				simpleReport.Teams[t].TotalPoints += simpleReport.Teams[t].Hosts[h].Services[s].Points + simpleReport.Teams[t].Hosts[h].Services[s].PointsBoost
-			}
-		}
-	}
-}
-
-func filterBlueTeams(simpleReport *report.SimpleReport, tID uuid.UUID, p *policy.Policy) {
-	for teamIdx := range simpleReport.Teams {
-		for hostIdx := range simpleReport.Teams[teamIdx].Hosts {
-			for serviceIdx := range simpleReport.Teams[teamIdx].Hosts[hostIdx].Services {
-				propFilterHide := map[string]*report.SimpleProperty{}
-				for key, val := range simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].Properties {
-					if val.Status != "Hide" {
-						propFilterHide[key] = val
-					}
-				}
-				simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].Properties = propFilterHide
-				if teamIdx != tID {
-					if simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].Check != nil {
-						simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].Check.Err = ""
-						simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].Check.Log = ""
-					}
-					prop := map[string]*report.SimpleProperty{}
-					if *p.ShowAddresses {
-						if val, ok := simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].Properties["Port"]; ok {
-							prop["Port"] = val
-						}
-					}
-					simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].Properties = prop
-					if !*p.ShowPoints {
-						simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].Points = 0
-						simpleReport.Teams[teamIdx].Hosts[hostIdx].Services[serviceIdx].PointsBoost = 0
-						simpleReport.Teams[teamIdx].TotalPoints = 0
-					}
-				}
-			}
-			if teamIdx != tID {
-				if !*p.ShowAddresses {
-					simpleReport.Teams[teamIdx].Hosts[hostIdx].Address = ""
-				}
-			}
-		}
-	}
 }
 
 func (r *ReportV2Controller) filterReport(rol string, tID uuid.UUID, lr *report.Report) (*reportv2.Report, error) {
@@ -117,7 +46,7 @@ func (r *ReportV2Controller) filterReport(rol string, tID uuid.UUID, lr *report.
 	}, nil
 }
 
-func (r *ReportV2Controller) GetUnary(ctx context.Context, _ *reportv2.GetUnaryRequest) (*reportv2.GetUnaryResponse, error) {
+func (r *ReportV2Controller) GetUnary(ctx context.Context, _ *reportv2.ReportServiceGetUnaryRequest) (*reportv2.ReportServiceGetUnaryResponse, error) {
 	rol := user.Anonymous
 	tID := uuid.UUID{}
 	lr, err := r.svc.Get(ctx)
@@ -142,7 +71,7 @@ func (r *ReportV2Controller) GetUnary(ctx context.Context, _ *reportv2.GetUnaryR
 			fmt.Sprintf("Unable to filter report: %v", err))
 	}
 
-	return &reportv2.Get{Report: frep}, nil
+	return &reportv2.ReportServiceGetUnaryResponse{Report: frep}, nil
 }
 
 func (r *ReportV2Controller) Get(_ *reportv2.ReportServiceGetRequest, server reportv2.ReportService_GetServer) error {
@@ -203,7 +132,7 @@ func (r *ReportV2Controller) Get(_ *reportv2.ReportServiceGetRequest, server rep
 	}
 }
 
-func NewReportV2Controller(svc reportservice.Serv, reportClient *reportclient.Client, client *policyclient.Client) *ReportV1Controller {
+func NewReportV2Controller(svc reportservice.Serv, reportClient *reportclient.Client, client *policyclient.Client) *ReportV2Controller {
 	return &ReportV2Controller{
 		svc:          svc,
 		reportClient: reportClient,

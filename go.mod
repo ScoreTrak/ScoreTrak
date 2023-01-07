@@ -23,7 +23,7 @@ require (
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.0
-	go.buf.build/grpc/go/scoretrak/scoretrakapis v1.4.14
+	go.buf.build/grpc/go/scoretrak/scoretrakapis v1.4.15
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.36.4
 	go.opentelemetry.io/otel v1.11.1
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.10.0
@@ -45,7 +45,6 @@ require (
 )
 
 require (
-	buf.build/gen/go/scoretrak/scoretrakapis/grpc/go v1.2.0-20221227215455-215d0a0f6c9e.4 // indirect
 	github.com/Azure/go-ntlmssp v0.0.0-20200615164410-66371956d46c // indirect
 	github.com/ChrisTrenkamp/goxpath v0.0.0-20210404020558-97928f7e12b6 // indirect
 	github.com/Microsoft/go-winio v0.4.14 // indirect
