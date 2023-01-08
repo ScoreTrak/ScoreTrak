@@ -1,10 +1,7 @@
 package cmd
 
 import (
-	"context"
-	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/handler/handlerfx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
@@ -12,15 +9,13 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportclient"
 	"github.com/ScoreTrak/ScoreTrak/pkg/runner"
+	"github.com/ScoreTrak/ScoreTrak/pkg/server/grpc/grpcfx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/seed"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/storagefx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/telemetry/telemetryfx"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
-	"google.golang.org/grpc"
 	"log"
-	"net"
-	"time"
 )
 
 // masterCmd represents the master command
@@ -32,7 +27,16 @@ var masterCmd = &cobra.Command{
 
 		app := fx.New(
 			// Create configs
-			fx.Provide(NewStaticConfig, NewDynamicConfig, NewStorageConfig, NewQueueConfig, NewPlatformConfig, NewMasterQueueConfig, NewJWTConfig),
+			fx.Provide(
+				NewStaticConfig,
+				NewDynamicConfig,
+				NewStorageConfig,
+				NewQueueConfig,
+				NewPlatformConfig,
+				NewMasterQueueConfig,
+				NewJWTConfig,
+				NewServerConfig,
+			),
 
 			// Observability
 			telemetryfx.Module,
@@ -52,25 +56,27 @@ var masterCmd = &cobra.Command{
 				reportclient.NewReportClient,
 			),
 
-			// Create platform
+			// Create platform module. Responsible for creating works in docker, docker swarm, and kubernetes
 			fx.Provide(platform.NewPlatform),
 
-			// Create auth deps
+			// Create auth components
 			fx.Provide(auth.NewJWTManager, auth.NewAuthInterceptor),
 
 			// Create grpc server
-			fx.Provide(),
+			grpcfx.Module,
+
+			// Register grpc handlers for the grpc server
 			handlerfx.GrpcModule,
 
 			// Create connect server
+			//connectfx
 
 			// Create runner
 			fx.Provide(runner.NewRunner),
 
-			// Register Lifecycle hooks for the server, runner, policy/report client
+			// Register lifecycle hooks for the server, runner, policy/report client
 			fx.Invoke(policyclient.InitPolicyClient, reportclient.InitReportClient),
 			fx.Invoke(runner.InitRunner),
-			fx.Invoke(InitGrpcServer),
 		)
 
 		app.Run()
@@ -79,36 +85,4 @@ var masterCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(masterCmd)
-}
-
-func InitGrpcServer(lc fx.Lifecycle, staticConfig config.StaticConfig, server *grpc.Server) {
-	address := fmt.Sprintf("%s:%s", staticConfig.Server.Address, staticConfig.Server.Port)
-	lis, err := net.Listen("tcp", address)
-	if err != nil {
-		log.Panicf("Failed to listen: %v", err)
-	}
-	log.Printf("Created Listener at %s", address)
-
-	lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			log.Println("Starting grpc server")
-			go func() {
-				err := server.Serve(lis)
-				if err != nil {
-					time.Sleep(time.Second)
-					log.Panicf("%v", err)
-				}
-			}()
-			return nil
-		},
-		OnStop: func(ctx context.Context) error {
-			log.Println("Stopping grpc server")
-			err := lis.Close()
-			if err != nil {
-				return err
-			}
-			server.Stop()
-			return nil
-		},
-	})
 }

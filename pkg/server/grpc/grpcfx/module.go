@@ -7,8 +7,9 @@ import (
 )
 
 var Module = fx.Options(
-	fx.Provide(stgrpc.NewGrpcServer),
-	fx.Provide(func(server *grpc.Server) grpc.ServiceRegistrar {
-		return server
-	}),
+	fx.Provide(
+		stgrpc.NewGrpcServer,
+		func(server *grpc.Server) grpc.ServiceRegistrar { return server },
+	),
+	fx.Invoke(stgrpc.InitGrpcServer),
 )
