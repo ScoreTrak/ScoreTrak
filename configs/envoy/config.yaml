@@ -63,4 +63,4 @@ static_resources:
                   address:
                     socket_address:
                       address: localhost
-                      port_value: 33333
+                      port_value: 3001
