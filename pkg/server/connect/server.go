@@ -11,20 +11,22 @@ import (
 	"net/http"
 )
 
-func NewConnectServer() *http.ServeMux {
+func NewConnectServer(paths []string, handlers []http.Handler) *http.ServeMux {
+	fmt.Printf("Length of paths %d", len(paths))
+	fmt.Printf("Length of handlers %d", len(handlers))
 	mux := http.NewServeMux()
 	return mux
 }
 
 func InitConnectServer(lc fx.Lifecycle, config server.Config, mux *http.ServeMux) {
 	address := fmt.Sprintf("%s:%s", config.Address, config.Port)
-	tls_enabled := config.TLS.CertFile != "" || config.TLS.KeyFile != ""
+	tlsEnabled := config.TLS.CertFile != "" || config.TLS.KeyFile != ""
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			log.Println("Starting connect server")
 			go func() {
-				if tls_enabled {
+				if tlsEnabled {
 					http.ListenAndServeTLS(address, config.TLS.CertFile, config.TLS.KeyFile, h2c.NewHandler(mux, &http2.Server{}))
 				} else {
 					http.ListenAndServe(address, h2c.NewHandler(mux, &http2.Server{}))
