@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
-	"github.com/ScoreTrak/ScoreTrak/pkg/handler/handlerfx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyclient"
@@ -60,16 +59,16 @@ var masterCmd = &cobra.Command{
 			fx.Provide(platform.NewPlatform),
 
 			// Create auth components
-			fx.Provide(auth.NewJWTManager, auth.NewAuthInterceptor),
+			fx.Provide(
+				auth.NewJWTManager,
+				auth.NewAuthInterceptor,
+			),
 
 			// Create grpc server
 			grpcfx.Module,
 
-			// Register grpc handlers for the grpc server
-			handlerfx.GrpcModule,
-
 			// Create connect server
-			//connectfx
+			//connectfx.Module,
 
 			// Create runner
 			fx.Provide(runner.NewRunner),
