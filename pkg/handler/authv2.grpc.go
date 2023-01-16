@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user/userservice"
-	authv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/auth/v1"
+	authv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/auth/v2"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -12,14 +12,14 @@ import (
 type AuthV2Controller struct {
 	svc        userservice.Serv
 	jwtManager *auth.Manager
-	authv1.UnimplementedAuthServiceServer
+	authv2.UnimplementedAuthServiceServer
 }
 
-func NewAuthController(svc userservice.Serv, jwtManager *auth.Manager) *AuthV2Controller {
+func NewAuthV2Controller(svc userservice.Serv, jwtManager *auth.Manager) *AuthV2Controller {
 	return &AuthV2Controller{svc: svc, jwtManager: jwtManager}
 }
 
-func (a AuthV2Controller) Login(ctx context.Context, request *authv1.LoginRequest) (*authv1.LoginResponse, error) {
+func (a AuthV2Controller) Login(ctx context.Context, request *authv2.AuthServiceLoginRequest) (*authv2.AuthServiceLoginResponse, error) {
 	if request.GetUsername() == "" || request.GetPassword() == "" {
 		return nil, status.Errorf(
 			codes.InvalidArgument,
@@ -38,5 +38,5 @@ func (a AuthV2Controller) Login(ctx context.Context, request *authv1.LoginReques
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "cannot generate access token")
 	}
-	return &authv1.LoginResponse{AccessToken: token}, nil
+	return &authv2.AuthServiceLoginResponse{AccessToken: token}, nil
 }
