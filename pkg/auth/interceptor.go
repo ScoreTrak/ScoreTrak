@@ -62,7 +62,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 	}}
 
 	authV2ServicePath := fmt.Sprintf("/%s/", authv2.AuthService_ServiceDesc.ServiceName)
-	authMap[authV2ServicePath+"AuthServiceLogin"] = []authorizationMap{{
+	authMap[authV2ServicePath+"Login"] = []authorizationMap{{
 		role:      user.Anonymous,
 		isAllowed: AlwaysAllowFunc,
 	}}
@@ -97,21 +97,21 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 	}}
 
 	propertyV2ServicePath := fmt.Sprintf("/%s/", propertyv2.PropertyService_ServiceDesc.ServiceName)
-	authMap[propertyV2ServicePath+"PropertyServiceGetByServiceIDKey"] = []authorizationMap{{
+	authMap[propertyV2ServicePath+"GetByServiceIDKey"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
 		role:      user.Red,
 		isAllowed: AlwaysAllowFunc,
 	}}
-	authMap[propertyV2ServicePath+"PropertyServiceGetAllByServiceID"] = []authorizationMap{{
+	authMap[propertyV2ServicePath+"GetAllByServiceID"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
 		role:      user.Red,
 		isAllowed: AlwaysAllowFunc,
 	}}
-	authMap[propertyV2ServicePath+"PropertyServiceUpdate"] = []authorizationMap{{
+	authMap[propertyV2ServicePath+"Update"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
@@ -137,18 +137,18 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 	}}
 
 	serviceV2ServicePath := fmt.Sprintf("/%s/", servicev2.ServiceService_ServiceDesc.ServiceName)
-	authMap[serviceV2ServicePath+"ServiceServiceGetAll"] = []authorizationMap{{
+	authMap[serviceV2ServicePath+"GetAll"] = []authorizationMap{{
 		role:      user.Red,
 		isAllowed: policyClient.GetAllowRedTeamLaunchingServiceTestsManually,
 	}}
-	authMap[serviceV2ServicePath+"ServiceServiceGetByID"] = []authorizationMap{{
+	authMap[serviceV2ServicePath+"GetByID"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
 		role:      user.Red,
 		isAllowed: AlwaysAllowFunc,
 	}}
-	authMap[serviceV2ServicePath+"ServiceServiceTestService"] = []authorizationMap{{
+	authMap[serviceV2ServicePath+"TestService"] = []authorizationMap{{
 		role:      user.Red,
 		isAllowed: policyClient.GetAllowRedTeamLaunchingServiceTestsManually,
 	}}
@@ -202,14 +202,14 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 	}}
 
 	checkV2ServicePath := fmt.Sprintf("/%s/", checkv2.CheckService_ServiceDesc.ServiceName)
-	authMap[checkV2ServicePath+"CheckServiceGetByRoundServiceID"] = []authorizationMap{{
+	authMap[checkV2ServicePath+"GetByRoundServiceID"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
 		role:      user.Red,
 		isAllowed: AlwaysAllowFunc,
 	}}
-	authMap[checkV2ServicePath+"CheckServiceGetAllByServiceID"] = []authorizationMap{{
+	authMap[checkV2ServicePath+"GetAllByServiceID"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
@@ -240,7 +240,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 	}}
 
 	reportV2ServicePath := fmt.Sprintf("/%s/", reportv2.ReportService_ServiceDesc.ServiceName)
-	authMap[reportV2ServicePath+"ReportServiceGet"] = []authorizationMap{{
+	authMap[reportV2ServicePath+"Get"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
@@ -250,7 +250,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		role:      user.Anonymous,
 		isAllowed: policyClient.GetAllowUnauthenticatedUsers,
 	}}
-	authMap[reportV2ServicePath+"ReportServiceGetUnary"] = []authorizationMap{{
+	authMap[reportV2ServicePath+"GetUnary"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
@@ -284,7 +284,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 	}}
 
 	policyV2ServicePath := fmt.Sprintf("/%s/", policyv2.PolicyService_ServiceDesc.ServiceName)
-	authMap[policyV2ServicePath+"PolicyServiceGet"] = []authorizationMap{{
+	authMap[policyV2ServicePath+"Get"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
@@ -294,7 +294,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		role:      user.Anonymous,
 		isAllowed: policyClient.GetAllowUnauthenticatedUsers,
 	}}
-	authMap[policyV2ServicePath+"PolicyServiceGetUnary"] = []authorizationMap{{
+	authMap[policyV2ServicePath+"GetUnary"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
 	}, {
@@ -315,7 +315,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 	}}
 
 	userV2ServicePath := fmt.Sprintf("/%s/", userv2.UserService_ServiceDesc.ServiceName)
-	authMap[userV2ServicePath+"UserServiceGet"] = []authorizationMap{{
+	authMap[userV2ServicePath+"Get"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: policyClient.GetAllowChangingUsernamesAndPasswords,
 	}, {
