@@ -5,6 +5,6 @@ enabled: False
 db:
   cockroach:
     host: localhost
-    database: "scoretrak"
+    database: "defaultdb"
     username: root
     password: ""
