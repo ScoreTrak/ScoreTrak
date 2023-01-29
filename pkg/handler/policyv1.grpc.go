@@ -53,9 +53,15 @@ func (p PolicyV1Controller) Get(_ *policyv1.GetRequest, server policyv1.PolicySe
 	}
 }
 
-func (p PolicyV1Controller) GetUnary(context.Context, *policyv1.GetUnaryRequest) (*policyv1.GetUnaryResponse, error) {
-	pol := ConvertPolicyToPolicyV1PB(p.policyClient.GetPolicy())
-	return &policyv1.GetUnaryResponse{Policy: pol}, nil
+func (p PolicyV1Controller) GetUnary(ctx context.Context, request *policyv1.GetUnaryRequest) (*policyv1.GetUnaryResponse, error) {
+	pol, err := p.svc.Get(ctx)
+	if err != nil {
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Unknown internal error: %v", err),
+		)
+	}
+	return &policyv1.GetUnaryResponse{Policy: ConvertPolicyToPolicyV1PB(pol)}, nil
 }
 
 func (p PolicyV1Controller) Update(ctx context.Context, request *policyv1.UpdateRequest) (*policyv1.UpdateResponse, error) {
