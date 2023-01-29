@@ -26,7 +26,7 @@ import (
 
 func NewGrpcServer(staticConfig config.StaticConfig, logger *zap.Logger, authInterceptor *auth.Interceptor) (*grpc.Server, error) {
 
-	var server *grpc.Server
+	var s *grpc.Server
 
 	var serverOptions []grpc.ServerOption
 
@@ -96,14 +96,14 @@ func NewGrpcServer(staticConfig config.StaticConfig, logger *zap.Logger, authInt
 	}
 
 	// New GRPC Server
-	server = grpc.NewServer(serverOptions...)
+	s = grpc.NewServer(serverOptions...)
 
 	// Reflection
 	if !staticConfig.Prod {
-		reflection.Register(server)
+		reflection.Register(s)
 	}
 
-	return server, nil
+	return s, nil
 }
 
 func InitGrpcServer(lc fx.Lifecycle, config server.Config, server *grpc.Server) {
