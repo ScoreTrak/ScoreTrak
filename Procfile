@@ -5,7 +5,7 @@
 # Queue
 ## NSQ
 nsqd: nsqd
-nsqadmin: nsqadmin --nsqd-http-address=127.0.0.1:4150
+nsqadmin: nsqadmin --nsqd-http-address=127.0.0.1:4151
 
 # Database
 ## SQLite
