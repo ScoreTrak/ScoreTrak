@@ -17,7 +17,7 @@ nsqadmin: nsqadmin --nsqd-http-address=127.0.0.1:4151
 # mysql:
 ## PostgreSQL
 # postgresql:
-cockroachdb: cockroach start-single-node --insecure --listen-addr=localhost:26257
+cockroachdb: cockroach start-single-node --insecure --listen-addr=127.0.0.1:26257
 
 # Proxy
 envoy: envoy -c ./configs/envoy/config.yaml
