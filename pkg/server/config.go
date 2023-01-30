@@ -6,7 +6,7 @@ type TLSConfig struct {
 }
 
 type Config struct {
-	Address string `default:"0.0.0.0"`
+	Address string `default:"127.0.0.1"`
 	Port    string `default:"3000"`
 	TLS     TLSConfig
 }

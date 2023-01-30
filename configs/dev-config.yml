@@ -8,8 +8,8 @@ server:
 
 db:
   cockroach:
-    host: localhost
-    database: "scoretrak"
+    host: "localhost"
+    database: "defaultdb"
     username: root
     password: ""
 

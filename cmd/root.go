@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/server"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
-	"log"
-	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -83,7 +84,7 @@ func initConfig() {
 	viper.SetDefault("RoundDuration", 60)
 
 	// Server Defaults
-	viper.SetDefault("server.address", "0.0.0.0")
+	viper.SetDefault("server.address", "127.0.0.1")
 	viper.SetDefault("server.port", "3000")
 
 	// Database Defaults
