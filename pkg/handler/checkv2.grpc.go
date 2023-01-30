@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	checkv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/check/v2"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkservice"
@@ -9,19 +10,18 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	checkv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/check/v1"
 	protov1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/proto/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-type CheckController struct {
+type CheckV2Controller struct {
 	svc    checkservice.Serv
 	client *util.Store
-	checkv1.UnimplementedCheckServiceServer
+	checkv2.UnimplementedCheckServiceServer
 }
 
-func (c *CheckController) GetAllByRoundID(ctx context.Context, request *checkv1.GetAllByRoundIDRequest) (*checkv1.GetAllByRoundIDResponse, error) {
+func (c *CheckV2Controller) GetAllByRoundID(ctx context.Context, request *checkv2.CheckServiceGetAllByRoundIDRequest) (*checkv2.CheckServiceGetAllByRoundIDResponse, error) {
 	roundID := request.GetRoundId()
 	if roundID == 0 {
 		return nil, status.Errorf(
@@ -34,17 +34,17 @@ func (c *CheckController) GetAllByRoundID(ctx context.Context, request *checkv1.
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	chkspb := make([]*checkv1.Check, 0, len(chks))
+	chkspb := make([]*checkv2.Check, 0, len(chks))
 	for i := range chks {
 		chkspb = append(
 			chkspb,
-			ConvertCheckToCheckPb(chks[i]),
+			ConvertCheckToCheckV2Pb(chks[i]),
 		)
 	}
-	return &checkv1.GetAllByRoundIDResponse{Checks: chkspb}, nil
+	return &checkv2.CheckServiceGetAllByRoundIDResponse{Checks: chkspb}, nil
 }
 
-func (c *CheckController) GetByRoundServiceID(ctx context.Context, request *checkv1.GetByRoundServiceIDRequest) (*checkv1.GetByRoundServiceIDResponse, error) {
+func (c *CheckV2Controller) GetByRoundServiceID(ctx context.Context, request *checkv2.CheckServiceGetByRoundServiceIDRequest) (*checkv2.CheckServiceGetByRoundServiceIDResponse, error) {
 	serviceID := request.GetServiceId()
 	if serviceID == nil {
 		return nil, status.Errorf(
@@ -90,10 +90,10 @@ func (c *CheckController) GetByRoundServiceID(ctx context.Context, request *chec
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	return &checkv1.GetByRoundServiceIDResponse{Check: ConvertCheckToCheckPb(chk)}, nil
+	return &checkv2.CheckServiceGetByRoundServiceIDResponse{Check: ConvertCheckToCheckV2Pb(chk)}, nil
 }
 
-func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkv1.GetAllByServiceIDRequest) (*checkv1.GetAllByServiceIDResponse, error) {
+func (c *CheckV2Controller) GetAllByServiceID(ctx context.Context, request *checkv2.CheckServiceGetAllByServiceIDRequest) (*checkv2.CheckServiceGetAllByServiceIDResponse, error) {
 	serviceID := request.GetServiceId()
 	if serviceID == nil {
 		return nil, status.Errorf(
@@ -128,22 +128,22 @@ func (c *CheckController) GetAllByServiceID(ctx context.Context, request *checkv
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	chkspb := make([]*checkv1.Check, 0, len(chks))
+	chkspb := make([]*checkv2.Check, 0, len(chks))
 	for i := range chks {
 		chkspb = append(
 			chkspb,
-			ConvertCheckToCheckPb(chks[i]),
+			ConvertCheckToCheckV2Pb(chks[i]),
 		)
 	}
-	return &checkv1.GetAllByServiceIDResponse{Checks: chkspb}, nil
+	return &checkv2.CheckServiceGetAllByServiceIDResponse{Checks: chkspb}, nil
 }
 
-func NewCheckController(svc checkservice.Serv, client *util.Store) *CheckController {
-	return &CheckController{svc: svc, client: client}
+func NewCheckV2Controller(svc checkservice.Serv, client *util.Store) *CheckV2Controller {
+	return &CheckV2Controller{svc: svc, client: client}
 }
 
-func ConvertCheckToCheckPb(obj *check.Check) *checkv1.Check {
-	return &checkv1.Check{
+func ConvertCheckToCheckV2Pb(obj *check.Check) *checkv2.Check {
+	return &checkv2.Check{
 		ServiceId: &protov1.UUID{Value: obj.ServiceID.String()},
 		RoundId:   obj.RoundID,
 		Log:       obj.Log,
@@ -152,7 +152,7 @@ func ConvertCheckToCheckPb(obj *check.Check) *checkv1.Check {
 	}
 }
 
-func ConvertCheckPBtoCheck(pb *checkv1.Check) (*check.Check, error) {
+func ConvertCheckV2PBtoCheck(pb *checkv2.Check) (*check.Check, error) {
 	var sID uuid.UUID
 	var err error
 	if pb.GetServiceId() != nil {

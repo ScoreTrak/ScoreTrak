@@ -9,19 +9,19 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/user/userservice"
 	"github.com/gofrs/uuid"
 	protov1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/proto/v1"
-	userv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/user/v1"
+	userv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/user/v2"
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-type UserController struct {
+type UserV2Controller struct {
 	svc userservice.Serv
-	userv1.UnimplementedUserServiceServer
+	userv2.UnimplementedUserServiceServer
 	policyClient *policyclient.Client
 }
 
-func (p UserController) GetByUsername(ctx context.Context, request *userv1.GetByUsernameRequest) (*userv1.GetByUsernameResponse, error) {
+func (p UserV2Controller) GetByUsername(ctx context.Context, request *userv2.UserServiceGetByUsernameRequest) (*userv2.UserServiceGetByUsernameResponse, error) {
 	username := request.GetUsername()
 	if username == "" {
 		return nil, status.Errorf(
@@ -33,10 +33,10 @@ func (p UserController) GetByUsername(ctx context.Context, request *userv1.GetBy
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	return &userv1.GetByUsernameResponse{User: ConvertUserToUserPb(tm)}, nil
+	return &userv2.UserServiceGetByUsernameResponse{User: ConvertUserToUserV2Pb(tm)}, nil
 }
 
-func (p UserController) GetByID(ctx context.Context, request *userv1.GetByIDRequest) (*userv1.GetByIDResponse, error) {
+func (p UserV2Controller) GetByID(ctx context.Context, request *userv2.UserServiceGetByIDRequest) (*userv2.UserServiceGetByIDResponse, error) {
 	uid, err := extractUUID(request)
 	if err != nil {
 		return nil, err
@@ -45,22 +45,22 @@ func (p UserController) GetByID(ctx context.Context, request *userv1.GetByIDRequ
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	return &userv1.GetByIDResponse{User: ConvertUserToUserPb(tm)}, nil
+	return &userv2.UserServiceGetByIDResponse{User: ConvertUserToUserV2Pb(tm)}, nil
 }
 
-func (p UserController) GetAll(ctx context.Context, _ *userv1.GetAllRequest) (*userv1.GetAllResponse, error) {
+func (p UserV2Controller) GetAll(ctx context.Context, _ *userv2.UserServiceGetAllRequest) (*userv2.UserServiceGetAllResponse, error) {
 	tms, err := p.svc.GetAll(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	tmspb := make([]*userv1.User, 0, len(tms))
+	tmspb := make([]*userv2.User, 0, len(tms))
 	for i := range tms {
-		tmspb = append(tmspb, ConvertUserToUserPb(tms[i]))
+		tmspb = append(tmspb, ConvertUserToUserV2Pb(tms[i]))
 	}
-	return &userv1.GetAllResponse{Users: tmspb}, nil
+	return &userv2.UserServiceGetAllResponse{Users: tmspb}, nil
 }
 
-func (p UserController) Delete(ctx context.Context, request *userv1.DeleteRequest) (*userv1.DeleteResponse, error) {
+func (p UserV2Controller) Delete(ctx context.Context, request *userv2.UserServiceDeleteRequest) (*userv2.UserServiceDeleteResponse, error) {
 	uid, err := extractUUID(request)
 	if err != nil {
 		return nil, err
@@ -69,14 +69,14 @@ func (p UserController) Delete(ctx context.Context, request *userv1.DeleteReques
 	if err != nil {
 		return nil, deleteErrorParser(err)
 	}
-	return &userv1.DeleteResponse{}, nil
+	return &userv2.UserServiceDeleteResponse{}, nil
 }
 
-func (p UserController) Store(ctx context.Context, request *userv1.StoreRequest) (*userv1.StoreResponse, error) {
+func (p UserV2Controller) Store(ctx context.Context, request *userv2.UserServiceStoreRequest) (*userv2.UserServiceStoreResponse, error) {
 	usrspb := request.GetUsers()
 	usrs := make([]*user.User, 0, len(usrspb))
 	for i := range usrspb {
-		usr, err := ConvertUserPBtoUser(false, usrspb[i])
+		usr, err := ConvertUserV2PBtoUser(false, usrspb[i])
 		if err != nil {
 			return nil, err
 		}
@@ -112,12 +112,12 @@ func (p UserController) Store(ctx context.Context, request *userv1.StoreRequest)
 	for i := range usrs {
 		ids = append(ids, &protov1.UUID{Value: usrs[i].ID.String()})
 	}
-	return &userv1.StoreResponse{Ids: ids}, nil
+	return &userv2.UserServiceStoreResponse{Ids: ids}, nil
 }
 
-func (p UserController) Update(ctx context.Context, request *userv1.UpdateRequest) (*userv1.UpdateResponse, error) {
+func (p UserV2Controller) Update(ctx context.Context, request *userv2.UserServiceUpdateRequest) (*userv2.UserServiceUpdateResponse, error) {
 	usrpb := request.GetUser()
-	usr, err := ConvertUserPBtoUser(true, usrpb)
+	usr, err := ConvertUserV2PBtoUser(true, usrpb)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ func (p UserController) Update(ctx context.Context, request *userv1.UpdateReques
 			)
 		}
 
-		request.User = &userv1.User{Username: request.GetUser().Username, Password: request.User.GetPassword()}
+		request.User = &userv2.User{Username: request.GetUser().Username, Password: request.User.GetPassword()}
 	}
 
 	err = p.svc.Update(ctx, usr)
@@ -149,14 +149,14 @@ func (p UserController) Update(ctx context.Context, request *userv1.UpdateReques
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	return &userv1.UpdateResponse{}, nil
+	return &userv2.UserServiceUpdateResponse{}, nil
 }
 
-func NewUserController(svc userservice.Serv, policyClient *policyclient.Client) *UserController {
-	return &UserController{svc: svc, policyClient: policyClient}
+func NewUserV2Controller(svc userservice.Serv, policyClient *policyclient.Client) *UserV2Controller {
+	return &UserV2Controller{svc: svc, policyClient: policyClient}
 }
 
-func ConvertUserPBtoUser(requireID bool, pb *userv1.User) (*user.User, error) {
+func ConvertUserV2PBtoUser(requireID bool, pb *userv2.User) (*user.User, error) {
 	var id uuid.UUID
 	var err error
 	if pb.GetId() != nil {
@@ -207,13 +207,13 @@ func ConvertUserPBtoUser(requireID bool, pb *userv1.User) (*user.User, error) {
 	var r string
 
 	switch pb.GetRole() {
-	case userv1.Role_ROLE_BLUE:
+	case userv2.Role_ROLE_BLUE:
 		r = user.Blue
-	case userv1.Role_ROLE_RED:
+	case userv2.Role_ROLE_RED:
 		r = user.Red
-	case userv1.Role_ROLE_BLACK:
+	case userv2.Role_ROLE_BLACK:
 		r = user.Black
-	case userv1.Role_ROLE_UNSPECIFIED:
+	case userv2.Role_ROLE_UNSPECIFIED:
 		r = ""
 	}
 
@@ -226,25 +226,25 @@ func ConvertUserPBtoUser(requireID bool, pb *userv1.User) (*user.User, error) {
 	}, nil
 }
 
-func ConvertUserToUserPb(obj *user.User) *userv1.User {
-	return &userv1.User{
+func ConvertUserToUserV2Pb(obj *user.User) *userv2.User {
+	return &userv2.User{
 		Id:           &protov1.UUID{Value: obj.ID.String()},
 		Username:     obj.Username,
 		TeamId:       &protov1.UUID{Value: obj.TeamID.String()},
-		Role:         UserRoleToRolePB(obj.Role),
+		Role:         UserRoleToRoleV2PB(obj.Role),
 		PasswordHash: obj.PasswordHash,
 	}
 }
 
-func UserRoleToRolePB(r string) userv1.Role {
-	var rpb userv1.Role
+func UserRoleToRoleV2PB(r string) userv2.Role {
+	var rpb userv2.Role
 	switch {
 	case r == user.Blue:
-		rpb = userv1.Role_ROLE_BLUE
+		rpb = userv2.Role_ROLE_BLUE
 	case r == user.Red:
-		rpb = userv1.Role_ROLE_RED
+		rpb = userv2.Role_ROLE_RED
 	case r == user.Black:
-		rpb = userv1.Role_ROLE_BLACK
+		rpb = userv2.Role_ROLE_BLACK
 	}
 	return rpb
 }

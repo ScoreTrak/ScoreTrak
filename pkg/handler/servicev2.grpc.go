@@ -3,6 +3,8 @@ package handler
 import (
 	"context"
 	"fmt"
+	checkv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/check/v2"
+	servicev2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/service/v2"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	service2 "github.com/ScoreTrak/ScoreTrak/pkg/service/serviceservice"
@@ -10,20 +12,18 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	checkv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/check/v1"
 	protov1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/proto/v1"
-	servicev1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/service/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-type ServiceController struct {
+type ServiceV2Controller struct {
 	svc    service2.Serv
 	client *util.Store
-	servicev1.UnimplementedServiceServiceServer
+	servicev2.UnimplementedServiceServiceServer
 }
 
-func (p ServiceController) GetByID(ctx context.Context, request *servicev1.GetByIDRequest) (*servicev1.GetByIDResponse, error) {
+func (p ServiceV2Controller) GetByID(ctx context.Context, request *servicev2.ServiceServiceGetByIDRequest) (*servicev2.ServiceServiceGetByIDResponse, error) {
 	uid, err := extractUUID(request)
 	if err != nil {
 		return nil, err
@@ -53,10 +53,10 @@ func (p ServiceController) GetByID(ctx context.Context, request *servicev1.GetBy
 		}
 	}
 
-	return &servicev1.GetByIDResponse{Service: ConvertServiceToServicePb(serv)}, nil
+	return &servicev2.ServiceServiceGetByIDResponse{Service: ConvertServiceToServiceV2Pb(serv)}, nil
 }
 
-func (p ServiceController) TestService(ctx context.Context, request *servicev1.TestServiceRequest) (*servicev1.TestServiceResponse, error) {
+func (p ServiceV2Controller) TestService(ctx context.Context, request *servicev2.ServiceServiceTestServiceRequest) (*servicev2.ServiceServiceTestServiceResponse, error) {
 	uid, err := extractUUID(request)
 	if err != nil {
 		return nil, err
@@ -69,7 +69,7 @@ func (p ServiceController) TestService(ctx context.Context, request *servicev1.T
 		)
 	}
 
-	return &servicev1.TestServiceResponse{Check: &checkv1.Check{
+	return &servicev2.ServiceServiceTestServiceResponse{Check: &checkv2.Check{
 		ServiceId: &protov1.UUID{Value: chck.ServiceID.String()},
 		RoundId:   0,
 		Log:       chck.Log,
@@ -78,19 +78,19 @@ func (p ServiceController) TestService(ctx context.Context, request *servicev1.T
 	}}, err
 }
 
-func (p ServiceController) GetAll(ctx context.Context, request *servicev1.GetAllRequest) (*servicev1.GetAllResponse, error) {
+func (p ServiceV2Controller) GetAll(ctx context.Context, request *servicev2.ServiceServiceGetAllRequest) (*servicev2.ServiceServiceGetAllResponse, error) {
 	props, err := p.svc.GetAll(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	servcspb := make([]*servicev1.Service, 0, len(props))
+	servcspb := make([]*servicev2.Service, 0, len(props))
 	for i := range props {
-		servcspb = append(servcspb, ConvertServiceToServicePb(props[i]))
+		servcspb = append(servcspb, ConvertServiceToServiceV2Pb(props[i]))
 	}
-	return &servicev1.GetAllResponse{Services: servcspb}, nil
+	return &servicev2.ServiceServiceGetAllResponse{Services: servcspb}, nil
 }
 
-func (p ServiceController) Delete(ctx context.Context, request *servicev1.DeleteRequest) (*servicev1.DeleteResponse, error) {
+func (p ServiceV2Controller) Delete(ctx context.Context, request *servicev2.ServiceServiceDeleteRequest) (*servicev2.ServiceServiceDeleteResponse, error) {
 	uid, err := extractUUID(request)
 	if err != nil {
 		return nil, err
@@ -99,14 +99,14 @@ func (p ServiceController) Delete(ctx context.Context, request *servicev1.Delete
 	if err != nil {
 		return nil, deleteErrorParser(err)
 	}
-	return &servicev1.DeleteResponse{}, nil
+	return &servicev2.ServiceServiceDeleteResponse{}, nil
 }
 
-func (p ServiceController) Store(ctx context.Context, request *servicev1.StoreRequest) (*servicev1.StoreResponse, error) {
+func (p ServiceV2Controller) Store(ctx context.Context, request *servicev2.ServiceServiceStoreRequest) (*servicev2.ServiceServiceStoreResponse, error) {
 	servcspb := request.GetServices()
 	props := make([]*service.Service, 0, len(servcspb))
 	for i := range servcspb {
-		sr, err := ConvertServicePBtoService(false, servcspb[i])
+		sr, err := ConvertServiceV2PBtoService(false, servcspb[i])
 		if err != nil {
 			return nil, err
 		}
@@ -136,12 +136,12 @@ func (p ServiceController) Store(ctx context.Context, request *servicev1.StoreRe
 	for i := range props {
 		ids = append(ids, &protov1.UUID{Value: props[i].ID.String()})
 	}
-	return &servicev1.StoreResponse{Ids: ids}, nil
+	return &servicev2.ServiceServiceStoreResponse{Ids: ids}, nil
 }
 
-func (p ServiceController) Update(ctx context.Context, request *servicev1.UpdateRequest) (*servicev1.UpdateResponse, error) {
+func (p ServiceV2Controller) Update(ctx context.Context, request *servicev2.ServiceServiceUpdateRequest) (*servicev2.ServiceServiceUpdateResponse, error) {
 	srvpb := request.GetService()
-	sr, err := ConvertServicePBtoService(true, srvpb)
+	sr, err := ConvertServiceV2PBtoService(true, srvpb)
 	if err != nil {
 		return nil, err
 	}
@@ -152,14 +152,14 @@ func (p ServiceController) Update(ctx context.Context, request *servicev1.Update
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	return &servicev1.UpdateResponse{}, nil
+	return &servicev2.ServiceServiceUpdateResponse{}, nil
 }
 
-func NewServiceController(svc service2.Serv, client *util.Store) *ServiceController {
-	return &ServiceController{svc: svc, client: client}
+func NewServiceV2Controller(svc service2.Serv, client *util.Store) *ServiceV2Controller {
+	return &ServiceV2Controller{svc: svc, client: client}
 }
 
-func ConvertServicePBtoService(requireID bool, pb *servicev1.Service) (*service.Service, error) {
+func ConvertServiceV2PBtoService(requireID bool, pb *servicev2.Service) (*service.Service, error) {
 	var id uuid.UUID
 	var err error
 	if pb.GetId() != nil {
@@ -241,8 +241,8 @@ func ConvertServicePBtoService(requireID bool, pb *servicev1.Service) (*service.
 	}, nil
 }
 
-func ConvertServiceToServicePb(obj *service.Service) *servicev1.Service {
-	return &servicev1.Service{
+func ConvertServiceToServiceV2Pb(obj *service.Service) *servicev2.Service {
+	return &servicev2.Service{
 		Id:             &protov1.UUID{Value: obj.ID.String()},
 		Name:           obj.Name,
 		DisplayName:    obj.DisplayName,

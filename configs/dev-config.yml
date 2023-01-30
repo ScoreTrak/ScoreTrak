@@ -2,15 +2,18 @@ roundduration: 60
 
 enabled: False
 
+server:
+  address: 0.0.0.0
+  port: 3001
+
 db:
   cockroach:
-    host: localhost
-    database: "scoretrak"
+    host: "localhost"
+    database: "defaultdb"
     username: root
     password: ""
 
 open-telemetry:
-  jaeger:
 #    endpoint: "http://localhost:14268/api/traces"
 #    username: ""
 #    password: ""

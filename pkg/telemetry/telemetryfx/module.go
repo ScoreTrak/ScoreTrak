@@ -5,31 +5,29 @@ import (
 	"go.uber.org/fx"
 )
 
-var OtlpModule = fx.Module("otlp",
+var LoggingModule = fx.Options(
+	// Logging
+	fx.Provide(telemetry.NewLogger),
+)
+
+var OTELModule = fx.Options(
+	// Tracing
+	fx.Provide(telemetry.NewResource),
+
+	// Exporters
 	fx.Provide(
 		telemetry.NewOtlpGrpcExporter,
 		telemetry.NewOtlpGrpcTracerProvider,
 	),
-)
 
-var JaegerModule = fx.Module("jaeger",
-	fx.Provide(
-		telemetry.NewJaegerExporter,
-		telemetry.NewJaegerTracerProvider,
-	),
+	// Set Global Tracer
+	fx.Invoke(telemetry.RegisterTracerProvider),
 )
 
 var Module = fx.Options(
 	// Logging
-	fx.Provide(telemetry.NewLogger),
-	// Tracing
-	fx.Provide(telemetry.NewResource),
+	LoggingModule,
 
-	//     Otlp
-	OtlpModule,
-	//     Jaeger
-	//JaegerModule,
-
-	// Set Global Tracer
-	fx.Invoke(telemetry.RegisterTracerProvider),
+	// Open Telemetry
+	//OTELModule,
 )

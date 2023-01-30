@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
+	"github.com/ScoreTrak/ScoreTrak/pkg/server"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
-	"log"
-	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -81,6 +83,10 @@ func initConfig() {
 	viper.SetDefault("Enabled", "false")
 	viper.SetDefault("RoundDuration", 60)
 
+	// Server Defaults
+	viper.SetDefault("server.address", "127.0.0.1")
+	viper.SetDefault("server.port", "3000")
+
 	// Database Defaults
 	viper.SetDefault("DB.Use", "cockroach")
 	viper.SetDefault("DB.AutoMigrate", "false")
@@ -95,8 +101,7 @@ func initConfig() {
 	viper.SetDefault("DB.Cockroach.DefaultZoneConfig.GcTtlseconds", 600)
 	viper.SetDefault("DB.Cockroach.DefaultZoneConfig.BackpressueRangeSizeMultiplier", 0)
 
-	// Opentelemetry Defaults
-	viper.SetDefault("open-telemetry.jaeger.endpoint", "http://localhost:14268/api/traces")
+	// OTeL Defaults (key: "OTEL")
 
 	// Queue Defaults
 	viper.SetDefault("Queue.Use", "none")
@@ -188,4 +193,8 @@ func NewMasterQueueConfig(staticConfig config.StaticConfig) queueing.MasterConfi
 
 func NewJWTConfig(staticConfig config.StaticConfig) auth.Config {
 	return staticConfig.JWT
+}
+
+func NewServerConfig(staticConfig config.StaticConfig) server.Config {
+	return staticConfig.Server
 }

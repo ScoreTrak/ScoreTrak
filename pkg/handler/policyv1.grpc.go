@@ -13,13 +13,13 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type PolicyController struct {
+type PolicyV1Controller struct {
 	svc          policyservice.Serv
 	policyClient *policyclient.Client
 	policyv1.UnimplementedPolicyServiceServer
 }
 
-func (p PolicyController) Get(_ *policyv1.GetRequest, server policyv1.PolicyService_GetServer) error {
+func (p PolicyV1Controller) Get(_ *policyv1.GetRequest, server policyv1.PolicyService_GetServer) error {
 	rol := user.Anonymous
 	claims := extractUserClaim(server.Context())
 	if claims != nil {
@@ -27,7 +27,7 @@ func (p PolicyController) Get(_ *policyv1.GetRequest, server policyv1.PolicyServ
 	}
 
 	err := server.Send(&policyv1.GetResponse{
-		Policy: ConvertPolicyToPolicyPB(p.policyClient.GetPolicy()),
+		Policy: ConvertPolicyToPolicyV1PB(p.policyClient.GetPolicy()),
 	})
 	if err != nil {
 		return err
@@ -42,7 +42,7 @@ func (p PolicyController) Get(_ *policyv1.GetRequest, server policyv1.PolicyServ
 				return status.Error(codes.PermissionDenied, "You must login in order to access this resource")
 			}
 			err := server.Send(&policyv1.GetResponse{
-				Policy: ConvertPolicyToPolicyPB(p.policyClient.GetPolicy()),
+				Policy: ConvertPolicyToPolicyV1PB(p.policyClient.GetPolicy()),
 			})
 			if err != nil {
 				return err
@@ -53,14 +53,20 @@ func (p PolicyController) Get(_ *policyv1.GetRequest, server policyv1.PolicyServ
 	}
 }
 
-func (p PolicyController) GetUnary(context.Context, *policyv1.GetUnaryRequest) (*policyv1.GetUnaryResponse, error) {
-	pol := ConvertPolicyToPolicyPB(p.policyClient.GetPolicy())
-	return &policyv1.GetUnaryResponse{Policy: pol}, nil
+func (p PolicyV1Controller) GetUnary(ctx context.Context, request *policyv1.GetUnaryRequest) (*policyv1.GetUnaryResponse, error) {
+	pol, err := p.svc.Get(ctx)
+	if err != nil {
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Unknown internal error: %v", err),
+		)
+	}
+	return &policyv1.GetUnaryResponse{Policy: ConvertPolicyToPolicyV1PB(pol)}, nil
 }
 
-func (p PolicyController) Update(ctx context.Context, request *policyv1.UpdateRequest) (*policyv1.UpdateResponse, error) {
+func (p PolicyV1Controller) Update(ctx context.Context, request *policyv1.UpdateRequest) (*policyv1.UpdateResponse, error) {
 	polpb := request.GetPolicy()
-	err := p.svc.Update(ctx, ConvertPolicyPBToPolicy(polpb))
+	err := p.svc.Update(ctx, ConvertPolicyV1PBToPolicy(polpb))
 	if err != nil {
 		return nil, status.Errorf(
 			codes.Internal,
@@ -71,14 +77,14 @@ func (p PolicyController) Update(ctx context.Context, request *policyv1.UpdateRe
 	return &policyv1.UpdateResponse{}, nil
 }
 
-func NewPolicyController(svc policyservice.Serv, client *policyclient.Client) *PolicyController {
-	return &PolicyController{
+func NewPolicyV1Controller(svc policyservice.Serv, client *policyclient.Client) *PolicyV1Controller {
+	return &PolicyV1Controller{
 		svc:          svc,
 		policyClient: client,
 	}
 }
 
-func ConvertPolicyPBToPolicy(pb *policyv1.Policy) *policy.Policy {
+func ConvertPolicyV1PBToPolicy(pb *policyv1.Policy) *policy.Policy {
 	var auu *bool
 	if pb.GetAllowUnauthenticatedUsers() != nil {
 		auu = &pb.GetAllowUnauthenticatedUsers().Value
@@ -113,7 +119,7 @@ func ConvertPolicyPBToPolicy(pb *policyv1.Policy) *policy.Policy {
 	}
 }
 
-func ConvertPolicyToPolicyPB(obj *policy.Policy) *policyv1.Policy {
+func ConvertPolicyToPolicyV1PB(obj *policy.Policy) *policyv1.Policy {
 	return &policyv1.Policy{
 		AllowUnauthenticatedUsers:                 &wrappers.BoolValue{Value: *obj.AllowUnauthenticatedUsers},
 		AllowChangingUsernamesAndPasswords:        &wrappers.BoolValue{Value: *obj.AllowChangingUsernamesAndPasswords},

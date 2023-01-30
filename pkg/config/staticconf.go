@@ -4,6 +4,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/ScoreTrak/ScoreTrak/pkg/platform/platforming"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
+	"github.com/ScoreTrak/ScoreTrak/pkg/server"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 )
 
@@ -11,8 +12,10 @@ import (
 // StaticConfig is read only at the moment, hence there is no lock / prevention to race conditions.
 type StaticConfig struct {
 	DB storage.Config
+
 	// This value ideally shouldn't be larger than few seconds
 	DatabaseMaxTimeDriftSeconds uint `default:"2"`
+
 	// How frequently to pull dynamic configs
 	DynamicConfigPullSeconds uint `default:"5"`
 
@@ -26,13 +29,9 @@ type StaticConfig struct {
 
 	AdminPassword string `default:"changeme"`
 
-	Port string `default:"33333"`
+	Server server.Config
 
 	Prod bool `default:"false"`
-
-	CertFile string `default:""`
-
-	KeyFile string `default:""`
 
 	JWT auth.Config
 }

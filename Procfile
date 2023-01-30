@@ -1,15 +1,27 @@
 # Install goreman (or any other procfile runner) to run the procfile. https://github.com/mattn/goreman
 
-jaeger: jaeger-all-in-one --log-level=error --collector.otlp.enabled
+# Monitoring
+# jaeger: jaeger-all-in-one --log-level=error --collector.otlp.enabled
 
 # Queue
+## NSQ
 nsqd: nsqd
-nsqadmin: nsqadmin --nsqd-http-address=127.0.0.1:4150
+nsqadmin: nsqadmin --nsqd-http-address=127.0.0.1:4151
+## RabbitMQ
+## Kafka
 
 # Database
-cockroachdb: cockroach start-single-node --insecure --listen-addr=localhost:26257
+## SQLite
+# sqlite:
+## MySQL
+# mysql:
+## PostgreSQL
+# postgresql:
+cockroachdb: cockroach start-single-node --insecure --listen-addr=127.0.0.1:26257
 
-#server: sudo go run main.go master --config ./configs/default-config.yaml
-#worker: go run main.go worker --config ./configs/dev-config.yaml
+# Proxy
 envoy: envoy -c ./configs/envoy/config.yaml
-grpcui: while ! grpcui -plaintext localhost:33333 2> /dev/null ; do sleep 1 ; done ;
+
+# ScoreTrak
+server: go run main.go master --config ./configs/dev-config.yml
+#worker: go run main.go worker --config ./configs/dev-config.yml

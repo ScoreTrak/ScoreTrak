@@ -13,20 +13,20 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type ConfigController struct {
+type ConfigV1Controller struct {
 	svc configservice.Serv
 	configv1.UnimplementedDynamicConfigServiceServer
 }
 
-func (p ConfigController) Get(ctx context.Context, _ *configv1.GetRequest) (*configv1.GetResponse, error) {
+func (p ConfigV1Controller) Get(ctx context.Context, _ *configv1.GetRequest) (*configv1.GetResponse, error) {
 	cnf, err := p.svc.Get(ctx)
 	if err != nil {
 		return nil, getErrorParser(err)
 	}
-	return &configv1.GetResponse{DynamicConfig: ConvertDynamicConfigToDynamicConfigPB(cnf)}, nil
+	return &configv1.GetResponse{DynamicConfig: ConvertDynamicConfigToDynamicConfigV1PB(cnf)}, nil
 }
 
-func (p ConfigController) Update(ctx context.Context, request *configv1.UpdateRequest) (*configv1.UpdateResponse, error) {
+func (p ConfigV1Controller) Update(ctx context.Context, request *configv1.UpdateRequest) (*configv1.UpdateResponse, error) {
 	tmspb := request.GetDynamicConfig()
 	var enabled *bool
 	if tmspb.GetEnabled() != nil {
@@ -45,11 +45,11 @@ func (p ConfigController) Update(ctx context.Context, request *configv1.UpdateRe
 	return &configv1.UpdateResponse{}, nil
 }
 
-func NewConfigController(svc configservice.Serv) *ConfigController {
-	return &ConfigController{svc: svc}
+func NewConfigV1Controller(svc configservice.Serv) *ConfigV1Controller {
+	return &ConfigV1Controller{svc: svc}
 }
 
-func ConvertDynamicConfigPBToDynamicConfig(pb *configv1.DynamicConfig) *config.DynamicConfig {
+func ConvertDynamicConfigV1PBToDynamicConfig(pb *configv1.DynamicConfig) *config.DynamicConfig {
 	var enabled *bool
 	if pb.GetEnabled() != nil {
 		enabled = &pb.GetEnabled().Value
@@ -60,23 +60,23 @@ func ConvertDynamicConfigPBToDynamicConfig(pb *configv1.DynamicConfig) *config.D
 	}
 }
 
-func ConvertDynamicConfigToDynamicConfigPB(obj *config.DynamicConfig) *configv1.DynamicConfig {
+func ConvertDynamicConfigToDynamicConfigV1PB(obj *config.DynamicConfig) *configv1.DynamicConfig {
 	return &configv1.DynamicConfig{
 		RoundDuration: obj.RoundDuration,
 		Enabled:       &wrappers.BoolValue{Value: *obj.Enabled},
 	}
 }
 
-func NewStaticConfigController(svc configservice.StaticServ) *StaticConfigController {
-	return &StaticConfigController{svc: svc}
+func NewStaticConfigV1Controller(svc configservice.StaticServ) *StaticConfigV1Controller {
+	return &StaticConfigV1Controller{svc: svc}
 }
 
-type StaticConfigController struct {
+type StaticConfigV1Controller struct {
 	svc configservice.StaticServ
 	configv1.UnimplementedStaticConfigServiceServer
 }
 
-func (s StaticConfigController) Get(ctx context.Context, request *configv1.GetStaticConfigRequest) (*configv1.GetStaticConfigResponse, error) {
+func (s StaticConfigV1Controller) Get(ctx context.Context, request *configv1.GetStaticConfigRequest) (*configv1.GetStaticConfigResponse, error) {
 	staticConfig, err := s.svc.Get()
 	if err != nil {
 		return nil, status.Errorf(
