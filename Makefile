@@ -1,3 +1,3 @@
 
 dev:
-	goreman start
+	goreman -exit-on-error -logtime -set-ports=false start
