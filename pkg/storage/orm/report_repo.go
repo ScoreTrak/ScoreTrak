@@ -53,10 +53,6 @@ func (c *reportRepo) Upsert(ctx context.Context, r *report.Report) error {
 	return nil
 }
 
-func (c *reportRepo) FindOrCreate(ctx context.Context) error {
-	c.db.WithContext(ctx).Model(report.Report{}).FirstOrInit()
-}
-
 func (c *reportRepo) Update(ctx context.Context, cfg *report.Report) error {
 	cfg.ID = 1
 	err := c.db.WithContext(ctx).Model(cfg).Updates(report.Report{Cache: cfg.Cache}).Error
