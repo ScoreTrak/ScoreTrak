@@ -9,6 +9,8 @@ import (
 )
 
 type Serv interface {
+	Count(ctx context.Context) (int64, error)
+	Create(ctx context.Context, p *policy.Policy) error
 	Get(ctx context.Context) (*policy.Policy, error)
 	Update(ctx context.Context, u *policy.Policy) error
 }
@@ -21,6 +23,14 @@ func NewPolicyServ(repo repo2.Repo) Serv {
 	return &policyServ{
 		repo: repo,
 	}
+}
+
+func (svc *policyServ) Count(ctx context.Context) (int64, error) {
+	return svc.repo.Count(ctx)
+}
+
+func (svc *policyServ) Create(ctx context.Context, p *policy.Policy) error {
+	return svc.repo.Create(ctx, p)
 }
 
 func (svc *policyServ) Get(ctx context.Context) (*policy.Policy, error) {

@@ -9,7 +9,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportclient"
 	"github.com/ScoreTrak/ScoreTrak/pkg/runner"
 	"github.com/ScoreTrak/ScoreTrak/pkg/server/grpc/grpcfx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/seed"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/storagefx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/telemetry/telemetryfx"
 	"github.com/spf13/cobra"
@@ -42,7 +41,6 @@ var masterCmd = &cobra.Command{
 
 			// Create database components
 			storagefx.Module,
-			fx.Invoke(seed.SeedDB),
 
 			// Create queueing components
 			fx.Provide(queue.NewMasterStreamPubSub),

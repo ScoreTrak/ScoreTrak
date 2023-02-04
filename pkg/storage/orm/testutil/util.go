@@ -220,13 +220,14 @@ func DataPreload(db *gorm.DB) {
 }
 
 func DropDB(db *gorm.DB, c config.StaticConfig) {
-	if c.DB.Use == "cockroach" {
-		db.Exec(fmt.Sprintf("drop database %s", c.DB.Cockroach.Database))
-	} else if c.DB.Use == "sqlite" {
-		err := os.RemoveAll(c.DB.Sqlite.Path)
+	if c.DB.Use == "sqlite" {
+		err := os.RemoveAll(c.DB.Database)
 		if err != nil {
 			fmt.Println(err)
 		}
+	} else {
+		err := db.Exec(fmt.Sprintf("drop database %s", c.DB.Database)).Error
+		fmt.Println(err)
 	}
 }
 
@@ -253,15 +254,15 @@ func SetupDB(c storage.Config) *gorm.DB {
 func SetupCockroachDB(c storage.Config) *gorm.DB {
 	var err error
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s sslmode=disable",
-		c.Cockroach.Host,
-		c.Cockroach.Port,
-		c.Cockroach.UserName)
+		c.Host,
+		c.Port,
+		c.UserName)
 	dbPrep, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
-	dbPrep.Exec(fmt.Sprintf("drop database if exists  %s", c.Cockroach.Database))
-	dbPrep.Exec(fmt.Sprintf("create database if not exists  %s", c.Cockroach.Database))
+	dbPrep.Exec(fmt.Sprintf("drop database if exists  %s", c.Database))
+	dbPrep.Exec(fmt.Sprintf("create database if not exists  %s", c.Database))
 	db, err := storage.NewDB(c)
 	if err != nil {
 		panic(err)

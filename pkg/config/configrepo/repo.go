@@ -7,6 +7,7 @@ import (
 )
 
 type Repo interface {
-	Get(ctx context.Context) (*config.DynamicConfig, error)
+	Get(context.Context) (*config.DynamicConfig, error)
+	Upsert(context.Context, *config.DynamicConfig) error
 	Update(context.Context, *config.DynamicConfig) error
 }

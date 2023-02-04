@@ -55,10 +55,7 @@ var Module = fx.Options(
 		serviceservice.NewServiceServ,
 	),
 	fx.Invoke(
-		util.CheckDBTimeSync,
+		//util.CheckDBTimeSync,
 		util.AutoMigrate,
-		util.LoadConfig,
-		util.LoadReport,
-		util.LoadPolicy,
 	),
 )

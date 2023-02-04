@@ -15,10 +15,6 @@ type Report struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func (d Report) TableName() string {
-	return "report"
-}
-
 func NewReport() *Report {
 	c := &Report{}
 	c.ID = 1

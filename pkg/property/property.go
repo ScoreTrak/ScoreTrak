@@ -24,10 +24,6 @@ type Property struct {
 	Status string `json:"status,omitempty" gorm:"not null;default:'View'"`
 }
 
-func (Property) TableName() string {
-	return "properties"
-}
-
 var ErrInvalidStatus = errors.New("property Status should either be View, Edit, or Hide")
 
 func (p *Property) BeforeSave(tx *gorm.DB) (err error) {

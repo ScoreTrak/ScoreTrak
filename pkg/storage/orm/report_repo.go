@@ -2,6 +2,7 @@ package orm
 
 import (
 	"context"
+	"gorm.io/gorm/clause"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportrepo"
@@ -42,6 +43,18 @@ func (c *reportRepo) Get(ctx context.Context) (*report.Report, error) {
 	cfg.ID = 1
 	c.db.WithContext(ctx).Take(cfg)
 	return cfg, nil
+}
+
+func (c *reportRepo) Upsert(ctx context.Context, r *report.Report) error {
+	err := c.db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(r).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (c *reportRepo) FindOrCreate(ctx context.Context) error {
+	c.db.WithContext(ctx).Model(report.Report{}).FirstOrInit()
 }
 
 func (c *reportRepo) Update(ctx context.Context, cfg *report.Report) error {
