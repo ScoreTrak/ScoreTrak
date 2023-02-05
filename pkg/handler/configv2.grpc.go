@@ -1,10 +1,11 @@
 package handler
 
 import (
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/config/v2/configv2grpc"
+	configv2 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/config/v2"
 	"context"
 	"encoding/json"
 	"fmt"
-	configv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/config/v2"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config/configservice"
@@ -15,7 +16,7 @@ import (
 
 type ConfigV2Controller struct {
 	svc configservice.Serv
-	configv2.UnimplementedDynamicConfigServiceServer
+	configv2grpc.UnimplementedDynamicConfigServiceServer
 }
 
 func (p ConfigV2Controller) Get(ctx context.Context, _ *configv2.DynamicConfigServiceGetRequest) (*configv2.DynamicConfigServiceGetResponse, error) {
@@ -73,7 +74,7 @@ func NewStaticConfigV2Controller(svc configservice.StaticServ) *StaticConfigV2Co
 
 type StaticConfigV2Controller struct {
 	svc configservice.StaticServ
-	configv2.UnimplementedStaticConfigServiceServer
+	configv2grpc.UnimplementedStaticConfigServiceServer
 }
 
 func (s StaticConfigV2Controller) Get(ctx context.Context, request *configv2.StaticConfigServiceGetRequest) (*configv2.StaticConfigServiceGetResponse, error) {

@@ -7,7 +7,7 @@ package handler
 //	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 //	"github.com/ScoreTrak/ScoreTrak/pkg/user/userservice"
 //	"github.com/bufbuild/connect-go"
-//	authv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/auth/v1"
+//	authv1 "buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/auth/v1"
 //)
 //
 //type AuthV1ConnectServer struct {

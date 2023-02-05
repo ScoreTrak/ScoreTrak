@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/property/v1/propertyv1grpc"
+	propertyv1 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/property/v1"
+	protov1 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/proto/v1"
 	"context"
 	"fmt"
 
@@ -10,8 +13,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	propertyv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/property/v1"
-	protov1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/proto/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -19,7 +20,7 @@ import (
 type PropertyV1Controller struct {
 	svc    propertyservice.Serv
 	client *util.Store
-	propertyv1.UnimplementedPropertyServiceServer
+	propertyv1grpc.UnimplementedPropertyServiceServer
 }
 
 func (p PropertyV1Controller) GetAll(ctx context.Context, _ *propertyv1.GetAllRequest) (*propertyv1.GetAllResponse, error) {

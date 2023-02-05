@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/check/v1/checkv1grpc"
+	checkv1 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/check/v1"
+	protov1 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/proto/v1"
 	"context"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
@@ -13,8 +16,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	. "github.com/smartystreets/goconvey/convey"
-	checkv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/check/v1"
-	protov1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/proto/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -103,7 +104,7 @@ func TestCheckSpec(t *testing.T) {
 				opts = append(opts, grpc_middleware.WithStreamServerChain(middlewareChainsStream...))
 
 				s := grpc.NewServer(opts...)
-				checkv1.RegisterCheckServiceServer(s, NewCheckV1Controller(cs, &us))
+				checkv1grpc.RegisterCheckServiceServer(s, NewCheckV1Controller(cs, &us))
 
 				go func() {
 					if err := s.Serve(lis); err != nil {
@@ -119,7 +120,7 @@ func TestCheckSpec(t *testing.T) {
 					t.Fatalf("Failed to dial bufnet: %v", err)
 				}
 				defer conn.Close()
-				client := checkv1.NewCheckServiceClient(conn)
+				client := checkv1grpc.NewCheckServiceClient(conn)
 
 				Convey("Then run GetAllByRoundID", func() {
 

@@ -1,6 +1,11 @@
 package cmd
 
 import (
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/auth/v1/authv1grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/user/v1/userv1grpc"
+	authv1 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/auth/v1"
+	protov1 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/proto/v1"
+	userv1 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/user/v1"
 	"context"
 	"fmt"
 	"log"
@@ -8,9 +13,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/spf13/cobra"
-	authv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/auth/v1"
-	protov1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/proto/v1"
-	userv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/user/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
@@ -67,7 +69,7 @@ func createNewSuperUser(address string, adminUsername string, adminPassword stri
 	if err != nil {
 		log.Fatal("cannot dial server: ", err)
 	}
-	authClient := authv1.NewAuthServiceClient(cc)
+	authClient := authv1grpc.NewAuthServiceClient(cc)
 	resp, err := authClient.Login(context.Background(), &authv1.LoginRequest{Password: adminPassword, Username: adminUsername})
 	if err != nil {
 		return err
@@ -83,7 +85,7 @@ func createNewSuperUser(address string, adminUsername string, adminPassword stri
 	log.Println("Authentication token is valid until " + claims.ExpiresAt.Time.String())
 
 	ctx := metadata.NewOutgoingContext(context.Background(), metadata.Pairs("authorization", resp.AccessToken))
-	userCli := userv1.NewUserServiceClient(cc)
+	userCli := userv1grpc.NewUserServiceClient(cc)
 	userResponse, err := userCli.GetByUsername(ctx, &userv1.GetByUsernameRequest{Username: newUsername})
 	if err != nil || userResponse.GetUser() == nil || userResponse.GetUser().Username != newUsername {
 		if teamID == "" {

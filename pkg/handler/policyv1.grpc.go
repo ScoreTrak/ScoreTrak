@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/policy/v1/policyv1grpc"
+	policyv1 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/policy/v1"
 	"context"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
@@ -8,7 +10,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	policyv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/policy/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -16,10 +17,10 @@ import (
 type PolicyV1Controller struct {
 	svc          policyservice.Serv
 	policyClient *policyclient.Client
-	policyv1.UnimplementedPolicyServiceServer
+	policyv1grpc.UnimplementedPolicyServiceServer
 }
 
-func (p PolicyV1Controller) Get(_ *policyv1.GetRequest, server policyv1.PolicyService_GetServer) error {
+func (p PolicyV1Controller) Get(_ *policyv1.GetRequest, server policyv1grpc.PolicyService_GetServer) error {
 	rol := user.Anonymous
 	claims := extractUserClaim(server.Context())
 	if claims != nil {
