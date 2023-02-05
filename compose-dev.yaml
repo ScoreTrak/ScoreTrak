@@ -1,0 +1,60 @@
+services:
+  app:
+    entrypoint:
+    - sleep
+    - infinity
+    image: docker/dev-environments-go:stable-1
+    init: true
+    environment:
+      - HOME=/go/src/github.com/scoretrak/scoretrak
+    ports:
+      - 3001
+    volumes:
+    - type: bind
+      source: /var/run/docker.sock
+      target: /var/run/docker.sock
+    - type: bind
+      source: .
+      target: /go/src/github.com/scoretrak/scoretrak
+
+#  cockroachdb:
+#    image: cockroachdb/cockroach:latest
+#    command: start-single-node --insecure
+#    environment:
+#      - COCKROACH_DATABASE=scoretrak
+#      - COCKROACH_USER=st_admin
+#    expose:
+#      - 26257
+#    ports:
+#      - 26257
+#      - 8080
+
+  postgresqldb:
+    image: postgres
+    environment:
+      - POSTGRES_DB=scoretrak
+      - POSTGRES_USER=st_admin
+      - POSTGRES_PASSWORD=password
+    ports:
+      - 5432
+
+#  mysqldb:
+#    image: mysql
+#    environment:
+#      - MYSQL_DATABASE=scoretrak
+#      - MYSQL_USER=st_admin
+#      - MYSQL_PASSWORD=password
+#      - MYSQL_ROOT_PASSWORD=password
+#    ports:
+#      - 3306
+
+#  proxy:
+#    image: envoyproxy/envoy:v1.25.0
+#    ports:
+#      - 8000
+#    links:
+#      - "app:scoretrak"
+#    volumes:
+#    - type: bind
+#      source: ./configs/envoy/config.yaml
+#      target: /etc/envoy/envoy.yaml
