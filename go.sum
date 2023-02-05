@@ -134,8 +134,8 @@ github.com/digineo/go-logwrap v0.0.0-20181106161722-a178c58ea3f0 h1:OT/LKmj81wMy
 github.com/digineo/go-logwrap v0.0.0-20181106161722-a178c58ea3f0/go.mod h1:DmqdumeAKGQNU5E8MN0ruT5ZGx8l/WbAsMbXCXcSEts=
 github.com/digineo/go-ping v1.0.1 h1:Yn9hwM0RY4j4D3gcmLvRJf0d7MrbucfUhnOeVDvcVyk=
 github.com/digineo/go-ping v1.0.1/go.mod h1:uCbFC0VUqGNBNiev44BGSxfOrEAmC73GjpRje1l40Zo=
-github.com/docker/distribution v2.7.1+incompatible h1:a5mlkVzth6W5A4fOsS3D2EO5BUmsJpcB+cRlLU7cSug=
-github.com/docker/distribution v2.7.1+incompatible/go.mod h1:J2gT2udsDAN96Uj4KfcMRqY0/ypR+oyYUYmja8H+y+w=
+github.com/docker/distribution v2.8.0+incompatible h1:l9EaZDICImO1ngI+uTifW+ZYvvz7fKISBAKpg+MbWbY=
+github.com/docker/distribution v2.8.0+incompatible/go.mod h1:J2gT2udsDAN96Uj4KfcMRqY0/ypR+oyYUYmja8H+y+w=
 github.com/docker/docker v1.13.1 h1:IkZjBSIc8hBjLpqeAbeE5mca5mNgeatLHBy3GO78BWo=
 github.com/docker/docker v1.13.1/go.mod h1:eEKB0N0r5NX/I1kEveEz05bcu8tLC/8azJZsviup8Sk=
 github.com/docker/go-connections v0.4.0 h1:El9xVISelRB7BuFusrZozjnkIM5YnzCViNKohAFqRJQ=
