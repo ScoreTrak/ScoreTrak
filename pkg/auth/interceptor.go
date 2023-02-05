@@ -1,28 +1,28 @@
 package auth
 
 import (
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/grpc/health/v1/healthv1grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/auth/v1/authv1grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/auth/v2/authv2grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/check/v1/checkv1grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/check/v2/checkv2grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/host/v1/hostv1grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/host/v2/hostv2grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/policy/v1/policyv1grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/policy/v2/policyv2grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/property/v1/propertyv1grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/property/v2/propertyv2grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/report/v1/reportv1grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/report/v2/reportv2grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/service/v1/servicev1grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/service/v2/servicev2grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/user/v1/userv1grpc"
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/user/v2/userv2grpc"
 	"context"
 	"fmt"
-	healthv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/grpc/health/v1"
-	authv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/auth/v2"
-	checkv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/check/v2"
-	hostv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/host/v2"
-	policyv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/policy/v2"
-	propertyv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/property/v2"
-	reportv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/report/v2"
-	servicev2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/service/v2"
-	userv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/user/v2"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyclient"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
-	authv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/auth/v1"
-	checkv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/check/v1"
-	hostv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/host/v1"
-	policyv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/policy/v1"
-	propertyv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/property/v1"
-	reportv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/report/v1"
-	servicev1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/service/v1"
-	userv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/user/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -49,19 +49,19 @@ type authorizationMap struct {
 func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) *Interceptor {
 	authMap := map[string][]authorizationMap{}
 
-	healthServicePath := fmt.Sprintf("/%s", healthv1.Health_ServiceDesc.ServiceName)
+	healthServicePath := fmt.Sprintf("/%s", healthv1grpc.Health_ServiceDesc.ServiceName)
 	authMap[healthServicePath] = []authorizationMap{{
 		role:      user.Anonymous,
 		isAllowed: AlwaysAllowFunc,
 	}}
 
-	authV1ServicePath := fmt.Sprintf("/%s/", authv1.AuthService_ServiceDesc.ServiceName)
+	authV1ServicePath := fmt.Sprintf("/%s/", authv1grpc.AuthService_ServiceDesc.ServiceName)
 	authMap[authV1ServicePath+"Login"] = []authorizationMap{{
 		role:      user.Anonymous,
 		isAllowed: AlwaysAllowFunc,
 	}}
 
-	authV2ServicePath := fmt.Sprintf("/%s/", authv2.AuthService_ServiceDesc.ServiceName)
+	authV2ServicePath := fmt.Sprintf("/%s/", authv2grpc.AuthService_ServiceDesc.ServiceName)
 	authMap[authV2ServicePath+"Login"] = []authorizationMap{{
 		role:      user.Anonymous,
 		isAllowed: AlwaysAllowFunc,
@@ -73,7 +73,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		isAllowed: AlwaysAllowFunc,
 	}}
 
-	propertyV1ServicePath := fmt.Sprintf("/%s/", propertyv1.PropertyService_ServiceDesc.ServiceName)
+	propertyV1ServicePath := fmt.Sprintf("/%s/", propertyv1grpc.PropertyService_ServiceDesc.ServiceName)
 	authMap[propertyV1ServicePath+"GetByServiceIDKey"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
@@ -96,7 +96,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		isAllowed: AlwaysAllowFunc,
 	}}
 
-	propertyV2ServicePath := fmt.Sprintf("/%s/", propertyv2.PropertyService_ServiceDesc.ServiceName)
+	propertyV2ServicePath := fmt.Sprintf("/%s/", propertyv2grpc.PropertyService_ServiceDesc.ServiceName)
 	authMap[propertyV2ServicePath+"GetByServiceIDKey"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
@@ -119,7 +119,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		isAllowed: AlwaysAllowFunc,
 	}}
 
-	serviceV1ServicePath := fmt.Sprintf("/%s/", servicev1.ServiceService_ServiceDesc.ServiceName)
+	serviceV1ServicePath := fmt.Sprintf("/%s/", servicev1grpc.ServiceService_ServiceDesc.ServiceName)
 	authMap[serviceV1ServicePath+"GetAll"] = []authorizationMap{{
 		role:      user.Red,
 		isAllowed: policyClient.GetAllowRedTeamLaunchingServiceTestsManually,
@@ -136,7 +136,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		isAllowed: policyClient.GetAllowRedTeamLaunchingServiceTestsManually,
 	}}
 
-	serviceV2ServicePath := fmt.Sprintf("/%s/", servicev2.ServiceService_ServiceDesc.ServiceName)
+	serviceV2ServicePath := fmt.Sprintf("/%s/", servicev2grpc.ServiceService_ServiceDesc.ServiceName)
 	authMap[serviceV2ServicePath+"GetAll"] = []authorizationMap{{
 		role:      user.Red,
 		isAllowed: policyClient.GetAllowRedTeamLaunchingServiceTestsManually,
@@ -153,7 +153,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		isAllowed: policyClient.GetAllowRedTeamLaunchingServiceTestsManually,
 	}}
 
-	hostV1ServicePath := fmt.Sprintf("/%s/", hostv1.HostService_ServiceDesc.ServiceName)
+	hostV1ServicePath := fmt.Sprintf("/%s/", hostv1grpc.HostService_ServiceDesc.ServiceName)
 	authMap[hostV1ServicePath+"Update"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
@@ -169,7 +169,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		isAllowed: AlwaysAllowFunc,
 	}}
 
-	hostV2ServicePath := fmt.Sprintf("/%s/", hostv2.HostService_ServiceDesc.ServiceName)
+	hostV2ServicePath := fmt.Sprintf("/%s/", hostv2grpc.HostService_ServiceDesc.ServiceName)
 	authMap[hostV2ServicePath+"HostServiceUpdate"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
@@ -185,7 +185,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		isAllowed: AlwaysAllowFunc,
 	}}
 
-	checkV1ServicePath := fmt.Sprintf("/%s/", checkv1.CheckService_ServiceDesc.ServiceName)
+	checkV1ServicePath := fmt.Sprintf("/%s/", checkv1grpc.CheckService_ServiceDesc.ServiceName)
 	authMap[checkV1ServicePath+"GetByRoundServiceID"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
@@ -201,7 +201,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		isAllowed: AlwaysAllowFunc,
 	}}
 
-	checkV2ServicePath := fmt.Sprintf("/%s/", checkv2.CheckService_ServiceDesc.ServiceName)
+	checkV2ServicePath := fmt.Sprintf("/%s/", checkv2grpc.CheckService_ServiceDesc.ServiceName)
 	authMap[checkV2ServicePath+"GetByRoundServiceID"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
@@ -217,7 +217,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		isAllowed: AlwaysAllowFunc,
 	}}
 
-	reportV1ServicePath := fmt.Sprintf("/%s/", reportv1.ReportService_ServiceDesc.ServiceName)
+	reportV1ServicePath := fmt.Sprintf("/%s/", reportv1grpc.ReportService_ServiceDesc.ServiceName)
 	authMap[reportV1ServicePath+"Get"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
@@ -239,7 +239,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		isAllowed: policyClient.GetAllowUnauthenticatedUsers,
 	}}
 
-	reportV2ServicePath := fmt.Sprintf("/%s/", reportv2.ReportService_ServiceDesc.ServiceName)
+	reportV2ServicePath := fmt.Sprintf("/%s/", reportv2grpc.ReportService_ServiceDesc.ServiceName)
 	authMap[reportV2ServicePath+"Get"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
@@ -261,7 +261,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		isAllowed: policyClient.GetAllowUnauthenticatedUsers,
 	}}
 
-	policyV1ServicePath := fmt.Sprintf("/%s/", policyv1.PolicyService_ServiceDesc.ServiceName)
+	policyV1ServicePath := fmt.Sprintf("/%s/", policyv1grpc.PolicyService_ServiceDesc.ServiceName)
 	authMap[policyV1ServicePath+"Get"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
@@ -283,7 +283,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		isAllowed: policyClient.GetAllowUnauthenticatedUsers,
 	}}
 
-	policyV2ServicePath := fmt.Sprintf("/%s/", policyv2.PolicyService_ServiceDesc.ServiceName)
+	policyV2ServicePath := fmt.Sprintf("/%s/", policyv2grpc.PolicyService_ServiceDesc.ServiceName)
 	authMap[policyV2ServicePath+"Get"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: AlwaysAllowFunc,
@@ -305,7 +305,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		isAllowed: policyClient.GetAllowUnauthenticatedUsers,
 	}}
 
-	userV1ServicePath := fmt.Sprintf("/%s/", userv1.UserService_ServiceDesc.ServiceName)
+	userV1ServicePath := fmt.Sprintf("/%s/", userv1grpc.UserService_ServiceDesc.ServiceName)
 	authMap[userV1ServicePath+"Get"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: policyClient.GetAllowChangingUsernamesAndPasswords,
@@ -314,7 +314,7 @@ func NewAuthInterceptor(jwtManager *Manager, policyClient *policyclient.Client) 
 		isAllowed: policyClient.GetAllowChangingUsernamesAndPasswords,
 	}}
 
-	userV2ServicePath := fmt.Sprintf("/%s/", userv2.UserService_ServiceDesc.ServiceName)
+	userV2ServicePath := fmt.Sprintf("/%s/", userv2grpc.UserService_ServiceDesc.ServiceName)
 	authMap[userV2ServicePath+"Get"] = []authorizationMap{{
 		role:      user.Blue,
 		isAllowed: policyClient.GetAllowChangingUsernamesAndPasswords,

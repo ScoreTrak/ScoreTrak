@@ -1,18 +1,19 @@
 package handler
 
 import (
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/competition/v2/competitionv2grpc"
+	checkv2 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/check/v2"
+	competitionv2 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/competition/v2"
+	hostv2 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/host/v2"
+	host_groupv2 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/host_group/v2"
+	propertyv2 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/property/v2"
+	reportv2 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/report/v2"
+	roundv2 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/round/v2"
+	servicev2 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/service/v2"
+	service_groupv2 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/service_group/v2"
+	teamv2 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/team/v2"
+	userv2 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/user/v2"
 	"context"
-	checkv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/check/v2"
-	competitionv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/competition/v2"
-	hostv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/host/v2"
-	host_groupv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/host_group/v2"
-	propertyv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/property/v2"
-	reportv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/report/v2"
-	roundv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/round/v2"
-	servicev2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/service/v2"
-	service_groupv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/service_group/v2"
-	teamv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/team/v2"
-	userv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/user/v2"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -34,7 +35,7 @@ import (
 
 type CompetitionV2Controller struct {
 	svc competitionservice.Serv
-	competitionv2.UnimplementedCompetitionServiceServer
+	competitionv2grpc.UnimplementedCompetitionServiceServer
 }
 
 func (c CompetitionV2Controller) LoadCompetition(ctx context.Context, request *competitionv2.CompetitionServiceLoadCompetitionRequest) (*competitionv2.CompetitionServiceLoadCompetitionResponse, error) {

@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/host/v1/hostv1grpc"
+	hostv1 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/host/v1"
+	protov1 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/proto/v1"
 	"context"
 	"fmt"
 
@@ -10,8 +13,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	hostv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/host/v1"
-	protov1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/proto/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -19,7 +20,7 @@ import (
 type HostV1Controller struct {
 	svc    hostservice.Serv
 	client *util.Store
-	hostv1.UnimplementedHostServiceServer
+	hostv1grpc.UnimplementedHostServiceServer
 }
 
 func (p HostV1Controller) GetByID(ctx context.Context, request *hostv1.GetByIDRequest) (*hostv1.GetByIDResponse, error) {
