@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/team/v1/teamv1grpc"
+	protov1 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/proto/v1"
+	teamv1 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/team/v1"
 	"context"
 	"fmt"
 
@@ -8,15 +11,13 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/team/teamservice"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	utilv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/proto/v1"
-	teamv1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/team/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type TeamV1Controller struct {
 	svc teamservice.Serv
-	teamv1.UnimplementedTeamServiceServer
+	teamv1grpc.UnimplementedTeamServiceServer
 }
 
 func (p TeamV1Controller) GetByID(ctx context.Context, request *teamv1.GetByIDRequest) (*teamv1.GetByIDResponse, error) {
@@ -71,9 +72,9 @@ func (p TeamV1Controller) Store(ctx context.Context, request *teamv1.StoreReques
 			fmt.Sprintf("Unknown internal error: %v", err),
 		)
 	}
-	ids := make([]*utilv1.UUID, 0, len(tms))
+	ids := make([]*protov1.UUID, 0, len(tms))
 	for i := range tms {
-		ids = append(ids, &utilv1.UUID{Value: tms[i].ID.String()})
+		ids = append(ids, &protov1.UUID{Value: tms[i].ID.String()})
 	}
 	return &teamv1.StoreResponse{Ids: ids}, nil
 }
@@ -147,7 +148,7 @@ func ConvertTeamToTeamV1Pb(obj *team.Team) *teamv1.Team {
 		idx = *obj.Index
 	}
 	return &teamv1.Team{
-		Id:    &utilv1.UUID{Value: obj.ID.String()},
+		Id:    &protov1.UUID{Value: obj.ID.String()},
 		Name:  obj.Name,
 		Hide:  &wrappers.BoolValue{Value: *obj.Hide},
 		Hosts: nil,

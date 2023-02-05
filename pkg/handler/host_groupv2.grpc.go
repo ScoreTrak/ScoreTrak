@@ -1,22 +1,23 @@
 package handler
 
 import (
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/host_group/v2/host_groupv2grpc"
+	host_groupv2 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/host_group/v2"
+	protov1 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/proto/v1"
 	"context"
 	"fmt"
-	host_groupv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/host_group/v2"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
 	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup/hostgroupservice"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	protov1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/proto/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type HostGroupV2Controller struct {
 	svc hostgroupservice.Serv
-	host_groupv2.UnimplementedHostGroupServiceServer
+	host_groupv2grpc.UnimplementedHostGroupServiceServer
 }
 
 func (p HostGroupV2Controller) GetByID(ctx context.Context, request *host_groupv2.HostGroupServiceGetByIDRequest) (*host_groupv2.HostGroupServiceGetByIDResponse, error) {

@@ -3,6 +3,8 @@ module github.com/ScoreTrak/ScoreTrak
 go 1.19
 
 require (
+	buf.build/gen/go/scoretrak/scoretrakapis/grpc/go v1.2.0-20230107032708-827817a34c0e.4
+	buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go v1.28.1-20230107032708-827817a34c0e.4
 	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef
 	github.com/bogdanovich/dns_resolver v0.0.0-20170211073258-a8e42bc6a5b6
 	github.com/digineo/go-ping v1.0.1
@@ -23,7 +25,6 @@ require (
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.0
-	go.buf.build/grpc/go/scoretrak/scoretrakapis v1.4.15
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.36.4
 	go.opentelemetry.io/otel v1.11.1
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.10.0

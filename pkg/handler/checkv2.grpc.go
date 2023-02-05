@@ -2,15 +2,16 @@ package handler
 
 import (
 	"context"
-	checkv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/check/v2"
 
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/check/v2/checkv2grpc"
+	checkv2 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/check/v2"
+	protov1 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/proto/v1"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check"
 	"github.com/ScoreTrak/ScoreTrak/pkg/check/checkservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes/wrappers"
-	protov1 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/proto/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -18,7 +19,7 @@ import (
 type CheckV2Controller struct {
 	svc    checkservice.Serv
 	client *util.Store
-	checkv2.UnimplementedCheckServiceServer
+	checkv2grpc.UnimplementedCheckServiceServer
 }
 
 func (c *CheckV2Controller) GetAllByRoundID(ctx context.Context, request *checkv2.CheckServiceGetAllByRoundIDRequest) (*checkv2.CheckServiceGetAllByRoundIDResponse, error) {

@@ -1,10 +1,11 @@
 package handler
 
 import (
+	"buf.build/gen/go/scoretrak/scoretrakapis/grpc/go/scoretrak/report/v2/reportv2grpc"
+	reportv2 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/report/v2"
 	"context"
 	"encoding/json"
 	"fmt"
-	reportv2 "go.buf.build/grpc/go/scoretrak/scoretrakapis/scoretrak/report/v2"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -22,7 +23,7 @@ type ReportV2Controller struct {
 	svc          reportservice.Serv
 	reportClient *reportclient.Client
 	policyClient *policyclient.Client
-	reportv2.UnimplementedReportServiceServer
+	reportv2grpc.UnimplementedReportServiceServer
 }
 
 func (r *ReportV2Controller) filterReport(rol string, tID uuid.UUID, lr *report.Report) (*reportv2.Report, error) {
@@ -74,7 +75,7 @@ func (r *ReportV2Controller) GetUnary(ctx context.Context, _ *reportv2.ReportSer
 	return &reportv2.ReportServiceGetUnaryResponse{Report: frep}, nil
 }
 
-func (r *ReportV2Controller) Get(_ *reportv2.ReportServiceGetRequest, server reportv2.ReportService_GetServer) error {
+func (r *ReportV2Controller) Get(_ *reportv2.ReportServiceGetRequest, server reportv2grpc.ReportService_GetServer) error {
 	rol := user.Anonymous
 	tID := uuid.UUID{}
 	lr, err := r.svc.Get(server.Context())
