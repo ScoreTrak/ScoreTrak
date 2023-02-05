@@ -10,7 +10,6 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
-	"log"
 )
 
 // create black team
@@ -38,7 +37,6 @@ func DefaultSeed(staticConfig config.StaticConfig, dynamicConfig *config.Dynamic
 	if err != nil {
 		return err
 	}
-	log.Println("Create Black Team")
 
 	// CREATE ADMIN USER
 	var adminUUID = uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
@@ -72,5 +70,12 @@ func DefaultSeed(staticConfig config.StaticConfig, dynamicConfig *config.Dynamic
 		return err
 	}
 
+	return nil
+}
+
+func DefaultSeedConditional(staticConfig config.StaticConfig, dynamicConfig *config.DynamicConfig, repos *util.Store) error {
+	if staticConfig.DB.Seed {
+		return DefaultSeed(staticConfig, dynamicConfig, repos)
+	}
 	return nil
 }

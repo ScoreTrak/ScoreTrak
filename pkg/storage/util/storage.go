@@ -11,6 +11,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"log"
@@ -96,6 +97,13 @@ func AutoMigrate(db *gorm.DB) error {
 	err := db.AutoMigrate(&team.Team{}, &user.User{}, &policy.Policy{}, &report.Report{}, &config.DynamicConfig{}, &hostgroup.HostGroup{}, &servicegroup.ServiceGroup{}, &host.Host{}, &round.Round{}, &service.Service{}, &check.Check{}, &property.Property{})
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func AutoMigrateConditional(db *gorm.DB, config2 storage.Config) error {
+	if config2.Migrate {
+		return AutoMigrate(db)
 	}
 	return nil
 }

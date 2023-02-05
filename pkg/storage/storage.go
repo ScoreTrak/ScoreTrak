@@ -151,6 +151,8 @@ type Config struct {
 	ClientSSLKey  string `default:""`
 	ClientSSLCert string `default:""`
 	Database      string `default:"scoretrak"`
+	Migrate       bool   `default:"false"`
+	Seed          bool   `default:"false"`
 	Cockroach     struct {
 		ConfigureZones    bool `default:"true"`
 		DefaultZoneConfig struct {

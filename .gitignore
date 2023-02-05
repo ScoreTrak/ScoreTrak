@@ -43,3 +43,5 @@ scoretrak
 
 # scoretrak sqlite db
 scoretrak.db
+
+.cache

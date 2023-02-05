@@ -2,21 +2,21 @@ package cmd
 
 import (
 	"context"
-	seed2 "github.com/ScoreTrak/ScoreTrak/pkg/storage/seed"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/storagefx"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 	"log"
 )
 
-// seedCmd represents the seed command
-var seedCmd = &cobra.Command{
-	Use:   "seed",
-	Short: "seed the database",
+// migrateCmd represents the migrate command
+var migrateCmd = &cobra.Command{
+	Use:   "migrate",
+	Short: "migrate database",
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
 
-		seed := fx.New(
+		migrate := fx.New(
 			fx.Provide(
 				NewStaticConfig,
 				NewDynamicConfig,
@@ -25,26 +25,26 @@ var seedCmd = &cobra.Command{
 
 			storagefx.Module,
 
-			fx.Invoke(seed2.DefaultSeed),
+			fx.Invoke(util.AutoMigrate),
 		)
 
-		err := seed.Start(ctx)
+		err := migrate.Start(ctx)
 		if err != nil {
-			log.Fatalf("Seed failed: %v", err)
+			log.Fatalf("Migrate failed: %v", err)
 		}
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(seedCmd)
+	rootCmd.AddCommand(migrateCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// seedCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// migrateCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// seedCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// migrateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
