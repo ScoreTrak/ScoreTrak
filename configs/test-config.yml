@@ -1,8 +1,7 @@
 db:
   use: "sqlite"
-  sqlite:
-    path: "./scoretrak.db"
-    database: "scoretrak"
+  database: "scoretrak.db"
+
 
 logger:
   environment: dev

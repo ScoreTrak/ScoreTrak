@@ -17,6 +17,15 @@ func NewConfigRepo(db *gorm.DB) configrepo.Repo {
 	return &configRepo{db}
 }
 
+func (c *configRepo) Create(ctx context.Context, cfg *config.DynamicConfig) error {
+	cfg.ID = 1
+	err := c.db.WithContext(ctx).Create(cfg).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (c *configRepo) Get(ctx context.Context) (*config.DynamicConfig, error) {
 	cfg := &config.DynamicConfig{}
 	cfg.ID = 1

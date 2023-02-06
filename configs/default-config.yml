@@ -1,7 +1,3 @@
-roundduration: 60
-
-enabled: False
-
 db:
   cockroach:
     host: localhost

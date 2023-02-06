@@ -10,6 +10,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 )
 
 // create black team
@@ -25,7 +26,7 @@ func DefaultSeed(staticConfig config.StaticConfig, dynamicConfig *config.Dynamic
 	var blackTeamUUID = uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 	fls := false
 	idx := uint64(0)
-	err := repos.Team.Upsert(ctx, []*team.Team{{
+	err := repos.Team.Store(ctx, []*team.Team{{
 		ID:    blackTeamUUID,
 		Name:  "Black Team",
 		Pause: &fls,
@@ -37,11 +38,12 @@ func DefaultSeed(staticConfig config.StaticConfig, dynamicConfig *config.Dynamic
 	if err != nil {
 		return err
 	}
+	log.Println("Created black team")
 
 	// CREATE ADMIN USER
 	var adminUUID = uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
 	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(staticConfig.AdminPassword), bcrypt.DefaultCost)
-	err = repos.Users.Upsert(context.Background(), []*user.User{{
+	err = repos.Users.Store(context.Background(), []*user.User{{
 		ID:           adminUUID,
 		Role:         user.Black,
 		TeamID:       blackTeamUUID,
@@ -51,24 +53,28 @@ func DefaultSeed(staticConfig config.StaticConfig, dynamicConfig *config.Dynamic
 	if err != nil {
 		return err
 	}
+	log.Println("Created admin user")
 
 	// CREATE DYNAMIC CONFIG
-	err = repos.Config.Upsert(ctx, dynamicConfig)
+	err = repos.Config.Create(ctx, dynamicConfig)
 	if err != nil {
 		return err
 	}
+	log.Println("Created dynamic config")
 
 	// CREATE POLICY
-	err = repos.Policy.Upsert(ctx, policy.NewPolicy())
+	err = repos.Policy.Create(ctx, policy.NewPolicy())
 	if err != nil {
 		return err
 	}
+	log.Println("Created policy")
 
 	// CREATE REPORT
-	err = repos.Report.Upsert(ctx, report.NewReport())
+	err = repos.Report.Create(ctx, report.NewReport())
 	if err != nil {
 		return err
 	}
+	log.Println("Created report")
 
 	return nil
 }

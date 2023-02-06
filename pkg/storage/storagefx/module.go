@@ -14,6 +14,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup/servicegroupservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/seed"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team/teamservice"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user/userservice"
@@ -56,5 +57,7 @@ var Module = fx.Options(
 	),
 	fx.Invoke(
 		util.CheckDBTimeSync,
+		util.AutoMigrateConditional,
+		seed.DefaultSeedConditional,
 	),
 )

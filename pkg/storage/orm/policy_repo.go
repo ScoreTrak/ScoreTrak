@@ -17,6 +17,14 @@ func NewPolicyRepo(db *gorm.DB) policyrepo.Repo {
 	return &policyRepo{db}
 }
 
+func (h *policyRepo) Create(ctx context.Context, p *policy.Policy) error {
+	err := h.db.WithContext(ctx).Create(p).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (h *policyRepo) Get(ctx context.Context) (*policy.Policy, error) {
 	p := &policy.Policy{}
 	p.ID = 1

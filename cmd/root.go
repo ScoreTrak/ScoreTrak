@@ -90,7 +90,7 @@ func initConfig() {
 	// Database Defaults
 	viper.SetDefault("DB.Use", "mysql")
 	viper.SetDefault("DB.AutoMigrate", "false")
-	viper.SetDefault("DB.Prefix", "st_")
+	//viper.SetDefault("DB.Prefix", "st_")
 
 	// Database Defaults
 	viper.SetDefault("DB.Host", "localhost")

@@ -7,6 +7,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
@@ -17,9 +18,7 @@ func TestCheckSpec(t *testing.T) {
 	c, _ := LoadViperConfig("../../../configs/test-config.yml")
 	db := SetupDB(c.DB)
 	Convey("Creating Round, Service and Check tables along with their foreign keys", t, func() {
-		db.AutoMigrate(&service.Service{})
-		db.AutoMigrate(&round.Round{})
-		db.AutoMigrate(&check.Check{})
+		util.AutoMigrate(db)
 		cr := NewCheckRepo(db)
 		Convey("When all tables are empty", func() {
 			Convey("Should output no entry", func() {

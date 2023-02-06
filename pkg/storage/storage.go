@@ -20,7 +20,7 @@ func NewDB(c Config) (*gorm.DB, error) {
 	var err error
 	switch c.Use {
 	case "mysql":
-		db, err = newMySQL(c)
+		return nil, ErrDBNotSupported
 	case "postgresql":
 		db, err = newPostgreSQL(c)
 	case "cockroach":
@@ -39,7 +39,7 @@ func NewDB(c Config) (*gorm.DB, error) {
 var ErrIncompleteCertInformationProvided = errors.New("you provided some, but not all certificate information")
 
 func newMySQL(config Config) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v", config.UserName, config.Password, config.Host, config.Port, config.Database)
+	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8&parseTime=True&loc=Local", config.UserName, config.Password, config.Host, config.Port, config.Database)
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{NamingStrategy: schema.NamingStrategy{TablePrefix: config.Prefix}})
 	if err != nil {
@@ -142,7 +142,7 @@ func newSqlite(c Config) (*gorm.DB, error) {
 
 type Config struct {
 	Use           string `default:""`
-	Prefix        string `default:"st_"`
+	Prefix        string `default:""`
 	Host          string `default:"localhost"`
 	Port          string `default:"3306"`
 	UserName      string `default:"root"`

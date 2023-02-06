@@ -8,7 +8,7 @@ services:
     environment:
       - HOME=/go/src/github.com/scoretrak/scoretrak
     ports:
-      - 3001
+      - 3001:3001
     volumes:
     - type: bind
       source: /var/run/docker.sock
@@ -24,10 +24,10 @@ services:
 #      - COCKROACH_DATABASE=scoretrak
 #      - COCKROACH_USER=st_admin
 #    expose:
-#      - 26257
+#      - 26257:26257
 #    ports:
-#      - 26257
-#      - 8080
+#      - 26257:26257
+#      - 8080:8080
 
   postgresqldb:
     image: postgres
@@ -36,7 +36,7 @@ services:
       - POSTGRES_USER=st_admin
       - POSTGRES_PASSWORD=password
     ports:
-      - 5432
+      - 5432:5432
 
 #  mysqldb:
 #    image: mysql
@@ -48,13 +48,14 @@ services:
 #    ports:
 #      - 3306
 
-#  proxy:
-#    image: envoyproxy/envoy:v1.25.0
-#    ports:
-#      - 8000
-#    links:
-#      - "app:scoretrak"
-#    volumes:
-#    - type: bind
-#      source: ./configs/envoy/config.yaml
-#      target: /etc/envoy/envoy.yaml
+  proxy:
+    image: envoyproxy/envoy:v1.25.0
+    ports:
+      - 8000:8000
+      - 8000:9901
+    links:
+      - "app:scoretrak"
+    volumes:
+    - type: bind
+      source: ./configs/envoy/config.yaml
+      target: /etc/envoy/envoy.yaml

@@ -25,6 +25,14 @@ type totalSuccessfulPerService struct {
 	Total     uint64
 }
 
+func (c *reportRepo) Create(ctx context.Context, r *report.Report) error {
+	err := c.db.WithContext(ctx).Create(r).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (c *reportRepo) CountPassedPerService(ctx context.Context) (map[uuid.UUID]uint64, error) {
 	var serviceToSuccess []*totalSuccessfulPerService
 	ret := make(map[uuid.UUID]uint64)
