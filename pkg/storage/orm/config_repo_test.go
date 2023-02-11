@@ -18,10 +18,10 @@ func TestConfigSpec(t *testing.T) {
 	Convey("Creating Config Table and Insert sample config", t, func() {
 		db.AutoMigrate(&config.DynamicConfig{})
 		db.AutoMigrate(&report.Report{})
-		db.Exec("INSERT INTO config (id, round_duration, enabled) VALUES (1, 60, true)")
+		db.Exec("INSERT INTO dynamic_configs (id, round_duration, enabled) VALUES (1, 60, true)")
 		db.Exec("INSERT INTO report (id, cache, updated_at) VALUES (1, '{}', ?)", time.Now())
 		var count int64
-		db.Table("config").Count(&count)
+		db.Table("dynamic_configs").Count(&count)
 		So(count, ShouldEqual, 1)
 
 		cr := NewConfigRepo(db)

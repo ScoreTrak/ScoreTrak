@@ -3,12 +3,12 @@ server:
   port: 3001
 
 db:
-  use: "postgresql"
-  host: "postgresqldb"
-  port: "5432"
-  database: "scoretrak"
-  username: "st_admin"
-  password: "password"
+  use: "sqlite"
+  host: "scoretrak.db"
+#  port: "5432"
+#  database: "scoretrak"
+#  username: "st_admin"
+#  password: "password"
   seed: true
   migrate: true
 
@@ -16,6 +16,3 @@ open-telemetry:
 #    endpoint: "http://localhost:14268/api/traces"
 #    username: ""
 #    password: ""
-
-logger:
-  environment: dev

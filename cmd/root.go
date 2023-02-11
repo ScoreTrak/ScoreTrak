@@ -95,7 +95,7 @@ func initConfig() {
 	// Database Defaults
 	viper.SetDefault("DB.Host", "localhost")
 	viper.SetDefault("DB.Port", 26257)
-	viper.SetDefault("DB.Username", "root")
+	viper.SetDefault("DB.UserName", "root")
 	viper.SetDefault("DB.Database", "scoretrak")
 	viper.SetDefault("DB.Migrate", false)
 	viper.SetDefault("DB.Seed", false)

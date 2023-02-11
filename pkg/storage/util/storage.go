@@ -94,10 +94,25 @@ func DatabaseOutOfSync(dbTime time.Time, config config.StaticConfig) error {
 
 // AutoMigrate migrates all tables
 func AutoMigrate(db *gorm.DB) error {
-	err := db.AutoMigrate(&team.Team{}, &user.User{}, &policy.Policy{}, &report.Report{}, &config.DynamicConfig{}, &hostgroup.HostGroup{}, &servicegroup.ServiceGroup{}, &host.Host{}, &round.Round{}, &service.Service{}, &check.Check{}, &property.Property{})
+	log.Println("Starting Migration")
+	err := db.AutoMigrate(
+		&team.Team{},
+		&user.User{},
+		&policy.Policy{},
+		&report.Report{},
+		&config.DynamicConfig{},
+		&hostgroup.HostGroup{},
+		&servicegroup.ServiceGroup{},
+		&host.Host{},
+		&round.Round{},
+		&service.Service{},
+		&check.Check{},
+		&property.Property{},
+	)
 	if err != nil {
 		return err
 	}
+	log.Println("Migration Completed")
 	return nil
 }
 

@@ -20,6 +20,7 @@ import (
 	"github.com/jackc/pgconn"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"log"
 	"os"
 	"time"
 )
@@ -114,14 +115,15 @@ func TruncateAllTables(db *gorm.DB) {
 	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "service_groups"))
 	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "users"))
 	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "teams"))
-	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "config"))
+	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "dynamic_configs"))
 }
 
 func DataPreload(db *gorm.DB) {
+	log.Println("Starting to seed database for testing")
 	var count int64
 	//Creating Config
-	db.Exec("INSERT INTO config (id, round_duration, enabled) VALUES (1, 60, true)")
-	db.Table("config").Count(&count)
+	db.Exec("INSERT INTO dynamic_configs (id, round_duration, enabled) VALUES (1, 60, true)")
+	db.Table("dynamic_configs").Count(&count)
 	if count != 1 {
 		panic("There should be 1 entry in config")
 	}
@@ -217,6 +219,7 @@ func DataPreload(db *gorm.DB) {
 	if count != 4 {
 		panic("There should be 4 entry in checks")
 	}
+	log.Println("Finished seeding database for testing")
 }
 
 func DropDB(db *gorm.DB, c config.StaticConfig) {

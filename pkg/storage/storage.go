@@ -3,7 +3,6 @@ package storage
 import (
 	"errors"
 	"fmt"
-	"gorm.io/driver/mysql"
 	"log"
 
 	"gorm.io/driver/postgres"
@@ -19,8 +18,6 @@ func NewDB(c Config) (*gorm.DB, error) {
 	var db *gorm.DB
 	var err error
 	switch c.Use {
-	case "mysql":
-		return nil, ErrDBNotSupported
 	case "postgresql":
 		db, err = newPostgreSQL(c)
 	case "cockroach":
@@ -37,17 +34,6 @@ func NewDB(c Config) (*gorm.DB, error) {
 }
 
 var ErrIncompleteCertInformationProvided = errors.New("you provided some, but not all certificate information")
-
-func newMySQL(config Config) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8&parseTime=True&loc=Local", config.UserName, config.Password, config.Host, config.Port, config.Database)
-
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{NamingStrategy: schema.NamingStrategy{TablePrefix: config.Prefix}})
-	if err != nil {
-		return nil, err
-	}
-
-	return db, nil
-}
 
 func newPostgreSQL(config Config) (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s",
@@ -137,14 +123,19 @@ func newSqlite(c Config) (*gorm.DB, error) {
 		return nil, err
 	}
 
+	// SQlite customization
+	// Enabled foreign key support
+	if res := db.Exec("PRAGMA foreign_keys = ON", nil); res.Error != nil {
+		panic(err)
+	}
 	return db, nil
 }
 
 type Config struct {
-	Use           string `default:""`
+	Use           string `default:"cockroach"`
 	Prefix        string `default:""`
 	Host          string `default:"localhost"`
-	Port          string `default:"3306"`
+	Port          string `default:"26257"`
 	UserName      string `default:"root"`
 	Password      string `default:""`
 	ClientCA      string `default:""`

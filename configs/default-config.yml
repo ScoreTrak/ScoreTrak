@@ -1,6 +1,5 @@
 db:
-  cockroach:
-    host: localhost
-    database: "scoretrak"
-    username: root
-    password: ""
+  host: localhost
+  database: "scoretrak"
+  username: root
+  password: ""

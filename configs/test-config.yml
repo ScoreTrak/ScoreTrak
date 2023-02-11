@@ -1,7 +1,6 @@
 db:
-  use: "sqlite"
-  database: "scoretrak.db"
-
-
-logger:
-  environment: dev
+  use: "cockroach"
+  host: "cockroachdb"
+  port: "26257"
+  username: "root"
+  database: "scoretrak"

@@ -13,3 +13,6 @@ worker-dev:
 
 master-dev:
 	go run main.go master --config ./configs/dev-config.yml
+
+test:
+	go test -race -covermode=atomic -coverprofile=coverage.out ./pkg/...

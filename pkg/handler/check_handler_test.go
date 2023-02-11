@@ -26,9 +26,9 @@ import (
 )
 
 func TestCheckSpec(t *testing.T) {
-	c, _ := LoadViperConfig("../../configs/test-config.yml")
+	c, err := LoadViperConfig("../../configs/test-config.yml")
 	db := SetupDB(c.DB)
-	err := util.AutoMigrate(db)
+	err = util.AutoMigrate(db)
 	if err != nil {
 		panic(err)
 	}
@@ -217,6 +217,6 @@ func TestCheckSpec(t *testing.T) {
 		})
 	}
 
-	DropDB(db, c)
+	DropTables(db)
 
 }
