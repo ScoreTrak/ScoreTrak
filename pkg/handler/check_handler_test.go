@@ -217,6 +217,6 @@ func TestCheckSpec(t *testing.T) {
 		})
 	}
 
-	DropTables(db)
+	DropDB(db, c)
 
 }
