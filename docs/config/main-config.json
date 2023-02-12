@@ -9,6 +9,10 @@
       "type": "string",
       "default": "admin"
     },
+    "mintimeoutduration": {
+      "type": "int32",
+      "default": 20
+    },
     "databasemaxtimedriftseconds": {
       "type": "integer",
       "format": "int32",
