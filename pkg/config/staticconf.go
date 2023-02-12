@@ -19,6 +19,9 @@ type StaticConfig struct {
 	// How frequently to pull dynamic configs
 	DynamicConfigPullSeconds uint `default:"5"`
 
+	// MinTimoutDuration
+	MinTimeoutDuration uint `default:"20"`
+
 	Queue queueing.Config
 
 	Platform platforming.Config

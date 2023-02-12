@@ -84,7 +84,7 @@ func InitRunner(lc fx.Lifecycle, runner *Runner) {
 	})
 }
 
-func (d *Runner) run(configLoop *time.Ticker, scoringLoop *time.Timer, cnf *config.DynamicConfig, lastRound *round.Round) (err error) {
+func (d *Runner) run(configLoop *time.Ticker, scoringLoop *time.Timer, cnf *config.DynamicConfig, lastRound *round.Round, minTimoutDuration time.Duration) (err error) {
 	for {
 	runnerSelect:
 		select {
@@ -141,7 +141,7 @@ func (d *Runner) run(configLoop *time.Ticker, scoringLoop *time.Timer, cnf *conf
 				case lastRound.Finish != nil:
 					// if last known round is already finished (aka, currently no, new rounds are elapsing), start the new round with ID of old round incremented
 					rnd = &round.Round{ID: lastRound.ID + 1}
-				case time.Now().After(lastRound.Start.Add(time.Duration(cnf.RoundDuration) * time.Second).Add(config.MinRoundDuration)):
+				case time.Now().After(lastRound.Start.Add(time.Duration(cnf.RoundDuration) * time.Second).Add(minTimoutDuration)):
 					// If last round did not finish, and some long time has passed since the start (Likely because master of the previous round has failed to score),
 					// then we create a new transaction, that
 					err = d.db.Transaction(func(tx *gorm.DB) error {
@@ -169,7 +169,7 @@ func (d *Runner) run(configLoop *time.Ticker, scoringLoop *time.Timer, cnf *conf
 					rnd = &round.Round{ID: lastRound.ID + 1}
 				default:
 					// else, if there is an elapsing round, but that round is not due to be completed yet, we just wait
-					scoringLoop = time.NewTimer(config.MinRoundDuration)
+					scoringLoop = time.NewTimer(minTimoutDuration)
 					break runnerSelect
 				}
 				// After everything is figured out, we are reading to move to the next round
@@ -242,7 +242,9 @@ func (d *Runner) MasterRunner() (err error) {
 	// Re-Pull config every DynamicConfigPullSeconds
 	configLoop := time.NewTicker(time.Duration(d.staticConfig.DynamicConfigPullSeconds) * time.Second)
 
-	return d.run(configLoop, scoringLoop, cnf, lastRound)
+	minTimeoutDuration := time.Duration(d.staticConfig.MinTimeoutDuration) * time.Second
+
+	return d.run(configLoop, scoringLoop, cnf, lastRound, minTimeoutDuration)
 }
 
 func (d *Runner) durationUntilNextRound(rnd *round.Round, roundDuration uint64) time.Duration {

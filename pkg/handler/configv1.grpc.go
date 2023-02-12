@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config/configservice"
@@ -15,7 +16,8 @@ import (
 )
 
 type ConfigV1Controller struct {
-	svc configservice.Serv
+	svc             configservice.Serv
+	staticConfigSvc configservice.StaticServ
 	configv1grpc.UnimplementedDynamicConfigServiceServer
 }
 
@@ -33,7 +35,16 @@ func (p ConfigV1Controller) Update(ctx context.Context, request *configv1.Update
 	if tmspb.GetEnabled() != nil {
 		enabled = &tmspb.GetEnabled().Value
 	}
-	err := p.svc.Update(ctx, &config.DynamicConfig{
+
+	// Get Static Config
+	staticConfig, err := p.staticConfigSvc.Get()
+	minTimeoutDuration := time.Duration(staticConfig.MinTimeoutDuration) * time.Second
+
+	if tmspb.RoundDuration != 0 && tmspb.RoundDuration < uint64(minTimeoutDuration.Seconds()) {
+		return nil, fmt.Errorf("%w, MinRoundDuration: %d", ErrRoundDurationLargerThanMinRoundDuration, uint64(minTimeoutDuration.Seconds()))
+	}
+
+	err = p.svc.Update(ctx, &config.DynamicConfig{
 		RoundDuration: tmspb.RoundDuration,
 		Enabled:       enabled,
 	})
@@ -46,8 +57,8 @@ func (p ConfigV1Controller) Update(ctx context.Context, request *configv1.Update
 	return &configv1.UpdateResponse{}, nil
 }
 
-func NewConfigV1Controller(svc configservice.Serv) *ConfigV1Controller {
-	return &ConfigV1Controller{svc: svc}
+func NewConfigV1Controller(svc configservice.Serv, staticConfigSvc configservice.StaticServ) *ConfigV1Controller {
+	return &ConfigV1Controller{svc: svc, staticConfigSvc: staticConfigSvc}
 }
 
 func ConvertDynamicConfigV1PBToDynamicConfig(pb *configv1.DynamicConfig) *config.DynamicConfig {

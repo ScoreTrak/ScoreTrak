@@ -5,7 +5,9 @@ import (
 	configv2 "buf.build/gen/go/scoretrak/scoretrakapis/protocolbuffers/go/scoretrak/config/v2"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config/configservice"
@@ -15,7 +17,8 @@ import (
 )
 
 type ConfigV2Controller struct {
-	svc configservice.Serv
+	svc             configservice.Serv
+	staticConfigSvc configservice.StaticServ
 	configv2grpc.UnimplementedDynamicConfigServiceServer
 }
 
@@ -27,13 +30,24 @@ func (p ConfigV2Controller) Get(ctx context.Context, _ *configv2.DynamicConfigSe
 	return &configv2.DynamicConfigServiceGetResponse{DynamicConfig: ConvertDynamicConfigToDynamicConfigV2PB(cnf)}, nil
 }
 
+var ErrRoundDurationLargerThanMinRoundDuration = errors.New("round Duration should not be larger than MinRoundDuration")
+
 func (p ConfigV2Controller) Update(ctx context.Context, request *configv2.DynamicConfigServiceUpdateRequest) (*configv2.DynamicConfigServiceUpdateResponse, error) {
 	tmspb := request.GetDynamicConfig()
 	var enabled *bool
 	if tmspb.GetEnabled() != nil {
 		enabled = &tmspb.GetEnabled().Value
 	}
-	err := p.svc.Update(ctx, &config.DynamicConfig{
+
+	// Get Static Config
+	staticConfig, err := p.staticConfigSvc.Get()
+	minTimeoutDuration := time.Duration(staticConfig.MinTimeoutDuration) * time.Second
+
+	if tmspb.RoundDuration != 0 && tmspb.RoundDuration < uint64(minTimeoutDuration.Seconds()) {
+		return nil, fmt.Errorf("%w, MinRoundDuration: %d", ErrRoundDurationLargerThanMinRoundDuration, uint64(minTimeoutDuration.Seconds()))
+	}
+
+	err = p.svc.Update(ctx, &config.DynamicConfig{
 		RoundDuration: tmspb.RoundDuration,
 		Enabled:       enabled,
 	})
@@ -46,8 +60,8 @@ func (p ConfigV2Controller) Update(ctx context.Context, request *configv2.Dynami
 	return &configv2.DynamicConfigServiceUpdateResponse{}, nil
 }
 
-func NewConfigV2Controller(svc configservice.Serv) *ConfigV2Controller {
-	return &ConfigV2Controller{svc: svc}
+func NewConfigV2Controller(svc configservice.Serv, staticConfigSvc configservice.StaticServ) *ConfigV2Controller {
+	return &ConfigV2Controller{svc: svc, staticConfigSvc: staticConfigSvc}
 }
 
 func ConvertDynamicConfigV2PBToDynamicConfig(pb *configv2.DynamicConfig) *config.DynamicConfig {
