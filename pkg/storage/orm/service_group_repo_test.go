@@ -7,6 +7,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
@@ -16,10 +17,9 @@ func TestServiceGroupSpec(t *testing.T) {
 	c, _ := LoadViperConfig("../../../configs/test-config.yml")
 	db := SetupDB(c.DB)
 	ctx := context.Background()
+	defer TruncateAllTables(db)
 	Convey("Creating Service Group Tables", t, func() {
-		db.AutoMigrate(&servicegroup.ServiceGroup{})
 		sgr := NewServiceGroupRepo(db)
-
 		Convey("When the Service Group table is empty", func() {
 			Convey("There should be no entries", func() {
 				ac, err := sgr.GetAll(ctx)
@@ -111,8 +111,10 @@ func TestServiceGroupSpec(t *testing.T) {
 				})
 				Convey("Creating Service Table", func() {
 					var count int64
-					db.AutoMigrate(&service.Service{})
 					Convey("Then associating one check_service with the check_service group", func() {
+						db.Exec("INSERT INTO teams (id, name, pause) VALUES ('11111111-1111-1111-1111-111111111111', 'TeamOne', true)")
+						db.Exec("INSERT INTO host_groups (id, name, pause) VALUES ('11111111-1111-1111-1111-111111111111', 'HostGroup1', true)")
+						db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id, pause, edit_host) VALUES ('55555555-5555-5555-5555-555555555555', '10.0.0.1', '11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111', true, true)")
 						db.Exec(fmt.Sprintf("INSERT INTO services (id, service_group_id, host_id, name) VALUES ('55555555-5555-5555-5555-555555555555', '%s', '55555555-5555-5555-5555-555555555555', 'TestService')", s.ID.String()))
 						db.Table("services").Count(&count)
 						So(count, ShouldEqual, 1)
@@ -127,15 +129,14 @@ func TestServiceGroupSpec(t *testing.T) {
 						})
 					})
 					Reset(func() {
-						db.Migrator().DropTable(&service.Service{})
+						util.TruncateTable(ctx, &service.Service{}, db)
 					})
 				})
 			})
 		})
 		Reset(func() {
-			db.Migrator().DropTable(&servicegroup.ServiceGroup{})
+			util.TruncateTable(ctx, &servicegroup.ServiceGroup{}, db)
 		})
 	})
-	DropDB(db, c)
 
 }

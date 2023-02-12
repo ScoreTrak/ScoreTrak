@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/round/roundrepo"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -121,7 +121,7 @@ func (r *roundRepo) GetLastRound(ctx context.Context) (*round.Round, error) {
 }
 
 func (r *roundRepo) TruncateTable(ctx context.Context) (err error) {
-	err = testutil.TruncateTable(ctx, &round.Round{}, r.db)
+	err = util.TruncateTable(ctx, &round.Round{}, r.db)
 	if err != nil {
 		return err
 	}

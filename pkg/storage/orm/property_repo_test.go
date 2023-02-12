@@ -3,9 +3,14 @@ package orm
 import (
 	"context"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/host"
+	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
 	"github.com/ScoreTrak/ScoreTrak/pkg/property"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
+	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
@@ -15,9 +20,8 @@ func TestPropertySpec(t *testing.T) {
 	c, _ := LoadViperConfig("../../../configs/test-config.yml")
 	db := SetupDB(c.DB)
 	ctx := context.Background()
+	defer TruncateAllTables(db)
 	Convey("Creating Property and Property tables along with their foreign keys", t, func() {
-		db.AutoMigrate(&service.Service{})
-		db.AutoMigrate(&property.Property{})
 		cr := NewPropertyRepo(db)
 		Convey("When all tables are empty", func() {
 			Convey("Should output no entry", func() {
@@ -35,10 +39,21 @@ func TestPropertySpec(t *testing.T) {
 			})
 			Convey("Load sample services and rounds", func() {
 				var count int64
+				db.Exec("INSERT INTO teams (id, name, pause) VALUES ('11111111-1111-1111-1111-111111111111', 'TeamOne', true)")
+				db.Exec("INSERT INTO host_groups (id, name, pause) VALUES ('11111111-1111-1111-1111-111111111111', 'HostGroup1', true)")
+				db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id, pause, edit_host) VALUES ('99999999-9999-9999-9999-999999999999', '10.0.0.1', '11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111', true, true)")
+				db.Exec("INSERT INTO service_groups (id, name, enabled) VALUES ('99999999-9999-9999-9999-999999999999', 'ServiceGroup1', true)")
 				db.Exec("INSERT INTO services (id, service_group_id, host_id, name) VALUES ('55555555-5555-5555-5555-555555555555', '99999999-9999-9999-9999-999999999999', '99999999-9999-9999-9999-999999999999', 'TestService')")
 				db.Exec("INSERT INTO services (id, service_group_id, host_id, name) VALUES ('66666666-6666-6666-6666-666666666666', '99999999-9999-9999-9999-999999999999', '99999999-9999-9999-9999-999999999999', 'TestService')")
 				db.Table("services").Count(&count)
 				So(count, ShouldEqual, 2)
+				Reset(func() {
+					util.TruncateTable(ctx, &service.Service{}, db)
+					util.TruncateTable(ctx, &team.Team{}, db)
+					util.TruncateTable(ctx, &hostgroup.HostGroup{}, db)
+					util.TruncateTable(ctx, &servicegroup.ServiceGroup{}, db)
+					util.TruncateTable(ctx, &host.Host{}, db)
+				})
 
 				Convey("Creating a sample property and associating with check_service 5 and round 1", func() {
 					str := "TestValue"
@@ -117,23 +132,21 @@ func TestPropertySpec(t *testing.T) {
 
 					})
 				})
-				// Ignored as there is no foreign key setup for service in property model
-				//Convey("Creating a property with wrong check_service id should not be allowed", func() {
-				//	str := "TestValue"
-				//	s := []*property.Property{{Key: "TestKey", ServiceID: uuid.FromStringOrNil("55521555-5555-5555-5555-555555555555"), Value: &str}}
-				//	err := cr.Store(ctx, s)
-				//	So(err, ShouldNotBeNil)
-				//	ac, err := cr.GetAll(ctx)
-				//	So(err, ShouldBeNil)
-				//	So(len(ac), ShouldEqual, 0)
-				//})
+				Convey("Creating a property with wrong check_service id should not be allowed", func() {
+					str := "TestValue"
+					s := []*property.Property{{Key: "TestKey", ServiceID: uuid.FromStringOrNil("55521555-5555-5555-5555-555555555555"), Value: &str}}
+					err := cr.Store(ctx, s)
+					So(err, ShouldNotBeNil)
+					ac, err := cr.GetAll(ctx)
+					So(err, ShouldBeNil)
+					So(len(ac), ShouldEqual, 0)
+				})
 			})
 		})
 		Reset(func() {
-			db.Migrator().DropTable(&property.Property{})
-			db.Migrator().DropTable(&service.Service{})
+			util.TruncateTable(ctx, &property.Property{}, db)
+			util.TruncateTable(ctx, &service.Service{}, db)
 		})
 	})
-	DropDB(db, c)
 
 }

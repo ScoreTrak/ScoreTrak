@@ -11,6 +11,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/server/grpc/grpcfx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/seed"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/storagefx"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/telemetry/telemetryfx"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
@@ -37,12 +38,15 @@ var masterCmd = &cobra.Command{
 				NewServerConfig,
 			),
 
-			// Observability
+			// Telemetry
 			telemetryfx.Module,
 
 			// Create database components
 			storagefx.Module,
-			fx.Invoke(seed.SeedDB),
+			fx.Invoke(
+				util.AutoMigrateConditional,
+				seed.DefaultSeedConditional,
+			),
 
 			// Create queueing components
 			fx.Provide(queue.NewMasterStreamPubSub),
@@ -73,7 +77,7 @@ var masterCmd = &cobra.Command{
 			// Create runner
 			fx.Provide(runner.NewRunner),
 
-			// Register lifecycle hooks for the server, runner, policy/report client
+			// Register lifecycle hooks for the runner, policy/report client
 			fx.Invoke(policyclient.InitPolicyClient, reportclient.InitReportClient),
 			fx.Invoke(runner.InitRunner),
 		)

@@ -7,6 +7,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
@@ -17,14 +18,14 @@ func TestHostSpec(t *testing.T) {
 	c, _ := LoadViperConfig("../../../configs/test-config.yml")
 	db := SetupDB(c.DB)
 	ctx := context.Background()
+	defer TruncateAllTables(db)
 	Convey("Creating Host Table", t, func() {
-		db.AutoMigrate(&host.Host{})
-		db.AutoMigrate(&team.Team{})
 		db.Exec("INSERT INTO teams (id, name, pause) VALUES ('11111111-1111-1111-1111-111111111111', 'HostGroup1', true)")
 		db.Exec("INSERT INTO teams (id, name, pause) VALUES ('22222222-2222-2222-2222-222222222222', 'HostGroup2', false)")
 		hr := NewHostRepo(db)
 		Reset(func() {
-			db.Migrator().DropTable(&host.Host{})
+			util.TruncateTable(ctx, &host.Host{}, db)
+			util.TruncateTable(ctx, &team.Team{}, db)
 		})
 		Convey("When the Host table is empty", func() {
 			Convey("There should be no entries", func() {
@@ -147,11 +148,6 @@ func TestHostSpec(t *testing.T) {
 				})
 
 				Convey("Then add a host group", func() {
-					db.AutoMigrate(&hostgroup.HostGroup{})
-					Reset(func() {
-						db.Migrator().DropTable(&host.Host{})
-						db.Migrator().DropTable(&hostgroup.HostGroup{})
-					})
 					uuid.FromStringOrNil("")
 					db.Exec("INSERT INTO host_groups (id, name, pause) VALUES ('11111111-1111-1111-1111-111111111111', 'HostGroup1', true)")
 					db.Exec("INSERT INTO host_groups (id, name, pause) VALUES ('22222222-2222-2222-2222-222222222222', 'HostGroup2', false)")
@@ -161,7 +157,7 @@ func TestHostSpec(t *testing.T) {
 					Convey("Adding a new host with host group foreign key", func() {
 						address := "127.0.0.1"
 						tru := true
-						hstg2 := uuid.FromStringOrNil("33333333-3333-3333-3333-333333333333")
+						hstg2 := uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222")
 						newHost := []*host.Host{{ID: uuid.FromStringOrNil("44444444-4444-4444-4444-444444444444"), HostGroupID: &hstg2, Address: address, EditHost: &tru, TeamID: uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222")}}
 						err := hr.Store(ctx, newHost)
 						So(err, ShouldBeNil)
@@ -178,23 +174,24 @@ func TestHostSpec(t *testing.T) {
 						err := hr.Update(ctx, h[0])
 						So(err, ShouldNotBeNil)
 					})
+					Reset(func() {
+						util.TruncateTable(ctx, &hostgroup.HostGroup{}, db)
+						util.TruncateTable(ctx, &host.Host{}, db)
+					})
 				})
 				Convey("Then add a team", func() {
-					db.AutoMigrate(&team.Team{})
 					Reset(func() {
-						db.Migrator().DropTable(&host.Host{})
-						db.Migrator().DropTable(&team.Team{})
+						util.TruncateTable(ctx, &host.Host{}, db)
+						util.TruncateTable(ctx, &team.Team{}, db)
 					})
 				})
 				Convey("Then add a check_service", func() {
-					db.AutoMigrate(&service.Service{})
 					Reset(func() {
-						db.Migrator().DropTable(&service.Service{})
+						util.TruncateTable(ctx, &service.Service{}, db)
 					})
 				})
 			})
 		})
 	})
-	DropDB(db, c)
 
 }

@@ -6,6 +6,7 @@ import (
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
@@ -16,11 +17,11 @@ func TestTeamSpec(t *testing.T) {
 	c, _ := LoadViperConfig("../../../configs/test-config.yml")
 	db := SetupDB(c.DB)
 	ctx := context.Background()
+	defer TruncateAllTables(db)
 	Convey("Creating Team Tables", t, func() {
-		db.AutoMigrate(&team.Team{})
 		tr := NewTeamRepo(db)
 		Reset(func() {
-			db.Migrator().DropTable(&team.Team{})
+			util.TruncateTable(ctx, &team.Team{}, db)
 		})
 		Convey("When the Teams table is empty", func() {
 			Convey("There should be no entries", func() {
@@ -118,7 +119,6 @@ func TestTeamSpec(t *testing.T) {
 
 				Convey("Creating Hosts Table", func() {
 					var count int64
-					db.AutoMigrate(&host.Host{})
 					Convey("Associating a single Host with a team", func() {
 						db.Exec(fmt.Sprintf("INSERT INTO hosts (id, address, team_id) VALUES ('44444444-4444-4444-4444-444444444444', '192.168.1.1', '%s')", t[0].ID.String()))
 						db.Table("hosts").Count(&count)
@@ -147,13 +147,12 @@ func TestTeamSpec(t *testing.T) {
 						})
 
 						Reset(func() {
-							db.Migrator().DropTable(&host.Host{})
+							util.TruncateTable(ctx, &host.Host{}, db)
 						})
 					})
 				})
 			})
 		})
 	})
-	DropDB(db, c)
 
 }

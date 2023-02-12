@@ -11,24 +11,6 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-var db *gorm.DB
-
-func GetGlobalDB() *gorm.DB {
-	return db
-}
-
-// LoadDB serves as a singleton that initializes the value of db per package
-func LoadDB(c Config) (*gorm.DB, error) {
-	var err error
-	if db == nil {
-		db, err = NewDB(c)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return db, nil
-}
-
 var ErrDBNotSupported = errors.New("not supported db")
 
 // NewDB creates an instance of database based on config
@@ -36,6 +18,8 @@ func NewDB(c Config) (*gorm.DB, error) {
 	var db *gorm.DB
 	var err error
 	switch c.Use {
+	case "postgresql":
+		db, err = newPostgreSQL(c)
 	case "cockroach":
 		db, err = newCockroach(c)
 	case "sqlite":
@@ -49,10 +33,32 @@ func NewDB(c Config) (*gorm.DB, error) {
 	return db, nil
 }
 
-func newSqlite(c Config) (*gorm.DB, error) {
-	db, err := gorm.Open(sqlite.Open(c.Sqlite.Path), &gorm.Config{NamingStrategy: schema.NamingStrategy{
-		TablePrefix: c.Prefix,
-	}})
+var ErrIncompleteCertInformationProvided = errors.New("you provided some, but not all certificate information")
+
+func newPostgreSQL(config Config) (*gorm.DB, error) {
+	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s",
+		config.Host,
+		config.Port,
+		config.UserName,
+		config.Database)
+
+	if config.Password != "" {
+		dsn += " password=" + config.Password
+	}
+	switch {
+	case config.ClientCA != "" && config.ClientSSLKey != "" && config.ClientSSLCert != "": // mTLS
+		dsn += fmt.Sprintf(" ssl=true sslmode=verify-full sslrootcert=%s sslkey=%s sslcert=%s",
+			config.ClientCA, config.ClientSSLKey, config.ClientSSLCert)
+	case config.ClientCA != "" && config.ClientSSLKey == "" && config.ClientSSLCert == "": // OneWayTLS
+		dsn += fmt.Sprintf(" ssl=true sslmode=verify-full sslrootcert=%s", config.ClientCA)
+	case config.ClientCA != "" || config.ClientSSLKey != "" || config.ClientSSLCert != "":
+		return nil, fmt.Errorf("%w, CA: %s, Key: %s, Cert: %s",
+			ErrIncompleteCertInformationProvided, config.ClientCA, config.ClientSSLKey, config.ClientSSLCert)
+	default:
+		dsn += " sslmode=disable"
+	}
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{NamingStrategy: schema.NamingStrategy{TablePrefix: config.Prefix}})
 	if err != nil {
 		return nil, err
 	}
@@ -60,74 +66,89 @@ func newSqlite(c Config) (*gorm.DB, error) {
 	return db, nil
 }
 
-var ErrIncompleteCertInformationProvided = errors.New("you provided some, but not all certificate information")
-
 // newCockroach is internal method used for initializing cockroach db instance.
 // It modifies few cockroachdb options like kv.range.backpressure_range_size_multiplier and gc.ttlseconds that
 // allows for a single large value to be changed frequently
 func newCockroach(config Config) (*gorm.DB, error) {
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s dbname=%s",
-		config.Cockroach.Host,
-		config.Cockroach.Port,
-		config.Cockroach.UserName,
-		config.Cockroach.Database)
+	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s",
+		config.Host,
+		config.Port,
+		config.UserName,
+		config.Database)
 
-	if config.Cockroach.Password != "" {
-		psqlInfo += " password=" + config.Cockroach.Password
+	if config.Password != "" {
+		dsn += " password=" + config.Password
 	}
 	switch {
-	case config.Cockroach.ClientCA != "" && config.Cockroach.ClientSSLKey != "" && config.Cockroach.ClientSSLCert != "": // mTLS
-		psqlInfo += fmt.Sprintf(" ssl=true sslmode=verify-full sslrootcert=%s sslkey=%s sslcert=%s",
-			config.Cockroach.ClientCA, config.Cockroach.ClientSSLKey, config.Cockroach.ClientSSLCert)
-	case config.Cockroach.ClientCA != "" && config.Cockroach.ClientSSLKey == "" && config.Cockroach.ClientSSLCert == "": // OneWayTLS
-		psqlInfo += fmt.Sprintf(" ssl=true sslmode=verify-full sslrootcert=%s", config.Cockroach.ClientCA)
-	case config.Cockroach.ClientCA != "" || config.Cockroach.ClientSSLKey != "" || config.Cockroach.ClientSSLCert != "":
+	case config.ClientCA != "" && config.ClientSSLKey != "" && config.ClientSSLCert != "": // mTLS
+		dsn += fmt.Sprintf(" ssl=true sslmode=verify-full sslrootcert=%s sslkey=%s sslcert=%s",
+			config.ClientCA, config.ClientSSLKey, config.ClientSSLCert)
+	case config.ClientCA != "" && config.ClientSSLKey == "" && config.ClientSSLCert == "": // OneWayTLS
+		dsn += fmt.Sprintf(" ssl=true sslmode=verify-full sslrootcert=%s", config.ClientCA)
+	case config.ClientCA != "" || config.ClientSSLKey != "" || config.ClientSSLCert != "":
 		return nil, fmt.Errorf("%w, CA: %s, Key: %s, Cert: %s",
-			ErrIncompleteCertInformationProvided, config.Cockroach.ClientCA, config.Cockroach.ClientSSLKey, config.Cockroach.ClientSSLCert)
+			ErrIncompleteCertInformationProvided, config.ClientCA, config.ClientSSLKey, config.ClientSSLCert)
 	default:
-		psqlInfo += " sslmode=disable"
+		dsn += " sslmode=disable"
 	}
-	DB, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{NamingStrategy: schema.NamingStrategy{
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{NamingStrategy: schema.NamingStrategy{
 		TablePrefix: config.Prefix,
 	}})
 	if err != nil {
 		return nil, err
 	}
+
+	// Cockroachdb customization
 	if config.Cockroach.ConfigureZones {
-		err := DB.Exec("ALTER RANGE default CONFIGURE ZONE USING gc.ttlseconds = ?;", config.Cockroach.DefaultZoneConfig.GcTtlseconds).Error
+		err := db.Exec("ALTER RANGE default CONFIGURE ZONE USING gc.ttlseconds = ?;", config.Cockroach.DefaultZoneConfig.GcTtlseconds).Error
 		if err != nil {
 			return nil, err
 		}
-		err = DB.Exec("SET CLUSTER SETTING kv.range.backpressure_range_size_multiplier= ?;", config.Cockroach.DefaultZoneConfig.BackpressureRangeSizeMultiplier).Error
+		err = db.Exec("SET CLUSTER SETTING kv.range.backpressure_range_size_multiplier= ?;", config.Cockroach.DefaultZoneConfig.BackpressureRangeSizeMultiplier).Error
 		if err != nil {
 			return nil, err
 		}
 	} else {
 		log.Println("You have chosen not to allow master configure database zones. Make sure you set gc.ttlseconds to something below 1200, so that report generation is not affected")
 	}
-	return DB, nil
+
+	return db, nil
+}
+
+func newSqlite(c Config) (*gorm.DB, error) {
+	db, err := gorm.Open(sqlite.Open(c.Database), &gorm.Config{NamingStrategy: schema.NamingStrategy{
+		TablePrefix: c.Prefix,
+	}})
+	if err != nil {
+		return nil, err
+	}
+
+	// SQlite customization
+	// Enabled foreign key support
+	if res := db.Exec("PRAGMA foreign_keys = ON", nil); res.Error != nil {
+		return nil, res.Error
+	}
+	return db, nil
 }
 
 type Config struct {
-	Use       string `default:"cockroach"`
-	Prefix    string `default:""`
-	Cockroach struct {
-		Host              string `default:"cockroach"`
-		Port              string `default:"26257"`
-		UserName          string `default:"root"`
-		Password          string `default:""`
-		ClientCA          string `default:""`
-		ClientSSLKey      string `default:""`
-		ClientSSLCert     string `default:""`
-		Database          string `default:"scoretrak"`
-		ConfigureZones    bool   `default:"true"`
+	Use           string `default:"cockroach"`
+	Prefix        string `default:""`
+	Host          string `default:"localhost"`
+	Port          string `default:"26257"`
+	UserName      string `default:"root"`
+	Password      string `default:""`
+	ClientCA      string `default:""`
+	ClientSSLKey  string `default:""`
+	ClientSSLCert string `default:""`
+	Database      string `default:"scoretrak"`
+	Migrate       bool   `default:"false"`
+	Seed          bool   `default:"false"`
+	Cockroach     struct {
+		ConfigureZones    bool `default:"true"`
 		DefaultZoneConfig struct {
 			GcTtlseconds                    uint64 `default:"600"`
 			BackpressureRangeSizeMultiplier uint64 `default:"0"`
 		}
-	}
-	Sqlite struct {
-		Path     string `default:"scoretrak.db"`
-		Database string `default:"scoretrak"`
 	}
 }

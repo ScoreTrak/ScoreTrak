@@ -1,127 +1,67 @@
 package testutil
 
 import (
-	"context"
-	"errors"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/check"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host"
-	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
-	"github.com/ScoreTrak/ScoreTrak/pkg/property"
-	"github.com/ScoreTrak/ScoreTrak/pkg/round"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
-	"github.com/ScoreTrak/ScoreTrak/pkg/team"
-	"github.com/ScoreTrak/ScoreTrak/pkg/user"
-	"github.com/gofrs/uuid"
-	"github.com/jackc/pgconn"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"os"
+	"log"
 	"time"
 )
 
-// CleanAllTables Drops all tables
-func CleanAllTables(db *gorm.DB) error {
-	err := db.Migrator().DropTable(&check.Check{})
-	if err != nil {
-		return err
-	}
-	err = db.Migrator().DropTable(&property.Property{})
-	if err != nil {
-		return err
-	}
-	err = db.Migrator().DropTable(&service.Service{})
-	if err != nil {
-		return err
-	}
-	err = db.Migrator().DropTable(&host.Host{})
-	if err != nil {
-		return err
-	}
-	err = db.Migrator().DropTable(&hostgroup.HostGroup{})
-	if err != nil {
-		return err
-	}
-	err = db.Migrator().DropTable(&round.Round{})
-	if err != nil {
-		return err
-	}
-	err = db.Migrator().DropTable(&servicegroup.ServiceGroup{})
-	if err != nil {
-		return err
-	}
-	err = db.Migrator().DropTable(&user.User{})
-	if err != nil {
-		return err
-	}
-	err = db.Migrator().DropTable(&team.Team{})
-	if err != nil {
-		return err
-	}
-	err = db.Migrator().DropTable(&config.DynamicConfig{})
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// uuid1 is a uuid of the initial admin user, and admin team
-var uuid1 = uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001")
-
-// CreateBlackTeam Ensures that black team exists
-func CreateBlackTeam(db *gorm.DB) (err error) {
-	err = db.Create([]*team.Team{{ID: uuid1, Name: "Black Team"}}).Error
-	if err != nil {
-		var serr *pgconn.PgError
-		ok := errors.As(err, &serr)
-		if !ok || serr.Code != "23505" {
-			return err
-		}
-	}
-	return nil
-}
-
-// CreatePolicy Ensure policy.Policy exists
-func CreatePolicy(db *gorm.DB) (*policy.Policy, error) {
-	p := &policy.Policy{ID: 1}
-	err := db.Create(p).Error
-	if err != nil {
-		var serr *pgconn.PgError
-		ok := errors.As(err, &serr)
-		if !ok {
-			if serr.Code != "23505" {
-				panic(err)
-			} else {
-				db.Take(p)
-			}
-		}
-	}
-	return p, nil
-}
-
 // TruncateAllTables truncates all tables (A little faster than dropping)
 func TruncateAllTables(db *gorm.DB) {
-	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "checks"))
-	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "properties"))
-	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "services"))
-	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "hosts"))
-	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "host_groups"))
-	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "rounds"))
-	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "service_groups"))
-	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "users"))
-	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "teams"))
-	db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "config"))
+	log.Println("Truncating all tables")
+	err := db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "checks")).Error
+	if err != nil {
+		panic(err)
+	}
+	err = db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "properties")).Error
+	if err != nil {
+		panic(err)
+	}
+	err = db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "services")).Error
+	if err != nil {
+		panic(err)
+	}
+	err = db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "hosts")).Error
+	if err != nil {
+		panic(err)
+	}
+	err = db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "host_groups")).Error
+	if err != nil {
+		panic(err)
+	}
+	err = db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "rounds")).Error
+	if err != nil {
+		panic(err)
+	}
+	err = db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "service_groups")).Error
+	if err != nil {
+		panic(err)
+	}
+	err = db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "users")).Error
+	if err != nil {
+		panic(err)
+	}
+	err = db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "teams")).Error
+	if err != nil {
+		panic(err)
+	}
+	err = db.Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", "dynamic_configs")).Error
+	if err != nil {
+		panic(err)
+	}
+	log.Println("Finished truncating all tables")
 }
 
 func DataPreload(db *gorm.DB) {
+	log.Println("Starting to seed database for testing")
 	var count int64
 	//Creating Config
-	db.Exec("INSERT INTO config (id, round_duration, enabled) VALUES (1, 60, true)")
-	db.Table("config").Count(&count)
+	db.Exec("INSERT INTO dynamic_configs (id, round_duration, enabled) VALUES (1, 60, true)")
+	db.Table("dynamic_configs").Count(&count)
 	if count != 1 {
 		panic("There should be 1 entry in config")
 	}
@@ -217,26 +157,7 @@ func DataPreload(db *gorm.DB) {
 	if count != 4 {
 		panic("There should be 4 entry in checks")
 	}
-}
-
-func DropDB(db *gorm.DB, c config.StaticConfig) {
-	if c.DB.Use == "cockroach" {
-		db.Exec(fmt.Sprintf("drop database %s", c.DB.Cockroach.Database))
-	} else if c.DB.Use == "sqlite" {
-		err := os.RemoveAll(c.DB.Sqlite.Path)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-}
-
-func TruncateTable(ctx context.Context, v interface{}, db *gorm.DB) error {
-	stmt := &gorm.Statement{DB: db}
-	err := stmt.Parse(v)
-	if err != nil {
-		return err
-	}
-	return db.WithContext(ctx).Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", stmt.Schema.Table)).Error //POSTGRES SPECIFIC. FOR MYSQL, CHANGE THIS TO  SET FOREIGN_KEY_CHECKS=0 ; <TRUNCATE> ; SET FOREIGN_KEY_CHECKS=1
+	log.Println("Finished seeding database for testing")
 }
 
 func SetupDB(c storage.Config) *gorm.DB {
@@ -246,6 +167,14 @@ func SetupDB(c storage.Config) *gorm.DB {
 	} else if c.Use == "sqlite" {
 		db = SetupSqliteDB(c)
 	}
+
+	err := util.AutoMigrate(db)
+	if err != nil {
+		panic(err)
+	}
+
+	TruncateAllTables(db)
+
 	return db
 }
 
@@ -253,15 +182,16 @@ func SetupDB(c storage.Config) *gorm.DB {
 func SetupCockroachDB(c storage.Config) *gorm.DB {
 	var err error
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s sslmode=disable",
-		c.Cockroach.Host,
-		c.Cockroach.Port,
-		c.Cockroach.UserName)
+		c.Host,
+		c.Port,
+		c.UserName)
 	dbPrep, err := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
-	dbPrep.Exec(fmt.Sprintf("drop database if exists  %s", c.Cockroach.Database))
-	dbPrep.Exec(fmt.Sprintf("create database if not exists  %s", c.Cockroach.Database))
+	if res := dbPrep.Exec(fmt.Sprintf("create database if not exists %s", c.Database)); res.Error != nil {
+		panic(err)
+	}
 	db, err := storage.NewDB(c)
 	if err != nil {
 		panic(err)

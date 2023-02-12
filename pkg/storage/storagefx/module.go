@@ -56,9 +56,5 @@ var Module = fx.Options(
 	),
 	fx.Invoke(
 		util.CheckDBTimeSync,
-		util.AutoMigrate,
-		util.LoadConfig,
-		util.LoadReport,
-		util.LoadPolicy,
 	),
 )

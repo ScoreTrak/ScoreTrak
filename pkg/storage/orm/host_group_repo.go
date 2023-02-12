@@ -3,11 +3,11 @@ package orm
 import (
 	"context"
 	"fmt"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
 	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup/hostgrouprepo"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
 	"github.com/gofrs/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -76,7 +76,7 @@ func (h *hostGroupRepo) Update(ctx context.Context, hstgrp *hostgroup.HostGroup)
 }
 
 func (h *hostGroupRepo) TruncateTable(ctx context.Context) (err error) {
-	err = testutil.TruncateTable(ctx, &hostgroup.HostGroup{}, h.db)
+	err = util.TruncateTable(ctx, &hostgroup.HostGroup{}, h.db)
 	if err != nil {
 		return err
 	}

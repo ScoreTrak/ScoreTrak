@@ -1,8 +1,6 @@
 package config
 
 import (
-	"errors"
-	"fmt"
 	"reflect"
 
 	"gorm.io/gorm"
@@ -17,18 +15,9 @@ type DynamicConfig struct {
 	Enabled *bool `json:"enabled,omitempty" default:"false" gorm:"not null;default:false"`
 }
 
-var ErrRoundDurationLargerThanMinRoundDuration = errors.New("round Duration should not be larger than MinRoundDuration")
-
 func (d *DynamicConfig) BeforeSave(tx *gorm.DB) (err error) {
 	d.ID = 1
-	if d.RoundDuration != 0 && d.RoundDuration < uint64(MinRoundDuration.Seconds()) {
-		return fmt.Errorf("%w, MinRoundDuration: %d", ErrRoundDurationLargerThanMinRoundDuration, uint64(MinRoundDuration.Seconds()))
-	}
 	return nil
-}
-
-func (d DynamicConfig) TableName() string {
-	return "config"
 }
 
 func (d *DynamicConfig) IsEqual(dc *DynamicConfig) bool {

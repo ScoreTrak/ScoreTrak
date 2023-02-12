@@ -78,6 +78,7 @@ func initConfig() {
 	viper.SetDefault("Prod", false)
 	viper.SetDefault("DatabaseMaxTimeDriftSeconds", 2)
 	viper.SetDefault("DynamicConfigPullSeconds", 5)
+	viper.SetDefault("MinTimoutDuration", 20)
 
 	// Scoretrak Dynamic Defaults
 	viper.SetDefault("Enabled", "false")
@@ -88,24 +89,27 @@ func initConfig() {
 	viper.SetDefault("server.port", "3000")
 
 	// Database Defaults
-	viper.SetDefault("DB.Use", "cockroach")
+	viper.SetDefault("DB.Use", "mysql")
 	viper.SetDefault("DB.AutoMigrate", "false")
-	// viper.SetDefault("DB.Prefix", "st")
+	//viper.SetDefault("DB.Prefix", "st_")
 
-	// Cockroach Database Defaults
-	viper.SetDefault("DB.Cockroach.Host", "cockroach")
-	viper.SetDefault("DB.Cockroach.Port", 26257)
-	viper.SetDefault("DB.Cockroach.Username", "root")
-	viper.SetDefault("DB.Cockroach.Database", "scoretrak")
+	// Database Defaults
+	viper.SetDefault("DB.Host", "localhost")
+	viper.SetDefault("DB.Port", 26257)
+	viper.SetDefault("DB.UserName", "root")
+	viper.SetDefault("DB.Database", "scoretrak")
+	viper.SetDefault("DB.Migrate", false)
+	viper.SetDefault("DB.Seed", false)
 	viper.SetDefault("DB.Cockroach.ConfigureZones", true)
 	viper.SetDefault("DB.Cockroach.DefaultZoneConfig.GcTtlseconds", 600)
 	viper.SetDefault("DB.Cockroach.DefaultZoneConfig.BackpressueRangeSizeMultiplier", 0)
 
 	// OTeL Defaults (key: "OTEL")
+	viper.SetDefault("otel.enabled", false)
 
 	// Queue Defaults
 	viper.SetDefault("Queue.Use", "none")
-	viper.SetDefault("Queue.NSQ.ProducerNSQD", "nsqd:4150")
+	viper.SetDefault("Queue.NSQ.ProducerNSQD", "localhost:4150")
 	viper.SetDefault("Queue.NSQ.IgnoreAllScoresIfWorkerFails", true)
 	viper.SetDefault("Queue.NSQ.Topic", "default")
 	viper.SetDefault("Queue.NSQ.MaxInFlight", 200)
