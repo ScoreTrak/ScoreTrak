@@ -78,6 +78,7 @@ func initConfig() {
 	viper.SetDefault("Prod", false)
 	viper.SetDefault("DatabaseMaxTimeDriftSeconds", 2)
 	viper.SetDefault("DynamicConfigPullSeconds", 5)
+	viper.SetDefault("MinTimoutDuration", 20)
 
 	// Scoretrak Dynamic Defaults
 	viper.SetDefault("Enabled", "false")
