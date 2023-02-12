@@ -126,7 +126,7 @@ func newSqlite(c Config) (*gorm.DB, error) {
 	// SQlite customization
 	// Enabled foreign key support
 	if res := db.Exec("PRAGMA foreign_keys = ON", nil); res.Error != nil {
-		panic(err)
+		return nil, res.Error
 	}
 	return db, nil
 }

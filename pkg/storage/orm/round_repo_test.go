@@ -16,11 +16,11 @@ func TestRoundSpec(t *testing.T) {
 	c, _ := LoadViperConfig("../../../configs/test-config.yml")
 	db := SetupDB(c.DB)
 	ctx := context.Background()
+	defer TruncateAllTables(db)
 	Convey("Creating Round Tables", t, func() {
-		db.AutoMigrate(&round.Round{})
 		rr := NewRoundRepo(db)
 		Reset(func() {
-			db.Migrator().DropTable(&round.Round{})
+			TruncateTable(ctx, &round.Round{}, db)
 		})
 		Convey("When the Rounds table is empty", func() {
 			Convey("There should be no entries", func() {
@@ -165,8 +165,12 @@ func TestRoundSpec(t *testing.T) {
 				})
 				Convey("Creating Checks Table", func() {
 					var count int64
-					db.AutoMigrate(&check.Check{})
 					Convey("Associating a single Check with a Round", func() {
+						db.Exec("INSERT INTO teams (id, name, pause) VALUES ('11111111-1111-1111-1111-111111111111', 'TeamOne', true)")
+						db.Exec("INSERT INTO host_groups (id, name, pause) VALUES ('11111111-1111-1111-1111-111111111111', 'HostGroup1', true)")
+						db.Exec("INSERT INTO hosts (id, address, team_id, host_group_id, pause, edit_host) VALUES ('55555555-5555-5555-5555-555555555555', '10.0.0.1', '11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111', true, true)")
+						db.Exec("INSERT INTO service_groups (id, name, enabled) VALUES ('11111111-1111-1111-1111-111111111111', 'ServiceGroup1', true)")
+						db.Exec(fmt.Sprintf("INSERT INTO services (id, service_group_id, host_id, name) VALUES ('11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111', '55555555-5555-5555-5555-555555555555', 'TestService')"))
 						db.Exec(fmt.Sprintf("INSERT INTO checks (service_id, round_id, log) VALUES ('11111111-1111-1111-1111-111111111111', %d, 'TestLog')", r.ID))
 						db.Table("checks").Count(&count)
 						So(count, ShouldEqual, 1)
@@ -181,13 +185,12 @@ func TestRoundSpec(t *testing.T) {
 						})
 
 						Reset(func() {
-							db.Migrator().DropTable(&check.Check{})
+							TruncateTable(ctx, &check.Check{}, db)
 						})
 					})
 				})
 			})
 		})
 	})
-	DropDB(db, c)
 
 }
