@@ -9,6 +9,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
@@ -47,11 +48,11 @@ func TestPropertySpec(t *testing.T) {
 				db.Table("services").Count(&count)
 				So(count, ShouldEqual, 2)
 				Reset(func() {
-					TruncateTable(ctx, &service.Service{}, db)
-					TruncateTable(ctx, &team.Team{}, db)
-					TruncateTable(ctx, &hostgroup.HostGroup{}, db)
-					TruncateTable(ctx, &servicegroup.ServiceGroup{}, db)
-					TruncateTable(ctx, &host.Host{}, db)
+					util.TruncateTable(ctx, &service.Service{}, db)
+					util.TruncateTable(ctx, &team.Team{}, db)
+					util.TruncateTable(ctx, &hostgroup.HostGroup{}, db)
+					util.TruncateTable(ctx, &servicegroup.ServiceGroup{}, db)
+					util.TruncateTable(ctx, &host.Host{}, db)
 				})
 
 				Convey("Creating a sample property and associating with check_service 5 and round 1", func() {
@@ -143,8 +144,8 @@ func TestPropertySpec(t *testing.T) {
 			})
 		})
 		Reset(func() {
-			TruncateTable(ctx, &property.Property{}, db)
-			TruncateTable(ctx, &service.Service{}, db)
+			util.TruncateTable(ctx, &property.Property{}, db)
+			util.TruncateTable(ctx, &service.Service{}, db)
 		})
 	})
 

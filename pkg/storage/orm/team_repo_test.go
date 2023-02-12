@@ -6,6 +6,7 @@ import (
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/host"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
@@ -20,7 +21,7 @@ func TestTeamSpec(t *testing.T) {
 	Convey("Creating Team Tables", t, func() {
 		tr := NewTeamRepo(db)
 		Reset(func() {
-			TruncateTable(ctx, &team.Team{}, db)
+			util.TruncateTable(ctx, &team.Team{}, db)
 		})
 		Convey("When the Teams table is empty", func() {
 			Convey("There should be no entries", func() {
@@ -146,7 +147,7 @@ func TestTeamSpec(t *testing.T) {
 						})
 
 						Reset(func() {
-							TruncateTable(ctx, &host.Host{}, db)
+							util.TruncateTable(ctx, &host.Host{}, db)
 						})
 					})
 				})

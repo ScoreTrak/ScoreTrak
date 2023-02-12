@@ -7,6 +7,7 @@ import (
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/round"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
 	"time"
@@ -20,7 +21,7 @@ func TestRoundSpec(t *testing.T) {
 	Convey("Creating Round Tables", t, func() {
 		rr := NewRoundRepo(db)
 		Reset(func() {
-			TruncateTable(ctx, &round.Round{}, db)
+			util.TruncateTable(ctx, &round.Round{}, db)
 		})
 		Convey("When the Rounds table is empty", func() {
 			Convey("There should be no entries", func() {
@@ -185,7 +186,7 @@ func TestRoundSpec(t *testing.T) {
 						})
 
 						Reset(func() {
-							TruncateTable(ctx, &check.Check{}, db)
+							util.TruncateTable(ctx, &check.Check{}, db)
 						})
 					})
 				})

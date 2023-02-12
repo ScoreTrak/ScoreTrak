@@ -7,6 +7,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
@@ -23,8 +24,8 @@ func TestHostSpec(t *testing.T) {
 		db.Exec("INSERT INTO teams (id, name, pause) VALUES ('22222222-2222-2222-2222-222222222222', 'HostGroup2', false)")
 		hr := NewHostRepo(db)
 		Reset(func() {
-			TruncateTable(ctx, &host.Host{}, db)
-			TruncateTable(ctx, &team.Team{}, db)
+			util.TruncateTable(ctx, &host.Host{}, db)
+			util.TruncateTable(ctx, &team.Team{}, db)
 		})
 		Convey("When the Host table is empty", func() {
 			Convey("There should be no entries", func() {
@@ -174,19 +175,19 @@ func TestHostSpec(t *testing.T) {
 						So(err, ShouldNotBeNil)
 					})
 					Reset(func() {
-						TruncateTable(ctx, &hostgroup.HostGroup{}, db)
-						TruncateTable(ctx, &host.Host{}, db)
+						util.TruncateTable(ctx, &hostgroup.HostGroup{}, db)
+						util.TruncateTable(ctx, &host.Host{}, db)
 					})
 				})
 				Convey("Then add a team", func() {
 					Reset(func() {
-						TruncateTable(ctx, &host.Host{}, db)
-						TruncateTable(ctx, &team.Team{}, db)
+						util.TruncateTable(ctx, &host.Host{}, db)
+						util.TruncateTable(ctx, &team.Team{}, db)
 					})
 				})
 				Convey("Then add a check_service", func() {
 					Reset(func() {
-						TruncateTable(ctx, &service.Service{}, db)
+						util.TruncateTable(ctx, &service.Service{}, db)
 					})
 				})
 			})

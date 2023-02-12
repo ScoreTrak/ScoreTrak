@@ -31,7 +31,6 @@ func TestCheckSpec(t *testing.T) {
 		panic(err)
 	}
 	db := SetupDB(c.DB)
-	defer TruncateAllTables(db)
 
 	userClaims := []*auth.UserClaims{
 		{
@@ -56,6 +55,7 @@ func TestCheckSpec(t *testing.T) {
 
 	for _, claim := range userClaims {
 		log.Printf("Running Test for %s", claim.Username)
+		defer TruncateAllTables(db)
 		Convey("Create Tables and Load Data", t, func() {
 			DataPreload(db)
 			Convey("Creating Round, Service and Check repos, services, ", func() {

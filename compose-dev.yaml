@@ -16,6 +16,8 @@ services:
     - type: bind
       source: .
       target: /go/src/github.com/scoretrak/scoretrak
+    depends_on:
+      - cockroachdb
 
   cockroachdb:
     image: cockroachdb/cockroach:latest
@@ -32,6 +34,8 @@ services:
     ports:
       - 8000:8000
       - 8000:9901
+    depends_on:
+      - app
     links:
       - "app:scoretrak"
     volumes:

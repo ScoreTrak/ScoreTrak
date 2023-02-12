@@ -10,6 +10,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
@@ -52,9 +53,9 @@ func TestServiceSpec(t *testing.T) {
 				So(count, ShouldEqual, 2)
 
 				Reset(func() {
-					TruncateTable(ctx, &team.Team{}, db)
-					TruncateTable(ctx, &servicegroup.ServiceGroup{}, db)
-					TruncateTable(ctx, &host.Host{}, db)
+					util.TruncateTable(ctx, &team.Team{}, db)
+					util.TruncateTable(ctx, &servicegroup.ServiceGroup{}, db)
+					util.TruncateTable(ctx, &host.Host{}, db)
 				})
 
 				Convey("Creating a sample check_service and associating with host id 5, and check_service group id 2", func() {
@@ -177,8 +178,8 @@ func TestServiceSpec(t *testing.T) {
 							})
 						})
 						Reset(func() {
-							TruncateTable(ctx, &check.Check{}, db)
-							TruncateTable(ctx, &property.Property{}, db)
+							util.TruncateTable(ctx, &check.Check{}, db)
+							util.TruncateTable(ctx, &property.Property{}, db)
 						})
 					})
 				})
@@ -195,9 +196,9 @@ func TestServiceSpec(t *testing.T) {
 			})
 		})
 		Reset(func() {
-			TruncateTable(ctx, &service.Service{}, db)
-			TruncateTable(ctx, &host.Host{}, db)
-			TruncateTable(ctx, &servicegroup.ServiceGroup{}, db)
+			util.TruncateTable(ctx, &service.Service{}, db)
+			util.TruncateTable(ctx, &host.Host{}, db)
+			util.TruncateTable(ctx, &servicegroup.ServiceGroup{}, db)
 		})
 	})
 

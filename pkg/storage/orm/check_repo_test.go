@@ -10,6 +10,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
@@ -29,13 +30,13 @@ func TestCheckSpec(t *testing.T) {
 		cr := NewCheckRepo(db)
 		Reset(func() {
 			ctx := context.Background()
-			TruncateTable(ctx, &team.Team{}, db)
-			TruncateTable(ctx, &hostgroup.HostGroup{}, db)
-			TruncateTable(ctx, &host.Host{}, db)
-			TruncateTable(ctx, &servicegroup.ServiceGroup{}, db)
-			TruncateTable(ctx, &check.Check{}, db)
-			TruncateTable(ctx, &round.Round{}, db)
-			TruncateTable(ctx, &service.Service{}, db)
+			util.TruncateTable(ctx, &team.Team{}, db)
+			util.TruncateTable(ctx, &hostgroup.HostGroup{}, db)
+			util.TruncateTable(ctx, &host.Host{}, db)
+			util.TruncateTable(ctx, &servicegroup.ServiceGroup{}, db)
+			util.TruncateTable(ctx, &check.Check{}, db)
+			util.TruncateTable(ctx, &round.Round{}, db)
+			util.TruncateTable(ctx, &service.Service{}, db)
 		})
 		Convey("When all tables are empty", func() {
 			Convey("Should output no entry", func() {
@@ -63,8 +64,8 @@ func TestCheckSpec(t *testing.T) {
 				So(count, ShouldEqual, 2)
 				Reset(func() {
 					ctx := context.Background()
-					TruncateTable(ctx, &round.Round{}, db)
-					TruncateTable(ctx, &service.Service{}, db)
+					util.TruncateTable(ctx, &round.Round{}, db)
+					util.TruncateTable(ctx, &service.Service{}, db)
 				})
 				Convey("Creating a sample check and associating with check_service 5 and round 1", func() {
 					c := []*check.Check{{Log: "TestLog", RoundID: 1, ServiceID: uuid.FromStringOrNil("11111111-1111-1111-1111-111111111111")}}

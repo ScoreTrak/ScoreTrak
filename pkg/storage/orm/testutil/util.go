@@ -1,7 +1,6 @@
 package testutil
 
 import (
-	"context"
 	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
@@ -159,15 +158,6 @@ func DataPreload(db *gorm.DB) {
 		panic("There should be 4 entry in checks")
 	}
 	log.Println("Finished seeding database for testing")
-}
-
-func TruncateTable(ctx context.Context, v interface{}, db *gorm.DB) error {
-	stmt := &gorm.Statement{DB: db}
-	err := stmt.Parse(v)
-	if err != nil {
-		return err
-	}
-	return db.WithContext(ctx).Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", stmt.Schema.Table)).Error //POSTGRES SPECIFIC. FOR MYSQL, CHANGE THIS TO  SET FOREIGN_KEY_CHECKS=0 ; <TRUNCATE> ; SET FOREIGN_KEY_CHECKS=1
 }
 
 func SetupDB(c storage.Config) *gorm.DB {

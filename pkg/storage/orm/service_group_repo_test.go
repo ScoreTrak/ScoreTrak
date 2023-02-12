@@ -7,6 +7,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
@@ -128,13 +129,13 @@ func TestServiceGroupSpec(t *testing.T) {
 						})
 					})
 					Reset(func() {
-						TruncateTable(ctx, &service.Service{}, db)
+						util.TruncateTable(ctx, &service.Service{}, db)
 					})
 				})
 			})
 		})
 		Reset(func() {
-			TruncateTable(ctx, &servicegroup.ServiceGroup{}, db)
+			util.TruncateTable(ctx, &servicegroup.ServiceGroup{}, db)
 		})
 	})
 

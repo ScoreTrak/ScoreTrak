@@ -3,12 +3,12 @@ server:
   port: 3001
 
 db:
-  use: "sqlite"
-  host: "scoretrak.db"
-#  port: "5432"
-#  database: "scoretrak"
-#  username: "st_admin"
-#  password: "password"
+  use: "cockroach"
+  host: "cockroachdb"
+  port: "26257"
+  database: "scoretrak"
+  username: "st_admin"
+  password: "password"
   seed: true
   migrate: true
 

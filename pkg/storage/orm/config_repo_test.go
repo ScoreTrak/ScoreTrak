@@ -5,6 +5,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/config/util"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
@@ -44,7 +45,7 @@ func TestConfigSpec(t *testing.T) {
 		})
 
 		Reset(func() {
-			TruncateTable(ctx, &config.DynamicConfig{}, db)
+			util.TruncateTable(ctx, &config.DynamicConfig{}, db)
 		})
 	})
 }

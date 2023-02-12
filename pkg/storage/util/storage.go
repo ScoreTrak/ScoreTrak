@@ -1,6 +1,7 @@
 package util
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -14,6 +15,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
+	"github.com/spf13/viper"
 	"log"
 	"math"
 	"time"
@@ -85,9 +87,11 @@ var ErrTimeDifferenceTooLarge = errors.New("time difference between master host,
 
 // DatabaseOutOfSync ensures that drift between database is not larger than DatabaseMaxTimeDriftSeconds
 func DatabaseOutOfSync(dbTime time.Time, config config.StaticConfig) error {
-	timeDiff := time.Since(dbTime)
-	if float64(time.Second*time.Duration(config.DatabaseMaxTimeDriftSeconds)) < math.Abs(float64(timeDiff)) {
-		return fmt.Errorf("%w: Time on database:%s, Time on master:%s", ErrTimeDifferenceTooLarge, dbTime.String(), time.Now())
+	if config.DB.Use != "sqlite" {
+		timeDiff := time.Since(dbTime)
+		if float64(time.Second*time.Duration(config.DatabaseMaxTimeDriftSeconds)) < math.Abs(float64(timeDiff)) {
+			return fmt.Errorf("%w: Time on database:%s, Time on master:%s", ErrTimeDifferenceTooLarge, dbTime.String(), time.Now())
+		}
 	}
 	return nil
 }
@@ -169,4 +173,23 @@ func NewRepoStore(roundrepo roundrepo.Repo, hostrepo hostrepo.Repo, hostgrouprep
 		Policy:       policyrepo,
 		Users:        userrepo,
 	}
+}
+
+func TruncateTable(ctx context.Context, v interface{}, db *gorm.DB) error {
+	dbType := viper.GetString("db.use")
+	stmt := &gorm.Statement{DB: db}
+	err := stmt.Parse(v)
+	if err != nil {
+		return err
+	}
+	if dbType == "mysql" {
+		// NOT DESIRABLE as there will be data that will break the foreign key constraints.
+		// However, this command is only called with others table are being turncated as well :)
+		return db.WithContext(ctx).Exec(fmt.Sprintf("SET FOREIGN_KEY_CHECKS=0 ; TRUNCATE %s ; SET FOREIGN_KEY_CHECKS=1", stmt.Schema.Table)).Error
+	} else if dbType == "postgresql" || dbType == "cockroach" {
+		return db.WithContext(ctx).Exec(fmt.Sprintf("TRUNCATE TABLE %s CASCADE", stmt.Schema.Table)).Error
+	} else if dbType == "sqlite" {
+		return db.WithContext(ctx).Exec(fmt.Sprintf("DELETE FROM %s", stmt.Schema.Table)).Error
+	}
+	return storage.ErrDBNotSupported
 }

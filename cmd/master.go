@@ -43,7 +43,7 @@ var masterCmd = &cobra.Command{
 
 			// Create database components
 			storagefx.Module,
-			fx.Provide(
+			fx.Invoke(
 				util.AutoMigrateConditional,
 				seed.DefaultSeedConditional,
 			),
