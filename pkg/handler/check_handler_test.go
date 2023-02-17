@@ -26,12 +26,11 @@ import (
 )
 
 func TestCheckSpec(t *testing.T) {
-	c, _ := LoadViperConfig("../../configs/test-config.yml")
-	db := SetupDB(c.DB)
-	err := util.AutoMigrate(db)
+	c, err := LoadViperConfig("../../configs/test-config.yml")
 	if err != nil {
 		panic(err)
 	}
+	db := SetupDB(c.DB)
 
 	userClaims := []*auth.UserClaims{
 		{
@@ -55,6 +54,8 @@ func TestCheckSpec(t *testing.T) {
 	}
 
 	for _, claim := range userClaims {
+		log.Printf("Running Test for %s", claim.Username)
+		defer TruncateAllTables(db)
 		Convey("Create Tables and Load Data", t, func() {
 			DataPreload(db)
 			Convey("Creating Round, Service and Check repos, services, ", func() {
@@ -216,7 +217,4 @@ func TestCheckSpec(t *testing.T) {
 			})
 		})
 	}
-
-	DropDB(db, c)
-
 }

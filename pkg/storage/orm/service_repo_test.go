@@ -10,21 +10,20 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
 	. "github.com/ScoreTrak/ScoreTrak/pkg/storage/orm/testutil"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
 	"github.com/gofrs/uuid"
 	. "github.com/smartystreets/goconvey/convey"
 	"testing"
+	"time"
 )
 
 func TestServiceSpec(t *testing.T) {
 	c, _ := LoadViperConfig("../../../configs/test-config.yml")
 	db := SetupDB(c.DB)
 	ctx := context.Background()
+	defer TruncateAllTables(db)
 	Convey("Creating Service, Service Group, Host Tables along with their foreign keys", t, func() {
-		db.AutoMigrate(&service.Service{})
-		db.AutoMigrate(&servicegroup.ServiceGroup{})
-		db.AutoMigrate(&team.Team{})
-		db.AutoMigrate(&host.Host{})
 		sr := NewServiceRepo(db)
 		Convey("When all tables are empty", func() {
 			Convey("Should output no entry", func() {
@@ -52,6 +51,12 @@ func TestServiceSpec(t *testing.T) {
 				So(count, ShouldEqual, 2)
 				db.Table("service_groups").Count(&count)
 				So(count, ShouldEqual, 2)
+
+				Reset(func() {
+					util.TruncateTable(ctx, &team.Team{}, db)
+					util.TruncateTable(ctx, &servicegroup.ServiceGroup{}, db)
+					util.TruncateTable(ctx, &host.Host{}, db)
+				})
 
 				Convey("Creating a sample check_service and associating with host id 5, and check_service group id 2", func() {
 					s := []*service.Service{{Name: "FTP", ServiceGroupID: uuid.FromStringOrNil("22222222-2222-2222-2222-222222222222"), HostID: uuid.FromStringOrNil("55555555-5555-5555-5555-555555555555")}}
@@ -151,10 +156,10 @@ func TestServiceSpec(t *testing.T) {
 					err = sr.Store(ctx, s2)
 					So(err, ShouldBeNil)
 					Convey("Loading Checks And Properties Tables with sample data", func() {
-						db.AutoMigrate(&property.Property{})
-						db.AutoMigrate(&check.Check{})
-						db.Exec(fmt.Sprintf("INSERT INTO checks (service_id, round_id, passed) VALUES ('%s', 999, false)", s1[0].ID.String()))
-						db.Exec(fmt.Sprintf("INSERT INTO checks (service_id, round_id, passed) VALUES ('%s', 333, false)", s2[0].ID.String()))
+						db.Exec("INSERT INTO rounds (id, start, finish) VALUES (1, ?, ?)", time.Now().Add(-time.Second*60*3), time.Now().Add(-time.Second*60*3+time.Second*30))
+						db.Exec("INSERT INTO rounds (id, start, finish) VALUES (2, ?, ?)", time.Now().Add(-time.Second*60*2), time.Now().Add(-time.Second*60*2+time.Second*20))
+						db.Exec(fmt.Sprintf("INSERT INTO checks (service_id, round_id, passed) VALUES ('%s', 1, false)", s1[0].ID.String()))
+						db.Exec(fmt.Sprintf("INSERT INTO checks (service_id, round_id, passed) VALUES ('%s', 2, false)", s2[0].ID.String()))
 						db.Exec(fmt.Sprintf("INSERT INTO properties (service_id, key, value) VALUES ('%s', 'sample_key', 'sample_value')", s1[0].ID.String()))
 						db.Exec(fmt.Sprintf("INSERT INTO properties (service_id, key, value) VALUES ('%s', 'sample_key', 'sample_value')", s2[0].ID.String()))
 						db.Table("checks").Count(&count)
@@ -173,8 +178,8 @@ func TestServiceSpec(t *testing.T) {
 							})
 						})
 						Reset(func() {
-							db.Migrator().DropTable(&property.Property{})
-							db.Migrator().DropTable(&check.Check{})
+							util.TruncateTable(ctx, &check.Check{}, db)
+							util.TruncateTable(ctx, &property.Property{}, db)
 						})
 					})
 				})
@@ -191,11 +196,10 @@ func TestServiceSpec(t *testing.T) {
 			})
 		})
 		Reset(func() {
-			db.Migrator().DropTable(&service.Service{})
-			db.Migrator().DropTable(&host.Host{})
-			db.Migrator().DropTable(&servicegroup.ServiceGroup{})
+			util.TruncateTable(ctx, &service.Service{}, db)
+			util.TruncateTable(ctx, &host.Host{}, db)
+			util.TruncateTable(ctx, &servicegroup.ServiceGroup{}, db)
 		})
 	})
-	DropDB(db, c)
 
 }

@@ -40,3 +40,9 @@ cockroach-data
 
 # scoretrak binary
 scoretrak
+
+# scoretrak sqlite db
+scoretrak.db
+
+.cache
+/.bash_history

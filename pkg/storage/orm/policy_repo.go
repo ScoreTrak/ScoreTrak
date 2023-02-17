@@ -2,6 +2,7 @@ package orm
 
 import (
 	"context"
+	"gorm.io/gorm/clause"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyrepo"
@@ -16,11 +17,27 @@ func NewPolicyRepo(db *gorm.DB) policyrepo.Repo {
 	return &policyRepo{db}
 }
 
+func (h *policyRepo) Create(ctx context.Context, p *policy.Policy) error {
+	err := h.db.WithContext(ctx).Create(p).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (h *policyRepo) Get(ctx context.Context) (*policy.Policy, error) {
 	p := &policy.Policy{}
 	p.ID = 1
 	h.db.WithContext(ctx).Take(p)
 	return p, nil
+}
+
+func (h *policyRepo) Upsert(ctx context.Context, pol *policy.Policy) error {
+	err := h.db.WithContext(ctx).Clauses(clause.OnConflict{DoNothing: true}).Create(pol).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (h *policyRepo) Update(ctx context.Context, tm *policy.Policy) error {

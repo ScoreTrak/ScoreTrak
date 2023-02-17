@@ -1,0 +1,368 @@
+{
+  "type": "object",
+  "properties": {
+    "adminpassword": {
+      "type": "string",
+      "default": "changeme"
+    },
+    "adminusername": {
+      "type": "string",
+      "default": "admin"
+    },
+    "databasemaxtimedriftseconds": {
+      "type": "integer",
+      "format": "int32",
+      "default": 2,
+      "minimum": 0
+    },
+    "db": {
+      "type": "object",
+      "properties": {
+        "clientca": {
+          "type": "string",
+          "default": ""
+        },
+        "clientsslcert": {
+          "type": "string",
+          "default": ""
+        },
+        "clientsslkey": {
+          "type": "string",
+          "default": ""
+        },
+        "cockroach": {
+          "type": "object",
+          "properties": {
+            "configurezones": {
+              "type": "boolean",
+              "default": true
+            },
+            "defaultzoneconfig": {
+              "type": "object",
+              "properties": {
+                "backpressurerangesizemultiplier": {
+                  "type": "integer",
+                  "format": "int64",
+                  "default": 0,
+                  "minimum": 0
+                },
+                "gcttlseconds": {
+                  "type": "integer",
+                  "format": "int64",
+                  "default": 600,
+                  "minimum": 0
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "gcttlseconds",
+                "backpressurerangesizemultiplier"
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "configurezones",
+            "defaultzoneconfig"
+          ]
+        },
+        "database": {
+          "type": "string",
+          "default": "scoretrak"
+        },
+        "host": {
+          "type": "string",
+          "default": "localhost"
+        },
+        "migrate": {
+          "type": "boolean",
+          "default": false
+        },
+        "password": {
+          "type": "string",
+          "default": ""
+        },
+        "port": {
+          "type": "string",
+          "default": "3306"
+        },
+        "prefix": {
+          "type": "string",
+          "default": "st_"
+        },
+        "seed": {
+          "type": "boolean",
+          "default": false
+        },
+        "use": {
+          "type": "string",
+          "default": ""
+        },
+        "username": {
+          "type": "string",
+          "default": "root"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "use",
+        "prefix",
+        "host",
+        "port",
+        "username",
+        "password",
+        "database",
+        "migrate",
+        "seed",
+        "clientca",
+        "clientsslkey",
+        "clientsslcert",
+        "cockroach"
+      ]
+    },
+    "dynamicconfigpullseconds": {
+      "type": "integer",
+      "format": "int32",
+      "default": 5,
+      "minimum": 0
+    },
+    "jwt": {
+      "type": "object",
+      "properties": {
+        "secret": {
+          "type": "string",
+          "default": "changeme"
+        },
+        "timeoutinseconds": {
+          "type": "integer",
+          "format": "int64",
+          "default": 86400,
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "secret",
+        "timeoutinseconds"
+      ]
+    },
+    "platform": {
+      "type": "object",
+      "properties": {
+        "docker": {
+          "type": "object",
+          "properties": {
+            "host": {
+              "type": "string",
+              "default": "unix:///var/run/docker.sock"
+            },
+            "name": {
+              "type": "string",
+              "default": "scoretrak"
+            },
+            "network": {
+              "type": "string",
+              "default": "default"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "host",
+            "network"
+          ]
+        },
+        "kubernetes": {
+          "type": "object",
+          "properties": {
+            "namespace": {
+              "type": "string",
+              "default": "default"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "namespace"
+          ]
+        },
+        "use": {
+          "type": "string",
+          "default": "none"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "use",
+        "docker",
+        "kubernetes"
+      ]
+    },
+    "prod": {
+      "type": "boolean",
+      "default": false
+    },
+    "pubsubconfig": {
+      "type": "object",
+      "properties": {
+        "channelprefix": {
+          "type": "string",
+          "default": "master"
+        },
+        "reportforcerefreshseconds": {
+          "type": "integer",
+          "format": "int32",
+          "default": 60,
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "reportforcerefreshseconds",
+        "channelprefix"
+      ]
+    },
+    "queue": {
+      "type": "object",
+      "properties": {
+        "kafka": {
+          "type": "object",
+          "additionalProperties": false
+        },
+        "nsq": {
+          "type": "object",
+          "properties": {
+            "authsecret": {
+              "type": "string",
+              "default": ""
+            },
+            "clientrootca": {
+              "type": "string",
+              "default": ""
+            },
+            "clientsslcert": {
+              "type": "string",
+              "default": ""
+            },
+            "clientsslkey": {
+              "type": "string",
+              "default": ""
+            },
+            "concurrenthandlers": {
+              "type": "integer",
+              "format": "int32",
+              "default": 200
+            },
+            "consumernsqdpool": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                ""
+              ]
+            },
+            "ignoreallscoresifworkerfails": {
+              "type": "boolean",
+              "default": true
+            },
+            "maxinflight": {
+              "type": "integer",
+              "format": "int32",
+              "default": 200
+            },
+            "nsqlookupd": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                ""
+              ]
+            },
+            "producernsqd": {
+              "type": "string",
+              "default": "nsqd:4150"
+            },
+            "topic": {
+              "type": "string",
+              "default": "default"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "producernsqd",
+            "ignoreallscoresifworkerfails",
+            "topic",
+            "maxinflight",
+            "authsecret",
+            "clientrootca",
+            "clientsslkey",
+            "clientsslcert",
+            "concurrenthandlers",
+            "nsqlookupd",
+            "consumernsqdpool"
+          ]
+        },
+        "use": {
+          "type": "string",
+          "default": "none"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "use",
+        "kafka",
+        "nsq"
+      ]
+    },
+    "server": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "default": "127.0.0.1"
+        },
+        "port": {
+          "type": "string",
+          "default": "3000"
+        },
+        "tls": {
+          "type": "object",
+          "properties": {
+            "certfile": {
+              "type": "string"
+            },
+            "keyfile": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "certfile",
+            "keyfile"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "address",
+        "port",
+        "tls"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "db",
+    "databasemaxtimedriftseconds",
+    "dynamicconfigpullseconds",
+    "queue",
+    "platform",
+    "pubsubconfig",
+    "adminusername",
+    "adminpassword",
+    "server",
+    "prod",
+    "jwt"
+  ]
+}

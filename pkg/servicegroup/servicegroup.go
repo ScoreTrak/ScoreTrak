@@ -31,10 +31,6 @@ type ServiceGroup struct {
 	Services []*service.Service `json:"services,omitempty" gorm:"foreignkey:ServiceGroupID; constraint:OnUpdate:RESTRICT,OnDelete:RESTRICT"`
 }
 
-func (ServiceGroup) TableName() string {
-	return "service_groups"
-}
-
 var ErrNameDoesNotPassValidation = errors.New(`name must pass following regex: "^[\.a-zA-Z0-9_-]+(#ephemeral)?$", and be less than 64 characters`)
 
 // BeforeSave ensures that name is set to correct value. In particular, the name should adhere to ^[\.a-zA-Z0-9_-]+(#ephemeral)?$ regex as per https://github.com/nsqio/go-nsq/blob/04552936c57a26026c39e10a8993805e0f5a73d0/protocol.go

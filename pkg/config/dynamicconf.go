@@ -27,10 +27,6 @@ func (d *DynamicConfig) BeforeSave(tx *gorm.DB) (err error) {
 	return nil
 }
 
-func (d DynamicConfig) TableName() string {
-	return "config"
-}
-
 func (d *DynamicConfig) IsEqual(dc *DynamicConfig) bool {
 	return reflect.DeepEqual(dc, d)
 }
