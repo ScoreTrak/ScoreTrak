@@ -32,7 +32,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.10.0
 	go.uber.org/fx v1.18.2
 	go.uber.org/zap v1.23.0
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	golang.org/x/crypto v0.1.0
 	golang.org/x/net v0.5.0
 	google.golang.org/grpc v1.50.1
 	google.golang.org/protobuf v1.28.1
