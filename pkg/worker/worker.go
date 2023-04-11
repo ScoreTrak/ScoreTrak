@@ -1,11 +1,11 @@
 package worker
 
-import "C"
 import (
 	"context"
+	"log"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"go.uber.org/fx"
-	"log"
 )
 
 func InitWorker(lc fx.Lifecycle, workerQueue queue.WorkerQueue) {

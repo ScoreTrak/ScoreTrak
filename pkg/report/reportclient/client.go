@@ -2,12 +2,13 @@ package reportclient
 
 import (
 	"context"
-	"go.uber.org/fx"
 	"log"
 	"sync"
 
+	"go.uber.org/fx"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
-	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportrepo"
 	"github.com/gofrs/uuid"
 )
@@ -15,13 +16,13 @@ import (
 type Client struct {
 	repo   reportrepo.Repo
 	pubsub queue.MasterStreamPubSub
-	cnf    queueing.MasterConfig
+	cnf    config.Config
 
 	signal      map[uuid.UUID]chan struct{}
 	signalMutex *sync.RWMutex
 }
 
-func NewReportClient(cnf queueing.MasterConfig, repo reportrepo.Repo, pubsub queue.MasterStreamPubSub) *Client {
+func NewReportClient(cnf config.Config, repo reportrepo.Repo, pubsub queue.MasterStreamPubSub) *Client {
 	return &Client{repo: repo, cnf: cnf, signalMutex: &sync.RWMutex{},
 		pubsub: pubsub, signal: make(map[uuid.UUID]chan struct{}),
 	}
@@ -54,11 +55,11 @@ func (a *Client) Publish() {
 }
 
 func (a *Client) Notify() {
-	a.pubsub.NotifyTopic(a.cnf.ChannelPrefix + "_report")
+	a.pubsub.NotifyTopic(a.cnf.PubSubConfig.ChannelPrefix + "_report")
 }
 
 func (a *Client) ReportClient() {
-	recvChannel := a.pubsub.ReceiveUpdateFromTopic(a.cnf.ChannelPrefix + "_report")
+	recvChannel := a.pubsub.ReceiveUpdateFromTopic(a.cnf.PubSubConfig.ChannelPrefix + "_report")
 	for {
 		<-recvChannel
 		a.Publish()

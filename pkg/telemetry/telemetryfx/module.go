@@ -11,13 +11,22 @@ var LoggingModule = fx.Options(
 )
 
 var OTELModule = fx.Options(
-	// Tracing
+	// Resource
 	fx.Provide(telemetry.NewResource),
+
+	// Tracing
+	fx.Provide(
+		telemetry.NewTracerProvider,
+	),
+
+	// Metrics
+	fx.Provide(
+		telemetry.NewMeterProvider,
+	),
 
 	// Exporters
 	fx.Provide(
 		telemetry.NewOtlpGrpcExporter,
-		telemetry.NewOtlpGrpcTracerProvider,
 	),
 
 	// Set Global Tracer
@@ -25,9 +34,9 @@ var OTELModule = fx.Options(
 )
 
 var Module = fx.Options(
+	// Open Telemetry
+	OTELModule,
+
 	// Logging
 	LoggingModule,
-
-	// Open Telemetry
-	//OTELModule,
 )

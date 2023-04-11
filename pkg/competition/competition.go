@@ -1,32 +1,52 @@
 package competition
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/check"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/host"
-	"github.com/ScoreTrak/ScoreTrak/pkg/hostgroup"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
-	"github.com/ScoreTrak/ScoreTrak/pkg/property"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report"
-	"github.com/ScoreTrak/ScoreTrak/pkg/round"
-	"github.com/ScoreTrak/ScoreTrak/pkg/service"
-	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
+	"time"
+
 	"github.com/ScoreTrak/ScoreTrak/pkg/team"
-	"github.com/ScoreTrak/ScoreTrak/pkg/user"
+	"github.com/gofrs/uuid"
+	"gorm.io/gorm"
 )
 
 // Competition is a struct that holds an aggregate of all models. This is used to upload/export competition as a file.
 type Competition struct {
-	Config        *config.DynamicConfig
-	Report        *report.Report
-	HostGroups    []*hostgroup.HostGroup
-	Hosts         []*host.Host
-	Teams         []*team.Team
-	Services      []*service.Service
-	ServiceGroups []*servicegroup.ServiceGroup
-	Rounds        []*round.Round
-	Properties    []*property.Property
-	Checks        []*check.Check
-	Users         []*user.User
-	Policy        *policy.Policy
+	ID   uuid.UUID `json:"id,omitempty" gorm:"type:uuid;primary_key;"`
+	Name string
+	// Owner         user.User
+	Started       *bool
+	RoundDuration uint64
+	// Staff         []*team.Team
+	// Competitors []*user.User
+	// Config        *config.DynamicConfig
+	// Report       *report.Report
+	// HostGroups   []*hostgroup.HostGroup
+	// Hosts []*host.Host
+	// Services     []*service.Service
+	// WorkerGroups []*workergroup.WorkerGroup
+	// Rounds       []*round.Round
+	// Properties   []*property.Property
+	// Checks       []*check.Check
+	// Users  []*user.User
+	// Policy *policy.Policy
+	Teams     []*team.Team `gorm:"many2many:competiton_teams"`
+	StartedAt time.Time
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"index"`
+}
+
+func CurrentCompetition(competitionId uuid.UUID) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("competition_id = ?", competitionId)
+	}
+}
+
+func OwnedCompetitions(ownerId uuid.UUID) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("owner_id = ?", ownerId)
+	}
+}
+
+func RunningCompetitions(db *gorm.DB) *gorm.DB {
+	return db.Where("started = ?", true)
 }

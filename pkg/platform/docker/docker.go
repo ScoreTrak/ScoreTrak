@@ -25,10 +25,10 @@ type Docker struct {
 	Name        string
 	IsSwarm     bool
 	Client      *client.Client
-	Config      config.StaticConfig
+	Config      config.Config
 }
 
-func NewDocker(cfg config.StaticConfig) (d *Docker, err error) {
+func NewDocker(cfg config.Config) (d *Docker, err error) {
 	d = &Docker{NetworkName: cfg.Platform.Docker.Network, Name: cfg.Platform.Docker.Name, Config: cfg}
 	if cfg.Platform.Use == "swarm" { //https://github.com/openbaton/go-docker-vnfm/blob/8d0a99b48e57d4b94fa14cdb377abe07eaa6c0aa/handler/docker_utils.go#L113
 		d.IsSwarm = true

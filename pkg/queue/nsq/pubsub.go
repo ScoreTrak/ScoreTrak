@@ -3,18 +3,19 @@ package nsq
 import (
 	"log"
 
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/nsqio/go-nsq"
 )
 
 type PubSub struct {
-	config queueing.Config
+	cfg config.Config
 }
 
 func (p PubSub) NotifyTopic(topic string) {
 	confp := nsq.NewConfig()
-	nsqProducerConfig(confp, p.config)
-	producer, err := nsq.NewProducer(p.config.NSQ.ProducerNSQD, confp)
+	nsqProducerConfig(confp, p.cfg)
+	producer, err := nsq.NewProducer(p.cfg.Queue.NSQ.ProducerNSQD, confp)
 	if err != nil {
 		log.Panicf("Unable to initialize producer to notify masters using queue. Ensure that the queue is reachable from master. Error Details: %v", err)
 	}
@@ -30,7 +31,7 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 	channel := make(chan struct{})
 	go func() {
 		conf := nsq.NewConfig()
-		nsqConsumerConfig(conf, p.config)
+		nsqConsumerConfig(conf, p.cfg)
 		rand, err := queueing.RandomInt()
 		if err != nil {
 			log.Panicf("unable to generate random number: %v", err)
@@ -45,7 +46,7 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 				channel <- struct{}{}
 				return nil
 			}))
-		err = connectConsumer(consumer, p.config)
+		err = connectConsumer(consumer, p.cfg)
 		if err != nil {
 			log.Panicf("Unable to establish connection with NSQ")
 		}
@@ -54,10 +55,10 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 	return channel
 }
 
-func NewNSQPubSub(config queueing.Config) (*PubSub, error) {
-	err := validateNSQConfig(config)
+func NewNSQPubSub(c config.Config) (*PubSub, error) {
+	err := validateNSQConfig(c)
 	if err != nil {
 		return nil, err
 	}
-	return &PubSub{config}, nil
+	return &PubSub{c}, nil
 }

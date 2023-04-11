@@ -12,8 +12,8 @@ import (
 
 var ErrQueueNotSupported = errors.New("selected queue is not yet supported by platform")
 
-func GenerateWorkerCfg(originalCfg config.StaticConfig, info worker.Info) (workerCfg config.StaticConfig, err error) {
-	workerCfg = config.StaticConfig{}
+func GenerateWorkerCfg(originalCfg config.Config, info worker.Info) (workerCfg config.Config, err error) {
+	workerCfg = config.Config{}
 	err = copier.Copy(&workerCfg.Queue, &originalCfg.Queue)
 	if err != nil {
 		return workerCfg, err
@@ -28,7 +28,7 @@ func GenerateWorkerCfg(originalCfg config.StaticConfig, info worker.Info) (worke
 	return workerCfg, nil
 }
 
-func EncodeCfg(config config.StaticConfig) (string, error) {
+func EncodeCfg(config config.Config) (string, error) {
 	out, err := json.Marshal(config)
 	if err != nil {
 		return "", err
@@ -37,7 +37,7 @@ func EncodeCfg(config config.StaticConfig) (string, error) {
 	return encodedCfg, nil
 }
 
-func GenerateEncodedWorkerCfg(originalCfg config.StaticConfig, info worker.Info) (string, error) {
+func GenerateEncodedWorkerCfg(originalCfg config.Config, info worker.Info) (string, error) {
 	workerCfg, err := GenerateWorkerCfg(originalCfg, info)
 	if err != nil {
 		return "", err

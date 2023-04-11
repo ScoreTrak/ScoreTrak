@@ -20,7 +20,7 @@ type Kubernetes struct {
 	Client *kubernetes.Clientset
 	// Namespace in which worker nodes are to be deployed.
 	Namespace string
-	Config    config.StaticConfig
+	Config    config.Config
 }
 
 // https://stackoverflow.com/questions/53283347/how-to-get-current-namespace-of-an-in-cluster-go-kubernetes-client
@@ -41,7 +41,7 @@ func Namespace() string {
 	return "default"
 }
 
-func NewKubernetes(cfg config.StaticConfig) (d *Kubernetes, err error) {
+func NewKubernetes(cfg config.Config) (d *Kubernetes, err error) {
 	c, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, err

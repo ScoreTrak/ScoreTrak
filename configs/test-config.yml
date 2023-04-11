@@ -1,6 +1,6 @@
 db:
-  use: "cockroach"
+  use: "sqlite"
   host: "localhost"
   port: "26257"
   username: "root"
-  database: "scoretrak"
+  database: "scoretrak.db"

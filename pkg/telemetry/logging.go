@@ -2,11 +2,17 @@ package telemetry
 
 import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"
 )
 
-func NewLogger(config config.StaticConfig) (*zap.Logger, error) {
+func newLoggerConfig() {
+}
+
+func NewLogger(config config.Config) (*zap.SugaredLogger, error) {
 	var zapLogger *zap.Logger
+	// var otelZapSuggaredLogger *otelzap.SugaredLogger
+	var zapSugaredLogger *zap.SugaredLogger
 	var err error
 	if config.Prod {
 		zapLogger, err = zap.NewProduction()
@@ -20,5 +26,8 @@ func NewLogger(config config.StaticConfig) (*zap.Logger, error) {
 		}
 	}
 
-	return zapLogger, err
+	otelZapLogger := otelzap.New(zapLogger)
+	zapSugaredLogger = otelZapLogger.Sugar().SugaredLogger
+
+	return zapSugaredLogger, nil
 }

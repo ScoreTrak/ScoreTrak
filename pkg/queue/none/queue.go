@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
-	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
+	"github.com/ScoreTrak/ScoreTrak/pkg/workergroup"
 )
 
 type None struct{}
@@ -65,7 +65,7 @@ func (n None) Acknowledge(q queueing.QCheck) {
 	panic(ErrMethodNotSupportedForNoneQueue)
 }
 
-func (n None) Ping(group *servicegroup.ServiceGroup) error {
+func (n None) Ping(group *workergroup.WorkerGroup) error {
 	return ErrMethodNotSupportedForNoneQueue
 }
 

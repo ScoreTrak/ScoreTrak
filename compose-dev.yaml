@@ -16,29 +16,45 @@ services:
     - type: bind
       source: .
       target: /go/src/github.com/scoretrak/scoretrak
-    depends_on:
-      - cockroachdb
-
-  cockroachdb:
-    image: cockroachdb/cockroach:latest
-    command: start-single-node --insecure
+  kratos-migrate:
+    image: oryd/kratos:v0.11.0
     environment:
-      - COCKROACH_DATABASE=scoretrak
-      - COCKROACH_USER=st_admin
-    ports:
-      - 26257:26257
-      - 8080:8080
-
-  proxy:
-    image: envoyproxy/envoy:v1.25.0
-    ports:
-      - 8000:8000
-      - 8000:9901
-    depends_on:
-      - app
-    links:
-      - "app:scoretrak"
+      - DSN=sqlite:///var/lib/sqlite/db.sqlite?_fk=true&mode=rwc
     volumes:
-    - type: bind
-      source: ./configs/envoy/config.yaml
-      target: /etc/envoy/envoy.yaml
+      - type: volume
+        source: kratos-sqlite
+        target: /var/lib/sqlite
+        read_only: false
+      - type: bind
+        source: ./config/ory/kratos
+        target: /etc/config/kratos
+    command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
+    restart: on-failure
+    networks:
+      - intranet
+  kratos:
+    depends_on:
+      - kratos-migrate
+    image: oryd/kratos:v0.11.0
+    ports:
+      - '4433:4433' # public
+      - '4434:4434' # admin
+    restart: unless-stopped
+    environment:
+      - DSN=sqlite:///var/lib/sqlite/db.sqlite?_fk=true
+      - LOG_LEVEL=trace
+    command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
+    volumes:
+      - type: volume
+        source: kratos-sqlite
+        target: /var/lib/sqlite
+        read_only: false
+      - type: bind
+        source: ./config/ory/kratos
+        target: /etc/config/kratos
+    networks:
+      - intranet
+networks:
+  intranet:
+volumes:
+  kratos-sqlite:

@@ -50,7 +50,7 @@ type SimpleHost struct {
 	Hide      bool
 }
 
-type SimpleServiceGroup struct {
+type SimpleWorkerGroup struct {
 	ID      uuid.UUID
 	Name    string
 	Enabled bool
@@ -63,16 +63,16 @@ type SimpleCheck struct {
 }
 
 type SimpleService struct {
-	Check              *SimpleCheck
-	Pause              bool
-	Hide               bool
-	Name               string
-	DisplayName        string
-	Weight             uint64
-	Points             uint64
-	PointsBoost        uint64
-	Properties         map[string]*SimpleProperty
-	SimpleServiceGroup *SimpleServiceGroup
+	Check             *SimpleCheck
+	Pause             bool
+	Hide              bool
+	Name              string
+	DisplayName       string
+	Weight            uint64
+	Points            uint64
+	PointsBoost       uint64
+	Properties        map[string]*SimpleProperty
+	SimpleWorkerGroup *SimpleWorkerGroup
 }
 
 type SimpleProperty struct {

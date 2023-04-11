@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/user"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -23,17 +24,10 @@ const KeyClaim claim = "claim"
 type UserClaims struct {
 	jwt.RegisteredClaims
 	Username string `json:"username"`
-	TeamID   string `json:"team_id"`
-	Role     string `json:"role"`
 }
 
-func NewJWTManager(config Config) *Manager {
-	return &Manager{config.Secret, time.Duration(config.TimeoutInSeconds) * time.Second}
-}
-
-type Config struct {
-	Secret           string `default:"changeme"`
-	TimeoutInSeconds uint64 `default:"86400"`
+func NewJWTManager(c config.Config) *Manager {
+	return &Manager{c.Auth.JWT.Secret, time.Duration(c.Auth.JWT.TimeoutInSeconds) * time.Second}
 }
 
 // Generate creates user claim based on passed user parameter, and encodes it to JWT token.
@@ -44,8 +38,6 @@ func (manager *Manager) Generate(ctx context.Context, user *user.User) (string, 
 			ID:        user.ID.String(),
 		},
 		Username: user.Username,
-		Role:     user.Role,
-		TeamID:   user.TeamID.String(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

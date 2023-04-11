@@ -1,6 +1,11 @@
 package check
 
-import "github.com/gofrs/uuid"
+import (
+	"time"
+
+	"github.com/gofrs/uuid"
+	"gorm.io/gorm"
+)
 
 // Check model contains an instance of a single check performed on a single host at a given round for a given check_service. Check's ID is defined by combined key of ServiceID, and RoundID
 type Check struct {
@@ -18,4 +23,10 @@ type Check struct {
 
 	// Passed tells weather a given check passed/failed
 	Passed *bool `json:"passed,omitempty" gorm:"not null;default:false"`
+
+	// Idempotent token that ensure scheduler does not update a check
+	// IdempotentToken uuid.UUID `json:"idempotent_token,omitempty" gorm:"not null;unique"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"index"`
 }

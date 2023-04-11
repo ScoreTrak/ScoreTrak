@@ -13,7 +13,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service"
 	"github.com/ScoreTrak/ScoreTrak/pkg/service/servicerepo"
-	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup/servicegrouprepo"
+	"github.com/ScoreTrak/ScoreTrak/pkg/workergroup/workergrouprepo"
 	"github.com/gofrs/uuid"
 )
 
@@ -27,20 +27,20 @@ type Serv interface {
 }
 
 type serviceServ struct {
-	repo             servicerepo.Repo
-	hostRepo         hostrepo.Repo
-	propertyRepo     propertyrepo.Repo
-	serviceGroupRepo servicegrouprepo.Repo
-	q                queue.WorkerQueue
+	repo            servicerepo.Repo
+	hostRepo        hostrepo.Repo
+	propertyRepo    propertyrepo.Repo
+	workerGroupRepo workergrouprepo.Repo
+	q               queue.WorkerQueue
 }
 
-func NewServiceServ(repo servicerepo.Repo, q queue.WorkerQueue, pr propertyrepo.Repo, hr hostrepo.Repo, srgr servicegrouprepo.Repo) Serv {
+func NewServiceServ(repo servicerepo.Repo, q queue.WorkerQueue, pr propertyrepo.Repo, hr hostrepo.Repo, wrgr workergrouprepo.Repo) Serv {
 	return &serviceServ{
-		q:                q,
-		repo:             repo,
-		hostRepo:         hr,
-		propertyRepo:     pr,
-		serviceGroupRepo: srgr,
+		q:               q,
+		repo:            repo,
+		hostRepo:        hr,
+		propertyRepo:    pr,
+		workerGroupRepo: wrgr,
 	}
 }
 
@@ -77,12 +77,12 @@ func (svc *serviceServ) TestService(ctx context.Context, id uuid.UUID) (*check.C
 	if err != nil {
 		return nil, err
 	}
-	serGrp, err := svc.serviceGroupRepo.GetByID(ctx, currentService.ServiceGroupID)
+	wrGrp, err := svc.workerGroupRepo.GetByID(ctx, currentService.WorkerGroupID)
 	if err != nil {
 		return nil, err
 	}
 	response, berr, err := svc.q.Send([]*queueing.ScoringData{
-		{Service: queueing.QService{ID: id, Name: currentService.Name, Group: serGrp.Name}, MasterTime: time.Now(), Host: hosts.Address, Deadline: time.Now().Add(time.Second * 5), RoundID: 0, Properties: property.PropertiesToMap(properties)},
+		{Service: queueing.QService{ID: id, Name: currentService.Name, Group: wrGrp.Name}, MasterTime: time.Now(), Host: hosts.Address, Deadline: time.Now().Add(time.Second * 5), RoundID: 0, Properties: property.PropertiesToMap(properties)},
 	})
 	if response == nil || len(response) != 1 || response[0] == nil || err != nil {
 		return nil, fmt.Errorf("something went wrong, either check took too long to execute, or the workers did not receive the check. err: %w, berr: %v", err, berr)

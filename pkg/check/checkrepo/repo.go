@@ -14,6 +14,7 @@ type Repo interface {
 	Delete(ctx context.Context, roundID uint64, serviceID uuid.UUID) error
 	GetAll(ctx context.Context) ([]*check.Check, error)
 	Store(ctx context.Context, u []*check.Check) error
+	Create(ctx context.Context, ck *check.Check) error
 	Upsert(ctx context.Context, u []*check.Check) error
 	TruncateTable(ctx context.Context) error
 }

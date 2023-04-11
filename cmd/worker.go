@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	"github.com/ScoreTrak/ScoreTrak/pkg/config/configfx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
 	"github.com/ScoreTrak/ScoreTrak/pkg/telemetry/telemetryfx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/worker"
+	"github.com/ScoreTrak/ScoreTrak/pkg/worker/workerfx"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 )
@@ -14,14 +15,23 @@ var workerCmd = &cobra.Command{
 	Short: "worker to perform checks on systems",
 	Run: func(cmd *cobra.Command, args []string) {
 		app := fx.New(
-			fx.Provide(NewStaticConfig, NewQueueConfig),
+			// Create configs
+			fx.Provide(
+				fx.Annotate(
+					func() string {
+						return cfgFile
+					},
+					fx.ResultTags(`name:"cfgFile"`),
+				),
+			),
+			configfx.Module,
 			telemetryfx.Module,
 
 			fx.Provide(
 				queue.NewWorkerQueue,
 			),
 
-			fx.Invoke(worker.InitWorker),
+			workerfx.Module,
 		)
 
 		app.Run()

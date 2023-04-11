@@ -3,10 +3,11 @@ package queue
 import (
 	"errors"
 
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/none"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/nsq"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
-	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
+	"github.com/ScoreTrak/ScoreTrak/pkg/workergroup"
 )
 
 // WorkerQueue is an interface that every queue plugin should implement
@@ -24,7 +25,7 @@ type WorkerQueue interface {
 	Acknowledge(queueing.QCheck)
 	// Ping is responsible for pinging the workers by sending a simple check to the queue, and getting a response from the network.
 	// Typically implemented for over the network queue
-	Ping(group *servicegroup.ServiceGroup) error
+	Ping(group *workergroup.WorkerGroup) error
 }
 
 // MasterStreamPubSub is an interface that allows masters to send signals to each other via pub-sub.
@@ -40,8 +41,8 @@ const (
 
 var ErrInvalidPubSub = errors.New("invalid pubsub selected")
 
-func NewMasterStreamPubSub(c queueing.Config) (MasterStreamPubSub, error) {
-	switch c.Use {
+func NewMasterStreamPubSub(c config.Config) (MasterStreamPubSub, error) {
+	switch c.Queue.Use {
 	case Nsq:
 		return nsq.NewNSQPubSub(c)
 	case None:
@@ -53,8 +54,8 @@ func NewMasterStreamPubSub(c queueing.Config) (MasterStreamPubSub, error) {
 
 var ErrInvalidQueue = errors.New("invalid queue selected")
 
-func NewWorkerQueue(c queueing.Config) (WorkerQueue, error) {
-	switch c.Use {
+func NewWorkerQueue(c config.Config) (WorkerQueue, error) {
+	switch c.Queue.Use {
 	case Nsq:
 		return nsq.NewNSQWorkerQueue(c)
 	case None:

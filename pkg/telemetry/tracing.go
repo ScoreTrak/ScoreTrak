@@ -2,22 +2,20 @@ package telemetry
 
 import (
 	"context"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/version"
+	"log"
+
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"go.uber.org/fx"
-	"log"
 )
 
 var ServiceName = "scoretrak"
 
-func NewOtlpGrpcTracerProvider(exp *otlptrace.Exporter, resource *resource.Resource) *trace.TracerProvider {
+func NewTracerProvider(exp *otlptrace.Exporter, resource *resource.Resource) *trace.TracerProvider {
 	tp := trace.NewTracerProvider(
 		trace.WithSampler(trace.AlwaysSample()),
 		trace.WithBatcher(exp),
@@ -45,20 +43,13 @@ func RegisterTracerProvider(lc fx.Lifecycle, tp *trace.TracerProvider) {
 func NewOtlpGrpcExporter() *otlptrace.Exporter {
 	exp, _ := otlptracegrpc.New(
 		context.Background(),
-		otlptracegrpc.WithInsecure())
+	)
 	return exp
 }
 
-func NewResource(config config.StaticConfig) *resource.Resource {
-	r, _ := resource.Merge(
-		resource.Default(),
-		resource.NewWithAttributes(
-			semconv.SchemaURL,
-			semconv.ServiceNameKey.String(ServiceName),
-			semconv.ServiceVersionKey.String(version.Version),
-			attribute.Bool("production", config.Prod),
-		),
+func NewOtlpHttpExporter() *otlptrace.Exporter {
+	exp, _ := otlptracehttp.New(
+		context.Background(),
 	)
-
-	return r
+	return exp
 }

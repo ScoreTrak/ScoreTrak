@@ -11,14 +11,15 @@ import (
 	"os"
 	"time"
 
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
-	"github.com/ScoreTrak/ScoreTrak/pkg/servicegroup"
+	"github.com/ScoreTrak/ScoreTrak/pkg/workergroup"
 	"github.com/gofrs/uuid"
 	"github.com/nsqio/go-nsq"
 )
 
 type WorkerQueue struct {
-	config queueing.Config
+	cfg config.Config
 }
 
 var ErrWorkersFailed = errors.New("some workers failed to receive the checks. Make sure that is by design")
@@ -31,8 +32,8 @@ func (n WorkerQueue) Send(scoringDataAggregate []*queueing.ScoringData) ([]*queu
 		return nil, nil, err
 	}
 	producerConfig := nsq.NewConfig()
-	nsqProducerConfig(producerConfig, n.config)
-	producer, err := nsq.NewProducer(n.config.NSQ.ProducerNSQD, producerConfig)
+	nsqProducerConfig(producerConfig, n.cfg)
+	producer, err := nsq.NewProducer(n.cfg.Queue.NSQ.ProducerNSQD, producerConfig)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -56,7 +57,7 @@ func (n WorkerQueue) Send(scoringDataAggregate []*queueing.ScoringData) ([]*queu
 		}
 	}
 	consumerConfig := nsq.NewConfig()
-	nsqConsumerConfig(consumerConfig, n.config)
+	nsqConsumerConfig(consumerConfig, n.cfg)
 	consumer, err := nsq.NewConsumer(returningTopicName, "worker", consumerConfig)
 	if err != nil {
 		return nil, nil, err
@@ -85,7 +86,7 @@ func (n WorkerQueue) Send(scoringDataAggregate []*queueing.ScoringData) ([]*queu
 		}
 		return nil
 	}))
-	err = connectConsumer(consumer, n.config)
+	err = connectConsumer(consumer, n.cfg)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -99,7 +100,7 @@ func (n WorkerQueue) Send(scoringDataAggregate []*queueing.ScoringData) ([]*queu
 				return ret, nil, nil
 			}
 		case <-time.After(time.Until(scoringDataAggregate[0].Deadline)):
-			if !n.config.NSQ.IgnoreAllScoresIfWorkerFails {
+			if !n.cfg.Queue.NSQ.IgnoreAllScoresIfWorkerFails {
 				return nil, nil, &queueing.RoundTookTooLongToExecuteError{Msg: "Round took too long to score. This might be due to many reasons like a worker going down, or the number of rounds being too big for workers to handle"}
 			}
 			return ret, ErrWorkersFailed, nil
@@ -112,8 +113,8 @@ var ErrPanic = errors.New("panic")
 
 func (n WorkerQueue) Receive() {
 	conf := nsq.NewConfig()
-	nsqConsumerConfig(conf, n.config)
-	consumer, err := nsq.NewConsumer(n.config.NSQ.Topic, "worker", conf)
+	nsqConsumerConfig(conf, n.cfg)
+	consumer, err := nsq.NewConsumer(n.cfg.Queue.NSQ.Topic, "worker", conf)
 	if err != nil {
 		log.Panicf("Failed to initialize NSQ consumer. Error: %v", err)
 	}
@@ -150,8 +151,8 @@ func (n WorkerQueue) Receive() {
 		qc := queueing.CommonExecute(&sd, sd.Deadline.Add(-3*time.Second+dsync))
 		n.Acknowledge(qc)
 		return nil
-	}), n.config.NSQ.ConcurrentHandlers)
-	err = connectConsumer(consumer, n.config)
+	}), n.cfg.Queue.NSQ.ConcurrentHandlers)
+	err = connectConsumer(consumer, n.cfg)
 	if err != nil {
 		panic(err)
 	}
@@ -169,7 +170,7 @@ func getOutboundIP() net.IP {
 	return localAddr.IP
 }
 
-func (n WorkerQueue) Ping(group *servicegroup.ServiceGroup) error {
+func (n WorkerQueue) Ping(group *workergroup.WorkerGroup) error {
 	_, bErr, err := n.Send([]*queueing.ScoringData{
 		{
 			Service: queueing.QService{ID: uuid.Nil, Name: "PING", Group: group.Name}, MasterTime: time.Now(), Host: "localhost", Deadline: time.Now().Add(time.Second * 4), RoundID: 0, Properties: map[string]string{},
@@ -186,8 +187,8 @@ func (n WorkerQueue) Ping(group *servicegroup.ServiceGroup) error {
 
 func (n WorkerQueue) Acknowledge(qCheck queueing.QCheck) {
 	confp := nsq.NewConfig()
-	nsqProducerConfig(confp, n.config)
-	producer, err := nsq.NewProducer(n.config.NSQ.ProducerNSQD, confp)
+	nsqProducerConfig(confp, n.cfg)
+	producer, err := nsq.NewProducer(n.cfg.Queue.NSQ.ProducerNSQD, confp)
 	if err != nil {
 		panic(err)
 	}
@@ -203,12 +204,18 @@ func (n WorkerQueue) Acknowledge(qCheck queueing.QCheck) {
 	producer.Stop()
 }
 
-func NewNSQWorkerQueue(config queueing.Config) (*WorkerQueue, error) {
-	err := validateNSQConfig(config)
+func NewNSQWorkerQueue(c config.Config) (*WorkerQueue, error) {
+	err := validateNSQConfig(c)
 	if err != nil {
 		return nil, err
 	}
-	return &WorkerQueue{config}, nil
+	return &WorkerQueue{c}, nil
 }
 
 //Todo: For Master-Worker Exchange Queue look into simplifying, and speeding up the process by utilizing single listening topic, and reusing the topic from round to round
+
+// comp must have ulid
+// queue will be named ulid of comp + checks
+// workers will subscribe
+
+// workers will sent completed checks to queue named ulid of comp + checks

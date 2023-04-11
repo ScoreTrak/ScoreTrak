@@ -45,35 +45,12 @@ type IndexedQueue struct {
 	I int
 }
 
-type Config struct {
-	Use   string `default:"none"`
-	Kafka struct {
-	}
-	NSQ struct {
-		ProducerNSQD                 string   `default:"nsqd:4150"`
-		IgnoreAllScoresIfWorkerFails bool     `default:"true"`
-		Topic                        string   `default:"default"`
-		MaxInFlight                  int      `default:"200"` // This should be more than min(NumberOfChecks, #NSQD Nodes)
-		AuthSecret                   string   `default:""`
-		ClientRootCA                 string   `default:""`
-		ClientSSLKey                 string   `default:""`
-		ClientSSLCert                string   `default:""`
-		ConcurrentHandlers           int      `default:"200"`
-		NSQLookupd                   []string `default:"[\"\"]"` // "[\"nsqlookupd:4160\"]"
-		ConsumerNSQDPool             []string `default:"[\"\"]"` // "[\"nsqd:4150\"]"
-	}
-}
-
-type MasterConfig struct {
-	ReportForceRefreshSeconds uint   `default:"60"`
-	ChannelPrefix             string `default:"master"`
-}
-
 func RandomInt() (string, error) {
 	n, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt32))
 	if err != nil {
 		return "", err
 	}
+
 	return n.Text(10), nil
 }
 
@@ -82,6 +59,7 @@ func TopicFromServiceRound(roundID uint64) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return "round_" + strconv.FormatUint(roundID, 10) + "_" + n + "_ack", nil
 }
 
@@ -92,6 +70,7 @@ func CommonExecute(sd *ScoringData, execDeadline time.Time) QCheck {
 	if time.Now().After(sd.Deadline) {
 		return QCheck{Service: sd.Service, Passed: false, Log: "", Err: "The check arrived late to the worker. Make sure the time is synced between workers and masters, and there are enough workers to handle the load", RoundID: sd.RoundID}
 	}
+
 	executable := resolver.ExecutableByName(sd.Service.Name)
 
 	err := exec.UpdateExecutableProperties(executable, sd.Properties)
@@ -102,15 +81,19 @@ func CommonExecute(sd *ScoringData, execDeadline time.Time) QCheck {
 
 	ctx := context.Background()
 	ctx, cancel := context.WithDeadline(ctx, execDeadline)
+
 	defer cancel()
 
 	e := exec.NewExec(ctx, sd.Host, executable)
+
 	type checkRet struct {
 		passed bool
 		log    string
 		err    error
 	}
+
 	cq := make(chan checkRet)
+
 	go func() {
 		defer func() {
 			if x := recover(); x != nil {
@@ -124,9 +107,11 @@ func CommonExecute(sd *ScoringData, execDeadline time.Time) QCheck {
 					err = ErrUnknownPanic
 				}
 				log.Println(fmt.Errorf("unable to perform a check on scoring data %+v: %w", *sd, err))
+
 				return
 			}
 		}()
+
 		passed, l, err := e.Execute()
 		cq <- checkRet{passed: passed, log: l, err: err}
 	}()
@@ -136,6 +121,7 @@ func CommonExecute(sd *ScoringData, execDeadline time.Time) QCheck {
 		if res.err != nil {
 			errstr = res.err.Error()
 		}
+
 		return QCheck{Service: sd.Service, Passed: res.passed, Log: res.log, Err: errstr, RoundID: sd.RoundID}
 	case <-time.After(time.Until(execDeadline.Add(time.Second))):
 		log.Panicln("check is possibly causing resource leakage", sd.Service, execDeadline)

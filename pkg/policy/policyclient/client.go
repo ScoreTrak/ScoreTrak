@@ -2,15 +2,16 @@ package policyclient
 
 import (
 	"context"
-	"go.uber.org/fx"
 	"log"
 	"sync"
 	"time"
 
+	"go.uber.org/fx"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
 	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyrepo"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
-	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
 	"github.com/gofrs/uuid"
 	"github.com/jinzhu/copier"
 )
@@ -23,13 +24,14 @@ type Client struct {
 
 	repo   policyrepo.Repo
 	pubsub queue.MasterStreamPubSub
-	cnf    queueing.MasterConfig
+	// cnf    queueing.MasterConfig
+	cnf config.Config
 
 	signal      map[uuid.UUID]chan struct{}
 	signalMutex *sync.RWMutex
 }
 
-func NewPolicyClient(policy *policy.Policy, cnf queueing.MasterConfig, repo policyrepo.Repo, pubsub queue.MasterStreamPubSub) *Client {
+func NewPolicyClient(policy *policy.Policy, cnf config.Config, repo policyrepo.Repo, pubsub queue.MasterStreamPubSub) *Client {
 	return &Client{policy: policy, policyMutex: &sync.RWMutex{}, repo: repo, cnf: cnf, signalMutex: &sync.RWMutex{}, pubsub: pubsub, signal: make(map[uuid.UUID]chan struct{})}
 }
 
@@ -87,7 +89,7 @@ func (a *Client) Publish() {
 }
 
 func (a *Client) Notify() {
-	a.pubsub.NotifyTopic(a.cnf.ChannelPrefix + "_policy")
+	a.pubsub.NotifyTopic(a.cnf.PubSubConfig.ChannelPrefix + "_policy")
 }
 
 func (a *Client) RefreshLocalPolicy() {
@@ -104,8 +106,8 @@ func (a *Client) RefreshLocalPolicy() {
 }
 
 func (a *Client) PolicyClient() {
-	recvChannel := a.pubsub.ReceiveUpdateFromTopic(a.cnf.ChannelPrefix + "_policy")
-	forceSync := time.NewTimer(time.Duration(a.cnf.ReportForceRefreshSeconds) * time.Second)
+	recvChannel := a.pubsub.ReceiveUpdateFromTopic(a.cnf.PubSubConfig.ChannelPrefix + "_policy")
+	forceSync := time.NewTimer(time.Duration(a.cnf.PubSubConfig.ReportForceRefreshSeconds) * time.Second)
 	a.RefreshLocalPolicy()
 	for {
 		select {

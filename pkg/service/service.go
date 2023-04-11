@@ -34,7 +34,7 @@ type Service struct {
 	RoundDelay *uint64 `json:"round_delay,omitempty" gorm:"not null;default:0"`
 
 	// ID of a check_service group the check_service belongs to
-	ServiceGroupID uuid.UUID `json:"service_group_id" gorm:"type:uuid;not null"`
+	WorkerGroupID uuid.UUID `json:"worker_group_id" gorm:"type:uuid;not null"`
 
 	// ID of a host the check_service belongs to
 	HostID uuid.UUID `json:"host_id" gorm:"type:uuid;not null"`
@@ -90,4 +90,10 @@ func (s *Service) BeforeSave(tx *gorm.DB) (err error) {
 		return fmt.Errorf("%w: %s", ErrNoSuchExecutableService, s.Name)
 	}
 	return nil
+}
+
+func ByServiceID(serviceId uuid.UUID) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("service_id = ?", serviceId)
+	}
 }

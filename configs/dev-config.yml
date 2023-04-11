@@ -2,17 +2,13 @@ server:
   address: 0.0.0.0
   port: 3001
 
-db:
-  use: "cockroach"
-  host: "cockroachdb"
-  port: "26257"
-  database: "scoretrak"
-  username: "st_admin"
-  password: "password"
-  seed: true
-  migrate: true
+mintimeoutduration: 5
 
-open-telemetry:
+db:
+  use: "sqlite3"
+  host: "file:ent?mode=memory&cache=shared&_fk=1"
+
+telemetry:
 #    endpoint: "http://localhost:14268/api/traces"
 #    username: ""
 #    password: ""

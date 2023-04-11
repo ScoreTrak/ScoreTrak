@@ -1,21 +1,14 @@
 package cmd
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/auth"
-	"github.com/ScoreTrak/ScoreTrak/pkg/platform"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy"
-	"github.com/ScoreTrak/ScoreTrak/pkg/policy/policyclient"
-	"github.com/ScoreTrak/ScoreTrak/pkg/queue"
-	"github.com/ScoreTrak/ScoreTrak/pkg/report/reportclient"
-	"github.com/ScoreTrak/ScoreTrak/pkg/runner"
-	"github.com/ScoreTrak/ScoreTrak/pkg/server/grpc/grpcfx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/seed"
+	"log"
+
+	"github.com/ScoreTrak/ScoreTrak/pkg/config/configfx"
+	"github.com/ScoreTrak/ScoreTrak/pkg/server/serverfx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/storagefx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/util"
 	"github.com/ScoreTrak/ScoreTrak/pkg/telemetry/telemetryfx"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
-	"log"
 )
 
 // masterCmd represents the master command
@@ -28,58 +21,46 @@ var masterCmd = &cobra.Command{
 		app := fx.New(
 			// Create configs
 			fx.Provide(
-				NewStaticConfig,
-				NewDynamicConfig,
-				NewStorageConfig,
-				NewQueueConfig,
-				NewPlatformConfig,
-				NewMasterQueueConfig,
-				NewJWTConfig,
-				NewServerConfig,
+				fx.Annotate(
+					func() string {
+						return cfgFile
+					},
+					fx.ResultTags(`name:"cfgFile"`),
+				),
 			),
+			configfx.Module,
 
 			// Telemetry
 			telemetryfx.Module,
 
 			// Create database components
 			storagefx.Module,
-			fx.Invoke(
-				util.AutoMigrateConditional,
-				seed.DefaultSeedConditional,
-			),
 
 			// Create queueing components
-			fx.Provide(queue.NewMasterStreamPubSub),
-			fx.Provide(queue.NewWorkerQueue),
+			// fx.Provide(queue.NewMasterStreamPubSub),
+			// fx.Provide(queue.NewWorkerQueue),
 
 			// Create policy and report clients
-			fx.Provide(
-				policy.NewPolicy,
-				policyclient.NewPolicyClient,
-				reportclient.NewReportClient,
-			),
+			// fx.Provide(
+			// 	policy.NewPolicy,
+			// 	policyclient.NewPolicyClient,
+			// 	reportclient.NewReportClient,
+			// ),
 
 			// Create platform module. Responsible for creating works in docker, docker swarm, and kubernetes
-			fx.Provide(platform.NewPlatform),
+			// fx.Provide(platform.NewPlatform),
 
 			// Create auth components
-			fx.Provide(
-				auth.NewJWTManager,
-				auth.NewAuthInterceptor,
-			),
+			// authfx.Module,
 
-			// Create grpc server
-			grpcfx.Module,
+			// Create server
+			serverfx.Module,
 
-			// Create connect server
-			//connectfx.Module,
-
-			// Create runner
-			fx.Provide(runner.NewRunner),
+			// Create scheduler
+			// schedulerfx.Module,
 
 			// Register lifecycle hooks for the runner, policy/report client
-			fx.Invoke(policyclient.InitPolicyClient, reportclient.InitReportClient),
-			fx.Invoke(runner.InitRunner),
+			// fx.Invoke(policyclient.InitPolicyClient, reportclient.InitReportClient),
 		)
 
 		app.Run()

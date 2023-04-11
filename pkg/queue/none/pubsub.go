@@ -3,11 +3,11 @@ package none
 import (
 	"time"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queueing"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 )
 
 type PubSub struct {
-	config  queueing.Config
+	cfg     config.Config
 	chanSub map[string]chan struct{}
 }
 
@@ -36,9 +36,9 @@ func (p PubSub) ReceiveUpdateFromTopic(topic string) <-chan struct{} {
 	return n
 }
 
-func NewNonePubSub(config queueing.Config) (*PubSub, error) {
+func NewNonePubSub(c config.Config) (*PubSub, error) {
 	if pb == nil {
-		pb = &PubSub{config, make(map[string]chan struct{})}
+		pb = &PubSub{c, make(map[string]chan struct{})}
 	}
 	return pb, nil
 }
