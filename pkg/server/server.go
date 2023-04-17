@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/rs/cors"
+	"github.com/ScoreTrak/ScoreTrak/pkg/server/middleware"
 	"log"
 	"net"
 	"net/http"
@@ -13,10 +13,11 @@ import (
 	"go.uber.org/fx"
 )
 
-func NewServer(lc fx.Lifecycle, c *config.Config, entityServer *ogent.Server) (*http.Server, error) {
+func NewServer(lc fx.Lifecycle, c *config.Config, entityServer *ogent.Server, km *middleware.KratosMiddleware) (*http.Server, error) {
+
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", c.Server.Address, c.Server.Port),
-		Handler: cors.AllowAll().Handler(entityServer),
+		Handler: entityServer,
 	}
 
 	lc.Append(fx.Hook{

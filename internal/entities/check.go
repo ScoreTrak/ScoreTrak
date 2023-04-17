@@ -5,7 +5,6 @@ package entities
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -19,17 +18,13 @@ import (
 type Check struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// CreateTime holds the value of the "create_time" field.
-	CreateTime time.Time `json:"create_time,omitempty"`
-	// UpdateTime holds the value of the "update_time" field.
-	UpdateTime time.Time `json:"update_time,omitempty"`
+	ID string `json:"id,omitempty"`
 	// Pause holds the value of the "pause" field.
 	Pause bool `json:"pause,omitempty"`
 	// Hidden holds the value of the "hidden" field.
 	Hidden bool `json:"hidden,omitempty"`
 	// CompetitionID holds the value of the "competition_id" field.
-	CompetitionID int `json:"competition_id,omitempty"`
+	CompetitionID string `json:"competition_id,omitempty"`
 	// Log holds the value of the "log" field.
 	Log string `json:"log,omitempty"`
 	// Error holds the value of the "error" field.
@@ -39,8 +34,8 @@ type Check struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CheckQuery when eager-loading is set.
 	Edges          CheckEdges `json:"edges"`
-	round_checks   *int
-	service_checks *int
+	round_checks   *string
+	service_checks *string
 	selectValues   sql.SelectValues
 }
 
@@ -103,16 +98,12 @@ func (*Check) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case check.FieldPause, check.FieldHidden, check.FieldPassed:
 			values[i] = new(sql.NullBool)
-		case check.FieldID, check.FieldCompetitionID:
-			values[i] = new(sql.NullInt64)
-		case check.FieldLog, check.FieldError:
+		case check.FieldID, check.FieldCompetitionID, check.FieldLog, check.FieldError:
 			values[i] = new(sql.NullString)
-		case check.FieldCreateTime, check.FieldUpdateTime:
-			values[i] = new(sql.NullTime)
 		case check.ForeignKeys[0]: // round_checks
-			values[i] = new(sql.NullInt64)
+			values[i] = new(sql.NullString)
 		case check.ForeignKeys[1]: // service_checks
-			values[i] = new(sql.NullInt64)
+			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -129,22 +120,10 @@ func (c *Check) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case check.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
-			}
-			c.ID = int(value.Int64)
-		case check.FieldCreateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field create_time", values[i])
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
-				c.CreateTime = value.Time
-			}
-		case check.FieldUpdateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field update_time", values[i])
-			} else if value.Valid {
-				c.UpdateTime = value.Time
+				c.ID = value.String
 			}
 		case check.FieldPause:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -159,10 +138,10 @@ func (c *Check) assignValues(columns []string, values []any) error {
 				c.Hidden = value.Bool
 			}
 		case check.FieldCompetitionID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field competition_id", values[i])
 			} else if value.Valid {
-				c.CompetitionID = int(value.Int64)
+				c.CompetitionID = value.String
 			}
 		case check.FieldLog:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -183,18 +162,18 @@ func (c *Check) assignValues(columns []string, values []any) error {
 				c.Passed = value.Bool
 			}
 		case check.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field round_checks", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field round_checks", values[i])
 			} else if value.Valid {
-				c.round_checks = new(int)
-				*c.round_checks = int(value.Int64)
+				c.round_checks = new(string)
+				*c.round_checks = value.String
 			}
 		case check.ForeignKeys[1]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field service_checks", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field service_checks", values[i])
 			} else if value.Valid {
-				c.service_checks = new(int)
-				*c.service_checks = int(value.Int64)
+				c.service_checks = new(string)
+				*c.service_checks = value.String
 			}
 		default:
 			c.selectValues.Set(columns[i], values[i])
@@ -247,12 +226,6 @@ func (c *Check) String() string {
 	var builder strings.Builder
 	builder.WriteString("Check(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", c.ID))
-	builder.WriteString("create_time=")
-	builder.WriteString(c.CreateTime.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("update_time=")
-	builder.WriteString(c.UpdateTime.Format(time.ANSIC))
-	builder.WriteString(", ")
 	builder.WriteString("pause=")
 	builder.WriteString(fmt.Sprintf("%v", c.Pause))
 	builder.WriteString(", ")
@@ -260,7 +233,7 @@ func (c *Check) String() string {
 	builder.WriteString(fmt.Sprintf("%v", c.Hidden))
 	builder.WriteString(", ")
 	builder.WriteString("competition_id=")
-	builder.WriteString(fmt.Sprintf("%v", c.CompetitionID))
+	builder.WriteString(c.CompetitionID)
 	builder.WriteString(", ")
 	builder.WriteString("log=")
 	builder.WriteString(c.Log)

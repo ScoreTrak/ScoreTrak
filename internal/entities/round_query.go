@@ -130,8 +130,8 @@ func (rq *RoundQuery) FirstX(ctx context.Context) *Round {
 
 // FirstID returns the first Round ID from the query.
 // Returns a *NotFoundError when no Round ID was found.
-func (rq *RoundQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (rq *RoundQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = rq.Limit(1).IDs(setContextOp(ctx, rq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -143,7 +143,7 @@ func (rq *RoundQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (rq *RoundQuery) FirstIDX(ctx context.Context) int {
+func (rq *RoundQuery) FirstIDX(ctx context.Context) string {
 	id, err := rq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -181,8 +181,8 @@ func (rq *RoundQuery) OnlyX(ctx context.Context) *Round {
 // OnlyID is like Only, but returns the only Round ID in the query.
 // Returns a *NotSingularError when more than one Round ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (rq *RoundQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (rq *RoundQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = rq.Limit(2).IDs(setContextOp(ctx, rq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -198,7 +198,7 @@ func (rq *RoundQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (rq *RoundQuery) OnlyIDX(ctx context.Context) int {
+func (rq *RoundQuery) OnlyIDX(ctx context.Context) string {
 	id, err := rq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -226,7 +226,7 @@ func (rq *RoundQuery) AllX(ctx context.Context) []*Round {
 }
 
 // IDs executes the query and returns a list of Round IDs.
-func (rq *RoundQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (rq *RoundQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if rq.ctx.Unique == nil && rq.path != nil {
 		rq.Unique(true)
 	}
@@ -238,7 +238,7 @@ func (rq *RoundQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (rq *RoundQuery) IDsX(ctx context.Context) []int {
+func (rq *RoundQuery) IDsX(ctx context.Context) []string {
 	ids, err := rq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -334,12 +334,12 @@ func (rq *RoundQuery) WithChecks(opts ...func(*CheckQuery)) *RoundQuery {
 // Example:
 //
 //	var v []struct {
-//		CreateTime time.Time `json:"create_time,omitempty"`
+//		CompetitionID string `json:"competition_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Round.Query().
-//		GroupBy(round.FieldCreateTime).
+//		GroupBy(round.FieldCompetitionID).
 //		Aggregate(entities.Count()).
 //		Scan(ctx, &v)
 func (rq *RoundQuery) GroupBy(field string, fields ...string) *RoundGroupBy {
@@ -357,11 +357,11 @@ func (rq *RoundQuery) GroupBy(field string, fields ...string) *RoundGroupBy {
 // Example:
 //
 //	var v []struct {
-//		CreateTime time.Time `json:"create_time,omitempty"`
+//		CompetitionID string `json:"competition_id,omitempty"`
 //	}
 //
 //	client.Round.Query().
-//		Select(round.FieldCreateTime).
+//		Select(round.FieldCompetitionID).
 //		Scan(ctx, &v)
 func (rq *RoundQuery) Select(fields ...string) *RoundSelect {
 	rq.ctx.Fields = append(rq.ctx.Fields, fields...)
@@ -446,8 +446,8 @@ func (rq *RoundQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Round,
 }
 
 func (rq *RoundQuery) loadCompetition(ctx context.Context, query *CompetitionQuery, nodes []*Round, init func(*Round), assign func(*Round, *Competition)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Round)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Round)
 	for i := range nodes {
 		fk := nodes[i].CompetitionID
 		if _, ok := nodeids[fk]; !ok {
@@ -476,7 +476,7 @@ func (rq *RoundQuery) loadCompetition(ctx context.Context, query *CompetitionQue
 }
 func (rq *RoundQuery) loadChecks(ctx context.Context, query *CheckQuery, nodes []*Round, init func(*Round), assign func(*Round, *Check)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Round)
+	nodeids := make(map[string]*Round)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -516,7 +516,7 @@ func (rq *RoundQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (rq *RoundQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(round.Table, round.Columns, sqlgraph.NewFieldSpec(round.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(round.Table, round.Columns, sqlgraph.NewFieldSpec(round.FieldID, field.TypeString))
 	_spec.From = rq.sql
 	if unique := rq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

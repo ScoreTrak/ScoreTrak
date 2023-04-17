@@ -40,7 +40,7 @@ func (hgd *HostGroupDelete) ExecX(ctx context.Context) int {
 }
 
 func (hgd *HostGroupDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(hostgroup.Table, sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(hostgroup.Table, sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeString))
 	if ps := hgd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

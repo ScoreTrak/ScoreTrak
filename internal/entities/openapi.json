@@ -77,14 +77,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "create_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "pause": {
                     "type": "boolean"
                   },
@@ -92,7 +84,7 @@
                     "type": "boolean"
                   },
                   "competition_id": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "log": {
                     "type": "string"
@@ -104,20 +96,16 @@
                     "type": "boolean"
                   },
                   "competition": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "rounds": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "services": {
-                    "type": "integer"
+                    "type": "string"
                   }
                 },
                 "required": [
-                  "create_time",
-                  "update_time",
-                  "pause",
-                  "hidden",
                   "competition_id",
                   "log",
                   "error",
@@ -169,7 +157,7 @@
             "description": "ID of the Check",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -212,7 +200,7 @@
             "description": "ID of the Check",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -248,7 +236,7 @@
             "description": "ID of the Check",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -259,10 +247,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "pause": {
                     "type": "boolean"
                   },
@@ -279,13 +263,13 @@
                     "type": "boolean"
                   },
                   "competition": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "rounds": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "services": {
-                    "type": "integer"
+                    "type": "string"
                   }
                 }
               }
@@ -334,7 +318,7 @@
             "description": "ID of the Check",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -379,7 +363,7 @@
             "description": "ID of the Check",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -424,7 +408,7 @@
             "description": "ID of the Check",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -525,14 +509,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "create_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "hidden": {
                     "type": "boolean"
                   },
@@ -545,9 +521,8 @@
                   "display_name": {
                     "type": "string"
                   },
-                  "round_duration": {
-                    "type": "number",
-                    "format": "double"
+                  "viewable_to_public": {
+                    "type": "boolean"
                   },
                   "to_be_started_at": {
                     "type": "string",
@@ -564,24 +539,19 @@
                   "teams": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   },
                   "users": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   }
                 },
                 "required": [
-                  "create_time",
-                  "update_time",
-                  "hidden",
-                  "pause",
                   "name",
-                  "display_name",
-                  "round_duration"
+                  "display_name"
                 ]
               }
             }
@@ -626,7 +596,7 @@
             "description": "ID of the Competition",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -669,7 +639,7 @@
             "description": "ID of the Competition",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -705,7 +675,7 @@
             "description": "ID of the Competition",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -716,10 +686,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "hidden": {
                     "type": "boolean"
                   },
@@ -732,9 +698,8 @@
                   "display_name": {
                     "type": "string"
                   },
-                  "round_duration": {
-                    "type": "number",
-                    "format": "double"
+                  "viewable_to_public": {
+                    "type": "boolean"
                   },
                   "to_be_started_at": {
                     "type": "string",
@@ -751,13 +716,13 @@
                   "teams": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   },
                   "users": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   }
                 }
@@ -807,7 +772,7 @@
             "description": "ID of the Competition",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           },
           {
@@ -871,7 +836,7 @@
             "description": "ID of the Competition",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           },
           {
@@ -991,14 +956,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "create_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "pause": {
                     "type": "boolean"
                   },
@@ -1006,32 +963,28 @@
                     "type": "boolean"
                   },
                   "competition_id": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "team_id": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "name": {
                     "type": "string"
                   },
                   "competition": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "team": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "hosts": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   }
                 },
                 "required": [
-                  "create_time",
-                  "update_time",
-                  "pause",
-                  "hidden",
                   "competition_id",
                   "team_id",
                   "name",
@@ -1081,7 +1034,7 @@
             "description": "ID of the HostGroup",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -1124,7 +1077,7 @@
             "description": "ID of the HostGroup",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -1160,7 +1113,7 @@
             "description": "ID of the HostGroup",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -1171,10 +1124,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "pause": {
                     "type": "boolean"
                   },
@@ -1182,21 +1131,21 @@
                     "type": "boolean"
                   },
                   "team_id": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "name": {
                     "type": "string"
                   },
                   "competition": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "team": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "hosts": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   }
                 }
@@ -1246,7 +1195,7 @@
             "description": "ID of the HostGroup",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -1291,7 +1240,7 @@
             "description": "ID of the HostGroup",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           },
           {
@@ -1355,7 +1304,7 @@
             "description": "ID of the HostGroup",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -1456,14 +1405,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "create_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "pause": {
                     "type": "boolean"
                   },
@@ -1471,10 +1412,10 @@
                     "type": "boolean"
                   },
                   "competition_id": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "team_id": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "address": {
                     "type": "string"
@@ -1486,26 +1427,22 @@
                     "type": "boolean"
                   },
                   "competition": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "team": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "services": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   },
                   "host_group": {
-                    "type": "integer"
+                    "type": "string"
                   }
                 },
                 "required": [
-                  "create_time",
-                  "update_time",
-                  "pause",
-                  "hidden",
                   "competition_id",
                   "team_id",
                   "address",
@@ -1558,7 +1495,7 @@
             "description": "ID of the Host",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -1601,7 +1538,7 @@
             "description": "ID of the Host",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -1637,7 +1574,7 @@
             "description": "ID of the Host",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -1648,10 +1585,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "pause": {
                     "type": "boolean"
                   },
@@ -1659,7 +1592,7 @@
                     "type": "boolean"
                   },
                   "team_id": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "address": {
                     "type": "string"
@@ -1671,19 +1604,19 @@
                     "type": "boolean"
                   },
                   "competition": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "team": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "services": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   },
                   "host_group": {
-                    "type": "integer"
+                    "type": "string"
                   }
                 }
               }
@@ -1732,7 +1665,7 @@
             "description": "ID of the Host",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -1777,7 +1710,7 @@
             "description": "ID of the Host",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -1822,7 +1755,7 @@
             "description": "ID of the Host",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           },
           {
@@ -1886,7 +1819,7 @@
             "description": "ID of the Host",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -1987,19 +1920,11 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "create_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "competition_id": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "team_id": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "key": {
                     "type": "string"
@@ -2017,18 +1942,16 @@
                     "default": "view"
                   },
                   "competition": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "team": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "services": {
-                    "type": "integer"
+                    "type": "string"
                   }
                 },
                 "required": [
-                  "create_time",
-                  "update_time",
                   "competition_id",
                   "team_id",
                   "key",
@@ -2081,7 +2004,7 @@
             "description": "ID of the Property",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -2124,7 +2047,7 @@
             "description": "ID of the Property",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -2160,7 +2083,7 @@
             "description": "ID of the Property",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -2171,12 +2094,8 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "team_id": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "key": {
                     "type": "string"
@@ -2194,13 +2113,13 @@
                     "default": "view"
                   },
                   "competition": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "team": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "services": {
-                    "type": "integer"
+                    "type": "string"
                   }
                 }
               }
@@ -2249,7 +2168,7 @@
             "description": "ID of the Property",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -2294,7 +2213,7 @@
             "description": "ID of the Property",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -2339,7 +2258,7 @@
             "description": "ID of the Property",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -2350,6 +2269,259 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Property_TeamRead"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/reports": {
+      "get": {
+        "tags": [
+          "Report"
+        ],
+        "summary": "List Reports",
+        "description": "List Reports.",
+        "operationId": "listReport",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "what page to render",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "itemsPerPage",
+            "in": "query",
+            "description": "item count to render per page",
+            "schema": {
+              "type": "integer",
+              "maximum": 255,
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "result Report list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReportList"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Report"
+        ],
+        "summary": "Create a new Report",
+        "description": "Creates a new Report and persists it to storage.",
+        "operationId": "createReport",
+        "requestBody": {
+          "description": "Report to create",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "log": {
+                    "type": "string"
+                  },
+                  "error": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "log",
+                  "error"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Report created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportCreate"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/reports/{id}": {
+      "get": {
+        "tags": [
+          "Report"
+        ],
+        "summary": "Find a Report by ID",
+        "description": "Finds the Report with the requested ID and returns it.",
+        "operationId": "readReport",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the Report",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Report with requested ID was found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportRead"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Report"
+        ],
+        "summary": "Deletes a Report by ID",
+        "description": "Deletes the Report with the requested ID.",
+        "operationId": "deleteReport",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the Report",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Report with requested ID was deleted"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Report"
+        ],
+        "summary": "Updates a Report",
+        "description": "Updates a Report and persists changes to storage.",
+        "operationId": "updateReport",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the Report",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Report properties to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "log": {
+                    "type": "string"
+                  },
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Report updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportUpdate"
                 }
               }
             }
@@ -2440,16 +2612,8 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "create_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "competition_id": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "round_number": {
                     "type": "integer"
@@ -2469,18 +2633,16 @@
                     "format": "date-time"
                   },
                   "competition": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "checks": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   }
                 },
                 "required": [
-                  "create_time",
-                  "update_time",
                   "competition_id",
                   "round_number",
                   "note",
@@ -2532,7 +2694,7 @@
             "description": "ID of the Round",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -2575,7 +2737,7 @@
             "description": "ID of the Round",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -2611,7 +2773,7 @@
             "description": "ID of the Round",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -2622,10 +2784,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "round_number": {
                     "type": "integer"
                   },
@@ -2644,12 +2802,12 @@
                     "format": "date-time"
                   },
                   "competition": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "checks": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   }
                 }
@@ -2699,7 +2857,7 @@
             "description": "ID of the Round",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           },
           {
@@ -2763,7 +2921,7 @@
             "description": "ID of the Round",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -2864,14 +3022,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "create_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "pause": {
                     "type": "boolean"
                   },
@@ -2879,10 +3029,10 @@
                     "type": "boolean"
                   },
                   "competition_id": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "team_id": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "name": {
                     "type": "string"
@@ -2903,32 +3053,28 @@
                     "type": "integer"
                   },
                   "competition": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "team": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "hosts": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "checks": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   },
                   "properties": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   }
                 },
                 "required": [
-                  "create_time",
-                  "update_time",
-                  "pause",
-                  "hidden",
                   "competition_id",
                   "team_id",
                   "name",
@@ -2983,7 +3129,7 @@
             "description": "ID of the Service",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -3026,7 +3172,7 @@
             "description": "ID of the Service",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -3062,7 +3208,7 @@
             "description": "ID of the Service",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -3073,10 +3219,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "pause": {
                     "type": "boolean"
                   },
@@ -3084,7 +3226,7 @@
                     "type": "boolean"
                   },
                   "team_id": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "name": {
                     "type": "string"
@@ -3105,24 +3247,24 @@
                     "type": "integer"
                   },
                   "competition": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "team": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "hosts": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "checks": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   },
                   "properties": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   }
                 }
@@ -3172,7 +3314,7 @@
             "description": "ID of the Service",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           },
           {
@@ -3236,7 +3378,7 @@
             "description": "ID of the Service",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -3281,7 +3423,7 @@
             "description": "ID of the Service",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -3326,7 +3468,7 @@
             "description": "ID of the Service",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           },
           {
@@ -3390,7 +3532,7 @@
             "description": "ID of the Service",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -3491,14 +3633,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "create_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "pause": {
                     "type": "boolean"
                   },
@@ -3506,7 +3640,7 @@
                     "type": "boolean"
                   },
                   "competition_id": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "name": {
                     "type": "string"
@@ -3515,29 +3649,24 @@
                     "type": "integer"
                   },
                   "competition": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "users": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   },
                   "hosts": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   }
                 },
                 "required": [
-                  "create_time",
-                  "update_time",
-                  "pause",
-                  "hidden",
                   "competition_id",
                   "name",
-                  "index",
                   "competition"
                 ]
               }
@@ -3583,7 +3712,7 @@
             "description": "ID of the Team",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -3626,7 +3755,7 @@
             "description": "ID of the Team",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -3662,7 +3791,7 @@
             "description": "ID of the Team",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -3673,10 +3802,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
                   "pause": {
                     "type": "boolean"
                   },
@@ -3690,18 +3815,18 @@
                     "type": "integer"
                   },
                   "competition": {
-                    "type": "integer"
+                    "type": "string"
                   },
                   "users": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   },
                   "hosts": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   }
                 }
@@ -3751,7 +3876,7 @@
             "description": "ID of the Team",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -3796,7 +3921,7 @@
             "description": "ID of the Team",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           },
           {
@@ -3860,7 +3985,7 @@
             "description": "ID of the Team",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           },
           {
@@ -3991,23 +4116,26 @@
                   "username": {
                     "type": "string"
                   },
+                  "ory_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
                   "teams": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   },
                   "competitions": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   }
                 },
                 "required": [
-                  "create_time",
-                  "update_time",
-                  "username"
+                  "username",
+                  "ory_id"
                 ]
               }
             }
@@ -4052,7 +4180,7 @@
             "description": "ID of the User",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -4095,7 +4223,7 @@
             "description": "ID of the User",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -4131,7 +4259,7 @@
             "description": "ID of the User",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           }
         ],
@@ -4152,13 +4280,13 @@
                   "teams": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   },
                   "competitions": {
                     "type": "array",
                     "items": {
-                      "type": "integer"
+                      "type": "string"
                     }
                   }
                 }
@@ -4208,7 +4336,7 @@
             "description": "ID of the User",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           },
           {
@@ -4272,7 +4400,7 @@
             "description": "ID of the User",
             "required": true,
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           },
           {
@@ -4328,15 +4456,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -4345,7 +4465,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "log": {
             "type": "string"
@@ -4368,10 +4488,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "log",
           "error",
@@ -4385,15 +4501,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -4402,7 +4510,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "log": {
             "type": "string"
@@ -4416,10 +4524,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "log",
           "error",
@@ -4430,15 +4534,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -4447,7 +4543,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "log": {
             "type": "string"
@@ -4461,10 +4557,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "log",
           "error",
@@ -4475,15 +4567,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -4492,7 +4576,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "log": {
             "type": "string"
@@ -4506,10 +4590,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "log",
           "error",
@@ -4520,15 +4600,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -4537,7 +4609,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "log": {
             "type": "string"
@@ -4551,10 +4623,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "log",
           "error",
@@ -4565,15 +4633,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "hidden": {
             "type": "boolean"
@@ -4587,9 +4647,8 @@
           "display_name": {
             "type": "string"
           },
-          "round_duration": {
-            "type": "number",
-            "format": "double"
+          "viewable_to_public": {
+            "type": "boolean"
           },
           "to_be_started_at": {
             "type": "string",
@@ -4606,31 +4665,18 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "hidden",
-          "pause",
           "name",
-          "display_name",
-          "round_duration"
+          "display_name"
         ]
       },
       "Check_RoundsRead": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "round_number": {
             "type": "integer"
@@ -4652,8 +4698,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
           "competition_id",
           "round_number",
           "note",
@@ -4666,15 +4710,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -4683,10 +4719,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -4709,10 +4745,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "name",
@@ -4727,15 +4759,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "hidden": {
             "type": "boolean"
@@ -4749,9 +4773,8 @@
           "display_name": {
             "type": "string"
           },
-          "round_duration": {
-            "type": "number",
-            "format": "double"
+          "viewable_to_public": {
+            "type": "boolean"
           },
           "to_be_started_at": {
             "type": "string",
@@ -4780,28 +4803,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "hidden",
-          "pause",
           "name",
-          "display_name",
-          "round_duration"
+          "display_name"
         ]
       },
       "CompetitionCreate": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "hidden": {
             "type": "boolean"
@@ -4815,9 +4825,8 @@
           "display_name": {
             "type": "string"
           },
-          "round_duration": {
-            "type": "number",
-            "format": "double"
+          "viewable_to_public": {
+            "type": "boolean"
           },
           "to_be_started_at": {
             "type": "string",
@@ -4834,28 +4843,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "hidden",
-          "pause",
           "name",
-          "display_name",
-          "round_duration"
+          "display_name"
         ]
       },
       "CompetitionList": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "hidden": {
             "type": "boolean"
@@ -4869,9 +4865,8 @@
           "display_name": {
             "type": "string"
           },
-          "round_duration": {
-            "type": "number",
-            "format": "double"
+          "viewable_to_public": {
+            "type": "boolean"
           },
           "to_be_started_at": {
             "type": "string",
@@ -4888,28 +4883,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "hidden",
-          "pause",
           "name",
-          "display_name",
-          "round_duration"
+          "display_name"
         ]
       },
       "CompetitionRead": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "hidden": {
             "type": "boolean"
@@ -4923,9 +4905,8 @@
           "display_name": {
             "type": "string"
           },
-          "round_duration": {
-            "type": "number",
-            "format": "double"
+          "viewable_to_public": {
+            "type": "boolean"
           },
           "to_be_started_at": {
             "type": "string",
@@ -4942,28 +4923,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "hidden",
-          "pause",
           "name",
-          "display_name",
-          "round_duration"
+          "display_name"
         ]
       },
       "CompetitionUpdate": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "hidden": {
             "type": "boolean"
@@ -4977,9 +4945,8 @@
           "display_name": {
             "type": "string"
           },
-          "round_duration": {
-            "type": "number",
-            "format": "double"
+          "viewable_to_public": {
+            "type": "boolean"
           },
           "to_be_started_at": {
             "type": "string",
@@ -4996,28 +4963,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "hidden",
-          "pause",
           "name",
-          "display_name",
-          "round_duration"
+          "display_name"
         ]
       },
       "Competition_TeamsList": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -5026,7 +4980,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -5037,20 +4991,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
-          "name",
-          "index"
+          "name"
         ]
       },
       "Competition_UsersList": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "string"
           },
           "create_time": {
             "type": "string",
@@ -5062,28 +5011,23 @@
           },
           "username": {
             "type": "string"
+          },
+          "ory_id": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "username"
+          "username",
+          "ory_id"
         ]
       },
       "Host": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -5092,10 +5036,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "address": {
             "type": "string"
@@ -5124,10 +5068,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "address",
@@ -5142,15 +5082,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -5159,10 +5091,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "address": {
             "type": "string"
@@ -5176,10 +5108,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "address",
@@ -5191,15 +5119,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -5208,10 +5128,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -5231,10 +5151,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "name",
@@ -5246,15 +5162,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -5263,10 +5171,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -5274,10 +5182,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "name"
@@ -5287,15 +5191,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -5304,10 +5200,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -5315,10 +5211,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "name"
@@ -5328,15 +5220,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -5345,10 +5229,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -5356,10 +5240,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "name"
@@ -5369,15 +5249,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -5386,10 +5258,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -5397,10 +5269,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "name"
@@ -5410,15 +5278,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "hidden": {
             "type": "boolean"
@@ -5432,9 +5292,8 @@
           "display_name": {
             "type": "string"
           },
-          "round_duration": {
-            "type": "number",
-            "format": "double"
+          "viewable_to_public": {
+            "type": "boolean"
           },
           "to_be_started_at": {
             "type": "string",
@@ -5451,28 +5310,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "hidden",
-          "pause",
           "name",
-          "display_name",
-          "round_duration"
+          "display_name"
         ]
       },
       "HostGroup_HostsList": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -5481,10 +5327,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "address": {
             "type": "string"
@@ -5498,10 +5344,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "address",
@@ -5513,15 +5355,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -5530,7 +5364,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -5541,28 +5375,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
-          "name",
-          "index"
+          "name"
         ]
       },
       "HostList": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -5571,10 +5392,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "address": {
             "type": "string"
@@ -5588,10 +5409,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "address",
@@ -5603,15 +5420,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -5620,10 +5429,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "address": {
             "type": "string"
@@ -5637,10 +5446,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "address",
@@ -5652,15 +5457,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -5669,10 +5466,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "address": {
             "type": "string"
@@ -5686,10 +5483,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "address",
@@ -5701,15 +5494,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "hidden": {
             "type": "boolean"
@@ -5723,9 +5508,8 @@
           "display_name": {
             "type": "string"
           },
-          "round_duration": {
-            "type": "number",
-            "format": "double"
+          "viewable_to_public": {
+            "type": "boolean"
           },
           "to_be_started_at": {
             "type": "string",
@@ -5742,28 +5526,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "hidden",
-          "pause",
           "name",
-          "display_name",
-          "round_duration"
+          "display_name"
         ]
       },
       "Host_HostGroupRead": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -5772,10 +5543,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -5783,10 +5554,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "name"
@@ -5796,15 +5563,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -5813,10 +5572,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -5839,10 +5598,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "name",
@@ -5857,15 +5612,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -5874,7 +5621,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -5885,34 +5632,21 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
-          "name",
-          "index"
+          "name"
         ]
       },
       "Property": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "key": {
             "type": "string"
@@ -5941,8 +5675,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
           "competition_id",
           "team_id",
           "key",
@@ -5957,21 +5689,13 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "key": {
             "type": "string"
@@ -5991,8 +5715,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
           "competition_id",
           "team_id",
           "key",
@@ -6004,21 +5726,13 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "key": {
             "type": "string"
@@ -6038,8 +5752,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
           "competition_id",
           "team_id",
           "key",
@@ -6051,21 +5763,13 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "key": {
             "type": "string"
@@ -6085,8 +5789,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
           "competition_id",
           "team_id",
           "key",
@@ -6098,21 +5800,13 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "key": {
             "type": "string"
@@ -6132,8 +5826,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
           "competition_id",
           "team_id",
           "key",
@@ -6145,15 +5837,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "hidden": {
             "type": "boolean"
@@ -6167,9 +5851,8 @@
           "display_name": {
             "type": "string"
           },
-          "round_duration": {
-            "type": "number",
-            "format": "double"
+          "viewable_to_public": {
+            "type": "boolean"
           },
           "to_be_started_at": {
             "type": "string",
@@ -6186,28 +5869,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "hidden",
-          "pause",
           "name",
-          "display_name",
-          "round_duration"
+          "display_name"
         ]
       },
       "Property_ServicesRead": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -6216,10 +5886,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -6242,10 +5912,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "name",
@@ -6260,15 +5926,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -6277,7 +5935,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -6288,31 +5946,113 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
-          "name",
-          "index"
+          "name"
+        ]
+      },
+      "Report": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "log": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "log",
+          "error"
+        ]
+      },
+      "ReportCreate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "log": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "log",
+          "error"
+        ]
+      },
+      "ReportList": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "log": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "log",
+          "error"
+        ]
+      },
+      "ReportRead": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "log": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "log",
+          "error"
+        ]
+      },
+      "ReportUpdate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "log": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "log",
+          "error"
         ]
       },
       "Round": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "round_number": {
             "type": "integer"
@@ -6343,8 +6083,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
           "competition_id",
           "round_number",
           "note",
@@ -6358,18 +6096,10 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "round_number": {
             "type": "integer"
@@ -6391,8 +6121,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
           "competition_id",
           "round_number",
           "note",
@@ -6405,18 +6133,10 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "round_number": {
             "type": "integer"
@@ -6438,8 +6158,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
           "competition_id",
           "round_number",
           "note",
@@ -6452,18 +6170,10 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "round_number": {
             "type": "integer"
@@ -6485,8 +6195,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
           "competition_id",
           "round_number",
           "note",
@@ -6499,18 +6207,10 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "round_number": {
             "type": "integer"
@@ -6532,8 +6232,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
           "competition_id",
           "round_number",
           "note",
@@ -6546,15 +6244,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -6563,7 +6253,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "log": {
             "type": "string"
@@ -6577,10 +6267,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "log",
           "error",
@@ -6591,15 +6277,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "hidden": {
             "type": "boolean"
@@ -6613,9 +6291,8 @@
           "display_name": {
             "type": "string"
           },
-          "round_duration": {
-            "type": "number",
-            "format": "double"
+          "viewable_to_public": {
+            "type": "boolean"
           },
           "to_be_started_at": {
             "type": "string",
@@ -6632,28 +6309,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "hidden",
-          "pause",
           "name",
-          "display_name",
-          "round_duration"
+          "display_name"
         ]
       },
       "Service": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -6662,10 +6326,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -6709,10 +6373,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "name",
@@ -6729,15 +6389,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -6746,10 +6398,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -6772,10 +6424,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "name",
@@ -6790,15 +6438,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -6807,10 +6447,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -6833,10 +6473,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "name",
@@ -6851,15 +6487,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -6868,10 +6496,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -6894,10 +6522,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "name",
@@ -6912,15 +6536,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -6929,10 +6545,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -6955,10 +6571,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "name",
@@ -6973,15 +6585,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -6990,7 +6594,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "log": {
             "type": "string"
@@ -7004,10 +6608,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "log",
           "error",
@@ -7018,15 +6618,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "hidden": {
             "type": "boolean"
@@ -7040,9 +6632,8 @@
           "display_name": {
             "type": "string"
           },
-          "round_duration": {
-            "type": "number",
-            "format": "double"
+          "viewable_to_public": {
+            "type": "boolean"
           },
           "to_be_started_at": {
             "type": "string",
@@ -7059,28 +6650,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "hidden",
-          "pause",
           "name",
-          "display_name",
-          "round_duration"
+          "display_name"
         ]
       },
       "Service_HostsRead": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -7089,10 +6667,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "address": {
             "type": "string"
@@ -7106,10 +6684,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "address",
@@ -7121,21 +6695,13 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "key": {
             "type": "string"
@@ -7155,8 +6721,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
           "competition_id",
           "team_id",
           "key",
@@ -7168,15 +6732,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -7185,7 +6741,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -7196,28 +6752,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
-          "name",
-          "index"
+          "name"
         ]
       },
       "Team": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -7226,7 +6769,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -7252,13 +6795,8 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "name",
-          "index",
           "competition"
         ]
       },
@@ -7266,15 +6804,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -7283,7 +6813,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -7294,28 +6824,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
-          "name",
-          "index"
+          "name"
         ]
       },
       "TeamList": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -7324,7 +6841,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -7335,28 +6852,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
-          "name",
-          "index"
+          "name"
         ]
       },
       "TeamRead": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -7365,7 +6869,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -7376,28 +6880,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
-          "name",
-          "index"
+          "name"
         ]
       },
       "TeamUpdate": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -7406,7 +6897,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -7417,28 +6908,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
-          "name",
-          "index"
+          "name"
         ]
       },
       "Team_CompetitionRead": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "hidden": {
             "type": "boolean"
@@ -7452,9 +6930,8 @@
           "display_name": {
             "type": "string"
           },
-          "round_duration": {
-            "type": "number",
-            "format": "double"
+          "viewable_to_public": {
+            "type": "boolean"
           },
           "to_be_started_at": {
             "type": "string",
@@ -7471,28 +6948,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "hidden",
-          "pause",
           "name",
-          "display_name",
-          "round_duration"
+          "display_name"
         ]
       },
       "Team_HostsList": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -7501,10 +6965,10 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "team_id": {
-            "type": "integer"
+            "type": "string"
           },
           "address": {
             "type": "string"
@@ -7518,10 +6982,6 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
           "team_id",
           "address",
@@ -7533,7 +6993,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "string"
           },
           "create_time": {
             "type": "string",
@@ -7545,20 +7005,23 @@
           },
           "username": {
             "type": "string"
+          },
+          "ory_id": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "username"
+          "username",
+          "ory_id"
         ]
       },
       "User": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "string"
           },
           "create_time": {
             "type": "string",
@@ -7570,6 +7033,10 @@
           },
           "username": {
             "type": "string"
+          },
+          "ory_id": {
+            "type": "string",
+            "format": "uuid"
           },
           "teams": {
             "type": "array",
@@ -7586,16 +7053,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "username"
+          "username",
+          "ory_id"
         ]
       },
       "UserCreate": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "string"
           },
           "create_time": {
             "type": "string",
@@ -7607,20 +7073,23 @@
           },
           "username": {
             "type": "string"
+          },
+          "ory_id": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "username"
+          "username",
+          "ory_id"
         ]
       },
       "UserList": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "string"
           },
           "create_time": {
             "type": "string",
@@ -7632,20 +7101,23 @@
           },
           "username": {
             "type": "string"
+          },
+          "ory_id": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "username"
+          "username",
+          "ory_id"
         ]
       },
       "UserRead": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "string"
           },
           "create_time": {
             "type": "string",
@@ -7657,20 +7129,23 @@
           },
           "username": {
             "type": "string"
+          },
+          "ory_id": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "username"
+          "username",
+          "ory_id"
         ]
       },
       "UserUpdate": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
+            "type": "string"
           },
           "create_time": {
             "type": "string",
@@ -7682,28 +7157,23 @@
           },
           "username": {
             "type": "string"
+          },
+          "ory_id": {
+            "type": "string",
+            "format": "uuid"
           }
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "username"
+          "username",
+          "ory_id"
         ]
       },
       "User_CompetitionsList": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "hidden": {
             "type": "boolean"
@@ -7717,9 +7187,8 @@
           "display_name": {
             "type": "string"
           },
-          "round_duration": {
-            "type": "number",
-            "format": "double"
+          "viewable_to_public": {
+            "type": "boolean"
           },
           "to_be_started_at": {
             "type": "string",
@@ -7736,28 +7205,15 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "hidden",
-          "pause",
           "name",
-          "display_name",
-          "round_duration"
+          "display_name"
         ]
       },
       "User_TeamsList": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "integer"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
+            "type": "string"
           },
           "pause": {
             "type": "boolean"
@@ -7766,7 +7222,7 @@
             "type": "boolean"
           },
           "competition_id": {
-            "type": "integer"
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -7777,13 +7233,8 @@
         },
         "required": [
           "id",
-          "create_time",
-          "update_time",
-          "pause",
-          "hidden",
           "competition_id",
-          "name",
-          "index"
+          "name"
         ]
       }
     },

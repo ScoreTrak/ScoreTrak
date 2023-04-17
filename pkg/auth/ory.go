@@ -1,20 +1,27 @@
 package auth
 
 import (
-	"context"
-
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	client "github.com/ory/client-go"
+	oclient "github.com/ory/client-go"
+	kclient "github.com/ory/kratos-client-go"
 )
 
-func NewOryClient(ctx context.Context, c *config.Config) *client.APIClient {
-	configuration := client.NewConfiguration()
-	configuration.Servers = []client.ServerConfiguration{
+func NewOryClient(c *config.Config) *oclient.APIClient {
+	configuration := oclient.NewConfiguration()
+	configuration.Servers = []oclient.ServerConfiguration{
 		{
 			URL: c.Auth.Ory.AdminApiUrl,
 		},
 	}
+	kcfg := kclient.NewConfiguration()
+	kcfg.Servers = []kclient.ServerConfiguration{
+		{
+			URL: c.Auth.Ory.AdminApiUrl,
+		},
+	}
+	kApiClient := kclient.NewAPIClient(kcfg)
+	kApiClient.GetConfig()
 
-	apiClient := client.NewAPIClient(configuration)
+	apiClient := oclient.NewAPIClient(configuration)
 	return apiClient
 }

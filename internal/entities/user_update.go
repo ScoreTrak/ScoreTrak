@@ -36,6 +36,12 @@ func (uu *UserUpdate) SetUpdateTime(t time.Time) *UserUpdate {
 	return uu
 }
 
+// ClearUpdateTime clears the value of the "update_time" field.
+func (uu *UserUpdate) ClearUpdateTime() *UserUpdate {
+	uu.mutation.ClearUpdateTime()
+	return uu
+}
+
 // SetUsername sets the "username" field.
 func (uu *UserUpdate) SetUsername(s string) *UserUpdate {
 	uu.mutation.SetUsername(s)
@@ -43,14 +49,14 @@ func (uu *UserUpdate) SetUsername(s string) *UserUpdate {
 }
 
 // AddTeamIDs adds the "teams" edge to the Team entity by IDs.
-func (uu *UserUpdate) AddTeamIDs(ids ...int) *UserUpdate {
+func (uu *UserUpdate) AddTeamIDs(ids ...string) *UserUpdate {
 	uu.mutation.AddTeamIDs(ids...)
 	return uu
 }
 
 // AddTeams adds the "teams" edges to the Team entity.
 func (uu *UserUpdate) AddTeams(t ...*Team) *UserUpdate {
-	ids := make([]int, len(t))
+	ids := make([]string, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
@@ -58,14 +64,14 @@ func (uu *UserUpdate) AddTeams(t ...*Team) *UserUpdate {
 }
 
 // AddCompetitionIDs adds the "competitions" edge to the Competition entity by IDs.
-func (uu *UserUpdate) AddCompetitionIDs(ids ...int) *UserUpdate {
+func (uu *UserUpdate) AddCompetitionIDs(ids ...string) *UserUpdate {
 	uu.mutation.AddCompetitionIDs(ids...)
 	return uu
 }
 
 // AddCompetitions adds the "competitions" edges to the Competition entity.
 func (uu *UserUpdate) AddCompetitions(c ...*Competition) *UserUpdate {
-	ids := make([]int, len(c))
+	ids := make([]string, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -84,14 +90,14 @@ func (uu *UserUpdate) ClearTeams() *UserUpdate {
 }
 
 // RemoveTeamIDs removes the "teams" edge to Team entities by IDs.
-func (uu *UserUpdate) RemoveTeamIDs(ids ...int) *UserUpdate {
+func (uu *UserUpdate) RemoveTeamIDs(ids ...string) *UserUpdate {
 	uu.mutation.RemoveTeamIDs(ids...)
 	return uu
 }
 
 // RemoveTeams removes "teams" edges to Team entities.
 func (uu *UserUpdate) RemoveTeams(t ...*Team) *UserUpdate {
-	ids := make([]int, len(t))
+	ids := make([]string, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
@@ -105,14 +111,14 @@ func (uu *UserUpdate) ClearCompetitions() *UserUpdate {
 }
 
 // RemoveCompetitionIDs removes the "competitions" edge to Competition entities by IDs.
-func (uu *UserUpdate) RemoveCompetitionIDs(ids ...int) *UserUpdate {
+func (uu *UserUpdate) RemoveCompetitionIDs(ids ...string) *UserUpdate {
 	uu.mutation.RemoveCompetitionIDs(ids...)
 	return uu
 }
 
 // RemoveCompetitions removes "competitions" edges to Competition entities.
 func (uu *UserUpdate) RemoveCompetitions(c ...*Competition) *UserUpdate {
-	ids := make([]int, len(c))
+	ids := make([]string, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -121,7 +127,9 @@ func (uu *UserUpdate) RemoveCompetitions(c ...*Competition) *UserUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (uu *UserUpdate) Save(ctx context.Context) (int, error) {
-	uu.defaults()
+	if err := uu.defaults(); err != nil {
+		return 0, err
+	}
 	return withHooks[int, UserMutation](ctx, uu.sqlSave, uu.mutation, uu.hooks)
 }
 
@@ -148,11 +156,15 @@ func (uu *UserUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (uu *UserUpdate) defaults() {
-	if _, ok := uu.mutation.UpdateTime(); !ok {
+func (uu *UserUpdate) defaults() error {
+	if _, ok := uu.mutation.UpdateTime(); !ok && !uu.mutation.UpdateTimeCleared() {
+		if user.UpdateDefaultUpdateTime == nil {
+			return fmt.Errorf("entities: uninitialized user.UpdateDefaultUpdateTime (forgotten import entities/runtime?)")
+		}
 		v := user.UpdateDefaultUpdateTime()
 		uu.mutation.SetUpdateTime(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -169,7 +181,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := uu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeString))
 	if ps := uu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -177,8 +189,14 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if uu.mutation.CreateTimeCleared() {
+		_spec.ClearField(user.FieldCreateTime, field.TypeTime)
+	}
 	if value, ok := uu.mutation.UpdateTime(); ok {
 		_spec.SetField(user.FieldUpdateTime, field.TypeTime, value)
+	}
+	if uu.mutation.UpdateTimeCleared() {
+		_spec.ClearField(user.FieldUpdateTime, field.TypeTime)
 	}
 	if value, ok := uu.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
@@ -191,7 +209,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: user.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -204,7 +222,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: user.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -220,7 +238,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: user.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -236,7 +254,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: user.CompetitionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -249,7 +267,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: user.CompetitionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -265,7 +283,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: user.CompetitionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -299,6 +317,12 @@ func (uuo *UserUpdateOne) SetUpdateTime(t time.Time) *UserUpdateOne {
 	return uuo
 }
 
+// ClearUpdateTime clears the value of the "update_time" field.
+func (uuo *UserUpdateOne) ClearUpdateTime() *UserUpdateOne {
+	uuo.mutation.ClearUpdateTime()
+	return uuo
+}
+
 // SetUsername sets the "username" field.
 func (uuo *UserUpdateOne) SetUsername(s string) *UserUpdateOne {
 	uuo.mutation.SetUsername(s)
@@ -306,14 +330,14 @@ func (uuo *UserUpdateOne) SetUsername(s string) *UserUpdateOne {
 }
 
 // AddTeamIDs adds the "teams" edge to the Team entity by IDs.
-func (uuo *UserUpdateOne) AddTeamIDs(ids ...int) *UserUpdateOne {
+func (uuo *UserUpdateOne) AddTeamIDs(ids ...string) *UserUpdateOne {
 	uuo.mutation.AddTeamIDs(ids...)
 	return uuo
 }
 
 // AddTeams adds the "teams" edges to the Team entity.
 func (uuo *UserUpdateOne) AddTeams(t ...*Team) *UserUpdateOne {
-	ids := make([]int, len(t))
+	ids := make([]string, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
@@ -321,14 +345,14 @@ func (uuo *UserUpdateOne) AddTeams(t ...*Team) *UserUpdateOne {
 }
 
 // AddCompetitionIDs adds the "competitions" edge to the Competition entity by IDs.
-func (uuo *UserUpdateOne) AddCompetitionIDs(ids ...int) *UserUpdateOne {
+func (uuo *UserUpdateOne) AddCompetitionIDs(ids ...string) *UserUpdateOne {
 	uuo.mutation.AddCompetitionIDs(ids...)
 	return uuo
 }
 
 // AddCompetitions adds the "competitions" edges to the Competition entity.
 func (uuo *UserUpdateOne) AddCompetitions(c ...*Competition) *UserUpdateOne {
-	ids := make([]int, len(c))
+	ids := make([]string, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -347,14 +371,14 @@ func (uuo *UserUpdateOne) ClearTeams() *UserUpdateOne {
 }
 
 // RemoveTeamIDs removes the "teams" edge to Team entities by IDs.
-func (uuo *UserUpdateOne) RemoveTeamIDs(ids ...int) *UserUpdateOne {
+func (uuo *UserUpdateOne) RemoveTeamIDs(ids ...string) *UserUpdateOne {
 	uuo.mutation.RemoveTeamIDs(ids...)
 	return uuo
 }
 
 // RemoveTeams removes "teams" edges to Team entities.
 func (uuo *UserUpdateOne) RemoveTeams(t ...*Team) *UserUpdateOne {
-	ids := make([]int, len(t))
+	ids := make([]string, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
@@ -368,14 +392,14 @@ func (uuo *UserUpdateOne) ClearCompetitions() *UserUpdateOne {
 }
 
 // RemoveCompetitionIDs removes the "competitions" edge to Competition entities by IDs.
-func (uuo *UserUpdateOne) RemoveCompetitionIDs(ids ...int) *UserUpdateOne {
+func (uuo *UserUpdateOne) RemoveCompetitionIDs(ids ...string) *UserUpdateOne {
 	uuo.mutation.RemoveCompetitionIDs(ids...)
 	return uuo
 }
 
 // RemoveCompetitions removes "competitions" edges to Competition entities.
 func (uuo *UserUpdateOne) RemoveCompetitions(c ...*Competition) *UserUpdateOne {
-	ids := make([]int, len(c))
+	ids := make([]string, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -397,7 +421,9 @@ func (uuo *UserUpdateOne) Select(field string, fields ...string) *UserUpdateOne 
 
 // Save executes the query and returns the updated User entity.
 func (uuo *UserUpdateOne) Save(ctx context.Context) (*User, error) {
-	uuo.defaults()
+	if err := uuo.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks[*User, UserMutation](ctx, uuo.sqlSave, uuo.mutation, uuo.hooks)
 }
 
@@ -424,11 +450,15 @@ func (uuo *UserUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (uuo *UserUpdateOne) defaults() {
-	if _, ok := uuo.mutation.UpdateTime(); !ok {
+func (uuo *UserUpdateOne) defaults() error {
+	if _, ok := uuo.mutation.UpdateTime(); !ok && !uuo.mutation.UpdateTimeCleared() {
+		if user.UpdateDefaultUpdateTime == nil {
+			return fmt.Errorf("entities: uninitialized user.UpdateDefaultUpdateTime (forgotten import entities/runtime?)")
+		}
 		v := user.UpdateDefaultUpdateTime()
 		uuo.mutation.SetUpdateTime(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -445,7 +475,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if err := uuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeString))
 	id, ok := uuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`entities: missing "User.id" for update`)}
@@ -470,8 +500,14 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			}
 		}
 	}
+	if uuo.mutation.CreateTimeCleared() {
+		_spec.ClearField(user.FieldCreateTime, field.TypeTime)
+	}
 	if value, ok := uuo.mutation.UpdateTime(); ok {
 		_spec.SetField(user.FieldUpdateTime, field.TypeTime, value)
+	}
+	if uuo.mutation.UpdateTimeCleared() {
+		_spec.ClearField(user.FieldUpdateTime, field.TypeTime)
 	}
 	if value, ok := uuo.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
@@ -484,7 +520,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: user.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -497,7 +533,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: user.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -513,7 +549,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: user.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -529,7 +565,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: user.CompetitionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -542,7 +578,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: user.CompetitionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -558,7 +594,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: user.CompetitionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

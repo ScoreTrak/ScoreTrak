@@ -155,8 +155,8 @@ func (tq *TeamQuery) FirstX(ctx context.Context) *Team {
 
 // FirstID returns the first Team ID from the query.
 // Returns a *NotFoundError when no Team ID was found.
-func (tq *TeamQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (tq *TeamQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = tq.Limit(1).IDs(setContextOp(ctx, tq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -168,7 +168,7 @@ func (tq *TeamQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (tq *TeamQuery) FirstIDX(ctx context.Context) int {
+func (tq *TeamQuery) FirstIDX(ctx context.Context) string {
 	id, err := tq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -206,8 +206,8 @@ func (tq *TeamQuery) OnlyX(ctx context.Context) *Team {
 // OnlyID is like Only, but returns the only Team ID in the query.
 // Returns a *NotSingularError when more than one Team ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (tq *TeamQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (tq *TeamQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = tq.Limit(2).IDs(setContextOp(ctx, tq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -223,7 +223,7 @@ func (tq *TeamQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (tq *TeamQuery) OnlyIDX(ctx context.Context) int {
+func (tq *TeamQuery) OnlyIDX(ctx context.Context) string {
 	id, err := tq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -251,7 +251,7 @@ func (tq *TeamQuery) AllX(ctx context.Context) []*Team {
 }
 
 // IDs executes the query and returns a list of Team IDs.
-func (tq *TeamQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (tq *TeamQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if tq.ctx.Unique == nil && tq.path != nil {
 		tq.Unique(true)
 	}
@@ -263,7 +263,7 @@ func (tq *TeamQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (tq *TeamQuery) IDsX(ctx context.Context) []int {
+func (tq *TeamQuery) IDsX(ctx context.Context) []string {
 	ids, err := tq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -371,12 +371,12 @@ func (tq *TeamQuery) WithHosts(opts ...func(*HostQuery)) *TeamQuery {
 // Example:
 //
 //	var v []struct {
-//		CreateTime time.Time `json:"create_time,omitempty"`
+//		Pause bool `json:"pause,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Team.Query().
-//		GroupBy(team.FieldCreateTime).
+//		GroupBy(team.FieldPause).
 //		Aggregate(entities.Count()).
 //		Scan(ctx, &v)
 func (tq *TeamQuery) GroupBy(field string, fields ...string) *TeamGroupBy {
@@ -394,11 +394,11 @@ func (tq *TeamQuery) GroupBy(field string, fields ...string) *TeamGroupBy {
 // Example:
 //
 //	var v []struct {
-//		CreateTime time.Time `json:"create_time,omitempty"`
+//		Pause bool `json:"pause,omitempty"`
 //	}
 //
 //	client.Team.Query().
-//		Select(team.FieldCreateTime).
+//		Select(team.FieldPause).
 //		Scan(ctx, &v)
 func (tq *TeamQuery) Select(fields ...string) *TeamSelect {
 	tq.ctx.Fields = append(tq.ctx.Fields, fields...)
@@ -495,8 +495,8 @@ func (tq *TeamQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Team, e
 }
 
 func (tq *TeamQuery) loadCompetition(ctx context.Context, query *CompetitionQuery, nodes []*Team, init func(*Team), assign func(*Team, *Competition)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Team)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Team)
 	for i := range nodes {
 		fk := nodes[i].CompetitionID
 		if _, ok := nodeids[fk]; !ok {
@@ -525,8 +525,8 @@ func (tq *TeamQuery) loadCompetition(ctx context.Context, query *CompetitionQuer
 }
 func (tq *TeamQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*Team, init func(*Team), assign func(*Team, *User)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*Team)
-	nids := make(map[int]map[*Team]struct{})
+	byID := make(map[string]*Team)
+	nids := make(map[string]map[*Team]struct{})
 	for i, node := range nodes {
 		edgeIDs[i] = node.ID
 		byID[node.ID] = node
@@ -555,11 +555,11 @@ func (tq *TeamQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*T
 				if err != nil {
 					return nil, err
 				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
+				return append([]any{new(sql.NullString)}, values...), nil
 			}
 			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
+				outValue := values[0].(*sql.NullString).String
+				inValue := values[1].(*sql.NullString).String
 				if nids[inValue] == nil {
 					nids[inValue] = map[*Team]struct{}{byID[outValue]: {}}
 					return assign(columns[1:], values[1:])
@@ -586,7 +586,7 @@ func (tq *TeamQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*T
 }
 func (tq *TeamQuery) loadHosts(ctx context.Context, query *HostQuery, nodes []*Team, init func(*Team), assign func(*Team, *Host)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Team)
+	nodeids := make(map[string]*Team)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -626,7 +626,7 @@ func (tq *TeamQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (tq *TeamQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(team.Table, team.Columns, sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(team.Table, team.Columns, sqlgraph.NewFieldSpec(team.FieldID, field.TypeString))
 	_spec.From = tq.sql
 	if unique := tq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

@@ -40,7 +40,7 @@ func (hd *HostDelete) ExecX(ctx context.Context) int {
 }
 
 func (hd *HostDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(host.Table, sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(host.Table, sqlgraph.NewFieldSpec(host.FieldID, field.TypeString))
 	if ps := hd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

@@ -1,4 +1,4 @@
-import {initialize} from "./scoretrak-queries";
+import {initialize } from "./scoretrak-queries";
 import {api} from "./api";
 
 

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ScoreTrak/ScoreTrak/pkg/auth/authfx"
 	"log"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/config/configfx"
@@ -20,14 +21,6 @@ var masterCmd = &cobra.Command{
 
 		app := fx.New(
 			// Create configs
-			fx.Provide(
-				fx.Annotate(
-					func() string {
-						return cfgFile
-					},
-					fx.ResultTags(`name:"cfgFile"`),
-				),
-			),
 			configfx.Module,
 
 			// Telemetry
@@ -36,31 +29,21 @@ var masterCmd = &cobra.Command{
 			// Create database components
 			storagefx.Module,
 
+			// Add auth components
+			authfx.Module,
+
 			// Create queueing components
 			// fx.Provide(queue.NewMasterStreamPubSub),
 			// fx.Provide(queue.NewWorkerQueue),
 
-			// Create policy and report clients
-			// fx.Provide(
-			// 	policy.NewPolicy,
-			// 	policyclient.NewPolicyClient,
-			// 	reportclient.NewReportClient,
-			// ),
-
 			// Create platform module. Responsible for creating works in docker, docker swarm, and kubernetes
 			// fx.Provide(platform.NewPlatform),
-
-			// Create auth components
-			// authfx.Module,
 
 			// Create server
 			serverfx.Module,
 
 			// Create scheduler
 			// schedulerfx.Module,
-
-			// Register lifecycle hooks for the runner, policy/report client
-			// fx.Invoke(policyclient.InitPolicyClient, reportclient.InitReportClient),
 		)
 
 		app.Run()

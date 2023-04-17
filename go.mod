@@ -43,6 +43,7 @@ require (
 
 require (
 	ariga.io/atlas v0.10.0 // indirect
+	ariga.io/entviz v0.0.0-20230125130633-6c9be8e08c7c // indirect
 	ariga.io/ogent v0.0.0-20230309073626-8dc564a6a73e // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
@@ -60,6 +61,8 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.12.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/golang-queue/nsq v0.1.1 // indirect
+	github.com/golang-queue/queue v0.1.3 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/uuid v1.3.0 // indirect
@@ -69,6 +72,8 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.18 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
+	github.com/oklog/ulid/v2 v2.1.0 // indirect
+	github.com/ory/kratos-client-go v0.11.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.7 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect

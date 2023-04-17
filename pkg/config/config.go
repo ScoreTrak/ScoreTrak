@@ -1,8 +1,6 @@
 package config
 
 import (
-	"os"
-
 	"github.com/creasty/defaults"
 	"github.com/spf13/viper"
 )
@@ -36,6 +34,12 @@ type Config struct {
 		Kafka struct {
 		}
 		NSQ struct {
+			Worker struct {
+				NSQD        string `default:""`
+				MaxInFlight int    `default:"200"` // This should be more than min(NumberOfChecks, #NSQD Nodes)
+				Topic       string `default:"default"`
+				Channel     string `default:""`
+			}
 			ProducerNSQD                 string   `default:"nsqd:4150"`
 			IgnoreAllScoresIfWorkerFails bool     `default:"true"`
 			Topic                        string   `default:"default"`
@@ -50,26 +54,26 @@ type Config struct {
 		}
 	}
 
-	Platform struct {
-		Use    string `default:"none"`
-		Docker struct {
-			Name    string `default:"scoretrak"`
-			Host    string `default:"unix:///var/run/docker.sock"`
-			Network string `default:"default"`
-		}
-		Kubernetes struct {
-			Namespace string `default:"default"`
-		}
-	}
+	//Platform struct {
+	//	Use    string `default:"none"`
+	//	Docker struct {
+	//		Name    string `default:"scoretrak"`
+	//		Host    string `default:"unix:///var/run/docker.sock"`
+	//		Network string `default:"default"`
+	//	}
+	//	Kubernetes struct {
+	//		Namespace string `default:"default"`
+	//	}
+	//}
 
 	PubSubConfig struct {
 		ReportForceRefreshSeconds uint   `default:"60"`
 		ChannelPrefix             string `default:"master"`
 	}
 
-	AdminUsername string `default:"admin"`
-
-	AdminPassword string `default:"changeme"`
+	//AdminUsername string `default:"admin"`
+	//
+	//AdminPassword string `default:"changeme"`
 
 	Server struct {
 		Address string `default:"127.0.0.1"`
@@ -88,45 +92,19 @@ type Config struct {
 			TimeoutInSeconds uint64 `default:"86400"`
 		}
 		Ory struct {
-			AdminApiUrl string
+			SelfHosted  bool
+			Slug        string
+			Cookie      string `default:"ory_kratos_session"`
+			AdminApiUrl string `default:"http://localhost:4000"`
 		}
 	}
 }
 
 const (
-	ENV_PREFIX = "ST_"
+	ENV_PREFIX = "ST"
 )
 
-func NewViperConfig(configFilePath string) (*viper.Viper, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return nil, err
-	}
-
-	vc := viper.New()
-
-	vc.AddConfigPath(".")
-	vc.AddConfigPath(home)
-	vc.AddConfigPath(".")
-
-	vc.SetConfigType("yaml")
-
-	vc.SetConfigName(".scoretrak")
-
-	vc.SetConfigFile(configFilePath)
-
-	vc.SetEnvPrefix(ENV_PREFIX)
-
-	if err := viper.ReadInConfig(); err == nil {
-		return nil, err
-	}
-
-	vc.AutomaticEnv()
-
-	return vc, nil
-}
-
-func NewScoreTrakConfig(vc *viper.Viper) (*Config, error) {
+func NewScoreTrakConfig() (*Config, error) {
 	c := &Config{}
 
 	if err := defaults.Set(c); err != nil {

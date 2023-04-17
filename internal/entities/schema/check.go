@@ -4,7 +4,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/mixin"
 )
 
 // Check holds the schema definition for the Check entity.
@@ -32,7 +31,7 @@ func (Check) Edges() []ent.Edge {
 // Mixins of the Check.
 func (Check) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		mixin.Time{},
+		BaseMixin{},
 		PauseMixin{},
 		HideMixin{},
 		CompetitonMixin{},

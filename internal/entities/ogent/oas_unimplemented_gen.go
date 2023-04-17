@@ -58,6 +58,15 @@ func (UnimplementedHandler) CreateProperty(ctx context.Context, req *CreatePrope
 	return r, ht.ErrNotImplemented
 }
 
+// CreateReport implements createReport operation.
+//
+// Creates a new Report and persists it to storage.
+//
+// POST /reports
+func (UnimplementedHandler) CreateReport(ctx context.Context, req *CreateReportReq) (r CreateReportRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateRound implements createRound operation.
 //
 // Creates a new Round and persists it to storage.
@@ -136,6 +145,15 @@ func (UnimplementedHandler) DeleteHostGroup(ctx context.Context, params DeleteHo
 //
 // DELETE /properties/{id}
 func (UnimplementedHandler) DeleteProperty(ctx context.Context, params DeletePropertyParams) (r DeletePropertyRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteReport implements deleteReport operation.
+//
+// Deletes the Report with the requested ID.
+//
+// DELETE /reports/{id}
+func (UnimplementedHandler) DeleteReport(ctx context.Context, params DeleteReportParams) (r DeleteReportRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -253,6 +271,15 @@ func (UnimplementedHandler) ListHostServices(ctx context.Context, params ListHos
 //
 // GET /properties
 func (UnimplementedHandler) ListProperty(ctx context.Context, params ListPropertyParams) (r ListPropertyRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListReport implements listReport operation.
+//
+// List Reports.
+//
+// GET /reports
+func (UnimplementedHandler) ListReport(ctx context.Context, params ListReportParams) (r ListReportRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -499,6 +526,15 @@ func (UnimplementedHandler) ReadPropertyTeam(ctx context.Context, params ReadPro
 	return r, ht.ErrNotImplemented
 }
 
+// ReadReport implements readReport operation.
+//
+// Finds the Report with the requested ID and returns it.
+//
+// GET /reports/{id}
+func (UnimplementedHandler) ReadReport(ctx context.Context, params ReadReportParams) (r ReadReportRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ReadRound implements readRound operation.
 //
 // Finds the Round with the requested ID and returns it.
@@ -622,6 +658,15 @@ func (UnimplementedHandler) UpdateHostGroup(ctx context.Context, req *UpdateHost
 //
 // PATCH /properties/{id}
 func (UnimplementedHandler) UpdateProperty(ctx context.Context, req *UpdatePropertyReq, params UpdatePropertyParams) (r UpdatePropertyRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateReport implements updateReport operation.
+//
+// Updates a Report and persists changes to storage.
+//
+// PATCH /reports/{id}
+func (UnimplementedHandler) UpdateReport(ctx context.Context, req *UpdateReportReq, params UpdateReportParams) (r UpdateReportRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

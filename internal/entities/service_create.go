@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -25,37 +24,17 @@ type ServiceCreate struct {
 	hooks    []Hook
 }
 
-// SetCreateTime sets the "create_time" field.
-func (sc *ServiceCreate) SetCreateTime(t time.Time) *ServiceCreate {
-	sc.mutation.SetCreateTime(t)
-	return sc
-}
-
-// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
-func (sc *ServiceCreate) SetNillableCreateTime(t *time.Time) *ServiceCreate {
-	if t != nil {
-		sc.SetCreateTime(*t)
-	}
-	return sc
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (sc *ServiceCreate) SetUpdateTime(t time.Time) *ServiceCreate {
-	sc.mutation.SetUpdateTime(t)
-	return sc
-}
-
-// SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
-func (sc *ServiceCreate) SetNillableUpdateTime(t *time.Time) *ServiceCreate {
-	if t != nil {
-		sc.SetUpdateTime(*t)
-	}
-	return sc
-}
-
 // SetPause sets the "pause" field.
 func (sc *ServiceCreate) SetPause(b bool) *ServiceCreate {
 	sc.mutation.SetPause(b)
+	return sc
+}
+
+// SetNillablePause sets the "pause" field if the given value is not nil.
+func (sc *ServiceCreate) SetNillablePause(b *bool) *ServiceCreate {
+	if b != nil {
+		sc.SetPause(*b)
+	}
 	return sc
 }
 
@@ -65,15 +44,23 @@ func (sc *ServiceCreate) SetHidden(b bool) *ServiceCreate {
 	return sc
 }
 
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (sc *ServiceCreate) SetNillableHidden(b *bool) *ServiceCreate {
+	if b != nil {
+		sc.SetHidden(*b)
+	}
+	return sc
+}
+
 // SetCompetitionID sets the "competition_id" field.
-func (sc *ServiceCreate) SetCompetitionID(i int) *ServiceCreate {
-	sc.mutation.SetCompetitionID(i)
+func (sc *ServiceCreate) SetCompetitionID(s string) *ServiceCreate {
+	sc.mutation.SetCompetitionID(s)
 	return sc
 }
 
 // SetTeamID sets the "team_id" field.
-func (sc *ServiceCreate) SetTeamID(i int) *ServiceCreate {
-	sc.mutation.SetTeamID(i)
+func (sc *ServiceCreate) SetTeamID(s string) *ServiceCreate {
+	sc.mutation.SetTeamID(s)
 	return sc
 }
 
@@ -113,6 +100,20 @@ func (sc *ServiceCreate) SetRoundDelay(i int) *ServiceCreate {
 	return sc
 }
 
+// SetID sets the "id" field.
+func (sc *ServiceCreate) SetID(s string) *ServiceCreate {
+	sc.mutation.SetID(s)
+	return sc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (sc *ServiceCreate) SetNillableID(s *string) *ServiceCreate {
+	if s != nil {
+		sc.SetID(*s)
+	}
+	return sc
+}
+
 // SetCompetition sets the "competition" edge to the Competition entity.
 func (sc *ServiceCreate) SetCompetition(c *Competition) *ServiceCreate {
 	return sc.SetCompetitionID(c.ID)
@@ -124,13 +125,13 @@ func (sc *ServiceCreate) SetTeam(t *Team) *ServiceCreate {
 }
 
 // SetHostsID sets the "hosts" edge to the Host entity by ID.
-func (sc *ServiceCreate) SetHostsID(id int) *ServiceCreate {
+func (sc *ServiceCreate) SetHostsID(id string) *ServiceCreate {
 	sc.mutation.SetHostsID(id)
 	return sc
 }
 
 // SetNillableHostsID sets the "hosts" edge to the Host entity by ID if the given value is not nil.
-func (sc *ServiceCreate) SetNillableHostsID(id *int) *ServiceCreate {
+func (sc *ServiceCreate) SetNillableHostsID(id *string) *ServiceCreate {
 	if id != nil {
 		sc = sc.SetHostsID(*id)
 	}
@@ -143,14 +144,14 @@ func (sc *ServiceCreate) SetHosts(h *Host) *ServiceCreate {
 }
 
 // AddCheckIDs adds the "checks" edge to the Check entity by IDs.
-func (sc *ServiceCreate) AddCheckIDs(ids ...int) *ServiceCreate {
+func (sc *ServiceCreate) AddCheckIDs(ids ...string) *ServiceCreate {
 	sc.mutation.AddCheckIDs(ids...)
 	return sc
 }
 
 // AddChecks adds the "checks" edges to the Check entity.
 func (sc *ServiceCreate) AddChecks(c ...*Check) *ServiceCreate {
-	ids := make([]int, len(c))
+	ids := make([]string, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -158,14 +159,14 @@ func (sc *ServiceCreate) AddChecks(c ...*Check) *ServiceCreate {
 }
 
 // AddPropertyIDs adds the "properties" edge to the Property entity by IDs.
-func (sc *ServiceCreate) AddPropertyIDs(ids ...int) *ServiceCreate {
+func (sc *ServiceCreate) AddPropertyIDs(ids ...string) *ServiceCreate {
 	sc.mutation.AddPropertyIDs(ids...)
 	return sc
 }
 
 // AddProperties adds the "properties" edges to the Property entity.
 func (sc *ServiceCreate) AddProperties(p ...*Property) *ServiceCreate {
-	ids := make([]int, len(p))
+	ids := make([]string, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -207,30 +208,14 @@ func (sc *ServiceCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (sc *ServiceCreate) defaults() {
-	if _, ok := sc.mutation.CreateTime(); !ok {
-		v := service.DefaultCreateTime()
-		sc.mutation.SetCreateTime(v)
-	}
-	if _, ok := sc.mutation.UpdateTime(); !ok {
-		v := service.DefaultUpdateTime()
-		sc.mutation.SetUpdateTime(v)
+	if _, ok := sc.mutation.ID(); !ok {
+		v := service.DefaultID()
+		sc.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (sc *ServiceCreate) check() error {
-	if _, ok := sc.mutation.CreateTime(); !ok {
-		return &ValidationError{Name: "create_time", err: errors.New(`entities: missing required field "Service.create_time"`)}
-	}
-	if _, ok := sc.mutation.UpdateTime(); !ok {
-		return &ValidationError{Name: "update_time", err: errors.New(`entities: missing required field "Service.update_time"`)}
-	}
-	if _, ok := sc.mutation.Pause(); !ok {
-		return &ValidationError{Name: "pause", err: errors.New(`entities: missing required field "Service.pause"`)}
-	}
-	if _, ok := sc.mutation.Hidden(); !ok {
-		return &ValidationError{Name: "hidden", err: errors.New(`entities: missing required field "Service.hidden"`)}
-	}
 	if _, ok := sc.mutation.CompetitionID(); !ok {
 		return &ValidationError{Name: "competition_id", err: errors.New(`entities: missing required field "Service.competition_id"`)}
 	}
@@ -255,6 +240,11 @@ func (sc *ServiceCreate) check() error {
 	if _, ok := sc.mutation.RoundDelay(); !ok {
 		return &ValidationError{Name: "round_delay", err: errors.New(`entities: missing required field "Service.round_delay"`)}
 	}
+	if v, ok := sc.mutation.ID(); ok {
+		if err := service.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`entities: validator failed for field "Service.id": %w`, err)}
+		}
+	}
 	if _, ok := sc.mutation.CompetitionID(); !ok {
 		return &ValidationError{Name: "competition", err: errors.New(`entities: missing required edge "Service.competition"`)}
 	}
@@ -275,8 +265,13 @@ func (sc *ServiceCreate) sqlSave(ctx context.Context) (*Service, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected Service.ID type: %T", _spec.ID.Value)
+		}
+	}
 	sc.mutation.id = &_node.ID
 	sc.mutation.done = true
 	return _node, nil
@@ -285,15 +280,11 @@ func (sc *ServiceCreate) sqlSave(ctx context.Context) (*Service, error) {
 func (sc *ServiceCreate) createSpec() (*Service, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Service{config: sc.config}
-		_spec = sqlgraph.NewCreateSpec(service.Table, sqlgraph.NewFieldSpec(service.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(service.Table, sqlgraph.NewFieldSpec(service.FieldID, field.TypeString))
 	)
-	if value, ok := sc.mutation.CreateTime(); ok {
-		_spec.SetField(service.FieldCreateTime, field.TypeTime, value)
-		_node.CreateTime = value
-	}
-	if value, ok := sc.mutation.UpdateTime(); ok {
-		_spec.SetField(service.FieldUpdateTime, field.TypeTime, value)
-		_node.UpdateTime = value
+	if id, ok := sc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
 	}
 	if value, ok := sc.mutation.Pause(); ok {
 		_spec.SetField(service.FieldPause, field.TypeBool, value)
@@ -335,7 +326,7 @@ func (sc *ServiceCreate) createSpec() (*Service, *sqlgraph.CreateSpec) {
 			Columns: []string{service.CompetitionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -352,7 +343,7 @@ func (sc *ServiceCreate) createSpec() (*Service, *sqlgraph.CreateSpec) {
 			Columns: []string{service.TeamColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -369,7 +360,7 @@ func (sc *ServiceCreate) createSpec() (*Service, *sqlgraph.CreateSpec) {
 			Columns: []string{service.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -386,7 +377,7 @@ func (sc *ServiceCreate) createSpec() (*Service, *sqlgraph.CreateSpec) {
 			Columns: []string{service.ChecksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -402,7 +393,7 @@ func (sc *ServiceCreate) createSpec() (*Service, *sqlgraph.CreateSpec) {
 			Columns: []string{service.PropertiesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -454,10 +445,6 @@ func (scb *ServiceCreateBulk) Save(ctx context.Context) ([]*Service, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

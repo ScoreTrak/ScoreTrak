@@ -4,7 +4,7 @@ start-ory-tunnel:
   ory tunnel --dev http://localhost:4000
 
 start-server:
-  go run main.go master
+  go run main.go master --config ./configs/dev-config.yml
 
 gen-ent:
   go generate ./internal/entities
@@ -27,4 +27,4 @@ gen-js-client:
 gen-react-queries:
   rapini react-query v4 -n "scoretrak" -p ./internal/entities/openapi.json -o ./web/src/lib/scoretrak-queries
 
-gen-schema: gen-ent gen-js-client gen-react-queries
+gen-schema: gen-ent gen-react-queries

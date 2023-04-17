@@ -38,6 +38,12 @@ type Handler interface {
 	//
 	// POST /properties
 	CreateProperty(ctx context.Context, req *CreatePropertyReq) (CreatePropertyRes, error)
+	// CreateReport implements createReport operation.
+	//
+	// Creates a new Report and persists it to storage.
+	//
+	// POST /reports
+	CreateReport(ctx context.Context, req *CreateReportReq) (CreateReportRes, error)
 	// CreateRound implements createRound operation.
 	//
 	// Creates a new Round and persists it to storage.
@@ -92,6 +98,12 @@ type Handler interface {
 	//
 	// DELETE /properties/{id}
 	DeleteProperty(ctx context.Context, params DeletePropertyParams) (DeletePropertyRes, error)
+	// DeleteReport implements deleteReport operation.
+	//
+	// Deletes the Report with the requested ID.
+	//
+	// DELETE /reports/{id}
+	DeleteReport(ctx context.Context, params DeleteReportParams) (DeleteReportRes, error)
 	// DeleteRound implements deleteRound operation.
 	//
 	// Deletes the Round with the requested ID.
@@ -170,6 +182,12 @@ type Handler interface {
 	//
 	// GET /properties
 	ListProperty(ctx context.Context, params ListPropertyParams) (ListPropertyRes, error)
+	// ListReport implements listReport operation.
+	//
+	// List Reports.
+	//
+	// GET /reports
+	ListReport(ctx context.Context, params ListReportParams) (ListReportRes, error)
 	// ListRound implements listRound operation.
 	//
 	// List Rounds.
@@ -332,6 +350,12 @@ type Handler interface {
 	//
 	// GET /properties/{id}/team
 	ReadPropertyTeam(ctx context.Context, params ReadPropertyTeamParams) (ReadPropertyTeamRes, error)
+	// ReadReport implements readReport operation.
+	//
+	// Finds the Report with the requested ID and returns it.
+	//
+	// GET /reports/{id}
+	ReadReport(ctx context.Context, params ReadReportParams) (ReadReportRes, error)
 	// ReadRound implements readRound operation.
 	//
 	// Finds the Round with the requested ID and returns it.
@@ -416,6 +440,12 @@ type Handler interface {
 	//
 	// PATCH /properties/{id}
 	UpdateProperty(ctx context.Context, req *UpdatePropertyReq, params UpdatePropertyParams) (UpdatePropertyRes, error)
+	// UpdateReport implements updateReport operation.
+	//
+	// Updates a Report and persists changes to storage.
+	//
+	// PATCH /reports/{id}
+	UpdateReport(ctx context.Context, req *UpdateReportReq, params UpdateReportParams) (UpdateReportRes, error)
 	// UpdateRound implements updateRound operation.
 	//
 	// Updates a Round and persists changes to storage.

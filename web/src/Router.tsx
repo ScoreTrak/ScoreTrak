@@ -4,21 +4,25 @@ import { indexRoute } from "./routes";
 import { authRoute } from "./routes/auth";
 import { authLoginRoute } from "./routes/auth/login";
 import { notFoundRoute } from "./routes/notfound";
-import { competitionIndexRoute } from "./routes/competition";
+import {competitionIndexRoute, competitionRoute} from "./routes/competition";
 import { authRegisterRoute } from "./routes/auth/register";
-import {baseLayout} from "./layouts/baseLayout";
-import {authenticatedLayout} from "./layouts/authenticatedLayout";
-import {dashboardRoute} from "./routes/dashboard";
+import {baseLayout} from "./routes/layouts/baseLayout";
+import {authenticatedLayout} from "./routes/layouts/authenticatedLayout";
+import {dashboardIndexRoute, dashboardRoute} from "./routes/dashboard";
+import {unauthenticatedLayout} from "./routes/layouts/unauthenticatedLayout";
+import {competitionDashboardRoute} from "./routes/dashboard/competitionDashboard";
 
 
 const routeTree = rootRoute.addChildren([
   baseLayout.addChildren([
     indexRoute,
     notFoundRoute,
-    dashboardRoute,
-    authRoute.addChildren([authLoginRoute, authRegisterRoute]),
+    unauthenticatedLayout.addChildren([
+      authRoute.addChildren([authLoginRoute, authRegisterRoute]),
+    ]),
     authenticatedLayout.addChildren([
-      competitionIndexRoute.addChildren([]),
+      dashboardRoute.addChildren([dashboardIndexRoute, competitionDashboardRoute]),
+      competitionRoute.addChildren([competitionIndexRoute]),
     ]),
   ]),
 ])

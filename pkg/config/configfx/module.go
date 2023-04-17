@@ -7,10 +7,6 @@ import (
 
 var Module = fx.Options(
 	fx.Provide(
-		fx.Annotate(
-			config.NewViperConfig,
-			fx.ParamTags(`name:"cfgFile"`),
-		),
 		config.NewScoreTrakConfig,
 	),
 )

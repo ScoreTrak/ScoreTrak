@@ -22,6 +22,8 @@ type Tx struct {
 	HostGroup *HostGroupClient
 	// Property is the client for interacting with the Property builders.
 	Property *PropertyClient
+	// Report is the client for interacting with the Report builders.
+	Report *ReportClient
 	// Round is the client for interacting with the Round builders.
 	Round *RoundClient
 	// Service is the client for interacting with the Service builders.
@@ -166,6 +168,7 @@ func (tx *Tx) init() {
 	tx.Host = NewHostClient(tx.config)
 	tx.HostGroup = NewHostGroupClient(tx.config)
 	tx.Property = NewPropertyClient(tx.config)
+	tx.Report = NewReportClient(tx.config)
 	tx.Round = NewRoundClient(tx.config)
 	tx.Service = NewServiceClient(tx.config)
 	tx.Team = NewTeamClient(tx.config)

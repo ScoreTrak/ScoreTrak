@@ -12,6 +12,6 @@ type HideMixin struct {
 
 func (HideMixin) Fields() []ent.Field {
 	return []ent.Field{
-		field.Bool("hidden"),
+		field.Bool("hidden").Optional(),
 	}
 }

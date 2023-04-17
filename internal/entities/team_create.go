@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -23,37 +22,17 @@ type TeamCreate struct {
 	hooks    []Hook
 }
 
-// SetCreateTime sets the "create_time" field.
-func (tc *TeamCreate) SetCreateTime(t time.Time) *TeamCreate {
-	tc.mutation.SetCreateTime(t)
-	return tc
-}
-
-// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
-func (tc *TeamCreate) SetNillableCreateTime(t *time.Time) *TeamCreate {
-	if t != nil {
-		tc.SetCreateTime(*t)
-	}
-	return tc
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (tc *TeamCreate) SetUpdateTime(t time.Time) *TeamCreate {
-	tc.mutation.SetUpdateTime(t)
-	return tc
-}
-
-// SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
-func (tc *TeamCreate) SetNillableUpdateTime(t *time.Time) *TeamCreate {
-	if t != nil {
-		tc.SetUpdateTime(*t)
-	}
-	return tc
-}
-
 // SetPause sets the "pause" field.
 func (tc *TeamCreate) SetPause(b bool) *TeamCreate {
 	tc.mutation.SetPause(b)
+	return tc
+}
+
+// SetNillablePause sets the "pause" field if the given value is not nil.
+func (tc *TeamCreate) SetNillablePause(b *bool) *TeamCreate {
+	if b != nil {
+		tc.SetPause(*b)
+	}
 	return tc
 }
 
@@ -63,9 +42,17 @@ func (tc *TeamCreate) SetHidden(b bool) *TeamCreate {
 	return tc
 }
 
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (tc *TeamCreate) SetNillableHidden(b *bool) *TeamCreate {
+	if b != nil {
+		tc.SetHidden(*b)
+	}
+	return tc
+}
+
 // SetCompetitionID sets the "competition_id" field.
-func (tc *TeamCreate) SetCompetitionID(i int) *TeamCreate {
-	tc.mutation.SetCompetitionID(i)
+func (tc *TeamCreate) SetCompetitionID(s string) *TeamCreate {
+	tc.mutation.SetCompetitionID(s)
 	return tc
 }
 
@@ -81,20 +68,42 @@ func (tc *TeamCreate) SetIndex(i int) *TeamCreate {
 	return tc
 }
 
+// SetNillableIndex sets the "index" field if the given value is not nil.
+func (tc *TeamCreate) SetNillableIndex(i *int) *TeamCreate {
+	if i != nil {
+		tc.SetIndex(*i)
+	}
+	return tc
+}
+
+// SetID sets the "id" field.
+func (tc *TeamCreate) SetID(s string) *TeamCreate {
+	tc.mutation.SetID(s)
+	return tc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (tc *TeamCreate) SetNillableID(s *string) *TeamCreate {
+	if s != nil {
+		tc.SetID(*s)
+	}
+	return tc
+}
+
 // SetCompetition sets the "competition" edge to the Competition entity.
 func (tc *TeamCreate) SetCompetition(c *Competition) *TeamCreate {
 	return tc.SetCompetitionID(c.ID)
 }
 
 // AddUserIDs adds the "users" edge to the User entity by IDs.
-func (tc *TeamCreate) AddUserIDs(ids ...int) *TeamCreate {
+func (tc *TeamCreate) AddUserIDs(ids ...string) *TeamCreate {
 	tc.mutation.AddUserIDs(ids...)
 	return tc
 }
 
 // AddUsers adds the "users" edges to the User entity.
 func (tc *TeamCreate) AddUsers(u ...*User) *TeamCreate {
-	ids := make([]int, len(u))
+	ids := make([]string, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -102,14 +111,14 @@ func (tc *TeamCreate) AddUsers(u ...*User) *TeamCreate {
 }
 
 // AddHostIDs adds the "hosts" edge to the Host entity by IDs.
-func (tc *TeamCreate) AddHostIDs(ids ...int) *TeamCreate {
+func (tc *TeamCreate) AddHostIDs(ids ...string) *TeamCreate {
 	tc.mutation.AddHostIDs(ids...)
 	return tc
 }
 
 // AddHosts adds the "hosts" edges to the Host entity.
 func (tc *TeamCreate) AddHosts(h ...*Host) *TeamCreate {
-	ids := make([]int, len(h))
+	ids := make([]string, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -151,38 +160,29 @@ func (tc *TeamCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (tc *TeamCreate) defaults() {
-	if _, ok := tc.mutation.CreateTime(); !ok {
-		v := team.DefaultCreateTime()
-		tc.mutation.SetCreateTime(v)
-	}
-	if _, ok := tc.mutation.UpdateTime(); !ok {
-		v := team.DefaultUpdateTime()
-		tc.mutation.SetUpdateTime(v)
+	if _, ok := tc.mutation.ID(); !ok {
+		v := team.DefaultID()
+		tc.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (tc *TeamCreate) check() error {
-	if _, ok := tc.mutation.CreateTime(); !ok {
-		return &ValidationError{Name: "create_time", err: errors.New(`entities: missing required field "Team.create_time"`)}
-	}
-	if _, ok := tc.mutation.UpdateTime(); !ok {
-		return &ValidationError{Name: "update_time", err: errors.New(`entities: missing required field "Team.update_time"`)}
-	}
-	if _, ok := tc.mutation.Pause(); !ok {
-		return &ValidationError{Name: "pause", err: errors.New(`entities: missing required field "Team.pause"`)}
-	}
-	if _, ok := tc.mutation.Hidden(); !ok {
-		return &ValidationError{Name: "hidden", err: errors.New(`entities: missing required field "Team.hidden"`)}
-	}
 	if _, ok := tc.mutation.CompetitionID(); !ok {
 		return &ValidationError{Name: "competition_id", err: errors.New(`entities: missing required field "Team.competition_id"`)}
 	}
 	if _, ok := tc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`entities: missing required field "Team.name"`)}
 	}
-	if _, ok := tc.mutation.Index(); !ok {
-		return &ValidationError{Name: "index", err: errors.New(`entities: missing required field "Team.index"`)}
+	if v, ok := tc.mutation.Index(); ok {
+		if err := team.IndexValidator(v); err != nil {
+			return &ValidationError{Name: "index", err: fmt.Errorf(`entities: validator failed for field "Team.index": %w`, err)}
+		}
+	}
+	if v, ok := tc.mutation.ID(); ok {
+		if err := team.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`entities: validator failed for field "Team.id": %w`, err)}
+		}
 	}
 	if _, ok := tc.mutation.CompetitionID(); !ok {
 		return &ValidationError{Name: "competition", err: errors.New(`entities: missing required edge "Team.competition"`)}
@@ -201,8 +201,13 @@ func (tc *TeamCreate) sqlSave(ctx context.Context) (*Team, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected Team.ID type: %T", _spec.ID.Value)
+		}
+	}
 	tc.mutation.id = &_node.ID
 	tc.mutation.done = true
 	return _node, nil
@@ -211,15 +216,11 @@ func (tc *TeamCreate) sqlSave(ctx context.Context) (*Team, error) {
 func (tc *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Team{config: tc.config}
-		_spec = sqlgraph.NewCreateSpec(team.Table, sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(team.Table, sqlgraph.NewFieldSpec(team.FieldID, field.TypeString))
 	)
-	if value, ok := tc.mutation.CreateTime(); ok {
-		_spec.SetField(team.FieldCreateTime, field.TypeTime, value)
-		_node.CreateTime = value
-	}
-	if value, ok := tc.mutation.UpdateTime(); ok {
-		_spec.SetField(team.FieldUpdateTime, field.TypeTime, value)
-		_node.UpdateTime = value
+	if id, ok := tc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
 	}
 	if value, ok := tc.mutation.Pause(); ok {
 		_spec.SetField(team.FieldPause, field.TypeBool, value)
@@ -245,7 +246,7 @@ func (tc *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 			Columns: []string{team.CompetitionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -262,7 +263,7 @@ func (tc *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 			Columns: team.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -278,7 +279,7 @@ func (tc *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 			Columns: []string{team.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -330,10 +331,6 @@ func (tcb *TeamCreateBulk) Save(ctx context.Context) ([]*Team, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

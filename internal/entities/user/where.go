@@ -8,51 +8,62 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
+	"github.com/gofrs/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.User {
+func ID(id string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.User {
+func IDEQ(id string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.User {
+func IDNEQ(id string) predicate.User {
 	return predicate.User(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.User {
+func IDIn(ids ...string) predicate.User {
 	return predicate.User(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.User {
+func IDNotIn(ids ...string) predicate.User {
 	return predicate.User(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.User {
+func IDGT(id string) predicate.User {
 	return predicate.User(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.User {
+func IDGTE(id string) predicate.User {
 	return predicate.User(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.User {
+func IDLT(id string) predicate.User {
 	return predicate.User(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.User {
+func IDLTE(id string) predicate.User {
 	return predicate.User(sql.FieldLTE(FieldID, id))
+}
+
+// IDEqualFold applies the EqualFold predicate on the ID field.
+func IDEqualFold(id string) predicate.User {
+	return predicate.User(sql.FieldEqualFold(FieldID, id))
+}
+
+// IDContainsFold applies the ContainsFold predicate on the ID field.
+func IDContainsFold(id string) predicate.User {
+	return predicate.User(sql.FieldContainsFold(FieldID, id))
 }
 
 // CreateTime applies equality check predicate on the "create_time" field. It's identical to CreateTimeEQ.
@@ -68,6 +79,11 @@ func UpdateTime(v time.Time) predicate.User {
 // Username applies equality check predicate on the "username" field. It's identical to UsernameEQ.
 func Username(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldUsername, v))
+}
+
+// OryID applies equality check predicate on the "ory_id" field. It's identical to OryIDEQ.
+func OryID(v uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldOryID, v))
 }
 
 // CreateTimeEQ applies the EQ predicate on the "create_time" field.
@@ -110,6 +126,16 @@ func CreateTimeLTE(v time.Time) predicate.User {
 	return predicate.User(sql.FieldLTE(FieldCreateTime, v))
 }
 
+// CreateTimeIsNil applies the IsNil predicate on the "create_time" field.
+func CreateTimeIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldCreateTime))
+}
+
+// CreateTimeNotNil applies the NotNil predicate on the "create_time" field.
+func CreateTimeNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldCreateTime))
+}
+
 // UpdateTimeEQ applies the EQ predicate on the "update_time" field.
 func UpdateTimeEQ(v time.Time) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldUpdateTime, v))
@@ -148,6 +174,16 @@ func UpdateTimeLT(v time.Time) predicate.User {
 // UpdateTimeLTE applies the LTE predicate on the "update_time" field.
 func UpdateTimeLTE(v time.Time) predicate.User {
 	return predicate.User(sql.FieldLTE(FieldUpdateTime, v))
+}
+
+// UpdateTimeIsNil applies the IsNil predicate on the "update_time" field.
+func UpdateTimeIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldUpdateTime))
+}
+
+// UpdateTimeNotNil applies the NotNil predicate on the "update_time" field.
+func UpdateTimeNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldUpdateTime))
 }
 
 // UsernameEQ applies the EQ predicate on the "username" field.
@@ -213,6 +249,46 @@ func UsernameEqualFold(v string) predicate.User {
 // UsernameContainsFold applies the ContainsFold predicate on the "username" field.
 func UsernameContainsFold(v string) predicate.User {
 	return predicate.User(sql.FieldContainsFold(FieldUsername, v))
+}
+
+// OryIDEQ applies the EQ predicate on the "ory_id" field.
+func OryIDEQ(v uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldOryID, v))
+}
+
+// OryIDNEQ applies the NEQ predicate on the "ory_id" field.
+func OryIDNEQ(v uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldOryID, v))
+}
+
+// OryIDIn applies the In predicate on the "ory_id" field.
+func OryIDIn(vs ...uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldIn(FieldOryID, vs...))
+}
+
+// OryIDNotIn applies the NotIn predicate on the "ory_id" field.
+func OryIDNotIn(vs ...uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldOryID, vs...))
+}
+
+// OryIDGT applies the GT predicate on the "ory_id" field.
+func OryIDGT(v uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldGT(FieldOryID, v))
+}
+
+// OryIDGTE applies the GTE predicate on the "ory_id" field.
+func OryIDGTE(v uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldOryID, v))
+}
+
+// OryIDLT applies the LT predicate on the "ory_id" field.
+func OryIDLT(v uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldLT(FieldOryID, v))
+}
+
+// OryIDLTE applies the LTE predicate on the "ory_id" field.
+func OryIDLTE(v uuid.UUID) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldOryID, v))
 }
 
 // HasTeams applies the HasEdge predicate on the "teams" edge.

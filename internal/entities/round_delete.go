@@ -40,7 +40,7 @@ func (rd *RoundDelete) ExecX(ctx context.Context) int {
 }
 
 func (rd *RoundDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(round.Table, sqlgraph.NewFieldSpec(round.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(round.Table, sqlgraph.NewFieldSpec(round.FieldID, field.TypeString))
 	if ps := rd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

@@ -5,7 +5,6 @@ package entities
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -17,17 +16,13 @@ import (
 type Team struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// CreateTime holds the value of the "create_time" field.
-	CreateTime time.Time `json:"create_time,omitempty"`
-	// UpdateTime holds the value of the "update_time" field.
-	UpdateTime time.Time `json:"update_time,omitempty"`
+	ID string `json:"id,omitempty"`
 	// Pause holds the value of the "pause" field.
 	Pause bool `json:"pause,omitempty"`
 	// Hidden holds the value of the "hidden" field.
 	Hidden bool `json:"hidden,omitempty"`
 	// CompetitionID holds the value of the "competition_id" field.
-	CompetitionID int `json:"competition_id,omitempty"`
+	CompetitionID string `json:"competition_id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Index holds the value of the "index" field.
@@ -35,7 +30,7 @@ type Team struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TeamQuery when eager-loading is set.
 	Edges             TeamEdges `json:"edges"`
-	competition_teams *int
+	competition_teams *string
 	selectValues      sql.SelectValues
 }
 
@@ -90,14 +85,12 @@ func (*Team) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case team.FieldPause, team.FieldHidden:
 			values[i] = new(sql.NullBool)
-		case team.FieldID, team.FieldCompetitionID, team.FieldIndex:
+		case team.FieldIndex:
 			values[i] = new(sql.NullInt64)
-		case team.FieldName:
+		case team.FieldID, team.FieldCompetitionID, team.FieldName:
 			values[i] = new(sql.NullString)
-		case team.FieldCreateTime, team.FieldUpdateTime:
-			values[i] = new(sql.NullTime)
 		case team.ForeignKeys[0]: // competition_teams
-			values[i] = new(sql.NullInt64)
+			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -114,22 +107,10 @@ func (t *Team) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case team.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
-			}
-			t.ID = int(value.Int64)
-		case team.FieldCreateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field create_time", values[i])
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
-				t.CreateTime = value.Time
-			}
-		case team.FieldUpdateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field update_time", values[i])
-			} else if value.Valid {
-				t.UpdateTime = value.Time
+				t.ID = value.String
 			}
 		case team.FieldPause:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -144,10 +125,10 @@ func (t *Team) assignValues(columns []string, values []any) error {
 				t.Hidden = value.Bool
 			}
 		case team.FieldCompetitionID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field competition_id", values[i])
 			} else if value.Valid {
-				t.CompetitionID = int(value.Int64)
+				t.CompetitionID = value.String
 			}
 		case team.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -162,11 +143,11 @@ func (t *Team) assignValues(columns []string, values []any) error {
 				t.Index = int(value.Int64)
 			}
 		case team.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field competition_teams", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field competition_teams", values[i])
 			} else if value.Valid {
-				t.competition_teams = new(int)
-				*t.competition_teams = int(value.Int64)
+				t.competition_teams = new(string)
+				*t.competition_teams = value.String
 			}
 		default:
 			t.selectValues.Set(columns[i], values[i])
@@ -219,12 +200,6 @@ func (t *Team) String() string {
 	var builder strings.Builder
 	builder.WriteString("Team(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", t.ID))
-	builder.WriteString("create_time=")
-	builder.WriteString(t.CreateTime.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("update_time=")
-	builder.WriteString(t.UpdateTime.Format(time.ANSIC))
-	builder.WriteString(", ")
 	builder.WriteString("pause=")
 	builder.WriteString(fmt.Sprintf("%v", t.Pause))
 	builder.WriteString(", ")
@@ -232,7 +207,7 @@ func (t *Team) String() string {
 	builder.WriteString(fmt.Sprintf("%v", t.Hidden))
 	builder.WriteString(", ")
 	builder.WriteString("competition_id=")
-	builder.WriteString(fmt.Sprintf("%v", t.CompetitionID))
+	builder.WriteString(t.CompetitionID)
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(t.Name)

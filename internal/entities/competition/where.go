@@ -11,58 +11,58 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Competition {
+func ID(id string) predicate.Competition {
 	return predicate.Competition(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Competition {
+func IDEQ(id string) predicate.Competition {
 	return predicate.Competition(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Competition {
+func IDNEQ(id string) predicate.Competition {
 	return predicate.Competition(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Competition {
+func IDIn(ids ...string) predicate.Competition {
 	return predicate.Competition(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Competition {
+func IDNotIn(ids ...string) predicate.Competition {
 	return predicate.Competition(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Competition {
+func IDGT(id string) predicate.Competition {
 	return predicate.Competition(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Competition {
+func IDGTE(id string) predicate.Competition {
 	return predicate.Competition(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Competition {
+func IDLT(id string) predicate.Competition {
 	return predicate.Competition(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Competition {
+func IDLTE(id string) predicate.Competition {
 	return predicate.Competition(sql.FieldLTE(FieldID, id))
 }
 
-// CreateTime applies equality check predicate on the "create_time" field. It's identical to CreateTimeEQ.
-func CreateTime(v time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldEQ(FieldCreateTime, v))
+// IDEqualFold applies the EqualFold predicate on the ID field.
+func IDEqualFold(id string) predicate.Competition {
+	return predicate.Competition(sql.FieldEqualFold(FieldID, id))
 }
 
-// UpdateTime applies equality check predicate on the "update_time" field. It's identical to UpdateTimeEQ.
-func UpdateTime(v time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldEQ(FieldUpdateTime, v))
+// IDContainsFold applies the ContainsFold predicate on the ID field.
+func IDContainsFold(id string) predicate.Competition {
+	return predicate.Competition(sql.FieldContainsFold(FieldID, id))
 }
 
 // Hidden applies equality check predicate on the "hidden" field. It's identical to HiddenEQ.
@@ -85,9 +85,9 @@ func DisplayName(v string) predicate.Competition {
 	return predicate.Competition(sql.FieldEQ(FieldDisplayName, v))
 }
 
-// RoundDuration applies equality check predicate on the "round_duration" field. It's identical to RoundDurationEQ.
-func RoundDuration(v float64) predicate.Competition {
-	return predicate.Competition(sql.FieldEQ(FieldRoundDuration, v))
+// ViewableToPublic applies equality check predicate on the "viewable_to_public" field. It's identical to ViewableToPublicEQ.
+func ViewableToPublic(v bool) predicate.Competition {
+	return predicate.Competition(sql.FieldEQ(FieldViewableToPublic, v))
 }
 
 // ToBeStartedAt applies equality check predicate on the "to_be_started_at" field. It's identical to ToBeStartedAtEQ.
@@ -105,86 +105,6 @@ func FinishedAt(v time.Time) predicate.Competition {
 	return predicate.Competition(sql.FieldEQ(FieldFinishedAt, v))
 }
 
-// CreateTimeEQ applies the EQ predicate on the "create_time" field.
-func CreateTimeEQ(v time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldEQ(FieldCreateTime, v))
-}
-
-// CreateTimeNEQ applies the NEQ predicate on the "create_time" field.
-func CreateTimeNEQ(v time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldNEQ(FieldCreateTime, v))
-}
-
-// CreateTimeIn applies the In predicate on the "create_time" field.
-func CreateTimeIn(vs ...time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldIn(FieldCreateTime, vs...))
-}
-
-// CreateTimeNotIn applies the NotIn predicate on the "create_time" field.
-func CreateTimeNotIn(vs ...time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldNotIn(FieldCreateTime, vs...))
-}
-
-// CreateTimeGT applies the GT predicate on the "create_time" field.
-func CreateTimeGT(v time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldGT(FieldCreateTime, v))
-}
-
-// CreateTimeGTE applies the GTE predicate on the "create_time" field.
-func CreateTimeGTE(v time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldGTE(FieldCreateTime, v))
-}
-
-// CreateTimeLT applies the LT predicate on the "create_time" field.
-func CreateTimeLT(v time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldLT(FieldCreateTime, v))
-}
-
-// CreateTimeLTE applies the LTE predicate on the "create_time" field.
-func CreateTimeLTE(v time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldLTE(FieldCreateTime, v))
-}
-
-// UpdateTimeEQ applies the EQ predicate on the "update_time" field.
-func UpdateTimeEQ(v time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldEQ(FieldUpdateTime, v))
-}
-
-// UpdateTimeNEQ applies the NEQ predicate on the "update_time" field.
-func UpdateTimeNEQ(v time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldNEQ(FieldUpdateTime, v))
-}
-
-// UpdateTimeIn applies the In predicate on the "update_time" field.
-func UpdateTimeIn(vs ...time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldIn(FieldUpdateTime, vs...))
-}
-
-// UpdateTimeNotIn applies the NotIn predicate on the "update_time" field.
-func UpdateTimeNotIn(vs ...time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldNotIn(FieldUpdateTime, vs...))
-}
-
-// UpdateTimeGT applies the GT predicate on the "update_time" field.
-func UpdateTimeGT(v time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldGT(FieldUpdateTime, v))
-}
-
-// UpdateTimeGTE applies the GTE predicate on the "update_time" field.
-func UpdateTimeGTE(v time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldGTE(FieldUpdateTime, v))
-}
-
-// UpdateTimeLT applies the LT predicate on the "update_time" field.
-func UpdateTimeLT(v time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldLT(FieldUpdateTime, v))
-}
-
-// UpdateTimeLTE applies the LTE predicate on the "update_time" field.
-func UpdateTimeLTE(v time.Time) predicate.Competition {
-	return predicate.Competition(sql.FieldLTE(FieldUpdateTime, v))
-}
-
 // HiddenEQ applies the EQ predicate on the "hidden" field.
 func HiddenEQ(v bool) predicate.Competition {
 	return predicate.Competition(sql.FieldEQ(FieldHidden, v))
@@ -195,6 +115,16 @@ func HiddenNEQ(v bool) predicate.Competition {
 	return predicate.Competition(sql.FieldNEQ(FieldHidden, v))
 }
 
+// HiddenIsNil applies the IsNil predicate on the "hidden" field.
+func HiddenIsNil() predicate.Competition {
+	return predicate.Competition(sql.FieldIsNull(FieldHidden))
+}
+
+// HiddenNotNil applies the NotNil predicate on the "hidden" field.
+func HiddenNotNil() predicate.Competition {
+	return predicate.Competition(sql.FieldNotNull(FieldHidden))
+}
+
 // PauseEQ applies the EQ predicate on the "pause" field.
 func PauseEQ(v bool) predicate.Competition {
 	return predicate.Competition(sql.FieldEQ(FieldPause, v))
@@ -203,6 +133,16 @@ func PauseEQ(v bool) predicate.Competition {
 // PauseNEQ applies the NEQ predicate on the "pause" field.
 func PauseNEQ(v bool) predicate.Competition {
 	return predicate.Competition(sql.FieldNEQ(FieldPause, v))
+}
+
+// PauseIsNil applies the IsNil predicate on the "pause" field.
+func PauseIsNil() predicate.Competition {
+	return predicate.Competition(sql.FieldIsNull(FieldPause))
+}
+
+// PauseNotNil applies the NotNil predicate on the "pause" field.
+func PauseNotNil() predicate.Competition {
+	return predicate.Competition(sql.FieldNotNull(FieldPause))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.
@@ -335,44 +275,24 @@ func DisplayNameContainsFold(v string) predicate.Competition {
 	return predicate.Competition(sql.FieldContainsFold(FieldDisplayName, v))
 }
 
-// RoundDurationEQ applies the EQ predicate on the "round_duration" field.
-func RoundDurationEQ(v float64) predicate.Competition {
-	return predicate.Competition(sql.FieldEQ(FieldRoundDuration, v))
+// ViewableToPublicEQ applies the EQ predicate on the "viewable_to_public" field.
+func ViewableToPublicEQ(v bool) predicate.Competition {
+	return predicate.Competition(sql.FieldEQ(FieldViewableToPublic, v))
 }
 
-// RoundDurationNEQ applies the NEQ predicate on the "round_duration" field.
-func RoundDurationNEQ(v float64) predicate.Competition {
-	return predicate.Competition(sql.FieldNEQ(FieldRoundDuration, v))
+// ViewableToPublicNEQ applies the NEQ predicate on the "viewable_to_public" field.
+func ViewableToPublicNEQ(v bool) predicate.Competition {
+	return predicate.Competition(sql.FieldNEQ(FieldViewableToPublic, v))
 }
 
-// RoundDurationIn applies the In predicate on the "round_duration" field.
-func RoundDurationIn(vs ...float64) predicate.Competition {
-	return predicate.Competition(sql.FieldIn(FieldRoundDuration, vs...))
+// ViewableToPublicIsNil applies the IsNil predicate on the "viewable_to_public" field.
+func ViewableToPublicIsNil() predicate.Competition {
+	return predicate.Competition(sql.FieldIsNull(FieldViewableToPublic))
 }
 
-// RoundDurationNotIn applies the NotIn predicate on the "round_duration" field.
-func RoundDurationNotIn(vs ...float64) predicate.Competition {
-	return predicate.Competition(sql.FieldNotIn(FieldRoundDuration, vs...))
-}
-
-// RoundDurationGT applies the GT predicate on the "round_duration" field.
-func RoundDurationGT(v float64) predicate.Competition {
-	return predicate.Competition(sql.FieldGT(FieldRoundDuration, v))
-}
-
-// RoundDurationGTE applies the GTE predicate on the "round_duration" field.
-func RoundDurationGTE(v float64) predicate.Competition {
-	return predicate.Competition(sql.FieldGTE(FieldRoundDuration, v))
-}
-
-// RoundDurationLT applies the LT predicate on the "round_duration" field.
-func RoundDurationLT(v float64) predicate.Competition {
-	return predicate.Competition(sql.FieldLT(FieldRoundDuration, v))
-}
-
-// RoundDurationLTE applies the LTE predicate on the "round_duration" field.
-func RoundDurationLTE(v float64) predicate.Competition {
-	return predicate.Competition(sql.FieldLTE(FieldRoundDuration, v))
+// ViewableToPublicNotNil applies the NotNil predicate on the "viewable_to_public" field.
+func ViewableToPublicNotNil() predicate.Competition {
+	return predicate.Competition(sql.FieldNotNull(FieldViewableToPublic))
 }
 
 // ToBeStartedAtEQ applies the EQ predicate on the "to_be_started_at" field.

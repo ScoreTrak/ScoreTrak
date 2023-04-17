@@ -1,14 +1,4 @@
-server:
-  address: 0.0.0.0
-  port: 3001
 
-mintimeoutduration: 5
-
-db:
-  use: "sqlite3"
-  host: "file:ent?mode=memory&cache=shared&_fk=1"
-
-telemetry:
-#    endpoint: "http://localhost:14268/api/traces"
-#    username: ""
-#    password: ""
+auth:
+  ory:
+    slug: nostalgiczhukovskyvei6jfxpja

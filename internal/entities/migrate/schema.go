@@ -10,17 +10,15 @@ import (
 var (
 	// ChecksColumns holds the columns for the "checks" table.
 	ChecksColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "create_time", Type: field.TypeTime},
-		{Name: "update_time", Type: field.TypeTime},
-		{Name: "pause", Type: field.TypeBool},
-		{Name: "hidden", Type: field.TypeBool},
+		{Name: "id", Type: field.TypeString},
+		{Name: "pause", Type: field.TypeBool, Nullable: true},
+		{Name: "hidden", Type: field.TypeBool, Nullable: true},
 		{Name: "log", Type: field.TypeString},
 		{Name: "error", Type: field.TypeString},
 		{Name: "passed", Type: field.TypeBool},
-		{Name: "competition_id", Type: field.TypeInt},
-		{Name: "round_checks", Type: field.TypeInt},
-		{Name: "service_checks", Type: field.TypeInt},
+		{Name: "competition_id", Type: field.TypeString},
+		{Name: "round_checks", Type: field.TypeString},
+		{Name: "service_checks", Type: field.TypeString},
 	}
 	// ChecksTable holds the schema information for the "checks" table.
 	ChecksTable = &schema.Table{
@@ -30,19 +28,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "checks_competitions_competition",
-				Columns:    []*schema.Column{ChecksColumns[8]},
+				Columns:    []*schema.Column{ChecksColumns[6]},
 				RefColumns: []*schema.Column{CompetitionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "checks_rounds_checks",
-				Columns:    []*schema.Column{ChecksColumns[9]},
+				Columns:    []*schema.Column{ChecksColumns[7]},
 				RefColumns: []*schema.Column{RoundsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "checks_services_checks",
-				Columns:    []*schema.Column{ChecksColumns[10]},
+				Columns:    []*schema.Column{ChecksColumns[8]},
 				RefColumns: []*schema.Column{ServicesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -50,14 +48,12 @@ var (
 	}
 	// CompetitionsColumns holds the columns for the "competitions" table.
 	CompetitionsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "create_time", Type: field.TypeTime},
-		{Name: "update_time", Type: field.TypeTime},
-		{Name: "hidden", Type: field.TypeBool},
-		{Name: "pause", Type: field.TypeBool},
+		{Name: "id", Type: field.TypeString},
+		{Name: "hidden", Type: field.TypeBool, Nullable: true},
+		{Name: "pause", Type: field.TypeBool, Nullable: true},
 		{Name: "name", Type: field.TypeString, Unique: true},
 		{Name: "display_name", Type: field.TypeString, Unique: true},
-		{Name: "round_duration", Type: field.TypeFloat64},
+		{Name: "viewable_to_public", Type: field.TypeBool, Nullable: true},
 		{Name: "to_be_started_at", Type: field.TypeTime, Nullable: true},
 		{Name: "started_at", Type: field.TypeTime, Nullable: true},
 		{Name: "finished_at", Type: field.TypeTime, Nullable: true},
@@ -70,18 +66,16 @@ var (
 	}
 	// HostsColumns holds the columns for the "hosts" table.
 	HostsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "create_time", Type: field.TypeTime},
-		{Name: "update_time", Type: field.TypeTime},
-		{Name: "pause", Type: field.TypeBool},
-		{Name: "hidden", Type: field.TypeBool},
+		{Name: "id", Type: field.TypeString},
+		{Name: "pause", Type: field.TypeBool, Nullable: true},
+		{Name: "hidden", Type: field.TypeBool, Nullable: true},
 		{Name: "address", Type: field.TypeString},
 		{Name: "address_list_range", Type: field.TypeString},
 		{Name: "editable", Type: field.TypeBool},
-		{Name: "competition_id", Type: field.TypeInt},
-		{Name: "team_id", Type: field.TypeInt},
-		{Name: "host_group_hosts", Type: field.TypeInt},
-		{Name: "team_hosts", Type: field.TypeInt, Nullable: true},
+		{Name: "competition_id", Type: field.TypeString},
+		{Name: "team_id", Type: field.TypeString},
+		{Name: "host_group_hosts", Type: field.TypeString},
+		{Name: "team_hosts", Type: field.TypeString, Nullable: true},
 	}
 	// HostsTable holds the schema information for the "hosts" table.
 	HostsTable = &schema.Table{
@@ -91,25 +85,25 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "hosts_competitions_competition",
-				Columns:    []*schema.Column{HostsColumns[8]},
+				Columns:    []*schema.Column{HostsColumns[6]},
 				RefColumns: []*schema.Column{CompetitionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "hosts_teams_team",
-				Columns:    []*schema.Column{HostsColumns[9]},
+				Columns:    []*schema.Column{HostsColumns[7]},
 				RefColumns: []*schema.Column{TeamsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "hosts_host_groups_hosts",
-				Columns:    []*schema.Column{HostsColumns[10]},
+				Columns:    []*schema.Column{HostsColumns[8]},
 				RefColumns: []*schema.Column{HostGroupsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "hosts_teams_hosts",
-				Columns:    []*schema.Column{HostsColumns[11]},
+				Columns:    []*schema.Column{HostsColumns[9]},
 				RefColumns: []*schema.Column{TeamsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -117,14 +111,12 @@ var (
 	}
 	// HostGroupsColumns holds the columns for the "host_groups" table.
 	HostGroupsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "create_time", Type: field.TypeTime},
-		{Name: "update_time", Type: field.TypeTime},
-		{Name: "pause", Type: field.TypeBool},
-		{Name: "hidden", Type: field.TypeBool},
+		{Name: "id", Type: field.TypeString},
+		{Name: "pause", Type: field.TypeBool, Nullable: true},
+		{Name: "hidden", Type: field.TypeBool, Nullable: true},
 		{Name: "name", Type: field.TypeString},
-		{Name: "competition_id", Type: field.TypeInt},
-		{Name: "team_id", Type: field.TypeInt},
+		{Name: "competition_id", Type: field.TypeString},
+		{Name: "team_id", Type: field.TypeString},
 	}
 	// HostGroupsTable holds the schema information for the "host_groups" table.
 	HostGroupsTable = &schema.Table{
@@ -134,13 +126,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "host_groups_competitions_competition",
-				Columns:    []*schema.Column{HostGroupsColumns[6]},
+				Columns:    []*schema.Column{HostGroupsColumns[4]},
 				RefColumns: []*schema.Column{CompetitionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "host_groups_teams_team",
-				Columns:    []*schema.Column{HostGroupsColumns[7]},
+				Columns:    []*schema.Column{HostGroupsColumns[5]},
 				RefColumns: []*schema.Column{TeamsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -148,15 +140,13 @@ var (
 	}
 	// PropertiesColumns holds the columns for the "properties" table.
 	PropertiesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "create_time", Type: field.TypeTime},
-		{Name: "update_time", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeString},
 		{Name: "key", Type: field.TypeString},
 		{Name: "value", Type: field.TypeString},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"view", "edit", "hide"}, Default: "view"},
-		{Name: "competition_id", Type: field.TypeInt},
-		{Name: "team_id", Type: field.TypeInt},
-		{Name: "service_properties", Type: field.TypeInt},
+		{Name: "competition_id", Type: field.TypeString},
+		{Name: "team_id", Type: field.TypeString},
+		{Name: "service_properties", Type: field.TypeString},
 	}
 	// PropertiesTable holds the schema information for the "properties" table.
 	PropertiesTable = &schema.Table{
@@ -166,35 +156,45 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "properties_competitions_competition",
-				Columns:    []*schema.Column{PropertiesColumns[6]},
+				Columns:    []*schema.Column{PropertiesColumns[4]},
 				RefColumns: []*schema.Column{CompetitionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "properties_teams_team",
-				Columns:    []*schema.Column{PropertiesColumns[7]},
+				Columns:    []*schema.Column{PropertiesColumns[5]},
 				RefColumns: []*schema.Column{TeamsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "properties_services_properties",
-				Columns:    []*schema.Column{PropertiesColumns[8]},
+				Columns:    []*schema.Column{PropertiesColumns[6]},
 				RefColumns: []*schema.Column{ServicesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 	}
+	// ReportsColumns holds the columns for the "reports" table.
+	ReportsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "log", Type: field.TypeString},
+		{Name: "error", Type: field.TypeString},
+	}
+	// ReportsTable holds the schema information for the "reports" table.
+	ReportsTable = &schema.Table{
+		Name:       "reports",
+		Columns:    ReportsColumns,
+		PrimaryKey: []*schema.Column{ReportsColumns[0]},
+	}
 	// RoundsColumns holds the columns for the "rounds" table.
 	RoundsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "create_time", Type: field.TypeTime},
-		{Name: "update_time", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeString},
 		{Name: "round_number", Type: field.TypeInt},
 		{Name: "note", Type: field.TypeString},
 		{Name: "err", Type: field.TypeString},
 		{Name: "started_at", Type: field.TypeTime},
 		{Name: "finished_at", Type: field.TypeTime},
-		{Name: "competition_id", Type: field.TypeInt},
+		{Name: "competition_id", Type: field.TypeString},
 	}
 	// RoundsTable holds the schema information for the "rounds" table.
 	RoundsTable = &schema.Table{
@@ -204,7 +204,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "rounds_competitions_competition",
-				Columns:    []*schema.Column{RoundsColumns[8]},
+				Columns:    []*schema.Column{RoundsColumns[6]},
 				RefColumns: []*schema.Column{CompetitionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -212,20 +212,18 @@ var (
 	}
 	// ServicesColumns holds the columns for the "services" table.
 	ServicesColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "create_time", Type: field.TypeTime},
-		{Name: "update_time", Type: field.TypeTime},
-		{Name: "pause", Type: field.TypeBool},
-		{Name: "hidden", Type: field.TypeBool},
+		{Name: "id", Type: field.TypeString},
+		{Name: "pause", Type: field.TypeBool, Nullable: true},
+		{Name: "hidden", Type: field.TypeBool, Nullable: true},
 		{Name: "name", Type: field.TypeString},
 		{Name: "display_name", Type: field.TypeString},
 		{Name: "weight", Type: field.TypeInt},
 		{Name: "point_boost", Type: field.TypeInt},
 		{Name: "round_units", Type: field.TypeInt},
 		{Name: "round_delay", Type: field.TypeInt},
-		{Name: "host_services", Type: field.TypeInt, Nullable: true},
-		{Name: "competition_id", Type: field.TypeInt},
-		{Name: "team_id", Type: field.TypeInt},
+		{Name: "host_services", Type: field.TypeString, Nullable: true},
+		{Name: "competition_id", Type: field.TypeString},
+		{Name: "team_id", Type: field.TypeString},
 	}
 	// ServicesTable holds the schema information for the "services" table.
 	ServicesTable = &schema.Table{
@@ -235,19 +233,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "services_hosts_services",
-				Columns:    []*schema.Column{ServicesColumns[11]},
+				Columns:    []*schema.Column{ServicesColumns[9]},
 				RefColumns: []*schema.Column{HostsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "services_competitions_competition",
-				Columns:    []*schema.Column{ServicesColumns[12]},
+				Columns:    []*schema.Column{ServicesColumns[10]},
 				RefColumns: []*schema.Column{CompetitionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "services_teams_team",
-				Columns:    []*schema.Column{ServicesColumns[13]},
+				Columns:    []*schema.Column{ServicesColumns[11]},
 				RefColumns: []*schema.Column{TeamsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -255,15 +253,13 @@ var (
 	}
 	// TeamsColumns holds the columns for the "teams" table.
 	TeamsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "create_time", Type: field.TypeTime},
-		{Name: "update_time", Type: field.TypeTime},
-		{Name: "pause", Type: field.TypeBool},
-		{Name: "hidden", Type: field.TypeBool},
+		{Name: "id", Type: field.TypeString},
+		{Name: "pause", Type: field.TypeBool, Nullable: true},
+		{Name: "hidden", Type: field.TypeBool, Nullable: true},
 		{Name: "name", Type: field.TypeString},
-		{Name: "index", Type: field.TypeInt},
-		{Name: "competition_teams", Type: field.TypeInt, Nullable: true},
-		{Name: "competition_id", Type: field.TypeInt},
+		{Name: "index", Type: field.TypeInt, Nullable: true},
+		{Name: "competition_teams", Type: field.TypeString, Nullable: true},
+		{Name: "competition_id", Type: field.TypeString},
 	}
 	// TeamsTable holds the schema information for the "teams" table.
 	TeamsTable = &schema.Table{
@@ -273,13 +269,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "teams_competitions_teams",
-				Columns:    []*schema.Column{TeamsColumns[7]},
+				Columns:    []*schema.Column{TeamsColumns[5]},
 				RefColumns: []*schema.Column{CompetitionsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "teams_competitions_competition",
-				Columns:    []*schema.Column{TeamsColumns[8]},
+				Columns:    []*schema.Column{TeamsColumns[6]},
 				RefColumns: []*schema.Column{CompetitionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -287,10 +283,11 @@ var (
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "create_time", Type: field.TypeTime},
-		{Name: "update_time", Type: field.TypeTime},
+		{Name: "id", Type: field.TypeString},
+		{Name: "create_time", Type: field.TypeTime, Nullable: true},
+		{Name: "update_time", Type: field.TypeTime, Nullable: true},
 		{Name: "username", Type: field.TypeString},
+		{Name: "oid", Type: field.TypeUUID, Unique: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -300,8 +297,8 @@ var (
 	}
 	// CompetitionUsersColumns holds the columns for the "competition_users" table.
 	CompetitionUsersColumns = []*schema.Column{
-		{Name: "competition_id", Type: field.TypeInt},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "competition_id", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeString},
 	}
 	// CompetitionUsersTable holds the schema information for the "competition_users" table.
 	CompetitionUsersTable = &schema.Table{
@@ -325,8 +322,8 @@ var (
 	}
 	// TeamUsersColumns holds the columns for the "team_users" table.
 	TeamUsersColumns = []*schema.Column{
-		{Name: "team_id", Type: field.TypeInt},
-		{Name: "user_id", Type: field.TypeInt},
+		{Name: "team_id", Type: field.TypeString},
+		{Name: "user_id", Type: field.TypeString},
 	}
 	// TeamUsersTable holds the schema information for the "team_users" table.
 	TeamUsersTable = &schema.Table{
@@ -355,6 +352,7 @@ var (
 		HostsTable,
 		HostGroupsTable,
 		PropertiesTable,
+		ReportsTable,
 		RoundsTable,
 		ServicesTable,
 		TeamsTable,

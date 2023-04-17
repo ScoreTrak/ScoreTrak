@@ -5,7 +5,6 @@ package entities
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -19,19 +18,15 @@ import (
 type Host struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// CreateTime holds the value of the "create_time" field.
-	CreateTime time.Time `json:"create_time,omitempty"`
-	// UpdateTime holds the value of the "update_time" field.
-	UpdateTime time.Time `json:"update_time,omitempty"`
+	ID string `json:"id,omitempty"`
 	// Pause holds the value of the "pause" field.
 	Pause bool `json:"pause,omitempty"`
 	// Hidden holds the value of the "hidden" field.
 	Hidden bool `json:"hidden,omitempty"`
 	// CompetitionID holds the value of the "competition_id" field.
-	CompetitionID int `json:"competition_id,omitempty"`
+	CompetitionID string `json:"competition_id,omitempty"`
 	// TeamID holds the value of the "team_id" field.
-	TeamID int `json:"team_id,omitempty"`
+	TeamID string `json:"team_id,omitempty"`
 	// Address holds the value of the "address" field.
 	Address string `json:"address,omitempty"`
 	// AddressListRange holds the value of the "address_list_range" field.
@@ -41,8 +36,8 @@ type Host struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the HostQuery when eager-loading is set.
 	Edges            HostEdges `json:"edges"`
-	host_group_hosts *int
-	team_hosts       *int
+	host_group_hosts *string
+	team_hosts       *string
 	selectValues     sql.SelectValues
 }
 
@@ -116,16 +111,12 @@ func (*Host) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case host.FieldPause, host.FieldHidden, host.FieldEditable:
 			values[i] = new(sql.NullBool)
-		case host.FieldID, host.FieldCompetitionID, host.FieldTeamID:
-			values[i] = new(sql.NullInt64)
-		case host.FieldAddress, host.FieldAddressListRange:
+		case host.FieldID, host.FieldCompetitionID, host.FieldTeamID, host.FieldAddress, host.FieldAddressListRange:
 			values[i] = new(sql.NullString)
-		case host.FieldCreateTime, host.FieldUpdateTime:
-			values[i] = new(sql.NullTime)
 		case host.ForeignKeys[0]: // host_group_hosts
-			values[i] = new(sql.NullInt64)
+			values[i] = new(sql.NullString)
 		case host.ForeignKeys[1]: // team_hosts
-			values[i] = new(sql.NullInt64)
+			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -142,22 +133,10 @@ func (h *Host) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case host.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
-			}
-			h.ID = int(value.Int64)
-		case host.FieldCreateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field create_time", values[i])
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
-				h.CreateTime = value.Time
-			}
-		case host.FieldUpdateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field update_time", values[i])
-			} else if value.Valid {
-				h.UpdateTime = value.Time
+				h.ID = value.String
 			}
 		case host.FieldPause:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -172,16 +151,16 @@ func (h *Host) assignValues(columns []string, values []any) error {
 				h.Hidden = value.Bool
 			}
 		case host.FieldCompetitionID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field competition_id", values[i])
 			} else if value.Valid {
-				h.CompetitionID = int(value.Int64)
+				h.CompetitionID = value.String
 			}
 		case host.FieldTeamID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field team_id", values[i])
 			} else if value.Valid {
-				h.TeamID = int(value.Int64)
+				h.TeamID = value.String
 			}
 		case host.FieldAddress:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -202,18 +181,18 @@ func (h *Host) assignValues(columns []string, values []any) error {
 				h.Editable = value.Bool
 			}
 		case host.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field host_group_hosts", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field host_group_hosts", values[i])
 			} else if value.Valid {
-				h.host_group_hosts = new(int)
-				*h.host_group_hosts = int(value.Int64)
+				h.host_group_hosts = new(string)
+				*h.host_group_hosts = value.String
 			}
 		case host.ForeignKeys[1]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field team_hosts", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field team_hosts", values[i])
 			} else if value.Valid {
-				h.team_hosts = new(int)
-				*h.team_hosts = int(value.Int64)
+				h.team_hosts = new(string)
+				*h.team_hosts = value.String
 			}
 		default:
 			h.selectValues.Set(columns[i], values[i])
@@ -271,12 +250,6 @@ func (h *Host) String() string {
 	var builder strings.Builder
 	builder.WriteString("Host(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", h.ID))
-	builder.WriteString("create_time=")
-	builder.WriteString(h.CreateTime.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("update_time=")
-	builder.WriteString(h.UpdateTime.Format(time.ANSIC))
-	builder.WriteString(", ")
 	builder.WriteString("pause=")
 	builder.WriteString(fmt.Sprintf("%v", h.Pause))
 	builder.WriteString(", ")
@@ -284,10 +257,10 @@ func (h *Host) String() string {
 	builder.WriteString(fmt.Sprintf("%v", h.Hidden))
 	builder.WriteString(", ")
 	builder.WriteString("competition_id=")
-	builder.WriteString(fmt.Sprintf("%v", h.CompetitionID))
+	builder.WriteString(h.CompetitionID)
 	builder.WriteString(", ")
 	builder.WriteString("team_id=")
-	builder.WriteString(fmt.Sprintf("%v", h.TeamID))
+	builder.WriteString(h.TeamID)
 	builder.WriteString(", ")
 	builder.WriteString("address=")
 	builder.WriteString(h.Address)

@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -23,37 +22,17 @@ type HostGroupCreate struct {
 	hooks    []Hook
 }
 
-// SetCreateTime sets the "create_time" field.
-func (hgc *HostGroupCreate) SetCreateTime(t time.Time) *HostGroupCreate {
-	hgc.mutation.SetCreateTime(t)
-	return hgc
-}
-
-// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
-func (hgc *HostGroupCreate) SetNillableCreateTime(t *time.Time) *HostGroupCreate {
-	if t != nil {
-		hgc.SetCreateTime(*t)
-	}
-	return hgc
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (hgc *HostGroupCreate) SetUpdateTime(t time.Time) *HostGroupCreate {
-	hgc.mutation.SetUpdateTime(t)
-	return hgc
-}
-
-// SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
-func (hgc *HostGroupCreate) SetNillableUpdateTime(t *time.Time) *HostGroupCreate {
-	if t != nil {
-		hgc.SetUpdateTime(*t)
-	}
-	return hgc
-}
-
 // SetPause sets the "pause" field.
 func (hgc *HostGroupCreate) SetPause(b bool) *HostGroupCreate {
 	hgc.mutation.SetPause(b)
+	return hgc
+}
+
+// SetNillablePause sets the "pause" field if the given value is not nil.
+func (hgc *HostGroupCreate) SetNillablePause(b *bool) *HostGroupCreate {
+	if b != nil {
+		hgc.SetPause(*b)
+	}
 	return hgc
 }
 
@@ -63,21 +42,43 @@ func (hgc *HostGroupCreate) SetHidden(b bool) *HostGroupCreate {
 	return hgc
 }
 
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (hgc *HostGroupCreate) SetNillableHidden(b *bool) *HostGroupCreate {
+	if b != nil {
+		hgc.SetHidden(*b)
+	}
+	return hgc
+}
+
 // SetCompetitionID sets the "competition_id" field.
-func (hgc *HostGroupCreate) SetCompetitionID(i int) *HostGroupCreate {
-	hgc.mutation.SetCompetitionID(i)
+func (hgc *HostGroupCreate) SetCompetitionID(s string) *HostGroupCreate {
+	hgc.mutation.SetCompetitionID(s)
 	return hgc
 }
 
 // SetTeamID sets the "team_id" field.
-func (hgc *HostGroupCreate) SetTeamID(i int) *HostGroupCreate {
-	hgc.mutation.SetTeamID(i)
+func (hgc *HostGroupCreate) SetTeamID(s string) *HostGroupCreate {
+	hgc.mutation.SetTeamID(s)
 	return hgc
 }
 
 // SetName sets the "name" field.
 func (hgc *HostGroupCreate) SetName(s string) *HostGroupCreate {
 	hgc.mutation.SetName(s)
+	return hgc
+}
+
+// SetID sets the "id" field.
+func (hgc *HostGroupCreate) SetID(s string) *HostGroupCreate {
+	hgc.mutation.SetID(s)
+	return hgc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (hgc *HostGroupCreate) SetNillableID(s *string) *HostGroupCreate {
+	if s != nil {
+		hgc.SetID(*s)
+	}
 	return hgc
 }
 
@@ -92,14 +93,14 @@ func (hgc *HostGroupCreate) SetTeam(t *Team) *HostGroupCreate {
 }
 
 // AddHostIDs adds the "hosts" edge to the Host entity by IDs.
-func (hgc *HostGroupCreate) AddHostIDs(ids ...int) *HostGroupCreate {
+func (hgc *HostGroupCreate) AddHostIDs(ids ...string) *HostGroupCreate {
 	hgc.mutation.AddHostIDs(ids...)
 	return hgc
 }
 
 // AddHosts adds the "hosts" edges to the Host entity.
 func (hgc *HostGroupCreate) AddHosts(h ...*Host) *HostGroupCreate {
-	ids := make([]int, len(h))
+	ids := make([]string, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -141,30 +142,14 @@ func (hgc *HostGroupCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (hgc *HostGroupCreate) defaults() {
-	if _, ok := hgc.mutation.CreateTime(); !ok {
-		v := hostgroup.DefaultCreateTime()
-		hgc.mutation.SetCreateTime(v)
-	}
-	if _, ok := hgc.mutation.UpdateTime(); !ok {
-		v := hostgroup.DefaultUpdateTime()
-		hgc.mutation.SetUpdateTime(v)
+	if _, ok := hgc.mutation.ID(); !ok {
+		v := hostgroup.DefaultID()
+		hgc.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (hgc *HostGroupCreate) check() error {
-	if _, ok := hgc.mutation.CreateTime(); !ok {
-		return &ValidationError{Name: "create_time", err: errors.New(`entities: missing required field "HostGroup.create_time"`)}
-	}
-	if _, ok := hgc.mutation.UpdateTime(); !ok {
-		return &ValidationError{Name: "update_time", err: errors.New(`entities: missing required field "HostGroup.update_time"`)}
-	}
-	if _, ok := hgc.mutation.Pause(); !ok {
-		return &ValidationError{Name: "pause", err: errors.New(`entities: missing required field "HostGroup.pause"`)}
-	}
-	if _, ok := hgc.mutation.Hidden(); !ok {
-		return &ValidationError{Name: "hidden", err: errors.New(`entities: missing required field "HostGroup.hidden"`)}
-	}
 	if _, ok := hgc.mutation.CompetitionID(); !ok {
 		return &ValidationError{Name: "competition_id", err: errors.New(`entities: missing required field "HostGroup.competition_id"`)}
 	}
@@ -173,6 +158,11 @@ func (hgc *HostGroupCreate) check() error {
 	}
 	if _, ok := hgc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`entities: missing required field "HostGroup.name"`)}
+	}
+	if v, ok := hgc.mutation.ID(); ok {
+		if err := hostgroup.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`entities: validator failed for field "HostGroup.id": %w`, err)}
+		}
 	}
 	if _, ok := hgc.mutation.CompetitionID(); !ok {
 		return &ValidationError{Name: "competition", err: errors.New(`entities: missing required edge "HostGroup.competition"`)}
@@ -194,8 +184,13 @@ func (hgc *HostGroupCreate) sqlSave(ctx context.Context) (*HostGroup, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected HostGroup.ID type: %T", _spec.ID.Value)
+		}
+	}
 	hgc.mutation.id = &_node.ID
 	hgc.mutation.done = true
 	return _node, nil
@@ -204,15 +199,11 @@ func (hgc *HostGroupCreate) sqlSave(ctx context.Context) (*HostGroup, error) {
 func (hgc *HostGroupCreate) createSpec() (*HostGroup, *sqlgraph.CreateSpec) {
 	var (
 		_node = &HostGroup{config: hgc.config}
-		_spec = sqlgraph.NewCreateSpec(hostgroup.Table, sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(hostgroup.Table, sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeString))
 	)
-	if value, ok := hgc.mutation.CreateTime(); ok {
-		_spec.SetField(hostgroup.FieldCreateTime, field.TypeTime, value)
-		_node.CreateTime = value
-	}
-	if value, ok := hgc.mutation.UpdateTime(); ok {
-		_spec.SetField(hostgroup.FieldUpdateTime, field.TypeTime, value)
-		_node.UpdateTime = value
+	if id, ok := hgc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
 	}
 	if value, ok := hgc.mutation.Pause(); ok {
 		_spec.SetField(hostgroup.FieldPause, field.TypeBool, value)
@@ -234,7 +225,7 @@ func (hgc *HostGroupCreate) createSpec() (*HostGroup, *sqlgraph.CreateSpec) {
 			Columns: []string{hostgroup.CompetitionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -251,7 +242,7 @@ func (hgc *HostGroupCreate) createSpec() (*HostGroup, *sqlgraph.CreateSpec) {
 			Columns: []string{hostgroup.TeamColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -268,7 +259,7 @@ func (hgc *HostGroupCreate) createSpec() (*HostGroup, *sqlgraph.CreateSpec) {
 			Columns: []string{hostgroup.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -320,10 +311,6 @@ func (hgcb *HostGroupCreateBulk) Save(ctx context.Context) ([]*HostGroup, error)
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

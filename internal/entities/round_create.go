@@ -22,37 +22,9 @@ type RoundCreate struct {
 	hooks    []Hook
 }
 
-// SetCreateTime sets the "create_time" field.
-func (rc *RoundCreate) SetCreateTime(t time.Time) *RoundCreate {
-	rc.mutation.SetCreateTime(t)
-	return rc
-}
-
-// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
-func (rc *RoundCreate) SetNillableCreateTime(t *time.Time) *RoundCreate {
-	if t != nil {
-		rc.SetCreateTime(*t)
-	}
-	return rc
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (rc *RoundCreate) SetUpdateTime(t time.Time) *RoundCreate {
-	rc.mutation.SetUpdateTime(t)
-	return rc
-}
-
-// SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
-func (rc *RoundCreate) SetNillableUpdateTime(t *time.Time) *RoundCreate {
-	if t != nil {
-		rc.SetUpdateTime(*t)
-	}
-	return rc
-}
-
 // SetCompetitionID sets the "competition_id" field.
-func (rc *RoundCreate) SetCompetitionID(i int) *RoundCreate {
-	rc.mutation.SetCompetitionID(i)
+func (rc *RoundCreate) SetCompetitionID(s string) *RoundCreate {
+	rc.mutation.SetCompetitionID(s)
 	return rc
 }
 
@@ -86,20 +58,34 @@ func (rc *RoundCreate) SetFinishedAt(t time.Time) *RoundCreate {
 	return rc
 }
 
+// SetID sets the "id" field.
+func (rc *RoundCreate) SetID(s string) *RoundCreate {
+	rc.mutation.SetID(s)
+	return rc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (rc *RoundCreate) SetNillableID(s *string) *RoundCreate {
+	if s != nil {
+		rc.SetID(*s)
+	}
+	return rc
+}
+
 // SetCompetition sets the "competition" edge to the Competition entity.
 func (rc *RoundCreate) SetCompetition(c *Competition) *RoundCreate {
 	return rc.SetCompetitionID(c.ID)
 }
 
 // AddCheckIDs adds the "checks" edge to the Check entity by IDs.
-func (rc *RoundCreate) AddCheckIDs(ids ...int) *RoundCreate {
+func (rc *RoundCreate) AddCheckIDs(ids ...string) *RoundCreate {
 	rc.mutation.AddCheckIDs(ids...)
 	return rc
 }
 
 // AddChecks adds the "checks" edges to the Check entity.
 func (rc *RoundCreate) AddChecks(c ...*Check) *RoundCreate {
-	ids := make([]int, len(c))
+	ids := make([]string, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -141,24 +127,14 @@ func (rc *RoundCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (rc *RoundCreate) defaults() {
-	if _, ok := rc.mutation.CreateTime(); !ok {
-		v := round.DefaultCreateTime()
-		rc.mutation.SetCreateTime(v)
-	}
-	if _, ok := rc.mutation.UpdateTime(); !ok {
-		v := round.DefaultUpdateTime()
-		rc.mutation.SetUpdateTime(v)
+	if _, ok := rc.mutation.ID(); !ok {
+		v := round.DefaultID()
+		rc.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (rc *RoundCreate) check() error {
-	if _, ok := rc.mutation.CreateTime(); !ok {
-		return &ValidationError{Name: "create_time", err: errors.New(`entities: missing required field "Round.create_time"`)}
-	}
-	if _, ok := rc.mutation.UpdateTime(); !ok {
-		return &ValidationError{Name: "update_time", err: errors.New(`entities: missing required field "Round.update_time"`)}
-	}
 	if _, ok := rc.mutation.CompetitionID(); !ok {
 		return &ValidationError{Name: "competition_id", err: errors.New(`entities: missing required field "Round.competition_id"`)}
 	}
@@ -177,6 +153,11 @@ func (rc *RoundCreate) check() error {
 	if _, ok := rc.mutation.FinishedAt(); !ok {
 		return &ValidationError{Name: "finished_at", err: errors.New(`entities: missing required field "Round.finished_at"`)}
 	}
+	if v, ok := rc.mutation.ID(); ok {
+		if err := round.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`entities: validator failed for field "Round.id": %w`, err)}
+		}
+	}
 	if _, ok := rc.mutation.CompetitionID(); !ok {
 		return &ValidationError{Name: "competition", err: errors.New(`entities: missing required edge "Round.competition"`)}
 	}
@@ -194,8 +175,13 @@ func (rc *RoundCreate) sqlSave(ctx context.Context) (*Round, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected Round.ID type: %T", _spec.ID.Value)
+		}
+	}
 	rc.mutation.id = &_node.ID
 	rc.mutation.done = true
 	return _node, nil
@@ -204,15 +190,11 @@ func (rc *RoundCreate) sqlSave(ctx context.Context) (*Round, error) {
 func (rc *RoundCreate) createSpec() (*Round, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Round{config: rc.config}
-		_spec = sqlgraph.NewCreateSpec(round.Table, sqlgraph.NewFieldSpec(round.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(round.Table, sqlgraph.NewFieldSpec(round.FieldID, field.TypeString))
 	)
-	if value, ok := rc.mutation.CreateTime(); ok {
-		_spec.SetField(round.FieldCreateTime, field.TypeTime, value)
-		_node.CreateTime = value
-	}
-	if value, ok := rc.mutation.UpdateTime(); ok {
-		_spec.SetField(round.FieldUpdateTime, field.TypeTime, value)
-		_node.UpdateTime = value
+	if id, ok := rc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
 	}
 	if value, ok := rc.mutation.RoundNumber(); ok {
 		_spec.SetField(round.FieldRoundNumber, field.TypeInt, value)
@@ -242,7 +224,7 @@ func (rc *RoundCreate) createSpec() (*Round, *sqlgraph.CreateSpec) {
 			Columns: []string{round.CompetitionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -259,7 +241,7 @@ func (rc *RoundCreate) createSpec() (*Round, *sqlgraph.CreateSpec) {
 			Columns: []string{round.ChecksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -311,10 +293,6 @@ func (rcb *RoundCreateBulk) Save(ctx context.Context) ([]*Round, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

@@ -1,19 +1,20 @@
 import { Route } from "@tanstack/router";
-import { rootRoute } from "../root";
-import {baseLayout} from "../../layouts/baseLayout";
-import {authenticatedLayout} from "../../layouts/authenticatedLayout";
-import {scoretrak} from "../../lib/queries";
+import {authenticatedLayout} from "../layouts/authenticatedLayout";
+import {CreateCompetitionForm} from "../../components/forms/competitions";
 
+
+export const competitionRoute = new Route({
+  getParentRoute: () => authenticatedLayout,
+  path: "competitions"
+})
 
 export const competitionIndexRoute = new Route({
-  getParentRoute: () => authenticatedLayout,
-  path: "competitions",
+  getParentRoute: () => competitionRoute,
+  path: "/",
   component: () => {
-    const {mutate, mutateAsync} = scoretrak.mutations.useCreateCompetition()
-
     return (
       <>
-        <h1>Competitions</h1>
+        <CreateCompetitionForm />
       </>
     )
   }

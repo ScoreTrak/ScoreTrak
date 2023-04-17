@@ -4,7 +4,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/mixin"
 )
 
 // Service holds the schema definition for the Service entity.
@@ -36,7 +35,7 @@ func (Service) Edges() []ent.Edge {
 // Mixins of the Service.
 func (Service) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		mixin.Time{},
+		BaseMixin{},
 		PauseMixin{},
 		HideMixin{},
 		CompetitonMixin{},

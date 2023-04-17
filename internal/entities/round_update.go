@@ -29,12 +29,6 @@ func (ru *RoundUpdate) Where(ps ...predicate.Round) *RoundUpdate {
 	return ru
 }
 
-// SetUpdateTime sets the "update_time" field.
-func (ru *RoundUpdate) SetUpdateTime(t time.Time) *RoundUpdate {
-	ru.mutation.SetUpdateTime(t)
-	return ru
-}
-
 // SetRoundNumber sets the "round_number" field.
 func (ru *RoundUpdate) SetRoundNumber(i int) *RoundUpdate {
 	ru.mutation.ResetRoundNumber()
@@ -73,14 +67,14 @@ func (ru *RoundUpdate) SetFinishedAt(t time.Time) *RoundUpdate {
 }
 
 // AddCheckIDs adds the "checks" edge to the Check entity by IDs.
-func (ru *RoundUpdate) AddCheckIDs(ids ...int) *RoundUpdate {
+func (ru *RoundUpdate) AddCheckIDs(ids ...string) *RoundUpdate {
 	ru.mutation.AddCheckIDs(ids...)
 	return ru
 }
 
 // AddChecks adds the "checks" edges to the Check entity.
 func (ru *RoundUpdate) AddChecks(c ...*Check) *RoundUpdate {
-	ids := make([]int, len(c))
+	ids := make([]string, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -99,14 +93,14 @@ func (ru *RoundUpdate) ClearChecks() *RoundUpdate {
 }
 
 // RemoveCheckIDs removes the "checks" edge to Check entities by IDs.
-func (ru *RoundUpdate) RemoveCheckIDs(ids ...int) *RoundUpdate {
+func (ru *RoundUpdate) RemoveCheckIDs(ids ...string) *RoundUpdate {
 	ru.mutation.RemoveCheckIDs(ids...)
 	return ru
 }
 
 // RemoveChecks removes "checks" edges to Check entities.
 func (ru *RoundUpdate) RemoveChecks(c ...*Check) *RoundUpdate {
-	ids := make([]int, len(c))
+	ids := make([]string, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -115,7 +109,6 @@ func (ru *RoundUpdate) RemoveChecks(c ...*Check) *RoundUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (ru *RoundUpdate) Save(ctx context.Context) (int, error) {
-	ru.defaults()
 	return withHooks[int, RoundMutation](ctx, ru.sqlSave, ru.mutation, ru.hooks)
 }
 
@@ -141,14 +134,6 @@ func (ru *RoundUpdate) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (ru *RoundUpdate) defaults() {
-	if _, ok := ru.mutation.UpdateTime(); !ok {
-		v := round.UpdateDefaultUpdateTime()
-		ru.mutation.SetUpdateTime(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (ru *RoundUpdate) check() error {
 	if _, ok := ru.mutation.CompetitionID(); ru.mutation.CompetitionCleared() && !ok {
@@ -161,16 +146,13 @@ func (ru *RoundUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := ru.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(round.Table, round.Columns, sqlgraph.NewFieldSpec(round.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(round.Table, round.Columns, sqlgraph.NewFieldSpec(round.FieldID, field.TypeString))
 	if ps := ru.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := ru.mutation.UpdateTime(); ok {
-		_spec.SetField(round.FieldUpdateTime, field.TypeTime, value)
 	}
 	if value, ok := ru.mutation.RoundNumber(); ok {
 		_spec.SetField(round.FieldRoundNumber, field.TypeInt, value)
@@ -198,7 +180,7 @@ func (ru *RoundUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{round.ChecksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -211,7 +193,7 @@ func (ru *RoundUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{round.ChecksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -227,7 +209,7 @@ func (ru *RoundUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{round.ChecksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -253,12 +235,6 @@ type RoundUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *RoundMutation
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (ruo *RoundUpdateOne) SetUpdateTime(t time.Time) *RoundUpdateOne {
-	ruo.mutation.SetUpdateTime(t)
-	return ruo
 }
 
 // SetRoundNumber sets the "round_number" field.
@@ -299,14 +275,14 @@ func (ruo *RoundUpdateOne) SetFinishedAt(t time.Time) *RoundUpdateOne {
 }
 
 // AddCheckIDs adds the "checks" edge to the Check entity by IDs.
-func (ruo *RoundUpdateOne) AddCheckIDs(ids ...int) *RoundUpdateOne {
+func (ruo *RoundUpdateOne) AddCheckIDs(ids ...string) *RoundUpdateOne {
 	ruo.mutation.AddCheckIDs(ids...)
 	return ruo
 }
 
 // AddChecks adds the "checks" edges to the Check entity.
 func (ruo *RoundUpdateOne) AddChecks(c ...*Check) *RoundUpdateOne {
-	ids := make([]int, len(c))
+	ids := make([]string, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -325,14 +301,14 @@ func (ruo *RoundUpdateOne) ClearChecks() *RoundUpdateOne {
 }
 
 // RemoveCheckIDs removes the "checks" edge to Check entities by IDs.
-func (ruo *RoundUpdateOne) RemoveCheckIDs(ids ...int) *RoundUpdateOne {
+func (ruo *RoundUpdateOne) RemoveCheckIDs(ids ...string) *RoundUpdateOne {
 	ruo.mutation.RemoveCheckIDs(ids...)
 	return ruo
 }
 
 // RemoveChecks removes "checks" edges to Check entities.
 func (ruo *RoundUpdateOne) RemoveChecks(c ...*Check) *RoundUpdateOne {
-	ids := make([]int, len(c))
+	ids := make([]string, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -354,7 +330,6 @@ func (ruo *RoundUpdateOne) Select(field string, fields ...string) *RoundUpdateOn
 
 // Save executes the query and returns the updated Round entity.
 func (ruo *RoundUpdateOne) Save(ctx context.Context) (*Round, error) {
-	ruo.defaults()
 	return withHooks[*Round, RoundMutation](ctx, ruo.sqlSave, ruo.mutation, ruo.hooks)
 }
 
@@ -380,14 +355,6 @@ func (ruo *RoundUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (ruo *RoundUpdateOne) defaults() {
-	if _, ok := ruo.mutation.UpdateTime(); !ok {
-		v := round.UpdateDefaultUpdateTime()
-		ruo.mutation.SetUpdateTime(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (ruo *RoundUpdateOne) check() error {
 	if _, ok := ruo.mutation.CompetitionID(); ruo.mutation.CompetitionCleared() && !ok {
@@ -400,7 +367,7 @@ func (ruo *RoundUpdateOne) sqlSave(ctx context.Context) (_node *Round, err error
 	if err := ruo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(round.Table, round.Columns, sqlgraph.NewFieldSpec(round.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(round.Table, round.Columns, sqlgraph.NewFieldSpec(round.FieldID, field.TypeString))
 	id, ok := ruo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`entities: missing "Round.id" for update`)}
@@ -424,9 +391,6 @@ func (ruo *RoundUpdateOne) sqlSave(ctx context.Context) (_node *Round, err error
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := ruo.mutation.UpdateTime(); ok {
-		_spec.SetField(round.FieldUpdateTime, field.TypeTime, value)
 	}
 	if value, ok := ruo.mutation.RoundNumber(); ok {
 		_spec.SetField(round.FieldRoundNumber, field.TypeInt, value)
@@ -454,7 +418,7 @@ func (ruo *RoundUpdateOne) sqlSave(ctx context.Context) (_node *Round, err error
 			Columns: []string{round.ChecksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -467,7 +431,7 @@ func (ruo *RoundUpdateOne) sqlSave(ctx context.Context) (_node *Round, err error
 			Columns: []string{round.ChecksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -483,7 +447,7 @@ func (ruo *RoundUpdateOne) sqlSave(ctx context.Context) (_node *Round, err error
 			Columns: []string{round.ChecksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

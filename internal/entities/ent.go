@@ -17,6 +17,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostgroup"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/property"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/report"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/round"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
@@ -86,6 +87,7 @@ func checkColumn(table, column string) error {
 			host.Table:        host.ValidColumn,
 			hostgroup.Table:   hostgroup.ValidColumn,
 			property.Table:    property.ValidColumn,
+			report.Table:      report.ValidColumn,
 			round.Table:       round.ValidColumn,
 			service.Table:     service.ValidColumn,
 			team.Table:        team.ValidColumn,

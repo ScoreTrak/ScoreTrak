@@ -17,13 +17,9 @@ import (
 type Round struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// CreateTime holds the value of the "create_time" field.
-	CreateTime time.Time `json:"create_time,omitempty"`
-	// UpdateTime holds the value of the "update_time" field.
-	UpdateTime time.Time `json:"update_time,omitempty"`
+	ID string `json:"id,omitempty"`
 	// CompetitionID holds the value of the "competition_id" field.
-	CompetitionID int `json:"competition_id,omitempty"`
+	CompetitionID string `json:"competition_id,omitempty"`
 	// RoundNumber holds the value of the "round_number" field.
 	RoundNumber int `json:"round_number,omitempty"`
 	// Note holds the value of the "note" field.
@@ -78,11 +74,11 @@ func (*Round) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case round.FieldID, round.FieldCompetitionID, round.FieldRoundNumber:
+		case round.FieldRoundNumber:
 			values[i] = new(sql.NullInt64)
-		case round.FieldNote, round.FieldErr:
+		case round.FieldID, round.FieldCompetitionID, round.FieldNote, round.FieldErr:
 			values[i] = new(sql.NullString)
-		case round.FieldCreateTime, round.FieldUpdateTime, round.FieldStartedAt, round.FieldFinishedAt:
+		case round.FieldStartedAt, round.FieldFinishedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -100,28 +96,16 @@ func (r *Round) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case round.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
-			}
-			r.ID = int(value.Int64)
-		case round.FieldCreateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field create_time", values[i])
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
-				r.CreateTime = value.Time
-			}
-		case round.FieldUpdateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field update_time", values[i])
-			} else if value.Valid {
-				r.UpdateTime = value.Time
+				r.ID = value.String
 			}
 		case round.FieldCompetitionID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field competition_id", values[i])
 			} else if value.Valid {
-				r.CompetitionID = int(value.Int64)
+				r.CompetitionID = value.String
 			}
 		case round.FieldRoundNumber:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -199,14 +183,8 @@ func (r *Round) String() string {
 	var builder strings.Builder
 	builder.WriteString("Round(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", r.ID))
-	builder.WriteString("create_time=")
-	builder.WriteString(r.CreateTime.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("update_time=")
-	builder.WriteString(r.UpdateTime.Format(time.ANSIC))
-	builder.WriteString(", ")
 	builder.WriteString("competition_id=")
-	builder.WriteString(fmt.Sprintf("%v", r.CompetitionID))
+	builder.WriteString(r.CompetitionID)
 	builder.WriteString(", ")
 	builder.WriteString("round_number=")
 	builder.WriteString(fmt.Sprintf("%v", r.RoundNumber))

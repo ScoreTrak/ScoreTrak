@@ -4,7 +4,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/mixin"
 )
 
 // Round holds the schema definition for the Round entity.
@@ -32,7 +31,7 @@ func (Round) Edges() []ent.Edge {
 
 func (Round) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		mixin.Time{},
+		BaseMixin{},
 		CompetitonMixin{},
 	}
 }

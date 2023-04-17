@@ -4,7 +4,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/mixin"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/privacy"
+	"github.com/gofrs/uuid"
 	"regexp"
 )
 
@@ -17,6 +18,7 @@ type User struct {
 func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("username").Match(regexp.MustCompile("/^[a-z0-9_]+$/")),
+		field.UUID("ory_id", uuid.UUID{}).StorageKey("oid").Immutable().Unique(),
 	}
 }
 
@@ -30,6 +32,18 @@ func (User) Edges() []ent.Edge {
 
 func (User) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		mixin.Time{},
+		BaseMixin{},
+		TimeMixin{},
+	}
+}
+
+func (User) Policy() ent.Policy {
+	return privacy.Policy{
+		Mutation: privacy.MutationPolicy{
+			privacy.AlwaysDenyRule(),
+		},
+		Query: privacy.QueryPolicy{
+			privacy.AlwaysAllowRule(),
+		},
 	}
 }

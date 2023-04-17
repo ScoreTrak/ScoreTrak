@@ -12,6 +12,6 @@ type PauseMixin struct {
 
 func (PauseMixin) Fields() []ent.Field {
 	return []ent.Field{
-		field.Bool("pause"),
+		field.Bool("pause").Optional(),
 	}
 }

@@ -145,15 +145,6 @@ func (c *Client) sendCreateCompetition(ctx context.Context, request *CreateCompe
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("createCompetition"),
 	}
-	// Validate request before sending.
-	if err := func() error {
-		if err := request.Validate(); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return res, errors.Wrap(err, "validate")
-	}
 
 	// Run stopwatch.
 	startTime := time.Now()
@@ -425,6 +416,77 @@ func (c *Client) sendCreateProperty(ctx context.Context, request *CreateProperty
 
 	stage = "DecodeResponse"
 	result, err := decodeCreatePropertyResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// CreateReport invokes createReport operation.
+//
+// Creates a new Report and persists it to storage.
+//
+// POST /reports
+func (c *Client) CreateReport(ctx context.Context, request *CreateReportReq) (CreateReportRes, error) {
+	res, err := c.sendCreateReport(ctx, request)
+	_ = res
+	return res, err
+}
+
+func (c *Client) sendCreateReport(ctx context.Context, request *CreateReportReq) (res CreateReportRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("createReport"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, otelAttrs...)
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, "CreateReport",
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, otelAttrs...)
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	u.Path += "/reports"
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u, nil)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCreateReportRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeCreateReportResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -769,7 +831,7 @@ func (c *Client) sendDeleteCheck(ctx context.Context, params DeleteCheckParams) 
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -851,7 +913,7 @@ func (c *Client) sendDeleteCompetition(ctx context.Context, params DeleteCompeti
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -933,7 +995,7 @@ func (c *Client) sendDeleteHost(ctx context.Context, params DeleteHostParams) (r
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -1015,7 +1077,7 @@ func (c *Client) sendDeleteHostGroup(ctx context.Context, params DeleteHostGroup
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -1097,7 +1159,7 @@ func (c *Client) sendDeleteProperty(ctx context.Context, params DeletePropertyPa
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -1119,6 +1181,88 @@ func (c *Client) sendDeleteProperty(ctx context.Context, params DeletePropertyPa
 
 	stage = "DecodeResponse"
 	result, err := decodeDeletePropertyResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// DeleteReport invokes deleteReport operation.
+//
+// Deletes the Report with the requested ID.
+//
+// DELETE /reports/{id}
+func (c *Client) DeleteReport(ctx context.Context, params DeleteReportParams) (DeleteReportRes, error) {
+	res, err := c.sendDeleteReport(ctx, params)
+	_ = res
+	return res, err
+}
+
+func (c *Client) sendDeleteReport(ctx context.Context, params DeleteReportParams) (res DeleteReportRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("deleteReport"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, otelAttrs...)
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, "DeleteReport",
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, otelAttrs...)
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	u.Path += "/reports/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.IntToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		u.Path += e.Result()
+	}
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "DELETE", u, nil)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeDeleteReportResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -1179,7 +1323,7 @@ func (c *Client) sendDeleteRound(ctx context.Context, params DeleteRoundParams) 
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -1261,7 +1405,7 @@ func (c *Client) sendDeleteService(ctx context.Context, params DeleteServicePara
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -1343,7 +1487,7 @@ func (c *Client) sendDeleteTeam(ctx context.Context, params DeleteTeamParams) (r
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -1425,7 +1569,7 @@ func (c *Client) sendDeleteUser(ctx context.Context, params DeleteUserParams) (r
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -1719,7 +1863,7 @@ func (c *Client) sendListCompetitionTeams(ctx context.Context, params ListCompet
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -1840,7 +1984,7 @@ func (c *Client) sendListCompetitionUsers(ctx context.Context, params ListCompet
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -2173,7 +2317,7 @@ func (c *Client) sendListHostGroupHosts(ctx context.Context, params ListHostGrou
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -2294,7 +2438,7 @@ func (c *Client) sendListHostServices(ctx context.Context, params ListHostServic
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -2468,6 +2612,112 @@ func (c *Client) sendListProperty(ctx context.Context, params ListPropertyParams
 	return result, nil
 }
 
+// ListReport invokes listReport operation.
+//
+// List Reports.
+//
+// GET /reports
+func (c *Client) ListReport(ctx context.Context, params ListReportParams) (ListReportRes, error) {
+	res, err := c.sendListReport(ctx, params)
+	_ = res
+	return res, err
+}
+
+func (c *Client) sendListReport(ctx context.Context, params ListReportParams) (res ListReportRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("listReport"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, otelAttrs...)
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, "ListReport",
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, otelAttrs...)
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	u.Path += "/reports"
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "page" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "page",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Page.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "itemsPerPage" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "itemsPerPage",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.ItemsPerPage.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeListReportResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // ListRound invokes listRound operation.
 //
 // List Rounds.
@@ -2627,7 +2877,7 @@ func (c *Client) sendListRoundChecks(ctx context.Context, params ListRoundChecks
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -2854,7 +3104,7 @@ func (c *Client) sendListServiceChecks(ctx context.Context, params ListServiceCh
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -2975,7 +3225,7 @@ func (c *Client) sendListServiceProperties(ctx context.Context, params ListServi
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -3202,7 +3452,7 @@ func (c *Client) sendListTeamHosts(ctx context.Context, params ListTeamHostsPara
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -3323,7 +3573,7 @@ func (c *Client) sendListTeamUsers(ctx context.Context, params ListTeamUsersPara
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -3550,7 +3800,7 @@ func (c *Client) sendListUserCompetitions(ctx context.Context, params ListUserCo
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -3671,7 +3921,7 @@ func (c *Client) sendListUserTeams(ctx context.Context, params ListUserTeamsPara
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -3792,7 +4042,7 @@ func (c *Client) sendReadCheck(ctx context.Context, params ReadCheckParams) (res
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -3874,7 +4124,7 @@ func (c *Client) sendReadCheckCompetition(ctx context.Context, params ReadCheckC
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -3957,7 +4207,7 @@ func (c *Client) sendReadCheckRounds(ctx context.Context, params ReadCheckRounds
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -4040,7 +4290,7 @@ func (c *Client) sendReadCheckServices(ctx context.Context, params ReadCheckServ
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -4123,7 +4373,7 @@ func (c *Client) sendReadCompetition(ctx context.Context, params ReadCompetition
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -4205,7 +4455,7 @@ func (c *Client) sendReadHost(ctx context.Context, params ReadHostParams) (res R
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -4287,7 +4537,7 @@ func (c *Client) sendReadHostCompetition(ctx context.Context, params ReadHostCom
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -4370,7 +4620,7 @@ func (c *Client) sendReadHostGroup(ctx context.Context, params ReadHostGroupPara
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -4452,7 +4702,7 @@ func (c *Client) sendReadHostGroupCompetition(ctx context.Context, params ReadHo
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -4535,7 +4785,7 @@ func (c *Client) sendReadHostGroupTeam(ctx context.Context, params ReadHostGroup
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -4618,7 +4868,7 @@ func (c *Client) sendReadHostHostGroup(ctx context.Context, params ReadHostHostG
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -4701,7 +4951,7 @@ func (c *Client) sendReadHostTeam(ctx context.Context, params ReadHostTeamParams
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -4784,7 +5034,7 @@ func (c *Client) sendReadProperty(ctx context.Context, params ReadPropertyParams
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -4866,7 +5116,7 @@ func (c *Client) sendReadPropertyCompetition(ctx context.Context, params ReadPro
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -4949,7 +5199,7 @@ func (c *Client) sendReadPropertyServices(ctx context.Context, params ReadProper
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -5032,7 +5282,7 @@ func (c *Client) sendReadPropertyTeam(ctx context.Context, params ReadPropertyTe
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -5055,6 +5305,88 @@ func (c *Client) sendReadPropertyTeam(ctx context.Context, params ReadPropertyTe
 
 	stage = "DecodeResponse"
 	result, err := decodeReadPropertyTeamResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// ReadReport invokes readReport operation.
+//
+// Finds the Report with the requested ID and returns it.
+//
+// GET /reports/{id}
+func (c *Client) ReadReport(ctx context.Context, params ReadReportParams) (ReadReportRes, error) {
+	res, err := c.sendReadReport(ctx, params)
+	_ = res
+	return res, err
+}
+
+func (c *Client) sendReadReport(ctx context.Context, params ReadReportParams) (res ReadReportRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("readReport"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, otelAttrs...)
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, "ReadReport",
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, otelAttrs...)
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	u.Path += "/reports/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.IntToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		u.Path += e.Result()
+	}
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeReadReportResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -5115,7 +5447,7 @@ func (c *Client) sendReadRound(ctx context.Context, params ReadRoundParams) (res
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -5197,7 +5529,7 @@ func (c *Client) sendReadRoundCompetition(ctx context.Context, params ReadRoundC
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -5280,7 +5612,7 @@ func (c *Client) sendReadService(ctx context.Context, params ReadServiceParams) 
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -5362,7 +5694,7 @@ func (c *Client) sendReadServiceCompetition(ctx context.Context, params ReadServ
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -5445,7 +5777,7 @@ func (c *Client) sendReadServiceHosts(ctx context.Context, params ReadServiceHos
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -5528,7 +5860,7 @@ func (c *Client) sendReadServiceTeam(ctx context.Context, params ReadServiceTeam
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -5611,7 +5943,7 @@ func (c *Client) sendReadTeam(ctx context.Context, params ReadTeamParams) (res R
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -5693,7 +6025,7 @@ func (c *Client) sendReadTeamCompetition(ctx context.Context, params ReadTeamCom
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -5776,7 +6108,7 @@ func (c *Client) sendReadUser(ctx context.Context, params ReadUserParams) (res R
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -5858,7 +6190,7 @@ func (c *Client) sendUpdateCheck(ctx context.Context, request *UpdateCheckReq, p
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -5905,15 +6237,6 @@ func (c *Client) sendUpdateCompetition(ctx context.Context, request *UpdateCompe
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateCompetition"),
 	}
-	// Validate request before sending.
-	if err := func() error {
-		if err := request.Validate(); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		return res, errors.Wrap(err, "validate")
-	}
 
 	// Run stopwatch.
 	startTime := time.Now()
@@ -5952,7 +6275,7 @@ func (c *Client) sendUpdateCompetition(ctx context.Context, request *UpdateCompe
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -6037,7 +6360,7 @@ func (c *Client) sendUpdateHost(ctx context.Context, request *UpdateHostReq, par
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -6122,7 +6445,7 @@ func (c *Client) sendUpdateHostGroup(ctx context.Context, request *UpdateHostGro
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -6216,7 +6539,7 @@ func (c *Client) sendUpdateProperty(ctx context.Context, request *UpdateProperty
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -6241,6 +6564,91 @@ func (c *Client) sendUpdateProperty(ctx context.Context, request *UpdateProperty
 
 	stage = "DecodeResponse"
 	result, err := decodeUpdatePropertyResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// UpdateReport invokes updateReport operation.
+//
+// Updates a Report and persists changes to storage.
+//
+// PATCH /reports/{id}
+func (c *Client) UpdateReport(ctx context.Context, request *UpdateReportReq, params UpdateReportParams) (UpdateReportRes, error) {
+	res, err := c.sendUpdateReport(ctx, request, params)
+	_ = res
+	return res, err
+}
+
+func (c *Client) sendUpdateReport(ctx context.Context, request *UpdateReportReq, params UpdateReportParams) (res UpdateReportRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("updateReport"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, otelAttrs...)
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, "UpdateReport",
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, otelAttrs...)
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	u.Path += "/reports/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.IntToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		u.Path += e.Result()
+	}
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PATCH", u, nil)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeUpdateReportRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeUpdateReportResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -6301,7 +6709,7 @@ func (c *Client) sendUpdateRound(ctx context.Context, request *UpdateRoundReq, p
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -6386,7 +6794,7 @@ func (c *Client) sendUpdateService(ctx context.Context, request *UpdateServiceRe
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -6471,7 +6879,7 @@ func (c *Client) sendUpdateTeam(ctx context.Context, request *UpdateTeamReq, par
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -6556,7 +6964,7 @@ func (c *Client) sendUpdateUser(ctx context.Context, request *UpdateUserReq, par
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.IntToString(params.ID))
+			return e.EncodeValue(conv.StringToString(params.ID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}

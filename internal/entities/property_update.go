@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -30,15 +29,9 @@ func (pu *PropertyUpdate) Where(ps ...predicate.Property) *PropertyUpdate {
 	return pu
 }
 
-// SetUpdateTime sets the "update_time" field.
-func (pu *PropertyUpdate) SetUpdateTime(t time.Time) *PropertyUpdate {
-	pu.mutation.SetUpdateTime(t)
-	return pu
-}
-
 // SetTeamID sets the "team_id" field.
-func (pu *PropertyUpdate) SetTeamID(i int) *PropertyUpdate {
-	pu.mutation.SetTeamID(i)
+func (pu *PropertyUpdate) SetTeamID(s string) *PropertyUpdate {
+	pu.mutation.SetTeamID(s)
 	return pu
 }
 
@@ -74,7 +67,7 @@ func (pu *PropertyUpdate) SetTeam(t *Team) *PropertyUpdate {
 }
 
 // SetServicesID sets the "services" edge to the Service entity by ID.
-func (pu *PropertyUpdate) SetServicesID(id int) *PropertyUpdate {
+func (pu *PropertyUpdate) SetServicesID(id string) *PropertyUpdate {
 	pu.mutation.SetServicesID(id)
 	return pu
 }
@@ -103,7 +96,6 @@ func (pu *PropertyUpdate) ClearServices() *PropertyUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (pu *PropertyUpdate) Save(ctx context.Context) (int, error) {
-	pu.defaults()
 	return withHooks[int, PropertyMutation](ctx, pu.sqlSave, pu.mutation, pu.hooks)
 }
 
@@ -126,14 +118,6 @@ func (pu *PropertyUpdate) Exec(ctx context.Context) error {
 func (pu *PropertyUpdate) ExecX(ctx context.Context) {
 	if err := pu.Exec(ctx); err != nil {
 		panic(err)
-	}
-}
-
-// defaults sets the default values of the builder before save.
-func (pu *PropertyUpdate) defaults() {
-	if _, ok := pu.mutation.UpdateTime(); !ok {
-		v := property.UpdateDefaultUpdateTime()
-		pu.mutation.SetUpdateTime(v)
 	}
 }
 
@@ -160,16 +144,13 @@ func (pu *PropertyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := pu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(property.Table, property.Columns, sqlgraph.NewFieldSpec(property.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(property.Table, property.Columns, sqlgraph.NewFieldSpec(property.FieldID, field.TypeString))
 	if ps := pu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := pu.mutation.UpdateTime(); ok {
-		_spec.SetField(property.FieldUpdateTime, field.TypeTime, value)
 	}
 	if value, ok := pu.mutation.Key(); ok {
 		_spec.SetField(property.FieldKey, field.TypeString, value)
@@ -188,7 +169,7 @@ func (pu *PropertyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{property.TeamColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -201,7 +182,7 @@ func (pu *PropertyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{property.TeamColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -217,7 +198,7 @@ func (pu *PropertyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{property.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -230,7 +211,7 @@ func (pu *PropertyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{property.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -258,15 +239,9 @@ type PropertyUpdateOne struct {
 	mutation *PropertyMutation
 }
 
-// SetUpdateTime sets the "update_time" field.
-func (puo *PropertyUpdateOne) SetUpdateTime(t time.Time) *PropertyUpdateOne {
-	puo.mutation.SetUpdateTime(t)
-	return puo
-}
-
 // SetTeamID sets the "team_id" field.
-func (puo *PropertyUpdateOne) SetTeamID(i int) *PropertyUpdateOne {
-	puo.mutation.SetTeamID(i)
+func (puo *PropertyUpdateOne) SetTeamID(s string) *PropertyUpdateOne {
+	puo.mutation.SetTeamID(s)
 	return puo
 }
 
@@ -302,7 +277,7 @@ func (puo *PropertyUpdateOne) SetTeam(t *Team) *PropertyUpdateOne {
 }
 
 // SetServicesID sets the "services" edge to the Service entity by ID.
-func (puo *PropertyUpdateOne) SetServicesID(id int) *PropertyUpdateOne {
+func (puo *PropertyUpdateOne) SetServicesID(id string) *PropertyUpdateOne {
 	puo.mutation.SetServicesID(id)
 	return puo
 }
@@ -344,7 +319,6 @@ func (puo *PropertyUpdateOne) Select(field string, fields ...string) *PropertyUp
 
 // Save executes the query and returns the updated Property entity.
 func (puo *PropertyUpdateOne) Save(ctx context.Context) (*Property, error) {
-	puo.defaults()
 	return withHooks[*Property, PropertyMutation](ctx, puo.sqlSave, puo.mutation, puo.hooks)
 }
 
@@ -367,14 +341,6 @@ func (puo *PropertyUpdateOne) Exec(ctx context.Context) error {
 func (puo *PropertyUpdateOne) ExecX(ctx context.Context) {
 	if err := puo.Exec(ctx); err != nil {
 		panic(err)
-	}
-}
-
-// defaults sets the default values of the builder before save.
-func (puo *PropertyUpdateOne) defaults() {
-	if _, ok := puo.mutation.UpdateTime(); !ok {
-		v := property.UpdateDefaultUpdateTime()
-		puo.mutation.SetUpdateTime(v)
 	}
 }
 
@@ -401,7 +367,7 @@ func (puo *PropertyUpdateOne) sqlSave(ctx context.Context) (_node *Property, err
 	if err := puo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(property.Table, property.Columns, sqlgraph.NewFieldSpec(property.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(property.Table, property.Columns, sqlgraph.NewFieldSpec(property.FieldID, field.TypeString))
 	id, ok := puo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`entities: missing "Property.id" for update`)}
@@ -426,9 +392,6 @@ func (puo *PropertyUpdateOne) sqlSave(ctx context.Context) (_node *Property, err
 			}
 		}
 	}
-	if value, ok := puo.mutation.UpdateTime(); ok {
-		_spec.SetField(property.FieldUpdateTime, field.TypeTime, value)
-	}
 	if value, ok := puo.mutation.Key(); ok {
 		_spec.SetField(property.FieldKey, field.TypeString, value)
 	}
@@ -446,7 +409,7 @@ func (puo *PropertyUpdateOne) sqlSave(ctx context.Context) (_node *Property, err
 			Columns: []string{property.TeamColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -459,7 +422,7 @@ func (puo *PropertyUpdateOne) sqlSave(ctx context.Context) (_node *Property, err
 			Columns: []string{property.TeamColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -475,7 +438,7 @@ func (puo *PropertyUpdateOne) sqlSave(ctx context.Context) (_node *Property, err
 			Columns: []string{property.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -488,7 +451,7 @@ func (puo *PropertyUpdateOne) sqlSave(ctx context.Context) (_node *Property, err
 			Columns: []string{property.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

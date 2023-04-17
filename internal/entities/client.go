@@ -19,6 +19,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostgroup"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/property"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/report"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/round"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
@@ -40,6 +41,8 @@ type Client struct {
 	HostGroup *HostGroupClient
 	// Property is the client for interacting with the Property builders.
 	Property *PropertyClient
+	// Report is the client for interacting with the Report builders.
+	Report *ReportClient
 	// Round is the client for interacting with the Round builders.
 	Round *RoundClient
 	// Service is the client for interacting with the Service builders.
@@ -66,6 +69,7 @@ func (c *Client) init() {
 	c.Host = NewHostClient(c.config)
 	c.HostGroup = NewHostGroupClient(c.config)
 	c.Property = NewPropertyClient(c.config)
+	c.Report = NewReportClient(c.config)
 	c.Round = NewRoundClient(c.config)
 	c.Service = NewServiceClient(c.config)
 	c.Team = NewTeamClient(c.config)
@@ -157,6 +161,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Host:        NewHostClient(cfg),
 		HostGroup:   NewHostGroupClient(cfg),
 		Property:    NewPropertyClient(cfg),
+		Report:      NewReportClient(cfg),
 		Round:       NewRoundClient(cfg),
 		Service:     NewServiceClient(cfg),
 		Team:        NewTeamClient(cfg),
@@ -185,6 +190,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Host:        NewHostClient(cfg),
 		HostGroup:   NewHostGroupClient(cfg),
 		Property:    NewPropertyClient(cfg),
+		Report:      NewReportClient(cfg),
 		Round:       NewRoundClient(cfg),
 		Service:     NewServiceClient(cfg),
 		Team:        NewTeamClient(cfg),
@@ -218,8 +224,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Check, c.Competition, c.Host, c.HostGroup, c.Property, c.Round, c.Service,
-		c.Team, c.User,
+		c.Check, c.Competition, c.Host, c.HostGroup, c.Property, c.Report, c.Round,
+		c.Service, c.Team, c.User,
 	} {
 		n.Use(hooks...)
 	}
@@ -229,8 +235,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Check, c.Competition, c.Host, c.HostGroup, c.Property, c.Round, c.Service,
-		c.Team, c.User,
+		c.Check, c.Competition, c.Host, c.HostGroup, c.Property, c.Report, c.Round,
+		c.Service, c.Team, c.User,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -249,6 +255,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.HostGroup.mutate(ctx, m)
 	case *PropertyMutation:
 		return c.Property.mutate(ctx, m)
+	case *ReportMutation:
+		return c.Report.mutate(ctx, m)
 	case *RoundMutation:
 		return c.Round.mutate(ctx, m)
 	case *ServiceMutation:
@@ -308,7 +316,7 @@ func (c *CheckClient) UpdateOne(ch *Check) *CheckUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *CheckClient) UpdateOneID(id int) *CheckUpdateOne {
+func (c *CheckClient) UpdateOneID(id string) *CheckUpdateOne {
 	mutation := newCheckMutation(c.config, OpUpdateOne, withCheckID(id))
 	return &CheckUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -325,7 +333,7 @@ func (c *CheckClient) DeleteOne(ch *Check) *CheckDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *CheckClient) DeleteOneID(id int) *CheckDeleteOne {
+func (c *CheckClient) DeleteOneID(id string) *CheckDeleteOne {
 	builder := c.Delete().Where(check.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -342,12 +350,12 @@ func (c *CheckClient) Query() *CheckQuery {
 }
 
 // Get returns a Check entity by its id.
-func (c *CheckClient) Get(ctx context.Context, id int) (*Check, error) {
+func (c *CheckClient) Get(ctx context.Context, id string) (*Check, error) {
 	return c.Query().Where(check.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *CheckClient) GetX(ctx context.Context, id int) *Check {
+func (c *CheckClient) GetX(ctx context.Context, id string) *Check {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -474,7 +482,7 @@ func (c *CompetitionClient) UpdateOne(co *Competition) *CompetitionUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *CompetitionClient) UpdateOneID(id int) *CompetitionUpdateOne {
+func (c *CompetitionClient) UpdateOneID(id string) *CompetitionUpdateOne {
 	mutation := newCompetitionMutation(c.config, OpUpdateOne, withCompetitionID(id))
 	return &CompetitionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -491,7 +499,7 @@ func (c *CompetitionClient) DeleteOne(co *Competition) *CompetitionDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *CompetitionClient) DeleteOneID(id int) *CompetitionDeleteOne {
+func (c *CompetitionClient) DeleteOneID(id string) *CompetitionDeleteOne {
 	builder := c.Delete().Where(competition.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -508,12 +516,12 @@ func (c *CompetitionClient) Query() *CompetitionQuery {
 }
 
 // Get returns a Competition entity by its id.
-func (c *CompetitionClient) Get(ctx context.Context, id int) (*Competition, error) {
+func (c *CompetitionClient) Get(ctx context.Context, id string) (*Competition, error) {
 	return c.Query().Where(competition.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *CompetitionClient) GetX(ctx context.Context, id int) *Competition {
+func (c *CompetitionClient) GetX(ctx context.Context, id string) *Competition {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -555,7 +563,8 @@ func (c *CompetitionClient) QueryUsers(co *Competition) *UserQuery {
 
 // Hooks returns the client hooks.
 func (c *CompetitionClient) Hooks() []Hook {
-	return c.hooks.Competition
+	hooks := c.hooks.Competition
+	return append(hooks[:len(hooks):len(hooks)], competition.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -624,7 +633,7 @@ func (c *HostClient) UpdateOne(h *Host) *HostUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *HostClient) UpdateOneID(id int) *HostUpdateOne {
+func (c *HostClient) UpdateOneID(id string) *HostUpdateOne {
 	mutation := newHostMutation(c.config, OpUpdateOne, withHostID(id))
 	return &HostUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -641,7 +650,7 @@ func (c *HostClient) DeleteOne(h *Host) *HostDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *HostClient) DeleteOneID(id int) *HostDeleteOne {
+func (c *HostClient) DeleteOneID(id string) *HostDeleteOne {
 	builder := c.Delete().Where(host.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -658,12 +667,12 @@ func (c *HostClient) Query() *HostQuery {
 }
 
 // Get returns a Host entity by its id.
-func (c *HostClient) Get(ctx context.Context, id int) (*Host, error) {
+func (c *HostClient) Get(ctx context.Context, id string) (*Host, error) {
 	return c.Query().Where(host.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *HostClient) GetX(ctx context.Context, id int) *Host {
+func (c *HostClient) GetX(ctx context.Context, id string) *Host {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -806,7 +815,7 @@ func (c *HostGroupClient) UpdateOne(hg *HostGroup) *HostGroupUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *HostGroupClient) UpdateOneID(id int) *HostGroupUpdateOne {
+func (c *HostGroupClient) UpdateOneID(id string) *HostGroupUpdateOne {
 	mutation := newHostGroupMutation(c.config, OpUpdateOne, withHostGroupID(id))
 	return &HostGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -823,7 +832,7 @@ func (c *HostGroupClient) DeleteOne(hg *HostGroup) *HostGroupDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *HostGroupClient) DeleteOneID(id int) *HostGroupDeleteOne {
+func (c *HostGroupClient) DeleteOneID(id string) *HostGroupDeleteOne {
 	builder := c.Delete().Where(hostgroup.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -840,12 +849,12 @@ func (c *HostGroupClient) Query() *HostGroupQuery {
 }
 
 // Get returns a HostGroup entity by its id.
-func (c *HostGroupClient) Get(ctx context.Context, id int) (*HostGroup, error) {
+func (c *HostGroupClient) Get(ctx context.Context, id string) (*HostGroup, error) {
 	return c.Query().Where(hostgroup.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *HostGroupClient) GetX(ctx context.Context, id int) *HostGroup {
+func (c *HostGroupClient) GetX(ctx context.Context, id string) *HostGroup {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -972,7 +981,7 @@ func (c *PropertyClient) UpdateOne(pr *Property) *PropertyUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *PropertyClient) UpdateOneID(id int) *PropertyUpdateOne {
+func (c *PropertyClient) UpdateOneID(id string) *PropertyUpdateOne {
 	mutation := newPropertyMutation(c.config, OpUpdateOne, withPropertyID(id))
 	return &PropertyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -989,7 +998,7 @@ func (c *PropertyClient) DeleteOne(pr *Property) *PropertyDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *PropertyClient) DeleteOneID(id int) *PropertyDeleteOne {
+func (c *PropertyClient) DeleteOneID(id string) *PropertyDeleteOne {
 	builder := c.Delete().Where(property.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1006,12 +1015,12 @@ func (c *PropertyClient) Query() *PropertyQuery {
 }
 
 // Get returns a Property entity by its id.
-func (c *PropertyClient) Get(ctx context.Context, id int) (*Property, error) {
+func (c *PropertyClient) Get(ctx context.Context, id string) (*Property, error) {
 	return c.Query().Where(property.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *PropertyClient) GetX(ctx context.Context, id int) *Property {
+func (c *PropertyClient) GetX(ctx context.Context, id string) *Property {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -1092,6 +1101,124 @@ func (c *PropertyClient) mutate(ctx context.Context, m *PropertyMutation) (Value
 	}
 }
 
+// ReportClient is a client for the Report schema.
+type ReportClient struct {
+	config
+}
+
+// NewReportClient returns a client for the Report from the given config.
+func NewReportClient(c config) *ReportClient {
+	return &ReportClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `report.Hooks(f(g(h())))`.
+func (c *ReportClient) Use(hooks ...Hook) {
+	c.hooks.Report = append(c.hooks.Report, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `report.Intercept(f(g(h())))`.
+func (c *ReportClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Report = append(c.inters.Report, interceptors...)
+}
+
+// Create returns a builder for creating a Report entity.
+func (c *ReportClient) Create() *ReportCreate {
+	mutation := newReportMutation(c.config, OpCreate)
+	return &ReportCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Report entities.
+func (c *ReportClient) CreateBulk(builders ...*ReportCreate) *ReportCreateBulk {
+	return &ReportCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Report.
+func (c *ReportClient) Update() *ReportUpdate {
+	mutation := newReportMutation(c.config, OpUpdate)
+	return &ReportUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ReportClient) UpdateOne(r *Report) *ReportUpdateOne {
+	mutation := newReportMutation(c.config, OpUpdateOne, withReport(r))
+	return &ReportUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ReportClient) UpdateOneID(id int) *ReportUpdateOne {
+	mutation := newReportMutation(c.config, OpUpdateOne, withReportID(id))
+	return &ReportUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Report.
+func (c *ReportClient) Delete() *ReportDelete {
+	mutation := newReportMutation(c.config, OpDelete)
+	return &ReportDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ReportClient) DeleteOne(r *Report) *ReportDeleteOne {
+	return c.DeleteOneID(r.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ReportClient) DeleteOneID(id int) *ReportDeleteOne {
+	builder := c.Delete().Where(report.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ReportDeleteOne{builder}
+}
+
+// Query returns a query builder for Report.
+func (c *ReportClient) Query() *ReportQuery {
+	return &ReportQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeReport},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Report entity by its id.
+func (c *ReportClient) Get(ctx context.Context, id int) (*Report, error) {
+	return c.Query().Where(report.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ReportClient) GetX(ctx context.Context, id int) *Report {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *ReportClient) Hooks() []Hook {
+	return c.hooks.Report
+}
+
+// Interceptors returns the client interceptors.
+func (c *ReportClient) Interceptors() []Interceptor {
+	return c.inters.Report
+}
+
+func (c *ReportClient) mutate(ctx context.Context, m *ReportMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ReportCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ReportUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ReportUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ReportDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("entities: unknown Report mutation op: %q", m.Op())
+	}
+}
+
 // RoundClient is a client for the Round schema.
 type RoundClient struct {
 	config
@@ -1138,7 +1265,7 @@ func (c *RoundClient) UpdateOne(r *Round) *RoundUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *RoundClient) UpdateOneID(id int) *RoundUpdateOne {
+func (c *RoundClient) UpdateOneID(id string) *RoundUpdateOne {
 	mutation := newRoundMutation(c.config, OpUpdateOne, withRoundID(id))
 	return &RoundUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1155,7 +1282,7 @@ func (c *RoundClient) DeleteOne(r *Round) *RoundDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *RoundClient) DeleteOneID(id int) *RoundDeleteOne {
+func (c *RoundClient) DeleteOneID(id string) *RoundDeleteOne {
 	builder := c.Delete().Where(round.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1172,12 +1299,12 @@ func (c *RoundClient) Query() *RoundQuery {
 }
 
 // Get returns a Round entity by its id.
-func (c *RoundClient) Get(ctx context.Context, id int) (*Round, error) {
+func (c *RoundClient) Get(ctx context.Context, id string) (*Round, error) {
 	return c.Query().Where(round.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *RoundClient) GetX(ctx context.Context, id int) *Round {
+func (c *RoundClient) GetX(ctx context.Context, id string) *Round {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -1288,7 +1415,7 @@ func (c *ServiceClient) UpdateOne(s *Service) *ServiceUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *ServiceClient) UpdateOneID(id int) *ServiceUpdateOne {
+func (c *ServiceClient) UpdateOneID(id string) *ServiceUpdateOne {
 	mutation := newServiceMutation(c.config, OpUpdateOne, withServiceID(id))
 	return &ServiceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1305,7 +1432,7 @@ func (c *ServiceClient) DeleteOne(s *Service) *ServiceDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ServiceClient) DeleteOneID(id int) *ServiceDeleteOne {
+func (c *ServiceClient) DeleteOneID(id string) *ServiceDeleteOne {
 	builder := c.Delete().Where(service.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1322,12 +1449,12 @@ func (c *ServiceClient) Query() *ServiceQuery {
 }
 
 // Get returns a Service entity by its id.
-func (c *ServiceClient) Get(ctx context.Context, id int) (*Service, error) {
+func (c *ServiceClient) Get(ctx context.Context, id string) (*Service, error) {
 	return c.Query().Where(service.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *ServiceClient) GetX(ctx context.Context, id int) *Service {
+func (c *ServiceClient) GetX(ctx context.Context, id string) *Service {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -1486,7 +1613,7 @@ func (c *TeamClient) UpdateOne(t *Team) *TeamUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *TeamClient) UpdateOneID(id int) *TeamUpdateOne {
+func (c *TeamClient) UpdateOneID(id string) *TeamUpdateOne {
 	mutation := newTeamMutation(c.config, OpUpdateOne, withTeamID(id))
 	return &TeamUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1503,7 +1630,7 @@ func (c *TeamClient) DeleteOne(t *Team) *TeamDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *TeamClient) DeleteOneID(id int) *TeamDeleteOne {
+func (c *TeamClient) DeleteOneID(id string) *TeamDeleteOne {
 	builder := c.Delete().Where(team.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1520,12 +1647,12 @@ func (c *TeamClient) Query() *TeamQuery {
 }
 
 // Get returns a Team entity by its id.
-func (c *TeamClient) Get(ctx context.Context, id int) (*Team, error) {
+func (c *TeamClient) Get(ctx context.Context, id string) (*Team, error) {
 	return c.Query().Where(team.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *TeamClient) GetX(ctx context.Context, id int) *Team {
+func (c *TeamClient) GetX(ctx context.Context, id string) *Team {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -1652,7 +1779,7 @@ func (c *UserClient) UpdateOne(u *User) *UserUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *UserClient) UpdateOneID(id int) *UserUpdateOne {
+func (c *UserClient) UpdateOneID(id string) *UserUpdateOne {
 	mutation := newUserMutation(c.config, OpUpdateOne, withUserID(id))
 	return &UserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1669,7 +1796,7 @@ func (c *UserClient) DeleteOne(u *User) *UserDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *UserClient) DeleteOneID(id int) *UserDeleteOne {
+func (c *UserClient) DeleteOneID(id string) *UserDeleteOne {
 	builder := c.Delete().Where(user.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1686,12 +1813,12 @@ func (c *UserClient) Query() *UserQuery {
 }
 
 // Get returns a User entity by its id.
-func (c *UserClient) Get(ctx context.Context, id int) (*User, error) {
+func (c *UserClient) Get(ctx context.Context, id string) (*User, error) {
 	return c.Query().Where(user.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *UserClient) GetX(ctx context.Context, id int) *User {
+func (c *UserClient) GetX(ctx context.Context, id string) *User {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -1733,7 +1860,8 @@ func (c *UserClient) QueryCompetitions(u *User) *CompetitionQuery {
 
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
-	return c.hooks.User
+	hooks := c.hooks.User
+	return append(hooks[:len(hooks):len(hooks)], user.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
@@ -1759,11 +1887,11 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Check, Competition, Host, HostGroup, Property, Round, Service, Team,
+		Check, Competition, Host, HostGroup, Property, Report, Round, Service, Team,
 		User []ent.Hook
 	}
 	inters struct {
-		Check, Competition, Host, HostGroup, Property, Round, Service, Team,
+		Check, Competition, Host, HostGroup, Property, Report, Round, Service, Team,
 		User []ent.Interceptor
 	}
 )

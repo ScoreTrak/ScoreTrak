@@ -2,10 +2,10 @@ import type { AxiosInstance, AxiosRequestConfig } from "axios";
 import { useQuery, useMutation, useQueryClient, type QueryClient, type UseMutationOptions, type UseQueryOptions, type MutationFunction, type UseMutationResult, type UseQueryResult } from "@tanstack/react-query";
 export type Check = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     log: string;
     error: string;
@@ -16,10 +16,10 @@ export type Check = {
 };
 export type CheckCreate = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     log: string;
     error: string;
@@ -27,10 +27,10 @@ export type CheckCreate = {
 };
 export type CheckList = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     log: string;
     error: string;
@@ -38,10 +38,10 @@ export type CheckList = {
 };
 export type CheckRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     log: string;
     error: string;
@@ -49,10 +49,10 @@ export type CheckRead = {
 };
 export type CheckUpdate = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     log: string;
     error: string;
@@ -60,21 +60,21 @@ export type CheckUpdate = {
 };
 export type CheckCompetitionRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    hidden: boolean;
-    pause: boolean;
+    create_time?: string;
+    update_time?: string;
+    hidden?: boolean;
+    pause?: boolean;
     name: string;
     display_name: string;
-    round_duration: number;
+    viewable_to_public?: boolean;
     to_be_started_at?: string;
     started_at?: string;
     finished_at?: string;
 };
 export type CheckRoundsRead = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     competition_id: number;
     round_number: number;
     note: string;
@@ -84,10 +84,10 @@ export type CheckRoundsRead = {
 };
 export type CheckServicesRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     name: string;
@@ -99,13 +99,13 @@ export type CheckServicesRead = {
 };
 export type Competition = {
     id: number;
-    create_time: string;
-    update_time: string;
-    hidden: boolean;
-    pause: boolean;
+    create_time?: string;
+    update_time?: string;
+    hidden?: boolean;
+    pause?: boolean;
     name: string;
     display_name: string;
-    round_duration: number;
+    viewable_to_public?: boolean;
     to_be_started_at?: string;
     started_at?: string;
     finished_at?: string;
@@ -114,78 +114,78 @@ export type Competition = {
 };
 export type CompetitionCreate = {
     id: number;
-    create_time: string;
-    update_time: string;
-    hidden: boolean;
-    pause: boolean;
+    create_time?: string;
+    update_time?: string;
+    hidden?: boolean;
+    pause?: boolean;
     name: string;
     display_name: string;
-    round_duration: number;
+    viewable_to_public?: boolean;
     to_be_started_at?: string;
     started_at?: string;
     finished_at?: string;
 };
 export type CompetitionList = {
     id: number;
-    create_time: string;
-    update_time: string;
-    hidden: boolean;
-    pause: boolean;
+    create_time?: string;
+    update_time?: string;
+    hidden?: boolean;
+    pause?: boolean;
     name: string;
     display_name: string;
-    round_duration: number;
+    viewable_to_public?: boolean;
     to_be_started_at?: string;
     started_at?: string;
     finished_at?: string;
 };
 export type CompetitionRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    hidden: boolean;
-    pause: boolean;
+    create_time?: string;
+    update_time?: string;
+    hidden?: boolean;
+    pause?: boolean;
     name: string;
     display_name: string;
-    round_duration: number;
+    viewable_to_public?: boolean;
     to_be_started_at?: string;
     started_at?: string;
     finished_at?: string;
 };
 export type CompetitionUpdate = {
     id: number;
-    create_time: string;
-    update_time: string;
-    hidden: boolean;
-    pause: boolean;
+    create_time?: string;
+    update_time?: string;
+    hidden?: boolean;
+    pause?: boolean;
     name: string;
     display_name: string;
-    round_duration: number;
+    viewable_to_public?: boolean;
     to_be_started_at?: string;
     started_at?: string;
     finished_at?: string;
 };
 export type CompetitionTeamsList = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     name: string;
-    index: number;
+    index?: number;
 };
 export type CompetitionUsersList = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     username: string;
 };
 export type Host = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     address: string;
@@ -198,10 +198,10 @@ export type Host = {
 };
 export type HostCreate = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     address: string;
@@ -210,10 +210,10 @@ export type HostCreate = {
 };
 export type HostGroup = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     name: string;
@@ -223,63 +223,63 @@ export type HostGroup = {
 };
 export type HostGroupCreate = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     name: string;
 };
 export type HostGroupList = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     name: string;
 };
 export type HostGroupRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     name: string;
 };
 export type HostGroupUpdate = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     name: string;
 };
 export type HostGroupCompetitionRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    hidden: boolean;
-    pause: boolean;
+    create_time?: string;
+    update_time?: string;
+    hidden?: boolean;
+    pause?: boolean;
     name: string;
     display_name: string;
-    round_duration: number;
+    viewable_to_public?: boolean;
     to_be_started_at?: string;
     started_at?: string;
     finished_at?: string;
 };
 export type HostGroupHostsList = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     address: string;
@@ -288,20 +288,20 @@ export type HostGroupHostsList = {
 };
 export type HostGroupTeamRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     name: string;
-    index: number;
+    index?: number;
 };
 export type HostList = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     address: string;
@@ -310,10 +310,10 @@ export type HostList = {
 };
 export type HostRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     address: string;
@@ -322,10 +322,10 @@ export type HostRead = {
 };
 export type HostUpdate = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     address: string;
@@ -334,33 +334,33 @@ export type HostUpdate = {
 };
 export type HostCompetitionRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    hidden: boolean;
-    pause: boolean;
+    create_time?: string;
+    update_time?: string;
+    hidden?: boolean;
+    pause?: boolean;
     name: string;
     display_name: string;
-    round_duration: number;
+    viewable_to_public?: boolean;
     to_be_started_at?: string;
     started_at?: string;
     finished_at?: string;
 };
 export type HostHostGroupRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     name: string;
 };
 export type HostServicesList = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     name: string;
@@ -372,18 +372,18 @@ export type HostServicesList = {
 };
 export type HostTeamRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     name: string;
-    index: number;
+    index?: number;
 };
 export type Property = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     competition_id: number;
     team_id: number;
     key: string;
@@ -395,8 +395,8 @@ export type Property = {
 };
 export type PropertyCreate = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     competition_id: number;
     team_id: number;
     key: string;
@@ -405,8 +405,8 @@ export type PropertyCreate = {
 };
 export type PropertyList = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     competition_id: number;
     team_id: number;
     key: string;
@@ -415,8 +415,8 @@ export type PropertyList = {
 };
 export type PropertyRead = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     competition_id: number;
     team_id: number;
     key: string;
@@ -425,8 +425,8 @@ export type PropertyRead = {
 };
 export type PropertyUpdate = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     competition_id: number;
     team_id: number;
     key: string;
@@ -435,23 +435,23 @@ export type PropertyUpdate = {
 };
 export type PropertyCompetitionRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    hidden: boolean;
-    pause: boolean;
+    create_time?: string;
+    update_time?: string;
+    hidden?: boolean;
+    pause?: boolean;
     name: string;
     display_name: string;
-    round_duration: number;
+    viewable_to_public?: boolean;
     to_be_started_at?: string;
     started_at?: string;
     finished_at?: string;
 };
 export type PropertyServicesRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     name: string;
@@ -463,18 +463,43 @@ export type PropertyServicesRead = {
 };
 export type PropertyTeamRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     name: string;
-    index: number;
+    index?: number;
+};
+export type Report = {
+    id: number;
+    log: string;
+    error: string;
+};
+export type ReportCreate = {
+    id: number;
+    log: string;
+    error: string;
+};
+export type ReportList = {
+    id: number;
+    log: string;
+    error: string;
+};
+export type ReportRead = {
+    id: number;
+    log: string;
+    error: string;
+};
+export type ReportUpdate = {
+    id: number;
+    log: string;
+    error: string;
 };
 export type Round = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     competition_id: number;
     round_number: number;
     note: string;
@@ -486,8 +511,8 @@ export type Round = {
 };
 export type RoundCreate = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     competition_id: number;
     round_number: number;
     note: string;
@@ -497,8 +522,8 @@ export type RoundCreate = {
 };
 export type RoundList = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     competition_id: number;
     round_number: number;
     note: string;
@@ -508,8 +533,8 @@ export type RoundList = {
 };
 export type RoundRead = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     competition_id: number;
     round_number: number;
     note: string;
@@ -519,8 +544,8 @@ export type RoundRead = {
 };
 export type RoundUpdate = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     competition_id: number;
     round_number: number;
     note: string;
@@ -530,10 +555,10 @@ export type RoundUpdate = {
 };
 export type RoundChecksList = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     log: string;
     error: string;
@@ -541,23 +566,23 @@ export type RoundChecksList = {
 };
 export type RoundCompetitionRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    hidden: boolean;
-    pause: boolean;
+    create_time?: string;
+    update_time?: string;
+    hidden?: boolean;
+    pause?: boolean;
     name: string;
     display_name: string;
-    round_duration: number;
+    viewable_to_public?: boolean;
     to_be_started_at?: string;
     started_at?: string;
     finished_at?: string;
 };
 export type Service = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     name: string;
@@ -574,10 +599,10 @@ export type Service = {
 };
 export type ServiceCreate = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     name: string;
@@ -589,10 +614,10 @@ export type ServiceCreate = {
 };
 export type ServiceList = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     name: string;
@@ -604,10 +629,10 @@ export type ServiceList = {
 };
 export type ServiceRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     name: string;
@@ -619,10 +644,10 @@ export type ServiceRead = {
 };
 export type ServiceUpdate = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     name: string;
@@ -634,10 +659,10 @@ export type ServiceUpdate = {
 };
 export type ServiceChecksList = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     log: string;
     error: string;
@@ -645,23 +670,23 @@ export type ServiceChecksList = {
 };
 export type ServiceCompetitionRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    hidden: boolean;
-    pause: boolean;
+    create_time?: string;
+    update_time?: string;
+    hidden?: boolean;
+    pause?: boolean;
     name: string;
     display_name: string;
-    round_duration: number;
+    viewable_to_public?: boolean;
     to_be_started_at?: string;
     started_at?: string;
     finished_at?: string;
 };
 export type ServiceHostsRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     address: string;
@@ -670,8 +695,8 @@ export type ServiceHostsRead = {
 };
 export type ServicePropertiesList = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     competition_id: number;
     team_id: number;
     key: string;
@@ -680,86 +705,86 @@ export type ServicePropertiesList = {
 };
 export type ServiceTeamRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     name: string;
-    index: number;
+    index?: number;
 };
 export type Team = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     name: string;
-    index: number;
+    index?: number;
     competition: Competition;
     users?: User[];
     hosts?: Host[];
 };
 export type TeamCreate = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     name: string;
-    index: number;
+    index?: number;
 };
 export type TeamList = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     name: string;
-    index: number;
+    index?: number;
 };
 export type TeamRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     name: string;
-    index: number;
+    index?: number;
 };
 export type TeamUpdate = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     name: string;
-    index: number;
+    index?: number;
 };
 export type TeamCompetitionRead = {
     id: number;
-    create_time: string;
-    update_time: string;
-    hidden: boolean;
-    pause: boolean;
+    create_time?: string;
+    update_time?: string;
+    hidden?: boolean;
+    pause?: boolean;
     name: string;
     display_name: string;
-    round_duration: number;
+    viewable_to_public?: boolean;
     to_be_started_at?: string;
     started_at?: string;
     finished_at?: string;
 };
 export type TeamHostsList = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     team_id: number;
     address: string;
@@ -768,64 +793,64 @@ export type TeamHostsList = {
 };
 export type TeamUsersList = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     username: string;
 };
 export type User = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     username: string;
     teams?: Team[];
     competitions?: Competition[];
 };
 export type UserCreate = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     username: string;
 };
 export type UserList = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     username: string;
 };
 export type UserRead = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     username: string;
 };
 export type UserUpdate = {
     id: number;
-    create_time: string;
-    update_time: string;
+    create_time?: string;
+    update_time?: string;
     username: string;
 };
 export type UserCompetitionsList = {
     id: number;
-    create_time: string;
-    update_time: string;
-    hidden: boolean;
-    pause: boolean;
+    create_time?: string;
+    update_time?: string;
+    hidden?: boolean;
+    pause?: boolean;
     name: string;
     display_name: string;
-    round_duration: number;
+    viewable_to_public?: boolean;
     to_be_started_at?: string;
     started_at?: string;
     finished_at?: string;
 };
 export type UserTeamsList = {
     id: number;
-    create_time: string;
-    update_time: string;
-    pause: boolean;
-    hidden: boolean;
+    create_time?: string;
+    update_time?: string;
+    pause?: boolean;
+    hidden?: boolean;
     competition_id: number;
     name: string;
-    index: number;
+    index?: number;
 };
 export type AxiosConfig = {
     paramsSerializer?: AxiosRequestConfig["paramsSerializer"];
@@ -892,6 +917,8 @@ export const queryKeys = {
     readPropertyCompetition: (id: number) => ["readPropertyCompetition", id] as const,
     readPropertyServices: (id: number) => ["readPropertyServices", id] as const,
     readPropertyTeam: (id: number) => ["readPropertyTeam", id] as const,
+    listReport: (page?: number, itemsPerPage?: number) => ["listReport", nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
+    readReport: (id: number) => ["readReport", id] as const,
     listRound: (page?: number, itemsPerPage?: number) => ["listRound", nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
     readRound: (id: number) => ["readRound", id] as const,
     listRoundChecks: (id: number, page?: number, itemsPerPage?: number) => ["listRoundChecks", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
@@ -926,10 +953,10 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         createCheck: (payload: {
-            create_time: string;
-            update_time: string;
-            pause: boolean;
-            hidden: boolean;
+            create_time?: string;
+            update_time?: string;
+            pause?: boolean;
+            hidden?: boolean;
             competition_id: number;
             log: string;
             error: string;
@@ -987,13 +1014,13 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         createCompetition: (payload: {
-            create_time: string;
-            update_time: string;
-            hidden: boolean;
-            pause: boolean;
+            create_time?: string;
+            update_time?: string;
+            hidden?: boolean;
+            pause?: boolean;
             name: string;
             display_name: string;
-            round_duration: number;
+            viewable_to_public?: boolean;
             to_be_started_at?: string;
             started_at?: string;
             finished_at?: string;
@@ -1018,7 +1045,7 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             pause?: boolean;
             name?: string;
             display_name?: string;
-            round_duration?: number;
+            viewable_to_public?: boolean;
             to_be_started_at?: string;
             started_at?: string;
             finished_at?: string;
@@ -1057,10 +1084,10 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         createHostGroup: (payload: {
-            create_time: string;
-            update_time: string;
-            pause: boolean;
-            hidden: boolean;
+            create_time?: string;
+            update_time?: string;
+            pause?: boolean;
+            hidden?: boolean;
             competition_id: number;
             team_id: number;
             name: string;
@@ -1084,6 +1111,7 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             update_time?: string;
             pause?: boolean;
             hidden?: boolean;
+            team_id?: number;
             name?: string;
             competition?: number;
             team?: number;
@@ -1120,10 +1148,10 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         createHost: (payload: {
-            create_time: string;
-            update_time: string;
-            pause: boolean;
-            hidden: boolean;
+            create_time?: string;
+            update_time?: string;
+            pause?: boolean;
+            hidden?: boolean;
             competition_id: number;
             team_id: number;
             address: string;
@@ -1150,6 +1178,7 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             update_time?: string;
             pause?: boolean;
             hidden?: boolean;
+            team_id?: number;
             address?: string;
             address_list_range?: string;
             editable?: boolean;
@@ -1193,8 +1222,8 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         createProperty: (payload: {
-            create_time: string;
-            update_time: string;
+            create_time?: string;
+            update_time?: string;
             competition_id: number;
             team_id: number;
             key: string;
@@ -1218,6 +1247,7 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
         }).then(res => res.data),
         updateProperty: (payload: {
             update_time?: string;
+            team_id?: number;
             key?: string;
             value?: string;
             status?: "view" | "edit" | "hide";
@@ -1241,6 +1271,39 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             method: "get",
             url: `/properties/${id}/team`
         }).then(res => res.data),
+        listReport: (page?: number, itemsPerPage?: number) => axios.request<ReportList[]>({
+            method: "get",
+            url: `/reports`,
+            params: {
+                ...(page !== undefined ? { page } : undefined),
+                ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
+            },
+            paramsSerializer: config?.paramsSerializer
+        }).then(res => res.data),
+        createReport: (payload: {
+            log: string;
+            error: string;
+        }) => axios.request<ReportCreate>({
+            method: "post",
+            url: `/reports`,
+            data: payload
+        }).then(res => res.data),
+        readReport: (id: number) => axios.request<ReportRead>({
+            method: "get",
+            url: `/reports/${id}`
+        }).then(res => res.data),
+        deleteReport: (id: number) => axios.request<unknown>({
+            method: "delete",
+            url: `/reports/${id}`
+        }).then(res => res.data),
+        updateReport: (payload: {
+            log?: string;
+            error?: string;
+        }, id: number) => axios.request<ReportUpdate>({
+            method: "patch",
+            url: `/reports/${id}`,
+            data: payload
+        }).then(res => res.data),
         listRound: (page?: number, itemsPerPage?: number) => axios.request<RoundList[]>({
             method: "get",
             url: `/rounds`,
@@ -1251,8 +1314,8 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         createRound: (payload: {
-            create_time: string;
-            update_time: string;
+            create_time?: string;
+            update_time?: string;
             competition_id: number;
             round_number: number;
             note: string;
@@ -1311,10 +1374,10 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         createService: (payload: {
-            create_time: string;
-            update_time: string;
-            pause: boolean;
-            hidden: boolean;
+            create_time?: string;
+            update_time?: string;
+            pause?: boolean;
+            hidden?: boolean;
             competition_id: number;
             team_id: number;
             name: string;
@@ -1345,6 +1408,7 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             update_time?: string;
             pause?: boolean;
             hidden?: boolean;
+            team_id?: number;
             name?: string;
             display_name?: string;
             weight?: number;
@@ -1401,13 +1465,13 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         createTeam: (payload: {
-            create_time: string;
-            update_time: string;
-            pause: boolean;
-            hidden: boolean;
+            create_time?: string;
+            update_time?: string;
+            pause?: boolean;
+            hidden?: boolean;
             competition_id: number;
             name: string;
-            index: number;
+            index?: number;
             competition: number;
             users?: number[];
             hosts?: number[];
@@ -1470,8 +1534,8 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         createUser: (payload: {
-            create_time: string;
-            update_time: string;
+            create_time?: string;
+            update_time?: string;
             username: string;
             teams?: number[];
             competitions?: number[];
@@ -1490,6 +1554,7 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
         }).then(res => res.data),
         updateUser: (payload: {
             update_time?: string;
+            username?: string;
             teams?: number[];
             competitions?: number[];
         }, id: number) => axios.request<UserUpdate>({
@@ -1546,6 +1611,8 @@ function makeQueries(requests: Requests) {
         useReadPropertyCompetition: (id: number, options?: Omit<UseQueryOptions<Response<"readPropertyCompetition">, unknown, Response<"readPropertyCompetition">, ReturnType<QueryKeys["readPropertyCompetition"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readPropertyCompetition">, unknown> => useQuery({ queryKey: queryKeys.readPropertyCompetition(id), queryFn: () => requests.readPropertyCompetition(id), ...options }),
         useReadPropertyServices: (id: number, options?: Omit<UseQueryOptions<Response<"readPropertyServices">, unknown, Response<"readPropertyServices">, ReturnType<QueryKeys["readPropertyServices"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readPropertyServices">, unknown> => useQuery({ queryKey: queryKeys.readPropertyServices(id), queryFn: () => requests.readPropertyServices(id), ...options }),
         useReadPropertyTeam: (id: number, options?: Omit<UseQueryOptions<Response<"readPropertyTeam">, unknown, Response<"readPropertyTeam">, ReturnType<QueryKeys["readPropertyTeam"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readPropertyTeam">, unknown> => useQuery({ queryKey: queryKeys.readPropertyTeam(id), queryFn: () => requests.readPropertyTeam(id), ...options }),
+        useListReport: (page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listReport">, unknown, Response<"listReport">, ReturnType<QueryKeys["listReport"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listReport">, unknown> => useQuery({ queryKey: queryKeys.listReport(page, itemsPerPage), queryFn: () => requests.listReport(page, itemsPerPage), ...options }),
+        useReadReport: (id: number, options?: Omit<UseQueryOptions<Response<"readReport">, unknown, Response<"readReport">, ReturnType<QueryKeys["readReport"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readReport">, unknown> => useQuery({ queryKey: queryKeys.readReport(id), queryFn: () => requests.readReport(id), ...options }),
         useListRound: (page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listRound">, unknown, Response<"listRound">, ReturnType<QueryKeys["listRound"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listRound">, unknown> => useQuery({ queryKey: queryKeys.listRound(page, itemsPerPage), queryFn: () => requests.listRound(page, itemsPerPage), ...options }),
         useReadRound: (id: number, options?: Omit<UseQueryOptions<Response<"readRound">, unknown, Response<"readRound">, ReturnType<QueryKeys["readRound"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readRound">, unknown> => useQuery({ queryKey: queryKeys.readRound(id), queryFn: () => requests.readRound(id), ...options }),
         useListRoundChecks: (id: number, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listRoundChecks">, unknown, Response<"listRoundChecks">, ReturnType<QueryKeys["listRoundChecks"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listRoundChecks">, unknown> => useQuery({ queryKey: queryKeys.listRoundChecks(id, page, itemsPerPage), queryFn: () => requests.listRoundChecks(id, page, itemsPerPage), ...options }),
@@ -1584,6 +1651,9 @@ type MutationConfigs = {
     useCreateProperty?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"createProperty">, unknown, Parameters<Requests["createProperty"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
     useUpdateProperty?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"updateProperty">, unknown, Parameters<Requests["updateProperty"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
     useDeleteProperty?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"deleteProperty">, unknown, unknown, unknown>, "onSuccess" | "onSettled" | "onError">;
+    useCreateReport?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"createReport">, unknown, Parameters<Requests["createReport"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
+    useUpdateReport?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"updateReport">, unknown, Parameters<Requests["updateReport"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
+    useDeleteReport?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"deleteReport">, unknown, unknown, unknown>, "onSuccess" | "onSettled" | "onError">;
     useCreateRound?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"createRound">, unknown, Parameters<Requests["createRound"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
     useUpdateRound?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"updateRound">, unknown, Parameters<Requests["updateRound"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
     useDeleteRound?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"deleteRound">, unknown, unknown, unknown>, "onSuccess" | "onSettled" | "onError">;
@@ -1614,6 +1684,9 @@ function makeMutations(requests: Requests, config?: Config["mutations"]) {
         useCreateProperty: (options?: Omit<UseMutationOptions<Response<"createProperty">, unknown, Parameters<Requests["createProperty"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"createProperty">, unknown, Parameters<Requests["createProperty"]>[0]>(payload => requests.createProperty(payload), config?.useCreateProperty, options),
         useUpdateProperty: (id: number, options?: Omit<UseMutationOptions<Response<"updateProperty">, unknown, Parameters<Requests["updateProperty"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateProperty">, unknown, Parameters<Requests["updateProperty"]>[0]>(payload => requests.updateProperty(payload, id), config?.useUpdateProperty, options),
         useDeleteProperty: (id: number, options?: Omit<UseMutationOptions<Response<"deleteProperty">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteProperty">, unknown, unknown>(() => requests.deleteProperty(id), config?.useDeleteProperty, options),
+        useCreateReport: (options?: Omit<UseMutationOptions<Response<"createReport">, unknown, Parameters<Requests["createReport"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"createReport">, unknown, Parameters<Requests["createReport"]>[0]>(payload => requests.createReport(payload), config?.useCreateReport, options),
+        useUpdateReport: (id: number, options?: Omit<UseMutationOptions<Response<"updateReport">, unknown, Parameters<Requests["updateReport"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateReport">, unknown, Parameters<Requests["updateReport"]>[0]>(payload => requests.updateReport(payload, id), config?.useUpdateReport, options),
+        useDeleteReport: (id: number, options?: Omit<UseMutationOptions<Response<"deleteReport">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteReport">, unknown, unknown>(() => requests.deleteReport(id), config?.useDeleteReport, options),
         useCreateRound: (options?: Omit<UseMutationOptions<Response<"createRound">, unknown, Parameters<Requests["createRound"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"createRound">, unknown, Parameters<Requests["createRound"]>[0]>(payload => requests.createRound(payload), config?.useCreateRound, options),
         useUpdateRound: (id: number, options?: Omit<UseMutationOptions<Response<"updateRound">, unknown, Parameters<Requests["updateRound"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateRound">, unknown, Parameters<Requests["updateRound"]>[0]>(payload => requests.updateRound(payload, id), config?.useUpdateRound, options),
         useDeleteRound: (id: number, options?: Omit<UseMutationOptions<Response<"deleteRound">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteRound">, unknown, unknown>(() => requests.deleteRound(id), config?.useDeleteRound, options),

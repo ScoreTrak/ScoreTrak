@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -23,43 +22,15 @@ type PropertyCreate struct {
 	hooks    []Hook
 }
 
-// SetCreateTime sets the "create_time" field.
-func (pc *PropertyCreate) SetCreateTime(t time.Time) *PropertyCreate {
-	pc.mutation.SetCreateTime(t)
-	return pc
-}
-
-// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
-func (pc *PropertyCreate) SetNillableCreateTime(t *time.Time) *PropertyCreate {
-	if t != nil {
-		pc.SetCreateTime(*t)
-	}
-	return pc
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (pc *PropertyCreate) SetUpdateTime(t time.Time) *PropertyCreate {
-	pc.mutation.SetUpdateTime(t)
-	return pc
-}
-
-// SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
-func (pc *PropertyCreate) SetNillableUpdateTime(t *time.Time) *PropertyCreate {
-	if t != nil {
-		pc.SetUpdateTime(*t)
-	}
-	return pc
-}
-
 // SetCompetitionID sets the "competition_id" field.
-func (pc *PropertyCreate) SetCompetitionID(i int) *PropertyCreate {
-	pc.mutation.SetCompetitionID(i)
+func (pc *PropertyCreate) SetCompetitionID(s string) *PropertyCreate {
+	pc.mutation.SetCompetitionID(s)
 	return pc
 }
 
 // SetTeamID sets the "team_id" field.
-func (pc *PropertyCreate) SetTeamID(i int) *PropertyCreate {
-	pc.mutation.SetTeamID(i)
+func (pc *PropertyCreate) SetTeamID(s string) *PropertyCreate {
+	pc.mutation.SetTeamID(s)
 	return pc
 }
 
@@ -89,6 +60,20 @@ func (pc *PropertyCreate) SetNillableStatus(pr *property.Status) *PropertyCreate
 	return pc
 }
 
+// SetID sets the "id" field.
+func (pc *PropertyCreate) SetID(s string) *PropertyCreate {
+	pc.mutation.SetID(s)
+	return pc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (pc *PropertyCreate) SetNillableID(s *string) *PropertyCreate {
+	if s != nil {
+		pc.SetID(*s)
+	}
+	return pc
+}
+
 // SetCompetition sets the "competition" edge to the Competition entity.
 func (pc *PropertyCreate) SetCompetition(c *Competition) *PropertyCreate {
 	return pc.SetCompetitionID(c.ID)
@@ -100,7 +85,7 @@ func (pc *PropertyCreate) SetTeam(t *Team) *PropertyCreate {
 }
 
 // SetServicesID sets the "services" edge to the Service entity by ID.
-func (pc *PropertyCreate) SetServicesID(id int) *PropertyCreate {
+func (pc *PropertyCreate) SetServicesID(id string) *PropertyCreate {
 	pc.mutation.SetServicesID(id)
 	return pc
 }
@@ -145,28 +130,18 @@ func (pc *PropertyCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (pc *PropertyCreate) defaults() {
-	if _, ok := pc.mutation.CreateTime(); !ok {
-		v := property.DefaultCreateTime()
-		pc.mutation.SetCreateTime(v)
-	}
-	if _, ok := pc.mutation.UpdateTime(); !ok {
-		v := property.DefaultUpdateTime()
-		pc.mutation.SetUpdateTime(v)
-	}
 	if _, ok := pc.mutation.Status(); !ok {
 		v := property.DefaultStatus
 		pc.mutation.SetStatus(v)
+	}
+	if _, ok := pc.mutation.ID(); !ok {
+		v := property.DefaultID()
+		pc.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (pc *PropertyCreate) check() error {
-	if _, ok := pc.mutation.CreateTime(); !ok {
-		return &ValidationError{Name: "create_time", err: errors.New(`entities: missing required field "Property.create_time"`)}
-	}
-	if _, ok := pc.mutation.UpdateTime(); !ok {
-		return &ValidationError{Name: "update_time", err: errors.New(`entities: missing required field "Property.update_time"`)}
-	}
 	if _, ok := pc.mutation.CompetitionID(); !ok {
 		return &ValidationError{Name: "competition_id", err: errors.New(`entities: missing required field "Property.competition_id"`)}
 	}
@@ -185,6 +160,11 @@ func (pc *PropertyCreate) check() error {
 	if v, ok := pc.mutation.Status(); ok {
 		if err := property.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`entities: validator failed for field "Property.status": %w`, err)}
+		}
+	}
+	if v, ok := pc.mutation.ID(); ok {
+		if err := property.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`entities: validator failed for field "Property.id": %w`, err)}
 		}
 	}
 	if _, ok := pc.mutation.CompetitionID(); !ok {
@@ -210,8 +190,13 @@ func (pc *PropertyCreate) sqlSave(ctx context.Context) (*Property, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected Property.ID type: %T", _spec.ID.Value)
+		}
+	}
 	pc.mutation.id = &_node.ID
 	pc.mutation.done = true
 	return _node, nil
@@ -220,15 +205,11 @@ func (pc *PropertyCreate) sqlSave(ctx context.Context) (*Property, error) {
 func (pc *PropertyCreate) createSpec() (*Property, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Property{config: pc.config}
-		_spec = sqlgraph.NewCreateSpec(property.Table, sqlgraph.NewFieldSpec(property.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(property.Table, sqlgraph.NewFieldSpec(property.FieldID, field.TypeString))
 	)
-	if value, ok := pc.mutation.CreateTime(); ok {
-		_spec.SetField(property.FieldCreateTime, field.TypeTime, value)
-		_node.CreateTime = value
-	}
-	if value, ok := pc.mutation.UpdateTime(); ok {
-		_spec.SetField(property.FieldUpdateTime, field.TypeTime, value)
-		_node.UpdateTime = value
+	if id, ok := pc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
 	}
 	if value, ok := pc.mutation.Key(); ok {
 		_spec.SetField(property.FieldKey, field.TypeString, value)
@@ -250,7 +231,7 @@ func (pc *PropertyCreate) createSpec() (*Property, *sqlgraph.CreateSpec) {
 			Columns: []string{property.CompetitionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -267,7 +248,7 @@ func (pc *PropertyCreate) createSpec() (*Property, *sqlgraph.CreateSpec) {
 			Columns: []string{property.TeamColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -284,7 +265,7 @@ func (pc *PropertyCreate) createSpec() (*Property, *sqlgraph.CreateSpec) {
 			Columns: []string{property.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -337,10 +318,6 @@ func (pcb *PropertyCreateBulk) Save(ctx context.Context) ([]*Property, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

@@ -3,66 +3,64 @@
 package check
 
 import (
-	"time"
-
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Check {
+func ID(id string) predicate.Check {
 	return predicate.Check(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Check {
+func IDEQ(id string) predicate.Check {
 	return predicate.Check(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Check {
+func IDNEQ(id string) predicate.Check {
 	return predicate.Check(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Check {
+func IDIn(ids ...string) predicate.Check {
 	return predicate.Check(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Check {
+func IDNotIn(ids ...string) predicate.Check {
 	return predicate.Check(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Check {
+func IDGT(id string) predicate.Check {
 	return predicate.Check(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Check {
+func IDGTE(id string) predicate.Check {
 	return predicate.Check(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Check {
+func IDLT(id string) predicate.Check {
 	return predicate.Check(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Check {
+func IDLTE(id string) predicate.Check {
 	return predicate.Check(sql.FieldLTE(FieldID, id))
 }
 
-// CreateTime applies equality check predicate on the "create_time" field. It's identical to CreateTimeEQ.
-func CreateTime(v time.Time) predicate.Check {
-	return predicate.Check(sql.FieldEQ(FieldCreateTime, v))
+// IDEqualFold applies the EqualFold predicate on the ID field.
+func IDEqualFold(id string) predicate.Check {
+	return predicate.Check(sql.FieldEqualFold(FieldID, id))
 }
 
-// UpdateTime applies equality check predicate on the "update_time" field. It's identical to UpdateTimeEQ.
-func UpdateTime(v time.Time) predicate.Check {
-	return predicate.Check(sql.FieldEQ(FieldUpdateTime, v))
+// IDContainsFold applies the ContainsFold predicate on the ID field.
+func IDContainsFold(id string) predicate.Check {
+	return predicate.Check(sql.FieldContainsFold(FieldID, id))
 }
 
 // Pause applies equality check predicate on the "pause" field. It's identical to PauseEQ.
@@ -76,7 +74,7 @@ func Hidden(v bool) predicate.Check {
 }
 
 // CompetitionID applies equality check predicate on the "competition_id" field. It's identical to CompetitionIDEQ.
-func CompetitionID(v int) predicate.Check {
+func CompetitionID(v string) predicate.Check {
 	return predicate.Check(sql.FieldEQ(FieldCompetitionID, v))
 }
 
@@ -95,86 +93,6 @@ func Passed(v bool) predicate.Check {
 	return predicate.Check(sql.FieldEQ(FieldPassed, v))
 }
 
-// CreateTimeEQ applies the EQ predicate on the "create_time" field.
-func CreateTimeEQ(v time.Time) predicate.Check {
-	return predicate.Check(sql.FieldEQ(FieldCreateTime, v))
-}
-
-// CreateTimeNEQ applies the NEQ predicate on the "create_time" field.
-func CreateTimeNEQ(v time.Time) predicate.Check {
-	return predicate.Check(sql.FieldNEQ(FieldCreateTime, v))
-}
-
-// CreateTimeIn applies the In predicate on the "create_time" field.
-func CreateTimeIn(vs ...time.Time) predicate.Check {
-	return predicate.Check(sql.FieldIn(FieldCreateTime, vs...))
-}
-
-// CreateTimeNotIn applies the NotIn predicate on the "create_time" field.
-func CreateTimeNotIn(vs ...time.Time) predicate.Check {
-	return predicate.Check(sql.FieldNotIn(FieldCreateTime, vs...))
-}
-
-// CreateTimeGT applies the GT predicate on the "create_time" field.
-func CreateTimeGT(v time.Time) predicate.Check {
-	return predicate.Check(sql.FieldGT(FieldCreateTime, v))
-}
-
-// CreateTimeGTE applies the GTE predicate on the "create_time" field.
-func CreateTimeGTE(v time.Time) predicate.Check {
-	return predicate.Check(sql.FieldGTE(FieldCreateTime, v))
-}
-
-// CreateTimeLT applies the LT predicate on the "create_time" field.
-func CreateTimeLT(v time.Time) predicate.Check {
-	return predicate.Check(sql.FieldLT(FieldCreateTime, v))
-}
-
-// CreateTimeLTE applies the LTE predicate on the "create_time" field.
-func CreateTimeLTE(v time.Time) predicate.Check {
-	return predicate.Check(sql.FieldLTE(FieldCreateTime, v))
-}
-
-// UpdateTimeEQ applies the EQ predicate on the "update_time" field.
-func UpdateTimeEQ(v time.Time) predicate.Check {
-	return predicate.Check(sql.FieldEQ(FieldUpdateTime, v))
-}
-
-// UpdateTimeNEQ applies the NEQ predicate on the "update_time" field.
-func UpdateTimeNEQ(v time.Time) predicate.Check {
-	return predicate.Check(sql.FieldNEQ(FieldUpdateTime, v))
-}
-
-// UpdateTimeIn applies the In predicate on the "update_time" field.
-func UpdateTimeIn(vs ...time.Time) predicate.Check {
-	return predicate.Check(sql.FieldIn(FieldUpdateTime, vs...))
-}
-
-// UpdateTimeNotIn applies the NotIn predicate on the "update_time" field.
-func UpdateTimeNotIn(vs ...time.Time) predicate.Check {
-	return predicate.Check(sql.FieldNotIn(FieldUpdateTime, vs...))
-}
-
-// UpdateTimeGT applies the GT predicate on the "update_time" field.
-func UpdateTimeGT(v time.Time) predicate.Check {
-	return predicate.Check(sql.FieldGT(FieldUpdateTime, v))
-}
-
-// UpdateTimeGTE applies the GTE predicate on the "update_time" field.
-func UpdateTimeGTE(v time.Time) predicate.Check {
-	return predicate.Check(sql.FieldGTE(FieldUpdateTime, v))
-}
-
-// UpdateTimeLT applies the LT predicate on the "update_time" field.
-func UpdateTimeLT(v time.Time) predicate.Check {
-	return predicate.Check(sql.FieldLT(FieldUpdateTime, v))
-}
-
-// UpdateTimeLTE applies the LTE predicate on the "update_time" field.
-func UpdateTimeLTE(v time.Time) predicate.Check {
-	return predicate.Check(sql.FieldLTE(FieldUpdateTime, v))
-}
-
 // PauseEQ applies the EQ predicate on the "pause" field.
 func PauseEQ(v bool) predicate.Check {
 	return predicate.Check(sql.FieldEQ(FieldPause, v))
@@ -183,6 +101,16 @@ func PauseEQ(v bool) predicate.Check {
 // PauseNEQ applies the NEQ predicate on the "pause" field.
 func PauseNEQ(v bool) predicate.Check {
 	return predicate.Check(sql.FieldNEQ(FieldPause, v))
+}
+
+// PauseIsNil applies the IsNil predicate on the "pause" field.
+func PauseIsNil() predicate.Check {
+	return predicate.Check(sql.FieldIsNull(FieldPause))
+}
+
+// PauseNotNil applies the NotNil predicate on the "pause" field.
+func PauseNotNil() predicate.Check {
+	return predicate.Check(sql.FieldNotNull(FieldPause))
 }
 
 // HiddenEQ applies the EQ predicate on the "hidden" field.
@@ -195,24 +123,79 @@ func HiddenNEQ(v bool) predicate.Check {
 	return predicate.Check(sql.FieldNEQ(FieldHidden, v))
 }
 
+// HiddenIsNil applies the IsNil predicate on the "hidden" field.
+func HiddenIsNil() predicate.Check {
+	return predicate.Check(sql.FieldIsNull(FieldHidden))
+}
+
+// HiddenNotNil applies the NotNil predicate on the "hidden" field.
+func HiddenNotNil() predicate.Check {
+	return predicate.Check(sql.FieldNotNull(FieldHidden))
+}
+
 // CompetitionIDEQ applies the EQ predicate on the "competition_id" field.
-func CompetitionIDEQ(v int) predicate.Check {
+func CompetitionIDEQ(v string) predicate.Check {
 	return predicate.Check(sql.FieldEQ(FieldCompetitionID, v))
 }
 
 // CompetitionIDNEQ applies the NEQ predicate on the "competition_id" field.
-func CompetitionIDNEQ(v int) predicate.Check {
+func CompetitionIDNEQ(v string) predicate.Check {
 	return predicate.Check(sql.FieldNEQ(FieldCompetitionID, v))
 }
 
 // CompetitionIDIn applies the In predicate on the "competition_id" field.
-func CompetitionIDIn(vs ...int) predicate.Check {
+func CompetitionIDIn(vs ...string) predicate.Check {
 	return predicate.Check(sql.FieldIn(FieldCompetitionID, vs...))
 }
 
 // CompetitionIDNotIn applies the NotIn predicate on the "competition_id" field.
-func CompetitionIDNotIn(vs ...int) predicate.Check {
+func CompetitionIDNotIn(vs ...string) predicate.Check {
 	return predicate.Check(sql.FieldNotIn(FieldCompetitionID, vs...))
+}
+
+// CompetitionIDGT applies the GT predicate on the "competition_id" field.
+func CompetitionIDGT(v string) predicate.Check {
+	return predicate.Check(sql.FieldGT(FieldCompetitionID, v))
+}
+
+// CompetitionIDGTE applies the GTE predicate on the "competition_id" field.
+func CompetitionIDGTE(v string) predicate.Check {
+	return predicate.Check(sql.FieldGTE(FieldCompetitionID, v))
+}
+
+// CompetitionIDLT applies the LT predicate on the "competition_id" field.
+func CompetitionIDLT(v string) predicate.Check {
+	return predicate.Check(sql.FieldLT(FieldCompetitionID, v))
+}
+
+// CompetitionIDLTE applies the LTE predicate on the "competition_id" field.
+func CompetitionIDLTE(v string) predicate.Check {
+	return predicate.Check(sql.FieldLTE(FieldCompetitionID, v))
+}
+
+// CompetitionIDContains applies the Contains predicate on the "competition_id" field.
+func CompetitionIDContains(v string) predicate.Check {
+	return predicate.Check(sql.FieldContains(FieldCompetitionID, v))
+}
+
+// CompetitionIDHasPrefix applies the HasPrefix predicate on the "competition_id" field.
+func CompetitionIDHasPrefix(v string) predicate.Check {
+	return predicate.Check(sql.FieldHasPrefix(FieldCompetitionID, v))
+}
+
+// CompetitionIDHasSuffix applies the HasSuffix predicate on the "competition_id" field.
+func CompetitionIDHasSuffix(v string) predicate.Check {
+	return predicate.Check(sql.FieldHasSuffix(FieldCompetitionID, v))
+}
+
+// CompetitionIDEqualFold applies the EqualFold predicate on the "competition_id" field.
+func CompetitionIDEqualFold(v string) predicate.Check {
+	return predicate.Check(sql.FieldEqualFold(FieldCompetitionID, v))
+}
+
+// CompetitionIDContainsFold applies the ContainsFold predicate on the "competition_id" field.
+func CompetitionIDContainsFold(v string) predicate.Check {
+	return predicate.Check(sql.FieldContainsFold(FieldCompetitionID, v))
 }
 
 // LogEQ applies the EQ predicate on the "log" field.

@@ -2,7 +2,175 @@
 
 package runtime
 
-// The schema-stitching logic is generated in github.com/ScoreTrak/ScoreTrak/internal/entities/runtime.go
+import (
+	"context"
+	"time"
+
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/check"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostgroup"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/property"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/round"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/schema"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/user"
+
+	"entgo.io/ent"
+	"entgo.io/ent/privacy"
+)
+
+// The init function reads all schema descriptors with runtime code
+// (default values, validators, hooks and policies) and stitches it
+// to their package variables.
+func init() {
+	checkMixin := schema.Check{}.Mixin()
+	checkMixinFields0 := checkMixin[0].Fields()
+	_ = checkMixinFields0
+	checkFields := schema.Check{}.Fields()
+	_ = checkFields
+	// checkDescID is the schema descriptor for id field.
+	checkDescID := checkMixinFields0[0].Descriptor()
+	// check.DefaultID holds the default value on creation for the id field.
+	check.DefaultID = checkDescID.Default.(func() string)
+	// check.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	check.IDValidator = checkDescID.Validators[0].(func(string) error)
+	competitionMixin := schema.Competition{}.Mixin()
+	competition.Policy = privacy.NewPolicies(schema.Competition{})
+	competition.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := competition.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	competitionMixinFields1 := competitionMixin[1].Fields()
+	_ = competitionMixinFields1
+	competitionFields := schema.Competition{}.Fields()
+	_ = competitionFields
+	// competitionDescName is the schema descriptor for name field.
+	competitionDescName := competitionFields[0].Descriptor()
+	// competition.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	competition.NameValidator = competitionDescName.Validators[0].(func(string) error)
+	// competitionDescID is the schema descriptor for id field.
+	competitionDescID := competitionMixinFields1[0].Descriptor()
+	// competition.DefaultID holds the default value on creation for the id field.
+	competition.DefaultID = competitionDescID.Default.(func() string)
+	// competition.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	competition.IDValidator = competitionDescID.Validators[0].(func(string) error)
+	hostMixin := schema.Host{}.Mixin()
+	hostMixinFields0 := hostMixin[0].Fields()
+	_ = hostMixinFields0
+	hostFields := schema.Host{}.Fields()
+	_ = hostFields
+	// hostDescAddress is the schema descriptor for address field.
+	hostDescAddress := hostFields[0].Descriptor()
+	// host.AddressValidator is a validator for the "address" field. It is called by the builders before save.
+	host.AddressValidator = hostDescAddress.Validators[0].(func(string) error)
+	// hostDescID is the schema descriptor for id field.
+	hostDescID := hostMixinFields0[0].Descriptor()
+	// host.DefaultID holds the default value on creation for the id field.
+	host.DefaultID = hostDescID.Default.(func() string)
+	// host.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	host.IDValidator = hostDescID.Validators[0].(func(string) error)
+	hostgroupMixin := schema.HostGroup{}.Mixin()
+	hostgroupMixinFields0 := hostgroupMixin[0].Fields()
+	_ = hostgroupMixinFields0
+	hostgroupFields := schema.HostGroup{}.Fields()
+	_ = hostgroupFields
+	// hostgroupDescID is the schema descriptor for id field.
+	hostgroupDescID := hostgroupMixinFields0[0].Descriptor()
+	// hostgroup.DefaultID holds the default value on creation for the id field.
+	hostgroup.DefaultID = hostgroupDescID.Default.(func() string)
+	// hostgroup.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	hostgroup.IDValidator = hostgroupDescID.Validators[0].(func(string) error)
+	propertyMixin := schema.Property{}.Mixin()
+	propertyMixinFields0 := propertyMixin[0].Fields()
+	_ = propertyMixinFields0
+	propertyFields := schema.Property{}.Fields()
+	_ = propertyFields
+	// propertyDescID is the schema descriptor for id field.
+	propertyDescID := propertyMixinFields0[0].Descriptor()
+	// property.DefaultID holds the default value on creation for the id field.
+	property.DefaultID = propertyDescID.Default.(func() string)
+	// property.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	property.IDValidator = propertyDescID.Validators[0].(func(string) error)
+	roundMixin := schema.Round{}.Mixin()
+	roundMixinFields0 := roundMixin[0].Fields()
+	_ = roundMixinFields0
+	roundFields := schema.Round{}.Fields()
+	_ = roundFields
+	// roundDescID is the schema descriptor for id field.
+	roundDescID := roundMixinFields0[0].Descriptor()
+	// round.DefaultID holds the default value on creation for the id field.
+	round.DefaultID = roundDescID.Default.(func() string)
+	// round.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	round.IDValidator = roundDescID.Validators[0].(func(string) error)
+	serviceMixin := schema.Service{}.Mixin()
+	serviceMixinFields0 := serviceMixin[0].Fields()
+	_ = serviceMixinFields0
+	serviceFields := schema.Service{}.Fields()
+	_ = serviceFields
+	// serviceDescID is the schema descriptor for id field.
+	serviceDescID := serviceMixinFields0[0].Descriptor()
+	// service.DefaultID holds the default value on creation for the id field.
+	service.DefaultID = serviceDescID.Default.(func() string)
+	// service.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	service.IDValidator = serviceDescID.Validators[0].(func(string) error)
+	teamMixin := schema.Team{}.Mixin()
+	teamMixinFields0 := teamMixin[0].Fields()
+	_ = teamMixinFields0
+	teamFields := schema.Team{}.Fields()
+	_ = teamFields
+	// teamDescIndex is the schema descriptor for index field.
+	teamDescIndex := teamFields[1].Descriptor()
+	// team.IndexValidator is a validator for the "index" field. It is called by the builders before save.
+	team.IndexValidator = teamDescIndex.Validators[0].(func(int) error)
+	// teamDescID is the schema descriptor for id field.
+	teamDescID := teamMixinFields0[0].Descriptor()
+	// team.DefaultID holds the default value on creation for the id field.
+	team.DefaultID = teamDescID.Default.(func() string)
+	// team.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	team.IDValidator = teamDescID.Validators[0].(func(string) error)
+	userMixin := schema.User{}.Mixin()
+	user.Policy = privacy.NewPolicies(schema.User{})
+	user.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := user.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	userMixinFields0 := userMixin[0].Fields()
+	_ = userMixinFields0
+	userMixinFields1 := userMixin[1].Fields()
+	_ = userMixinFields1
+	userFields := schema.User{}.Fields()
+	_ = userFields
+	// userDescCreateTime is the schema descriptor for create_time field.
+	userDescCreateTime := userMixinFields1[0].Descriptor()
+	// user.DefaultCreateTime holds the default value on creation for the create_time field.
+	user.DefaultCreateTime = userDescCreateTime.Default.(func() time.Time)
+	// userDescUpdateTime is the schema descriptor for update_time field.
+	userDescUpdateTime := userMixinFields1[1].Descriptor()
+	// user.DefaultUpdateTime holds the default value on creation for the update_time field.
+	user.DefaultUpdateTime = userDescUpdateTime.Default.(func() time.Time)
+	// user.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	user.UpdateDefaultUpdateTime = userDescUpdateTime.UpdateDefault.(func() time.Time)
+	// userDescUsername is the schema descriptor for username field.
+	userDescUsername := userFields[0].Descriptor()
+	// user.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	user.UsernameValidator = userDescUsername.Validators[0].(func(string) error)
+	// userDescID is the schema descriptor for id field.
+	userDescID := userMixinFields0[0].Descriptor()
+	// user.DefaultID holds the default value on creation for the id field.
+	user.DefaultID = userDescID.Default.(func() string)
+	// user.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	user.IDValidator = userDescID.Validators[0].(func(string) error)
+}
 
 const (
 	Version = "v0.12.0"                                         // Version of ent codegen.

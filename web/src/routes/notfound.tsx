@@ -1,7 +1,7 @@
 import { Route } from "@tanstack/router";
 import { rootRoute } from "./root";
 import { indexRoute } from ".";
-import {baseLayout} from "../layouts/baseLayout";
+import {baseLayout} from "./layouts/baseLayout";
 
 
 export const notFoundRoute = new Route({

@@ -21,6 +21,10 @@ type CreatePropertyRes interface {
 	createPropertyRes()
 }
 
+type CreateReportRes interface {
+	createReportRes()
+}
+
 type CreateRoundRes interface {
 	createRoundRes()
 }
@@ -55,6 +59,10 @@ type DeleteHostRes interface {
 
 type DeletePropertyRes interface {
 	deletePropertyRes()
+}
+
+type DeleteReportRes interface {
+	deleteReportRes()
 }
 
 type DeleteRoundRes interface {
@@ -107,6 +115,10 @@ type ListHostServicesRes interface {
 
 type ListPropertyRes interface {
 	listPropertyRes()
+}
+
+type ListReportRes interface {
+	listReportRes()
 }
 
 type ListRoundChecksRes interface {
@@ -217,6 +229,10 @@ type ReadPropertyTeamRes interface {
 	readPropertyTeamRes()
 }
 
+type ReadReportRes interface {
+	readReportRes()
+}
+
 type ReadRoundCompetitionRes interface {
 	readRoundCompetitionRes()
 }
@@ -271,6 +287,10 @@ type UpdateHostRes interface {
 
 type UpdatePropertyRes interface {
 	updatePropertyRes()
+}
+
+type UpdateReportRes interface {
+	updateReportRes()
 }
 
 type UpdateRoundRes interface {

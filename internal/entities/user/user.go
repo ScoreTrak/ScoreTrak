@@ -5,6 +5,7 @@ package user
 import (
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -20,6 +21,8 @@ const (
 	FieldUpdateTime = "update_time"
 	// FieldUsername holds the string denoting the username field in the database.
 	FieldUsername = "username"
+	// FieldOryID holds the string denoting the ory_id field in the database.
+	FieldOryID = "oid"
 	// EdgeTeams holds the string denoting the teams edge name in mutations.
 	EdgeTeams = "teams"
 	// EdgeCompetitions holds the string denoting the competitions edge name in mutations.
@@ -44,6 +47,7 @@ var Columns = []string{
 	FieldCreateTime,
 	FieldUpdateTime,
 	FieldUsername,
+	FieldOryID,
 }
 
 var (
@@ -65,7 +69,14 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "github.com/ScoreTrak/ScoreTrak/internal/entities/runtime"
 var (
+	Hooks  [1]ent.Hook
+	Policy ent.Policy
 	// DefaultCreateTime holds the default value on creation for the "create_time" field.
 	DefaultCreateTime func() time.Time
 	// DefaultUpdateTime holds the default value on creation for the "update_time" field.
@@ -74,6 +85,10 @@ var (
 	UpdateDefaultUpdateTime func() time.Time
 	// UsernameValidator is a validator for the "username" field. It is called by the builders before save.
 	UsernameValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() string
+	// IDValidator is a validator for the "id" field. It is called by the builders before save.
+	IDValidator func(string) error
 )
 
 // Order defines the ordering method for the User queries.
@@ -97,6 +112,11 @@ func ByUpdateTime(opts ...sql.OrderTermOption) Order {
 // ByUsername orders the results by the username field.
 func ByUsername(opts ...sql.OrderTermOption) Order {
 	return sql.OrderByField(FieldUsername, opts...).ToFunc()
+}
+
+// ByOryID orders the results by the ory_id field.
+func ByOryID(opts ...sql.OrderTermOption) Order {
+	return sql.OrderByField(FieldOryID, opts...).ToFunc()
 }
 
 // ByTeamsCount orders the results by teams count.

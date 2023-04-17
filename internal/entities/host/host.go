@@ -3,8 +3,6 @@
 package host
 
 import (
-	"time"
-
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -14,10 +12,6 @@ const (
 	Label = "host"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldCreateTime holds the string denoting the create_time field in the database.
-	FieldCreateTime = "create_time"
-	// FieldUpdateTime holds the string denoting the update_time field in the database.
-	FieldUpdateTime = "update_time"
 	// FieldPause holds the string denoting the pause field in the database.
 	FieldPause = "pause"
 	// FieldHidden holds the string denoting the hidden field in the database.
@@ -75,8 +69,6 @@ const (
 // Columns holds all SQL columns for host fields.
 var Columns = []string{
 	FieldID,
-	FieldCreateTime,
-	FieldUpdateTime,
 	FieldPause,
 	FieldHidden,
 	FieldCompetitionID,
@@ -109,14 +101,12 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// DefaultCreateTime holds the default value on creation for the "create_time" field.
-	DefaultCreateTime func() time.Time
-	// DefaultUpdateTime holds the default value on creation for the "update_time" field.
-	DefaultUpdateTime func() time.Time
-	// UpdateDefaultUpdateTime holds the default value on update for the "update_time" field.
-	UpdateDefaultUpdateTime func() time.Time
 	// AddressValidator is a validator for the "address" field. It is called by the builders before save.
 	AddressValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() string
+	// IDValidator is a validator for the "id" field. It is called by the builders before save.
+	IDValidator func(string) error
 )
 
 // Order defines the ordering method for the Host queries.
@@ -125,16 +115,6 @@ type Order func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) Order {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
-}
-
-// ByCreateTime orders the results by the create_time field.
-func ByCreateTime(opts ...sql.OrderTermOption) Order {
-	return sql.OrderByField(FieldCreateTime, opts...).ToFunc()
-}
-
-// ByUpdateTime orders the results by the update_time field.
-func ByUpdateTime(opts ...sql.OrderTermOption) Order {
-	return sql.OrderByField(FieldUpdateTime, opts...).ToFunc()
 }
 
 // ByPause orders the results by the pause field.

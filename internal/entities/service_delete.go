@@ -40,7 +40,7 @@ func (sd *ServiceDelete) ExecX(ctx context.Context) int {
 }
 
 func (sd *ServiceDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(service.Table, sqlgraph.NewFieldSpec(service.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(service.Table, sqlgraph.NewFieldSpec(service.FieldID, field.TypeString))
 	if ps := sd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

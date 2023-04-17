@@ -10,114 +10,6 @@ import (
 	"github.com/ogen-go/ogen/validate"
 )
 
-func (s *CheckCompetitionRead) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Float{}).Validate(float64(s.RoundDuration)); err != nil {
-			return errors.Wrap(err, "float")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "round_duration",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-func (s *CompetitionCreate) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Float{}).Validate(float64(s.RoundDuration)); err != nil {
-			return errors.Wrap(err, "float")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "round_duration",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-func (s *CompetitionList) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Float{}).Validate(float64(s.RoundDuration)); err != nil {
-			return errors.Wrap(err, "float")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "round_duration",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-func (s *CompetitionRead) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Float{}).Validate(float64(s.RoundDuration)); err != nil {
-			return errors.Wrap(err, "float")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "round_duration",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-func (s *CompetitionUpdate) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Float{}).Validate(float64(s.RoundDuration)); err != nil {
-			return errors.Wrap(err, "float")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "round_duration",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-func (s *CreateCompetitionReq) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Float{}).Validate(float64(s.RoundDuration)); err != nil {
-			return errors.Wrap(err, "float")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "round_duration",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
 func (s *CreatePropertyReq) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
@@ -148,42 +40,6 @@ func (s CreatePropertyReqStatus) Validate() error {
 		return errors.Errorf("invalid value: %v", s)
 	}
 }
-func (s *HostCompetitionRead) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Float{}).Validate(float64(s.RoundDuration)); err != nil {
-			return errors.Wrap(err, "float")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "round_duration",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-func (s *HostGroupCompetitionRead) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Float{}).Validate(float64(s.RoundDuration)); err != nil {
-			return errors.Wrap(err, "float")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "round_duration",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
 func (s ListCheckOKApplicationJSON) Validate() error {
 	if s == nil {
 		return errors.New("nil is invalid value")
@@ -193,23 +49,6 @@ func (s ListCheckOKApplicationJSON) Validate() error {
 func (s ListCompetitionOKApplicationJSON) Validate() error {
 	if s == nil {
 		return errors.New("nil is invalid value")
-	}
-	var failures []validate.FieldError
-	for i, elem := range s {
-		if err := func() error {
-			if err := elem.Validate(); err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			failures = append(failures, validate.FieldError{
-				Name:  fmt.Sprintf("[%d]", i),
-				Error: err,
-			})
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
 	}
 	return nil
 }
@@ -269,6 +108,12 @@ func (s ListPropertyOKApplicationJSON) Validate() error {
 	}
 	if len(failures) > 0 {
 		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+func (s ListReportOKApplicationJSON) Validate() error {
+	if s == nil {
+		return errors.New("nil is invalid value")
 	}
 	return nil
 }
@@ -341,23 +186,6 @@ func (s ListUserCompetitionsOKApplicationJSON) Validate() error {
 	if s == nil {
 		return errors.New("nil is invalid value")
 	}
-	var failures []validate.FieldError
-	for i, elem := range s {
-		if err := func() error {
-			if err := elem.Validate(); err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			failures = append(failures, validate.FieldError{
-				Name:  fmt.Sprintf("[%d]", i),
-				Error: err,
-			})
-		}
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
 	return nil
 }
 func (s ListUserOKApplicationJSON) Validate() error {
@@ -373,24 +201,6 @@ func (s ListUserTeamsOKApplicationJSON) Validate() error {
 	return nil
 }
 
-func (s *PropertyCompetitionRead) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Float{}).Validate(float64(s.RoundDuration)); err != nil {
-			return errors.Wrap(err, "float")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "round_duration",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
 func (s *PropertyCreate) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
@@ -511,42 +321,6 @@ func (s PropertyUpdateStatus) Validate() error {
 		return errors.Errorf("invalid value: %v", s)
 	}
 }
-func (s *RoundCompetitionRead) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Float{}).Validate(float64(s.RoundDuration)); err != nil {
-			return errors.Wrap(err, "float")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "round_duration",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-func (s *ServiceCompetitionRead) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Float{}).Validate(float64(s.RoundDuration)); err != nil {
-			return errors.Wrap(err, "float")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "round_duration",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
 func (s *ServicePropertiesList) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
@@ -576,49 +350,6 @@ func (s ServicePropertiesListStatus) Validate() error {
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}
-}
-func (s *TeamCompetitionRead) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Float{}).Validate(float64(s.RoundDuration)); err != nil {
-			return errors.Wrap(err, "float")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "round_duration",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-func (s *UpdateCompetitionReq) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if s.RoundDuration.Set {
-			if err := func() error {
-				if err := (validate.Float{}).Validate(float64(s.RoundDuration.Value)); err != nil {
-					return errors.Wrap(err, "float")
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "round_duration",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
 }
 func (s *UpdatePropertyReq) Validate() error {
 	var failures []validate.FieldError
@@ -656,22 +387,4 @@ func (s UpdatePropertyReqStatus) Validate() error {
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}
-}
-func (s *UserCompetitionsList) Validate() error {
-	var failures []validate.FieldError
-	if err := func() error {
-		if err := (validate.Float{}).Validate(float64(s.RoundDuration)); err != nil {
-			return errors.Wrap(err, "float")
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "round_duration",
-			Error: err,
-		})
-	}
-	if len(failures) > 0 {
-		return &validate.Error{Fields: failures}
-	}
-	return nil
 }

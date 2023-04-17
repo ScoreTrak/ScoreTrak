@@ -10,10 +10,8 @@ func NewCheckCreate(e *entities.Check) *CheckCreate {
 	}
 	var ret CheckCreate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.Log = e.Log
 	ret.Error = e.Error
@@ -45,10 +43,8 @@ func NewCheckList(e *entities.Check) *CheckList {
 	}
 	var ret CheckList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.Log = e.Log
 	ret.Error = e.Error
@@ -80,10 +76,8 @@ func NewCheckRead(e *entities.Check) *CheckRead {
 	}
 	var ret CheckRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.Log = e.Log
 	ret.Error = e.Error
@@ -115,10 +109,8 @@ func NewCheckUpdate(e *entities.Check) *CheckUpdate {
 	}
 	var ret CheckUpdate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.Log = e.Log
 	ret.Error = e.Error
@@ -150,13 +142,14 @@ func NewCheckCompetitionRead(e *entities.Competition) *CheckCompetitionRead {
 	}
 	var ret CheckCompetitionRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Hidden = e.Hidden
-	ret.Pause = e.Pause
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Pause = NewOptBool(e.Pause)
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.RoundDuration = e.RoundDuration
+	ret.ViewableToPublic = OptBool{}
+	if e.ViewableToPublic != nil {
+		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
+	}
 	ret.ToBeStartedAt = OptDateTime{}
 	if e.ToBeStartedAt != nil {
 		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
@@ -196,8 +189,6 @@ func NewCheckRoundsRead(e *entities.Round) *CheckRoundsRead {
 	}
 	var ret CheckRoundsRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
 	ret.CompetitionID = e.CompetitionID
 	ret.RoundNumber = e.RoundNumber
 	ret.Note = e.Note
@@ -231,10 +222,8 @@ func NewCheckServicesRead(e *entities.Service) *CheckServicesRead {
 	}
 	var ret CheckServicesRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Name = e.Name
@@ -270,13 +259,14 @@ func NewCompetitionCreate(e *entities.Competition) *CompetitionCreate {
 	}
 	var ret CompetitionCreate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Hidden = e.Hidden
-	ret.Pause = e.Pause
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Pause = NewOptBool(e.Pause)
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.RoundDuration = e.RoundDuration
+	ret.ViewableToPublic = OptBool{}
+	if e.ViewableToPublic != nil {
+		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
+	}
 	ret.ToBeStartedAt = OptDateTime{}
 	if e.ToBeStartedAt != nil {
 		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
@@ -316,13 +306,14 @@ func NewCompetitionList(e *entities.Competition) *CompetitionList {
 	}
 	var ret CompetitionList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Hidden = e.Hidden
-	ret.Pause = e.Pause
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Pause = NewOptBool(e.Pause)
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.RoundDuration = e.RoundDuration
+	ret.ViewableToPublic = OptBool{}
+	if e.ViewableToPublic != nil {
+		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
+	}
 	ret.ToBeStartedAt = OptDateTime{}
 	if e.ToBeStartedAt != nil {
 		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
@@ -362,13 +353,14 @@ func NewCompetitionRead(e *entities.Competition) *CompetitionRead {
 	}
 	var ret CompetitionRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Hidden = e.Hidden
-	ret.Pause = e.Pause
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Pause = NewOptBool(e.Pause)
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.RoundDuration = e.RoundDuration
+	ret.ViewableToPublic = OptBool{}
+	if e.ViewableToPublic != nil {
+		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
+	}
 	ret.ToBeStartedAt = OptDateTime{}
 	if e.ToBeStartedAt != nil {
 		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
@@ -408,13 +400,14 @@ func NewCompetitionUpdate(e *entities.Competition) *CompetitionUpdate {
 	}
 	var ret CompetitionUpdate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Hidden = e.Hidden
-	ret.Pause = e.Pause
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Pause = NewOptBool(e.Pause)
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.RoundDuration = e.RoundDuration
+	ret.ViewableToPublic = OptBool{}
+	if e.ViewableToPublic != nil {
+		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
+	}
 	ret.ToBeStartedAt = OptDateTime{}
 	if e.ToBeStartedAt != nil {
 		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
@@ -454,13 +447,11 @@ func NewCompetitionTeamsList(e *entities.Team) *CompetitionTeamsList {
 	}
 	var ret CompetitionTeamsList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.Name = e.Name
-	ret.Index = e.Index
+	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 
@@ -488,9 +479,10 @@ func NewCompetitionUsersList(e *entities.User) *CompetitionUsersList {
 	}
 	var ret CompetitionUsersList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
+	ret.CreateTime = NewOptDateTime(e.CreateTime)
+	ret.UpdateTime = NewOptDateTime(e.UpdateTime)
 	ret.Username = e.Username
+	ret.OryID = e.OryID
 	return &ret
 }
 
@@ -518,10 +510,8 @@ func NewHostCreate(e *entities.Host) *HostCreate {
 	}
 	var ret HostCreate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Address = e.Address
@@ -554,10 +544,8 @@ func NewHostGroupCreate(e *entities.HostGroup) *HostGroupCreate {
 	}
 	var ret HostGroupCreate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Name = e.Name
@@ -588,10 +576,8 @@ func NewHostGroupList(e *entities.HostGroup) *HostGroupList {
 	}
 	var ret HostGroupList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Name = e.Name
@@ -622,10 +608,8 @@ func NewHostGroupRead(e *entities.HostGroup) *HostGroupRead {
 	}
 	var ret HostGroupRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Name = e.Name
@@ -656,10 +640,8 @@ func NewHostGroupUpdate(e *entities.HostGroup) *HostGroupUpdate {
 	}
 	var ret HostGroupUpdate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Name = e.Name
@@ -690,13 +672,14 @@ func NewHostGroupCompetitionRead(e *entities.Competition) *HostGroupCompetitionR
 	}
 	var ret HostGroupCompetitionRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Hidden = e.Hidden
-	ret.Pause = e.Pause
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Pause = NewOptBool(e.Pause)
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.RoundDuration = e.RoundDuration
+	ret.ViewableToPublic = OptBool{}
+	if e.ViewableToPublic != nil {
+		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
+	}
 	ret.ToBeStartedAt = OptDateTime{}
 	if e.ToBeStartedAt != nil {
 		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
@@ -736,10 +719,8 @@ func NewHostGroupHostsList(e *entities.Host) *HostGroupHostsList {
 	}
 	var ret HostGroupHostsList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Address = e.Address
@@ -772,13 +753,11 @@ func NewHostGroupTeamRead(e *entities.Team) *HostGroupTeamRead {
 	}
 	var ret HostGroupTeamRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.Name = e.Name
-	ret.Index = e.Index
+	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 
@@ -806,10 +785,8 @@ func NewHostList(e *entities.Host) *HostList {
 	}
 	var ret HostList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Address = e.Address
@@ -842,10 +819,8 @@ func NewHostRead(e *entities.Host) *HostRead {
 	}
 	var ret HostRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Address = e.Address
@@ -878,10 +853,8 @@ func NewHostUpdate(e *entities.Host) *HostUpdate {
 	}
 	var ret HostUpdate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Address = e.Address
@@ -914,13 +887,14 @@ func NewHostCompetitionRead(e *entities.Competition) *HostCompetitionRead {
 	}
 	var ret HostCompetitionRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Hidden = e.Hidden
-	ret.Pause = e.Pause
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Pause = NewOptBool(e.Pause)
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.RoundDuration = e.RoundDuration
+	ret.ViewableToPublic = OptBool{}
+	if e.ViewableToPublic != nil {
+		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
+	}
 	ret.ToBeStartedAt = OptDateTime{}
 	if e.ToBeStartedAt != nil {
 		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
@@ -960,10 +934,8 @@ func NewHostHostGroupRead(e *entities.HostGroup) *HostHostGroupRead {
 	}
 	var ret HostHostGroupRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Name = e.Name
@@ -994,10 +966,8 @@ func NewHostServicesList(e *entities.Service) *HostServicesList {
 	}
 	var ret HostServicesList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Name = e.Name
@@ -1033,13 +1003,11 @@ func NewHostTeamRead(e *entities.Team) *HostTeamRead {
 	}
 	var ret HostTeamRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.Name = e.Name
-	ret.Index = e.Index
+	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 
@@ -1067,8 +1035,6 @@ func NewPropertyCreate(e *entities.Property) *PropertyCreate {
 	}
 	var ret PropertyCreate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Key = e.Key
@@ -1101,8 +1067,6 @@ func NewPropertyList(e *entities.Property) *PropertyList {
 	}
 	var ret PropertyList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Key = e.Key
@@ -1135,8 +1099,6 @@ func NewPropertyRead(e *entities.Property) *PropertyRead {
 	}
 	var ret PropertyRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Key = e.Key
@@ -1169,8 +1131,6 @@ func NewPropertyUpdate(e *entities.Property) *PropertyUpdate {
 	}
 	var ret PropertyUpdate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Key = e.Key
@@ -1203,13 +1163,14 @@ func NewPropertyCompetitionRead(e *entities.Competition) *PropertyCompetitionRea
 	}
 	var ret PropertyCompetitionRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Hidden = e.Hidden
-	ret.Pause = e.Pause
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Pause = NewOptBool(e.Pause)
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.RoundDuration = e.RoundDuration
+	ret.ViewableToPublic = OptBool{}
+	if e.ViewableToPublic != nil {
+		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
+	}
 	ret.ToBeStartedAt = OptDateTime{}
 	if e.ToBeStartedAt != nil {
 		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
@@ -1249,10 +1210,8 @@ func NewPropertyServicesRead(e *entities.Service) *PropertyServicesRead {
 	}
 	var ret PropertyServicesRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Name = e.Name
@@ -1288,13 +1247,11 @@ func NewPropertyTeamRead(e *entities.Team) *PropertyTeamRead {
 	}
 	var ret PropertyTeamRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.Name = e.Name
-	ret.Index = e.Index
+	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 
@@ -1316,14 +1273,128 @@ func (t *PropertyTeamRead) Elem() PropertyTeamRead {
 	return *t
 }
 
+func NewReportCreate(e *entities.Report) *ReportCreate {
+	if e == nil {
+		return nil
+	}
+	var ret ReportCreate
+	ret.ID = e.ID
+	ret.Log = e.Log
+	ret.Error = e.Error
+	return &ret
+}
+
+func NewReportCreates(es []*entities.Report) []ReportCreate {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]ReportCreate, len(es))
+	for i, e := range es {
+		r[i] = NewReportCreate(e).Elem()
+	}
+	return r
+}
+
+func (r *ReportCreate) Elem() ReportCreate {
+	if r == nil {
+		return ReportCreate{}
+	}
+	return *r
+}
+
+func NewReportList(e *entities.Report) *ReportList {
+	if e == nil {
+		return nil
+	}
+	var ret ReportList
+	ret.ID = e.ID
+	ret.Log = e.Log
+	ret.Error = e.Error
+	return &ret
+}
+
+func NewReportLists(es []*entities.Report) []ReportList {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]ReportList, len(es))
+	for i, e := range es {
+		r[i] = NewReportList(e).Elem()
+	}
+	return r
+}
+
+func (r *ReportList) Elem() ReportList {
+	if r == nil {
+		return ReportList{}
+	}
+	return *r
+}
+
+func NewReportRead(e *entities.Report) *ReportRead {
+	if e == nil {
+		return nil
+	}
+	var ret ReportRead
+	ret.ID = e.ID
+	ret.Log = e.Log
+	ret.Error = e.Error
+	return &ret
+}
+
+func NewReportReads(es []*entities.Report) []ReportRead {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]ReportRead, len(es))
+	for i, e := range es {
+		r[i] = NewReportRead(e).Elem()
+	}
+	return r
+}
+
+func (r *ReportRead) Elem() ReportRead {
+	if r == nil {
+		return ReportRead{}
+	}
+	return *r
+}
+
+func NewReportUpdate(e *entities.Report) *ReportUpdate {
+	if e == nil {
+		return nil
+	}
+	var ret ReportUpdate
+	ret.ID = e.ID
+	ret.Log = e.Log
+	ret.Error = e.Error
+	return &ret
+}
+
+func NewReportUpdates(es []*entities.Report) []ReportUpdate {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]ReportUpdate, len(es))
+	for i, e := range es {
+		r[i] = NewReportUpdate(e).Elem()
+	}
+	return r
+}
+
+func (r *ReportUpdate) Elem() ReportUpdate {
+	if r == nil {
+		return ReportUpdate{}
+	}
+	return *r
+}
+
 func NewRoundCreate(e *entities.Round) *RoundCreate {
 	if e == nil {
 		return nil
 	}
 	var ret RoundCreate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
 	ret.CompetitionID = e.CompetitionID
 	ret.RoundNumber = e.RoundNumber
 	ret.Note = e.Note
@@ -1357,8 +1428,6 @@ func NewRoundList(e *entities.Round) *RoundList {
 	}
 	var ret RoundList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
 	ret.CompetitionID = e.CompetitionID
 	ret.RoundNumber = e.RoundNumber
 	ret.Note = e.Note
@@ -1392,8 +1461,6 @@ func NewRoundRead(e *entities.Round) *RoundRead {
 	}
 	var ret RoundRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
 	ret.CompetitionID = e.CompetitionID
 	ret.RoundNumber = e.RoundNumber
 	ret.Note = e.Note
@@ -1427,8 +1494,6 @@ func NewRoundUpdate(e *entities.Round) *RoundUpdate {
 	}
 	var ret RoundUpdate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
 	ret.CompetitionID = e.CompetitionID
 	ret.RoundNumber = e.RoundNumber
 	ret.Note = e.Note
@@ -1462,10 +1527,8 @@ func NewRoundChecksList(e *entities.Check) *RoundChecksList {
 	}
 	var ret RoundChecksList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.Log = e.Log
 	ret.Error = e.Error
@@ -1497,13 +1560,14 @@ func NewRoundCompetitionRead(e *entities.Competition) *RoundCompetitionRead {
 	}
 	var ret RoundCompetitionRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Hidden = e.Hidden
-	ret.Pause = e.Pause
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Pause = NewOptBool(e.Pause)
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.RoundDuration = e.RoundDuration
+	ret.ViewableToPublic = OptBool{}
+	if e.ViewableToPublic != nil {
+		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
+	}
 	ret.ToBeStartedAt = OptDateTime{}
 	if e.ToBeStartedAt != nil {
 		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
@@ -1543,10 +1607,8 @@ func NewServiceCreate(e *entities.Service) *ServiceCreate {
 	}
 	var ret ServiceCreate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Name = e.Name
@@ -1582,10 +1644,8 @@ func NewServiceList(e *entities.Service) *ServiceList {
 	}
 	var ret ServiceList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Name = e.Name
@@ -1621,10 +1681,8 @@ func NewServiceRead(e *entities.Service) *ServiceRead {
 	}
 	var ret ServiceRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Name = e.Name
@@ -1660,10 +1718,8 @@ func NewServiceUpdate(e *entities.Service) *ServiceUpdate {
 	}
 	var ret ServiceUpdate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Name = e.Name
@@ -1699,10 +1755,8 @@ func NewServiceChecksList(e *entities.Check) *ServiceChecksList {
 	}
 	var ret ServiceChecksList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.Log = e.Log
 	ret.Error = e.Error
@@ -1734,13 +1788,14 @@ func NewServiceCompetitionRead(e *entities.Competition) *ServiceCompetitionRead 
 	}
 	var ret ServiceCompetitionRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Hidden = e.Hidden
-	ret.Pause = e.Pause
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Pause = NewOptBool(e.Pause)
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.RoundDuration = e.RoundDuration
+	ret.ViewableToPublic = OptBool{}
+	if e.ViewableToPublic != nil {
+		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
+	}
 	ret.ToBeStartedAt = OptDateTime{}
 	if e.ToBeStartedAt != nil {
 		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
@@ -1780,10 +1835,8 @@ func NewServiceHostsRead(e *entities.Host) *ServiceHostsRead {
 	}
 	var ret ServiceHostsRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Address = e.Address
@@ -1816,8 +1869,6 @@ func NewServicePropertiesList(e *entities.Property) *ServicePropertiesList {
 	}
 	var ret ServicePropertiesList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Key = e.Key
@@ -1850,13 +1901,11 @@ func NewServiceTeamRead(e *entities.Team) *ServiceTeamRead {
 	}
 	var ret ServiceTeamRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.Name = e.Name
-	ret.Index = e.Index
+	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 
@@ -1884,13 +1933,11 @@ func NewTeamCreate(e *entities.Team) *TeamCreate {
 	}
 	var ret TeamCreate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.Name = e.Name
-	ret.Index = e.Index
+	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 
@@ -1918,13 +1965,11 @@ func NewTeamList(e *entities.Team) *TeamList {
 	}
 	var ret TeamList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.Name = e.Name
-	ret.Index = e.Index
+	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 
@@ -1952,13 +1997,11 @@ func NewTeamRead(e *entities.Team) *TeamRead {
 	}
 	var ret TeamRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.Name = e.Name
-	ret.Index = e.Index
+	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 
@@ -1986,13 +2029,11 @@ func NewTeamUpdate(e *entities.Team) *TeamUpdate {
 	}
 	var ret TeamUpdate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.Name = e.Name
-	ret.Index = e.Index
+	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 
@@ -2020,13 +2061,14 @@ func NewTeamCompetitionRead(e *entities.Competition) *TeamCompetitionRead {
 	}
 	var ret TeamCompetitionRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Hidden = e.Hidden
-	ret.Pause = e.Pause
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Pause = NewOptBool(e.Pause)
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.RoundDuration = e.RoundDuration
+	ret.ViewableToPublic = OptBool{}
+	if e.ViewableToPublic != nil {
+		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
+	}
 	ret.ToBeStartedAt = OptDateTime{}
 	if e.ToBeStartedAt != nil {
 		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
@@ -2066,10 +2108,8 @@ func NewTeamHostsList(e *entities.Host) *TeamHostsList {
 	}
 	var ret TeamHostsList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.TeamID = e.TeamID
 	ret.Address = e.Address
@@ -2102,9 +2142,10 @@ func NewTeamUsersList(e *entities.User) *TeamUsersList {
 	}
 	var ret TeamUsersList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
+	ret.CreateTime = NewOptDateTime(e.CreateTime)
+	ret.UpdateTime = NewOptDateTime(e.UpdateTime)
 	ret.Username = e.Username
+	ret.OryID = e.OryID
 	return &ret
 }
 
@@ -2132,9 +2173,10 @@ func NewUserCreate(e *entities.User) *UserCreate {
 	}
 	var ret UserCreate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
+	ret.CreateTime = NewOptDateTime(e.CreateTime)
+	ret.UpdateTime = NewOptDateTime(e.UpdateTime)
 	ret.Username = e.Username
+	ret.OryID = e.OryID
 	return &ret
 }
 
@@ -2162,9 +2204,10 @@ func NewUserList(e *entities.User) *UserList {
 	}
 	var ret UserList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
+	ret.CreateTime = NewOptDateTime(e.CreateTime)
+	ret.UpdateTime = NewOptDateTime(e.UpdateTime)
 	ret.Username = e.Username
+	ret.OryID = e.OryID
 	return &ret
 }
 
@@ -2192,9 +2235,10 @@ func NewUserRead(e *entities.User) *UserRead {
 	}
 	var ret UserRead
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
+	ret.CreateTime = NewOptDateTime(e.CreateTime)
+	ret.UpdateTime = NewOptDateTime(e.UpdateTime)
 	ret.Username = e.Username
+	ret.OryID = e.OryID
 	return &ret
 }
 
@@ -2222,9 +2266,10 @@ func NewUserUpdate(e *entities.User) *UserUpdate {
 	}
 	var ret UserUpdate
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
+	ret.CreateTime = NewOptDateTime(e.CreateTime)
+	ret.UpdateTime = NewOptDateTime(e.UpdateTime)
 	ret.Username = e.Username
+	ret.OryID = e.OryID
 	return &ret
 }
 
@@ -2252,13 +2297,14 @@ func NewUserCompetitionsList(e *entities.Competition) *UserCompetitionsList {
 	}
 	var ret UserCompetitionsList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Hidden = e.Hidden
-	ret.Pause = e.Pause
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Pause = NewOptBool(e.Pause)
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.RoundDuration = e.RoundDuration
+	ret.ViewableToPublic = OptBool{}
+	if e.ViewableToPublic != nil {
+		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
+	}
 	ret.ToBeStartedAt = OptDateTime{}
 	if e.ToBeStartedAt != nil {
 		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
@@ -2298,13 +2344,11 @@ func NewUserTeamsList(e *entities.Team) *UserTeamsList {
 	}
 	var ret UserTeamsList
 	ret.ID = e.ID
-	ret.CreateTime = e.CreateTime
-	ret.UpdateTime = e.UpdateTime
-	ret.Pause = e.Pause
-	ret.Hidden = e.Hidden
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
 	ret.Name = e.Name
-	ret.Index = e.Index
+	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 

@@ -4,7 +4,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/mixin"
 )
 
 // HostGroup holds the schema definition for the HostGroup entity.
@@ -28,7 +27,7 @@ func (HostGroup) Edges() []ent.Edge {
 
 func (HostGroup) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		mixin.Time{},
+		BaseMixin{},
 		PauseMixin{},
 		HideMixin{},
 		CompetitonMixin{},

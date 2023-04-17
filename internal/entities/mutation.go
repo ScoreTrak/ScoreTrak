@@ -17,10 +17,12 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostgroup"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/property"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/report"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/round"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/user"
+	"github.com/gofrs/uuid"
 )
 
 const (
@@ -37,6 +39,7 @@ const (
 	TypeHost        = "Host"
 	TypeHostGroup   = "HostGroup"
 	TypeProperty    = "Property"
+	TypeReport      = "Report"
 	TypeRound       = "Round"
 	TypeService     = "Service"
 	TypeTeam        = "Team"
@@ -48,20 +51,18 @@ type CheckMutation struct {
 	config
 	op                 Op
 	typ                string
-	id                 *int
-	create_time        *time.Time
-	update_time        *time.Time
+	id                 *string
 	pause              *bool
 	hidden             *bool
 	log                *string
 	error              *string
 	passed             *bool
 	clearedFields      map[string]struct{}
-	competition        *int
+	competition        *string
 	clearedcompetition bool
-	rounds             *int
+	rounds             *string
 	clearedrounds      bool
-	services           *int
+	services           *string
 	clearedservices    bool
 	done               bool
 	oldValue           func(context.Context) (*Check, error)
@@ -88,7 +89,7 @@ func newCheckMutation(c config, op Op, opts ...checkOption) *CheckMutation {
 }
 
 // withCheckID sets the ID field of the mutation.
-func withCheckID(id int) checkOption {
+func withCheckID(id string) checkOption {
 	return func(m *CheckMutation) {
 		var (
 			err   error
@@ -138,9 +139,15 @@ func (m CheckMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Check entities.
+func (m *CheckMutation) SetID(id string) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *CheckMutation) ID() (id int, exists bool) {
+func (m *CheckMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -151,12 +158,12 @@ func (m *CheckMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *CheckMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *CheckMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []string{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -164,78 +171,6 @@ func (m *CheckMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetCreateTime sets the "create_time" field.
-func (m *CheckMutation) SetCreateTime(t time.Time) {
-	m.create_time = &t
-}
-
-// CreateTime returns the value of the "create_time" field in the mutation.
-func (m *CheckMutation) CreateTime() (r time.Time, exists bool) {
-	v := m.create_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreateTime returns the old "create_time" field's value of the Check entity.
-// If the Check object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CheckMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
-	}
-	return oldValue.CreateTime, nil
-}
-
-// ResetCreateTime resets all changes to the "create_time" field.
-func (m *CheckMutation) ResetCreateTime() {
-	m.create_time = nil
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (m *CheckMutation) SetUpdateTime(t time.Time) {
-	m.update_time = &t
-}
-
-// UpdateTime returns the value of the "update_time" field in the mutation.
-func (m *CheckMutation) UpdateTime() (r time.Time, exists bool) {
-	v := m.update_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdateTime returns the old "update_time" field's value of the Check entity.
-// If the Check object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CheckMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
-	}
-	return oldValue.UpdateTime, nil
-}
-
-// ResetUpdateTime resets all changes to the "update_time" field.
-func (m *CheckMutation) ResetUpdateTime() {
-	m.update_time = nil
 }
 
 // SetPause sets the "pause" field.
@@ -269,9 +204,22 @@ func (m *CheckMutation) OldPause(ctx context.Context) (v bool, err error) {
 	return oldValue.Pause, nil
 }
 
+// ClearPause clears the value of the "pause" field.
+func (m *CheckMutation) ClearPause() {
+	m.pause = nil
+	m.clearedFields[check.FieldPause] = struct{}{}
+}
+
+// PauseCleared returns if the "pause" field was cleared in this mutation.
+func (m *CheckMutation) PauseCleared() bool {
+	_, ok := m.clearedFields[check.FieldPause]
+	return ok
+}
+
 // ResetPause resets all changes to the "pause" field.
 func (m *CheckMutation) ResetPause() {
 	m.pause = nil
+	delete(m.clearedFields, check.FieldPause)
 }
 
 // SetHidden sets the "hidden" field.
@@ -305,18 +253,31 @@ func (m *CheckMutation) OldHidden(ctx context.Context) (v bool, err error) {
 	return oldValue.Hidden, nil
 }
 
+// ClearHidden clears the value of the "hidden" field.
+func (m *CheckMutation) ClearHidden() {
+	m.hidden = nil
+	m.clearedFields[check.FieldHidden] = struct{}{}
+}
+
+// HiddenCleared returns if the "hidden" field was cleared in this mutation.
+func (m *CheckMutation) HiddenCleared() bool {
+	_, ok := m.clearedFields[check.FieldHidden]
+	return ok
+}
+
 // ResetHidden resets all changes to the "hidden" field.
 func (m *CheckMutation) ResetHidden() {
 	m.hidden = nil
+	delete(m.clearedFields, check.FieldHidden)
 }
 
 // SetCompetitionID sets the "competition_id" field.
-func (m *CheckMutation) SetCompetitionID(i int) {
-	m.competition = &i
+func (m *CheckMutation) SetCompetitionID(s string) {
+	m.competition = &s
 }
 
 // CompetitionID returns the value of the "competition_id" field in the mutation.
-func (m *CheckMutation) CompetitionID() (r int, exists bool) {
+func (m *CheckMutation) CompetitionID() (r string, exists bool) {
 	v := m.competition
 	if v == nil {
 		return
@@ -327,7 +288,7 @@ func (m *CheckMutation) CompetitionID() (r int, exists bool) {
 // OldCompetitionID returns the old "competition_id" field's value of the Check entity.
 // If the Check object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CheckMutation) OldCompetitionID(ctx context.Context) (v int, err error) {
+func (m *CheckMutation) OldCompetitionID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCompetitionID is only allowed on UpdateOne operations")
 	}
@@ -467,7 +428,7 @@ func (m *CheckMutation) CompetitionCleared() bool {
 // CompetitionIDs returns the "competition" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // CompetitionID instead. It exists only for internal usage by the builders.
-func (m *CheckMutation) CompetitionIDs() (ids []int) {
+func (m *CheckMutation) CompetitionIDs() (ids []string) {
 	if id := m.competition; id != nil {
 		ids = append(ids, *id)
 	}
@@ -481,7 +442,7 @@ func (m *CheckMutation) ResetCompetition() {
 }
 
 // SetRoundsID sets the "rounds" edge to the Round entity by id.
-func (m *CheckMutation) SetRoundsID(id int) {
+func (m *CheckMutation) SetRoundsID(id string) {
 	m.rounds = &id
 }
 
@@ -496,7 +457,7 @@ func (m *CheckMutation) RoundsCleared() bool {
 }
 
 // RoundsID returns the "rounds" edge ID in the mutation.
-func (m *CheckMutation) RoundsID() (id int, exists bool) {
+func (m *CheckMutation) RoundsID() (id string, exists bool) {
 	if m.rounds != nil {
 		return *m.rounds, true
 	}
@@ -506,7 +467,7 @@ func (m *CheckMutation) RoundsID() (id int, exists bool) {
 // RoundsIDs returns the "rounds" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // RoundsID instead. It exists only for internal usage by the builders.
-func (m *CheckMutation) RoundsIDs() (ids []int) {
+func (m *CheckMutation) RoundsIDs() (ids []string) {
 	if id := m.rounds; id != nil {
 		ids = append(ids, *id)
 	}
@@ -520,7 +481,7 @@ func (m *CheckMutation) ResetRounds() {
 }
 
 // SetServicesID sets the "services" edge to the Service entity by id.
-func (m *CheckMutation) SetServicesID(id int) {
+func (m *CheckMutation) SetServicesID(id string) {
 	m.services = &id
 }
 
@@ -535,7 +496,7 @@ func (m *CheckMutation) ServicesCleared() bool {
 }
 
 // ServicesID returns the "services" edge ID in the mutation.
-func (m *CheckMutation) ServicesID() (id int, exists bool) {
+func (m *CheckMutation) ServicesID() (id string, exists bool) {
 	if m.services != nil {
 		return *m.services, true
 	}
@@ -545,7 +506,7 @@ func (m *CheckMutation) ServicesID() (id int, exists bool) {
 // ServicesIDs returns the "services" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // ServicesID instead. It exists only for internal usage by the builders.
-func (m *CheckMutation) ServicesIDs() (ids []int) {
+func (m *CheckMutation) ServicesIDs() (ids []string) {
 	if id := m.services; id != nil {
 		ids = append(ids, *id)
 	}
@@ -592,13 +553,7 @@ func (m *CheckMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CheckMutation) Fields() []string {
-	fields := make([]string, 0, 8)
-	if m.create_time != nil {
-		fields = append(fields, check.FieldCreateTime)
-	}
-	if m.update_time != nil {
-		fields = append(fields, check.FieldUpdateTime)
-	}
+	fields := make([]string, 0, 6)
 	if m.pause != nil {
 		fields = append(fields, check.FieldPause)
 	}
@@ -625,10 +580,6 @@ func (m *CheckMutation) Fields() []string {
 // schema.
 func (m *CheckMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case check.FieldCreateTime:
-		return m.CreateTime()
-	case check.FieldUpdateTime:
-		return m.UpdateTime()
 	case check.FieldPause:
 		return m.Pause()
 	case check.FieldHidden:
@@ -650,10 +601,6 @@ func (m *CheckMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *CheckMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case check.FieldCreateTime:
-		return m.OldCreateTime(ctx)
-	case check.FieldUpdateTime:
-		return m.OldUpdateTime(ctx)
 	case check.FieldPause:
 		return m.OldPause(ctx)
 	case check.FieldHidden:
@@ -675,20 +622,6 @@ func (m *CheckMutation) OldField(ctx context.Context, name string) (ent.Value, e
 // type.
 func (m *CheckMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case check.FieldCreateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreateTime(v)
-		return nil
-	case check.FieldUpdateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdateTime(v)
-		return nil
 	case check.FieldPause:
 		v, ok := value.(bool)
 		if !ok {
@@ -704,7 +637,7 @@ func (m *CheckMutation) SetField(name string, value ent.Value) error {
 		m.SetHidden(v)
 		return nil
 	case check.FieldCompetitionID:
-		v, ok := value.(int)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -738,16 +671,13 @@ func (m *CheckMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *CheckMutation) AddedFields() []string {
-	var fields []string
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *CheckMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	}
 	return nil, false
 }
 
@@ -763,7 +693,14 @@ func (m *CheckMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *CheckMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(check.FieldPause) {
+		fields = append(fields, check.FieldPause)
+	}
+	if m.FieldCleared(check.FieldHidden) {
+		fields = append(fields, check.FieldHidden)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -776,6 +713,14 @@ func (m *CheckMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *CheckMutation) ClearField(name string) error {
+	switch name {
+	case check.FieldPause:
+		m.ClearPause()
+		return nil
+	case check.FieldHidden:
+		m.ClearHidden()
+		return nil
+	}
 	return fmt.Errorf("unknown Check nullable field %s", name)
 }
 
@@ -783,12 +728,6 @@ func (m *CheckMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *CheckMutation) ResetField(name string) error {
 	switch name {
-	case check.FieldCreateTime:
-		m.ResetCreateTime()
-		return nil
-	case check.FieldUpdateTime:
-		m.ResetUpdateTime()
-		return nil
 	case check.FieldPause:
 		m.ResetPause()
 		return nil
@@ -924,30 +863,27 @@ func (m *CheckMutation) ResetEdge(name string) error {
 // CompetitionMutation represents an operation that mutates the Competition nodes in the graph.
 type CompetitionMutation struct {
 	config
-	op                Op
-	typ               string
-	id                *int
-	create_time       *time.Time
-	update_time       *time.Time
-	hidden            *bool
-	pause             *bool
-	name              *string
-	display_name      *string
-	round_duration    *float64
-	addround_duration *float64
-	to_be_started_at  *time.Time
-	started_at        *time.Time
-	finished_at       *time.Time
-	clearedFields     map[string]struct{}
-	teams             map[int]struct{}
-	removedteams      map[int]struct{}
-	clearedteams      bool
-	users             map[int]struct{}
-	removedusers      map[int]struct{}
-	clearedusers      bool
-	done              bool
-	oldValue          func(context.Context) (*Competition, error)
-	predicates        []predicate.Competition
+	op                 Op
+	typ                string
+	id                 *string
+	hidden             *bool
+	pause              *bool
+	name               *string
+	display_name       *string
+	viewable_to_public *bool
+	to_be_started_at   *time.Time
+	started_at         *time.Time
+	finished_at        *time.Time
+	clearedFields      map[string]struct{}
+	teams              map[string]struct{}
+	removedteams       map[string]struct{}
+	clearedteams       bool
+	users              map[string]struct{}
+	removedusers       map[string]struct{}
+	clearedusers       bool
+	done               bool
+	oldValue           func(context.Context) (*Competition, error)
+	predicates         []predicate.Competition
 }
 
 var _ ent.Mutation = (*CompetitionMutation)(nil)
@@ -970,7 +906,7 @@ func newCompetitionMutation(c config, op Op, opts ...competitionOption) *Competi
 }
 
 // withCompetitionID sets the ID field of the mutation.
-func withCompetitionID(id int) competitionOption {
+func withCompetitionID(id string) competitionOption {
 	return func(m *CompetitionMutation) {
 		var (
 			err   error
@@ -1020,9 +956,15 @@ func (m CompetitionMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Competition entities.
+func (m *CompetitionMutation) SetID(id string) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *CompetitionMutation) ID() (id int, exists bool) {
+func (m *CompetitionMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -1033,12 +975,12 @@ func (m *CompetitionMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *CompetitionMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *CompetitionMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []string{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -1046,78 +988,6 @@ func (m *CompetitionMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetCreateTime sets the "create_time" field.
-func (m *CompetitionMutation) SetCreateTime(t time.Time) {
-	m.create_time = &t
-}
-
-// CreateTime returns the value of the "create_time" field in the mutation.
-func (m *CompetitionMutation) CreateTime() (r time.Time, exists bool) {
-	v := m.create_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreateTime returns the old "create_time" field's value of the Competition entity.
-// If the Competition object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CompetitionMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
-	}
-	return oldValue.CreateTime, nil
-}
-
-// ResetCreateTime resets all changes to the "create_time" field.
-func (m *CompetitionMutation) ResetCreateTime() {
-	m.create_time = nil
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (m *CompetitionMutation) SetUpdateTime(t time.Time) {
-	m.update_time = &t
-}
-
-// UpdateTime returns the value of the "update_time" field in the mutation.
-func (m *CompetitionMutation) UpdateTime() (r time.Time, exists bool) {
-	v := m.update_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdateTime returns the old "update_time" field's value of the Competition entity.
-// If the Competition object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CompetitionMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
-	}
-	return oldValue.UpdateTime, nil
-}
-
-// ResetUpdateTime resets all changes to the "update_time" field.
-func (m *CompetitionMutation) ResetUpdateTime() {
-	m.update_time = nil
 }
 
 // SetHidden sets the "hidden" field.
@@ -1151,9 +1021,22 @@ func (m *CompetitionMutation) OldHidden(ctx context.Context) (v bool, err error)
 	return oldValue.Hidden, nil
 }
 
+// ClearHidden clears the value of the "hidden" field.
+func (m *CompetitionMutation) ClearHidden() {
+	m.hidden = nil
+	m.clearedFields[competition.FieldHidden] = struct{}{}
+}
+
+// HiddenCleared returns if the "hidden" field was cleared in this mutation.
+func (m *CompetitionMutation) HiddenCleared() bool {
+	_, ok := m.clearedFields[competition.FieldHidden]
+	return ok
+}
+
 // ResetHidden resets all changes to the "hidden" field.
 func (m *CompetitionMutation) ResetHidden() {
 	m.hidden = nil
+	delete(m.clearedFields, competition.FieldHidden)
 }
 
 // SetPause sets the "pause" field.
@@ -1187,9 +1070,22 @@ func (m *CompetitionMutation) OldPause(ctx context.Context) (v bool, err error) 
 	return oldValue.Pause, nil
 }
 
+// ClearPause clears the value of the "pause" field.
+func (m *CompetitionMutation) ClearPause() {
+	m.pause = nil
+	m.clearedFields[competition.FieldPause] = struct{}{}
+}
+
+// PauseCleared returns if the "pause" field was cleared in this mutation.
+func (m *CompetitionMutation) PauseCleared() bool {
+	_, ok := m.clearedFields[competition.FieldPause]
+	return ok
+}
+
 // ResetPause resets all changes to the "pause" field.
 func (m *CompetitionMutation) ResetPause() {
 	m.pause = nil
+	delete(m.clearedFields, competition.FieldPause)
 }
 
 // SetName sets the "name" field.
@@ -1264,60 +1160,53 @@ func (m *CompetitionMutation) ResetDisplayName() {
 	m.display_name = nil
 }
 
-// SetRoundDuration sets the "round_duration" field.
-func (m *CompetitionMutation) SetRoundDuration(f float64) {
-	m.round_duration = &f
-	m.addround_duration = nil
+// SetViewableToPublic sets the "viewable_to_public" field.
+func (m *CompetitionMutation) SetViewableToPublic(b bool) {
+	m.viewable_to_public = &b
 }
 
-// RoundDuration returns the value of the "round_duration" field in the mutation.
-func (m *CompetitionMutation) RoundDuration() (r float64, exists bool) {
-	v := m.round_duration
+// ViewableToPublic returns the value of the "viewable_to_public" field in the mutation.
+func (m *CompetitionMutation) ViewableToPublic() (r bool, exists bool) {
+	v := m.viewable_to_public
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldRoundDuration returns the old "round_duration" field's value of the Competition entity.
+// OldViewableToPublic returns the old "viewable_to_public" field's value of the Competition entity.
 // If the Competition object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CompetitionMutation) OldRoundDuration(ctx context.Context) (v float64, err error) {
+func (m *CompetitionMutation) OldViewableToPublic(ctx context.Context) (v *bool, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRoundDuration is only allowed on UpdateOne operations")
+		return v, errors.New("OldViewableToPublic is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRoundDuration requires an ID field in the mutation")
+		return v, errors.New("OldViewableToPublic requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRoundDuration: %w", err)
+		return v, fmt.Errorf("querying old value for OldViewableToPublic: %w", err)
 	}
-	return oldValue.RoundDuration, nil
+	return oldValue.ViewableToPublic, nil
 }
 
-// AddRoundDuration adds f to the "round_duration" field.
-func (m *CompetitionMutation) AddRoundDuration(f float64) {
-	if m.addround_duration != nil {
-		*m.addround_duration += f
-	} else {
-		m.addround_duration = &f
-	}
+// ClearViewableToPublic clears the value of the "viewable_to_public" field.
+func (m *CompetitionMutation) ClearViewableToPublic() {
+	m.viewable_to_public = nil
+	m.clearedFields[competition.FieldViewableToPublic] = struct{}{}
 }
 
-// AddedRoundDuration returns the value that was added to the "round_duration" field in this mutation.
-func (m *CompetitionMutation) AddedRoundDuration() (r float64, exists bool) {
-	v := m.addround_duration
-	if v == nil {
-		return
-	}
-	return *v, true
+// ViewableToPublicCleared returns if the "viewable_to_public" field was cleared in this mutation.
+func (m *CompetitionMutation) ViewableToPublicCleared() bool {
+	_, ok := m.clearedFields[competition.FieldViewableToPublic]
+	return ok
 }
 
-// ResetRoundDuration resets all changes to the "round_duration" field.
-func (m *CompetitionMutation) ResetRoundDuration() {
-	m.round_duration = nil
-	m.addround_duration = nil
+// ResetViewableToPublic resets all changes to the "viewable_to_public" field.
+func (m *CompetitionMutation) ResetViewableToPublic() {
+	m.viewable_to_public = nil
+	delete(m.clearedFields, competition.FieldViewableToPublic)
 }
 
 // SetToBeStartedAt sets the "to_be_started_at" field.
@@ -1468,9 +1357,9 @@ func (m *CompetitionMutation) ResetFinishedAt() {
 }
 
 // AddTeamIDs adds the "teams" edge to the Team entity by ids.
-func (m *CompetitionMutation) AddTeamIDs(ids ...int) {
+func (m *CompetitionMutation) AddTeamIDs(ids ...string) {
 	if m.teams == nil {
-		m.teams = make(map[int]struct{})
+		m.teams = make(map[string]struct{})
 	}
 	for i := range ids {
 		m.teams[ids[i]] = struct{}{}
@@ -1488,9 +1377,9 @@ func (m *CompetitionMutation) TeamsCleared() bool {
 }
 
 // RemoveTeamIDs removes the "teams" edge to the Team entity by IDs.
-func (m *CompetitionMutation) RemoveTeamIDs(ids ...int) {
+func (m *CompetitionMutation) RemoveTeamIDs(ids ...string) {
 	if m.removedteams == nil {
-		m.removedteams = make(map[int]struct{})
+		m.removedteams = make(map[string]struct{})
 	}
 	for i := range ids {
 		delete(m.teams, ids[i])
@@ -1499,7 +1388,7 @@ func (m *CompetitionMutation) RemoveTeamIDs(ids ...int) {
 }
 
 // RemovedTeams returns the removed IDs of the "teams" edge to the Team entity.
-func (m *CompetitionMutation) RemovedTeamsIDs() (ids []int) {
+func (m *CompetitionMutation) RemovedTeamsIDs() (ids []string) {
 	for id := range m.removedteams {
 		ids = append(ids, id)
 	}
@@ -1507,7 +1396,7 @@ func (m *CompetitionMutation) RemovedTeamsIDs() (ids []int) {
 }
 
 // TeamsIDs returns the "teams" edge IDs in the mutation.
-func (m *CompetitionMutation) TeamsIDs() (ids []int) {
+func (m *CompetitionMutation) TeamsIDs() (ids []string) {
 	for id := range m.teams {
 		ids = append(ids, id)
 	}
@@ -1522,9 +1411,9 @@ func (m *CompetitionMutation) ResetTeams() {
 }
 
 // AddUserIDs adds the "users" edge to the User entity by ids.
-func (m *CompetitionMutation) AddUserIDs(ids ...int) {
+func (m *CompetitionMutation) AddUserIDs(ids ...string) {
 	if m.users == nil {
-		m.users = make(map[int]struct{})
+		m.users = make(map[string]struct{})
 	}
 	for i := range ids {
 		m.users[ids[i]] = struct{}{}
@@ -1542,9 +1431,9 @@ func (m *CompetitionMutation) UsersCleared() bool {
 }
 
 // RemoveUserIDs removes the "users" edge to the User entity by IDs.
-func (m *CompetitionMutation) RemoveUserIDs(ids ...int) {
+func (m *CompetitionMutation) RemoveUserIDs(ids ...string) {
 	if m.removedusers == nil {
-		m.removedusers = make(map[int]struct{})
+		m.removedusers = make(map[string]struct{})
 	}
 	for i := range ids {
 		delete(m.users, ids[i])
@@ -1553,7 +1442,7 @@ func (m *CompetitionMutation) RemoveUserIDs(ids ...int) {
 }
 
 // RemovedUsers returns the removed IDs of the "users" edge to the User entity.
-func (m *CompetitionMutation) RemovedUsersIDs() (ids []int) {
+func (m *CompetitionMutation) RemovedUsersIDs() (ids []string) {
 	for id := range m.removedusers {
 		ids = append(ids, id)
 	}
@@ -1561,7 +1450,7 @@ func (m *CompetitionMutation) RemovedUsersIDs() (ids []int) {
 }
 
 // UsersIDs returns the "users" edge IDs in the mutation.
-func (m *CompetitionMutation) UsersIDs() (ids []int) {
+func (m *CompetitionMutation) UsersIDs() (ids []string) {
 	for id := range m.users {
 		ids = append(ids, id)
 	}
@@ -1609,13 +1498,7 @@ func (m *CompetitionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CompetitionMutation) Fields() []string {
-	fields := make([]string, 0, 10)
-	if m.create_time != nil {
-		fields = append(fields, competition.FieldCreateTime)
-	}
-	if m.update_time != nil {
-		fields = append(fields, competition.FieldUpdateTime)
-	}
+	fields := make([]string, 0, 8)
 	if m.hidden != nil {
 		fields = append(fields, competition.FieldHidden)
 	}
@@ -1628,8 +1511,8 @@ func (m *CompetitionMutation) Fields() []string {
 	if m.display_name != nil {
 		fields = append(fields, competition.FieldDisplayName)
 	}
-	if m.round_duration != nil {
-		fields = append(fields, competition.FieldRoundDuration)
+	if m.viewable_to_public != nil {
+		fields = append(fields, competition.FieldViewableToPublic)
 	}
 	if m.to_be_started_at != nil {
 		fields = append(fields, competition.FieldToBeStartedAt)
@@ -1648,10 +1531,6 @@ func (m *CompetitionMutation) Fields() []string {
 // schema.
 func (m *CompetitionMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case competition.FieldCreateTime:
-		return m.CreateTime()
-	case competition.FieldUpdateTime:
-		return m.UpdateTime()
 	case competition.FieldHidden:
 		return m.Hidden()
 	case competition.FieldPause:
@@ -1660,8 +1539,8 @@ func (m *CompetitionMutation) Field(name string) (ent.Value, bool) {
 		return m.Name()
 	case competition.FieldDisplayName:
 		return m.DisplayName()
-	case competition.FieldRoundDuration:
-		return m.RoundDuration()
+	case competition.FieldViewableToPublic:
+		return m.ViewableToPublic()
 	case competition.FieldToBeStartedAt:
 		return m.ToBeStartedAt()
 	case competition.FieldStartedAt:
@@ -1677,10 +1556,6 @@ func (m *CompetitionMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *CompetitionMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case competition.FieldCreateTime:
-		return m.OldCreateTime(ctx)
-	case competition.FieldUpdateTime:
-		return m.OldUpdateTime(ctx)
 	case competition.FieldHidden:
 		return m.OldHidden(ctx)
 	case competition.FieldPause:
@@ -1689,8 +1564,8 @@ func (m *CompetitionMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldName(ctx)
 	case competition.FieldDisplayName:
 		return m.OldDisplayName(ctx)
-	case competition.FieldRoundDuration:
-		return m.OldRoundDuration(ctx)
+	case competition.FieldViewableToPublic:
+		return m.OldViewableToPublic(ctx)
 	case competition.FieldToBeStartedAt:
 		return m.OldToBeStartedAt(ctx)
 	case competition.FieldStartedAt:
@@ -1706,20 +1581,6 @@ func (m *CompetitionMutation) OldField(ctx context.Context, name string) (ent.Va
 // type.
 func (m *CompetitionMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case competition.FieldCreateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreateTime(v)
-		return nil
-	case competition.FieldUpdateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdateTime(v)
-		return nil
 	case competition.FieldHidden:
 		v, ok := value.(bool)
 		if !ok {
@@ -1748,12 +1609,12 @@ func (m *CompetitionMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDisplayName(v)
 		return nil
-	case competition.FieldRoundDuration:
-		v, ok := value.(float64)
+	case competition.FieldViewableToPublic:
+		v, ok := value.(bool)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetRoundDuration(v)
+		m.SetViewableToPublic(v)
 		return nil
 	case competition.FieldToBeStartedAt:
 		v, ok := value.(time.Time)
@@ -1783,21 +1644,13 @@ func (m *CompetitionMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *CompetitionMutation) AddedFields() []string {
-	var fields []string
-	if m.addround_duration != nil {
-		fields = append(fields, competition.FieldRoundDuration)
-	}
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *CompetitionMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	case competition.FieldRoundDuration:
-		return m.AddedRoundDuration()
-	}
 	return nil, false
 }
 
@@ -1806,13 +1659,6 @@ func (m *CompetitionMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *CompetitionMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case competition.FieldRoundDuration:
-		v, ok := value.(float64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddRoundDuration(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Competition numeric field %s", name)
 }
@@ -1821,6 +1667,15 @@ func (m *CompetitionMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *CompetitionMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(competition.FieldHidden) {
+		fields = append(fields, competition.FieldHidden)
+	}
+	if m.FieldCleared(competition.FieldPause) {
+		fields = append(fields, competition.FieldPause)
+	}
+	if m.FieldCleared(competition.FieldViewableToPublic) {
+		fields = append(fields, competition.FieldViewableToPublic)
+	}
 	if m.FieldCleared(competition.FieldToBeStartedAt) {
 		fields = append(fields, competition.FieldToBeStartedAt)
 	}
@@ -1844,6 +1699,15 @@ func (m *CompetitionMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *CompetitionMutation) ClearField(name string) error {
 	switch name {
+	case competition.FieldHidden:
+		m.ClearHidden()
+		return nil
+	case competition.FieldPause:
+		m.ClearPause()
+		return nil
+	case competition.FieldViewableToPublic:
+		m.ClearViewableToPublic()
+		return nil
 	case competition.FieldToBeStartedAt:
 		m.ClearToBeStartedAt()
 		return nil
@@ -1861,12 +1725,6 @@ func (m *CompetitionMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *CompetitionMutation) ResetField(name string) error {
 	switch name {
-	case competition.FieldCreateTime:
-		m.ResetCreateTime()
-		return nil
-	case competition.FieldUpdateTime:
-		m.ResetUpdateTime()
-		return nil
 	case competition.FieldHidden:
 		m.ResetHidden()
 		return nil
@@ -1879,8 +1737,8 @@ func (m *CompetitionMutation) ResetField(name string) error {
 	case competition.FieldDisplayName:
 		m.ResetDisplayName()
 		return nil
-	case competition.FieldRoundDuration:
-		m.ResetRoundDuration()
+	case competition.FieldViewableToPublic:
+		m.ResetViewableToPublic()
 		return nil
 	case competition.FieldToBeStartedAt:
 		m.ResetToBeStartedAt()
@@ -2010,23 +1868,21 @@ type HostMutation struct {
 	config
 	op                 Op
 	typ                string
-	id                 *int
-	create_time        *time.Time
-	update_time        *time.Time
+	id                 *string
 	pause              *bool
 	hidden             *bool
 	address            *string
 	address_list_range *string
 	editable           *bool
 	clearedFields      map[string]struct{}
-	competition        *int
+	competition        *string
 	clearedcompetition bool
-	team               *int
+	team               *string
 	clearedteam        bool
-	services           map[int]struct{}
-	removedservices    map[int]struct{}
+	services           map[string]struct{}
+	removedservices    map[string]struct{}
 	clearedservices    bool
-	host_group         *int
+	host_group         *string
 	clearedhost_group  bool
 	done               bool
 	oldValue           func(context.Context) (*Host, error)
@@ -2053,7 +1909,7 @@ func newHostMutation(c config, op Op, opts ...hostOption) *HostMutation {
 }
 
 // withHostID sets the ID field of the mutation.
-func withHostID(id int) hostOption {
+func withHostID(id string) hostOption {
 	return func(m *HostMutation) {
 		var (
 			err   error
@@ -2103,9 +1959,15 @@ func (m HostMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Host entities.
+func (m *HostMutation) SetID(id string) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *HostMutation) ID() (id int, exists bool) {
+func (m *HostMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -2116,12 +1978,12 @@ func (m *HostMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *HostMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *HostMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []string{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -2129,78 +1991,6 @@ func (m *HostMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetCreateTime sets the "create_time" field.
-func (m *HostMutation) SetCreateTime(t time.Time) {
-	m.create_time = &t
-}
-
-// CreateTime returns the value of the "create_time" field in the mutation.
-func (m *HostMutation) CreateTime() (r time.Time, exists bool) {
-	v := m.create_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreateTime returns the old "create_time" field's value of the Host entity.
-// If the Host object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HostMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
-	}
-	return oldValue.CreateTime, nil
-}
-
-// ResetCreateTime resets all changes to the "create_time" field.
-func (m *HostMutation) ResetCreateTime() {
-	m.create_time = nil
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (m *HostMutation) SetUpdateTime(t time.Time) {
-	m.update_time = &t
-}
-
-// UpdateTime returns the value of the "update_time" field in the mutation.
-func (m *HostMutation) UpdateTime() (r time.Time, exists bool) {
-	v := m.update_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdateTime returns the old "update_time" field's value of the Host entity.
-// If the Host object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HostMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
-	}
-	return oldValue.UpdateTime, nil
-}
-
-// ResetUpdateTime resets all changes to the "update_time" field.
-func (m *HostMutation) ResetUpdateTime() {
-	m.update_time = nil
 }
 
 // SetPause sets the "pause" field.
@@ -2234,9 +2024,22 @@ func (m *HostMutation) OldPause(ctx context.Context) (v bool, err error) {
 	return oldValue.Pause, nil
 }
 
+// ClearPause clears the value of the "pause" field.
+func (m *HostMutation) ClearPause() {
+	m.pause = nil
+	m.clearedFields[host.FieldPause] = struct{}{}
+}
+
+// PauseCleared returns if the "pause" field was cleared in this mutation.
+func (m *HostMutation) PauseCleared() bool {
+	_, ok := m.clearedFields[host.FieldPause]
+	return ok
+}
+
 // ResetPause resets all changes to the "pause" field.
 func (m *HostMutation) ResetPause() {
 	m.pause = nil
+	delete(m.clearedFields, host.FieldPause)
 }
 
 // SetHidden sets the "hidden" field.
@@ -2270,18 +2073,31 @@ func (m *HostMutation) OldHidden(ctx context.Context) (v bool, err error) {
 	return oldValue.Hidden, nil
 }
 
+// ClearHidden clears the value of the "hidden" field.
+func (m *HostMutation) ClearHidden() {
+	m.hidden = nil
+	m.clearedFields[host.FieldHidden] = struct{}{}
+}
+
+// HiddenCleared returns if the "hidden" field was cleared in this mutation.
+func (m *HostMutation) HiddenCleared() bool {
+	_, ok := m.clearedFields[host.FieldHidden]
+	return ok
+}
+
 // ResetHidden resets all changes to the "hidden" field.
 func (m *HostMutation) ResetHidden() {
 	m.hidden = nil
+	delete(m.clearedFields, host.FieldHidden)
 }
 
 // SetCompetitionID sets the "competition_id" field.
-func (m *HostMutation) SetCompetitionID(i int) {
-	m.competition = &i
+func (m *HostMutation) SetCompetitionID(s string) {
+	m.competition = &s
 }
 
 // CompetitionID returns the value of the "competition_id" field in the mutation.
-func (m *HostMutation) CompetitionID() (r int, exists bool) {
+func (m *HostMutation) CompetitionID() (r string, exists bool) {
 	v := m.competition
 	if v == nil {
 		return
@@ -2292,7 +2108,7 @@ func (m *HostMutation) CompetitionID() (r int, exists bool) {
 // OldCompetitionID returns the old "competition_id" field's value of the Host entity.
 // If the Host object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HostMutation) OldCompetitionID(ctx context.Context) (v int, err error) {
+func (m *HostMutation) OldCompetitionID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCompetitionID is only allowed on UpdateOne operations")
 	}
@@ -2312,12 +2128,12 @@ func (m *HostMutation) ResetCompetitionID() {
 }
 
 // SetTeamID sets the "team_id" field.
-func (m *HostMutation) SetTeamID(i int) {
-	m.team = &i
+func (m *HostMutation) SetTeamID(s string) {
+	m.team = &s
 }
 
 // TeamID returns the value of the "team_id" field in the mutation.
-func (m *HostMutation) TeamID() (r int, exists bool) {
+func (m *HostMutation) TeamID() (r string, exists bool) {
 	v := m.team
 	if v == nil {
 		return
@@ -2328,7 +2144,7 @@ func (m *HostMutation) TeamID() (r int, exists bool) {
 // OldTeamID returns the old "team_id" field's value of the Host entity.
 // If the Host object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HostMutation) OldTeamID(ctx context.Context) (v int, err error) {
+func (m *HostMutation) OldTeamID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTeamID is only allowed on UpdateOne operations")
 	}
@@ -2468,7 +2284,7 @@ func (m *HostMutation) CompetitionCleared() bool {
 // CompetitionIDs returns the "competition" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // CompetitionID instead. It exists only for internal usage by the builders.
-func (m *HostMutation) CompetitionIDs() (ids []int) {
+func (m *HostMutation) CompetitionIDs() (ids []string) {
 	if id := m.competition; id != nil {
 		ids = append(ids, *id)
 	}
@@ -2494,7 +2310,7 @@ func (m *HostMutation) TeamCleared() bool {
 // TeamIDs returns the "team" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // TeamID instead. It exists only for internal usage by the builders.
-func (m *HostMutation) TeamIDs() (ids []int) {
+func (m *HostMutation) TeamIDs() (ids []string) {
 	if id := m.team; id != nil {
 		ids = append(ids, *id)
 	}
@@ -2508,9 +2324,9 @@ func (m *HostMutation) ResetTeam() {
 }
 
 // AddServiceIDs adds the "services" edge to the Service entity by ids.
-func (m *HostMutation) AddServiceIDs(ids ...int) {
+func (m *HostMutation) AddServiceIDs(ids ...string) {
 	if m.services == nil {
-		m.services = make(map[int]struct{})
+		m.services = make(map[string]struct{})
 	}
 	for i := range ids {
 		m.services[ids[i]] = struct{}{}
@@ -2528,9 +2344,9 @@ func (m *HostMutation) ServicesCleared() bool {
 }
 
 // RemoveServiceIDs removes the "services" edge to the Service entity by IDs.
-func (m *HostMutation) RemoveServiceIDs(ids ...int) {
+func (m *HostMutation) RemoveServiceIDs(ids ...string) {
 	if m.removedservices == nil {
-		m.removedservices = make(map[int]struct{})
+		m.removedservices = make(map[string]struct{})
 	}
 	for i := range ids {
 		delete(m.services, ids[i])
@@ -2539,7 +2355,7 @@ func (m *HostMutation) RemoveServiceIDs(ids ...int) {
 }
 
 // RemovedServices returns the removed IDs of the "services" edge to the Service entity.
-func (m *HostMutation) RemovedServicesIDs() (ids []int) {
+func (m *HostMutation) RemovedServicesIDs() (ids []string) {
 	for id := range m.removedservices {
 		ids = append(ids, id)
 	}
@@ -2547,7 +2363,7 @@ func (m *HostMutation) RemovedServicesIDs() (ids []int) {
 }
 
 // ServicesIDs returns the "services" edge IDs in the mutation.
-func (m *HostMutation) ServicesIDs() (ids []int) {
+func (m *HostMutation) ServicesIDs() (ids []string) {
 	for id := range m.services {
 		ids = append(ids, id)
 	}
@@ -2562,7 +2378,7 @@ func (m *HostMutation) ResetServices() {
 }
 
 // SetHostGroupID sets the "host_group" edge to the HostGroup entity by id.
-func (m *HostMutation) SetHostGroupID(id int) {
+func (m *HostMutation) SetHostGroupID(id string) {
 	m.host_group = &id
 }
 
@@ -2577,7 +2393,7 @@ func (m *HostMutation) HostGroupCleared() bool {
 }
 
 // HostGroupID returns the "host_group" edge ID in the mutation.
-func (m *HostMutation) HostGroupID() (id int, exists bool) {
+func (m *HostMutation) HostGroupID() (id string, exists bool) {
 	if m.host_group != nil {
 		return *m.host_group, true
 	}
@@ -2587,7 +2403,7 @@ func (m *HostMutation) HostGroupID() (id int, exists bool) {
 // HostGroupIDs returns the "host_group" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // HostGroupID instead. It exists only for internal usage by the builders.
-func (m *HostMutation) HostGroupIDs() (ids []int) {
+func (m *HostMutation) HostGroupIDs() (ids []string) {
 	if id := m.host_group; id != nil {
 		ids = append(ids, *id)
 	}
@@ -2634,13 +2450,7 @@ func (m *HostMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *HostMutation) Fields() []string {
-	fields := make([]string, 0, 9)
-	if m.create_time != nil {
-		fields = append(fields, host.FieldCreateTime)
-	}
-	if m.update_time != nil {
-		fields = append(fields, host.FieldUpdateTime)
-	}
+	fields := make([]string, 0, 7)
 	if m.pause != nil {
 		fields = append(fields, host.FieldPause)
 	}
@@ -2670,10 +2480,6 @@ func (m *HostMutation) Fields() []string {
 // schema.
 func (m *HostMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case host.FieldCreateTime:
-		return m.CreateTime()
-	case host.FieldUpdateTime:
-		return m.UpdateTime()
 	case host.FieldPause:
 		return m.Pause()
 	case host.FieldHidden:
@@ -2697,10 +2503,6 @@ func (m *HostMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *HostMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case host.FieldCreateTime:
-		return m.OldCreateTime(ctx)
-	case host.FieldUpdateTime:
-		return m.OldUpdateTime(ctx)
 	case host.FieldPause:
 		return m.OldPause(ctx)
 	case host.FieldHidden:
@@ -2724,20 +2526,6 @@ func (m *HostMutation) OldField(ctx context.Context, name string) (ent.Value, er
 // type.
 func (m *HostMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case host.FieldCreateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreateTime(v)
-		return nil
-	case host.FieldUpdateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdateTime(v)
-		return nil
 	case host.FieldPause:
 		v, ok := value.(bool)
 		if !ok {
@@ -2753,14 +2541,14 @@ func (m *HostMutation) SetField(name string, value ent.Value) error {
 		m.SetHidden(v)
 		return nil
 	case host.FieldCompetitionID:
-		v, ok := value.(int)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCompetitionID(v)
 		return nil
 	case host.FieldTeamID:
-		v, ok := value.(int)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -2794,16 +2582,13 @@ func (m *HostMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *HostMutation) AddedFields() []string {
-	var fields []string
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *HostMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	}
 	return nil, false
 }
 
@@ -2819,7 +2604,14 @@ func (m *HostMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *HostMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(host.FieldPause) {
+		fields = append(fields, host.FieldPause)
+	}
+	if m.FieldCleared(host.FieldHidden) {
+		fields = append(fields, host.FieldHidden)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -2832,6 +2624,14 @@ func (m *HostMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *HostMutation) ClearField(name string) error {
+	switch name {
+	case host.FieldPause:
+		m.ClearPause()
+		return nil
+	case host.FieldHidden:
+		m.ClearHidden()
+		return nil
+	}
 	return fmt.Errorf("unknown Host nullable field %s", name)
 }
 
@@ -2839,12 +2639,6 @@ func (m *HostMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *HostMutation) ResetField(name string) error {
 	switch name {
-	case host.FieldCreateTime:
-		m.ResetCreateTime()
-		return nil
-	case host.FieldUpdateTime:
-		m.ResetUpdateTime()
-		return nil
 	case host.FieldPause:
 		m.ResetPause()
 		return nil
@@ -3013,19 +2807,17 @@ type HostGroupMutation struct {
 	config
 	op                 Op
 	typ                string
-	id                 *int
-	create_time        *time.Time
-	update_time        *time.Time
+	id                 *string
 	pause              *bool
 	hidden             *bool
 	name               *string
 	clearedFields      map[string]struct{}
-	competition        *int
+	competition        *string
 	clearedcompetition bool
-	team               *int
+	team               *string
 	clearedteam        bool
-	hosts              map[int]struct{}
-	removedhosts       map[int]struct{}
+	hosts              map[string]struct{}
+	removedhosts       map[string]struct{}
 	clearedhosts       bool
 	done               bool
 	oldValue           func(context.Context) (*HostGroup, error)
@@ -3052,7 +2844,7 @@ func newHostGroupMutation(c config, op Op, opts ...hostgroupOption) *HostGroupMu
 }
 
 // withHostGroupID sets the ID field of the mutation.
-func withHostGroupID(id int) hostgroupOption {
+func withHostGroupID(id string) hostgroupOption {
 	return func(m *HostGroupMutation) {
 		var (
 			err   error
@@ -3102,9 +2894,15 @@ func (m HostGroupMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of HostGroup entities.
+func (m *HostGroupMutation) SetID(id string) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *HostGroupMutation) ID() (id int, exists bool) {
+func (m *HostGroupMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -3115,12 +2913,12 @@ func (m *HostGroupMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *HostGroupMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *HostGroupMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []string{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -3128,78 +2926,6 @@ func (m *HostGroupMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetCreateTime sets the "create_time" field.
-func (m *HostGroupMutation) SetCreateTime(t time.Time) {
-	m.create_time = &t
-}
-
-// CreateTime returns the value of the "create_time" field in the mutation.
-func (m *HostGroupMutation) CreateTime() (r time.Time, exists bool) {
-	v := m.create_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreateTime returns the old "create_time" field's value of the HostGroup entity.
-// If the HostGroup object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HostGroupMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
-	}
-	return oldValue.CreateTime, nil
-}
-
-// ResetCreateTime resets all changes to the "create_time" field.
-func (m *HostGroupMutation) ResetCreateTime() {
-	m.create_time = nil
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (m *HostGroupMutation) SetUpdateTime(t time.Time) {
-	m.update_time = &t
-}
-
-// UpdateTime returns the value of the "update_time" field in the mutation.
-func (m *HostGroupMutation) UpdateTime() (r time.Time, exists bool) {
-	v := m.update_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdateTime returns the old "update_time" field's value of the HostGroup entity.
-// If the HostGroup object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HostGroupMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
-	}
-	return oldValue.UpdateTime, nil
-}
-
-// ResetUpdateTime resets all changes to the "update_time" field.
-func (m *HostGroupMutation) ResetUpdateTime() {
-	m.update_time = nil
 }
 
 // SetPause sets the "pause" field.
@@ -3233,9 +2959,22 @@ func (m *HostGroupMutation) OldPause(ctx context.Context) (v bool, err error) {
 	return oldValue.Pause, nil
 }
 
+// ClearPause clears the value of the "pause" field.
+func (m *HostGroupMutation) ClearPause() {
+	m.pause = nil
+	m.clearedFields[hostgroup.FieldPause] = struct{}{}
+}
+
+// PauseCleared returns if the "pause" field was cleared in this mutation.
+func (m *HostGroupMutation) PauseCleared() bool {
+	_, ok := m.clearedFields[hostgroup.FieldPause]
+	return ok
+}
+
 // ResetPause resets all changes to the "pause" field.
 func (m *HostGroupMutation) ResetPause() {
 	m.pause = nil
+	delete(m.clearedFields, hostgroup.FieldPause)
 }
 
 // SetHidden sets the "hidden" field.
@@ -3269,18 +3008,31 @@ func (m *HostGroupMutation) OldHidden(ctx context.Context) (v bool, err error) {
 	return oldValue.Hidden, nil
 }
 
+// ClearHidden clears the value of the "hidden" field.
+func (m *HostGroupMutation) ClearHidden() {
+	m.hidden = nil
+	m.clearedFields[hostgroup.FieldHidden] = struct{}{}
+}
+
+// HiddenCleared returns if the "hidden" field was cleared in this mutation.
+func (m *HostGroupMutation) HiddenCleared() bool {
+	_, ok := m.clearedFields[hostgroup.FieldHidden]
+	return ok
+}
+
 // ResetHidden resets all changes to the "hidden" field.
 func (m *HostGroupMutation) ResetHidden() {
 	m.hidden = nil
+	delete(m.clearedFields, hostgroup.FieldHidden)
 }
 
 // SetCompetitionID sets the "competition_id" field.
-func (m *HostGroupMutation) SetCompetitionID(i int) {
-	m.competition = &i
+func (m *HostGroupMutation) SetCompetitionID(s string) {
+	m.competition = &s
 }
 
 // CompetitionID returns the value of the "competition_id" field in the mutation.
-func (m *HostGroupMutation) CompetitionID() (r int, exists bool) {
+func (m *HostGroupMutation) CompetitionID() (r string, exists bool) {
 	v := m.competition
 	if v == nil {
 		return
@@ -3291,7 +3043,7 @@ func (m *HostGroupMutation) CompetitionID() (r int, exists bool) {
 // OldCompetitionID returns the old "competition_id" field's value of the HostGroup entity.
 // If the HostGroup object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HostGroupMutation) OldCompetitionID(ctx context.Context) (v int, err error) {
+func (m *HostGroupMutation) OldCompetitionID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCompetitionID is only allowed on UpdateOne operations")
 	}
@@ -3311,12 +3063,12 @@ func (m *HostGroupMutation) ResetCompetitionID() {
 }
 
 // SetTeamID sets the "team_id" field.
-func (m *HostGroupMutation) SetTeamID(i int) {
-	m.team = &i
+func (m *HostGroupMutation) SetTeamID(s string) {
+	m.team = &s
 }
 
 // TeamID returns the value of the "team_id" field in the mutation.
-func (m *HostGroupMutation) TeamID() (r int, exists bool) {
+func (m *HostGroupMutation) TeamID() (r string, exists bool) {
 	v := m.team
 	if v == nil {
 		return
@@ -3327,7 +3079,7 @@ func (m *HostGroupMutation) TeamID() (r int, exists bool) {
 // OldTeamID returns the old "team_id" field's value of the HostGroup entity.
 // If the HostGroup object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HostGroupMutation) OldTeamID(ctx context.Context) (v int, err error) {
+func (m *HostGroupMutation) OldTeamID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTeamID is only allowed on UpdateOne operations")
 	}
@@ -3395,7 +3147,7 @@ func (m *HostGroupMutation) CompetitionCleared() bool {
 // CompetitionIDs returns the "competition" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // CompetitionID instead. It exists only for internal usage by the builders.
-func (m *HostGroupMutation) CompetitionIDs() (ids []int) {
+func (m *HostGroupMutation) CompetitionIDs() (ids []string) {
 	if id := m.competition; id != nil {
 		ids = append(ids, *id)
 	}
@@ -3421,7 +3173,7 @@ func (m *HostGroupMutation) TeamCleared() bool {
 // TeamIDs returns the "team" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // TeamID instead. It exists only for internal usage by the builders.
-func (m *HostGroupMutation) TeamIDs() (ids []int) {
+func (m *HostGroupMutation) TeamIDs() (ids []string) {
 	if id := m.team; id != nil {
 		ids = append(ids, *id)
 	}
@@ -3435,9 +3187,9 @@ func (m *HostGroupMutation) ResetTeam() {
 }
 
 // AddHostIDs adds the "hosts" edge to the Host entity by ids.
-func (m *HostGroupMutation) AddHostIDs(ids ...int) {
+func (m *HostGroupMutation) AddHostIDs(ids ...string) {
 	if m.hosts == nil {
-		m.hosts = make(map[int]struct{})
+		m.hosts = make(map[string]struct{})
 	}
 	for i := range ids {
 		m.hosts[ids[i]] = struct{}{}
@@ -3455,9 +3207,9 @@ func (m *HostGroupMutation) HostsCleared() bool {
 }
 
 // RemoveHostIDs removes the "hosts" edge to the Host entity by IDs.
-func (m *HostGroupMutation) RemoveHostIDs(ids ...int) {
+func (m *HostGroupMutation) RemoveHostIDs(ids ...string) {
 	if m.removedhosts == nil {
-		m.removedhosts = make(map[int]struct{})
+		m.removedhosts = make(map[string]struct{})
 	}
 	for i := range ids {
 		delete(m.hosts, ids[i])
@@ -3466,7 +3218,7 @@ func (m *HostGroupMutation) RemoveHostIDs(ids ...int) {
 }
 
 // RemovedHosts returns the removed IDs of the "hosts" edge to the Host entity.
-func (m *HostGroupMutation) RemovedHostsIDs() (ids []int) {
+func (m *HostGroupMutation) RemovedHostsIDs() (ids []string) {
 	for id := range m.removedhosts {
 		ids = append(ids, id)
 	}
@@ -3474,7 +3226,7 @@ func (m *HostGroupMutation) RemovedHostsIDs() (ids []int) {
 }
 
 // HostsIDs returns the "hosts" edge IDs in the mutation.
-func (m *HostGroupMutation) HostsIDs() (ids []int) {
+func (m *HostGroupMutation) HostsIDs() (ids []string) {
 	for id := range m.hosts {
 		ids = append(ids, id)
 	}
@@ -3522,13 +3274,7 @@ func (m *HostGroupMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *HostGroupMutation) Fields() []string {
-	fields := make([]string, 0, 7)
-	if m.create_time != nil {
-		fields = append(fields, hostgroup.FieldCreateTime)
-	}
-	if m.update_time != nil {
-		fields = append(fields, hostgroup.FieldUpdateTime)
-	}
+	fields := make([]string, 0, 5)
 	if m.pause != nil {
 		fields = append(fields, hostgroup.FieldPause)
 	}
@@ -3552,10 +3298,6 @@ func (m *HostGroupMutation) Fields() []string {
 // schema.
 func (m *HostGroupMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case hostgroup.FieldCreateTime:
-		return m.CreateTime()
-	case hostgroup.FieldUpdateTime:
-		return m.UpdateTime()
 	case hostgroup.FieldPause:
 		return m.Pause()
 	case hostgroup.FieldHidden:
@@ -3575,10 +3317,6 @@ func (m *HostGroupMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *HostGroupMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case hostgroup.FieldCreateTime:
-		return m.OldCreateTime(ctx)
-	case hostgroup.FieldUpdateTime:
-		return m.OldUpdateTime(ctx)
 	case hostgroup.FieldPause:
 		return m.OldPause(ctx)
 	case hostgroup.FieldHidden:
@@ -3598,20 +3336,6 @@ func (m *HostGroupMutation) OldField(ctx context.Context, name string) (ent.Valu
 // type.
 func (m *HostGroupMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case hostgroup.FieldCreateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreateTime(v)
-		return nil
-	case hostgroup.FieldUpdateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdateTime(v)
-		return nil
 	case hostgroup.FieldPause:
 		v, ok := value.(bool)
 		if !ok {
@@ -3627,14 +3351,14 @@ func (m *HostGroupMutation) SetField(name string, value ent.Value) error {
 		m.SetHidden(v)
 		return nil
 	case hostgroup.FieldCompetitionID:
-		v, ok := value.(int)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCompetitionID(v)
 		return nil
 	case hostgroup.FieldTeamID:
-		v, ok := value.(int)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -3654,16 +3378,13 @@ func (m *HostGroupMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *HostGroupMutation) AddedFields() []string {
-	var fields []string
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *HostGroupMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	}
 	return nil, false
 }
 
@@ -3679,7 +3400,14 @@ func (m *HostGroupMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *HostGroupMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(hostgroup.FieldPause) {
+		fields = append(fields, hostgroup.FieldPause)
+	}
+	if m.FieldCleared(hostgroup.FieldHidden) {
+		fields = append(fields, hostgroup.FieldHidden)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -3692,6 +3420,14 @@ func (m *HostGroupMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *HostGroupMutation) ClearField(name string) error {
+	switch name {
+	case hostgroup.FieldPause:
+		m.ClearPause()
+		return nil
+	case hostgroup.FieldHidden:
+		m.ClearHidden()
+		return nil
+	}
 	return fmt.Errorf("unknown HostGroup nullable field %s", name)
 }
 
@@ -3699,12 +3435,6 @@ func (m *HostGroupMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *HostGroupMutation) ResetField(name string) error {
 	switch name {
-	case hostgroup.FieldCreateTime:
-		m.ResetCreateTime()
-		return nil
-	case hostgroup.FieldUpdateTime:
-		m.ResetUpdateTime()
-		return nil
 	case hostgroup.FieldPause:
 		m.ResetPause()
 		return nil
@@ -3849,18 +3579,16 @@ type PropertyMutation struct {
 	config
 	op                 Op
 	typ                string
-	id                 *int
-	create_time        *time.Time
-	update_time        *time.Time
+	id                 *string
 	key                *string
 	value              *string
 	status             *property.Status
 	clearedFields      map[string]struct{}
-	competition        *int
+	competition        *string
 	clearedcompetition bool
-	team               *int
+	team               *string
 	clearedteam        bool
-	services           *int
+	services           *string
 	clearedservices    bool
 	done               bool
 	oldValue           func(context.Context) (*Property, error)
@@ -3887,7 +3615,7 @@ func newPropertyMutation(c config, op Op, opts ...propertyOption) *PropertyMutat
 }
 
 // withPropertyID sets the ID field of the mutation.
-func withPropertyID(id int) propertyOption {
+func withPropertyID(id string) propertyOption {
 	return func(m *PropertyMutation) {
 		var (
 			err   error
@@ -3937,9 +3665,15 @@ func (m PropertyMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Property entities.
+func (m *PropertyMutation) SetID(id string) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *PropertyMutation) ID() (id int, exists bool) {
+func (m *PropertyMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -3950,12 +3684,12 @@ func (m *PropertyMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *PropertyMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *PropertyMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []string{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -3965,85 +3699,13 @@ func (m *PropertyMutation) IDs(ctx context.Context) ([]int, error) {
 	}
 }
 
-// SetCreateTime sets the "create_time" field.
-func (m *PropertyMutation) SetCreateTime(t time.Time) {
-	m.create_time = &t
-}
-
-// CreateTime returns the value of the "create_time" field in the mutation.
-func (m *PropertyMutation) CreateTime() (r time.Time, exists bool) {
-	v := m.create_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreateTime returns the old "create_time" field's value of the Property entity.
-// If the Property object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PropertyMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
-	}
-	return oldValue.CreateTime, nil
-}
-
-// ResetCreateTime resets all changes to the "create_time" field.
-func (m *PropertyMutation) ResetCreateTime() {
-	m.create_time = nil
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (m *PropertyMutation) SetUpdateTime(t time.Time) {
-	m.update_time = &t
-}
-
-// UpdateTime returns the value of the "update_time" field in the mutation.
-func (m *PropertyMutation) UpdateTime() (r time.Time, exists bool) {
-	v := m.update_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdateTime returns the old "update_time" field's value of the Property entity.
-// If the Property object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PropertyMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
-	}
-	return oldValue.UpdateTime, nil
-}
-
-// ResetUpdateTime resets all changes to the "update_time" field.
-func (m *PropertyMutation) ResetUpdateTime() {
-	m.update_time = nil
-}
-
 // SetCompetitionID sets the "competition_id" field.
-func (m *PropertyMutation) SetCompetitionID(i int) {
-	m.competition = &i
+func (m *PropertyMutation) SetCompetitionID(s string) {
+	m.competition = &s
 }
 
 // CompetitionID returns the value of the "competition_id" field in the mutation.
-func (m *PropertyMutation) CompetitionID() (r int, exists bool) {
+func (m *PropertyMutation) CompetitionID() (r string, exists bool) {
 	v := m.competition
 	if v == nil {
 		return
@@ -4054,7 +3716,7 @@ func (m *PropertyMutation) CompetitionID() (r int, exists bool) {
 // OldCompetitionID returns the old "competition_id" field's value of the Property entity.
 // If the Property object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PropertyMutation) OldCompetitionID(ctx context.Context) (v int, err error) {
+func (m *PropertyMutation) OldCompetitionID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCompetitionID is only allowed on UpdateOne operations")
 	}
@@ -4074,12 +3736,12 @@ func (m *PropertyMutation) ResetCompetitionID() {
 }
 
 // SetTeamID sets the "team_id" field.
-func (m *PropertyMutation) SetTeamID(i int) {
-	m.team = &i
+func (m *PropertyMutation) SetTeamID(s string) {
+	m.team = &s
 }
 
 // TeamID returns the value of the "team_id" field in the mutation.
-func (m *PropertyMutation) TeamID() (r int, exists bool) {
+func (m *PropertyMutation) TeamID() (r string, exists bool) {
 	v := m.team
 	if v == nil {
 		return
@@ -4090,7 +3752,7 @@ func (m *PropertyMutation) TeamID() (r int, exists bool) {
 // OldTeamID returns the old "team_id" field's value of the Property entity.
 // If the Property object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PropertyMutation) OldTeamID(ctx context.Context) (v int, err error) {
+func (m *PropertyMutation) OldTeamID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTeamID is only allowed on UpdateOne operations")
 	}
@@ -4230,7 +3892,7 @@ func (m *PropertyMutation) CompetitionCleared() bool {
 // CompetitionIDs returns the "competition" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // CompetitionID instead. It exists only for internal usage by the builders.
-func (m *PropertyMutation) CompetitionIDs() (ids []int) {
+func (m *PropertyMutation) CompetitionIDs() (ids []string) {
 	if id := m.competition; id != nil {
 		ids = append(ids, *id)
 	}
@@ -4256,7 +3918,7 @@ func (m *PropertyMutation) TeamCleared() bool {
 // TeamIDs returns the "team" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // TeamID instead. It exists only for internal usage by the builders.
-func (m *PropertyMutation) TeamIDs() (ids []int) {
+func (m *PropertyMutation) TeamIDs() (ids []string) {
 	if id := m.team; id != nil {
 		ids = append(ids, *id)
 	}
@@ -4270,7 +3932,7 @@ func (m *PropertyMutation) ResetTeam() {
 }
 
 // SetServicesID sets the "services" edge to the Service entity by id.
-func (m *PropertyMutation) SetServicesID(id int) {
+func (m *PropertyMutation) SetServicesID(id string) {
 	m.services = &id
 }
 
@@ -4285,7 +3947,7 @@ func (m *PropertyMutation) ServicesCleared() bool {
 }
 
 // ServicesID returns the "services" edge ID in the mutation.
-func (m *PropertyMutation) ServicesID() (id int, exists bool) {
+func (m *PropertyMutation) ServicesID() (id string, exists bool) {
 	if m.services != nil {
 		return *m.services, true
 	}
@@ -4295,7 +3957,7 @@ func (m *PropertyMutation) ServicesID() (id int, exists bool) {
 // ServicesIDs returns the "services" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // ServicesID instead. It exists only for internal usage by the builders.
-func (m *PropertyMutation) ServicesIDs() (ids []int) {
+func (m *PropertyMutation) ServicesIDs() (ids []string) {
 	if id := m.services; id != nil {
 		ids = append(ids, *id)
 	}
@@ -4342,13 +4004,7 @@ func (m *PropertyMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PropertyMutation) Fields() []string {
-	fields := make([]string, 0, 7)
-	if m.create_time != nil {
-		fields = append(fields, property.FieldCreateTime)
-	}
-	if m.update_time != nil {
-		fields = append(fields, property.FieldUpdateTime)
-	}
+	fields := make([]string, 0, 5)
 	if m.competition != nil {
 		fields = append(fields, property.FieldCompetitionID)
 	}
@@ -4372,10 +4028,6 @@ func (m *PropertyMutation) Fields() []string {
 // schema.
 func (m *PropertyMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case property.FieldCreateTime:
-		return m.CreateTime()
-	case property.FieldUpdateTime:
-		return m.UpdateTime()
 	case property.FieldCompetitionID:
 		return m.CompetitionID()
 	case property.FieldTeamID:
@@ -4395,10 +4047,6 @@ func (m *PropertyMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *PropertyMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case property.FieldCreateTime:
-		return m.OldCreateTime(ctx)
-	case property.FieldUpdateTime:
-		return m.OldUpdateTime(ctx)
 	case property.FieldCompetitionID:
 		return m.OldCompetitionID(ctx)
 	case property.FieldTeamID:
@@ -4418,29 +4066,15 @@ func (m *PropertyMutation) OldField(ctx context.Context, name string) (ent.Value
 // type.
 func (m *PropertyMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case property.FieldCreateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreateTime(v)
-		return nil
-	case property.FieldUpdateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdateTime(v)
-		return nil
 	case property.FieldCompetitionID:
-		v, ok := value.(int)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCompetitionID(v)
 		return nil
 	case property.FieldTeamID:
-		v, ok := value.(int)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -4474,16 +4108,13 @@ func (m *PropertyMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *PropertyMutation) AddedFields() []string {
-	var fields []string
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *PropertyMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	}
 	return nil, false
 }
 
@@ -4519,12 +4150,6 @@ func (m *PropertyMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *PropertyMutation) ResetField(name string) error {
 	switch name {
-	case property.FieldCreateTime:
-		m.ResetCreateTime()
-		return nil
-	case property.FieldUpdateTime:
-		m.ResetUpdateTime()
-		return nil
 	case property.FieldCompetitionID:
 		m.ResetCompetitionID()
 		return nil
@@ -4654,14 +4279,392 @@ func (m *PropertyMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Property edge %s", name)
 }
 
+// ReportMutation represents an operation that mutates the Report nodes in the graph.
+type ReportMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	log           *string
+	error         *string
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*Report, error)
+	predicates    []predicate.Report
+}
+
+var _ ent.Mutation = (*ReportMutation)(nil)
+
+// reportOption allows management of the mutation configuration using functional options.
+type reportOption func(*ReportMutation)
+
+// newReportMutation creates new mutation for the Report entity.
+func newReportMutation(c config, op Op, opts ...reportOption) *ReportMutation {
+	m := &ReportMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeReport,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withReportID sets the ID field of the mutation.
+func withReportID(id int) reportOption {
+	return func(m *ReportMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Report
+		)
+		m.oldValue = func(ctx context.Context) (*Report, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Report.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withReport sets the old Report of the mutation.
+func withReport(node *Report) reportOption {
+	return func(m *ReportMutation) {
+		m.oldValue = func(context.Context) (*Report, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ReportMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ReportMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("entities: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ReportMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ReportMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Report.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetLog sets the "log" field.
+func (m *ReportMutation) SetLog(s string) {
+	m.log = &s
+}
+
+// Log returns the value of the "log" field in the mutation.
+func (m *ReportMutation) Log() (r string, exists bool) {
+	v := m.log
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLog returns the old "log" field's value of the Report entity.
+// If the Report object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReportMutation) OldLog(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLog is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLog requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLog: %w", err)
+	}
+	return oldValue.Log, nil
+}
+
+// ResetLog resets all changes to the "log" field.
+func (m *ReportMutation) ResetLog() {
+	m.log = nil
+}
+
+// SetError sets the "error" field.
+func (m *ReportMutation) SetError(s string) {
+	m.error = &s
+}
+
+// Error returns the value of the "error" field in the mutation.
+func (m *ReportMutation) Error() (r string, exists bool) {
+	v := m.error
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldError returns the old "error" field's value of the Report entity.
+// If the Report object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReportMutation) OldError(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldError is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldError requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldError: %w", err)
+	}
+	return oldValue.Error, nil
+}
+
+// ResetError resets all changes to the "error" field.
+func (m *ReportMutation) ResetError() {
+	m.error = nil
+}
+
+// Where appends a list predicates to the ReportMutation builder.
+func (m *ReportMutation) Where(ps ...predicate.Report) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the ReportMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *ReportMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Report, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *ReportMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *ReportMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Report).
+func (m *ReportMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ReportMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m.log != nil {
+		fields = append(fields, report.FieldLog)
+	}
+	if m.error != nil {
+		fields = append(fields, report.FieldError)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ReportMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case report.FieldLog:
+		return m.Log()
+	case report.FieldError:
+		return m.Error()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ReportMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case report.FieldLog:
+		return m.OldLog(ctx)
+	case report.FieldError:
+		return m.OldError(ctx)
+	}
+	return nil, fmt.Errorf("unknown Report field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ReportMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case report.FieldLog:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLog(v)
+		return nil
+	case report.FieldError:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetError(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Report field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ReportMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ReportMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ReportMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Report numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ReportMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ReportMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ReportMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Report nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ReportMutation) ResetField(name string) error {
+	switch name {
+	case report.FieldLog:
+		m.ResetLog()
+		return nil
+	case report.FieldError:
+		m.ResetError()
+		return nil
+	}
+	return fmt.Errorf("unknown Report field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ReportMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ReportMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ReportMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ReportMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ReportMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ReportMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ReportMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown Report unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ReportMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown Report edge %s", name)
+}
+
 // RoundMutation represents an operation that mutates the Round nodes in the graph.
 type RoundMutation struct {
 	config
 	op                 Op
 	typ                string
-	id                 *int
-	create_time        *time.Time
-	update_time        *time.Time
+	id                 *string
 	round_number       *int
 	addround_number    *int
 	note               *string
@@ -4669,10 +4672,10 @@ type RoundMutation struct {
 	started_at         *time.Time
 	finished_at        *time.Time
 	clearedFields      map[string]struct{}
-	competition        *int
+	competition        *string
 	clearedcompetition bool
-	checks             map[int]struct{}
-	removedchecks      map[int]struct{}
+	checks             map[string]struct{}
+	removedchecks      map[string]struct{}
 	clearedchecks      bool
 	done               bool
 	oldValue           func(context.Context) (*Round, error)
@@ -4699,7 +4702,7 @@ func newRoundMutation(c config, op Op, opts ...roundOption) *RoundMutation {
 }
 
 // withRoundID sets the ID field of the mutation.
-func withRoundID(id int) roundOption {
+func withRoundID(id string) roundOption {
 	return func(m *RoundMutation) {
 		var (
 			err   error
@@ -4749,9 +4752,15 @@ func (m RoundMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Round entities.
+func (m *RoundMutation) SetID(id string) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *RoundMutation) ID() (id int, exists bool) {
+func (m *RoundMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -4762,12 +4771,12 @@ func (m *RoundMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *RoundMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *RoundMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []string{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -4777,85 +4786,13 @@ func (m *RoundMutation) IDs(ctx context.Context) ([]int, error) {
 	}
 }
 
-// SetCreateTime sets the "create_time" field.
-func (m *RoundMutation) SetCreateTime(t time.Time) {
-	m.create_time = &t
-}
-
-// CreateTime returns the value of the "create_time" field in the mutation.
-func (m *RoundMutation) CreateTime() (r time.Time, exists bool) {
-	v := m.create_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreateTime returns the old "create_time" field's value of the Round entity.
-// If the Round object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RoundMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
-	}
-	return oldValue.CreateTime, nil
-}
-
-// ResetCreateTime resets all changes to the "create_time" field.
-func (m *RoundMutation) ResetCreateTime() {
-	m.create_time = nil
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (m *RoundMutation) SetUpdateTime(t time.Time) {
-	m.update_time = &t
-}
-
-// UpdateTime returns the value of the "update_time" field in the mutation.
-func (m *RoundMutation) UpdateTime() (r time.Time, exists bool) {
-	v := m.update_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdateTime returns the old "update_time" field's value of the Round entity.
-// If the Round object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RoundMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
-	}
-	return oldValue.UpdateTime, nil
-}
-
-// ResetUpdateTime resets all changes to the "update_time" field.
-func (m *RoundMutation) ResetUpdateTime() {
-	m.update_time = nil
-}
-
 // SetCompetitionID sets the "competition_id" field.
-func (m *RoundMutation) SetCompetitionID(i int) {
-	m.competition = &i
+func (m *RoundMutation) SetCompetitionID(s string) {
+	m.competition = &s
 }
 
 // CompetitionID returns the value of the "competition_id" field in the mutation.
-func (m *RoundMutation) CompetitionID() (r int, exists bool) {
+func (m *RoundMutation) CompetitionID() (r string, exists bool) {
 	v := m.competition
 	if v == nil {
 		return
@@ -4866,7 +4803,7 @@ func (m *RoundMutation) CompetitionID() (r int, exists bool) {
 // OldCompetitionID returns the old "competition_id" field's value of the Round entity.
 // If the Round object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RoundMutation) OldCompetitionID(ctx context.Context) (v int, err error) {
+func (m *RoundMutation) OldCompetitionID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCompetitionID is only allowed on UpdateOne operations")
 	}
@@ -5098,7 +5035,7 @@ func (m *RoundMutation) CompetitionCleared() bool {
 // CompetitionIDs returns the "competition" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // CompetitionID instead. It exists only for internal usage by the builders.
-func (m *RoundMutation) CompetitionIDs() (ids []int) {
+func (m *RoundMutation) CompetitionIDs() (ids []string) {
 	if id := m.competition; id != nil {
 		ids = append(ids, *id)
 	}
@@ -5112,9 +5049,9 @@ func (m *RoundMutation) ResetCompetition() {
 }
 
 // AddCheckIDs adds the "checks" edge to the Check entity by ids.
-func (m *RoundMutation) AddCheckIDs(ids ...int) {
+func (m *RoundMutation) AddCheckIDs(ids ...string) {
 	if m.checks == nil {
-		m.checks = make(map[int]struct{})
+		m.checks = make(map[string]struct{})
 	}
 	for i := range ids {
 		m.checks[ids[i]] = struct{}{}
@@ -5132,9 +5069,9 @@ func (m *RoundMutation) ChecksCleared() bool {
 }
 
 // RemoveCheckIDs removes the "checks" edge to the Check entity by IDs.
-func (m *RoundMutation) RemoveCheckIDs(ids ...int) {
+func (m *RoundMutation) RemoveCheckIDs(ids ...string) {
 	if m.removedchecks == nil {
-		m.removedchecks = make(map[int]struct{})
+		m.removedchecks = make(map[string]struct{})
 	}
 	for i := range ids {
 		delete(m.checks, ids[i])
@@ -5143,7 +5080,7 @@ func (m *RoundMutation) RemoveCheckIDs(ids ...int) {
 }
 
 // RemovedChecks returns the removed IDs of the "checks" edge to the Check entity.
-func (m *RoundMutation) RemovedChecksIDs() (ids []int) {
+func (m *RoundMutation) RemovedChecksIDs() (ids []string) {
 	for id := range m.removedchecks {
 		ids = append(ids, id)
 	}
@@ -5151,7 +5088,7 @@ func (m *RoundMutation) RemovedChecksIDs() (ids []int) {
 }
 
 // ChecksIDs returns the "checks" edge IDs in the mutation.
-func (m *RoundMutation) ChecksIDs() (ids []int) {
+func (m *RoundMutation) ChecksIDs() (ids []string) {
 	for id := range m.checks {
 		ids = append(ids, id)
 	}
@@ -5199,13 +5136,7 @@ func (m *RoundMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *RoundMutation) Fields() []string {
-	fields := make([]string, 0, 8)
-	if m.create_time != nil {
-		fields = append(fields, round.FieldCreateTime)
-	}
-	if m.update_time != nil {
-		fields = append(fields, round.FieldUpdateTime)
-	}
+	fields := make([]string, 0, 6)
 	if m.competition != nil {
 		fields = append(fields, round.FieldCompetitionID)
 	}
@@ -5232,10 +5163,6 @@ func (m *RoundMutation) Fields() []string {
 // schema.
 func (m *RoundMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case round.FieldCreateTime:
-		return m.CreateTime()
-	case round.FieldUpdateTime:
-		return m.UpdateTime()
 	case round.FieldCompetitionID:
 		return m.CompetitionID()
 	case round.FieldRoundNumber:
@@ -5257,10 +5184,6 @@ func (m *RoundMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *RoundMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case round.FieldCreateTime:
-		return m.OldCreateTime(ctx)
-	case round.FieldUpdateTime:
-		return m.OldUpdateTime(ctx)
 	case round.FieldCompetitionID:
 		return m.OldCompetitionID(ctx)
 	case round.FieldRoundNumber:
@@ -5282,22 +5205,8 @@ func (m *RoundMutation) OldField(ctx context.Context, name string) (ent.Value, e
 // type.
 func (m *RoundMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case round.FieldCreateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreateTime(v)
-		return nil
-	case round.FieldUpdateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdateTime(v)
-		return nil
 	case round.FieldCompetitionID:
-		v, ok := value.(int)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -5402,12 +5311,6 @@ func (m *RoundMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *RoundMutation) ResetField(name string) error {
 	switch name {
-	case round.FieldCreateTime:
-		m.ResetCreateTime()
-		return nil
-	case round.FieldUpdateTime:
-		m.ResetUpdateTime()
-		return nil
 	case round.FieldCompetitionID:
 		m.ResetCompetitionID()
 		return nil
@@ -5537,9 +5440,7 @@ type ServiceMutation struct {
 	config
 	op                 Op
 	typ                string
-	id                 *int
-	create_time        *time.Time
-	update_time        *time.Time
+	id                 *string
 	pause              *bool
 	hidden             *bool
 	name               *string
@@ -5553,17 +5454,17 @@ type ServiceMutation struct {
 	round_delay        *int
 	addround_delay     *int
 	clearedFields      map[string]struct{}
-	competition        *int
+	competition        *string
 	clearedcompetition bool
-	team               *int
+	team               *string
 	clearedteam        bool
-	hosts              *int
+	hosts              *string
 	clearedhosts       bool
-	checks             map[int]struct{}
-	removedchecks      map[int]struct{}
+	checks             map[string]struct{}
+	removedchecks      map[string]struct{}
 	clearedchecks      bool
-	properties         map[int]struct{}
-	removedproperties  map[int]struct{}
+	properties         map[string]struct{}
+	removedproperties  map[string]struct{}
 	clearedproperties  bool
 	done               bool
 	oldValue           func(context.Context) (*Service, error)
@@ -5590,7 +5491,7 @@ func newServiceMutation(c config, op Op, opts ...serviceOption) *ServiceMutation
 }
 
 // withServiceID sets the ID field of the mutation.
-func withServiceID(id int) serviceOption {
+func withServiceID(id string) serviceOption {
 	return func(m *ServiceMutation) {
 		var (
 			err   error
@@ -5640,9 +5541,15 @@ func (m ServiceMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Service entities.
+func (m *ServiceMutation) SetID(id string) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *ServiceMutation) ID() (id int, exists bool) {
+func (m *ServiceMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -5653,12 +5560,12 @@ func (m *ServiceMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *ServiceMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *ServiceMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []string{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -5666,78 +5573,6 @@ func (m *ServiceMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetCreateTime sets the "create_time" field.
-func (m *ServiceMutation) SetCreateTime(t time.Time) {
-	m.create_time = &t
-}
-
-// CreateTime returns the value of the "create_time" field in the mutation.
-func (m *ServiceMutation) CreateTime() (r time.Time, exists bool) {
-	v := m.create_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreateTime returns the old "create_time" field's value of the Service entity.
-// If the Service object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServiceMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
-	}
-	return oldValue.CreateTime, nil
-}
-
-// ResetCreateTime resets all changes to the "create_time" field.
-func (m *ServiceMutation) ResetCreateTime() {
-	m.create_time = nil
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (m *ServiceMutation) SetUpdateTime(t time.Time) {
-	m.update_time = &t
-}
-
-// UpdateTime returns the value of the "update_time" field in the mutation.
-func (m *ServiceMutation) UpdateTime() (r time.Time, exists bool) {
-	v := m.update_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdateTime returns the old "update_time" field's value of the Service entity.
-// If the Service object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServiceMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
-	}
-	return oldValue.UpdateTime, nil
-}
-
-// ResetUpdateTime resets all changes to the "update_time" field.
-func (m *ServiceMutation) ResetUpdateTime() {
-	m.update_time = nil
 }
 
 // SetPause sets the "pause" field.
@@ -5771,9 +5606,22 @@ func (m *ServiceMutation) OldPause(ctx context.Context) (v bool, err error) {
 	return oldValue.Pause, nil
 }
 
+// ClearPause clears the value of the "pause" field.
+func (m *ServiceMutation) ClearPause() {
+	m.pause = nil
+	m.clearedFields[service.FieldPause] = struct{}{}
+}
+
+// PauseCleared returns if the "pause" field was cleared in this mutation.
+func (m *ServiceMutation) PauseCleared() bool {
+	_, ok := m.clearedFields[service.FieldPause]
+	return ok
+}
+
 // ResetPause resets all changes to the "pause" field.
 func (m *ServiceMutation) ResetPause() {
 	m.pause = nil
+	delete(m.clearedFields, service.FieldPause)
 }
 
 // SetHidden sets the "hidden" field.
@@ -5807,18 +5655,31 @@ func (m *ServiceMutation) OldHidden(ctx context.Context) (v bool, err error) {
 	return oldValue.Hidden, nil
 }
 
+// ClearHidden clears the value of the "hidden" field.
+func (m *ServiceMutation) ClearHidden() {
+	m.hidden = nil
+	m.clearedFields[service.FieldHidden] = struct{}{}
+}
+
+// HiddenCleared returns if the "hidden" field was cleared in this mutation.
+func (m *ServiceMutation) HiddenCleared() bool {
+	_, ok := m.clearedFields[service.FieldHidden]
+	return ok
+}
+
 // ResetHidden resets all changes to the "hidden" field.
 func (m *ServiceMutation) ResetHidden() {
 	m.hidden = nil
+	delete(m.clearedFields, service.FieldHidden)
 }
 
 // SetCompetitionID sets the "competition_id" field.
-func (m *ServiceMutation) SetCompetitionID(i int) {
-	m.competition = &i
+func (m *ServiceMutation) SetCompetitionID(s string) {
+	m.competition = &s
 }
 
 // CompetitionID returns the value of the "competition_id" field in the mutation.
-func (m *ServiceMutation) CompetitionID() (r int, exists bool) {
+func (m *ServiceMutation) CompetitionID() (r string, exists bool) {
 	v := m.competition
 	if v == nil {
 		return
@@ -5829,7 +5690,7 @@ func (m *ServiceMutation) CompetitionID() (r int, exists bool) {
 // OldCompetitionID returns the old "competition_id" field's value of the Service entity.
 // If the Service object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServiceMutation) OldCompetitionID(ctx context.Context) (v int, err error) {
+func (m *ServiceMutation) OldCompetitionID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCompetitionID is only allowed on UpdateOne operations")
 	}
@@ -5849,12 +5710,12 @@ func (m *ServiceMutation) ResetCompetitionID() {
 }
 
 // SetTeamID sets the "team_id" field.
-func (m *ServiceMutation) SetTeamID(i int) {
-	m.team = &i
+func (m *ServiceMutation) SetTeamID(s string) {
+	m.team = &s
 }
 
 // TeamID returns the value of the "team_id" field in the mutation.
-func (m *ServiceMutation) TeamID() (r int, exists bool) {
+func (m *ServiceMutation) TeamID() (r string, exists bool) {
 	v := m.team
 	if v == nil {
 		return
@@ -5865,7 +5726,7 @@ func (m *ServiceMutation) TeamID() (r int, exists bool) {
 // OldTeamID returns the old "team_id" field's value of the Service entity.
 // If the Service object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ServiceMutation) OldTeamID(ctx context.Context) (v int, err error) {
+func (m *ServiceMutation) OldTeamID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTeamID is only allowed on UpdateOne operations")
 	}
@@ -6193,7 +6054,7 @@ func (m *ServiceMutation) CompetitionCleared() bool {
 // CompetitionIDs returns the "competition" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // CompetitionID instead. It exists only for internal usage by the builders.
-func (m *ServiceMutation) CompetitionIDs() (ids []int) {
+func (m *ServiceMutation) CompetitionIDs() (ids []string) {
 	if id := m.competition; id != nil {
 		ids = append(ids, *id)
 	}
@@ -6219,7 +6080,7 @@ func (m *ServiceMutation) TeamCleared() bool {
 // TeamIDs returns the "team" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // TeamID instead. It exists only for internal usage by the builders.
-func (m *ServiceMutation) TeamIDs() (ids []int) {
+func (m *ServiceMutation) TeamIDs() (ids []string) {
 	if id := m.team; id != nil {
 		ids = append(ids, *id)
 	}
@@ -6233,7 +6094,7 @@ func (m *ServiceMutation) ResetTeam() {
 }
 
 // SetHostsID sets the "hosts" edge to the Host entity by id.
-func (m *ServiceMutation) SetHostsID(id int) {
+func (m *ServiceMutation) SetHostsID(id string) {
 	m.hosts = &id
 }
 
@@ -6248,7 +6109,7 @@ func (m *ServiceMutation) HostsCleared() bool {
 }
 
 // HostsID returns the "hosts" edge ID in the mutation.
-func (m *ServiceMutation) HostsID() (id int, exists bool) {
+func (m *ServiceMutation) HostsID() (id string, exists bool) {
 	if m.hosts != nil {
 		return *m.hosts, true
 	}
@@ -6258,7 +6119,7 @@ func (m *ServiceMutation) HostsID() (id int, exists bool) {
 // HostsIDs returns the "hosts" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // HostsID instead. It exists only for internal usage by the builders.
-func (m *ServiceMutation) HostsIDs() (ids []int) {
+func (m *ServiceMutation) HostsIDs() (ids []string) {
 	if id := m.hosts; id != nil {
 		ids = append(ids, *id)
 	}
@@ -6272,9 +6133,9 @@ func (m *ServiceMutation) ResetHosts() {
 }
 
 // AddCheckIDs adds the "checks" edge to the Check entity by ids.
-func (m *ServiceMutation) AddCheckIDs(ids ...int) {
+func (m *ServiceMutation) AddCheckIDs(ids ...string) {
 	if m.checks == nil {
-		m.checks = make(map[int]struct{})
+		m.checks = make(map[string]struct{})
 	}
 	for i := range ids {
 		m.checks[ids[i]] = struct{}{}
@@ -6292,9 +6153,9 @@ func (m *ServiceMutation) ChecksCleared() bool {
 }
 
 // RemoveCheckIDs removes the "checks" edge to the Check entity by IDs.
-func (m *ServiceMutation) RemoveCheckIDs(ids ...int) {
+func (m *ServiceMutation) RemoveCheckIDs(ids ...string) {
 	if m.removedchecks == nil {
-		m.removedchecks = make(map[int]struct{})
+		m.removedchecks = make(map[string]struct{})
 	}
 	for i := range ids {
 		delete(m.checks, ids[i])
@@ -6303,7 +6164,7 @@ func (m *ServiceMutation) RemoveCheckIDs(ids ...int) {
 }
 
 // RemovedChecks returns the removed IDs of the "checks" edge to the Check entity.
-func (m *ServiceMutation) RemovedChecksIDs() (ids []int) {
+func (m *ServiceMutation) RemovedChecksIDs() (ids []string) {
 	for id := range m.removedchecks {
 		ids = append(ids, id)
 	}
@@ -6311,7 +6172,7 @@ func (m *ServiceMutation) RemovedChecksIDs() (ids []int) {
 }
 
 // ChecksIDs returns the "checks" edge IDs in the mutation.
-func (m *ServiceMutation) ChecksIDs() (ids []int) {
+func (m *ServiceMutation) ChecksIDs() (ids []string) {
 	for id := range m.checks {
 		ids = append(ids, id)
 	}
@@ -6326,9 +6187,9 @@ func (m *ServiceMutation) ResetChecks() {
 }
 
 // AddPropertyIDs adds the "properties" edge to the Property entity by ids.
-func (m *ServiceMutation) AddPropertyIDs(ids ...int) {
+func (m *ServiceMutation) AddPropertyIDs(ids ...string) {
 	if m.properties == nil {
-		m.properties = make(map[int]struct{})
+		m.properties = make(map[string]struct{})
 	}
 	for i := range ids {
 		m.properties[ids[i]] = struct{}{}
@@ -6346,9 +6207,9 @@ func (m *ServiceMutation) PropertiesCleared() bool {
 }
 
 // RemovePropertyIDs removes the "properties" edge to the Property entity by IDs.
-func (m *ServiceMutation) RemovePropertyIDs(ids ...int) {
+func (m *ServiceMutation) RemovePropertyIDs(ids ...string) {
 	if m.removedproperties == nil {
-		m.removedproperties = make(map[int]struct{})
+		m.removedproperties = make(map[string]struct{})
 	}
 	for i := range ids {
 		delete(m.properties, ids[i])
@@ -6357,7 +6218,7 @@ func (m *ServiceMutation) RemovePropertyIDs(ids ...int) {
 }
 
 // RemovedProperties returns the removed IDs of the "properties" edge to the Property entity.
-func (m *ServiceMutation) RemovedPropertiesIDs() (ids []int) {
+func (m *ServiceMutation) RemovedPropertiesIDs() (ids []string) {
 	for id := range m.removedproperties {
 		ids = append(ids, id)
 	}
@@ -6365,7 +6226,7 @@ func (m *ServiceMutation) RemovedPropertiesIDs() (ids []int) {
 }
 
 // PropertiesIDs returns the "properties" edge IDs in the mutation.
-func (m *ServiceMutation) PropertiesIDs() (ids []int) {
+func (m *ServiceMutation) PropertiesIDs() (ids []string) {
 	for id := range m.properties {
 		ids = append(ids, id)
 	}
@@ -6413,13 +6274,7 @@ func (m *ServiceMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ServiceMutation) Fields() []string {
-	fields := make([]string, 0, 12)
-	if m.create_time != nil {
-		fields = append(fields, service.FieldCreateTime)
-	}
-	if m.update_time != nil {
-		fields = append(fields, service.FieldUpdateTime)
-	}
+	fields := make([]string, 0, 10)
 	if m.pause != nil {
 		fields = append(fields, service.FieldPause)
 	}
@@ -6458,10 +6313,6 @@ func (m *ServiceMutation) Fields() []string {
 // schema.
 func (m *ServiceMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case service.FieldCreateTime:
-		return m.CreateTime()
-	case service.FieldUpdateTime:
-		return m.UpdateTime()
 	case service.FieldPause:
 		return m.Pause()
 	case service.FieldHidden:
@@ -6491,10 +6342,6 @@ func (m *ServiceMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *ServiceMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case service.FieldCreateTime:
-		return m.OldCreateTime(ctx)
-	case service.FieldUpdateTime:
-		return m.OldUpdateTime(ctx)
 	case service.FieldPause:
 		return m.OldPause(ctx)
 	case service.FieldHidden:
@@ -6524,20 +6371,6 @@ func (m *ServiceMutation) OldField(ctx context.Context, name string) (ent.Value,
 // type.
 func (m *ServiceMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case service.FieldCreateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreateTime(v)
-		return nil
-	case service.FieldUpdateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdateTime(v)
-		return nil
 	case service.FieldPause:
 		v, ok := value.(bool)
 		if !ok {
@@ -6553,14 +6386,14 @@ func (m *ServiceMutation) SetField(name string, value ent.Value) error {
 		m.SetHidden(v)
 		return nil
 	case service.FieldCompetitionID:
-		v, ok := value.(int)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCompetitionID(v)
 		return nil
 	case service.FieldTeamID:
-		v, ok := value.(int)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -6688,7 +6521,14 @@ func (m *ServiceMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *ServiceMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(service.FieldPause) {
+		fields = append(fields, service.FieldPause)
+	}
+	if m.FieldCleared(service.FieldHidden) {
+		fields = append(fields, service.FieldHidden)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -6701,6 +6541,14 @@ func (m *ServiceMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *ServiceMutation) ClearField(name string) error {
+	switch name {
+	case service.FieldPause:
+		m.ClearPause()
+		return nil
+	case service.FieldHidden:
+		m.ClearHidden()
+		return nil
+	}
 	return fmt.Errorf("unknown Service nullable field %s", name)
 }
 
@@ -6708,12 +6556,6 @@ func (m *ServiceMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *ServiceMutation) ResetField(name string) error {
 	switch name {
-	case service.FieldCreateTime:
-		m.ResetCreateTime()
-		return nil
-	case service.FieldUpdateTime:
-		m.ResetUpdateTime()
-		return nil
 	case service.FieldPause:
 		m.ResetPause()
 		return nil
@@ -6917,22 +6759,20 @@ type TeamMutation struct {
 	config
 	op                 Op
 	typ                string
-	id                 *int
-	create_time        *time.Time
-	update_time        *time.Time
+	id                 *string
 	pause              *bool
 	hidden             *bool
 	name               *string
 	index              *int
 	addindex           *int
 	clearedFields      map[string]struct{}
-	competition        *int
+	competition        *string
 	clearedcompetition bool
-	users              map[int]struct{}
-	removedusers       map[int]struct{}
+	users              map[string]struct{}
+	removedusers       map[string]struct{}
 	clearedusers       bool
-	hosts              map[int]struct{}
-	removedhosts       map[int]struct{}
+	hosts              map[string]struct{}
+	removedhosts       map[string]struct{}
 	clearedhosts       bool
 	done               bool
 	oldValue           func(context.Context) (*Team, error)
@@ -6959,7 +6799,7 @@ func newTeamMutation(c config, op Op, opts ...teamOption) *TeamMutation {
 }
 
 // withTeamID sets the ID field of the mutation.
-func withTeamID(id int) teamOption {
+func withTeamID(id string) teamOption {
 	return func(m *TeamMutation) {
 		var (
 			err   error
@@ -7009,9 +6849,15 @@ func (m TeamMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Team entities.
+func (m *TeamMutation) SetID(id string) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *TeamMutation) ID() (id int, exists bool) {
+func (m *TeamMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -7022,12 +6868,12 @@ func (m *TeamMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *TeamMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *TeamMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []string{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -7035,78 +6881,6 @@ func (m *TeamMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetCreateTime sets the "create_time" field.
-func (m *TeamMutation) SetCreateTime(t time.Time) {
-	m.create_time = &t
-}
-
-// CreateTime returns the value of the "create_time" field in the mutation.
-func (m *TeamMutation) CreateTime() (r time.Time, exists bool) {
-	v := m.create_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreateTime returns the old "create_time" field's value of the Team entity.
-// If the Team object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeamMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
-	}
-	return oldValue.CreateTime, nil
-}
-
-// ResetCreateTime resets all changes to the "create_time" field.
-func (m *TeamMutation) ResetCreateTime() {
-	m.create_time = nil
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (m *TeamMutation) SetUpdateTime(t time.Time) {
-	m.update_time = &t
-}
-
-// UpdateTime returns the value of the "update_time" field in the mutation.
-func (m *TeamMutation) UpdateTime() (r time.Time, exists bool) {
-	v := m.update_time
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdateTime returns the old "update_time" field's value of the Team entity.
-// If the Team object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeamMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
-	}
-	return oldValue.UpdateTime, nil
-}
-
-// ResetUpdateTime resets all changes to the "update_time" field.
-func (m *TeamMutation) ResetUpdateTime() {
-	m.update_time = nil
 }
 
 // SetPause sets the "pause" field.
@@ -7140,9 +6914,22 @@ func (m *TeamMutation) OldPause(ctx context.Context) (v bool, err error) {
 	return oldValue.Pause, nil
 }
 
+// ClearPause clears the value of the "pause" field.
+func (m *TeamMutation) ClearPause() {
+	m.pause = nil
+	m.clearedFields[team.FieldPause] = struct{}{}
+}
+
+// PauseCleared returns if the "pause" field was cleared in this mutation.
+func (m *TeamMutation) PauseCleared() bool {
+	_, ok := m.clearedFields[team.FieldPause]
+	return ok
+}
+
 // ResetPause resets all changes to the "pause" field.
 func (m *TeamMutation) ResetPause() {
 	m.pause = nil
+	delete(m.clearedFields, team.FieldPause)
 }
 
 // SetHidden sets the "hidden" field.
@@ -7176,18 +6963,31 @@ func (m *TeamMutation) OldHidden(ctx context.Context) (v bool, err error) {
 	return oldValue.Hidden, nil
 }
 
+// ClearHidden clears the value of the "hidden" field.
+func (m *TeamMutation) ClearHidden() {
+	m.hidden = nil
+	m.clearedFields[team.FieldHidden] = struct{}{}
+}
+
+// HiddenCleared returns if the "hidden" field was cleared in this mutation.
+func (m *TeamMutation) HiddenCleared() bool {
+	_, ok := m.clearedFields[team.FieldHidden]
+	return ok
+}
+
 // ResetHidden resets all changes to the "hidden" field.
 func (m *TeamMutation) ResetHidden() {
 	m.hidden = nil
+	delete(m.clearedFields, team.FieldHidden)
 }
 
 // SetCompetitionID sets the "competition_id" field.
-func (m *TeamMutation) SetCompetitionID(i int) {
-	m.competition = &i
+func (m *TeamMutation) SetCompetitionID(s string) {
+	m.competition = &s
 }
 
 // CompetitionID returns the value of the "competition_id" field in the mutation.
-func (m *TeamMutation) CompetitionID() (r int, exists bool) {
+func (m *TeamMutation) CompetitionID() (r string, exists bool) {
 	v := m.competition
 	if v == nil {
 		return
@@ -7198,7 +6998,7 @@ func (m *TeamMutation) CompetitionID() (r int, exists bool) {
 // OldCompetitionID returns the old "competition_id" field's value of the Team entity.
 // If the Team object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TeamMutation) OldCompetitionID(ctx context.Context) (v int, err error) {
+func (m *TeamMutation) OldCompetitionID(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCompetitionID is only allowed on UpdateOne operations")
 	}
@@ -7303,10 +7103,24 @@ func (m *TeamMutation) AddedIndex() (r int, exists bool) {
 	return *v, true
 }
 
+// ClearIndex clears the value of the "index" field.
+func (m *TeamMutation) ClearIndex() {
+	m.index = nil
+	m.addindex = nil
+	m.clearedFields[team.FieldIndex] = struct{}{}
+}
+
+// IndexCleared returns if the "index" field was cleared in this mutation.
+func (m *TeamMutation) IndexCleared() bool {
+	_, ok := m.clearedFields[team.FieldIndex]
+	return ok
+}
+
 // ResetIndex resets all changes to the "index" field.
 func (m *TeamMutation) ResetIndex() {
 	m.index = nil
 	m.addindex = nil
+	delete(m.clearedFields, team.FieldIndex)
 }
 
 // ClearCompetition clears the "competition" edge to the Competition entity.
@@ -7322,7 +7136,7 @@ func (m *TeamMutation) CompetitionCleared() bool {
 // CompetitionIDs returns the "competition" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // CompetitionID instead. It exists only for internal usage by the builders.
-func (m *TeamMutation) CompetitionIDs() (ids []int) {
+func (m *TeamMutation) CompetitionIDs() (ids []string) {
 	if id := m.competition; id != nil {
 		ids = append(ids, *id)
 	}
@@ -7336,9 +7150,9 @@ func (m *TeamMutation) ResetCompetition() {
 }
 
 // AddUserIDs adds the "users" edge to the User entity by ids.
-func (m *TeamMutation) AddUserIDs(ids ...int) {
+func (m *TeamMutation) AddUserIDs(ids ...string) {
 	if m.users == nil {
-		m.users = make(map[int]struct{})
+		m.users = make(map[string]struct{})
 	}
 	for i := range ids {
 		m.users[ids[i]] = struct{}{}
@@ -7356,9 +7170,9 @@ func (m *TeamMutation) UsersCleared() bool {
 }
 
 // RemoveUserIDs removes the "users" edge to the User entity by IDs.
-func (m *TeamMutation) RemoveUserIDs(ids ...int) {
+func (m *TeamMutation) RemoveUserIDs(ids ...string) {
 	if m.removedusers == nil {
-		m.removedusers = make(map[int]struct{})
+		m.removedusers = make(map[string]struct{})
 	}
 	for i := range ids {
 		delete(m.users, ids[i])
@@ -7367,7 +7181,7 @@ func (m *TeamMutation) RemoveUserIDs(ids ...int) {
 }
 
 // RemovedUsers returns the removed IDs of the "users" edge to the User entity.
-func (m *TeamMutation) RemovedUsersIDs() (ids []int) {
+func (m *TeamMutation) RemovedUsersIDs() (ids []string) {
 	for id := range m.removedusers {
 		ids = append(ids, id)
 	}
@@ -7375,7 +7189,7 @@ func (m *TeamMutation) RemovedUsersIDs() (ids []int) {
 }
 
 // UsersIDs returns the "users" edge IDs in the mutation.
-func (m *TeamMutation) UsersIDs() (ids []int) {
+func (m *TeamMutation) UsersIDs() (ids []string) {
 	for id := range m.users {
 		ids = append(ids, id)
 	}
@@ -7390,9 +7204,9 @@ func (m *TeamMutation) ResetUsers() {
 }
 
 // AddHostIDs adds the "hosts" edge to the Host entity by ids.
-func (m *TeamMutation) AddHostIDs(ids ...int) {
+func (m *TeamMutation) AddHostIDs(ids ...string) {
 	if m.hosts == nil {
-		m.hosts = make(map[int]struct{})
+		m.hosts = make(map[string]struct{})
 	}
 	for i := range ids {
 		m.hosts[ids[i]] = struct{}{}
@@ -7410,9 +7224,9 @@ func (m *TeamMutation) HostsCleared() bool {
 }
 
 // RemoveHostIDs removes the "hosts" edge to the Host entity by IDs.
-func (m *TeamMutation) RemoveHostIDs(ids ...int) {
+func (m *TeamMutation) RemoveHostIDs(ids ...string) {
 	if m.removedhosts == nil {
-		m.removedhosts = make(map[int]struct{})
+		m.removedhosts = make(map[string]struct{})
 	}
 	for i := range ids {
 		delete(m.hosts, ids[i])
@@ -7421,7 +7235,7 @@ func (m *TeamMutation) RemoveHostIDs(ids ...int) {
 }
 
 // RemovedHosts returns the removed IDs of the "hosts" edge to the Host entity.
-func (m *TeamMutation) RemovedHostsIDs() (ids []int) {
+func (m *TeamMutation) RemovedHostsIDs() (ids []string) {
 	for id := range m.removedhosts {
 		ids = append(ids, id)
 	}
@@ -7429,7 +7243,7 @@ func (m *TeamMutation) RemovedHostsIDs() (ids []int) {
 }
 
 // HostsIDs returns the "hosts" edge IDs in the mutation.
-func (m *TeamMutation) HostsIDs() (ids []int) {
+func (m *TeamMutation) HostsIDs() (ids []string) {
 	for id := range m.hosts {
 		ids = append(ids, id)
 	}
@@ -7477,13 +7291,7 @@ func (m *TeamMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TeamMutation) Fields() []string {
-	fields := make([]string, 0, 7)
-	if m.create_time != nil {
-		fields = append(fields, team.FieldCreateTime)
-	}
-	if m.update_time != nil {
-		fields = append(fields, team.FieldUpdateTime)
-	}
+	fields := make([]string, 0, 5)
 	if m.pause != nil {
 		fields = append(fields, team.FieldPause)
 	}
@@ -7507,10 +7315,6 @@ func (m *TeamMutation) Fields() []string {
 // schema.
 func (m *TeamMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case team.FieldCreateTime:
-		return m.CreateTime()
-	case team.FieldUpdateTime:
-		return m.UpdateTime()
 	case team.FieldPause:
 		return m.Pause()
 	case team.FieldHidden:
@@ -7530,10 +7334,6 @@ func (m *TeamMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *TeamMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case team.FieldCreateTime:
-		return m.OldCreateTime(ctx)
-	case team.FieldUpdateTime:
-		return m.OldUpdateTime(ctx)
 	case team.FieldPause:
 		return m.OldPause(ctx)
 	case team.FieldHidden:
@@ -7553,20 +7353,6 @@ func (m *TeamMutation) OldField(ctx context.Context, name string) (ent.Value, er
 // type.
 func (m *TeamMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case team.FieldCreateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreateTime(v)
-		return nil
-	case team.FieldUpdateTime:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdateTime(v)
-		return nil
 	case team.FieldPause:
 		v, ok := value.(bool)
 		if !ok {
@@ -7582,7 +7368,7 @@ func (m *TeamMutation) SetField(name string, value ent.Value) error {
 		m.SetHidden(v)
 		return nil
 	case team.FieldCompetitionID:
-		v, ok := value.(int)
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -7646,7 +7432,17 @@ func (m *TeamMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *TeamMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(team.FieldPause) {
+		fields = append(fields, team.FieldPause)
+	}
+	if m.FieldCleared(team.FieldHidden) {
+		fields = append(fields, team.FieldHidden)
+	}
+	if m.FieldCleared(team.FieldIndex) {
+		fields = append(fields, team.FieldIndex)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -7659,6 +7455,17 @@ func (m *TeamMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *TeamMutation) ClearField(name string) error {
+	switch name {
+	case team.FieldPause:
+		m.ClearPause()
+		return nil
+	case team.FieldHidden:
+		m.ClearHidden()
+		return nil
+	case team.FieldIndex:
+		m.ClearIndex()
+		return nil
+	}
 	return fmt.Errorf("unknown Team nullable field %s", name)
 }
 
@@ -7666,12 +7473,6 @@ func (m *TeamMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *TeamMutation) ResetField(name string) error {
 	switch name {
-	case team.FieldCreateTime:
-		m.ResetCreateTime()
-		return nil
-	case team.FieldUpdateTime:
-		m.ResetUpdateTime()
-		return nil
 	case team.FieldPause:
 		m.ResetPause()
 		return nil
@@ -7824,16 +7625,17 @@ type UserMutation struct {
 	config
 	op                  Op
 	typ                 string
-	id                  *int
+	id                  *string
 	create_time         *time.Time
 	update_time         *time.Time
 	username            *string
+	ory_id              *uuid.UUID
 	clearedFields       map[string]struct{}
-	teams               map[int]struct{}
-	removedteams        map[int]struct{}
+	teams               map[string]struct{}
+	removedteams        map[string]struct{}
 	clearedteams        bool
-	competitions        map[int]struct{}
-	removedcompetitions map[int]struct{}
+	competitions        map[string]struct{}
+	removedcompetitions map[string]struct{}
 	clearedcompetitions bool
 	done                bool
 	oldValue            func(context.Context) (*User, error)
@@ -7860,7 +7662,7 @@ func newUserMutation(c config, op Op, opts ...userOption) *UserMutation {
 }
 
 // withUserID sets the ID field of the mutation.
-func withUserID(id int) userOption {
+func withUserID(id string) userOption {
 	return func(m *UserMutation) {
 		var (
 			err   error
@@ -7910,9 +7712,15 @@ func (m UserMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of User entities.
+func (m *UserMutation) SetID(id string) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *UserMutation) ID() (id int, exists bool) {
+func (m *UserMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -7923,12 +7731,12 @@ func (m *UserMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *UserMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *UserMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []string{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -7969,9 +7777,22 @@ func (m *UserMutation) OldCreateTime(ctx context.Context) (v time.Time, err erro
 	return oldValue.CreateTime, nil
 }
 
+// ClearCreateTime clears the value of the "create_time" field.
+func (m *UserMutation) ClearCreateTime() {
+	m.create_time = nil
+	m.clearedFields[user.FieldCreateTime] = struct{}{}
+}
+
+// CreateTimeCleared returns if the "create_time" field was cleared in this mutation.
+func (m *UserMutation) CreateTimeCleared() bool {
+	_, ok := m.clearedFields[user.FieldCreateTime]
+	return ok
+}
+
 // ResetCreateTime resets all changes to the "create_time" field.
 func (m *UserMutation) ResetCreateTime() {
 	m.create_time = nil
+	delete(m.clearedFields, user.FieldCreateTime)
 }
 
 // SetUpdateTime sets the "update_time" field.
@@ -8005,9 +7826,22 @@ func (m *UserMutation) OldUpdateTime(ctx context.Context) (v time.Time, err erro
 	return oldValue.UpdateTime, nil
 }
 
+// ClearUpdateTime clears the value of the "update_time" field.
+func (m *UserMutation) ClearUpdateTime() {
+	m.update_time = nil
+	m.clearedFields[user.FieldUpdateTime] = struct{}{}
+}
+
+// UpdateTimeCleared returns if the "update_time" field was cleared in this mutation.
+func (m *UserMutation) UpdateTimeCleared() bool {
+	_, ok := m.clearedFields[user.FieldUpdateTime]
+	return ok
+}
+
 // ResetUpdateTime resets all changes to the "update_time" field.
 func (m *UserMutation) ResetUpdateTime() {
 	m.update_time = nil
+	delete(m.clearedFields, user.FieldUpdateTime)
 }
 
 // SetUsername sets the "username" field.
@@ -8046,10 +7880,46 @@ func (m *UserMutation) ResetUsername() {
 	m.username = nil
 }
 
+// SetOryID sets the "ory_id" field.
+func (m *UserMutation) SetOryID(u uuid.UUID) {
+	m.ory_id = &u
+}
+
+// OryID returns the value of the "ory_id" field in the mutation.
+func (m *UserMutation) OryID() (r uuid.UUID, exists bool) {
+	v := m.ory_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOryID returns the old "ory_id" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldOryID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOryID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOryID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOryID: %w", err)
+	}
+	return oldValue.OryID, nil
+}
+
+// ResetOryID resets all changes to the "ory_id" field.
+func (m *UserMutation) ResetOryID() {
+	m.ory_id = nil
+}
+
 // AddTeamIDs adds the "teams" edge to the Team entity by ids.
-func (m *UserMutation) AddTeamIDs(ids ...int) {
+func (m *UserMutation) AddTeamIDs(ids ...string) {
 	if m.teams == nil {
-		m.teams = make(map[int]struct{})
+		m.teams = make(map[string]struct{})
 	}
 	for i := range ids {
 		m.teams[ids[i]] = struct{}{}
@@ -8067,9 +7937,9 @@ func (m *UserMutation) TeamsCleared() bool {
 }
 
 // RemoveTeamIDs removes the "teams" edge to the Team entity by IDs.
-func (m *UserMutation) RemoveTeamIDs(ids ...int) {
+func (m *UserMutation) RemoveTeamIDs(ids ...string) {
 	if m.removedteams == nil {
-		m.removedteams = make(map[int]struct{})
+		m.removedteams = make(map[string]struct{})
 	}
 	for i := range ids {
 		delete(m.teams, ids[i])
@@ -8078,7 +7948,7 @@ func (m *UserMutation) RemoveTeamIDs(ids ...int) {
 }
 
 // RemovedTeams returns the removed IDs of the "teams" edge to the Team entity.
-func (m *UserMutation) RemovedTeamsIDs() (ids []int) {
+func (m *UserMutation) RemovedTeamsIDs() (ids []string) {
 	for id := range m.removedteams {
 		ids = append(ids, id)
 	}
@@ -8086,7 +7956,7 @@ func (m *UserMutation) RemovedTeamsIDs() (ids []int) {
 }
 
 // TeamsIDs returns the "teams" edge IDs in the mutation.
-func (m *UserMutation) TeamsIDs() (ids []int) {
+func (m *UserMutation) TeamsIDs() (ids []string) {
 	for id := range m.teams {
 		ids = append(ids, id)
 	}
@@ -8101,9 +7971,9 @@ func (m *UserMutation) ResetTeams() {
 }
 
 // AddCompetitionIDs adds the "competitions" edge to the Competition entity by ids.
-func (m *UserMutation) AddCompetitionIDs(ids ...int) {
+func (m *UserMutation) AddCompetitionIDs(ids ...string) {
 	if m.competitions == nil {
-		m.competitions = make(map[int]struct{})
+		m.competitions = make(map[string]struct{})
 	}
 	for i := range ids {
 		m.competitions[ids[i]] = struct{}{}
@@ -8121,9 +7991,9 @@ func (m *UserMutation) CompetitionsCleared() bool {
 }
 
 // RemoveCompetitionIDs removes the "competitions" edge to the Competition entity by IDs.
-func (m *UserMutation) RemoveCompetitionIDs(ids ...int) {
+func (m *UserMutation) RemoveCompetitionIDs(ids ...string) {
 	if m.removedcompetitions == nil {
-		m.removedcompetitions = make(map[int]struct{})
+		m.removedcompetitions = make(map[string]struct{})
 	}
 	for i := range ids {
 		delete(m.competitions, ids[i])
@@ -8132,7 +8002,7 @@ func (m *UserMutation) RemoveCompetitionIDs(ids ...int) {
 }
 
 // RemovedCompetitions returns the removed IDs of the "competitions" edge to the Competition entity.
-func (m *UserMutation) RemovedCompetitionsIDs() (ids []int) {
+func (m *UserMutation) RemovedCompetitionsIDs() (ids []string) {
 	for id := range m.removedcompetitions {
 		ids = append(ids, id)
 	}
@@ -8140,7 +8010,7 @@ func (m *UserMutation) RemovedCompetitionsIDs() (ids []int) {
 }
 
 // CompetitionsIDs returns the "competitions" edge IDs in the mutation.
-func (m *UserMutation) CompetitionsIDs() (ids []int) {
+func (m *UserMutation) CompetitionsIDs() (ids []string) {
 	for id := range m.competitions {
 		ids = append(ids, id)
 	}
@@ -8188,7 +8058,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
 	if m.create_time != nil {
 		fields = append(fields, user.FieldCreateTime)
 	}
@@ -8197,6 +8067,9 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.username != nil {
 		fields = append(fields, user.FieldUsername)
+	}
+	if m.ory_id != nil {
+		fields = append(fields, user.FieldOryID)
 	}
 	return fields
 }
@@ -8212,6 +8085,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdateTime()
 	case user.FieldUsername:
 		return m.Username()
+	case user.FieldOryID:
+		return m.OryID()
 	}
 	return nil, false
 }
@@ -8227,6 +8102,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldUpdateTime(ctx)
 	case user.FieldUsername:
 		return m.OldUsername(ctx)
+	case user.FieldOryID:
+		return m.OldOryID(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -8257,6 +8134,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUsername(v)
 		return nil
+	case user.FieldOryID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOryID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -8286,7 +8170,14 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *UserMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(user.FieldCreateTime) {
+		fields = append(fields, user.FieldCreateTime)
+	}
+	if m.FieldCleared(user.FieldUpdateTime) {
+		fields = append(fields, user.FieldUpdateTime)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -8299,6 +8190,14 @@ func (m *UserMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *UserMutation) ClearField(name string) error {
+	switch name {
+	case user.FieldCreateTime:
+		m.ClearCreateTime()
+		return nil
+	case user.FieldUpdateTime:
+		m.ClearUpdateTime()
+		return nil
+	}
 	return fmt.Errorf("unknown User nullable field %s", name)
 }
 
@@ -8314,6 +8213,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldUsername:
 		m.ResetUsername()
+		return nil
+	case user.FieldOryID:
+		m.ResetOryID()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

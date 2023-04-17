@@ -5,6 +5,7 @@ package entities
 import (
 	"context"
 	"database/sql/driver"
+	"errors"
 	"fmt"
 	"math"
 
@@ -130,8 +131,8 @@ func (cq *CompetitionQuery) FirstX(ctx context.Context) *Competition {
 
 // FirstID returns the first Competition ID from the query.
 // Returns a *NotFoundError when no Competition ID was found.
-func (cq *CompetitionQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (cq *CompetitionQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = cq.Limit(1).IDs(setContextOp(ctx, cq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -143,7 +144,7 @@ func (cq *CompetitionQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (cq *CompetitionQuery) FirstIDX(ctx context.Context) int {
+func (cq *CompetitionQuery) FirstIDX(ctx context.Context) string {
 	id, err := cq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -181,8 +182,8 @@ func (cq *CompetitionQuery) OnlyX(ctx context.Context) *Competition {
 // OnlyID is like Only, but returns the only Competition ID in the query.
 // Returns a *NotSingularError when more than one Competition ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (cq *CompetitionQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (cq *CompetitionQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = cq.Limit(2).IDs(setContextOp(ctx, cq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -198,7 +199,7 @@ func (cq *CompetitionQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (cq *CompetitionQuery) OnlyIDX(ctx context.Context) int {
+func (cq *CompetitionQuery) OnlyIDX(ctx context.Context) string {
 	id, err := cq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -226,7 +227,7 @@ func (cq *CompetitionQuery) AllX(ctx context.Context) []*Competition {
 }
 
 // IDs executes the query and returns a list of Competition IDs.
-func (cq *CompetitionQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (cq *CompetitionQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if cq.ctx.Unique == nil && cq.path != nil {
 		cq.Unique(true)
 	}
@@ -238,7 +239,7 @@ func (cq *CompetitionQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (cq *CompetitionQuery) IDsX(ctx context.Context) []int {
+func (cq *CompetitionQuery) IDsX(ctx context.Context) []string {
 	ids, err := cq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -334,12 +335,12 @@ func (cq *CompetitionQuery) WithUsers(opts ...func(*UserQuery)) *CompetitionQuer
 // Example:
 //
 //	var v []struct {
-//		CreateTime time.Time `json:"create_time,omitempty"`
+//		Hidden bool `json:"hidden,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Competition.Query().
-//		GroupBy(competition.FieldCreateTime).
+//		GroupBy(competition.FieldHidden).
 //		Aggregate(entities.Count()).
 //		Scan(ctx, &v)
 func (cq *CompetitionQuery) GroupBy(field string, fields ...string) *CompetitionGroupBy {
@@ -357,11 +358,11 @@ func (cq *CompetitionQuery) GroupBy(field string, fields ...string) *Competition
 // Example:
 //
 //	var v []struct {
-//		CreateTime time.Time `json:"create_time,omitempty"`
+//		Hidden bool `json:"hidden,omitempty"`
 //	}
 //
 //	client.Competition.Query().
-//		Select(competition.FieldCreateTime).
+//		Select(competition.FieldHidden).
 //		Scan(ctx, &v)
 func (cq *CompetitionQuery) Select(fields ...string) *CompetitionSelect {
 	cq.ctx.Fields = append(cq.ctx.Fields, fields...)
@@ -398,6 +399,12 @@ func (cq *CompetitionQuery) prepareQuery(ctx context.Context) error {
 			return err
 		}
 		cq.sql = prev
+	}
+	if competition.Policy == nil {
+		return errors.New("entities: uninitialized competition.Policy (forgotten import entities/runtime?)")
+	}
+	if err := competition.Policy.EvalQuery(ctx, cq); err != nil {
+		return err
 	}
 	return nil
 }
@@ -448,7 +455,7 @@ func (cq *CompetitionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 
 func (cq *CompetitionQuery) loadTeams(ctx context.Context, query *TeamQuery, nodes []*Competition, init func(*Competition), assign func(*Competition, *Team)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Competition)
+	nodeids := make(map[string]*Competition)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -479,8 +486,8 @@ func (cq *CompetitionQuery) loadTeams(ctx context.Context, query *TeamQuery, nod
 }
 func (cq *CompetitionQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*Competition, init func(*Competition), assign func(*Competition, *User)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*Competition)
-	nids := make(map[int]map[*Competition]struct{})
+	byID := make(map[string]*Competition)
+	nids := make(map[string]map[*Competition]struct{})
 	for i, node := range nodes {
 		edgeIDs[i] = node.ID
 		byID[node.ID] = node
@@ -509,11 +516,11 @@ func (cq *CompetitionQuery) loadUsers(ctx context.Context, query *UserQuery, nod
 				if err != nil {
 					return nil, err
 				}
-				return append([]any{new(sql.NullInt64)}, values...), nil
+				return append([]any{new(sql.NullString)}, values...), nil
 			}
 			spec.Assign = func(columns []string, values []any) error {
-				outValue := int(values[0].(*sql.NullInt64).Int64)
-				inValue := int(values[1].(*sql.NullInt64).Int64)
+				outValue := values[0].(*sql.NullString).String
+				inValue := values[1].(*sql.NullString).String
 				if nids[inValue] == nil {
 					nids[inValue] = map[*Competition]struct{}{byID[outValue]: {}}
 					return assign(columns[1:], values[1:])
@@ -549,7 +556,7 @@ func (cq *CompetitionQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (cq *CompetitionQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(competition.Table, competition.Columns, sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(competition.Table, competition.Columns, sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString))
 	_spec.From = cq.sql
 	if unique := cq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

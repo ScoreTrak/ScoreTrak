@@ -22,15 +22,14 @@ var OTELModule = fx.Options(
 	// Metrics
 	fx.Provide(
 		telemetry.NewMeterProvider,
+		telemetry.NewMetricExporter,
 	),
 
 	// Exporters
 	fx.Provide(
 		telemetry.NewOtlpGrpcExporter,
+		telemetry.NewOtlpHttpExporter,
 	),
-
-	// Set Global Tracer
-	fx.Invoke(telemetry.RegisterTracerProvider),
 )
 
 var Module = fx.Options(

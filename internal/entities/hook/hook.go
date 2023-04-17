@@ -69,6 +69,18 @@ func (f PropertyFunc) Mutate(ctx context.Context, m entities.Mutation) (entities
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *entities.PropertyMutation", m)
 }
 
+// The ReportFunc type is an adapter to allow the use of ordinary
+// function as Report mutator.
+type ReportFunc func(context.Context, *entities.ReportMutation) (entities.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ReportFunc) Mutate(ctx context.Context, m entities.Mutation) (entities.Value, error) {
+	if mv, ok := m.(*entities.ReportMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *entities.ReportMutation", m)
+}
+
 // The RoundFunc type is an adapter to allow the use of ordinary
 // function as Round mutator.
 type RoundFunc func(context.Context, *entities.RoundMutation) (entities.Value, error)

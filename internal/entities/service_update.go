@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -32,15 +31,23 @@ func (su *ServiceUpdate) Where(ps ...predicate.Service) *ServiceUpdate {
 	return su
 }
 
-// SetUpdateTime sets the "update_time" field.
-func (su *ServiceUpdate) SetUpdateTime(t time.Time) *ServiceUpdate {
-	su.mutation.SetUpdateTime(t)
-	return su
-}
-
 // SetPause sets the "pause" field.
 func (su *ServiceUpdate) SetPause(b bool) *ServiceUpdate {
 	su.mutation.SetPause(b)
+	return su
+}
+
+// SetNillablePause sets the "pause" field if the given value is not nil.
+func (su *ServiceUpdate) SetNillablePause(b *bool) *ServiceUpdate {
+	if b != nil {
+		su.SetPause(*b)
+	}
+	return su
+}
+
+// ClearPause clears the value of the "pause" field.
+func (su *ServiceUpdate) ClearPause() *ServiceUpdate {
+	su.mutation.ClearPause()
 	return su
 }
 
@@ -50,9 +57,23 @@ func (su *ServiceUpdate) SetHidden(b bool) *ServiceUpdate {
 	return su
 }
 
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (su *ServiceUpdate) SetNillableHidden(b *bool) *ServiceUpdate {
+	if b != nil {
+		su.SetHidden(*b)
+	}
+	return su
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (su *ServiceUpdate) ClearHidden() *ServiceUpdate {
+	su.mutation.ClearHidden()
+	return su
+}
+
 // SetTeamID sets the "team_id" field.
-func (su *ServiceUpdate) SetTeamID(i int) *ServiceUpdate {
-	su.mutation.SetTeamID(i)
+func (su *ServiceUpdate) SetTeamID(s string) *ServiceUpdate {
+	su.mutation.SetTeamID(s)
 	return su
 }
 
@@ -126,13 +147,13 @@ func (su *ServiceUpdate) SetTeam(t *Team) *ServiceUpdate {
 }
 
 // SetHostsID sets the "hosts" edge to the Host entity by ID.
-func (su *ServiceUpdate) SetHostsID(id int) *ServiceUpdate {
+func (su *ServiceUpdate) SetHostsID(id string) *ServiceUpdate {
 	su.mutation.SetHostsID(id)
 	return su
 }
 
 // SetNillableHostsID sets the "hosts" edge to the Host entity by ID if the given value is not nil.
-func (su *ServiceUpdate) SetNillableHostsID(id *int) *ServiceUpdate {
+func (su *ServiceUpdate) SetNillableHostsID(id *string) *ServiceUpdate {
 	if id != nil {
 		su = su.SetHostsID(*id)
 	}
@@ -145,14 +166,14 @@ func (su *ServiceUpdate) SetHosts(h *Host) *ServiceUpdate {
 }
 
 // AddCheckIDs adds the "checks" edge to the Check entity by IDs.
-func (su *ServiceUpdate) AddCheckIDs(ids ...int) *ServiceUpdate {
+func (su *ServiceUpdate) AddCheckIDs(ids ...string) *ServiceUpdate {
 	su.mutation.AddCheckIDs(ids...)
 	return su
 }
 
 // AddChecks adds the "checks" edges to the Check entity.
 func (su *ServiceUpdate) AddChecks(c ...*Check) *ServiceUpdate {
-	ids := make([]int, len(c))
+	ids := make([]string, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -160,14 +181,14 @@ func (su *ServiceUpdate) AddChecks(c ...*Check) *ServiceUpdate {
 }
 
 // AddPropertyIDs adds the "properties" edge to the Property entity by IDs.
-func (su *ServiceUpdate) AddPropertyIDs(ids ...int) *ServiceUpdate {
+func (su *ServiceUpdate) AddPropertyIDs(ids ...string) *ServiceUpdate {
 	su.mutation.AddPropertyIDs(ids...)
 	return su
 }
 
 // AddProperties adds the "properties" edges to the Property entity.
 func (su *ServiceUpdate) AddProperties(p ...*Property) *ServiceUpdate {
-	ids := make([]int, len(p))
+	ids := make([]string, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -198,14 +219,14 @@ func (su *ServiceUpdate) ClearChecks() *ServiceUpdate {
 }
 
 // RemoveCheckIDs removes the "checks" edge to Check entities by IDs.
-func (su *ServiceUpdate) RemoveCheckIDs(ids ...int) *ServiceUpdate {
+func (su *ServiceUpdate) RemoveCheckIDs(ids ...string) *ServiceUpdate {
 	su.mutation.RemoveCheckIDs(ids...)
 	return su
 }
 
 // RemoveChecks removes "checks" edges to Check entities.
 func (su *ServiceUpdate) RemoveChecks(c ...*Check) *ServiceUpdate {
-	ids := make([]int, len(c))
+	ids := make([]string, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -219,14 +240,14 @@ func (su *ServiceUpdate) ClearProperties() *ServiceUpdate {
 }
 
 // RemovePropertyIDs removes the "properties" edge to Property entities by IDs.
-func (su *ServiceUpdate) RemovePropertyIDs(ids ...int) *ServiceUpdate {
+func (su *ServiceUpdate) RemovePropertyIDs(ids ...string) *ServiceUpdate {
 	su.mutation.RemovePropertyIDs(ids...)
 	return su
 }
 
 // RemoveProperties removes "properties" edges to Property entities.
 func (su *ServiceUpdate) RemoveProperties(p ...*Property) *ServiceUpdate {
-	ids := make([]int, len(p))
+	ids := make([]string, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -235,7 +256,6 @@ func (su *ServiceUpdate) RemoveProperties(p ...*Property) *ServiceUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (su *ServiceUpdate) Save(ctx context.Context) (int, error) {
-	su.defaults()
 	return withHooks[int, ServiceMutation](ctx, su.sqlSave, su.mutation, su.hooks)
 }
 
@@ -261,14 +281,6 @@ func (su *ServiceUpdate) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (su *ServiceUpdate) defaults() {
-	if _, ok := su.mutation.UpdateTime(); !ok {
-		v := service.UpdateDefaultUpdateTime()
-		su.mutation.SetUpdateTime(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (su *ServiceUpdate) check() error {
 	if _, ok := su.mutation.CompetitionID(); su.mutation.CompetitionCleared() && !ok {
@@ -284,7 +296,7 @@ func (su *ServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := su.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(service.Table, service.Columns, sqlgraph.NewFieldSpec(service.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(service.Table, service.Columns, sqlgraph.NewFieldSpec(service.FieldID, field.TypeString))
 	if ps := su.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -292,14 +304,17 @@ func (su *ServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := su.mutation.UpdateTime(); ok {
-		_spec.SetField(service.FieldUpdateTime, field.TypeTime, value)
-	}
 	if value, ok := su.mutation.Pause(); ok {
 		_spec.SetField(service.FieldPause, field.TypeBool, value)
 	}
+	if su.mutation.PauseCleared() {
+		_spec.ClearField(service.FieldPause, field.TypeBool)
+	}
 	if value, ok := su.mutation.Hidden(); ok {
 		_spec.SetField(service.FieldHidden, field.TypeBool, value)
+	}
+	if su.mutation.HiddenCleared() {
+		_spec.ClearField(service.FieldHidden, field.TypeBool)
 	}
 	if value, ok := su.mutation.Name(); ok {
 		_spec.SetField(service.FieldName, field.TypeString, value)
@@ -339,7 +354,7 @@ func (su *ServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{service.TeamColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -352,7 +367,7 @@ func (su *ServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{service.TeamColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -368,7 +383,7 @@ func (su *ServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{service.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -381,7 +396,7 @@ func (su *ServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{service.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -397,7 +412,7 @@ func (su *ServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{service.ChecksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -410,7 +425,7 @@ func (su *ServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{service.ChecksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -426,7 +441,7 @@ func (su *ServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{service.ChecksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -442,7 +457,7 @@ func (su *ServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{service.PropertiesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -455,7 +470,7 @@ func (su *ServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{service.PropertiesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -471,7 +486,7 @@ func (su *ServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{service.PropertiesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -499,15 +514,23 @@ type ServiceUpdateOne struct {
 	mutation *ServiceMutation
 }
 
-// SetUpdateTime sets the "update_time" field.
-func (suo *ServiceUpdateOne) SetUpdateTime(t time.Time) *ServiceUpdateOne {
-	suo.mutation.SetUpdateTime(t)
-	return suo
-}
-
 // SetPause sets the "pause" field.
 func (suo *ServiceUpdateOne) SetPause(b bool) *ServiceUpdateOne {
 	suo.mutation.SetPause(b)
+	return suo
+}
+
+// SetNillablePause sets the "pause" field if the given value is not nil.
+func (suo *ServiceUpdateOne) SetNillablePause(b *bool) *ServiceUpdateOne {
+	if b != nil {
+		suo.SetPause(*b)
+	}
+	return suo
+}
+
+// ClearPause clears the value of the "pause" field.
+func (suo *ServiceUpdateOne) ClearPause() *ServiceUpdateOne {
+	suo.mutation.ClearPause()
 	return suo
 }
 
@@ -517,9 +540,23 @@ func (suo *ServiceUpdateOne) SetHidden(b bool) *ServiceUpdateOne {
 	return suo
 }
 
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (suo *ServiceUpdateOne) SetNillableHidden(b *bool) *ServiceUpdateOne {
+	if b != nil {
+		suo.SetHidden(*b)
+	}
+	return suo
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (suo *ServiceUpdateOne) ClearHidden() *ServiceUpdateOne {
+	suo.mutation.ClearHidden()
+	return suo
+}
+
 // SetTeamID sets the "team_id" field.
-func (suo *ServiceUpdateOne) SetTeamID(i int) *ServiceUpdateOne {
-	suo.mutation.SetTeamID(i)
+func (suo *ServiceUpdateOne) SetTeamID(s string) *ServiceUpdateOne {
+	suo.mutation.SetTeamID(s)
 	return suo
 }
 
@@ -593,13 +630,13 @@ func (suo *ServiceUpdateOne) SetTeam(t *Team) *ServiceUpdateOne {
 }
 
 // SetHostsID sets the "hosts" edge to the Host entity by ID.
-func (suo *ServiceUpdateOne) SetHostsID(id int) *ServiceUpdateOne {
+func (suo *ServiceUpdateOne) SetHostsID(id string) *ServiceUpdateOne {
 	suo.mutation.SetHostsID(id)
 	return suo
 }
 
 // SetNillableHostsID sets the "hosts" edge to the Host entity by ID if the given value is not nil.
-func (suo *ServiceUpdateOne) SetNillableHostsID(id *int) *ServiceUpdateOne {
+func (suo *ServiceUpdateOne) SetNillableHostsID(id *string) *ServiceUpdateOne {
 	if id != nil {
 		suo = suo.SetHostsID(*id)
 	}
@@ -612,14 +649,14 @@ func (suo *ServiceUpdateOne) SetHosts(h *Host) *ServiceUpdateOne {
 }
 
 // AddCheckIDs adds the "checks" edge to the Check entity by IDs.
-func (suo *ServiceUpdateOne) AddCheckIDs(ids ...int) *ServiceUpdateOne {
+func (suo *ServiceUpdateOne) AddCheckIDs(ids ...string) *ServiceUpdateOne {
 	suo.mutation.AddCheckIDs(ids...)
 	return suo
 }
 
 // AddChecks adds the "checks" edges to the Check entity.
 func (suo *ServiceUpdateOne) AddChecks(c ...*Check) *ServiceUpdateOne {
-	ids := make([]int, len(c))
+	ids := make([]string, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -627,14 +664,14 @@ func (suo *ServiceUpdateOne) AddChecks(c ...*Check) *ServiceUpdateOne {
 }
 
 // AddPropertyIDs adds the "properties" edge to the Property entity by IDs.
-func (suo *ServiceUpdateOne) AddPropertyIDs(ids ...int) *ServiceUpdateOne {
+func (suo *ServiceUpdateOne) AddPropertyIDs(ids ...string) *ServiceUpdateOne {
 	suo.mutation.AddPropertyIDs(ids...)
 	return suo
 }
 
 // AddProperties adds the "properties" edges to the Property entity.
 func (suo *ServiceUpdateOne) AddProperties(p ...*Property) *ServiceUpdateOne {
-	ids := make([]int, len(p))
+	ids := make([]string, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -665,14 +702,14 @@ func (suo *ServiceUpdateOne) ClearChecks() *ServiceUpdateOne {
 }
 
 // RemoveCheckIDs removes the "checks" edge to Check entities by IDs.
-func (suo *ServiceUpdateOne) RemoveCheckIDs(ids ...int) *ServiceUpdateOne {
+func (suo *ServiceUpdateOne) RemoveCheckIDs(ids ...string) *ServiceUpdateOne {
 	suo.mutation.RemoveCheckIDs(ids...)
 	return suo
 }
 
 // RemoveChecks removes "checks" edges to Check entities.
 func (suo *ServiceUpdateOne) RemoveChecks(c ...*Check) *ServiceUpdateOne {
-	ids := make([]int, len(c))
+	ids := make([]string, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -686,14 +723,14 @@ func (suo *ServiceUpdateOne) ClearProperties() *ServiceUpdateOne {
 }
 
 // RemovePropertyIDs removes the "properties" edge to Property entities by IDs.
-func (suo *ServiceUpdateOne) RemovePropertyIDs(ids ...int) *ServiceUpdateOne {
+func (suo *ServiceUpdateOne) RemovePropertyIDs(ids ...string) *ServiceUpdateOne {
 	suo.mutation.RemovePropertyIDs(ids...)
 	return suo
 }
 
 // RemoveProperties removes "properties" edges to Property entities.
 func (suo *ServiceUpdateOne) RemoveProperties(p ...*Property) *ServiceUpdateOne {
-	ids := make([]int, len(p))
+	ids := make([]string, len(p))
 	for i := range p {
 		ids[i] = p[i].ID
 	}
@@ -715,7 +752,6 @@ func (suo *ServiceUpdateOne) Select(field string, fields ...string) *ServiceUpda
 
 // Save executes the query and returns the updated Service entity.
 func (suo *ServiceUpdateOne) Save(ctx context.Context) (*Service, error) {
-	suo.defaults()
 	return withHooks[*Service, ServiceMutation](ctx, suo.sqlSave, suo.mutation, suo.hooks)
 }
 
@@ -741,14 +777,6 @@ func (suo *ServiceUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (suo *ServiceUpdateOne) defaults() {
-	if _, ok := suo.mutation.UpdateTime(); !ok {
-		v := service.UpdateDefaultUpdateTime()
-		suo.mutation.SetUpdateTime(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (suo *ServiceUpdateOne) check() error {
 	if _, ok := suo.mutation.CompetitionID(); suo.mutation.CompetitionCleared() && !ok {
@@ -764,7 +792,7 @@ func (suo *ServiceUpdateOne) sqlSave(ctx context.Context) (_node *Service, err e
 	if err := suo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(service.Table, service.Columns, sqlgraph.NewFieldSpec(service.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(service.Table, service.Columns, sqlgraph.NewFieldSpec(service.FieldID, field.TypeString))
 	id, ok := suo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`entities: missing "Service.id" for update`)}
@@ -789,14 +817,17 @@ func (suo *ServiceUpdateOne) sqlSave(ctx context.Context) (_node *Service, err e
 			}
 		}
 	}
-	if value, ok := suo.mutation.UpdateTime(); ok {
-		_spec.SetField(service.FieldUpdateTime, field.TypeTime, value)
-	}
 	if value, ok := suo.mutation.Pause(); ok {
 		_spec.SetField(service.FieldPause, field.TypeBool, value)
 	}
+	if suo.mutation.PauseCleared() {
+		_spec.ClearField(service.FieldPause, field.TypeBool)
+	}
 	if value, ok := suo.mutation.Hidden(); ok {
 		_spec.SetField(service.FieldHidden, field.TypeBool, value)
+	}
+	if suo.mutation.HiddenCleared() {
+		_spec.ClearField(service.FieldHidden, field.TypeBool)
 	}
 	if value, ok := suo.mutation.Name(); ok {
 		_spec.SetField(service.FieldName, field.TypeString, value)
@@ -836,7 +867,7 @@ func (suo *ServiceUpdateOne) sqlSave(ctx context.Context) (_node *Service, err e
 			Columns: []string{service.TeamColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -849,7 +880,7 @@ func (suo *ServiceUpdateOne) sqlSave(ctx context.Context) (_node *Service, err e
 			Columns: []string{service.TeamColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -865,7 +896,7 @@ func (suo *ServiceUpdateOne) sqlSave(ctx context.Context) (_node *Service, err e
 			Columns: []string{service.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -878,7 +909,7 @@ func (suo *ServiceUpdateOne) sqlSave(ctx context.Context) (_node *Service, err e
 			Columns: []string{service.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -894,7 +925,7 @@ func (suo *ServiceUpdateOne) sqlSave(ctx context.Context) (_node *Service, err e
 			Columns: []string{service.ChecksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -907,7 +938,7 @@ func (suo *ServiceUpdateOne) sqlSave(ctx context.Context) (_node *Service, err e
 			Columns: []string{service.ChecksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -923,7 +954,7 @@ func (suo *ServiceUpdateOne) sqlSave(ctx context.Context) (_node *Service, err e
 			Columns: []string{service.ChecksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -939,7 +970,7 @@ func (suo *ServiceUpdateOne) sqlSave(ctx context.Context) (_node *Service, err e
 			Columns: []string{service.PropertiesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -952,7 +983,7 @@ func (suo *ServiceUpdateOne) sqlSave(ctx context.Context) (_node *Service, err e
 			Columns: []string{service.PropertiesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -968,7 +999,7 @@ func (suo *ServiceUpdateOne) sqlSave(ctx context.Context) (_node *Service, err e
 			Columns: []string{service.PropertiesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

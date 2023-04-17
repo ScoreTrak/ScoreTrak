@@ -2,12 +2,9 @@ package telemetry
 
 import (
 	"context"
-	"log"
-
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
-	"go.uber.org/fx"
 )
 
 func NewMetricExporter() *metric.Exporter {
@@ -28,17 +25,17 @@ func NewMeterProvider(r *resource.Resource, exp *metric.Exporter) *metric.MeterP
 	return mp
 }
 
-func RegisterMetricProvider(lc fx.Lifecycle, mp *metric.MeterProvider) {
-	//otel.setMeterProvider(mp)
-
-	lc.Append(fx.Hook{
-		OnStop: func(ctx context.Context) error {
-			log.Println("Stopping meter provider")
-			err := mp.Shutdown(ctx)
-			if err != nil {
-				return err
-			}
-			return nil
-		},
-	})
-}
+//func RegisterMetricProvider(lc fx.Lifecycle, mp *metric.MeterProvider) {
+//	//otel.setMeterProvider(mp)
+//
+//	lc.Append(fx.Hook{
+//		OnStop: func(ctx context.Context) error {
+//			log.Println("Stopping meter provider")
+//			err := mp.Shutdown(ctx)
+//			if err != nil {
+//				return err
+//			}
+//			return nil
+//		},
+//	})
+//}

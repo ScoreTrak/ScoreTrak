@@ -3,8 +3,7 @@
 package competition
 
 import (
-	"time"
-
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -14,10 +13,6 @@ const (
 	Label = "competition"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldCreateTime holds the string denoting the create_time field in the database.
-	FieldCreateTime = "create_time"
-	// FieldUpdateTime holds the string denoting the update_time field in the database.
-	FieldUpdateTime = "update_time"
 	// FieldHidden holds the string denoting the hidden field in the database.
 	FieldHidden = "hidden"
 	// FieldPause holds the string denoting the pause field in the database.
@@ -26,8 +21,8 @@ const (
 	FieldName = "name"
 	// FieldDisplayName holds the string denoting the display_name field in the database.
 	FieldDisplayName = "display_name"
-	// FieldRoundDuration holds the string denoting the round_duration field in the database.
-	FieldRoundDuration = "round_duration"
+	// FieldViewableToPublic holds the string denoting the viewable_to_public field in the database.
+	FieldViewableToPublic = "viewable_to_public"
 	// FieldToBeStartedAt holds the string denoting the to_be_started_at field in the database.
 	FieldToBeStartedAt = "to_be_started_at"
 	// FieldStartedAt holds the string denoting the started_at field in the database.
@@ -57,13 +52,11 @@ const (
 // Columns holds all SQL columns for competition fields.
 var Columns = []string{
 	FieldID,
-	FieldCreateTime,
-	FieldUpdateTime,
 	FieldHidden,
 	FieldPause,
 	FieldName,
 	FieldDisplayName,
-	FieldRoundDuration,
+	FieldViewableToPublic,
 	FieldToBeStartedAt,
 	FieldStartedAt,
 	FieldFinishedAt,
@@ -85,15 +78,20 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "github.com/ScoreTrak/ScoreTrak/internal/entities/runtime"
 var (
-	// DefaultCreateTime holds the default value on creation for the "create_time" field.
-	DefaultCreateTime func() time.Time
-	// DefaultUpdateTime holds the default value on creation for the "update_time" field.
-	DefaultUpdateTime func() time.Time
-	// UpdateDefaultUpdateTime holds the default value on update for the "update_time" field.
-	UpdateDefaultUpdateTime func() time.Time
+	Hooks  [1]ent.Hook
+	Policy ent.Policy
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() string
+	// IDValidator is a validator for the "id" field. It is called by the builders before save.
+	IDValidator func(string) error
 )
 
 // Order defines the ordering method for the Competition queries.
@@ -102,16 +100,6 @@ type Order func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) Order {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
-}
-
-// ByCreateTime orders the results by the create_time field.
-func ByCreateTime(opts ...sql.OrderTermOption) Order {
-	return sql.OrderByField(FieldCreateTime, opts...).ToFunc()
-}
-
-// ByUpdateTime orders the results by the update_time field.
-func ByUpdateTime(opts ...sql.OrderTermOption) Order {
-	return sql.OrderByField(FieldUpdateTime, opts...).ToFunc()
 }
 
 // ByHidden orders the results by the hidden field.
@@ -134,9 +122,9 @@ func ByDisplayName(opts ...sql.OrderTermOption) Order {
 	return sql.OrderByField(FieldDisplayName, opts...).ToFunc()
 }
 
-// ByRoundDuration orders the results by the round_duration field.
-func ByRoundDuration(opts ...sql.OrderTermOption) Order {
-	return sql.OrderByField(FieldRoundDuration, opts...).ToFunc()
+// ByViewableToPublic orders the results by the viewable_to_public field.
+func ByViewableToPublic(opts ...sql.OrderTermOption) Order {
+	return sql.OrderByField(FieldViewableToPublic, opts...).ToFunc()
 }
 
 // ByToBeStartedAt orders the results by the to_be_started_at field.

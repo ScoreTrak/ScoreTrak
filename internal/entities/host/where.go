@@ -3,66 +3,64 @@
 package host
 
 import (
-	"time"
-
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Host {
+func ID(id string) predicate.Host {
 	return predicate.Host(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Host {
+func IDEQ(id string) predicate.Host {
 	return predicate.Host(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Host {
+func IDNEQ(id string) predicate.Host {
 	return predicate.Host(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Host {
+func IDIn(ids ...string) predicate.Host {
 	return predicate.Host(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Host {
+func IDNotIn(ids ...string) predicate.Host {
 	return predicate.Host(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Host {
+func IDGT(id string) predicate.Host {
 	return predicate.Host(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Host {
+func IDGTE(id string) predicate.Host {
 	return predicate.Host(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Host {
+func IDLT(id string) predicate.Host {
 	return predicate.Host(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Host {
+func IDLTE(id string) predicate.Host {
 	return predicate.Host(sql.FieldLTE(FieldID, id))
 }
 
-// CreateTime applies equality check predicate on the "create_time" field. It's identical to CreateTimeEQ.
-func CreateTime(v time.Time) predicate.Host {
-	return predicate.Host(sql.FieldEQ(FieldCreateTime, v))
+// IDEqualFold applies the EqualFold predicate on the ID field.
+func IDEqualFold(id string) predicate.Host {
+	return predicate.Host(sql.FieldEqualFold(FieldID, id))
 }
 
-// UpdateTime applies equality check predicate on the "update_time" field. It's identical to UpdateTimeEQ.
-func UpdateTime(v time.Time) predicate.Host {
-	return predicate.Host(sql.FieldEQ(FieldUpdateTime, v))
+// IDContainsFold applies the ContainsFold predicate on the ID field.
+func IDContainsFold(id string) predicate.Host {
+	return predicate.Host(sql.FieldContainsFold(FieldID, id))
 }
 
 // Pause applies equality check predicate on the "pause" field. It's identical to PauseEQ.
@@ -76,12 +74,12 @@ func Hidden(v bool) predicate.Host {
 }
 
 // CompetitionID applies equality check predicate on the "competition_id" field. It's identical to CompetitionIDEQ.
-func CompetitionID(v int) predicate.Host {
+func CompetitionID(v string) predicate.Host {
 	return predicate.Host(sql.FieldEQ(FieldCompetitionID, v))
 }
 
 // TeamID applies equality check predicate on the "team_id" field. It's identical to TeamIDEQ.
-func TeamID(v int) predicate.Host {
+func TeamID(v string) predicate.Host {
 	return predicate.Host(sql.FieldEQ(FieldTeamID, v))
 }
 
@@ -100,86 +98,6 @@ func Editable(v bool) predicate.Host {
 	return predicate.Host(sql.FieldEQ(FieldEditable, v))
 }
 
-// CreateTimeEQ applies the EQ predicate on the "create_time" field.
-func CreateTimeEQ(v time.Time) predicate.Host {
-	return predicate.Host(sql.FieldEQ(FieldCreateTime, v))
-}
-
-// CreateTimeNEQ applies the NEQ predicate on the "create_time" field.
-func CreateTimeNEQ(v time.Time) predicate.Host {
-	return predicate.Host(sql.FieldNEQ(FieldCreateTime, v))
-}
-
-// CreateTimeIn applies the In predicate on the "create_time" field.
-func CreateTimeIn(vs ...time.Time) predicate.Host {
-	return predicate.Host(sql.FieldIn(FieldCreateTime, vs...))
-}
-
-// CreateTimeNotIn applies the NotIn predicate on the "create_time" field.
-func CreateTimeNotIn(vs ...time.Time) predicate.Host {
-	return predicate.Host(sql.FieldNotIn(FieldCreateTime, vs...))
-}
-
-// CreateTimeGT applies the GT predicate on the "create_time" field.
-func CreateTimeGT(v time.Time) predicate.Host {
-	return predicate.Host(sql.FieldGT(FieldCreateTime, v))
-}
-
-// CreateTimeGTE applies the GTE predicate on the "create_time" field.
-func CreateTimeGTE(v time.Time) predicate.Host {
-	return predicate.Host(sql.FieldGTE(FieldCreateTime, v))
-}
-
-// CreateTimeLT applies the LT predicate on the "create_time" field.
-func CreateTimeLT(v time.Time) predicate.Host {
-	return predicate.Host(sql.FieldLT(FieldCreateTime, v))
-}
-
-// CreateTimeLTE applies the LTE predicate on the "create_time" field.
-func CreateTimeLTE(v time.Time) predicate.Host {
-	return predicate.Host(sql.FieldLTE(FieldCreateTime, v))
-}
-
-// UpdateTimeEQ applies the EQ predicate on the "update_time" field.
-func UpdateTimeEQ(v time.Time) predicate.Host {
-	return predicate.Host(sql.FieldEQ(FieldUpdateTime, v))
-}
-
-// UpdateTimeNEQ applies the NEQ predicate on the "update_time" field.
-func UpdateTimeNEQ(v time.Time) predicate.Host {
-	return predicate.Host(sql.FieldNEQ(FieldUpdateTime, v))
-}
-
-// UpdateTimeIn applies the In predicate on the "update_time" field.
-func UpdateTimeIn(vs ...time.Time) predicate.Host {
-	return predicate.Host(sql.FieldIn(FieldUpdateTime, vs...))
-}
-
-// UpdateTimeNotIn applies the NotIn predicate on the "update_time" field.
-func UpdateTimeNotIn(vs ...time.Time) predicate.Host {
-	return predicate.Host(sql.FieldNotIn(FieldUpdateTime, vs...))
-}
-
-// UpdateTimeGT applies the GT predicate on the "update_time" field.
-func UpdateTimeGT(v time.Time) predicate.Host {
-	return predicate.Host(sql.FieldGT(FieldUpdateTime, v))
-}
-
-// UpdateTimeGTE applies the GTE predicate on the "update_time" field.
-func UpdateTimeGTE(v time.Time) predicate.Host {
-	return predicate.Host(sql.FieldGTE(FieldUpdateTime, v))
-}
-
-// UpdateTimeLT applies the LT predicate on the "update_time" field.
-func UpdateTimeLT(v time.Time) predicate.Host {
-	return predicate.Host(sql.FieldLT(FieldUpdateTime, v))
-}
-
-// UpdateTimeLTE applies the LTE predicate on the "update_time" field.
-func UpdateTimeLTE(v time.Time) predicate.Host {
-	return predicate.Host(sql.FieldLTE(FieldUpdateTime, v))
-}
-
 // PauseEQ applies the EQ predicate on the "pause" field.
 func PauseEQ(v bool) predicate.Host {
 	return predicate.Host(sql.FieldEQ(FieldPause, v))
@@ -188,6 +106,16 @@ func PauseEQ(v bool) predicate.Host {
 // PauseNEQ applies the NEQ predicate on the "pause" field.
 func PauseNEQ(v bool) predicate.Host {
 	return predicate.Host(sql.FieldNEQ(FieldPause, v))
+}
+
+// PauseIsNil applies the IsNil predicate on the "pause" field.
+func PauseIsNil() predicate.Host {
+	return predicate.Host(sql.FieldIsNull(FieldPause))
+}
+
+// PauseNotNil applies the NotNil predicate on the "pause" field.
+func PauseNotNil() predicate.Host {
+	return predicate.Host(sql.FieldNotNull(FieldPause))
 }
 
 // HiddenEQ applies the EQ predicate on the "hidden" field.
@@ -200,44 +128,144 @@ func HiddenNEQ(v bool) predicate.Host {
 	return predicate.Host(sql.FieldNEQ(FieldHidden, v))
 }
 
+// HiddenIsNil applies the IsNil predicate on the "hidden" field.
+func HiddenIsNil() predicate.Host {
+	return predicate.Host(sql.FieldIsNull(FieldHidden))
+}
+
+// HiddenNotNil applies the NotNil predicate on the "hidden" field.
+func HiddenNotNil() predicate.Host {
+	return predicate.Host(sql.FieldNotNull(FieldHidden))
+}
+
 // CompetitionIDEQ applies the EQ predicate on the "competition_id" field.
-func CompetitionIDEQ(v int) predicate.Host {
+func CompetitionIDEQ(v string) predicate.Host {
 	return predicate.Host(sql.FieldEQ(FieldCompetitionID, v))
 }
 
 // CompetitionIDNEQ applies the NEQ predicate on the "competition_id" field.
-func CompetitionIDNEQ(v int) predicate.Host {
+func CompetitionIDNEQ(v string) predicate.Host {
 	return predicate.Host(sql.FieldNEQ(FieldCompetitionID, v))
 }
 
 // CompetitionIDIn applies the In predicate on the "competition_id" field.
-func CompetitionIDIn(vs ...int) predicate.Host {
+func CompetitionIDIn(vs ...string) predicate.Host {
 	return predicate.Host(sql.FieldIn(FieldCompetitionID, vs...))
 }
 
 // CompetitionIDNotIn applies the NotIn predicate on the "competition_id" field.
-func CompetitionIDNotIn(vs ...int) predicate.Host {
+func CompetitionIDNotIn(vs ...string) predicate.Host {
 	return predicate.Host(sql.FieldNotIn(FieldCompetitionID, vs...))
 }
 
+// CompetitionIDGT applies the GT predicate on the "competition_id" field.
+func CompetitionIDGT(v string) predicate.Host {
+	return predicate.Host(sql.FieldGT(FieldCompetitionID, v))
+}
+
+// CompetitionIDGTE applies the GTE predicate on the "competition_id" field.
+func CompetitionIDGTE(v string) predicate.Host {
+	return predicate.Host(sql.FieldGTE(FieldCompetitionID, v))
+}
+
+// CompetitionIDLT applies the LT predicate on the "competition_id" field.
+func CompetitionIDLT(v string) predicate.Host {
+	return predicate.Host(sql.FieldLT(FieldCompetitionID, v))
+}
+
+// CompetitionIDLTE applies the LTE predicate on the "competition_id" field.
+func CompetitionIDLTE(v string) predicate.Host {
+	return predicate.Host(sql.FieldLTE(FieldCompetitionID, v))
+}
+
+// CompetitionIDContains applies the Contains predicate on the "competition_id" field.
+func CompetitionIDContains(v string) predicate.Host {
+	return predicate.Host(sql.FieldContains(FieldCompetitionID, v))
+}
+
+// CompetitionIDHasPrefix applies the HasPrefix predicate on the "competition_id" field.
+func CompetitionIDHasPrefix(v string) predicate.Host {
+	return predicate.Host(sql.FieldHasPrefix(FieldCompetitionID, v))
+}
+
+// CompetitionIDHasSuffix applies the HasSuffix predicate on the "competition_id" field.
+func CompetitionIDHasSuffix(v string) predicate.Host {
+	return predicate.Host(sql.FieldHasSuffix(FieldCompetitionID, v))
+}
+
+// CompetitionIDEqualFold applies the EqualFold predicate on the "competition_id" field.
+func CompetitionIDEqualFold(v string) predicate.Host {
+	return predicate.Host(sql.FieldEqualFold(FieldCompetitionID, v))
+}
+
+// CompetitionIDContainsFold applies the ContainsFold predicate on the "competition_id" field.
+func CompetitionIDContainsFold(v string) predicate.Host {
+	return predicate.Host(sql.FieldContainsFold(FieldCompetitionID, v))
+}
+
 // TeamIDEQ applies the EQ predicate on the "team_id" field.
-func TeamIDEQ(v int) predicate.Host {
+func TeamIDEQ(v string) predicate.Host {
 	return predicate.Host(sql.FieldEQ(FieldTeamID, v))
 }
 
 // TeamIDNEQ applies the NEQ predicate on the "team_id" field.
-func TeamIDNEQ(v int) predicate.Host {
+func TeamIDNEQ(v string) predicate.Host {
 	return predicate.Host(sql.FieldNEQ(FieldTeamID, v))
 }
 
 // TeamIDIn applies the In predicate on the "team_id" field.
-func TeamIDIn(vs ...int) predicate.Host {
+func TeamIDIn(vs ...string) predicate.Host {
 	return predicate.Host(sql.FieldIn(FieldTeamID, vs...))
 }
 
 // TeamIDNotIn applies the NotIn predicate on the "team_id" field.
-func TeamIDNotIn(vs ...int) predicate.Host {
+func TeamIDNotIn(vs ...string) predicate.Host {
 	return predicate.Host(sql.FieldNotIn(FieldTeamID, vs...))
+}
+
+// TeamIDGT applies the GT predicate on the "team_id" field.
+func TeamIDGT(v string) predicate.Host {
+	return predicate.Host(sql.FieldGT(FieldTeamID, v))
+}
+
+// TeamIDGTE applies the GTE predicate on the "team_id" field.
+func TeamIDGTE(v string) predicate.Host {
+	return predicate.Host(sql.FieldGTE(FieldTeamID, v))
+}
+
+// TeamIDLT applies the LT predicate on the "team_id" field.
+func TeamIDLT(v string) predicate.Host {
+	return predicate.Host(sql.FieldLT(FieldTeamID, v))
+}
+
+// TeamIDLTE applies the LTE predicate on the "team_id" field.
+func TeamIDLTE(v string) predicate.Host {
+	return predicate.Host(sql.FieldLTE(FieldTeamID, v))
+}
+
+// TeamIDContains applies the Contains predicate on the "team_id" field.
+func TeamIDContains(v string) predicate.Host {
+	return predicate.Host(sql.FieldContains(FieldTeamID, v))
+}
+
+// TeamIDHasPrefix applies the HasPrefix predicate on the "team_id" field.
+func TeamIDHasPrefix(v string) predicate.Host {
+	return predicate.Host(sql.FieldHasPrefix(FieldTeamID, v))
+}
+
+// TeamIDHasSuffix applies the HasSuffix predicate on the "team_id" field.
+func TeamIDHasSuffix(v string) predicate.Host {
+	return predicate.Host(sql.FieldHasSuffix(FieldTeamID, v))
+}
+
+// TeamIDEqualFold applies the EqualFold predicate on the "team_id" field.
+func TeamIDEqualFold(v string) predicate.Host {
+	return predicate.Host(sql.FieldEqualFold(FieldTeamID, v))
+}
+
+// TeamIDContainsFold applies the ContainsFold predicate on the "team_id" field.
+func TeamIDContainsFold(v string) predicate.Host {
+	return predicate.Host(sql.FieldContainsFold(FieldTeamID, v))
 }
 
 // AddressEQ applies the EQ predicate on the "address" field.

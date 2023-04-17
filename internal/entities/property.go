@@ -5,7 +5,6 @@ package entities
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -19,15 +18,11 @@ import (
 type Property struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// CreateTime holds the value of the "create_time" field.
-	CreateTime time.Time `json:"create_time,omitempty"`
-	// UpdateTime holds the value of the "update_time" field.
-	UpdateTime time.Time `json:"update_time,omitempty"`
+	ID string `json:"id,omitempty"`
 	// CompetitionID holds the value of the "competition_id" field.
-	CompetitionID int `json:"competition_id,omitempty"`
+	CompetitionID string `json:"competition_id,omitempty"`
 	// TeamID holds the value of the "team_id" field.
-	TeamID int `json:"team_id,omitempty"`
+	TeamID string `json:"team_id,omitempty"`
 	// Key holds the value of the "key" field.
 	Key string `json:"key,omitempty"`
 	// Value holds the value of the "value" field.
@@ -37,7 +32,7 @@ type Property struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PropertyQuery when eager-loading is set.
 	Edges              PropertyEdges `json:"edges"`
-	service_properties *int
+	service_properties *string
 	selectValues       sql.SelectValues
 }
 
@@ -98,14 +93,10 @@ func (*Property) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case property.FieldID, property.FieldCompetitionID, property.FieldTeamID:
-			values[i] = new(sql.NullInt64)
-		case property.FieldKey, property.FieldValue, property.FieldStatus:
+		case property.FieldID, property.FieldCompetitionID, property.FieldTeamID, property.FieldKey, property.FieldValue, property.FieldStatus:
 			values[i] = new(sql.NullString)
-		case property.FieldCreateTime, property.FieldUpdateTime:
-			values[i] = new(sql.NullTime)
 		case property.ForeignKeys[0]: // service_properties
-			values[i] = new(sql.NullInt64)
+			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -122,34 +113,22 @@ func (pr *Property) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case property.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
-			}
-			pr.ID = int(value.Int64)
-		case property.FieldCreateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field create_time", values[i])
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
-				pr.CreateTime = value.Time
-			}
-		case property.FieldUpdateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field update_time", values[i])
-			} else if value.Valid {
-				pr.UpdateTime = value.Time
+				pr.ID = value.String
 			}
 		case property.FieldCompetitionID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field competition_id", values[i])
 			} else if value.Valid {
-				pr.CompetitionID = int(value.Int64)
+				pr.CompetitionID = value.String
 			}
 		case property.FieldTeamID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field team_id", values[i])
 			} else if value.Valid {
-				pr.TeamID = int(value.Int64)
+				pr.TeamID = value.String
 			}
 		case property.FieldKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -170,11 +149,11 @@ func (pr *Property) assignValues(columns []string, values []any) error {
 				pr.Status = property.Status(value.String)
 			}
 		case property.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field service_properties", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field service_properties", values[i])
 			} else if value.Valid {
-				pr.service_properties = new(int)
-				*pr.service_properties = int(value.Int64)
+				pr.service_properties = new(string)
+				*pr.service_properties = value.String
 			}
 		default:
 			pr.selectValues.Set(columns[i], values[i])
@@ -227,17 +206,11 @@ func (pr *Property) String() string {
 	var builder strings.Builder
 	builder.WriteString("Property(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", pr.ID))
-	builder.WriteString("create_time=")
-	builder.WriteString(pr.CreateTime.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("update_time=")
-	builder.WriteString(pr.UpdateTime.Format(time.ANSIC))
-	builder.WriteString(", ")
 	builder.WriteString("competition_id=")
-	builder.WriteString(fmt.Sprintf("%v", pr.CompetitionID))
+	builder.WriteString(pr.CompetitionID)
 	builder.WriteString(", ")
 	builder.WriteString("team_id=")
-	builder.WriteString(fmt.Sprintf("%v", pr.TeamID))
+	builder.WriteString(pr.TeamID)
 	builder.WriteString(", ")
 	builder.WriteString("key=")
 	builder.WriteString(pr.Key)

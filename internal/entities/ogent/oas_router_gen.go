@@ -732,113 +732,179 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						}
 					}
 				}
-			case 'r': // Prefix: "rounds"
-				if l := len("rounds"); len(elem) >= l && elem[0:l] == "rounds" {
+			case 'r': // Prefix: "r"
+				if l := len("r"); len(elem) >= l && elem[0:l] == "r" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					switch r.Method {
-					case "GET":
-						s.handleListRoundRequest([0]string{}, w, r)
-					case "POST":
-						s.handleCreateRoundRequest([0]string{}, w, r)
-					default:
-						s.notAllowed(w, r, "GET,POST")
-					}
-
-					return
+					break
 				}
 				switch elem[0] {
-				case '/': // Prefix: "/"
-					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+				case 'e': // Prefix: "eports"
+					if l := len("eports"); len(elem) >= l && elem[0:l] == "eports" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
-					// Param: "id"
-					// Match until "/"
-					idx := strings.IndexByte(elem, '/')
-					if idx < 0 {
-						idx = len(elem)
-					}
-					args[0] = elem[:idx]
-					elem = elem[idx:]
-
 					if len(elem) == 0 {
 						switch r.Method {
-						case "DELETE":
-							s.handleDeleteRoundRequest([1]string{
-								args[0],
-							}, w, r)
 						case "GET":
-							s.handleReadRoundRequest([1]string{
-								args[0],
-							}, w, r)
-						case "PATCH":
-							s.handleUpdateRoundRequest([1]string{
-								args[0],
-							}, w, r)
+							s.handleListReportRequest([0]string{}, w, r)
+						case "POST":
+							s.handleCreateReportRequest([0]string{}, w, r)
 						default:
-							s.notAllowed(w, r, "DELETE,GET,PATCH")
+							s.notAllowed(w, r, "GET,POST")
 						}
 
 						return
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/c"
-						if l := len("/c"); len(elem) >= l && elem[0:l] == "/c" {
+					case '/': // Prefix: "/"
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
+						// Param: "id"
+						// Leaf parameter
+						args[0] = elem
+						elem = ""
+
 						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "DELETE":
+								s.handleDeleteReportRequest([1]string{
+									args[0],
+								}, w, r)
+							case "GET":
+								s.handleReadReportRequest([1]string{
+									args[0],
+								}, w, r)
+							case "PATCH":
+								s.handleUpdateReportRequest([1]string{
+									args[0],
+								}, w, r)
+							default:
+								s.notAllowed(w, r, "DELETE,GET,PATCH")
+							}
+
+							return
+						}
+					}
+				case 'o': // Prefix: "ounds"
+					if l := len("ounds"); len(elem) >= l && elem[0:l] == "ounds" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						switch r.Method {
+						case "GET":
+							s.handleListRoundRequest([0]string{}, w, r)
+						case "POST":
+							s.handleCreateRoundRequest([0]string{}, w, r)
+						default:
+							s.notAllowed(w, r, "GET,POST")
+						}
+
+						return
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/"
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+							elem = elem[l:]
+						} else {
 							break
 						}
+
+						// Param: "id"
+						// Match until "/"
+						idx := strings.IndexByte(elem, '/')
+						if idx < 0 {
+							idx = len(elem)
+						}
+						args[0] = elem[:idx]
+						elem = elem[idx:]
+
+						if len(elem) == 0 {
+							switch r.Method {
+							case "DELETE":
+								s.handleDeleteRoundRequest([1]string{
+									args[0],
+								}, w, r)
+							case "GET":
+								s.handleReadRoundRequest([1]string{
+									args[0],
+								}, w, r)
+							case "PATCH":
+								s.handleUpdateRoundRequest([1]string{
+									args[0],
+								}, w, r)
+							default:
+								s.notAllowed(w, r, "DELETE,GET,PATCH")
+							}
+
+							return
+						}
 						switch elem[0] {
-						case 'h': // Prefix: "hecks"
-							if l := len("hecks"); len(elem) >= l && elem[0:l] == "hecks" {
+						case '/': // Prefix: "/c"
+							if l := len("/c"); len(elem) >= l && elem[0:l] == "/c" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleListRoundChecksRequest([1]string{
-										args[0],
-									}, w, r)
-								default:
-									s.notAllowed(w, r, "GET")
-								}
-
-								return
-							}
-						case 'o': // Prefix: "ompetition"
-							if l := len("ompetition"); len(elem) >= l && elem[0:l] == "ompetition" {
-								elem = elem[l:]
-							} else {
 								break
 							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleReadRoundCompetitionRequest([1]string{
-										args[0],
-									}, w, r)
-								default:
-									s.notAllowed(w, r, "GET")
+							switch elem[0] {
+							case 'h': // Prefix: "hecks"
+								if l := len("hecks"); len(elem) >= l && elem[0:l] == "hecks" {
+									elem = elem[l:]
+								} else {
+									break
 								}
 
-								return
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleListRoundChecksRequest([1]string{
+											args[0],
+										}, w, r)
+									default:
+										s.notAllowed(w, r, "GET")
+									}
+
+									return
+								}
+							case 'o': // Prefix: "ompetition"
+								if l := len("ompetition"); len(elem) >= l && elem[0:l] == "ompetition" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleReadRoundCompetitionRequest([1]string{
+											args[0],
+										}, w, r)
+									default:
+										s.notAllowed(w, r, "GET")
+									}
+
+									return
+								}
 							}
 						}
 					}
@@ -2118,129 +2184,212 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						}
 					}
 				}
-			case 'r': // Prefix: "rounds"
-				if l := len("rounds"); len(elem) >= l && elem[0:l] == "rounds" {
+			case 'r': // Prefix: "r"
+				if l := len("r"); len(elem) >= l && elem[0:l] == "r" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					switch method {
-					case "GET":
-						r.name = "ListRound"
-						r.operationID = "listRound"
-						r.pathPattern = "/rounds"
-						r.args = args
-						r.count = 0
-						return r, true
-					case "POST":
-						r.name = "CreateRound"
-						r.operationID = "createRound"
-						r.pathPattern = "/rounds"
-						r.args = args
-						r.count = 0
-						return r, true
-					default:
-						return
-					}
+					break
 				}
 				switch elem[0] {
-				case '/': // Prefix: "/"
-					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+				case 'e': // Prefix: "eports"
+					if l := len("eports"); len(elem) >= l && elem[0:l] == "eports" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
-					// Param: "id"
-					// Match until "/"
-					idx := strings.IndexByte(elem, '/')
-					if idx < 0 {
-						idx = len(elem)
-					}
-					args[0] = elem[:idx]
-					elem = elem[idx:]
-
 					if len(elem) == 0 {
 						switch method {
-						case "DELETE":
-							r.name = "DeleteRound"
-							r.operationID = "deleteRound"
-							r.pathPattern = "/rounds/{id}"
-							r.args = args
-							r.count = 1
-							return r, true
 						case "GET":
-							r.name = "ReadRound"
-							r.operationID = "readRound"
-							r.pathPattern = "/rounds/{id}"
+							r.name = "ListReport"
+							r.operationID = "listReport"
+							r.pathPattern = "/reports"
 							r.args = args
-							r.count = 1
+							r.count = 0
 							return r, true
-						case "PATCH":
-							r.name = "UpdateRound"
-							r.operationID = "updateRound"
-							r.pathPattern = "/rounds/{id}"
+						case "POST":
+							r.name = "CreateReport"
+							r.operationID = "createReport"
+							r.pathPattern = "/reports"
 							r.args = args
-							r.count = 1
+							r.count = 0
 							return r, true
 						default:
 							return
 						}
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/c"
-						if l := len("/c"); len(elem) >= l && elem[0:l] == "/c" {
+					case '/': // Prefix: "/"
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
+						// Param: "id"
+						// Leaf parameter
+						args[0] = elem
+						elem = ""
+
 						if len(elem) == 0 {
+							switch method {
+							case "DELETE":
+								// Leaf: DeleteReport
+								r.name = "DeleteReport"
+								r.operationID = "deleteReport"
+								r.pathPattern = "/reports/{id}"
+								r.args = args
+								r.count = 1
+								return r, true
+							case "GET":
+								// Leaf: ReadReport
+								r.name = "ReadReport"
+								r.operationID = "readReport"
+								r.pathPattern = "/reports/{id}"
+								r.args = args
+								r.count = 1
+								return r, true
+							case "PATCH":
+								// Leaf: UpdateReport
+								r.name = "UpdateReport"
+								r.operationID = "updateReport"
+								r.pathPattern = "/reports/{id}"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+					}
+				case 'o': // Prefix: "ounds"
+					if l := len("ounds"); len(elem) >= l && elem[0:l] == "ounds" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						switch method {
+						case "GET":
+							r.name = "ListRound"
+							r.operationID = "listRound"
+							r.pathPattern = "/rounds"
+							r.args = args
+							r.count = 0
+							return r, true
+						case "POST":
+							r.name = "CreateRound"
+							r.operationID = "createRound"
+							r.pathPattern = "/rounds"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/"
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+							elem = elem[l:]
+						} else {
 							break
 						}
+
+						// Param: "id"
+						// Match until "/"
+						idx := strings.IndexByte(elem, '/')
+						if idx < 0 {
+							idx = len(elem)
+						}
+						args[0] = elem[:idx]
+						elem = elem[idx:]
+
+						if len(elem) == 0 {
+							switch method {
+							case "DELETE":
+								r.name = "DeleteRound"
+								r.operationID = "deleteRound"
+								r.pathPattern = "/rounds/{id}"
+								r.args = args
+								r.count = 1
+								return r, true
+							case "GET":
+								r.name = "ReadRound"
+								r.operationID = "readRound"
+								r.pathPattern = "/rounds/{id}"
+								r.args = args
+								r.count = 1
+								return r, true
+							case "PATCH":
+								r.name = "UpdateRound"
+								r.operationID = "updateRound"
+								r.pathPattern = "/rounds/{id}"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
 						switch elem[0] {
-						case 'h': // Prefix: "hecks"
-							if l := len("hecks"); len(elem) >= l && elem[0:l] == "hecks" {
+						case '/': // Prefix: "/c"
+							if l := len("/c"); len(elem) >= l && elem[0:l] == "/c" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								switch method {
-								case "GET":
-									// Leaf: ListRoundChecks
-									r.name = "ListRoundChecks"
-									r.operationID = "listRoundChecks"
-									r.pathPattern = "/rounds/{id}/checks"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
+								break
+							}
+							switch elem[0] {
+							case 'h': // Prefix: "hecks"
+								if l := len("hecks"); len(elem) >= l && elem[0:l] == "hecks" {
+									elem = elem[l:]
+								} else {
+									break
 								}
-							}
-						case 'o': // Prefix: "ompetition"
-							if l := len("ompetition"); len(elem) >= l && elem[0:l] == "ompetition" {
-								elem = elem[l:]
-							} else {
-								break
-							}
 
-							if len(elem) == 0 {
-								switch method {
-								case "GET":
-									// Leaf: ReadRoundCompetition
-									r.name = "ReadRoundCompetition"
-									r.operationID = "readRoundCompetition"
-									r.pathPattern = "/rounds/{id}/competition"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
+								if len(elem) == 0 {
+									switch method {
+									case "GET":
+										// Leaf: ListRoundChecks
+										r.name = "ListRoundChecks"
+										r.operationID = "listRoundChecks"
+										r.pathPattern = "/rounds/{id}/checks"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+							case 'o': // Prefix: "ompetition"
+								if l := len("ompetition"); len(elem) >= l && elem[0:l] == "ompetition" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									switch method {
+									case "GET":
+										// Leaf: ReadRoundCompetition
+										r.name = "ReadRoundCompetition"
+										r.operationID = "readRoundCompetition"
+										r.pathPattern = "/rounds/{id}/competition"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
 								}
 							}
 						}

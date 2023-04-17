@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -30,21 +29,43 @@ func (cu *CheckUpdate) Where(ps ...predicate.Check) *CheckUpdate {
 	return cu
 }
 
-// SetUpdateTime sets the "update_time" field.
-func (cu *CheckUpdate) SetUpdateTime(t time.Time) *CheckUpdate {
-	cu.mutation.SetUpdateTime(t)
-	return cu
-}
-
 // SetPause sets the "pause" field.
 func (cu *CheckUpdate) SetPause(b bool) *CheckUpdate {
 	cu.mutation.SetPause(b)
 	return cu
 }
 
+// SetNillablePause sets the "pause" field if the given value is not nil.
+func (cu *CheckUpdate) SetNillablePause(b *bool) *CheckUpdate {
+	if b != nil {
+		cu.SetPause(*b)
+	}
+	return cu
+}
+
+// ClearPause clears the value of the "pause" field.
+func (cu *CheckUpdate) ClearPause() *CheckUpdate {
+	cu.mutation.ClearPause()
+	return cu
+}
+
 // SetHidden sets the "hidden" field.
 func (cu *CheckUpdate) SetHidden(b bool) *CheckUpdate {
 	cu.mutation.SetHidden(b)
+	return cu
+}
+
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (cu *CheckUpdate) SetNillableHidden(b *bool) *CheckUpdate {
+	if b != nil {
+		cu.SetHidden(*b)
+	}
+	return cu
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (cu *CheckUpdate) ClearHidden() *CheckUpdate {
+	cu.mutation.ClearHidden()
 	return cu
 }
 
@@ -67,7 +88,7 @@ func (cu *CheckUpdate) SetPassed(b bool) *CheckUpdate {
 }
 
 // SetRoundsID sets the "rounds" edge to the Round entity by ID.
-func (cu *CheckUpdate) SetRoundsID(id int) *CheckUpdate {
+func (cu *CheckUpdate) SetRoundsID(id string) *CheckUpdate {
 	cu.mutation.SetRoundsID(id)
 	return cu
 }
@@ -78,7 +99,7 @@ func (cu *CheckUpdate) SetRounds(r *Round) *CheckUpdate {
 }
 
 // SetServicesID sets the "services" edge to the Service entity by ID.
-func (cu *CheckUpdate) SetServicesID(id int) *CheckUpdate {
+func (cu *CheckUpdate) SetServicesID(id string) *CheckUpdate {
 	cu.mutation.SetServicesID(id)
 	return cu
 }
@@ -107,7 +128,6 @@ func (cu *CheckUpdate) ClearServices() *CheckUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (cu *CheckUpdate) Save(ctx context.Context) (int, error) {
-	cu.defaults()
 	return withHooks[int, CheckMutation](ctx, cu.sqlSave, cu.mutation, cu.hooks)
 }
 
@@ -133,14 +153,6 @@ func (cu *CheckUpdate) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (cu *CheckUpdate) defaults() {
-	if _, ok := cu.mutation.UpdateTime(); !ok {
-		v := check.UpdateDefaultUpdateTime()
-		cu.mutation.SetUpdateTime(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (cu *CheckUpdate) check() error {
 	if _, ok := cu.mutation.CompetitionID(); cu.mutation.CompetitionCleared() && !ok {
@@ -159,7 +171,7 @@ func (cu *CheckUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := cu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(check.Table, check.Columns, sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(check.Table, check.Columns, sqlgraph.NewFieldSpec(check.FieldID, field.TypeString))
 	if ps := cu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -167,14 +179,17 @@ func (cu *CheckUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := cu.mutation.UpdateTime(); ok {
-		_spec.SetField(check.FieldUpdateTime, field.TypeTime, value)
-	}
 	if value, ok := cu.mutation.Pause(); ok {
 		_spec.SetField(check.FieldPause, field.TypeBool, value)
 	}
+	if cu.mutation.PauseCleared() {
+		_spec.ClearField(check.FieldPause, field.TypeBool)
+	}
 	if value, ok := cu.mutation.Hidden(); ok {
 		_spec.SetField(check.FieldHidden, field.TypeBool, value)
+	}
+	if cu.mutation.HiddenCleared() {
+		_spec.ClearField(check.FieldHidden, field.TypeBool)
 	}
 	if value, ok := cu.mutation.Log(); ok {
 		_spec.SetField(check.FieldLog, field.TypeString, value)
@@ -193,7 +208,7 @@ func (cu *CheckUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{check.RoundsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -206,7 +221,7 @@ func (cu *CheckUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{check.RoundsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -222,7 +237,7 @@ func (cu *CheckUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{check.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -235,7 +250,7 @@ func (cu *CheckUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{check.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -263,21 +278,43 @@ type CheckUpdateOne struct {
 	mutation *CheckMutation
 }
 
-// SetUpdateTime sets the "update_time" field.
-func (cuo *CheckUpdateOne) SetUpdateTime(t time.Time) *CheckUpdateOne {
-	cuo.mutation.SetUpdateTime(t)
-	return cuo
-}
-
 // SetPause sets the "pause" field.
 func (cuo *CheckUpdateOne) SetPause(b bool) *CheckUpdateOne {
 	cuo.mutation.SetPause(b)
 	return cuo
 }
 
+// SetNillablePause sets the "pause" field if the given value is not nil.
+func (cuo *CheckUpdateOne) SetNillablePause(b *bool) *CheckUpdateOne {
+	if b != nil {
+		cuo.SetPause(*b)
+	}
+	return cuo
+}
+
+// ClearPause clears the value of the "pause" field.
+func (cuo *CheckUpdateOne) ClearPause() *CheckUpdateOne {
+	cuo.mutation.ClearPause()
+	return cuo
+}
+
 // SetHidden sets the "hidden" field.
 func (cuo *CheckUpdateOne) SetHidden(b bool) *CheckUpdateOne {
 	cuo.mutation.SetHidden(b)
+	return cuo
+}
+
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (cuo *CheckUpdateOne) SetNillableHidden(b *bool) *CheckUpdateOne {
+	if b != nil {
+		cuo.SetHidden(*b)
+	}
+	return cuo
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (cuo *CheckUpdateOne) ClearHidden() *CheckUpdateOne {
+	cuo.mutation.ClearHidden()
 	return cuo
 }
 
@@ -300,7 +337,7 @@ func (cuo *CheckUpdateOne) SetPassed(b bool) *CheckUpdateOne {
 }
 
 // SetRoundsID sets the "rounds" edge to the Round entity by ID.
-func (cuo *CheckUpdateOne) SetRoundsID(id int) *CheckUpdateOne {
+func (cuo *CheckUpdateOne) SetRoundsID(id string) *CheckUpdateOne {
 	cuo.mutation.SetRoundsID(id)
 	return cuo
 }
@@ -311,7 +348,7 @@ func (cuo *CheckUpdateOne) SetRounds(r *Round) *CheckUpdateOne {
 }
 
 // SetServicesID sets the "services" edge to the Service entity by ID.
-func (cuo *CheckUpdateOne) SetServicesID(id int) *CheckUpdateOne {
+func (cuo *CheckUpdateOne) SetServicesID(id string) *CheckUpdateOne {
 	cuo.mutation.SetServicesID(id)
 	return cuo
 }
@@ -353,7 +390,6 @@ func (cuo *CheckUpdateOne) Select(field string, fields ...string) *CheckUpdateOn
 
 // Save executes the query and returns the updated Check entity.
 func (cuo *CheckUpdateOne) Save(ctx context.Context) (*Check, error) {
-	cuo.defaults()
 	return withHooks[*Check, CheckMutation](ctx, cuo.sqlSave, cuo.mutation, cuo.hooks)
 }
 
@@ -379,14 +415,6 @@ func (cuo *CheckUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (cuo *CheckUpdateOne) defaults() {
-	if _, ok := cuo.mutation.UpdateTime(); !ok {
-		v := check.UpdateDefaultUpdateTime()
-		cuo.mutation.SetUpdateTime(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (cuo *CheckUpdateOne) check() error {
 	if _, ok := cuo.mutation.CompetitionID(); cuo.mutation.CompetitionCleared() && !ok {
@@ -405,7 +433,7 @@ func (cuo *CheckUpdateOne) sqlSave(ctx context.Context) (_node *Check, err error
 	if err := cuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(check.Table, check.Columns, sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(check.Table, check.Columns, sqlgraph.NewFieldSpec(check.FieldID, field.TypeString))
 	id, ok := cuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`entities: missing "Check.id" for update`)}
@@ -430,14 +458,17 @@ func (cuo *CheckUpdateOne) sqlSave(ctx context.Context) (_node *Check, err error
 			}
 		}
 	}
-	if value, ok := cuo.mutation.UpdateTime(); ok {
-		_spec.SetField(check.FieldUpdateTime, field.TypeTime, value)
-	}
 	if value, ok := cuo.mutation.Pause(); ok {
 		_spec.SetField(check.FieldPause, field.TypeBool, value)
 	}
+	if cuo.mutation.PauseCleared() {
+		_spec.ClearField(check.FieldPause, field.TypeBool)
+	}
 	if value, ok := cuo.mutation.Hidden(); ok {
 		_spec.SetField(check.FieldHidden, field.TypeBool, value)
+	}
+	if cuo.mutation.HiddenCleared() {
+		_spec.ClearField(check.FieldHidden, field.TypeBool)
 	}
 	if value, ok := cuo.mutation.Log(); ok {
 		_spec.SetField(check.FieldLog, field.TypeString, value)
@@ -456,7 +487,7 @@ func (cuo *CheckUpdateOne) sqlSave(ctx context.Context) (_node *Check, err error
 			Columns: []string{check.RoundsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -469,7 +500,7 @@ func (cuo *CheckUpdateOne) sqlSave(ctx context.Context) (_node *Check, err error
 			Columns: []string{check.RoundsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -485,7 +516,7 @@ func (cuo *CheckUpdateOne) sqlSave(ctx context.Context) (_node *Check, err error
 			Columns: []string{check.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -498,7 +529,7 @@ func (cuo *CheckUpdateOne) sqlSave(ctx context.Context) (_node *Check, err error
 			Columns: []string{check.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

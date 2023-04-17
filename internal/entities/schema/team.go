@@ -16,7 +16,7 @@ type Team struct {
 func (Team) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name"),
-		field.Int("index"),
+		field.Int("index").Optional().NonNegative(),
 	}
 }
 
@@ -31,7 +31,7 @@ func (Team) Edges() []ent.Edge {
 // Mixins of the Team.
 func (Team) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		mixin.Time{},
+		BaseMixin{},
 		PauseMixin{},
 		HideMixin{},
 		CompetitonMixin{},
@@ -44,7 +44,7 @@ type TeamMixin struct {
 
 func (TeamMixin) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("team_id"),
+		field.String("team_id"),
 	}
 }
 

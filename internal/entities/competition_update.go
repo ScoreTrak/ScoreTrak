@@ -30,21 +30,43 @@ func (cu *CompetitionUpdate) Where(ps ...predicate.Competition) *CompetitionUpda
 	return cu
 }
 
-// SetUpdateTime sets the "update_time" field.
-func (cu *CompetitionUpdate) SetUpdateTime(t time.Time) *CompetitionUpdate {
-	cu.mutation.SetUpdateTime(t)
-	return cu
-}
-
 // SetHidden sets the "hidden" field.
 func (cu *CompetitionUpdate) SetHidden(b bool) *CompetitionUpdate {
 	cu.mutation.SetHidden(b)
 	return cu
 }
 
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (cu *CompetitionUpdate) SetNillableHidden(b *bool) *CompetitionUpdate {
+	if b != nil {
+		cu.SetHidden(*b)
+	}
+	return cu
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (cu *CompetitionUpdate) ClearHidden() *CompetitionUpdate {
+	cu.mutation.ClearHidden()
+	return cu
+}
+
 // SetPause sets the "pause" field.
 func (cu *CompetitionUpdate) SetPause(b bool) *CompetitionUpdate {
 	cu.mutation.SetPause(b)
+	return cu
+}
+
+// SetNillablePause sets the "pause" field if the given value is not nil.
+func (cu *CompetitionUpdate) SetNillablePause(b *bool) *CompetitionUpdate {
+	if b != nil {
+		cu.SetPause(*b)
+	}
+	return cu
+}
+
+// ClearPause clears the value of the "pause" field.
+func (cu *CompetitionUpdate) ClearPause() *CompetitionUpdate {
+	cu.mutation.ClearPause()
 	return cu
 }
 
@@ -60,16 +82,23 @@ func (cu *CompetitionUpdate) SetDisplayName(s string) *CompetitionUpdate {
 	return cu
 }
 
-// SetRoundDuration sets the "round_duration" field.
-func (cu *CompetitionUpdate) SetRoundDuration(f float64) *CompetitionUpdate {
-	cu.mutation.ResetRoundDuration()
-	cu.mutation.SetRoundDuration(f)
+// SetViewableToPublic sets the "viewable_to_public" field.
+func (cu *CompetitionUpdate) SetViewableToPublic(b bool) *CompetitionUpdate {
+	cu.mutation.SetViewableToPublic(b)
 	return cu
 }
 
-// AddRoundDuration adds f to the "round_duration" field.
-func (cu *CompetitionUpdate) AddRoundDuration(f float64) *CompetitionUpdate {
-	cu.mutation.AddRoundDuration(f)
+// SetNillableViewableToPublic sets the "viewable_to_public" field if the given value is not nil.
+func (cu *CompetitionUpdate) SetNillableViewableToPublic(b *bool) *CompetitionUpdate {
+	if b != nil {
+		cu.SetViewableToPublic(*b)
+	}
+	return cu
+}
+
+// ClearViewableToPublic clears the value of the "viewable_to_public" field.
+func (cu *CompetitionUpdate) ClearViewableToPublic() *CompetitionUpdate {
+	cu.mutation.ClearViewableToPublic()
 	return cu
 }
 
@@ -134,14 +163,14 @@ func (cu *CompetitionUpdate) ClearFinishedAt() *CompetitionUpdate {
 }
 
 // AddTeamIDs adds the "teams" edge to the Team entity by IDs.
-func (cu *CompetitionUpdate) AddTeamIDs(ids ...int) *CompetitionUpdate {
+func (cu *CompetitionUpdate) AddTeamIDs(ids ...string) *CompetitionUpdate {
 	cu.mutation.AddTeamIDs(ids...)
 	return cu
 }
 
 // AddTeams adds the "teams" edges to the Team entity.
 func (cu *CompetitionUpdate) AddTeams(t ...*Team) *CompetitionUpdate {
-	ids := make([]int, len(t))
+	ids := make([]string, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
@@ -149,14 +178,14 @@ func (cu *CompetitionUpdate) AddTeams(t ...*Team) *CompetitionUpdate {
 }
 
 // AddUserIDs adds the "users" edge to the User entity by IDs.
-func (cu *CompetitionUpdate) AddUserIDs(ids ...int) *CompetitionUpdate {
+func (cu *CompetitionUpdate) AddUserIDs(ids ...string) *CompetitionUpdate {
 	cu.mutation.AddUserIDs(ids...)
 	return cu
 }
 
 // AddUsers adds the "users" edges to the User entity.
 func (cu *CompetitionUpdate) AddUsers(u ...*User) *CompetitionUpdate {
-	ids := make([]int, len(u))
+	ids := make([]string, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -175,14 +204,14 @@ func (cu *CompetitionUpdate) ClearTeams() *CompetitionUpdate {
 }
 
 // RemoveTeamIDs removes the "teams" edge to Team entities by IDs.
-func (cu *CompetitionUpdate) RemoveTeamIDs(ids ...int) *CompetitionUpdate {
+func (cu *CompetitionUpdate) RemoveTeamIDs(ids ...string) *CompetitionUpdate {
 	cu.mutation.RemoveTeamIDs(ids...)
 	return cu
 }
 
 // RemoveTeams removes "teams" edges to Team entities.
 func (cu *CompetitionUpdate) RemoveTeams(t ...*Team) *CompetitionUpdate {
-	ids := make([]int, len(t))
+	ids := make([]string, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
@@ -196,14 +225,14 @@ func (cu *CompetitionUpdate) ClearUsers() *CompetitionUpdate {
 }
 
 // RemoveUserIDs removes the "users" edge to User entities by IDs.
-func (cu *CompetitionUpdate) RemoveUserIDs(ids ...int) *CompetitionUpdate {
+func (cu *CompetitionUpdate) RemoveUserIDs(ids ...string) *CompetitionUpdate {
 	cu.mutation.RemoveUserIDs(ids...)
 	return cu
 }
 
 // RemoveUsers removes "users" edges to User entities.
 func (cu *CompetitionUpdate) RemoveUsers(u ...*User) *CompetitionUpdate {
-	ids := make([]int, len(u))
+	ids := make([]string, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -212,7 +241,6 @@ func (cu *CompetitionUpdate) RemoveUsers(u ...*User) *CompetitionUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (cu *CompetitionUpdate) Save(ctx context.Context) (int, error) {
-	cu.defaults()
 	return withHooks[int, CompetitionMutation](ctx, cu.sqlSave, cu.mutation, cu.hooks)
 }
 
@@ -238,14 +266,6 @@ func (cu *CompetitionUpdate) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (cu *CompetitionUpdate) defaults() {
-	if _, ok := cu.mutation.UpdateTime(); !ok {
-		v := competition.UpdateDefaultUpdateTime()
-		cu.mutation.SetUpdateTime(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (cu *CompetitionUpdate) check() error {
 	if v, ok := cu.mutation.Name(); ok {
@@ -260,7 +280,7 @@ func (cu *CompetitionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := cu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(competition.Table, competition.Columns, sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(competition.Table, competition.Columns, sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString))
 	if ps := cu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -268,14 +288,17 @@ func (cu *CompetitionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := cu.mutation.UpdateTime(); ok {
-		_spec.SetField(competition.FieldUpdateTime, field.TypeTime, value)
-	}
 	if value, ok := cu.mutation.Hidden(); ok {
 		_spec.SetField(competition.FieldHidden, field.TypeBool, value)
 	}
+	if cu.mutation.HiddenCleared() {
+		_spec.ClearField(competition.FieldHidden, field.TypeBool)
+	}
 	if value, ok := cu.mutation.Pause(); ok {
 		_spec.SetField(competition.FieldPause, field.TypeBool, value)
+	}
+	if cu.mutation.PauseCleared() {
+		_spec.ClearField(competition.FieldPause, field.TypeBool)
 	}
 	if value, ok := cu.mutation.Name(); ok {
 		_spec.SetField(competition.FieldName, field.TypeString, value)
@@ -283,11 +306,11 @@ func (cu *CompetitionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := cu.mutation.DisplayName(); ok {
 		_spec.SetField(competition.FieldDisplayName, field.TypeString, value)
 	}
-	if value, ok := cu.mutation.RoundDuration(); ok {
-		_spec.SetField(competition.FieldRoundDuration, field.TypeFloat64, value)
+	if value, ok := cu.mutation.ViewableToPublic(); ok {
+		_spec.SetField(competition.FieldViewableToPublic, field.TypeBool, value)
 	}
-	if value, ok := cu.mutation.AddedRoundDuration(); ok {
-		_spec.AddField(competition.FieldRoundDuration, field.TypeFloat64, value)
+	if cu.mutation.ViewableToPublicCleared() {
+		_spec.ClearField(competition.FieldViewableToPublic, field.TypeBool)
 	}
 	if value, ok := cu.mutation.ToBeStartedAt(); ok {
 		_spec.SetField(competition.FieldToBeStartedAt, field.TypeTime, value)
@@ -315,7 +338,7 @@ func (cu *CompetitionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{competition.TeamsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -328,7 +351,7 @@ func (cu *CompetitionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{competition.TeamsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -344,7 +367,7 @@ func (cu *CompetitionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{competition.TeamsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -360,7 +383,7 @@ func (cu *CompetitionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: competition.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -373,7 +396,7 @@ func (cu *CompetitionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: competition.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -389,7 +412,7 @@ func (cu *CompetitionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: competition.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -417,21 +440,43 @@ type CompetitionUpdateOne struct {
 	mutation *CompetitionMutation
 }
 
-// SetUpdateTime sets the "update_time" field.
-func (cuo *CompetitionUpdateOne) SetUpdateTime(t time.Time) *CompetitionUpdateOne {
-	cuo.mutation.SetUpdateTime(t)
-	return cuo
-}
-
 // SetHidden sets the "hidden" field.
 func (cuo *CompetitionUpdateOne) SetHidden(b bool) *CompetitionUpdateOne {
 	cuo.mutation.SetHidden(b)
 	return cuo
 }
 
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (cuo *CompetitionUpdateOne) SetNillableHidden(b *bool) *CompetitionUpdateOne {
+	if b != nil {
+		cuo.SetHidden(*b)
+	}
+	return cuo
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (cuo *CompetitionUpdateOne) ClearHidden() *CompetitionUpdateOne {
+	cuo.mutation.ClearHidden()
+	return cuo
+}
+
 // SetPause sets the "pause" field.
 func (cuo *CompetitionUpdateOne) SetPause(b bool) *CompetitionUpdateOne {
 	cuo.mutation.SetPause(b)
+	return cuo
+}
+
+// SetNillablePause sets the "pause" field if the given value is not nil.
+func (cuo *CompetitionUpdateOne) SetNillablePause(b *bool) *CompetitionUpdateOne {
+	if b != nil {
+		cuo.SetPause(*b)
+	}
+	return cuo
+}
+
+// ClearPause clears the value of the "pause" field.
+func (cuo *CompetitionUpdateOne) ClearPause() *CompetitionUpdateOne {
+	cuo.mutation.ClearPause()
 	return cuo
 }
 
@@ -447,16 +492,23 @@ func (cuo *CompetitionUpdateOne) SetDisplayName(s string) *CompetitionUpdateOne 
 	return cuo
 }
 
-// SetRoundDuration sets the "round_duration" field.
-func (cuo *CompetitionUpdateOne) SetRoundDuration(f float64) *CompetitionUpdateOne {
-	cuo.mutation.ResetRoundDuration()
-	cuo.mutation.SetRoundDuration(f)
+// SetViewableToPublic sets the "viewable_to_public" field.
+func (cuo *CompetitionUpdateOne) SetViewableToPublic(b bool) *CompetitionUpdateOne {
+	cuo.mutation.SetViewableToPublic(b)
 	return cuo
 }
 
-// AddRoundDuration adds f to the "round_duration" field.
-func (cuo *CompetitionUpdateOne) AddRoundDuration(f float64) *CompetitionUpdateOne {
-	cuo.mutation.AddRoundDuration(f)
+// SetNillableViewableToPublic sets the "viewable_to_public" field if the given value is not nil.
+func (cuo *CompetitionUpdateOne) SetNillableViewableToPublic(b *bool) *CompetitionUpdateOne {
+	if b != nil {
+		cuo.SetViewableToPublic(*b)
+	}
+	return cuo
+}
+
+// ClearViewableToPublic clears the value of the "viewable_to_public" field.
+func (cuo *CompetitionUpdateOne) ClearViewableToPublic() *CompetitionUpdateOne {
+	cuo.mutation.ClearViewableToPublic()
 	return cuo
 }
 
@@ -521,14 +573,14 @@ func (cuo *CompetitionUpdateOne) ClearFinishedAt() *CompetitionUpdateOne {
 }
 
 // AddTeamIDs adds the "teams" edge to the Team entity by IDs.
-func (cuo *CompetitionUpdateOne) AddTeamIDs(ids ...int) *CompetitionUpdateOne {
+func (cuo *CompetitionUpdateOne) AddTeamIDs(ids ...string) *CompetitionUpdateOne {
 	cuo.mutation.AddTeamIDs(ids...)
 	return cuo
 }
 
 // AddTeams adds the "teams" edges to the Team entity.
 func (cuo *CompetitionUpdateOne) AddTeams(t ...*Team) *CompetitionUpdateOne {
-	ids := make([]int, len(t))
+	ids := make([]string, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
@@ -536,14 +588,14 @@ func (cuo *CompetitionUpdateOne) AddTeams(t ...*Team) *CompetitionUpdateOne {
 }
 
 // AddUserIDs adds the "users" edge to the User entity by IDs.
-func (cuo *CompetitionUpdateOne) AddUserIDs(ids ...int) *CompetitionUpdateOne {
+func (cuo *CompetitionUpdateOne) AddUserIDs(ids ...string) *CompetitionUpdateOne {
 	cuo.mutation.AddUserIDs(ids...)
 	return cuo
 }
 
 // AddUsers adds the "users" edges to the User entity.
 func (cuo *CompetitionUpdateOne) AddUsers(u ...*User) *CompetitionUpdateOne {
-	ids := make([]int, len(u))
+	ids := make([]string, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -562,14 +614,14 @@ func (cuo *CompetitionUpdateOne) ClearTeams() *CompetitionUpdateOne {
 }
 
 // RemoveTeamIDs removes the "teams" edge to Team entities by IDs.
-func (cuo *CompetitionUpdateOne) RemoveTeamIDs(ids ...int) *CompetitionUpdateOne {
+func (cuo *CompetitionUpdateOne) RemoveTeamIDs(ids ...string) *CompetitionUpdateOne {
 	cuo.mutation.RemoveTeamIDs(ids...)
 	return cuo
 }
 
 // RemoveTeams removes "teams" edges to Team entities.
 func (cuo *CompetitionUpdateOne) RemoveTeams(t ...*Team) *CompetitionUpdateOne {
-	ids := make([]int, len(t))
+	ids := make([]string, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
@@ -583,14 +635,14 @@ func (cuo *CompetitionUpdateOne) ClearUsers() *CompetitionUpdateOne {
 }
 
 // RemoveUserIDs removes the "users" edge to User entities by IDs.
-func (cuo *CompetitionUpdateOne) RemoveUserIDs(ids ...int) *CompetitionUpdateOne {
+func (cuo *CompetitionUpdateOne) RemoveUserIDs(ids ...string) *CompetitionUpdateOne {
 	cuo.mutation.RemoveUserIDs(ids...)
 	return cuo
 }
 
 // RemoveUsers removes "users" edges to User entities.
 func (cuo *CompetitionUpdateOne) RemoveUsers(u ...*User) *CompetitionUpdateOne {
-	ids := make([]int, len(u))
+	ids := make([]string, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -612,7 +664,6 @@ func (cuo *CompetitionUpdateOne) Select(field string, fields ...string) *Competi
 
 // Save executes the query and returns the updated Competition entity.
 func (cuo *CompetitionUpdateOne) Save(ctx context.Context) (*Competition, error) {
-	cuo.defaults()
 	return withHooks[*Competition, CompetitionMutation](ctx, cuo.sqlSave, cuo.mutation, cuo.hooks)
 }
 
@@ -638,14 +689,6 @@ func (cuo *CompetitionUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (cuo *CompetitionUpdateOne) defaults() {
-	if _, ok := cuo.mutation.UpdateTime(); !ok {
-		v := competition.UpdateDefaultUpdateTime()
-		cuo.mutation.SetUpdateTime(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (cuo *CompetitionUpdateOne) check() error {
 	if v, ok := cuo.mutation.Name(); ok {
@@ -660,7 +703,7 @@ func (cuo *CompetitionUpdateOne) sqlSave(ctx context.Context) (_node *Competitio
 	if err := cuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(competition.Table, competition.Columns, sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(competition.Table, competition.Columns, sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString))
 	id, ok := cuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`entities: missing "Competition.id" for update`)}
@@ -685,14 +728,17 @@ func (cuo *CompetitionUpdateOne) sqlSave(ctx context.Context) (_node *Competitio
 			}
 		}
 	}
-	if value, ok := cuo.mutation.UpdateTime(); ok {
-		_spec.SetField(competition.FieldUpdateTime, field.TypeTime, value)
-	}
 	if value, ok := cuo.mutation.Hidden(); ok {
 		_spec.SetField(competition.FieldHidden, field.TypeBool, value)
 	}
+	if cuo.mutation.HiddenCleared() {
+		_spec.ClearField(competition.FieldHidden, field.TypeBool)
+	}
 	if value, ok := cuo.mutation.Pause(); ok {
 		_spec.SetField(competition.FieldPause, field.TypeBool, value)
+	}
+	if cuo.mutation.PauseCleared() {
+		_spec.ClearField(competition.FieldPause, field.TypeBool)
 	}
 	if value, ok := cuo.mutation.Name(); ok {
 		_spec.SetField(competition.FieldName, field.TypeString, value)
@@ -700,11 +746,11 @@ func (cuo *CompetitionUpdateOne) sqlSave(ctx context.Context) (_node *Competitio
 	if value, ok := cuo.mutation.DisplayName(); ok {
 		_spec.SetField(competition.FieldDisplayName, field.TypeString, value)
 	}
-	if value, ok := cuo.mutation.RoundDuration(); ok {
-		_spec.SetField(competition.FieldRoundDuration, field.TypeFloat64, value)
+	if value, ok := cuo.mutation.ViewableToPublic(); ok {
+		_spec.SetField(competition.FieldViewableToPublic, field.TypeBool, value)
 	}
-	if value, ok := cuo.mutation.AddedRoundDuration(); ok {
-		_spec.AddField(competition.FieldRoundDuration, field.TypeFloat64, value)
+	if cuo.mutation.ViewableToPublicCleared() {
+		_spec.ClearField(competition.FieldViewableToPublic, field.TypeBool)
 	}
 	if value, ok := cuo.mutation.ToBeStartedAt(); ok {
 		_spec.SetField(competition.FieldToBeStartedAt, field.TypeTime, value)
@@ -732,7 +778,7 @@ func (cuo *CompetitionUpdateOne) sqlSave(ctx context.Context) (_node *Competitio
 			Columns: []string{competition.TeamsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -745,7 +791,7 @@ func (cuo *CompetitionUpdateOne) sqlSave(ctx context.Context) (_node *Competitio
 			Columns: []string{competition.TeamsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -761,7 +807,7 @@ func (cuo *CompetitionUpdateOne) sqlSave(ctx context.Context) (_node *Competitio
 			Columns: []string{competition.TeamsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -777,7 +823,7 @@ func (cuo *CompetitionUpdateOne) sqlSave(ctx context.Context) (_node *Competitio
 			Columns: competition.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -790,7 +836,7 @@ func (cuo *CompetitionUpdateOne) sqlSave(ctx context.Context) (_node *Competitio
 			Columns: competition.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -806,7 +852,7 @@ func (cuo *CompetitionUpdateOne) sqlSave(ctx context.Context) (_node *Competitio
 			Columns: competition.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

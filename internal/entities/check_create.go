@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -23,37 +22,17 @@ type CheckCreate struct {
 	hooks    []Hook
 }
 
-// SetCreateTime sets the "create_time" field.
-func (cc *CheckCreate) SetCreateTime(t time.Time) *CheckCreate {
-	cc.mutation.SetCreateTime(t)
-	return cc
-}
-
-// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
-func (cc *CheckCreate) SetNillableCreateTime(t *time.Time) *CheckCreate {
-	if t != nil {
-		cc.SetCreateTime(*t)
-	}
-	return cc
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (cc *CheckCreate) SetUpdateTime(t time.Time) *CheckCreate {
-	cc.mutation.SetUpdateTime(t)
-	return cc
-}
-
-// SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
-func (cc *CheckCreate) SetNillableUpdateTime(t *time.Time) *CheckCreate {
-	if t != nil {
-		cc.SetUpdateTime(*t)
-	}
-	return cc
-}
-
 // SetPause sets the "pause" field.
 func (cc *CheckCreate) SetPause(b bool) *CheckCreate {
 	cc.mutation.SetPause(b)
+	return cc
+}
+
+// SetNillablePause sets the "pause" field if the given value is not nil.
+func (cc *CheckCreate) SetNillablePause(b *bool) *CheckCreate {
+	if b != nil {
+		cc.SetPause(*b)
+	}
 	return cc
 }
 
@@ -63,9 +42,17 @@ func (cc *CheckCreate) SetHidden(b bool) *CheckCreate {
 	return cc
 }
 
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (cc *CheckCreate) SetNillableHidden(b *bool) *CheckCreate {
+	if b != nil {
+		cc.SetHidden(*b)
+	}
+	return cc
+}
+
 // SetCompetitionID sets the "competition_id" field.
-func (cc *CheckCreate) SetCompetitionID(i int) *CheckCreate {
-	cc.mutation.SetCompetitionID(i)
+func (cc *CheckCreate) SetCompetitionID(s string) *CheckCreate {
+	cc.mutation.SetCompetitionID(s)
 	return cc
 }
 
@@ -87,13 +74,27 @@ func (cc *CheckCreate) SetPassed(b bool) *CheckCreate {
 	return cc
 }
 
+// SetID sets the "id" field.
+func (cc *CheckCreate) SetID(s string) *CheckCreate {
+	cc.mutation.SetID(s)
+	return cc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (cc *CheckCreate) SetNillableID(s *string) *CheckCreate {
+	if s != nil {
+		cc.SetID(*s)
+	}
+	return cc
+}
+
 // SetCompetition sets the "competition" edge to the Competition entity.
 func (cc *CheckCreate) SetCompetition(c *Competition) *CheckCreate {
 	return cc.SetCompetitionID(c.ID)
 }
 
 // SetRoundsID sets the "rounds" edge to the Round entity by ID.
-func (cc *CheckCreate) SetRoundsID(id int) *CheckCreate {
+func (cc *CheckCreate) SetRoundsID(id string) *CheckCreate {
 	cc.mutation.SetRoundsID(id)
 	return cc
 }
@@ -104,7 +105,7 @@ func (cc *CheckCreate) SetRounds(r *Round) *CheckCreate {
 }
 
 // SetServicesID sets the "services" edge to the Service entity by ID.
-func (cc *CheckCreate) SetServicesID(id int) *CheckCreate {
+func (cc *CheckCreate) SetServicesID(id string) *CheckCreate {
 	cc.mutation.SetServicesID(id)
 	return cc
 }
@@ -149,30 +150,14 @@ func (cc *CheckCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (cc *CheckCreate) defaults() {
-	if _, ok := cc.mutation.CreateTime(); !ok {
-		v := check.DefaultCreateTime()
-		cc.mutation.SetCreateTime(v)
-	}
-	if _, ok := cc.mutation.UpdateTime(); !ok {
-		v := check.DefaultUpdateTime()
-		cc.mutation.SetUpdateTime(v)
+	if _, ok := cc.mutation.ID(); !ok {
+		v := check.DefaultID()
+		cc.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (cc *CheckCreate) check() error {
-	if _, ok := cc.mutation.CreateTime(); !ok {
-		return &ValidationError{Name: "create_time", err: errors.New(`entities: missing required field "Check.create_time"`)}
-	}
-	if _, ok := cc.mutation.UpdateTime(); !ok {
-		return &ValidationError{Name: "update_time", err: errors.New(`entities: missing required field "Check.update_time"`)}
-	}
-	if _, ok := cc.mutation.Pause(); !ok {
-		return &ValidationError{Name: "pause", err: errors.New(`entities: missing required field "Check.pause"`)}
-	}
-	if _, ok := cc.mutation.Hidden(); !ok {
-		return &ValidationError{Name: "hidden", err: errors.New(`entities: missing required field "Check.hidden"`)}
-	}
 	if _, ok := cc.mutation.CompetitionID(); !ok {
 		return &ValidationError{Name: "competition_id", err: errors.New(`entities: missing required field "Check.competition_id"`)}
 	}
@@ -184,6 +169,11 @@ func (cc *CheckCreate) check() error {
 	}
 	if _, ok := cc.mutation.Passed(); !ok {
 		return &ValidationError{Name: "passed", err: errors.New(`entities: missing required field "Check.passed"`)}
+	}
+	if v, ok := cc.mutation.ID(); ok {
+		if err := check.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`entities: validator failed for field "Check.id": %w`, err)}
+		}
 	}
 	if _, ok := cc.mutation.CompetitionID(); !ok {
 		return &ValidationError{Name: "competition", err: errors.New(`entities: missing required edge "Check.competition"`)}
@@ -208,8 +198,13 @@ func (cc *CheckCreate) sqlSave(ctx context.Context) (*Check, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected Check.ID type: %T", _spec.ID.Value)
+		}
+	}
 	cc.mutation.id = &_node.ID
 	cc.mutation.done = true
 	return _node, nil
@@ -218,15 +213,11 @@ func (cc *CheckCreate) sqlSave(ctx context.Context) (*Check, error) {
 func (cc *CheckCreate) createSpec() (*Check, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Check{config: cc.config}
-		_spec = sqlgraph.NewCreateSpec(check.Table, sqlgraph.NewFieldSpec(check.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(check.Table, sqlgraph.NewFieldSpec(check.FieldID, field.TypeString))
 	)
-	if value, ok := cc.mutation.CreateTime(); ok {
-		_spec.SetField(check.FieldCreateTime, field.TypeTime, value)
-		_node.CreateTime = value
-	}
-	if value, ok := cc.mutation.UpdateTime(); ok {
-		_spec.SetField(check.FieldUpdateTime, field.TypeTime, value)
-		_node.UpdateTime = value
+	if id, ok := cc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
 	}
 	if value, ok := cc.mutation.Pause(); ok {
 		_spec.SetField(check.FieldPause, field.TypeBool, value)
@@ -256,7 +247,7 @@ func (cc *CheckCreate) createSpec() (*Check, *sqlgraph.CreateSpec) {
 			Columns: []string{check.CompetitionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -273,7 +264,7 @@ func (cc *CheckCreate) createSpec() (*Check, *sqlgraph.CreateSpec) {
 			Columns: []string{check.RoundsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -290,7 +281,7 @@ func (cc *CheckCreate) createSpec() (*Check, *sqlgraph.CreateSpec) {
 			Columns: []string{check.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -343,10 +334,6 @@ func (ccb *CheckCreateBulk) Save(ctx context.Context) ([]*Check, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

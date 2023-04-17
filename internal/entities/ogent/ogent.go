@@ -12,6 +12,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostgroup"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/property"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/report"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/round"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
@@ -38,10 +39,12 @@ func rawError(err error) jx.Raw {
 func (h *OgentHandler) CreateCheck(ctx context.Context, req *CreateCheckReq) (CreateCheckRes, error) {
 	b := h.client.Check.Create()
 	// Add all fields.
-	b.SetCreateTime(req.CreateTime)
-	b.SetUpdateTime(req.UpdateTime)
-	b.SetPause(req.Pause)
-	b.SetHidden(req.Hidden)
+	if v, ok := req.Pause.Get(); ok {
+		b.SetPause(v)
+	}
+	if v, ok := req.Hidden.Get(); ok {
+		b.SetHidden(v)
+	}
 	b.SetCompetitionID(req.CompetitionID)
 	b.SetLog(req.Log)
 	b.SetError(req.Error)
@@ -111,9 +114,6 @@ func (h *OgentHandler) ReadCheck(ctx context.Context, params ReadCheckParams) (R
 func (h *OgentHandler) UpdateCheck(ctx context.Context, req *UpdateCheckReq, params UpdateCheckParams) (UpdateCheckRes, error) {
 	b := h.client.Check.UpdateOneID(params.ID)
 	// Add all fields.
-	if v, ok := req.UpdateTime.Get(); ok {
-		b.SetUpdateTime(v)
-	}
 	if v, ok := req.Pause.Get(); ok {
 		b.SetPause(v)
 	}
@@ -312,13 +312,17 @@ func (h *OgentHandler) ReadCheckServices(ctx context.Context, params ReadCheckSe
 func (h *OgentHandler) CreateCompetition(ctx context.Context, req *CreateCompetitionReq) (CreateCompetitionRes, error) {
 	b := h.client.Competition.Create()
 	// Add all fields.
-	b.SetCreateTime(req.CreateTime)
-	b.SetUpdateTime(req.UpdateTime)
-	b.SetHidden(req.Hidden)
-	b.SetPause(req.Pause)
+	if v, ok := req.Hidden.Get(); ok {
+		b.SetHidden(v)
+	}
+	if v, ok := req.Pause.Get(); ok {
+		b.SetPause(v)
+	}
 	b.SetName(req.Name)
 	b.SetDisplayName(req.DisplayName)
-	b.SetRoundDuration(req.RoundDuration)
+	if v, ok := req.ViewableToPublic.Get(); ok {
+		b.SetViewableToPublic(v)
+	}
 	if v, ok := req.ToBeStartedAt.Get(); ok {
 		b.SetToBeStartedAt(v)
 	}
@@ -392,9 +396,6 @@ func (h *OgentHandler) ReadCompetition(ctx context.Context, params ReadCompetiti
 func (h *OgentHandler) UpdateCompetition(ctx context.Context, req *UpdateCompetitionReq, params UpdateCompetitionParams) (UpdateCompetitionRes, error) {
 	b := h.client.Competition.UpdateOneID(params.ID)
 	// Add all fields.
-	if v, ok := req.UpdateTime.Get(); ok {
-		b.SetUpdateTime(v)
-	}
 	if v, ok := req.Hidden.Get(); ok {
 		b.SetHidden(v)
 	}
@@ -407,8 +408,8 @@ func (h *OgentHandler) UpdateCompetition(ctx context.Context, req *UpdateCompeti
 	if v, ok := req.DisplayName.Get(); ok {
 		b.SetDisplayName(v)
 	}
-	if v, ok := req.RoundDuration.Get(); ok {
-		b.SetRoundDuration(v)
+	if v, ok := req.ViewableToPublic.Get(); ok {
+		b.SetViewableToPublic(v)
 	}
 	if v, ok := req.ToBeStartedAt.Get(); ok {
 		b.SetToBeStartedAt(v)
@@ -596,10 +597,12 @@ func (h *OgentHandler) ListCompetitionUsers(ctx context.Context, params ListComp
 func (h *OgentHandler) CreateHost(ctx context.Context, req *CreateHostReq) (CreateHostRes, error) {
 	b := h.client.Host.Create()
 	// Add all fields.
-	b.SetCreateTime(req.CreateTime)
-	b.SetUpdateTime(req.UpdateTime)
-	b.SetPause(req.Pause)
-	b.SetHidden(req.Hidden)
+	if v, ok := req.Pause.Get(); ok {
+		b.SetPause(v)
+	}
+	if v, ok := req.Hidden.Get(); ok {
+		b.SetHidden(v)
+	}
 	b.SetCompetitionID(req.CompetitionID)
 	b.SetTeamID(req.TeamID)
 	b.SetAddress(req.Address)
@@ -671,9 +674,6 @@ func (h *OgentHandler) ReadHost(ctx context.Context, params ReadHostParams) (Rea
 func (h *OgentHandler) UpdateHost(ctx context.Context, req *UpdateHostReq, params UpdateHostParams) (UpdateHostRes, error) {
 	b := h.client.Host.UpdateOneID(params.ID)
 	// Add all fields.
-	if v, ok := req.UpdateTime.Get(); ok {
-		b.SetUpdateTime(v)
-	}
 	if v, ok := req.Pause.Get(); ok {
 		b.SetPause(v)
 	}
@@ -914,10 +914,12 @@ func (h *OgentHandler) ReadHostHostGroup(ctx context.Context, params ReadHostHos
 func (h *OgentHandler) CreateHostGroup(ctx context.Context, req *CreateHostGroupReq) (CreateHostGroupRes, error) {
 	b := h.client.HostGroup.Create()
 	// Add all fields.
-	b.SetCreateTime(req.CreateTime)
-	b.SetUpdateTime(req.UpdateTime)
-	b.SetPause(req.Pause)
-	b.SetHidden(req.Hidden)
+	if v, ok := req.Pause.Get(); ok {
+		b.SetPause(v)
+	}
+	if v, ok := req.Hidden.Get(); ok {
+		b.SetHidden(v)
+	}
 	b.SetCompetitionID(req.CompetitionID)
 	b.SetTeamID(req.TeamID)
 	b.SetName(req.Name)
@@ -986,9 +988,6 @@ func (h *OgentHandler) ReadHostGroup(ctx context.Context, params ReadHostGroupPa
 func (h *OgentHandler) UpdateHostGroup(ctx context.Context, req *UpdateHostGroupReq, params UpdateHostGroupParams) (UpdateHostGroupRes, error) {
 	b := h.client.HostGroup.UpdateOneID(params.ID)
 	// Add all fields.
-	if v, ok := req.UpdateTime.Get(); ok {
-		b.SetUpdateTime(v)
-	}
 	if v, ok := req.Pause.Get(); ok {
 		b.SetPause(v)
 	}
@@ -1194,8 +1193,6 @@ func (h *OgentHandler) ListHostGroupHosts(ctx context.Context, params ListHostGr
 func (h *OgentHandler) CreateProperty(ctx context.Context, req *CreatePropertyReq) (CreatePropertyRes, error) {
 	b := h.client.Property.Create()
 	// Add all fields.
-	b.SetCreateTime(req.CreateTime)
-	b.SetUpdateTime(req.UpdateTime)
 	b.SetCompetitionID(req.CompetitionID)
 	b.SetTeamID(req.TeamID)
 	b.SetKey(req.Key)
@@ -1266,9 +1263,6 @@ func (h *OgentHandler) ReadProperty(ctx context.Context, params ReadPropertyPara
 func (h *OgentHandler) UpdateProperty(ctx context.Context, req *UpdatePropertyReq, params UpdatePropertyParams) (UpdatePropertyRes, error) {
 	b := h.client.Property.UpdateOneID(params.ID)
 	// Add all fields.
-	if v, ok := req.UpdateTime.Get(); ok {
-		b.SetUpdateTime(v)
-	}
 	if v, ok := req.TeamID.Get(); ok {
 		b.SetTeamID(v)
 	}
@@ -1460,12 +1454,179 @@ func (h *OgentHandler) ReadPropertyServices(ctx context.Context, params ReadProp
 	return NewPropertyServicesRead(e), nil
 }
 
+// CreateReport handles POST /reports requests.
+func (h *OgentHandler) CreateReport(ctx context.Context, req *CreateReportReq) (CreateReportRes, error) {
+	b := h.client.Report.Create()
+	// Add all fields.
+	b.SetLog(req.Log)
+	b.SetError(req.Error)
+	// Add all edges.
+	// Persist to storage.
+	e, err := b.Save(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsConstraintError(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	// Reload the entity to attach all eager-loaded edges.
+	q := h.client.Report.Query().Where(report.ID(e.ID))
+	e, err = q.Only(ctx)
+	if err != nil {
+		// This should never happen.
+		return nil, err
+	}
+	return NewReportCreate(e), nil
+}
+
+// ReadReport handles GET /reports/{id} requests.
+func (h *OgentHandler) ReadReport(ctx context.Context, params ReadReportParams) (ReadReportRes, error) {
+	q := h.client.Report.Query().Where(report.IDEQ(params.ID))
+	e, err := q.Only(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return NewReportRead(e), nil
+}
+
+// UpdateReport handles PATCH /reports/{id} requests.
+func (h *OgentHandler) UpdateReport(ctx context.Context, req *UpdateReportReq, params UpdateReportParams) (UpdateReportRes, error) {
+	b := h.client.Report.UpdateOneID(params.ID)
+	// Add all fields.
+	if v, ok := req.Log.Get(); ok {
+		b.SetLog(v)
+	}
+	if v, ok := req.Error.Get(); ok {
+		b.SetError(v)
+	}
+	// Add all edges.
+	// Persist to storage.
+	e, err := b.Save(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsConstraintError(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	// Reload the entity to attach all eager-loaded edges.
+	q := h.client.Report.Query().Where(report.ID(e.ID))
+	e, err = q.Only(ctx)
+	if err != nil {
+		// This should never happen.
+		return nil, err
+	}
+	return NewReportUpdate(e), nil
+}
+
+// DeleteReport handles DELETE /reports/{id} requests.
+func (h *OgentHandler) DeleteReport(ctx context.Context, params DeleteReportParams) (DeleteReportRes, error) {
+	err := h.client.Report.DeleteOneID(params.ID).Exec(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsConstraintError(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return new(DeleteReportNoContent), nil
+
+}
+
+// ListReport handles GET /reports requests.
+func (h *OgentHandler) ListReport(ctx context.Context, params ListReportParams) (ListReportRes, error) {
+	q := h.client.Report.Query()
+	page := 1
+	if v, ok := params.Page.Get(); ok {
+		page = v
+	}
+	itemsPerPage := 30
+	if v, ok := params.ItemsPerPage.Get(); ok {
+		itemsPerPage = v
+	}
+	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
+
+	es, err := q.All(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	r := NewReportLists(es)
+	return (*ListReportOKApplicationJSON)(&r), nil
+}
+
 // CreateRound handles POST /rounds requests.
 func (h *OgentHandler) CreateRound(ctx context.Context, req *CreateRoundReq) (CreateRoundRes, error) {
 	b := h.client.Round.Create()
 	// Add all fields.
-	b.SetCreateTime(req.CreateTime)
-	b.SetUpdateTime(req.UpdateTime)
 	b.SetCompetitionID(req.CompetitionID)
 	b.SetRoundNumber(req.RoundNumber)
 	b.SetNote(req.Note)
@@ -1536,9 +1697,6 @@ func (h *OgentHandler) ReadRound(ctx context.Context, params ReadRoundParams) (R
 func (h *OgentHandler) UpdateRound(ctx context.Context, req *UpdateRoundReq, params UpdateRoundParams) (UpdateRoundRes, error) {
 	b := h.client.Round.UpdateOneID(params.ID)
 	// Add all fields.
-	if v, ok := req.UpdateTime.Get(); ok {
-		b.SetUpdateTime(v)
-	}
 	if v, ok := req.RoundNumber.Get(); ok {
 		b.SetRoundNumber(v)
 	}
@@ -1718,10 +1876,12 @@ func (h *OgentHandler) ListRoundChecks(ctx context.Context, params ListRoundChec
 func (h *OgentHandler) CreateService(ctx context.Context, req *CreateServiceReq) (CreateServiceRes, error) {
 	b := h.client.Service.Create()
 	// Add all fields.
-	b.SetCreateTime(req.CreateTime)
-	b.SetUpdateTime(req.UpdateTime)
-	b.SetPause(req.Pause)
-	b.SetHidden(req.Hidden)
+	if v, ok := req.Pause.Get(); ok {
+		b.SetPause(v)
+	}
+	if v, ok := req.Hidden.Get(); ok {
+		b.SetHidden(v)
+	}
 	b.SetCompetitionID(req.CompetitionID)
 	b.SetTeamID(req.TeamID)
 	b.SetName(req.Name)
@@ -1799,9 +1959,6 @@ func (h *OgentHandler) ReadService(ctx context.Context, params ReadServiceParams
 func (h *OgentHandler) UpdateService(ctx context.Context, req *UpdateServiceReq, params UpdateServiceParams) (UpdateServiceRes, error) {
 	b := h.client.Service.UpdateOneID(params.ID)
 	// Add all fields.
-	if v, ok := req.UpdateTime.Get(); ok {
-		b.SetUpdateTime(v)
-	}
 	if v, ok := req.Pause.Get(); ok {
 		b.SetPause(v)
 	}
@@ -2090,13 +2247,17 @@ func (h *OgentHandler) ListServiceProperties(ctx context.Context, params ListSer
 func (h *OgentHandler) CreateTeam(ctx context.Context, req *CreateTeamReq) (CreateTeamRes, error) {
 	b := h.client.Team.Create()
 	// Add all fields.
-	b.SetCreateTime(req.CreateTime)
-	b.SetUpdateTime(req.UpdateTime)
-	b.SetPause(req.Pause)
-	b.SetHidden(req.Hidden)
+	if v, ok := req.Pause.Get(); ok {
+		b.SetPause(v)
+	}
+	if v, ok := req.Hidden.Get(); ok {
+		b.SetHidden(v)
+	}
 	b.SetCompetitionID(req.CompetitionID)
 	b.SetName(req.Name)
-	b.SetIndex(req.Index)
+	if v, ok := req.Index.Get(); ok {
+		b.SetIndex(v)
+	}
 	// Add all edges.
 	b.SetCompetitionID(req.Competition)
 	b.AddUserIDs(req.Users...)
@@ -2162,9 +2323,6 @@ func (h *OgentHandler) ReadTeam(ctx context.Context, params ReadTeamParams) (Rea
 func (h *OgentHandler) UpdateTeam(ctx context.Context, req *UpdateTeamReq, params UpdateTeamParams) (UpdateTeamRes, error) {
 	b := h.client.Team.UpdateOneID(params.ID)
 	// Add all fields.
-	if v, ok := req.UpdateTime.Get(); ok {
-		b.SetUpdateTime(v)
-	}
 	if v, ok := req.Pause.Get(); ok {
 		b.SetPause(v)
 	}
@@ -2380,9 +2538,14 @@ func (h *OgentHandler) ListTeamHosts(ctx context.Context, params ListTeamHostsPa
 func (h *OgentHandler) CreateUser(ctx context.Context, req *CreateUserReq) (CreateUserRes, error) {
 	b := h.client.User.Create()
 	// Add all fields.
-	b.SetCreateTime(req.CreateTime)
-	b.SetUpdateTime(req.UpdateTime)
+	if v, ok := req.CreateTime.Get(); ok {
+		b.SetCreateTime(v)
+	}
+	if v, ok := req.UpdateTime.Get(); ok {
+		b.SetUpdateTime(v)
+	}
 	b.SetUsername(req.Username)
+	b.SetOryID(req.OryID)
 	// Add all edges.
 	b.AddTeamIDs(req.Teams...)
 	b.AddCompetitionIDs(req.Competitions...)

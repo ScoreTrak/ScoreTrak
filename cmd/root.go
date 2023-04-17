@@ -2,6 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/creasty/defaults"
+	"github.com/spf13/viper"
+	"os"
 
 	"github.com/spf13/cobra"
 
@@ -9,6 +13,7 @@ import (
 )
 
 var cfgFile string
+var c config.Config
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -28,7 +33,40 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is './.scoretrak.yaml', '$HOME/.scoretrak.yaml', '/etc/scoretrak/.scoretrak.yaml' in that order)")
+	cobra.OnInitialize(initConfig)
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "config file (default is './.scoretrak.yaml', '$HOME/.scoretrak.yaml', '/etc/scoretrak/.scoretrak.yaml' in that order)")
 
 	rootCmd.Flags().BoolP("version", "v", false, "version")
+}
+
+func initConfig() {
+
+	if cfgFile != "" {
+		viper.SetConfigFile(cfgFile)
+	} else {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			panic(err)
+		}
+		viper.AddConfigPath(".")
+		viper.AddConfigPath(home)
+		viper.AddConfigPath(".")
+		viper.SetConfigType("yaml")
+		viper.SetConfigName(".scoretrak")
+	}
+
+	viper.SetEnvPrefix(config.ENV_PREFIX)
+	viper.AutomaticEnv()
+
+	if err := viper.ReadInConfig(); err != nil {
+		panic(err)
+	}
+
+	if err := defaults.Set(&c); err != nil {
+		panic(err)
+	}
+
+	if err := viper.Unmarshal(&c); err != nil {
+		panic(err)
+	}
 }

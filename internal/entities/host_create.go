@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -24,37 +23,17 @@ type HostCreate struct {
 	hooks    []Hook
 }
 
-// SetCreateTime sets the "create_time" field.
-func (hc *HostCreate) SetCreateTime(t time.Time) *HostCreate {
-	hc.mutation.SetCreateTime(t)
-	return hc
-}
-
-// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
-func (hc *HostCreate) SetNillableCreateTime(t *time.Time) *HostCreate {
-	if t != nil {
-		hc.SetCreateTime(*t)
-	}
-	return hc
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (hc *HostCreate) SetUpdateTime(t time.Time) *HostCreate {
-	hc.mutation.SetUpdateTime(t)
-	return hc
-}
-
-// SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
-func (hc *HostCreate) SetNillableUpdateTime(t *time.Time) *HostCreate {
-	if t != nil {
-		hc.SetUpdateTime(*t)
-	}
-	return hc
-}
-
 // SetPause sets the "pause" field.
 func (hc *HostCreate) SetPause(b bool) *HostCreate {
 	hc.mutation.SetPause(b)
+	return hc
+}
+
+// SetNillablePause sets the "pause" field if the given value is not nil.
+func (hc *HostCreate) SetNillablePause(b *bool) *HostCreate {
+	if b != nil {
+		hc.SetPause(*b)
+	}
 	return hc
 }
 
@@ -64,15 +43,23 @@ func (hc *HostCreate) SetHidden(b bool) *HostCreate {
 	return hc
 }
 
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (hc *HostCreate) SetNillableHidden(b *bool) *HostCreate {
+	if b != nil {
+		hc.SetHidden(*b)
+	}
+	return hc
+}
+
 // SetCompetitionID sets the "competition_id" field.
-func (hc *HostCreate) SetCompetitionID(i int) *HostCreate {
-	hc.mutation.SetCompetitionID(i)
+func (hc *HostCreate) SetCompetitionID(s string) *HostCreate {
+	hc.mutation.SetCompetitionID(s)
 	return hc
 }
 
 // SetTeamID sets the "team_id" field.
-func (hc *HostCreate) SetTeamID(i int) *HostCreate {
-	hc.mutation.SetTeamID(i)
+func (hc *HostCreate) SetTeamID(s string) *HostCreate {
+	hc.mutation.SetTeamID(s)
 	return hc
 }
 
@@ -94,6 +81,20 @@ func (hc *HostCreate) SetEditable(b bool) *HostCreate {
 	return hc
 }
 
+// SetID sets the "id" field.
+func (hc *HostCreate) SetID(s string) *HostCreate {
+	hc.mutation.SetID(s)
+	return hc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (hc *HostCreate) SetNillableID(s *string) *HostCreate {
+	if s != nil {
+		hc.SetID(*s)
+	}
+	return hc
+}
+
 // SetCompetition sets the "competition" edge to the Competition entity.
 func (hc *HostCreate) SetCompetition(c *Competition) *HostCreate {
 	return hc.SetCompetitionID(c.ID)
@@ -105,14 +106,14 @@ func (hc *HostCreate) SetTeam(t *Team) *HostCreate {
 }
 
 // AddServiceIDs adds the "services" edge to the Service entity by IDs.
-func (hc *HostCreate) AddServiceIDs(ids ...int) *HostCreate {
+func (hc *HostCreate) AddServiceIDs(ids ...string) *HostCreate {
 	hc.mutation.AddServiceIDs(ids...)
 	return hc
 }
 
 // AddServices adds the "services" edges to the Service entity.
 func (hc *HostCreate) AddServices(s ...*Service) *HostCreate {
-	ids := make([]int, len(s))
+	ids := make([]string, len(s))
 	for i := range s {
 		ids[i] = s[i].ID
 	}
@@ -120,7 +121,7 @@ func (hc *HostCreate) AddServices(s ...*Service) *HostCreate {
 }
 
 // SetHostGroupID sets the "host_group" edge to the HostGroup entity by ID.
-func (hc *HostCreate) SetHostGroupID(id int) *HostCreate {
+func (hc *HostCreate) SetHostGroupID(id string) *HostCreate {
 	hc.mutation.SetHostGroupID(id)
 	return hc
 }
@@ -165,30 +166,14 @@ func (hc *HostCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (hc *HostCreate) defaults() {
-	if _, ok := hc.mutation.CreateTime(); !ok {
-		v := host.DefaultCreateTime()
-		hc.mutation.SetCreateTime(v)
-	}
-	if _, ok := hc.mutation.UpdateTime(); !ok {
-		v := host.DefaultUpdateTime()
-		hc.mutation.SetUpdateTime(v)
+	if _, ok := hc.mutation.ID(); !ok {
+		v := host.DefaultID()
+		hc.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (hc *HostCreate) check() error {
-	if _, ok := hc.mutation.CreateTime(); !ok {
-		return &ValidationError{Name: "create_time", err: errors.New(`entities: missing required field "Host.create_time"`)}
-	}
-	if _, ok := hc.mutation.UpdateTime(); !ok {
-		return &ValidationError{Name: "update_time", err: errors.New(`entities: missing required field "Host.update_time"`)}
-	}
-	if _, ok := hc.mutation.Pause(); !ok {
-		return &ValidationError{Name: "pause", err: errors.New(`entities: missing required field "Host.pause"`)}
-	}
-	if _, ok := hc.mutation.Hidden(); !ok {
-		return &ValidationError{Name: "hidden", err: errors.New(`entities: missing required field "Host.hidden"`)}
-	}
 	if _, ok := hc.mutation.CompetitionID(); !ok {
 		return &ValidationError{Name: "competition_id", err: errors.New(`entities: missing required field "Host.competition_id"`)}
 	}
@@ -208,6 +193,11 @@ func (hc *HostCreate) check() error {
 	}
 	if _, ok := hc.mutation.Editable(); !ok {
 		return &ValidationError{Name: "editable", err: errors.New(`entities: missing required field "Host.editable"`)}
+	}
+	if v, ok := hc.mutation.ID(); ok {
+		if err := host.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`entities: validator failed for field "Host.id": %w`, err)}
+		}
 	}
 	if _, ok := hc.mutation.CompetitionID(); !ok {
 		return &ValidationError{Name: "competition", err: errors.New(`entities: missing required edge "Host.competition"`)}
@@ -232,8 +222,13 @@ func (hc *HostCreate) sqlSave(ctx context.Context) (*Host, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected Host.ID type: %T", _spec.ID.Value)
+		}
+	}
 	hc.mutation.id = &_node.ID
 	hc.mutation.done = true
 	return _node, nil
@@ -242,15 +237,11 @@ func (hc *HostCreate) sqlSave(ctx context.Context) (*Host, error) {
 func (hc *HostCreate) createSpec() (*Host, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Host{config: hc.config}
-		_spec = sqlgraph.NewCreateSpec(host.Table, sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(host.Table, sqlgraph.NewFieldSpec(host.FieldID, field.TypeString))
 	)
-	if value, ok := hc.mutation.CreateTime(); ok {
-		_spec.SetField(host.FieldCreateTime, field.TypeTime, value)
-		_node.CreateTime = value
-	}
-	if value, ok := hc.mutation.UpdateTime(); ok {
-		_spec.SetField(host.FieldUpdateTime, field.TypeTime, value)
-		_node.UpdateTime = value
+	if id, ok := hc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
 	}
 	if value, ok := hc.mutation.Pause(); ok {
 		_spec.SetField(host.FieldPause, field.TypeBool, value)
@@ -280,7 +271,7 @@ func (hc *HostCreate) createSpec() (*Host, *sqlgraph.CreateSpec) {
 			Columns: []string{host.CompetitionColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -297,7 +288,7 @@ func (hc *HostCreate) createSpec() (*Host, *sqlgraph.CreateSpec) {
 			Columns: []string{host.TeamColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -314,7 +305,7 @@ func (hc *HostCreate) createSpec() (*Host, *sqlgraph.CreateSpec) {
 			Columns: []string{host.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -330,7 +321,7 @@ func (hc *HostCreate) createSpec() (*Host, *sqlgraph.CreateSpec) {
 			Columns: []string{host.HostGroupColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -383,10 +374,6 @@ func (hcb *HostCreateBulk) Save(ctx context.Context) ([]*Host, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

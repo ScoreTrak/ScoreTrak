@@ -16,11 +16,7 @@ import (
 type Competition struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// CreateTime holds the value of the "create_time" field.
-	CreateTime time.Time `json:"create_time,omitempty"`
-	// UpdateTime holds the value of the "update_time" field.
-	UpdateTime time.Time `json:"update_time,omitempty"`
+	ID string `json:"id,omitempty"`
 	// Hidden holds the value of the "hidden" field.
 	Hidden bool `json:"hidden,omitempty"`
 	// Pause holds the value of the "pause" field.
@@ -29,8 +25,8 @@ type Competition struct {
 	Name string `json:"name,omitempty"`
 	// DisplayName holds the value of the "display_name" field.
 	DisplayName string `json:"display_name,omitempty"`
-	// RoundDuration holds the value of the "round_duration" field.
-	RoundDuration float64 `json:"round_duration,omitempty"`
+	// ViewableToPublic holds the value of the "viewable_to_public" field.
+	ViewableToPublic *bool `json:"viewable_to_public,omitempty"`
 	// ToBeStartedAt holds the value of the "to_be_started_at" field.
 	ToBeStartedAt *time.Time `json:"to_be_started_at,omitempty"`
 	// StartedAt holds the value of the "started_at" field.
@@ -77,15 +73,11 @@ func (*Competition) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case competition.FieldHidden, competition.FieldPause:
+		case competition.FieldHidden, competition.FieldPause, competition.FieldViewableToPublic:
 			values[i] = new(sql.NullBool)
-		case competition.FieldRoundDuration:
-			values[i] = new(sql.NullFloat64)
-		case competition.FieldID:
-			values[i] = new(sql.NullInt64)
-		case competition.FieldName, competition.FieldDisplayName:
+		case competition.FieldID, competition.FieldName, competition.FieldDisplayName:
 			values[i] = new(sql.NullString)
-		case competition.FieldCreateTime, competition.FieldUpdateTime, competition.FieldToBeStartedAt, competition.FieldStartedAt, competition.FieldFinishedAt:
+		case competition.FieldToBeStartedAt, competition.FieldStartedAt, competition.FieldFinishedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -103,22 +95,10 @@ func (c *Competition) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case competition.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
-			}
-			c.ID = int(value.Int64)
-		case competition.FieldCreateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field create_time", values[i])
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
-				c.CreateTime = value.Time
-			}
-		case competition.FieldUpdateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field update_time", values[i])
-			} else if value.Valid {
-				c.UpdateTime = value.Time
+				c.ID = value.String
 			}
 		case competition.FieldHidden:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -144,11 +124,12 @@ func (c *Competition) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				c.DisplayName = value.String
 			}
-		case competition.FieldRoundDuration:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field round_duration", values[i])
+		case competition.FieldViewableToPublic:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field viewable_to_public", values[i])
 			} else if value.Valid {
-				c.RoundDuration = value.Float64
+				c.ViewableToPublic = new(bool)
+				*c.ViewableToPublic = value.Bool
 			}
 		case competition.FieldToBeStartedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -217,12 +198,6 @@ func (c *Competition) String() string {
 	var builder strings.Builder
 	builder.WriteString("Competition(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", c.ID))
-	builder.WriteString("create_time=")
-	builder.WriteString(c.CreateTime.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("update_time=")
-	builder.WriteString(c.UpdateTime.Format(time.ANSIC))
-	builder.WriteString(", ")
 	builder.WriteString("hidden=")
 	builder.WriteString(fmt.Sprintf("%v", c.Hidden))
 	builder.WriteString(", ")
@@ -235,8 +210,10 @@ func (c *Competition) String() string {
 	builder.WriteString("display_name=")
 	builder.WriteString(c.DisplayName)
 	builder.WriteString(", ")
-	builder.WriteString("round_duration=")
-	builder.WriteString(fmt.Sprintf("%v", c.RoundDuration))
+	if v := c.ViewableToPublic; v != nil {
+		builder.WriteString("viewable_to_public=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	if v := c.ToBeStartedAt; v != nil {
 		builder.WriteString("to_be_started_at=")

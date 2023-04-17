@@ -22,43 +22,31 @@ type CompetitionCreate struct {
 	hooks    []Hook
 }
 
-// SetCreateTime sets the "create_time" field.
-func (cc *CompetitionCreate) SetCreateTime(t time.Time) *CompetitionCreate {
-	cc.mutation.SetCreateTime(t)
-	return cc
-}
-
-// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
-func (cc *CompetitionCreate) SetNillableCreateTime(t *time.Time) *CompetitionCreate {
-	if t != nil {
-		cc.SetCreateTime(*t)
-	}
-	return cc
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (cc *CompetitionCreate) SetUpdateTime(t time.Time) *CompetitionCreate {
-	cc.mutation.SetUpdateTime(t)
-	return cc
-}
-
-// SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
-func (cc *CompetitionCreate) SetNillableUpdateTime(t *time.Time) *CompetitionCreate {
-	if t != nil {
-		cc.SetUpdateTime(*t)
-	}
-	return cc
-}
-
 // SetHidden sets the "hidden" field.
 func (cc *CompetitionCreate) SetHidden(b bool) *CompetitionCreate {
 	cc.mutation.SetHidden(b)
 	return cc
 }
 
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (cc *CompetitionCreate) SetNillableHidden(b *bool) *CompetitionCreate {
+	if b != nil {
+		cc.SetHidden(*b)
+	}
+	return cc
+}
+
 // SetPause sets the "pause" field.
 func (cc *CompetitionCreate) SetPause(b bool) *CompetitionCreate {
 	cc.mutation.SetPause(b)
+	return cc
+}
+
+// SetNillablePause sets the "pause" field if the given value is not nil.
+func (cc *CompetitionCreate) SetNillablePause(b *bool) *CompetitionCreate {
+	if b != nil {
+		cc.SetPause(*b)
+	}
 	return cc
 }
 
@@ -74,9 +62,17 @@ func (cc *CompetitionCreate) SetDisplayName(s string) *CompetitionCreate {
 	return cc
 }
 
-// SetRoundDuration sets the "round_duration" field.
-func (cc *CompetitionCreate) SetRoundDuration(f float64) *CompetitionCreate {
-	cc.mutation.SetRoundDuration(f)
+// SetViewableToPublic sets the "viewable_to_public" field.
+func (cc *CompetitionCreate) SetViewableToPublic(b bool) *CompetitionCreate {
+	cc.mutation.SetViewableToPublic(b)
+	return cc
+}
+
+// SetNillableViewableToPublic sets the "viewable_to_public" field if the given value is not nil.
+func (cc *CompetitionCreate) SetNillableViewableToPublic(b *bool) *CompetitionCreate {
+	if b != nil {
+		cc.SetViewableToPublic(*b)
+	}
 	return cc
 }
 
@@ -122,15 +118,29 @@ func (cc *CompetitionCreate) SetNillableFinishedAt(t *time.Time) *CompetitionCre
 	return cc
 }
 
+// SetID sets the "id" field.
+func (cc *CompetitionCreate) SetID(s string) *CompetitionCreate {
+	cc.mutation.SetID(s)
+	return cc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (cc *CompetitionCreate) SetNillableID(s *string) *CompetitionCreate {
+	if s != nil {
+		cc.SetID(*s)
+	}
+	return cc
+}
+
 // AddTeamIDs adds the "teams" edge to the Team entity by IDs.
-func (cc *CompetitionCreate) AddTeamIDs(ids ...int) *CompetitionCreate {
+func (cc *CompetitionCreate) AddTeamIDs(ids ...string) *CompetitionCreate {
 	cc.mutation.AddTeamIDs(ids...)
 	return cc
 }
 
 // AddTeams adds the "teams" edges to the Team entity.
 func (cc *CompetitionCreate) AddTeams(t ...*Team) *CompetitionCreate {
-	ids := make([]int, len(t))
+	ids := make([]string, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
@@ -138,14 +148,14 @@ func (cc *CompetitionCreate) AddTeams(t ...*Team) *CompetitionCreate {
 }
 
 // AddUserIDs adds the "users" edge to the User entity by IDs.
-func (cc *CompetitionCreate) AddUserIDs(ids ...int) *CompetitionCreate {
+func (cc *CompetitionCreate) AddUserIDs(ids ...string) *CompetitionCreate {
 	cc.mutation.AddUserIDs(ids...)
 	return cc
 }
 
 // AddUsers adds the "users" edges to the User entity.
 func (cc *CompetitionCreate) AddUsers(u ...*User) *CompetitionCreate {
-	ids := make([]int, len(u))
+	ids := make([]string, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -159,7 +169,9 @@ func (cc *CompetitionCreate) Mutation() *CompetitionMutation {
 
 // Save creates the Competition in the database.
 func (cc *CompetitionCreate) Save(ctx context.Context) (*Competition, error) {
-	cc.defaults()
+	if err := cc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks[*Competition, CompetitionMutation](ctx, cc.sqlSave, cc.mutation, cc.hooks)
 }
 
@@ -186,31 +198,19 @@ func (cc *CompetitionCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (cc *CompetitionCreate) defaults() {
-	if _, ok := cc.mutation.CreateTime(); !ok {
-		v := competition.DefaultCreateTime()
-		cc.mutation.SetCreateTime(v)
+func (cc *CompetitionCreate) defaults() error {
+	if _, ok := cc.mutation.ID(); !ok {
+		if competition.DefaultID == nil {
+			return fmt.Errorf("entities: uninitialized competition.DefaultID (forgotten import entities/runtime?)")
+		}
+		v := competition.DefaultID()
+		cc.mutation.SetID(v)
 	}
-	if _, ok := cc.mutation.UpdateTime(); !ok {
-		v := competition.DefaultUpdateTime()
-		cc.mutation.SetUpdateTime(v)
-	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (cc *CompetitionCreate) check() error {
-	if _, ok := cc.mutation.CreateTime(); !ok {
-		return &ValidationError{Name: "create_time", err: errors.New(`entities: missing required field "Competition.create_time"`)}
-	}
-	if _, ok := cc.mutation.UpdateTime(); !ok {
-		return &ValidationError{Name: "update_time", err: errors.New(`entities: missing required field "Competition.update_time"`)}
-	}
-	if _, ok := cc.mutation.Hidden(); !ok {
-		return &ValidationError{Name: "hidden", err: errors.New(`entities: missing required field "Competition.hidden"`)}
-	}
-	if _, ok := cc.mutation.Pause(); !ok {
-		return &ValidationError{Name: "pause", err: errors.New(`entities: missing required field "Competition.pause"`)}
-	}
 	if _, ok := cc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`entities: missing required field "Competition.name"`)}
 	}
@@ -222,8 +222,10 @@ func (cc *CompetitionCreate) check() error {
 	if _, ok := cc.mutation.DisplayName(); !ok {
 		return &ValidationError{Name: "display_name", err: errors.New(`entities: missing required field "Competition.display_name"`)}
 	}
-	if _, ok := cc.mutation.RoundDuration(); !ok {
-		return &ValidationError{Name: "round_duration", err: errors.New(`entities: missing required field "Competition.round_duration"`)}
+	if v, ok := cc.mutation.ID(); ok {
+		if err := competition.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`entities: validator failed for field "Competition.id": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -239,8 +241,13 @@ func (cc *CompetitionCreate) sqlSave(ctx context.Context) (*Competition, error) 
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected Competition.ID type: %T", _spec.ID.Value)
+		}
+	}
 	cc.mutation.id = &_node.ID
 	cc.mutation.done = true
 	return _node, nil
@@ -249,15 +256,11 @@ func (cc *CompetitionCreate) sqlSave(ctx context.Context) (*Competition, error) 
 func (cc *CompetitionCreate) createSpec() (*Competition, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Competition{config: cc.config}
-		_spec = sqlgraph.NewCreateSpec(competition.Table, sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(competition.Table, sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString))
 	)
-	if value, ok := cc.mutation.CreateTime(); ok {
-		_spec.SetField(competition.FieldCreateTime, field.TypeTime, value)
-		_node.CreateTime = value
-	}
-	if value, ok := cc.mutation.UpdateTime(); ok {
-		_spec.SetField(competition.FieldUpdateTime, field.TypeTime, value)
-		_node.UpdateTime = value
+	if id, ok := cc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
 	}
 	if value, ok := cc.mutation.Hidden(); ok {
 		_spec.SetField(competition.FieldHidden, field.TypeBool, value)
@@ -275,9 +278,9 @@ func (cc *CompetitionCreate) createSpec() (*Competition, *sqlgraph.CreateSpec) {
 		_spec.SetField(competition.FieldDisplayName, field.TypeString, value)
 		_node.DisplayName = value
 	}
-	if value, ok := cc.mutation.RoundDuration(); ok {
-		_spec.SetField(competition.FieldRoundDuration, field.TypeFloat64, value)
-		_node.RoundDuration = value
+	if value, ok := cc.mutation.ViewableToPublic(); ok {
+		_spec.SetField(competition.FieldViewableToPublic, field.TypeBool, value)
+		_node.ViewableToPublic = &value
 	}
 	if value, ok := cc.mutation.ToBeStartedAt(); ok {
 		_spec.SetField(competition.FieldToBeStartedAt, field.TypeTime, value)
@@ -299,7 +302,7 @@ func (cc *CompetitionCreate) createSpec() (*Competition, *sqlgraph.CreateSpec) {
 			Columns: []string{competition.TeamsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -315,7 +318,7 @@ func (cc *CompetitionCreate) createSpec() (*Competition, *sqlgraph.CreateSpec) {
 			Columns: competition.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -367,10 +370,6 @@ func (ccb *CompetitionCreateBulk) Save(ctx context.Context) ([]*Competition, err
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

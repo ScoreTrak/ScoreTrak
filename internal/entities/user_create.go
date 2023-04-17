@@ -13,6 +13,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/user"
+	"github.com/gofrs/uuid"
 )
 
 // UserCreate is the builder for creating a User entity.
@@ -56,15 +57,35 @@ func (uc *UserCreate) SetUsername(s string) *UserCreate {
 	return uc
 }
 
+// SetOryID sets the "ory_id" field.
+func (uc *UserCreate) SetOryID(u uuid.UUID) *UserCreate {
+	uc.mutation.SetOryID(u)
+	return uc
+}
+
+// SetID sets the "id" field.
+func (uc *UserCreate) SetID(s string) *UserCreate {
+	uc.mutation.SetID(s)
+	return uc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (uc *UserCreate) SetNillableID(s *string) *UserCreate {
+	if s != nil {
+		uc.SetID(*s)
+	}
+	return uc
+}
+
 // AddTeamIDs adds the "teams" edge to the Team entity by IDs.
-func (uc *UserCreate) AddTeamIDs(ids ...int) *UserCreate {
+func (uc *UserCreate) AddTeamIDs(ids ...string) *UserCreate {
 	uc.mutation.AddTeamIDs(ids...)
 	return uc
 }
 
 // AddTeams adds the "teams" edges to the Team entity.
 func (uc *UserCreate) AddTeams(t ...*Team) *UserCreate {
-	ids := make([]int, len(t))
+	ids := make([]string, len(t))
 	for i := range t {
 		ids[i] = t[i].ID
 	}
@@ -72,14 +93,14 @@ func (uc *UserCreate) AddTeams(t ...*Team) *UserCreate {
 }
 
 // AddCompetitionIDs adds the "competitions" edge to the Competition entity by IDs.
-func (uc *UserCreate) AddCompetitionIDs(ids ...int) *UserCreate {
+func (uc *UserCreate) AddCompetitionIDs(ids ...string) *UserCreate {
 	uc.mutation.AddCompetitionIDs(ids...)
 	return uc
 }
 
 // AddCompetitions adds the "competitions" edges to the Competition entity.
 func (uc *UserCreate) AddCompetitions(c ...*Competition) *UserCreate {
-	ids := make([]int, len(c))
+	ids := make([]string, len(c))
 	for i := range c {
 		ids[i] = c[i].ID
 	}
@@ -93,7 +114,9 @@ func (uc *UserCreate) Mutation() *UserMutation {
 
 // Save creates the User in the database.
 func (uc *UserCreate) Save(ctx context.Context) (*User, error) {
-	uc.defaults()
+	if err := uc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks[*User, UserMutation](ctx, uc.sqlSave, uc.mutation, uc.hooks)
 }
 
@@ -120,31 +143,47 @@ func (uc *UserCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (uc *UserCreate) defaults() {
+func (uc *UserCreate) defaults() error {
 	if _, ok := uc.mutation.CreateTime(); !ok {
+		if user.DefaultCreateTime == nil {
+			return fmt.Errorf("entities: uninitialized user.DefaultCreateTime (forgotten import entities/runtime?)")
+		}
 		v := user.DefaultCreateTime()
 		uc.mutation.SetCreateTime(v)
 	}
 	if _, ok := uc.mutation.UpdateTime(); !ok {
+		if user.DefaultUpdateTime == nil {
+			return fmt.Errorf("entities: uninitialized user.DefaultUpdateTime (forgotten import entities/runtime?)")
+		}
 		v := user.DefaultUpdateTime()
 		uc.mutation.SetUpdateTime(v)
 	}
+	if _, ok := uc.mutation.ID(); !ok {
+		if user.DefaultID == nil {
+			return fmt.Errorf("entities: uninitialized user.DefaultID (forgotten import entities/runtime?)")
+		}
+		v := user.DefaultID()
+		uc.mutation.SetID(v)
+	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (uc *UserCreate) check() error {
-	if _, ok := uc.mutation.CreateTime(); !ok {
-		return &ValidationError{Name: "create_time", err: errors.New(`entities: missing required field "User.create_time"`)}
-	}
-	if _, ok := uc.mutation.UpdateTime(); !ok {
-		return &ValidationError{Name: "update_time", err: errors.New(`entities: missing required field "User.update_time"`)}
-	}
 	if _, ok := uc.mutation.Username(); !ok {
 		return &ValidationError{Name: "username", err: errors.New(`entities: missing required field "User.username"`)}
 	}
 	if v, ok := uc.mutation.Username(); ok {
 		if err := user.UsernameValidator(v); err != nil {
 			return &ValidationError{Name: "username", err: fmt.Errorf(`entities: validator failed for field "User.username": %w`, err)}
+		}
+	}
+	if _, ok := uc.mutation.OryID(); !ok {
+		return &ValidationError{Name: "ory_id", err: errors.New(`entities: missing required field "User.ory_id"`)}
+	}
+	if v, ok := uc.mutation.ID(); ok {
+		if err := user.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`entities: validator failed for field "User.id": %w`, err)}
 		}
 	}
 	return nil
@@ -161,8 +200,13 @@ func (uc *UserCreate) sqlSave(ctx context.Context) (*User, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected User.ID type: %T", _spec.ID.Value)
+		}
+	}
 	uc.mutation.id = &_node.ID
 	uc.mutation.done = true
 	return _node, nil
@@ -171,8 +215,12 @@ func (uc *UserCreate) sqlSave(ctx context.Context) (*User, error) {
 func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	var (
 		_node = &User{config: uc.config}
-		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeString))
 	)
+	if id, ok := uc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := uc.mutation.CreateTime(); ok {
 		_spec.SetField(user.FieldCreateTime, field.TypeTime, value)
 		_node.CreateTime = value
@@ -185,6 +233,10 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
 		_node.Username = value
 	}
+	if value, ok := uc.mutation.OryID(); ok {
+		_spec.SetField(user.FieldOryID, field.TypeUUID, value)
+		_node.OryID = value
+	}
 	if nodes := uc.mutation.TeamsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -193,7 +245,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: user.TeamsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -209,7 +261,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: user.CompetitionsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -261,10 +313,6 @@ func (ucb *UserCreateBulk) Save(ctx context.Context) ([]*User, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

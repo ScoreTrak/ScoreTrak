@@ -179,8 +179,8 @@ func (hq *HostQuery) FirstX(ctx context.Context) *Host {
 
 // FirstID returns the first Host ID from the query.
 // Returns a *NotFoundError when no Host ID was found.
-func (hq *HostQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (hq *HostQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = hq.Limit(1).IDs(setContextOp(ctx, hq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -192,7 +192,7 @@ func (hq *HostQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (hq *HostQuery) FirstIDX(ctx context.Context) int {
+func (hq *HostQuery) FirstIDX(ctx context.Context) string {
 	id, err := hq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -230,8 +230,8 @@ func (hq *HostQuery) OnlyX(ctx context.Context) *Host {
 // OnlyID is like Only, but returns the only Host ID in the query.
 // Returns a *NotSingularError when more than one Host ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (hq *HostQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (hq *HostQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = hq.Limit(2).IDs(setContextOp(ctx, hq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -247,7 +247,7 @@ func (hq *HostQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (hq *HostQuery) OnlyIDX(ctx context.Context) int {
+func (hq *HostQuery) OnlyIDX(ctx context.Context) string {
 	id, err := hq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -275,7 +275,7 @@ func (hq *HostQuery) AllX(ctx context.Context) []*Host {
 }
 
 // IDs executes the query and returns a list of Host IDs.
-func (hq *HostQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (hq *HostQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if hq.ctx.Unique == nil && hq.path != nil {
 		hq.Unique(true)
 	}
@@ -287,7 +287,7 @@ func (hq *HostQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (hq *HostQuery) IDsX(ctx context.Context) []int {
+func (hq *HostQuery) IDsX(ctx context.Context) []string {
 	ids, err := hq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -407,12 +407,12 @@ func (hq *HostQuery) WithHostGroup(opts ...func(*HostGroupQuery)) *HostQuery {
 // Example:
 //
 //	var v []struct {
-//		CreateTime time.Time `json:"create_time,omitempty"`
+//		Pause bool `json:"pause,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Host.Query().
-//		GroupBy(host.FieldCreateTime).
+//		GroupBy(host.FieldPause).
 //		Aggregate(entities.Count()).
 //		Scan(ctx, &v)
 func (hq *HostQuery) GroupBy(field string, fields ...string) *HostGroupBy {
@@ -430,11 +430,11 @@ func (hq *HostQuery) GroupBy(field string, fields ...string) *HostGroupBy {
 // Example:
 //
 //	var v []struct {
-//		CreateTime time.Time `json:"create_time,omitempty"`
+//		Pause bool `json:"pause,omitempty"`
 //	}
 //
 //	client.Host.Query().
-//		Select(host.FieldCreateTime).
+//		Select(host.FieldPause).
 //		Scan(ctx, &v)
 func (hq *HostQuery) Select(fields ...string) *HostSelect {
 	hq.ctx.Fields = append(hq.ctx.Fields, fields...)
@@ -540,8 +540,8 @@ func (hq *HostQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Host, e
 }
 
 func (hq *HostQuery) loadCompetition(ctx context.Context, query *CompetitionQuery, nodes []*Host, init func(*Host), assign func(*Host, *Competition)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Host)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Host)
 	for i := range nodes {
 		fk := nodes[i].CompetitionID
 		if _, ok := nodeids[fk]; !ok {
@@ -569,8 +569,8 @@ func (hq *HostQuery) loadCompetition(ctx context.Context, query *CompetitionQuer
 	return nil
 }
 func (hq *HostQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*Host, init func(*Host), assign func(*Host, *Team)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Host)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Host)
 	for i := range nodes {
 		fk := nodes[i].TeamID
 		if _, ok := nodeids[fk]; !ok {
@@ -599,7 +599,7 @@ func (hq *HostQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*Ho
 }
 func (hq *HostQuery) loadServices(ctx context.Context, query *ServiceQuery, nodes []*Host, init func(*Host), assign func(*Host, *Service)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Host)
+	nodeids := make(map[string]*Host)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -629,8 +629,8 @@ func (hq *HostQuery) loadServices(ctx context.Context, query *ServiceQuery, node
 	return nil
 }
 func (hq *HostQuery) loadHostGroup(ctx context.Context, query *HostGroupQuery, nodes []*Host, init func(*Host), assign func(*Host, *HostGroup)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Host)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Host)
 	for i := range nodes {
 		if nodes[i].host_group_hosts == nil {
 			continue
@@ -671,7 +671,7 @@ func (hq *HostQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (hq *HostQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(host.Table, host.Columns, sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(host.Table, host.Columns, sqlgraph.NewFieldSpec(host.FieldID, field.TypeString))
 	_spec.From = hq.sql
 	if unique := hq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

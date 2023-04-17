@@ -154,8 +154,8 @@ func (pq *PropertyQuery) FirstX(ctx context.Context) *Property {
 
 // FirstID returns the first Property ID from the query.
 // Returns a *NotFoundError when no Property ID was found.
-func (pq *PropertyQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (pq *PropertyQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = pq.Limit(1).IDs(setContextOp(ctx, pq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -167,7 +167,7 @@ func (pq *PropertyQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (pq *PropertyQuery) FirstIDX(ctx context.Context) int {
+func (pq *PropertyQuery) FirstIDX(ctx context.Context) string {
 	id, err := pq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -205,8 +205,8 @@ func (pq *PropertyQuery) OnlyX(ctx context.Context) *Property {
 // OnlyID is like Only, but returns the only Property ID in the query.
 // Returns a *NotSingularError when more than one Property ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (pq *PropertyQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (pq *PropertyQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = pq.Limit(2).IDs(setContextOp(ctx, pq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -222,7 +222,7 @@ func (pq *PropertyQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (pq *PropertyQuery) OnlyIDX(ctx context.Context) int {
+func (pq *PropertyQuery) OnlyIDX(ctx context.Context) string {
 	id, err := pq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -250,7 +250,7 @@ func (pq *PropertyQuery) AllX(ctx context.Context) []*Property {
 }
 
 // IDs executes the query and returns a list of Property IDs.
-func (pq *PropertyQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (pq *PropertyQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if pq.ctx.Unique == nil && pq.path != nil {
 		pq.Unique(true)
 	}
@@ -262,7 +262,7 @@ func (pq *PropertyQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (pq *PropertyQuery) IDsX(ctx context.Context) []int {
+func (pq *PropertyQuery) IDsX(ctx context.Context) []string {
 	ids, err := pq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -370,12 +370,12 @@ func (pq *PropertyQuery) WithServices(opts ...func(*ServiceQuery)) *PropertyQuer
 // Example:
 //
 //	var v []struct {
-//		CreateTime time.Time `json:"create_time,omitempty"`
+//		CompetitionID string `json:"competition_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Property.Query().
-//		GroupBy(property.FieldCreateTime).
+//		GroupBy(property.FieldCompetitionID).
 //		Aggregate(entities.Count()).
 //		Scan(ctx, &v)
 func (pq *PropertyQuery) GroupBy(field string, fields ...string) *PropertyGroupBy {
@@ -393,11 +393,11 @@ func (pq *PropertyQuery) GroupBy(field string, fields ...string) *PropertyGroupB
 // Example:
 //
 //	var v []struct {
-//		CreateTime time.Time `json:"create_time,omitempty"`
+//		CompetitionID string `json:"competition_id,omitempty"`
 //	}
 //
 //	client.Property.Query().
-//		Select(property.FieldCreateTime).
+//		Select(property.FieldCompetitionID).
 //		Scan(ctx, &v)
 func (pq *PropertyQuery) Select(fields ...string) *PropertySelect {
 	pq.ctx.Fields = append(pq.ctx.Fields, fields...)
@@ -495,8 +495,8 @@ func (pq *PropertyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pro
 }
 
 func (pq *PropertyQuery) loadCompetition(ctx context.Context, query *CompetitionQuery, nodes []*Property, init func(*Property), assign func(*Property, *Competition)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Property)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Property)
 	for i := range nodes {
 		fk := nodes[i].CompetitionID
 		if _, ok := nodeids[fk]; !ok {
@@ -524,8 +524,8 @@ func (pq *PropertyQuery) loadCompetition(ctx context.Context, query *Competition
 	return nil
 }
 func (pq *PropertyQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*Property, init func(*Property), assign func(*Property, *Team)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Property)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Property)
 	for i := range nodes {
 		fk := nodes[i].TeamID
 		if _, ok := nodeids[fk]; !ok {
@@ -553,8 +553,8 @@ func (pq *PropertyQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes [
 	return nil
 }
 func (pq *PropertyQuery) loadServices(ctx context.Context, query *ServiceQuery, nodes []*Property, init func(*Property), assign func(*Property, *Service)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*Property)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Property)
 	for i := range nodes {
 		if nodes[i].service_properties == nil {
 			continue
@@ -595,7 +595,7 @@ func (pq *PropertyQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (pq *PropertyQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(property.Table, property.Columns, sqlgraph.NewFieldSpec(property.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(property.Table, property.Columns, sqlgraph.NewFieldSpec(property.FieldID, field.TypeString))
 	_spec.From = pq.sql
 	if unique := pq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

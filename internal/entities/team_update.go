@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -30,21 +29,43 @@ func (tu *TeamUpdate) Where(ps ...predicate.Team) *TeamUpdate {
 	return tu
 }
 
-// SetUpdateTime sets the "update_time" field.
-func (tu *TeamUpdate) SetUpdateTime(t time.Time) *TeamUpdate {
-	tu.mutation.SetUpdateTime(t)
-	return tu
-}
-
 // SetPause sets the "pause" field.
 func (tu *TeamUpdate) SetPause(b bool) *TeamUpdate {
 	tu.mutation.SetPause(b)
 	return tu
 }
 
+// SetNillablePause sets the "pause" field if the given value is not nil.
+func (tu *TeamUpdate) SetNillablePause(b *bool) *TeamUpdate {
+	if b != nil {
+		tu.SetPause(*b)
+	}
+	return tu
+}
+
+// ClearPause clears the value of the "pause" field.
+func (tu *TeamUpdate) ClearPause() *TeamUpdate {
+	tu.mutation.ClearPause()
+	return tu
+}
+
 // SetHidden sets the "hidden" field.
 func (tu *TeamUpdate) SetHidden(b bool) *TeamUpdate {
 	tu.mutation.SetHidden(b)
+	return tu
+}
+
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (tu *TeamUpdate) SetNillableHidden(b *bool) *TeamUpdate {
+	if b != nil {
+		tu.SetHidden(*b)
+	}
+	return tu
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (tu *TeamUpdate) ClearHidden() *TeamUpdate {
+	tu.mutation.ClearHidden()
 	return tu
 }
 
@@ -61,21 +82,35 @@ func (tu *TeamUpdate) SetIndex(i int) *TeamUpdate {
 	return tu
 }
 
+// SetNillableIndex sets the "index" field if the given value is not nil.
+func (tu *TeamUpdate) SetNillableIndex(i *int) *TeamUpdate {
+	if i != nil {
+		tu.SetIndex(*i)
+	}
+	return tu
+}
+
 // AddIndex adds i to the "index" field.
 func (tu *TeamUpdate) AddIndex(i int) *TeamUpdate {
 	tu.mutation.AddIndex(i)
 	return tu
 }
 
+// ClearIndex clears the value of the "index" field.
+func (tu *TeamUpdate) ClearIndex() *TeamUpdate {
+	tu.mutation.ClearIndex()
+	return tu
+}
+
 // AddUserIDs adds the "users" edge to the User entity by IDs.
-func (tu *TeamUpdate) AddUserIDs(ids ...int) *TeamUpdate {
+func (tu *TeamUpdate) AddUserIDs(ids ...string) *TeamUpdate {
 	tu.mutation.AddUserIDs(ids...)
 	return tu
 }
 
 // AddUsers adds the "users" edges to the User entity.
 func (tu *TeamUpdate) AddUsers(u ...*User) *TeamUpdate {
-	ids := make([]int, len(u))
+	ids := make([]string, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -83,14 +118,14 @@ func (tu *TeamUpdate) AddUsers(u ...*User) *TeamUpdate {
 }
 
 // AddHostIDs adds the "hosts" edge to the Host entity by IDs.
-func (tu *TeamUpdate) AddHostIDs(ids ...int) *TeamUpdate {
+func (tu *TeamUpdate) AddHostIDs(ids ...string) *TeamUpdate {
 	tu.mutation.AddHostIDs(ids...)
 	return tu
 }
 
 // AddHosts adds the "hosts" edges to the Host entity.
 func (tu *TeamUpdate) AddHosts(h ...*Host) *TeamUpdate {
-	ids := make([]int, len(h))
+	ids := make([]string, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -109,14 +144,14 @@ func (tu *TeamUpdate) ClearUsers() *TeamUpdate {
 }
 
 // RemoveUserIDs removes the "users" edge to User entities by IDs.
-func (tu *TeamUpdate) RemoveUserIDs(ids ...int) *TeamUpdate {
+func (tu *TeamUpdate) RemoveUserIDs(ids ...string) *TeamUpdate {
 	tu.mutation.RemoveUserIDs(ids...)
 	return tu
 }
 
 // RemoveUsers removes "users" edges to User entities.
 func (tu *TeamUpdate) RemoveUsers(u ...*User) *TeamUpdate {
-	ids := make([]int, len(u))
+	ids := make([]string, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -130,14 +165,14 @@ func (tu *TeamUpdate) ClearHosts() *TeamUpdate {
 }
 
 // RemoveHostIDs removes the "hosts" edge to Host entities by IDs.
-func (tu *TeamUpdate) RemoveHostIDs(ids ...int) *TeamUpdate {
+func (tu *TeamUpdate) RemoveHostIDs(ids ...string) *TeamUpdate {
 	tu.mutation.RemoveHostIDs(ids...)
 	return tu
 }
 
 // RemoveHosts removes "hosts" edges to Host entities.
 func (tu *TeamUpdate) RemoveHosts(h ...*Host) *TeamUpdate {
-	ids := make([]int, len(h))
+	ids := make([]string, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -146,7 +181,6 @@ func (tu *TeamUpdate) RemoveHosts(h ...*Host) *TeamUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (tu *TeamUpdate) Save(ctx context.Context) (int, error) {
-	tu.defaults()
 	return withHooks[int, TeamMutation](ctx, tu.sqlSave, tu.mutation, tu.hooks)
 }
 
@@ -172,16 +206,13 @@ func (tu *TeamUpdate) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (tu *TeamUpdate) defaults() {
-	if _, ok := tu.mutation.UpdateTime(); !ok {
-		v := team.UpdateDefaultUpdateTime()
-		tu.mutation.SetUpdateTime(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (tu *TeamUpdate) check() error {
+	if v, ok := tu.mutation.Index(); ok {
+		if err := team.IndexValidator(v); err != nil {
+			return &ValidationError{Name: "index", err: fmt.Errorf(`entities: validator failed for field "Team.index": %w`, err)}
+		}
+	}
 	if _, ok := tu.mutation.CompetitionID(); tu.mutation.CompetitionCleared() && !ok {
 		return errors.New(`entities: clearing a required unique edge "Team.competition"`)
 	}
@@ -192,7 +223,7 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := tu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(team.Table, team.Columns, sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(team.Table, team.Columns, sqlgraph.NewFieldSpec(team.FieldID, field.TypeString))
 	if ps := tu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -200,14 +231,17 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := tu.mutation.UpdateTime(); ok {
-		_spec.SetField(team.FieldUpdateTime, field.TypeTime, value)
-	}
 	if value, ok := tu.mutation.Pause(); ok {
 		_spec.SetField(team.FieldPause, field.TypeBool, value)
 	}
+	if tu.mutation.PauseCleared() {
+		_spec.ClearField(team.FieldPause, field.TypeBool)
+	}
 	if value, ok := tu.mutation.Hidden(); ok {
 		_spec.SetField(team.FieldHidden, field.TypeBool, value)
+	}
+	if tu.mutation.HiddenCleared() {
+		_spec.ClearField(team.FieldHidden, field.TypeBool)
 	}
 	if value, ok := tu.mutation.Name(); ok {
 		_spec.SetField(team.FieldName, field.TypeString, value)
@@ -218,6 +252,9 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := tu.mutation.AddedIndex(); ok {
 		_spec.AddField(team.FieldIndex, field.TypeInt, value)
 	}
+	if tu.mutation.IndexCleared() {
+		_spec.ClearField(team.FieldIndex, field.TypeInt)
+	}
 	if tu.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -226,7 +263,7 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: team.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -239,7 +276,7 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: team.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -255,7 +292,7 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: team.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -271,7 +308,7 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{team.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -284,7 +321,7 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{team.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -300,7 +337,7 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{team.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -328,21 +365,43 @@ type TeamUpdateOne struct {
 	mutation *TeamMutation
 }
 
-// SetUpdateTime sets the "update_time" field.
-func (tuo *TeamUpdateOne) SetUpdateTime(t time.Time) *TeamUpdateOne {
-	tuo.mutation.SetUpdateTime(t)
-	return tuo
-}
-
 // SetPause sets the "pause" field.
 func (tuo *TeamUpdateOne) SetPause(b bool) *TeamUpdateOne {
 	tuo.mutation.SetPause(b)
 	return tuo
 }
 
+// SetNillablePause sets the "pause" field if the given value is not nil.
+func (tuo *TeamUpdateOne) SetNillablePause(b *bool) *TeamUpdateOne {
+	if b != nil {
+		tuo.SetPause(*b)
+	}
+	return tuo
+}
+
+// ClearPause clears the value of the "pause" field.
+func (tuo *TeamUpdateOne) ClearPause() *TeamUpdateOne {
+	tuo.mutation.ClearPause()
+	return tuo
+}
+
 // SetHidden sets the "hidden" field.
 func (tuo *TeamUpdateOne) SetHidden(b bool) *TeamUpdateOne {
 	tuo.mutation.SetHidden(b)
+	return tuo
+}
+
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (tuo *TeamUpdateOne) SetNillableHidden(b *bool) *TeamUpdateOne {
+	if b != nil {
+		tuo.SetHidden(*b)
+	}
+	return tuo
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (tuo *TeamUpdateOne) ClearHidden() *TeamUpdateOne {
+	tuo.mutation.ClearHidden()
 	return tuo
 }
 
@@ -359,21 +418,35 @@ func (tuo *TeamUpdateOne) SetIndex(i int) *TeamUpdateOne {
 	return tuo
 }
 
+// SetNillableIndex sets the "index" field if the given value is not nil.
+func (tuo *TeamUpdateOne) SetNillableIndex(i *int) *TeamUpdateOne {
+	if i != nil {
+		tuo.SetIndex(*i)
+	}
+	return tuo
+}
+
 // AddIndex adds i to the "index" field.
 func (tuo *TeamUpdateOne) AddIndex(i int) *TeamUpdateOne {
 	tuo.mutation.AddIndex(i)
 	return tuo
 }
 
+// ClearIndex clears the value of the "index" field.
+func (tuo *TeamUpdateOne) ClearIndex() *TeamUpdateOne {
+	tuo.mutation.ClearIndex()
+	return tuo
+}
+
 // AddUserIDs adds the "users" edge to the User entity by IDs.
-func (tuo *TeamUpdateOne) AddUserIDs(ids ...int) *TeamUpdateOne {
+func (tuo *TeamUpdateOne) AddUserIDs(ids ...string) *TeamUpdateOne {
 	tuo.mutation.AddUserIDs(ids...)
 	return tuo
 }
 
 // AddUsers adds the "users" edges to the User entity.
 func (tuo *TeamUpdateOne) AddUsers(u ...*User) *TeamUpdateOne {
-	ids := make([]int, len(u))
+	ids := make([]string, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -381,14 +454,14 @@ func (tuo *TeamUpdateOne) AddUsers(u ...*User) *TeamUpdateOne {
 }
 
 // AddHostIDs adds the "hosts" edge to the Host entity by IDs.
-func (tuo *TeamUpdateOne) AddHostIDs(ids ...int) *TeamUpdateOne {
+func (tuo *TeamUpdateOne) AddHostIDs(ids ...string) *TeamUpdateOne {
 	tuo.mutation.AddHostIDs(ids...)
 	return tuo
 }
 
 // AddHosts adds the "hosts" edges to the Host entity.
 func (tuo *TeamUpdateOne) AddHosts(h ...*Host) *TeamUpdateOne {
-	ids := make([]int, len(h))
+	ids := make([]string, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -407,14 +480,14 @@ func (tuo *TeamUpdateOne) ClearUsers() *TeamUpdateOne {
 }
 
 // RemoveUserIDs removes the "users" edge to User entities by IDs.
-func (tuo *TeamUpdateOne) RemoveUserIDs(ids ...int) *TeamUpdateOne {
+func (tuo *TeamUpdateOne) RemoveUserIDs(ids ...string) *TeamUpdateOne {
 	tuo.mutation.RemoveUserIDs(ids...)
 	return tuo
 }
 
 // RemoveUsers removes "users" edges to User entities.
 func (tuo *TeamUpdateOne) RemoveUsers(u ...*User) *TeamUpdateOne {
-	ids := make([]int, len(u))
+	ids := make([]string, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
@@ -428,14 +501,14 @@ func (tuo *TeamUpdateOne) ClearHosts() *TeamUpdateOne {
 }
 
 // RemoveHostIDs removes the "hosts" edge to Host entities by IDs.
-func (tuo *TeamUpdateOne) RemoveHostIDs(ids ...int) *TeamUpdateOne {
+func (tuo *TeamUpdateOne) RemoveHostIDs(ids ...string) *TeamUpdateOne {
 	tuo.mutation.RemoveHostIDs(ids...)
 	return tuo
 }
 
 // RemoveHosts removes "hosts" edges to Host entities.
 func (tuo *TeamUpdateOne) RemoveHosts(h ...*Host) *TeamUpdateOne {
-	ids := make([]int, len(h))
+	ids := make([]string, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -457,7 +530,6 @@ func (tuo *TeamUpdateOne) Select(field string, fields ...string) *TeamUpdateOne 
 
 // Save executes the query and returns the updated Team entity.
 func (tuo *TeamUpdateOne) Save(ctx context.Context) (*Team, error) {
-	tuo.defaults()
 	return withHooks[*Team, TeamMutation](ctx, tuo.sqlSave, tuo.mutation, tuo.hooks)
 }
 
@@ -483,16 +555,13 @@ func (tuo *TeamUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (tuo *TeamUpdateOne) defaults() {
-	if _, ok := tuo.mutation.UpdateTime(); !ok {
-		v := team.UpdateDefaultUpdateTime()
-		tuo.mutation.SetUpdateTime(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (tuo *TeamUpdateOne) check() error {
+	if v, ok := tuo.mutation.Index(); ok {
+		if err := team.IndexValidator(v); err != nil {
+			return &ValidationError{Name: "index", err: fmt.Errorf(`entities: validator failed for field "Team.index": %w`, err)}
+		}
+	}
 	if _, ok := tuo.mutation.CompetitionID(); tuo.mutation.CompetitionCleared() && !ok {
 		return errors.New(`entities: clearing a required unique edge "Team.competition"`)
 	}
@@ -503,7 +572,7 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 	if err := tuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(team.Table, team.Columns, sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(team.Table, team.Columns, sqlgraph.NewFieldSpec(team.FieldID, field.TypeString))
 	id, ok := tuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`entities: missing "Team.id" for update`)}
@@ -528,14 +597,17 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 			}
 		}
 	}
-	if value, ok := tuo.mutation.UpdateTime(); ok {
-		_spec.SetField(team.FieldUpdateTime, field.TypeTime, value)
-	}
 	if value, ok := tuo.mutation.Pause(); ok {
 		_spec.SetField(team.FieldPause, field.TypeBool, value)
 	}
+	if tuo.mutation.PauseCleared() {
+		_spec.ClearField(team.FieldPause, field.TypeBool)
+	}
 	if value, ok := tuo.mutation.Hidden(); ok {
 		_spec.SetField(team.FieldHidden, field.TypeBool, value)
+	}
+	if tuo.mutation.HiddenCleared() {
+		_spec.ClearField(team.FieldHidden, field.TypeBool)
 	}
 	if value, ok := tuo.mutation.Name(); ok {
 		_spec.SetField(team.FieldName, field.TypeString, value)
@@ -546,6 +618,9 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 	if value, ok := tuo.mutation.AddedIndex(); ok {
 		_spec.AddField(team.FieldIndex, field.TypeInt, value)
 	}
+	if tuo.mutation.IndexCleared() {
+		_spec.ClearField(team.FieldIndex, field.TypeInt)
+	}
 	if tuo.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -554,7 +629,7 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 			Columns: team.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -567,7 +642,7 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 			Columns: team.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -583,7 +658,7 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 			Columns: team.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -599,7 +674,7 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 			Columns: []string{team.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -612,7 +687,7 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 			Columns: []string{team.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -628,7 +703,7 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 			Columns: []string{team.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

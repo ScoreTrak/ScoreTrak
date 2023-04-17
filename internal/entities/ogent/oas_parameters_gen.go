@@ -18,7 +18,7 @@ import (
 // DeleteCheckParams is parameters of deleteCheck operation.
 type DeleteCheckParams struct {
 	// ID of the Check.
-	ID int
+	ID string
 }
 
 func unpackDeleteCheckParams(packed middleware.Parameters) (params DeleteCheckParams) {
@@ -27,7 +27,7 @@ func unpackDeleteCheckParams(packed middleware.Parameters) (params DeleteCheckPa
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -53,7 +53,7 @@ func decodeDeleteCheckParams(args [1]string, r *http.Request) (params DeleteChec
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -80,7 +80,7 @@ func decodeDeleteCheckParams(args [1]string, r *http.Request) (params DeleteChec
 // DeleteCompetitionParams is parameters of deleteCompetition operation.
 type DeleteCompetitionParams struct {
 	// ID of the Competition.
-	ID int
+	ID string
 }
 
 func unpackDeleteCompetitionParams(packed middleware.Parameters) (params DeleteCompetitionParams) {
@@ -89,7 +89,7 @@ func unpackDeleteCompetitionParams(packed middleware.Parameters) (params DeleteC
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -115,7 +115,7 @@ func decodeDeleteCompetitionParams(args [1]string, r *http.Request) (params Dele
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -142,7 +142,7 @@ func decodeDeleteCompetitionParams(args [1]string, r *http.Request) (params Dele
 // DeleteHostParams is parameters of deleteHost operation.
 type DeleteHostParams struct {
 	// ID of the Host.
-	ID int
+	ID string
 }
 
 func unpackDeleteHostParams(packed middleware.Parameters) (params DeleteHostParams) {
@@ -151,7 +151,7 @@ func unpackDeleteHostParams(packed middleware.Parameters) (params DeleteHostPara
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -177,7 +177,7 @@ func decodeDeleteHostParams(args [1]string, r *http.Request) (params DeleteHostP
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -204,7 +204,7 @@ func decodeDeleteHostParams(args [1]string, r *http.Request) (params DeleteHostP
 // DeleteHostGroupParams is parameters of deleteHostGroup operation.
 type DeleteHostGroupParams struct {
 	// ID of the HostGroup.
-	ID int
+	ID string
 }
 
 func unpackDeleteHostGroupParams(packed middleware.Parameters) (params DeleteHostGroupParams) {
@@ -213,7 +213,7 @@ func unpackDeleteHostGroupParams(packed middleware.Parameters) (params DeleteHos
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -239,7 +239,7 @@ func decodeDeleteHostGroupParams(args [1]string, r *http.Request) (params Delete
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -266,10 +266,72 @@ func decodeDeleteHostGroupParams(args [1]string, r *http.Request) (params Delete
 // DeletePropertyParams is parameters of deleteProperty operation.
 type DeletePropertyParams struct {
 	// ID of the Property.
-	ID int
+	ID string
 }
 
 func unpackDeletePropertyParams(packed middleware.Parameters) (params DeletePropertyParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeDeletePropertyParams(args [1]string, r *http.Request) (params DeletePropertyParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param, err := url.PathUnescape(args[0])
+		if err != nil {
+			return errors.Wrap(err, "unescape path")
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// DeleteReportParams is parameters of deleteReport operation.
+type DeleteReportParams struct {
+	// ID of the Report.
+	ID int
+}
+
+func unpackDeleteReportParams(packed middleware.Parameters) (params DeleteReportParams) {
 	{
 		key := middleware.ParameterKey{
 			Name: "id",
@@ -280,7 +342,7 @@ func unpackDeletePropertyParams(packed middleware.Parameters) (params DeleteProp
 	return params
 }
 
-func decodeDeletePropertyParams(args [1]string, r *http.Request) (params DeletePropertyParams, _ error) {
+func decodeDeleteReportParams(args [1]string, r *http.Request) (params DeleteReportParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param, err := url.PathUnescape(args[0])
@@ -328,7 +390,7 @@ func decodeDeletePropertyParams(args [1]string, r *http.Request) (params DeleteP
 // DeleteRoundParams is parameters of deleteRound operation.
 type DeleteRoundParams struct {
 	// ID of the Round.
-	ID int
+	ID string
 }
 
 func unpackDeleteRoundParams(packed middleware.Parameters) (params DeleteRoundParams) {
@@ -337,7 +399,7 @@ func unpackDeleteRoundParams(packed middleware.Parameters) (params DeleteRoundPa
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -363,7 +425,7 @@ func decodeDeleteRoundParams(args [1]string, r *http.Request) (params DeleteRoun
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -390,7 +452,7 @@ func decodeDeleteRoundParams(args [1]string, r *http.Request) (params DeleteRoun
 // DeleteServiceParams is parameters of deleteService operation.
 type DeleteServiceParams struct {
 	// ID of the Service.
-	ID int
+	ID string
 }
 
 func unpackDeleteServiceParams(packed middleware.Parameters) (params DeleteServiceParams) {
@@ -399,7 +461,7 @@ func unpackDeleteServiceParams(packed middleware.Parameters) (params DeleteServi
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -425,7 +487,7 @@ func decodeDeleteServiceParams(args [1]string, r *http.Request) (params DeleteSe
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -452,7 +514,7 @@ func decodeDeleteServiceParams(args [1]string, r *http.Request) (params DeleteSe
 // DeleteTeamParams is parameters of deleteTeam operation.
 type DeleteTeamParams struct {
 	// ID of the Team.
-	ID int
+	ID string
 }
 
 func unpackDeleteTeamParams(packed middleware.Parameters) (params DeleteTeamParams) {
@@ -461,7 +523,7 @@ func unpackDeleteTeamParams(packed middleware.Parameters) (params DeleteTeamPara
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -487,7 +549,7 @@ func decodeDeleteTeamParams(args [1]string, r *http.Request) (params DeleteTeamP
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -514,7 +576,7 @@ func decodeDeleteTeamParams(args [1]string, r *http.Request) (params DeleteTeamP
 // DeleteUserParams is parameters of deleteUser operation.
 type DeleteUserParams struct {
 	// ID of the User.
-	ID int
+	ID string
 }
 
 func unpackDeleteUserParams(packed middleware.Parameters) (params DeleteUserParams) {
@@ -523,7 +585,7 @@ func unpackDeleteUserParams(packed middleware.Parameters) (params DeleteUserPara
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -549,7 +611,7 @@ func decodeDeleteUserParams(args [1]string, r *http.Request) (params DeleteUserP
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -906,7 +968,7 @@ func decodeListCompetitionParams(args [0]string, r *http.Request) (params ListCo
 // ListCompetitionTeamsParams is parameters of listCompetitionTeams operation.
 type ListCompetitionTeamsParams struct {
 	// ID of the Competition.
-	ID int
+	ID string
 	// What page to render.
 	Page OptInt
 	// Item count to render per page.
@@ -919,7 +981,7 @@ func unpackListCompetitionTeamsParams(packed middleware.Parameters) (params List
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -964,7 +1026,7 @@ func decodeListCompetitionTeamsParams(args [1]string, r *http.Request) (params L
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -1073,7 +1135,7 @@ func decodeListCompetitionTeamsParams(args [1]string, r *http.Request) (params L
 // ListCompetitionUsersParams is parameters of listCompetitionUsers operation.
 type ListCompetitionUsersParams struct {
 	// ID of the Competition.
-	ID int
+	ID string
 	// What page to render.
 	Page OptInt
 	// Item count to render per page.
@@ -1086,7 +1148,7 @@ func unpackListCompetitionUsersParams(packed middleware.Parameters) (params List
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -1131,7 +1193,7 @@ func decodeListCompetitionUsersParams(args [1]string, r *http.Request) (params L
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -1570,7 +1632,7 @@ func decodeListHostGroupParams(args [0]string, r *http.Request) (params ListHost
 // ListHostGroupHostsParams is parameters of listHostGroupHosts operation.
 type ListHostGroupHostsParams struct {
 	// ID of the HostGroup.
-	ID int
+	ID string
 	// What page to render.
 	Page OptInt
 	// Item count to render per page.
@@ -1583,7 +1645,7 @@ func unpackListHostGroupHostsParams(packed middleware.Parameters) (params ListHo
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -1628,7 +1690,7 @@ func decodeListHostGroupHostsParams(args [1]string, r *http.Request) (params Lis
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -1737,7 +1799,7 @@ func decodeListHostGroupHostsParams(args [1]string, r *http.Request) (params Lis
 // ListHostServicesParams is parameters of listHostServices operation.
 type ListHostServicesParams struct {
 	// ID of the Host.
-	ID int
+	ID string
 	// What page to render.
 	Page OptInt
 	// Item count to render per page.
@@ -1750,7 +1812,7 @@ func unpackListHostServicesParams(packed middleware.Parameters) (params ListHost
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -1795,7 +1857,7 @@ func decodeListHostServicesParams(args [1]string, r *http.Request) (params ListH
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -1932,6 +1994,171 @@ func unpackListPropertyParams(packed middleware.Parameters) (params ListProperty
 }
 
 func decodeListPropertyParams(args [0]string, r *http.Request) (params ListPropertyParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode query: page.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "page",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotPageVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotPageVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Page.SetTo(paramsDotPageVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if params.Page.Set {
+					if err := func() error {
+						if err := (validate.Int{
+							MinSet:        true,
+							Min:           1,
+							MaxSet:        false,
+							Max:           0,
+							MinExclusive:  false,
+							MaxExclusive:  false,
+							MultipleOfSet: false,
+							MultipleOf:    0,
+						}).Validate(int64(params.Page.Value)); err != nil {
+							return errors.Wrap(err, "int")
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "page",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: itemsPerPage.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "itemsPerPage",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotItemsPerPageVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotItemsPerPageVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.ItemsPerPage.SetTo(paramsDotItemsPerPageVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if params.ItemsPerPage.Set {
+					if err := func() error {
+						if err := (validate.Int{
+							MinSet:        true,
+							Min:           1,
+							MaxSet:        true,
+							Max:           255,
+							MinExclusive:  false,
+							MaxExclusive:  false,
+							MultipleOfSet: false,
+							MultipleOf:    0,
+						}).Validate(int64(params.ItemsPerPage.Value)); err != nil {
+							return errors.Wrap(err, "int")
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "itemsPerPage",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// ListReportParams is parameters of listReport operation.
+type ListReportParams struct {
+	// What page to render.
+	Page OptInt
+	// Item count to render per page.
+	ItemsPerPage OptInt
+}
+
+func unpackListReportParams(packed middleware.Parameters) (params ListReportParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "page",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Page = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "itemsPerPage",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.ItemsPerPage = v.(OptInt)
+		}
+	}
+	return params
+}
+
+func decodeListReportParams(args [0]string, r *http.Request) (params ListReportParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
 	// Decode query: page.
 	if err := func() error {
@@ -2234,7 +2461,7 @@ func decodeListRoundParams(args [0]string, r *http.Request) (params ListRoundPar
 // ListRoundChecksParams is parameters of listRoundChecks operation.
 type ListRoundChecksParams struct {
 	// ID of the Round.
-	ID int
+	ID string
 	// What page to render.
 	Page OptInt
 	// Item count to render per page.
@@ -2247,7 +2474,7 @@ func unpackListRoundChecksParams(packed middleware.Parameters) (params ListRound
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -2292,7 +2519,7 @@ func decodeListRoundChecksParams(args [1]string, r *http.Request) (params ListRo
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -2566,7 +2793,7 @@ func decodeListServiceParams(args [0]string, r *http.Request) (params ListServic
 // ListServiceChecksParams is parameters of listServiceChecks operation.
 type ListServiceChecksParams struct {
 	// ID of the Service.
-	ID int
+	ID string
 	// What page to render.
 	Page OptInt
 	// Item count to render per page.
@@ -2579,7 +2806,7 @@ func unpackListServiceChecksParams(packed middleware.Parameters) (params ListSer
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -2624,7 +2851,7 @@ func decodeListServiceChecksParams(args [1]string, r *http.Request) (params List
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -2733,7 +2960,7 @@ func decodeListServiceChecksParams(args [1]string, r *http.Request) (params List
 // ListServicePropertiesParams is parameters of listServiceProperties operation.
 type ListServicePropertiesParams struct {
 	// ID of the Service.
-	ID int
+	ID string
 	// What page to render.
 	Page OptInt
 	// Item count to render per page.
@@ -2746,7 +2973,7 @@ func unpackListServicePropertiesParams(packed middleware.Parameters) (params Lis
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -2791,7 +3018,7 @@ func decodeListServicePropertiesParams(args [1]string, r *http.Request) (params 
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -3065,7 +3292,7 @@ func decodeListTeamParams(args [0]string, r *http.Request) (params ListTeamParam
 // ListTeamHostsParams is parameters of listTeamHosts operation.
 type ListTeamHostsParams struct {
 	// ID of the Team.
-	ID int
+	ID string
 	// What page to render.
 	Page OptInt
 	// Item count to render per page.
@@ -3078,7 +3305,7 @@ func unpackListTeamHostsParams(packed middleware.Parameters) (params ListTeamHos
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -3123,7 +3350,7 @@ func decodeListTeamHostsParams(args [1]string, r *http.Request) (params ListTeam
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -3232,7 +3459,7 @@ func decodeListTeamHostsParams(args [1]string, r *http.Request) (params ListTeam
 // ListTeamUsersParams is parameters of listTeamUsers operation.
 type ListTeamUsersParams struct {
 	// ID of the Team.
-	ID int
+	ID string
 	// What page to render.
 	Page OptInt
 	// Item count to render per page.
@@ -3245,7 +3472,7 @@ func unpackListTeamUsersParams(packed middleware.Parameters) (params ListTeamUse
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -3290,7 +3517,7 @@ func decodeListTeamUsersParams(args [1]string, r *http.Request) (params ListTeam
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -3564,7 +3791,7 @@ func decodeListUserParams(args [0]string, r *http.Request) (params ListUserParam
 // ListUserCompetitionsParams is parameters of listUserCompetitions operation.
 type ListUserCompetitionsParams struct {
 	// ID of the User.
-	ID int
+	ID string
 	// What page to render.
 	Page OptInt
 	// Item count to render per page.
@@ -3577,7 +3804,7 @@ func unpackListUserCompetitionsParams(packed middleware.Parameters) (params List
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -3622,7 +3849,7 @@ func decodeListUserCompetitionsParams(args [1]string, r *http.Request) (params L
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -3731,7 +3958,7 @@ func decodeListUserCompetitionsParams(args [1]string, r *http.Request) (params L
 // ListUserTeamsParams is parameters of listUserTeams operation.
 type ListUserTeamsParams struct {
 	// ID of the User.
-	ID int
+	ID string
 	// What page to render.
 	Page OptInt
 	// Item count to render per page.
@@ -3744,7 +3971,7 @@ func unpackListUserTeamsParams(packed middleware.Parameters) (params ListUserTea
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -3789,7 +4016,7 @@ func decodeListUserTeamsParams(args [1]string, r *http.Request) (params ListUser
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -3898,7 +4125,7 @@ func decodeListUserTeamsParams(args [1]string, r *http.Request) (params ListUser
 // ReadCheckParams is parameters of readCheck operation.
 type ReadCheckParams struct {
 	// ID of the Check.
-	ID int
+	ID string
 }
 
 func unpackReadCheckParams(packed middleware.Parameters) (params ReadCheckParams) {
@@ -3907,7 +4134,7 @@ func unpackReadCheckParams(packed middleware.Parameters) (params ReadCheckParams
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -3933,7 +4160,7 @@ func decodeReadCheckParams(args [1]string, r *http.Request) (params ReadCheckPar
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -3960,7 +4187,7 @@ func decodeReadCheckParams(args [1]string, r *http.Request) (params ReadCheckPar
 // ReadCheckCompetitionParams is parameters of readCheckCompetition operation.
 type ReadCheckCompetitionParams struct {
 	// ID of the Check.
-	ID int
+	ID string
 }
 
 func unpackReadCheckCompetitionParams(packed middleware.Parameters) (params ReadCheckCompetitionParams) {
@@ -3969,7 +4196,7 @@ func unpackReadCheckCompetitionParams(packed middleware.Parameters) (params Read
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -3995,7 +4222,7 @@ func decodeReadCheckCompetitionParams(args [1]string, r *http.Request) (params R
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -4022,7 +4249,7 @@ func decodeReadCheckCompetitionParams(args [1]string, r *http.Request) (params R
 // ReadCheckRoundsParams is parameters of readCheckRounds operation.
 type ReadCheckRoundsParams struct {
 	// ID of the Check.
-	ID int
+	ID string
 }
 
 func unpackReadCheckRoundsParams(packed middleware.Parameters) (params ReadCheckRoundsParams) {
@@ -4031,7 +4258,7 @@ func unpackReadCheckRoundsParams(packed middleware.Parameters) (params ReadCheck
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -4057,7 +4284,7 @@ func decodeReadCheckRoundsParams(args [1]string, r *http.Request) (params ReadCh
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -4084,7 +4311,7 @@ func decodeReadCheckRoundsParams(args [1]string, r *http.Request) (params ReadCh
 // ReadCheckServicesParams is parameters of readCheckServices operation.
 type ReadCheckServicesParams struct {
 	// ID of the Check.
-	ID int
+	ID string
 }
 
 func unpackReadCheckServicesParams(packed middleware.Parameters) (params ReadCheckServicesParams) {
@@ -4093,7 +4320,7 @@ func unpackReadCheckServicesParams(packed middleware.Parameters) (params ReadChe
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -4119,7 +4346,7 @@ func decodeReadCheckServicesParams(args [1]string, r *http.Request) (params Read
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -4146,7 +4373,7 @@ func decodeReadCheckServicesParams(args [1]string, r *http.Request) (params Read
 // ReadCompetitionParams is parameters of readCompetition operation.
 type ReadCompetitionParams struct {
 	// ID of the Competition.
-	ID int
+	ID string
 }
 
 func unpackReadCompetitionParams(packed middleware.Parameters) (params ReadCompetitionParams) {
@@ -4155,7 +4382,7 @@ func unpackReadCompetitionParams(packed middleware.Parameters) (params ReadCompe
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -4181,7 +4408,7 @@ func decodeReadCompetitionParams(args [1]string, r *http.Request) (params ReadCo
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -4208,7 +4435,7 @@ func decodeReadCompetitionParams(args [1]string, r *http.Request) (params ReadCo
 // ReadHostParams is parameters of readHost operation.
 type ReadHostParams struct {
 	// ID of the Host.
-	ID int
+	ID string
 }
 
 func unpackReadHostParams(packed middleware.Parameters) (params ReadHostParams) {
@@ -4217,7 +4444,7 @@ func unpackReadHostParams(packed middleware.Parameters) (params ReadHostParams) 
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -4243,7 +4470,7 @@ func decodeReadHostParams(args [1]string, r *http.Request) (params ReadHostParam
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -4270,7 +4497,7 @@ func decodeReadHostParams(args [1]string, r *http.Request) (params ReadHostParam
 // ReadHostCompetitionParams is parameters of readHostCompetition operation.
 type ReadHostCompetitionParams struct {
 	// ID of the Host.
-	ID int
+	ID string
 }
 
 func unpackReadHostCompetitionParams(packed middleware.Parameters) (params ReadHostCompetitionParams) {
@@ -4279,7 +4506,7 @@ func unpackReadHostCompetitionParams(packed middleware.Parameters) (params ReadH
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -4305,7 +4532,7 @@ func decodeReadHostCompetitionParams(args [1]string, r *http.Request) (params Re
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -4332,7 +4559,7 @@ func decodeReadHostCompetitionParams(args [1]string, r *http.Request) (params Re
 // ReadHostGroupParams is parameters of readHostGroup operation.
 type ReadHostGroupParams struct {
 	// ID of the HostGroup.
-	ID int
+	ID string
 }
 
 func unpackReadHostGroupParams(packed middleware.Parameters) (params ReadHostGroupParams) {
@@ -4341,7 +4568,7 @@ func unpackReadHostGroupParams(packed middleware.Parameters) (params ReadHostGro
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -4367,7 +4594,7 @@ func decodeReadHostGroupParams(args [1]string, r *http.Request) (params ReadHost
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -4394,7 +4621,7 @@ func decodeReadHostGroupParams(args [1]string, r *http.Request) (params ReadHost
 // ReadHostGroupCompetitionParams is parameters of readHostGroupCompetition operation.
 type ReadHostGroupCompetitionParams struct {
 	// ID of the HostGroup.
-	ID int
+	ID string
 }
 
 func unpackReadHostGroupCompetitionParams(packed middleware.Parameters) (params ReadHostGroupCompetitionParams) {
@@ -4403,7 +4630,7 @@ func unpackReadHostGroupCompetitionParams(packed middleware.Parameters) (params 
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -4429,7 +4656,7 @@ func decodeReadHostGroupCompetitionParams(args [1]string, r *http.Request) (para
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -4456,7 +4683,7 @@ func decodeReadHostGroupCompetitionParams(args [1]string, r *http.Request) (para
 // ReadHostGroupTeamParams is parameters of readHostGroupTeam operation.
 type ReadHostGroupTeamParams struct {
 	// ID of the HostGroup.
-	ID int
+	ID string
 }
 
 func unpackReadHostGroupTeamParams(packed middleware.Parameters) (params ReadHostGroupTeamParams) {
@@ -4465,7 +4692,7 @@ func unpackReadHostGroupTeamParams(packed middleware.Parameters) (params ReadHos
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -4491,7 +4718,7 @@ func decodeReadHostGroupTeamParams(args [1]string, r *http.Request) (params Read
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -4518,7 +4745,7 @@ func decodeReadHostGroupTeamParams(args [1]string, r *http.Request) (params Read
 // ReadHostHostGroupParams is parameters of readHostHostGroup operation.
 type ReadHostHostGroupParams struct {
 	// ID of the Host.
-	ID int
+	ID string
 }
 
 func unpackReadHostHostGroupParams(packed middleware.Parameters) (params ReadHostHostGroupParams) {
@@ -4527,7 +4754,7 @@ func unpackReadHostHostGroupParams(packed middleware.Parameters) (params ReadHos
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -4553,7 +4780,7 @@ func decodeReadHostHostGroupParams(args [1]string, r *http.Request) (params Read
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -4580,7 +4807,7 @@ func decodeReadHostHostGroupParams(args [1]string, r *http.Request) (params Read
 // ReadHostTeamParams is parameters of readHostTeam operation.
 type ReadHostTeamParams struct {
 	// ID of the Host.
-	ID int
+	ID string
 }
 
 func unpackReadHostTeamParams(packed middleware.Parameters) (params ReadHostTeamParams) {
@@ -4589,7 +4816,7 @@ func unpackReadHostTeamParams(packed middleware.Parameters) (params ReadHostTeam
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -4615,7 +4842,7 @@ func decodeReadHostTeamParams(args [1]string, r *http.Request) (params ReadHostT
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -4642,7 +4869,7 @@ func decodeReadHostTeamParams(args [1]string, r *http.Request) (params ReadHostT
 // ReadPropertyParams is parameters of readProperty operation.
 type ReadPropertyParams struct {
 	// ID of the Property.
-	ID int
+	ID string
 }
 
 func unpackReadPropertyParams(packed middleware.Parameters) (params ReadPropertyParams) {
@@ -4651,7 +4878,7 @@ func unpackReadPropertyParams(packed middleware.Parameters) (params ReadProperty
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -4677,7 +4904,7 @@ func decodeReadPropertyParams(args [1]string, r *http.Request) (params ReadPrope
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -4704,7 +4931,7 @@ func decodeReadPropertyParams(args [1]string, r *http.Request) (params ReadPrope
 // ReadPropertyCompetitionParams is parameters of readPropertyCompetition operation.
 type ReadPropertyCompetitionParams struct {
 	// ID of the Property.
-	ID int
+	ID string
 }
 
 func unpackReadPropertyCompetitionParams(packed middleware.Parameters) (params ReadPropertyCompetitionParams) {
@@ -4713,7 +4940,7 @@ func unpackReadPropertyCompetitionParams(packed middleware.Parameters) (params R
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -4739,7 +4966,7 @@ func decodeReadPropertyCompetitionParams(args [1]string, r *http.Request) (param
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -4766,7 +4993,7 @@ func decodeReadPropertyCompetitionParams(args [1]string, r *http.Request) (param
 // ReadPropertyServicesParams is parameters of readPropertyServices operation.
 type ReadPropertyServicesParams struct {
 	// ID of the Property.
-	ID int
+	ID string
 }
 
 func unpackReadPropertyServicesParams(packed middleware.Parameters) (params ReadPropertyServicesParams) {
@@ -4775,7 +5002,7 @@ func unpackReadPropertyServicesParams(packed middleware.Parameters) (params Read
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -4801,7 +5028,7 @@ func decodeReadPropertyServicesParams(args [1]string, r *http.Request) (params R
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -4828,10 +5055,72 @@ func decodeReadPropertyServicesParams(args [1]string, r *http.Request) (params R
 // ReadPropertyTeamParams is parameters of readPropertyTeam operation.
 type ReadPropertyTeamParams struct {
 	// ID of the Property.
-	ID int
+	ID string
 }
 
 func unpackReadPropertyTeamParams(packed middleware.Parameters) (params ReadPropertyTeamParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeReadPropertyTeamParams(args [1]string, r *http.Request) (params ReadPropertyTeamParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param, err := url.PathUnescape(args[0])
+		if err != nil {
+			return errors.Wrap(err, "unescape path")
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// ReadReportParams is parameters of readReport operation.
+type ReadReportParams struct {
+	// ID of the Report.
+	ID int
+}
+
+func unpackReadReportParams(packed middleware.Parameters) (params ReadReportParams) {
 	{
 		key := middleware.ParameterKey{
 			Name: "id",
@@ -4842,7 +5131,7 @@ func unpackReadPropertyTeamParams(packed middleware.Parameters) (params ReadProp
 	return params
 }
 
-func decodeReadPropertyTeamParams(args [1]string, r *http.Request) (params ReadPropertyTeamParams, _ error) {
+func decodeReadReportParams(args [1]string, r *http.Request) (params ReadReportParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param, err := url.PathUnescape(args[0])
@@ -4890,7 +5179,7 @@ func decodeReadPropertyTeamParams(args [1]string, r *http.Request) (params ReadP
 // ReadRoundParams is parameters of readRound operation.
 type ReadRoundParams struct {
 	// ID of the Round.
-	ID int
+	ID string
 }
 
 func unpackReadRoundParams(packed middleware.Parameters) (params ReadRoundParams) {
@@ -4899,7 +5188,7 @@ func unpackReadRoundParams(packed middleware.Parameters) (params ReadRoundParams
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -4925,7 +5214,7 @@ func decodeReadRoundParams(args [1]string, r *http.Request) (params ReadRoundPar
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -4952,7 +5241,7 @@ func decodeReadRoundParams(args [1]string, r *http.Request) (params ReadRoundPar
 // ReadRoundCompetitionParams is parameters of readRoundCompetition operation.
 type ReadRoundCompetitionParams struct {
 	// ID of the Round.
-	ID int
+	ID string
 }
 
 func unpackReadRoundCompetitionParams(packed middleware.Parameters) (params ReadRoundCompetitionParams) {
@@ -4961,7 +5250,7 @@ func unpackReadRoundCompetitionParams(packed middleware.Parameters) (params Read
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -4987,7 +5276,7 @@ func decodeReadRoundCompetitionParams(args [1]string, r *http.Request) (params R
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -5014,7 +5303,7 @@ func decodeReadRoundCompetitionParams(args [1]string, r *http.Request) (params R
 // ReadServiceParams is parameters of readService operation.
 type ReadServiceParams struct {
 	// ID of the Service.
-	ID int
+	ID string
 }
 
 func unpackReadServiceParams(packed middleware.Parameters) (params ReadServiceParams) {
@@ -5023,7 +5312,7 @@ func unpackReadServiceParams(packed middleware.Parameters) (params ReadServicePa
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -5049,7 +5338,7 @@ func decodeReadServiceParams(args [1]string, r *http.Request) (params ReadServic
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -5076,7 +5365,7 @@ func decodeReadServiceParams(args [1]string, r *http.Request) (params ReadServic
 // ReadServiceCompetitionParams is parameters of readServiceCompetition operation.
 type ReadServiceCompetitionParams struct {
 	// ID of the Service.
-	ID int
+	ID string
 }
 
 func unpackReadServiceCompetitionParams(packed middleware.Parameters) (params ReadServiceCompetitionParams) {
@@ -5085,7 +5374,7 @@ func unpackReadServiceCompetitionParams(packed middleware.Parameters) (params Re
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -5111,7 +5400,7 @@ func decodeReadServiceCompetitionParams(args [1]string, r *http.Request) (params
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -5138,7 +5427,7 @@ func decodeReadServiceCompetitionParams(args [1]string, r *http.Request) (params
 // ReadServiceHostsParams is parameters of readServiceHosts operation.
 type ReadServiceHostsParams struct {
 	// ID of the Service.
-	ID int
+	ID string
 }
 
 func unpackReadServiceHostsParams(packed middleware.Parameters) (params ReadServiceHostsParams) {
@@ -5147,7 +5436,7 @@ func unpackReadServiceHostsParams(packed middleware.Parameters) (params ReadServ
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -5173,7 +5462,7 @@ func decodeReadServiceHostsParams(args [1]string, r *http.Request) (params ReadS
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -5200,7 +5489,7 @@ func decodeReadServiceHostsParams(args [1]string, r *http.Request) (params ReadS
 // ReadServiceTeamParams is parameters of readServiceTeam operation.
 type ReadServiceTeamParams struct {
 	// ID of the Service.
-	ID int
+	ID string
 }
 
 func unpackReadServiceTeamParams(packed middleware.Parameters) (params ReadServiceTeamParams) {
@@ -5209,7 +5498,7 @@ func unpackReadServiceTeamParams(packed middleware.Parameters) (params ReadServi
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -5235,7 +5524,7 @@ func decodeReadServiceTeamParams(args [1]string, r *http.Request) (params ReadSe
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -5262,7 +5551,7 @@ func decodeReadServiceTeamParams(args [1]string, r *http.Request) (params ReadSe
 // ReadTeamParams is parameters of readTeam operation.
 type ReadTeamParams struct {
 	// ID of the Team.
-	ID int
+	ID string
 }
 
 func unpackReadTeamParams(packed middleware.Parameters) (params ReadTeamParams) {
@@ -5271,7 +5560,7 @@ func unpackReadTeamParams(packed middleware.Parameters) (params ReadTeamParams) 
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -5297,7 +5586,7 @@ func decodeReadTeamParams(args [1]string, r *http.Request) (params ReadTeamParam
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -5324,7 +5613,7 @@ func decodeReadTeamParams(args [1]string, r *http.Request) (params ReadTeamParam
 // ReadTeamCompetitionParams is parameters of readTeamCompetition operation.
 type ReadTeamCompetitionParams struct {
 	// ID of the Team.
-	ID int
+	ID string
 }
 
 func unpackReadTeamCompetitionParams(packed middleware.Parameters) (params ReadTeamCompetitionParams) {
@@ -5333,7 +5622,7 @@ func unpackReadTeamCompetitionParams(packed middleware.Parameters) (params ReadT
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -5359,7 +5648,7 @@ func decodeReadTeamCompetitionParams(args [1]string, r *http.Request) (params Re
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -5386,7 +5675,7 @@ func decodeReadTeamCompetitionParams(args [1]string, r *http.Request) (params Re
 // ReadUserParams is parameters of readUser operation.
 type ReadUserParams struct {
 	// ID of the User.
-	ID int
+	ID string
 }
 
 func unpackReadUserParams(packed middleware.Parameters) (params ReadUserParams) {
@@ -5395,7 +5684,7 @@ func unpackReadUserParams(packed middleware.Parameters) (params ReadUserParams) 
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -5421,7 +5710,7 @@ func decodeReadUserParams(args [1]string, r *http.Request) (params ReadUserParam
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -5448,7 +5737,7 @@ func decodeReadUserParams(args [1]string, r *http.Request) (params ReadUserParam
 // UpdateCheckParams is parameters of updateCheck operation.
 type UpdateCheckParams struct {
 	// ID of the Check.
-	ID int
+	ID string
 }
 
 func unpackUpdateCheckParams(packed middleware.Parameters) (params UpdateCheckParams) {
@@ -5457,7 +5746,7 @@ func unpackUpdateCheckParams(packed middleware.Parameters) (params UpdateCheckPa
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -5483,7 +5772,7 @@ func decodeUpdateCheckParams(args [1]string, r *http.Request) (params UpdateChec
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -5510,7 +5799,7 @@ func decodeUpdateCheckParams(args [1]string, r *http.Request) (params UpdateChec
 // UpdateCompetitionParams is parameters of updateCompetition operation.
 type UpdateCompetitionParams struct {
 	// ID of the Competition.
-	ID int
+	ID string
 }
 
 func unpackUpdateCompetitionParams(packed middleware.Parameters) (params UpdateCompetitionParams) {
@@ -5519,7 +5808,7 @@ func unpackUpdateCompetitionParams(packed middleware.Parameters) (params UpdateC
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -5545,7 +5834,7 @@ func decodeUpdateCompetitionParams(args [1]string, r *http.Request) (params Upda
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -5572,7 +5861,7 @@ func decodeUpdateCompetitionParams(args [1]string, r *http.Request) (params Upda
 // UpdateHostParams is parameters of updateHost operation.
 type UpdateHostParams struct {
 	// ID of the Host.
-	ID int
+	ID string
 }
 
 func unpackUpdateHostParams(packed middleware.Parameters) (params UpdateHostParams) {
@@ -5581,7 +5870,7 @@ func unpackUpdateHostParams(packed middleware.Parameters) (params UpdateHostPara
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -5607,7 +5896,7 @@ func decodeUpdateHostParams(args [1]string, r *http.Request) (params UpdateHostP
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -5634,7 +5923,7 @@ func decodeUpdateHostParams(args [1]string, r *http.Request) (params UpdateHostP
 // UpdateHostGroupParams is parameters of updateHostGroup operation.
 type UpdateHostGroupParams struct {
 	// ID of the HostGroup.
-	ID int
+	ID string
 }
 
 func unpackUpdateHostGroupParams(packed middleware.Parameters) (params UpdateHostGroupParams) {
@@ -5643,7 +5932,7 @@ func unpackUpdateHostGroupParams(packed middleware.Parameters) (params UpdateHos
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -5669,7 +5958,7 @@ func decodeUpdateHostGroupParams(args [1]string, r *http.Request) (params Update
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -5696,10 +5985,72 @@ func decodeUpdateHostGroupParams(args [1]string, r *http.Request) (params Update
 // UpdatePropertyParams is parameters of updateProperty operation.
 type UpdatePropertyParams struct {
 	// ID of the Property.
-	ID int
+	ID string
 }
 
 func unpackUpdatePropertyParams(packed middleware.Parameters) (params UpdatePropertyParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeUpdatePropertyParams(args [1]string, r *http.Request) (params UpdatePropertyParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param, err := url.PathUnescape(args[0])
+		if err != nil {
+			return errors.Wrap(err, "unescape path")
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// UpdateReportParams is parameters of updateReport operation.
+type UpdateReportParams struct {
+	// ID of the Report.
+	ID int
+}
+
+func unpackUpdateReportParams(packed middleware.Parameters) (params UpdateReportParams) {
 	{
 		key := middleware.ParameterKey{
 			Name: "id",
@@ -5710,7 +6061,7 @@ func unpackUpdatePropertyParams(packed middleware.Parameters) (params UpdateProp
 	return params
 }
 
-func decodeUpdatePropertyParams(args [1]string, r *http.Request) (params UpdatePropertyParams, _ error) {
+func decodeUpdateReportParams(args [1]string, r *http.Request) (params UpdateReportParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param, err := url.PathUnescape(args[0])
@@ -5758,7 +6109,7 @@ func decodeUpdatePropertyParams(args [1]string, r *http.Request) (params UpdateP
 // UpdateRoundParams is parameters of updateRound operation.
 type UpdateRoundParams struct {
 	// ID of the Round.
-	ID int
+	ID string
 }
 
 func unpackUpdateRoundParams(packed middleware.Parameters) (params UpdateRoundParams) {
@@ -5767,7 +6118,7 @@ func unpackUpdateRoundParams(packed middleware.Parameters) (params UpdateRoundPa
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -5793,7 +6144,7 @@ func decodeUpdateRoundParams(args [1]string, r *http.Request) (params UpdateRoun
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -5820,7 +6171,7 @@ func decodeUpdateRoundParams(args [1]string, r *http.Request) (params UpdateRoun
 // UpdateServiceParams is parameters of updateService operation.
 type UpdateServiceParams struct {
 	// ID of the Service.
-	ID int
+	ID string
 }
 
 func unpackUpdateServiceParams(packed middleware.Parameters) (params UpdateServiceParams) {
@@ -5829,7 +6180,7 @@ func unpackUpdateServiceParams(packed middleware.Parameters) (params UpdateServi
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -5855,7 +6206,7 @@ func decodeUpdateServiceParams(args [1]string, r *http.Request) (params UpdateSe
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -5882,7 +6233,7 @@ func decodeUpdateServiceParams(args [1]string, r *http.Request) (params UpdateSe
 // UpdateTeamParams is parameters of updateTeam operation.
 type UpdateTeamParams struct {
 	// ID of the Team.
-	ID int
+	ID string
 }
 
 func unpackUpdateTeamParams(packed middleware.Parameters) (params UpdateTeamParams) {
@@ -5891,7 +6242,7 @@ func unpackUpdateTeamParams(packed middleware.Parameters) (params UpdateTeamPara
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -5917,7 +6268,7 @@ func decodeUpdateTeamParams(args [1]string, r *http.Request) (params UpdateTeamP
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}
@@ -5944,7 +6295,7 @@ func decodeUpdateTeamParams(args [1]string, r *http.Request) (params UpdateTeamP
 // UpdateUserParams is parameters of updateUser operation.
 type UpdateUserParams struct {
 	// ID of the User.
-	ID int
+	ID string
 }
 
 func unpackUpdateUserParams(packed middleware.Parameters) (params UpdateUserParams) {
@@ -5953,7 +6304,7 @@ func unpackUpdateUserParams(packed middleware.Parameters) (params UpdateUserPara
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int)
+		params.ID = packed[key].(string)
 	}
 	return params
 }
@@ -5979,7 +6330,7 @@ func decodeUpdateUserParams(args [1]string, r *http.Request) (params UpdateUserP
 					return err
 				}
 
-				c, err := conv.ToInt(val)
+				c, err := conv.ToString(val)
 				if err != nil {
 					return err
 				}

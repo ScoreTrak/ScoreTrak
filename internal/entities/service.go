@@ -5,7 +5,6 @@ package entities
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -19,19 +18,15 @@ import (
 type Service struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// CreateTime holds the value of the "create_time" field.
-	CreateTime time.Time `json:"create_time,omitempty"`
-	// UpdateTime holds the value of the "update_time" field.
-	UpdateTime time.Time `json:"update_time,omitempty"`
+	ID string `json:"id,omitempty"`
 	// Pause holds the value of the "pause" field.
 	Pause bool `json:"pause,omitempty"`
 	// Hidden holds the value of the "hidden" field.
 	Hidden bool `json:"hidden,omitempty"`
 	// CompetitionID holds the value of the "competition_id" field.
-	CompetitionID int `json:"competition_id,omitempty"`
+	CompetitionID string `json:"competition_id,omitempty"`
 	// TeamID holds the value of the "team_id" field.
-	TeamID int `json:"team_id,omitempty"`
+	TeamID string `json:"team_id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// DisplayName holds the value of the "display_name" field.
@@ -47,7 +42,7 @@ type Service struct {
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ServiceQuery when eager-loading is set.
 	Edges         ServiceEdges `json:"edges"`
-	host_services *int
+	host_services *string
 	selectValues  sql.SelectValues
 }
 
@@ -132,14 +127,12 @@ func (*Service) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case service.FieldPause, service.FieldHidden:
 			values[i] = new(sql.NullBool)
-		case service.FieldID, service.FieldCompetitionID, service.FieldTeamID, service.FieldWeight, service.FieldPointBoost, service.FieldRoundUnits, service.FieldRoundDelay:
+		case service.FieldWeight, service.FieldPointBoost, service.FieldRoundUnits, service.FieldRoundDelay:
 			values[i] = new(sql.NullInt64)
-		case service.FieldName, service.FieldDisplayName:
+		case service.FieldID, service.FieldCompetitionID, service.FieldTeamID, service.FieldName, service.FieldDisplayName:
 			values[i] = new(sql.NullString)
-		case service.FieldCreateTime, service.FieldUpdateTime:
-			values[i] = new(sql.NullTime)
 		case service.ForeignKeys[0]: // host_services
-			values[i] = new(sql.NullInt64)
+			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -156,22 +149,10 @@ func (s *Service) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case service.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
-			}
-			s.ID = int(value.Int64)
-		case service.FieldCreateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field create_time", values[i])
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
-				s.CreateTime = value.Time
-			}
-		case service.FieldUpdateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field update_time", values[i])
-			} else if value.Valid {
-				s.UpdateTime = value.Time
+				s.ID = value.String
 			}
 		case service.FieldPause:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -186,16 +167,16 @@ func (s *Service) assignValues(columns []string, values []any) error {
 				s.Hidden = value.Bool
 			}
 		case service.FieldCompetitionID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field competition_id", values[i])
 			} else if value.Valid {
-				s.CompetitionID = int(value.Int64)
+				s.CompetitionID = value.String
 			}
 		case service.FieldTeamID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field team_id", values[i])
 			} else if value.Valid {
-				s.TeamID = int(value.Int64)
+				s.TeamID = value.String
 			}
 		case service.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -234,11 +215,11 @@ func (s *Service) assignValues(columns []string, values []any) error {
 				s.RoundDelay = int(value.Int64)
 			}
 		case service.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field host_services", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field host_services", values[i])
 			} else if value.Valid {
-				s.host_services = new(int)
-				*s.host_services = int(value.Int64)
+				s.host_services = new(string)
+				*s.host_services = value.String
 			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
@@ -301,12 +282,6 @@ func (s *Service) String() string {
 	var builder strings.Builder
 	builder.WriteString("Service(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", s.ID))
-	builder.WriteString("create_time=")
-	builder.WriteString(s.CreateTime.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("update_time=")
-	builder.WriteString(s.UpdateTime.Format(time.ANSIC))
-	builder.WriteString(", ")
 	builder.WriteString("pause=")
 	builder.WriteString(fmt.Sprintf("%v", s.Pause))
 	builder.WriteString(", ")
@@ -314,10 +289,10 @@ func (s *Service) String() string {
 	builder.WriteString(fmt.Sprintf("%v", s.Hidden))
 	builder.WriteString(", ")
 	builder.WriteString("competition_id=")
-	builder.WriteString(fmt.Sprintf("%v", s.CompetitionID))
+	builder.WriteString(s.CompetitionID)
 	builder.WriteString(", ")
 	builder.WriteString("team_id=")
-	builder.WriteString(fmt.Sprintf("%v", s.TeamID))
+	builder.WriteString(s.TeamID)
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(s.Name)

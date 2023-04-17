@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -30,15 +29,23 @@ func (hgu *HostGroupUpdate) Where(ps ...predicate.HostGroup) *HostGroupUpdate {
 	return hgu
 }
 
-// SetUpdateTime sets the "update_time" field.
-func (hgu *HostGroupUpdate) SetUpdateTime(t time.Time) *HostGroupUpdate {
-	hgu.mutation.SetUpdateTime(t)
-	return hgu
-}
-
 // SetPause sets the "pause" field.
 func (hgu *HostGroupUpdate) SetPause(b bool) *HostGroupUpdate {
 	hgu.mutation.SetPause(b)
+	return hgu
+}
+
+// SetNillablePause sets the "pause" field if the given value is not nil.
+func (hgu *HostGroupUpdate) SetNillablePause(b *bool) *HostGroupUpdate {
+	if b != nil {
+		hgu.SetPause(*b)
+	}
+	return hgu
+}
+
+// ClearPause clears the value of the "pause" field.
+func (hgu *HostGroupUpdate) ClearPause() *HostGroupUpdate {
+	hgu.mutation.ClearPause()
 	return hgu
 }
 
@@ -48,9 +55,23 @@ func (hgu *HostGroupUpdate) SetHidden(b bool) *HostGroupUpdate {
 	return hgu
 }
 
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (hgu *HostGroupUpdate) SetNillableHidden(b *bool) *HostGroupUpdate {
+	if b != nil {
+		hgu.SetHidden(*b)
+	}
+	return hgu
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (hgu *HostGroupUpdate) ClearHidden() *HostGroupUpdate {
+	hgu.mutation.ClearHidden()
+	return hgu
+}
+
 // SetTeamID sets the "team_id" field.
-func (hgu *HostGroupUpdate) SetTeamID(i int) *HostGroupUpdate {
-	hgu.mutation.SetTeamID(i)
+func (hgu *HostGroupUpdate) SetTeamID(s string) *HostGroupUpdate {
+	hgu.mutation.SetTeamID(s)
 	return hgu
 }
 
@@ -66,14 +87,14 @@ func (hgu *HostGroupUpdate) SetTeam(t *Team) *HostGroupUpdate {
 }
 
 // AddHostIDs adds the "hosts" edge to the Host entity by IDs.
-func (hgu *HostGroupUpdate) AddHostIDs(ids ...int) *HostGroupUpdate {
+func (hgu *HostGroupUpdate) AddHostIDs(ids ...string) *HostGroupUpdate {
 	hgu.mutation.AddHostIDs(ids...)
 	return hgu
 }
 
 // AddHosts adds the "hosts" edges to the Host entity.
 func (hgu *HostGroupUpdate) AddHosts(h ...*Host) *HostGroupUpdate {
-	ids := make([]int, len(h))
+	ids := make([]string, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -98,14 +119,14 @@ func (hgu *HostGroupUpdate) ClearHosts() *HostGroupUpdate {
 }
 
 // RemoveHostIDs removes the "hosts" edge to Host entities by IDs.
-func (hgu *HostGroupUpdate) RemoveHostIDs(ids ...int) *HostGroupUpdate {
+func (hgu *HostGroupUpdate) RemoveHostIDs(ids ...string) *HostGroupUpdate {
 	hgu.mutation.RemoveHostIDs(ids...)
 	return hgu
 }
 
 // RemoveHosts removes "hosts" edges to Host entities.
 func (hgu *HostGroupUpdate) RemoveHosts(h ...*Host) *HostGroupUpdate {
-	ids := make([]int, len(h))
+	ids := make([]string, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -114,7 +135,6 @@ func (hgu *HostGroupUpdate) RemoveHosts(h ...*Host) *HostGroupUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (hgu *HostGroupUpdate) Save(ctx context.Context) (int, error) {
-	hgu.defaults()
 	return withHooks[int, HostGroupMutation](ctx, hgu.sqlSave, hgu.mutation, hgu.hooks)
 }
 
@@ -140,14 +160,6 @@ func (hgu *HostGroupUpdate) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (hgu *HostGroupUpdate) defaults() {
-	if _, ok := hgu.mutation.UpdateTime(); !ok {
-		v := hostgroup.UpdateDefaultUpdateTime()
-		hgu.mutation.SetUpdateTime(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (hgu *HostGroupUpdate) check() error {
 	if _, ok := hgu.mutation.CompetitionID(); hgu.mutation.CompetitionCleared() && !ok {
@@ -163,7 +175,7 @@ func (hgu *HostGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := hgu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(hostgroup.Table, hostgroup.Columns, sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(hostgroup.Table, hostgroup.Columns, sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeString))
 	if ps := hgu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -171,14 +183,17 @@ func (hgu *HostGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := hgu.mutation.UpdateTime(); ok {
-		_spec.SetField(hostgroup.FieldUpdateTime, field.TypeTime, value)
-	}
 	if value, ok := hgu.mutation.Pause(); ok {
 		_spec.SetField(hostgroup.FieldPause, field.TypeBool, value)
 	}
+	if hgu.mutation.PauseCleared() {
+		_spec.ClearField(hostgroup.FieldPause, field.TypeBool)
+	}
 	if value, ok := hgu.mutation.Hidden(); ok {
 		_spec.SetField(hostgroup.FieldHidden, field.TypeBool, value)
+	}
+	if hgu.mutation.HiddenCleared() {
+		_spec.ClearField(hostgroup.FieldHidden, field.TypeBool)
 	}
 	if value, ok := hgu.mutation.Name(); ok {
 		_spec.SetField(hostgroup.FieldName, field.TypeString, value)
@@ -191,7 +206,7 @@ func (hgu *HostGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{hostgroup.TeamColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -204,7 +219,7 @@ func (hgu *HostGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{hostgroup.TeamColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -220,7 +235,7 @@ func (hgu *HostGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{hostgroup.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -233,7 +248,7 @@ func (hgu *HostGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{hostgroup.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -249,7 +264,7 @@ func (hgu *HostGroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{hostgroup.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -277,15 +292,23 @@ type HostGroupUpdateOne struct {
 	mutation *HostGroupMutation
 }
 
-// SetUpdateTime sets the "update_time" field.
-func (hguo *HostGroupUpdateOne) SetUpdateTime(t time.Time) *HostGroupUpdateOne {
-	hguo.mutation.SetUpdateTime(t)
-	return hguo
-}
-
 // SetPause sets the "pause" field.
 func (hguo *HostGroupUpdateOne) SetPause(b bool) *HostGroupUpdateOne {
 	hguo.mutation.SetPause(b)
+	return hguo
+}
+
+// SetNillablePause sets the "pause" field if the given value is not nil.
+func (hguo *HostGroupUpdateOne) SetNillablePause(b *bool) *HostGroupUpdateOne {
+	if b != nil {
+		hguo.SetPause(*b)
+	}
+	return hguo
+}
+
+// ClearPause clears the value of the "pause" field.
+func (hguo *HostGroupUpdateOne) ClearPause() *HostGroupUpdateOne {
+	hguo.mutation.ClearPause()
 	return hguo
 }
 
@@ -295,9 +318,23 @@ func (hguo *HostGroupUpdateOne) SetHidden(b bool) *HostGroupUpdateOne {
 	return hguo
 }
 
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (hguo *HostGroupUpdateOne) SetNillableHidden(b *bool) *HostGroupUpdateOne {
+	if b != nil {
+		hguo.SetHidden(*b)
+	}
+	return hguo
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (hguo *HostGroupUpdateOne) ClearHidden() *HostGroupUpdateOne {
+	hguo.mutation.ClearHidden()
+	return hguo
+}
+
 // SetTeamID sets the "team_id" field.
-func (hguo *HostGroupUpdateOne) SetTeamID(i int) *HostGroupUpdateOne {
-	hguo.mutation.SetTeamID(i)
+func (hguo *HostGroupUpdateOne) SetTeamID(s string) *HostGroupUpdateOne {
+	hguo.mutation.SetTeamID(s)
 	return hguo
 }
 
@@ -313,14 +350,14 @@ func (hguo *HostGroupUpdateOne) SetTeam(t *Team) *HostGroupUpdateOne {
 }
 
 // AddHostIDs adds the "hosts" edge to the Host entity by IDs.
-func (hguo *HostGroupUpdateOne) AddHostIDs(ids ...int) *HostGroupUpdateOne {
+func (hguo *HostGroupUpdateOne) AddHostIDs(ids ...string) *HostGroupUpdateOne {
 	hguo.mutation.AddHostIDs(ids...)
 	return hguo
 }
 
 // AddHosts adds the "hosts" edges to the Host entity.
 func (hguo *HostGroupUpdateOne) AddHosts(h ...*Host) *HostGroupUpdateOne {
-	ids := make([]int, len(h))
+	ids := make([]string, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -345,14 +382,14 @@ func (hguo *HostGroupUpdateOne) ClearHosts() *HostGroupUpdateOne {
 }
 
 // RemoveHostIDs removes the "hosts" edge to Host entities by IDs.
-func (hguo *HostGroupUpdateOne) RemoveHostIDs(ids ...int) *HostGroupUpdateOne {
+func (hguo *HostGroupUpdateOne) RemoveHostIDs(ids ...string) *HostGroupUpdateOne {
 	hguo.mutation.RemoveHostIDs(ids...)
 	return hguo
 }
 
 // RemoveHosts removes "hosts" edges to Host entities.
 func (hguo *HostGroupUpdateOne) RemoveHosts(h ...*Host) *HostGroupUpdateOne {
-	ids := make([]int, len(h))
+	ids := make([]string, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -374,7 +411,6 @@ func (hguo *HostGroupUpdateOne) Select(field string, fields ...string) *HostGrou
 
 // Save executes the query and returns the updated HostGroup entity.
 func (hguo *HostGroupUpdateOne) Save(ctx context.Context) (*HostGroup, error) {
-	hguo.defaults()
 	return withHooks[*HostGroup, HostGroupMutation](ctx, hguo.sqlSave, hguo.mutation, hguo.hooks)
 }
 
@@ -400,14 +436,6 @@ func (hguo *HostGroupUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (hguo *HostGroupUpdateOne) defaults() {
-	if _, ok := hguo.mutation.UpdateTime(); !ok {
-		v := hostgroup.UpdateDefaultUpdateTime()
-		hguo.mutation.SetUpdateTime(v)
-	}
-}
-
 // check runs all checks and user-defined validators on the builder.
 func (hguo *HostGroupUpdateOne) check() error {
 	if _, ok := hguo.mutation.CompetitionID(); hguo.mutation.CompetitionCleared() && !ok {
@@ -423,7 +451,7 @@ func (hguo *HostGroupUpdateOne) sqlSave(ctx context.Context) (_node *HostGroup, 
 	if err := hguo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(hostgroup.Table, hostgroup.Columns, sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(hostgroup.Table, hostgroup.Columns, sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeString))
 	id, ok := hguo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`entities: missing "HostGroup.id" for update`)}
@@ -448,14 +476,17 @@ func (hguo *HostGroupUpdateOne) sqlSave(ctx context.Context) (_node *HostGroup, 
 			}
 		}
 	}
-	if value, ok := hguo.mutation.UpdateTime(); ok {
-		_spec.SetField(hostgroup.FieldUpdateTime, field.TypeTime, value)
-	}
 	if value, ok := hguo.mutation.Pause(); ok {
 		_spec.SetField(hostgroup.FieldPause, field.TypeBool, value)
 	}
+	if hguo.mutation.PauseCleared() {
+		_spec.ClearField(hostgroup.FieldPause, field.TypeBool)
+	}
 	if value, ok := hguo.mutation.Hidden(); ok {
 		_spec.SetField(hostgroup.FieldHidden, field.TypeBool, value)
+	}
+	if hguo.mutation.HiddenCleared() {
+		_spec.ClearField(hostgroup.FieldHidden, field.TypeBool)
 	}
 	if value, ok := hguo.mutation.Name(); ok {
 		_spec.SetField(hostgroup.FieldName, field.TypeString, value)
@@ -468,7 +499,7 @@ func (hguo *HostGroupUpdateOne) sqlSave(ctx context.Context) (_node *HostGroup, 
 			Columns: []string{hostgroup.TeamColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -481,7 +512,7 @@ func (hguo *HostGroupUpdateOne) sqlSave(ctx context.Context) (_node *HostGroup, 
 			Columns: []string{hostgroup.TeamColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -497,7 +528,7 @@ func (hguo *HostGroupUpdateOne) sqlSave(ctx context.Context) (_node *HostGroup, 
 			Columns: []string{hostgroup.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -510,7 +541,7 @@ func (hguo *HostGroupUpdateOne) sqlSave(ctx context.Context) (_node *HostGroup, 
 			Columns: []string{hostgroup.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -526,7 +557,7 @@ func (hguo *HostGroupUpdateOne) sqlSave(ctx context.Context) (_node *HostGroup, 
 			Columns: []string{hostgroup.HostsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

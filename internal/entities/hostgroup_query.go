@@ -154,8 +154,8 @@ func (hgq *HostGroupQuery) FirstX(ctx context.Context) *HostGroup {
 
 // FirstID returns the first HostGroup ID from the query.
 // Returns a *NotFoundError when no HostGroup ID was found.
-func (hgq *HostGroupQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (hgq *HostGroupQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = hgq.Limit(1).IDs(setContextOp(ctx, hgq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -167,7 +167,7 @@ func (hgq *HostGroupQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (hgq *HostGroupQuery) FirstIDX(ctx context.Context) int {
+func (hgq *HostGroupQuery) FirstIDX(ctx context.Context) string {
 	id, err := hgq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -205,8 +205,8 @@ func (hgq *HostGroupQuery) OnlyX(ctx context.Context) *HostGroup {
 // OnlyID is like Only, but returns the only HostGroup ID in the query.
 // Returns a *NotSingularError when more than one HostGroup ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (hgq *HostGroupQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (hgq *HostGroupQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = hgq.Limit(2).IDs(setContextOp(ctx, hgq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -222,7 +222,7 @@ func (hgq *HostGroupQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (hgq *HostGroupQuery) OnlyIDX(ctx context.Context) int {
+func (hgq *HostGroupQuery) OnlyIDX(ctx context.Context) string {
 	id, err := hgq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -250,7 +250,7 @@ func (hgq *HostGroupQuery) AllX(ctx context.Context) []*HostGroup {
 }
 
 // IDs executes the query and returns a list of HostGroup IDs.
-func (hgq *HostGroupQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (hgq *HostGroupQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if hgq.ctx.Unique == nil && hgq.path != nil {
 		hgq.Unique(true)
 	}
@@ -262,7 +262,7 @@ func (hgq *HostGroupQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (hgq *HostGroupQuery) IDsX(ctx context.Context) []int {
+func (hgq *HostGroupQuery) IDsX(ctx context.Context) []string {
 	ids, err := hgq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -370,12 +370,12 @@ func (hgq *HostGroupQuery) WithHosts(opts ...func(*HostQuery)) *HostGroupQuery {
 // Example:
 //
 //	var v []struct {
-//		CreateTime time.Time `json:"create_time,omitempty"`
+//		Pause bool `json:"pause,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.HostGroup.Query().
-//		GroupBy(hostgroup.FieldCreateTime).
+//		GroupBy(hostgroup.FieldPause).
 //		Aggregate(entities.Count()).
 //		Scan(ctx, &v)
 func (hgq *HostGroupQuery) GroupBy(field string, fields ...string) *HostGroupGroupBy {
@@ -393,11 +393,11 @@ func (hgq *HostGroupQuery) GroupBy(field string, fields ...string) *HostGroupGro
 // Example:
 //
 //	var v []struct {
-//		CreateTime time.Time `json:"create_time,omitempty"`
+//		Pause bool `json:"pause,omitempty"`
 //	}
 //
 //	client.HostGroup.Query().
-//		Select(hostgroup.FieldCreateTime).
+//		Select(hostgroup.FieldPause).
 //		Scan(ctx, &v)
 func (hgq *HostGroupQuery) Select(fields ...string) *HostGroupSelect {
 	hgq.ctx.Fields = append(hgq.ctx.Fields, fields...)
@@ -489,8 +489,8 @@ func (hgq *HostGroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*H
 }
 
 func (hgq *HostGroupQuery) loadCompetition(ctx context.Context, query *CompetitionQuery, nodes []*HostGroup, init func(*HostGroup), assign func(*HostGroup, *Competition)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*HostGroup)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*HostGroup)
 	for i := range nodes {
 		fk := nodes[i].CompetitionID
 		if _, ok := nodeids[fk]; !ok {
@@ -518,8 +518,8 @@ func (hgq *HostGroupQuery) loadCompetition(ctx context.Context, query *Competiti
 	return nil
 }
 func (hgq *HostGroupQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*HostGroup, init func(*HostGroup), assign func(*HostGroup, *Team)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*HostGroup)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*HostGroup)
 	for i := range nodes {
 		fk := nodes[i].TeamID
 		if _, ok := nodeids[fk]; !ok {
@@ -548,7 +548,7 @@ func (hgq *HostGroupQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes
 }
 func (hgq *HostGroupQuery) loadHosts(ctx context.Context, query *HostQuery, nodes []*HostGroup, init func(*HostGroup), assign func(*HostGroup, *Host)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*HostGroup)
+	nodeids := make(map[string]*HostGroup)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -588,7 +588,7 @@ func (hgq *HostGroupQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (hgq *HostGroupQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(hostgroup.Table, hostgroup.Columns, sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(hostgroup.Table, hostgroup.Columns, sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeString))
 	_spec.From = hgq.sql
 	if unique := hgq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

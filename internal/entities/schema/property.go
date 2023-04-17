@@ -4,7 +4,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/mixin"
 )
 
 // Property holds the schema definition for the Property entity.
@@ -31,7 +30,7 @@ func (Property) Edges() []ent.Edge {
 
 func (Property) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		mixin.Time{},
+		BaseMixin{},
 		CompetitonMixin{},
 		TeamMixin{},
 	}

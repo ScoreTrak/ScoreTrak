@@ -5,7 +5,6 @@ package entities
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -18,19 +17,15 @@ import (
 type HostGroup struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// CreateTime holds the value of the "create_time" field.
-	CreateTime time.Time `json:"create_time,omitempty"`
-	// UpdateTime holds the value of the "update_time" field.
-	UpdateTime time.Time `json:"update_time,omitempty"`
+	ID string `json:"id,omitempty"`
 	// Pause holds the value of the "pause" field.
 	Pause bool `json:"pause,omitempty"`
 	// Hidden holds the value of the "hidden" field.
 	Hidden bool `json:"hidden,omitempty"`
 	// CompetitionID holds the value of the "competition_id" field.
-	CompetitionID int `json:"competition_id,omitempty"`
+	CompetitionID string `json:"competition_id,omitempty"`
 	// TeamID holds the value of the "team_id" field.
-	TeamID int `json:"team_id,omitempty"`
+	TeamID string `json:"team_id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -94,12 +89,8 @@ func (*HostGroup) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case hostgroup.FieldPause, hostgroup.FieldHidden:
 			values[i] = new(sql.NullBool)
-		case hostgroup.FieldID, hostgroup.FieldCompetitionID, hostgroup.FieldTeamID:
-			values[i] = new(sql.NullInt64)
-		case hostgroup.FieldName:
+		case hostgroup.FieldID, hostgroup.FieldCompetitionID, hostgroup.FieldTeamID, hostgroup.FieldName:
 			values[i] = new(sql.NullString)
-		case hostgroup.FieldCreateTime, hostgroup.FieldUpdateTime:
-			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -116,22 +107,10 @@ func (hg *HostGroup) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case hostgroup.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
-			}
-			hg.ID = int(value.Int64)
-		case hostgroup.FieldCreateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field create_time", values[i])
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
-				hg.CreateTime = value.Time
-			}
-		case hostgroup.FieldUpdateTime:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field update_time", values[i])
-			} else if value.Valid {
-				hg.UpdateTime = value.Time
+				hg.ID = value.String
 			}
 		case hostgroup.FieldPause:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -146,16 +125,16 @@ func (hg *HostGroup) assignValues(columns []string, values []any) error {
 				hg.Hidden = value.Bool
 			}
 		case hostgroup.FieldCompetitionID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field competition_id", values[i])
 			} else if value.Valid {
-				hg.CompetitionID = int(value.Int64)
+				hg.CompetitionID = value.String
 			}
 		case hostgroup.FieldTeamID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field team_id", values[i])
 			} else if value.Valid {
-				hg.TeamID = int(value.Int64)
+				hg.TeamID = value.String
 			}
 		case hostgroup.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -214,12 +193,6 @@ func (hg *HostGroup) String() string {
 	var builder strings.Builder
 	builder.WriteString("HostGroup(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", hg.ID))
-	builder.WriteString("create_time=")
-	builder.WriteString(hg.CreateTime.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("update_time=")
-	builder.WriteString(hg.UpdateTime.Format(time.ANSIC))
-	builder.WriteString(", ")
 	builder.WriteString("pause=")
 	builder.WriteString(fmt.Sprintf("%v", hg.Pause))
 	builder.WriteString(", ")
@@ -227,10 +200,10 @@ func (hg *HostGroup) String() string {
 	builder.WriteString(fmt.Sprintf("%v", hg.Hidden))
 	builder.WriteString(", ")
 	builder.WriteString("competition_id=")
-	builder.WriteString(fmt.Sprintf("%v", hg.CompetitionID))
+	builder.WriteString(hg.CompetitionID)
 	builder.WriteString(", ")
 	builder.WriteString("team_id=")
-	builder.WriteString(fmt.Sprintf("%v", hg.TeamID))
+	builder.WriteString(hg.TeamID)
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(hg.Name)

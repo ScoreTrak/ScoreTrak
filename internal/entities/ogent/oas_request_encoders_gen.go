@@ -81,6 +81,20 @@ func encodeCreatePropertyRequest(
 	return nil
 }
 
+func encodeCreateReportRequest(
+	req *CreateReportReq,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := jx.GetEncoder()
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeCreateRoundRequest(
 	req *CreateRoundReq,
 	r *http.Request,
@@ -195,6 +209,20 @@ func encodeUpdateHostGroupRequest(
 
 func encodeUpdatePropertyRequest(
 	req *UpdatePropertyReq,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := jx.GetEncoder()
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeUpdateReportRequest(
+	req *UpdateReportReq,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

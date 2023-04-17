@@ -6,7 +6,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/mixin"
 )
 
 // Host holds the schema definition for the Host entity.
@@ -33,7 +32,7 @@ func (Host) Edges() []ent.Edge {
 
 func (Host) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-		mixin.Time{},
+		BaseMixin{},
 		PauseMixin{},
 		HideMixin{},
 		CompetitonMixin{},

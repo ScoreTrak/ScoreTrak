@@ -21,6 +21,9 @@ type HostGroup func(*sql.Selector)
 // Property is the predicate function for property builders.
 type Property func(*sql.Selector)
 
+// Report is the predicate function for report builders.
+type Report func(*sql.Selector)
+
 // Round is the predicate function for round builders.
 type Round func(*sql.Selector)
 
