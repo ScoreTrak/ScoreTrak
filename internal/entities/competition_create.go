@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
@@ -20,6 +22,7 @@ type CompetitionCreate struct {
 	config
 	mutation *CompetitionMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetHidden sets the "hidden" field.
@@ -169,9 +172,7 @@ func (cc *CompetitionCreate) Mutation() *CompetitionMutation {
 
 // Save creates the Competition in the database.
 func (cc *CompetitionCreate) Save(ctx context.Context) (*Competition, error) {
-	if err := cc.defaults(); err != nil {
-		return nil, err
-	}
+	cc.defaults()
 	return withHooks[*Competition, CompetitionMutation](ctx, cc.sqlSave, cc.mutation, cc.hooks)
 }
 
@@ -198,15 +199,11 @@ func (cc *CompetitionCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (cc *CompetitionCreate) defaults() error {
+func (cc *CompetitionCreate) defaults() {
 	if _, ok := cc.mutation.ID(); !ok {
-		if competition.DefaultID == nil {
-			return fmt.Errorf("entities: uninitialized competition.DefaultID (forgotten import entities/runtime?)")
-		}
 		v := competition.DefaultID()
 		cc.mutation.SetID(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -258,6 +255,7 @@ func (cc *CompetitionCreate) createSpec() (*Competition, *sqlgraph.CreateSpec) {
 		_node = &Competition{config: cc.config}
 		_spec = sqlgraph.NewCreateSpec(competition.Table, sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = cc.conflict
 	if id, ok := cc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -329,10 +327,432 @@ func (cc *CompetitionCreate) createSpec() (*Competition, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Competition.Create().
+//		SetHidden(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.CompetitionUpsert) {
+//			SetHidden(v+v).
+//		}).
+//		Exec(ctx)
+func (cc *CompetitionCreate) OnConflict(opts ...sql.ConflictOption) *CompetitionUpsertOne {
+	cc.conflict = opts
+	return &CompetitionUpsertOne{
+		create: cc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Competition.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (cc *CompetitionCreate) OnConflictColumns(columns ...string) *CompetitionUpsertOne {
+	cc.conflict = append(cc.conflict, sql.ConflictColumns(columns...))
+	return &CompetitionUpsertOne{
+		create: cc,
+	}
+}
+
+type (
+	// CompetitionUpsertOne is the builder for "upsert"-ing
+	//  one Competition node.
+	CompetitionUpsertOne struct {
+		create *CompetitionCreate
+	}
+
+	// CompetitionUpsert is the "OnConflict" setter.
+	CompetitionUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetHidden sets the "hidden" field.
+func (u *CompetitionUpsert) SetHidden(v bool) *CompetitionUpsert {
+	u.Set(competition.FieldHidden, v)
+	return u
+}
+
+// UpdateHidden sets the "hidden" field to the value that was provided on create.
+func (u *CompetitionUpsert) UpdateHidden() *CompetitionUpsert {
+	u.SetExcluded(competition.FieldHidden)
+	return u
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (u *CompetitionUpsert) ClearHidden() *CompetitionUpsert {
+	u.SetNull(competition.FieldHidden)
+	return u
+}
+
+// SetPause sets the "pause" field.
+func (u *CompetitionUpsert) SetPause(v bool) *CompetitionUpsert {
+	u.Set(competition.FieldPause, v)
+	return u
+}
+
+// UpdatePause sets the "pause" field to the value that was provided on create.
+func (u *CompetitionUpsert) UpdatePause() *CompetitionUpsert {
+	u.SetExcluded(competition.FieldPause)
+	return u
+}
+
+// ClearPause clears the value of the "pause" field.
+func (u *CompetitionUpsert) ClearPause() *CompetitionUpsert {
+	u.SetNull(competition.FieldPause)
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *CompetitionUpsert) SetName(v string) *CompetitionUpsert {
+	u.Set(competition.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *CompetitionUpsert) UpdateName() *CompetitionUpsert {
+	u.SetExcluded(competition.FieldName)
+	return u
+}
+
+// SetDisplayName sets the "display_name" field.
+func (u *CompetitionUpsert) SetDisplayName(v string) *CompetitionUpsert {
+	u.Set(competition.FieldDisplayName, v)
+	return u
+}
+
+// UpdateDisplayName sets the "display_name" field to the value that was provided on create.
+func (u *CompetitionUpsert) UpdateDisplayName() *CompetitionUpsert {
+	u.SetExcluded(competition.FieldDisplayName)
+	return u
+}
+
+// SetViewableToPublic sets the "viewable_to_public" field.
+func (u *CompetitionUpsert) SetViewableToPublic(v bool) *CompetitionUpsert {
+	u.Set(competition.FieldViewableToPublic, v)
+	return u
+}
+
+// UpdateViewableToPublic sets the "viewable_to_public" field to the value that was provided on create.
+func (u *CompetitionUpsert) UpdateViewableToPublic() *CompetitionUpsert {
+	u.SetExcluded(competition.FieldViewableToPublic)
+	return u
+}
+
+// ClearViewableToPublic clears the value of the "viewable_to_public" field.
+func (u *CompetitionUpsert) ClearViewableToPublic() *CompetitionUpsert {
+	u.SetNull(competition.FieldViewableToPublic)
+	return u
+}
+
+// SetToBeStartedAt sets the "to_be_started_at" field.
+func (u *CompetitionUpsert) SetToBeStartedAt(v time.Time) *CompetitionUpsert {
+	u.Set(competition.FieldToBeStartedAt, v)
+	return u
+}
+
+// UpdateToBeStartedAt sets the "to_be_started_at" field to the value that was provided on create.
+func (u *CompetitionUpsert) UpdateToBeStartedAt() *CompetitionUpsert {
+	u.SetExcluded(competition.FieldToBeStartedAt)
+	return u
+}
+
+// ClearToBeStartedAt clears the value of the "to_be_started_at" field.
+func (u *CompetitionUpsert) ClearToBeStartedAt() *CompetitionUpsert {
+	u.SetNull(competition.FieldToBeStartedAt)
+	return u
+}
+
+// SetStartedAt sets the "started_at" field.
+func (u *CompetitionUpsert) SetStartedAt(v time.Time) *CompetitionUpsert {
+	u.Set(competition.FieldStartedAt, v)
+	return u
+}
+
+// UpdateStartedAt sets the "started_at" field to the value that was provided on create.
+func (u *CompetitionUpsert) UpdateStartedAt() *CompetitionUpsert {
+	u.SetExcluded(competition.FieldStartedAt)
+	return u
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (u *CompetitionUpsert) ClearStartedAt() *CompetitionUpsert {
+	u.SetNull(competition.FieldStartedAt)
+	return u
+}
+
+// SetFinishedAt sets the "finished_at" field.
+func (u *CompetitionUpsert) SetFinishedAt(v time.Time) *CompetitionUpsert {
+	u.Set(competition.FieldFinishedAt, v)
+	return u
+}
+
+// UpdateFinishedAt sets the "finished_at" field to the value that was provided on create.
+func (u *CompetitionUpsert) UpdateFinishedAt() *CompetitionUpsert {
+	u.SetExcluded(competition.FieldFinishedAt)
+	return u
+}
+
+// ClearFinishedAt clears the value of the "finished_at" field.
+func (u *CompetitionUpsert) ClearFinishedAt() *CompetitionUpsert {
+	u.SetNull(competition.FieldFinishedAt)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.Competition.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(competition.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *CompetitionUpsertOne) UpdateNewValues() *CompetitionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(competition.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Competition.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *CompetitionUpsertOne) Ignore() *CompetitionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *CompetitionUpsertOne) DoNothing() *CompetitionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the CompetitionCreate.OnConflict
+// documentation for more info.
+func (u *CompetitionUpsertOne) Update(set func(*CompetitionUpsert)) *CompetitionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&CompetitionUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetHidden sets the "hidden" field.
+func (u *CompetitionUpsertOne) SetHidden(v bool) *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.SetHidden(v)
+	})
+}
+
+// UpdateHidden sets the "hidden" field to the value that was provided on create.
+func (u *CompetitionUpsertOne) UpdateHidden() *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.UpdateHidden()
+	})
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (u *CompetitionUpsertOne) ClearHidden() *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.ClearHidden()
+	})
+}
+
+// SetPause sets the "pause" field.
+func (u *CompetitionUpsertOne) SetPause(v bool) *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.SetPause(v)
+	})
+}
+
+// UpdatePause sets the "pause" field to the value that was provided on create.
+func (u *CompetitionUpsertOne) UpdatePause() *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.UpdatePause()
+	})
+}
+
+// ClearPause clears the value of the "pause" field.
+func (u *CompetitionUpsertOne) ClearPause() *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.ClearPause()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *CompetitionUpsertOne) SetName(v string) *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *CompetitionUpsertOne) UpdateName() *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetDisplayName sets the "display_name" field.
+func (u *CompetitionUpsertOne) SetDisplayName(v string) *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.SetDisplayName(v)
+	})
+}
+
+// UpdateDisplayName sets the "display_name" field to the value that was provided on create.
+func (u *CompetitionUpsertOne) UpdateDisplayName() *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.UpdateDisplayName()
+	})
+}
+
+// SetViewableToPublic sets the "viewable_to_public" field.
+func (u *CompetitionUpsertOne) SetViewableToPublic(v bool) *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.SetViewableToPublic(v)
+	})
+}
+
+// UpdateViewableToPublic sets the "viewable_to_public" field to the value that was provided on create.
+func (u *CompetitionUpsertOne) UpdateViewableToPublic() *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.UpdateViewableToPublic()
+	})
+}
+
+// ClearViewableToPublic clears the value of the "viewable_to_public" field.
+func (u *CompetitionUpsertOne) ClearViewableToPublic() *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.ClearViewableToPublic()
+	})
+}
+
+// SetToBeStartedAt sets the "to_be_started_at" field.
+func (u *CompetitionUpsertOne) SetToBeStartedAt(v time.Time) *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.SetToBeStartedAt(v)
+	})
+}
+
+// UpdateToBeStartedAt sets the "to_be_started_at" field to the value that was provided on create.
+func (u *CompetitionUpsertOne) UpdateToBeStartedAt() *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.UpdateToBeStartedAt()
+	})
+}
+
+// ClearToBeStartedAt clears the value of the "to_be_started_at" field.
+func (u *CompetitionUpsertOne) ClearToBeStartedAt() *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.ClearToBeStartedAt()
+	})
+}
+
+// SetStartedAt sets the "started_at" field.
+func (u *CompetitionUpsertOne) SetStartedAt(v time.Time) *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.SetStartedAt(v)
+	})
+}
+
+// UpdateStartedAt sets the "started_at" field to the value that was provided on create.
+func (u *CompetitionUpsertOne) UpdateStartedAt() *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.UpdateStartedAt()
+	})
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (u *CompetitionUpsertOne) ClearStartedAt() *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.ClearStartedAt()
+	})
+}
+
+// SetFinishedAt sets the "finished_at" field.
+func (u *CompetitionUpsertOne) SetFinishedAt(v time.Time) *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.SetFinishedAt(v)
+	})
+}
+
+// UpdateFinishedAt sets the "finished_at" field to the value that was provided on create.
+func (u *CompetitionUpsertOne) UpdateFinishedAt() *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.UpdateFinishedAt()
+	})
+}
+
+// ClearFinishedAt clears the value of the "finished_at" field.
+func (u *CompetitionUpsertOne) ClearFinishedAt() *CompetitionUpsertOne {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.ClearFinishedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *CompetitionUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("entities: missing options for CompetitionCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *CompetitionUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *CompetitionUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("entities: CompetitionUpsertOne.ID is not supported by MySQL driver. Use CompetitionUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *CompetitionUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // CompetitionCreateBulk is the builder for creating many Competition entities in bulk.
 type CompetitionCreateBulk struct {
 	config
 	builders []*CompetitionCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Competition entities in the database.
@@ -359,6 +779,7 @@ func (ccb *CompetitionCreateBulk) Save(ctx context.Context) ([]*Competition, err
 					_, err = mutators[i+1].Mutate(root, ccb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = ccb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, ccb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -405,6 +826,271 @@ func (ccb *CompetitionCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (ccb *CompetitionCreateBulk) ExecX(ctx context.Context) {
 	if err := ccb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Competition.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.CompetitionUpsert) {
+//			SetHidden(v+v).
+//		}).
+//		Exec(ctx)
+func (ccb *CompetitionCreateBulk) OnConflict(opts ...sql.ConflictOption) *CompetitionUpsertBulk {
+	ccb.conflict = opts
+	return &CompetitionUpsertBulk{
+		create: ccb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Competition.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (ccb *CompetitionCreateBulk) OnConflictColumns(columns ...string) *CompetitionUpsertBulk {
+	ccb.conflict = append(ccb.conflict, sql.ConflictColumns(columns...))
+	return &CompetitionUpsertBulk{
+		create: ccb,
+	}
+}
+
+// CompetitionUpsertBulk is the builder for "upsert"-ing
+// a bulk of Competition nodes.
+type CompetitionUpsertBulk struct {
+	create *CompetitionCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Competition.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(competition.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *CompetitionUpsertBulk) UpdateNewValues() *CompetitionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(competition.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Competition.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *CompetitionUpsertBulk) Ignore() *CompetitionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *CompetitionUpsertBulk) DoNothing() *CompetitionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the CompetitionCreateBulk.OnConflict
+// documentation for more info.
+func (u *CompetitionUpsertBulk) Update(set func(*CompetitionUpsert)) *CompetitionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&CompetitionUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetHidden sets the "hidden" field.
+func (u *CompetitionUpsertBulk) SetHidden(v bool) *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.SetHidden(v)
+	})
+}
+
+// UpdateHidden sets the "hidden" field to the value that was provided on create.
+func (u *CompetitionUpsertBulk) UpdateHidden() *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.UpdateHidden()
+	})
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (u *CompetitionUpsertBulk) ClearHidden() *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.ClearHidden()
+	})
+}
+
+// SetPause sets the "pause" field.
+func (u *CompetitionUpsertBulk) SetPause(v bool) *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.SetPause(v)
+	})
+}
+
+// UpdatePause sets the "pause" field to the value that was provided on create.
+func (u *CompetitionUpsertBulk) UpdatePause() *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.UpdatePause()
+	})
+}
+
+// ClearPause clears the value of the "pause" field.
+func (u *CompetitionUpsertBulk) ClearPause() *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.ClearPause()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *CompetitionUpsertBulk) SetName(v string) *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *CompetitionUpsertBulk) UpdateName() *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetDisplayName sets the "display_name" field.
+func (u *CompetitionUpsertBulk) SetDisplayName(v string) *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.SetDisplayName(v)
+	})
+}
+
+// UpdateDisplayName sets the "display_name" field to the value that was provided on create.
+func (u *CompetitionUpsertBulk) UpdateDisplayName() *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.UpdateDisplayName()
+	})
+}
+
+// SetViewableToPublic sets the "viewable_to_public" field.
+func (u *CompetitionUpsertBulk) SetViewableToPublic(v bool) *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.SetViewableToPublic(v)
+	})
+}
+
+// UpdateViewableToPublic sets the "viewable_to_public" field to the value that was provided on create.
+func (u *CompetitionUpsertBulk) UpdateViewableToPublic() *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.UpdateViewableToPublic()
+	})
+}
+
+// ClearViewableToPublic clears the value of the "viewable_to_public" field.
+func (u *CompetitionUpsertBulk) ClearViewableToPublic() *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.ClearViewableToPublic()
+	})
+}
+
+// SetToBeStartedAt sets the "to_be_started_at" field.
+func (u *CompetitionUpsertBulk) SetToBeStartedAt(v time.Time) *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.SetToBeStartedAt(v)
+	})
+}
+
+// UpdateToBeStartedAt sets the "to_be_started_at" field to the value that was provided on create.
+func (u *CompetitionUpsertBulk) UpdateToBeStartedAt() *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.UpdateToBeStartedAt()
+	})
+}
+
+// ClearToBeStartedAt clears the value of the "to_be_started_at" field.
+func (u *CompetitionUpsertBulk) ClearToBeStartedAt() *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.ClearToBeStartedAt()
+	})
+}
+
+// SetStartedAt sets the "started_at" field.
+func (u *CompetitionUpsertBulk) SetStartedAt(v time.Time) *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.SetStartedAt(v)
+	})
+}
+
+// UpdateStartedAt sets the "started_at" field to the value that was provided on create.
+func (u *CompetitionUpsertBulk) UpdateStartedAt() *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.UpdateStartedAt()
+	})
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (u *CompetitionUpsertBulk) ClearStartedAt() *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.ClearStartedAt()
+	})
+}
+
+// SetFinishedAt sets the "finished_at" field.
+func (u *CompetitionUpsertBulk) SetFinishedAt(v time.Time) *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.SetFinishedAt(v)
+	})
+}
+
+// UpdateFinishedAt sets the "finished_at" field to the value that was provided on create.
+func (u *CompetitionUpsertBulk) UpdateFinishedAt() *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.UpdateFinishedAt()
+	})
+}
+
+// ClearFinishedAt clears the value of the "finished_at" field.
+func (u *CompetitionUpsertBulk) ClearFinishedAt() *CompetitionUpsertBulk {
+	return u.Update(func(s *CompetitionUpsert) {
+		s.ClearFinishedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *CompetitionUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("entities: OnConflict was set for builder %d. Set it on the CompetitionCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("entities: missing options for CompetitionCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *CompetitionUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

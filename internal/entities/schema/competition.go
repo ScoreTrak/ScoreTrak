@@ -1,8 +1,6 @@
 package schema
 
 import (
-	"entgo.io/ent/privacy"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/rule"
 	"regexp"
 
 	"entgo.io/ent"
@@ -37,19 +35,19 @@ func (Competition) Edges() []ent.Edge {
 	}
 }
 
-func (Competition) Policy() ent.Policy {
-	return privacy.Policy{
-		Query: privacy.QueryPolicy{
-			//rule.DenyIfNoViewer(),
-			//rule.AllowIfAdmin(),
-			rule.DenyIfNoSession(),
-		},
-		Mutation: privacy.MutationPolicy{
-			//rule.AllowIfAdmin(),
-			//privacy.AlwaysDenyRule(),
-		},
-	}
-}
+//func (Competition) Policy() ent.Policy {
+//  return privacy.Policy{
+//    Query: privacy.QueryPolicy{
+//      //rule.DenyIfNoViewer(),
+//      //rule.AllowIfAdmin(),
+//      rule.DenyIfNoSession(),
+//    },
+//    Mutation: privacy.MutationPolicy{
+//      //rule.AllowIfAdmin(),
+//      //privacy.AlwaysDenyRule(),
+//    },
+//  }
+//}
 
 // Mixins of the Competition.
 func (Competition) Mixin() []ent.Mixin {

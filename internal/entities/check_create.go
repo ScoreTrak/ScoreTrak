@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/check"
@@ -20,6 +22,7 @@ type CheckCreate struct {
 	config
 	mutation *CheckMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetPause sets the "pause" field.
@@ -215,6 +218,7 @@ func (cc *CheckCreate) createSpec() (*Check, *sqlgraph.CreateSpec) {
 		_node = &Check{config: cc.config}
 		_spec = sqlgraph.NewCreateSpec(check.Table, sqlgraph.NewFieldSpec(check.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = cc.conflict
 	if id, ok := cc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -293,10 +297,305 @@ func (cc *CheckCreate) createSpec() (*Check, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Check.Create().
+//		SetPause(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.CheckUpsert) {
+//			SetPause(v+v).
+//		}).
+//		Exec(ctx)
+func (cc *CheckCreate) OnConflict(opts ...sql.ConflictOption) *CheckUpsertOne {
+	cc.conflict = opts
+	return &CheckUpsertOne{
+		create: cc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Check.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (cc *CheckCreate) OnConflictColumns(columns ...string) *CheckUpsertOne {
+	cc.conflict = append(cc.conflict, sql.ConflictColumns(columns...))
+	return &CheckUpsertOne{
+		create: cc,
+	}
+}
+
+type (
+	// CheckUpsertOne is the builder for "upsert"-ing
+	//  one Check node.
+	CheckUpsertOne struct {
+		create *CheckCreate
+	}
+
+	// CheckUpsert is the "OnConflict" setter.
+	CheckUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetPause sets the "pause" field.
+func (u *CheckUpsert) SetPause(v bool) *CheckUpsert {
+	u.Set(check.FieldPause, v)
+	return u
+}
+
+// UpdatePause sets the "pause" field to the value that was provided on create.
+func (u *CheckUpsert) UpdatePause() *CheckUpsert {
+	u.SetExcluded(check.FieldPause)
+	return u
+}
+
+// ClearPause clears the value of the "pause" field.
+func (u *CheckUpsert) ClearPause() *CheckUpsert {
+	u.SetNull(check.FieldPause)
+	return u
+}
+
+// SetHidden sets the "hidden" field.
+func (u *CheckUpsert) SetHidden(v bool) *CheckUpsert {
+	u.Set(check.FieldHidden, v)
+	return u
+}
+
+// UpdateHidden sets the "hidden" field to the value that was provided on create.
+func (u *CheckUpsert) UpdateHidden() *CheckUpsert {
+	u.SetExcluded(check.FieldHidden)
+	return u
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (u *CheckUpsert) ClearHidden() *CheckUpsert {
+	u.SetNull(check.FieldHidden)
+	return u
+}
+
+// SetLog sets the "log" field.
+func (u *CheckUpsert) SetLog(v string) *CheckUpsert {
+	u.Set(check.FieldLog, v)
+	return u
+}
+
+// UpdateLog sets the "log" field to the value that was provided on create.
+func (u *CheckUpsert) UpdateLog() *CheckUpsert {
+	u.SetExcluded(check.FieldLog)
+	return u
+}
+
+// SetError sets the "error" field.
+func (u *CheckUpsert) SetError(v string) *CheckUpsert {
+	u.Set(check.FieldError, v)
+	return u
+}
+
+// UpdateError sets the "error" field to the value that was provided on create.
+func (u *CheckUpsert) UpdateError() *CheckUpsert {
+	u.SetExcluded(check.FieldError)
+	return u
+}
+
+// SetPassed sets the "passed" field.
+func (u *CheckUpsert) SetPassed(v bool) *CheckUpsert {
+	u.Set(check.FieldPassed, v)
+	return u
+}
+
+// UpdatePassed sets the "passed" field to the value that was provided on create.
+func (u *CheckUpsert) UpdatePassed() *CheckUpsert {
+	u.SetExcluded(check.FieldPassed)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.Check.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(check.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *CheckUpsertOne) UpdateNewValues() *CheckUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(check.FieldID)
+		}
+		if _, exists := u.create.mutation.CompetitionID(); exists {
+			s.SetIgnore(check.FieldCompetitionID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Check.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *CheckUpsertOne) Ignore() *CheckUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *CheckUpsertOne) DoNothing() *CheckUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the CheckCreate.OnConflict
+// documentation for more info.
+func (u *CheckUpsertOne) Update(set func(*CheckUpsert)) *CheckUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&CheckUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetPause sets the "pause" field.
+func (u *CheckUpsertOne) SetPause(v bool) *CheckUpsertOne {
+	return u.Update(func(s *CheckUpsert) {
+		s.SetPause(v)
+	})
+}
+
+// UpdatePause sets the "pause" field to the value that was provided on create.
+func (u *CheckUpsertOne) UpdatePause() *CheckUpsertOne {
+	return u.Update(func(s *CheckUpsert) {
+		s.UpdatePause()
+	})
+}
+
+// ClearPause clears the value of the "pause" field.
+func (u *CheckUpsertOne) ClearPause() *CheckUpsertOne {
+	return u.Update(func(s *CheckUpsert) {
+		s.ClearPause()
+	})
+}
+
+// SetHidden sets the "hidden" field.
+func (u *CheckUpsertOne) SetHidden(v bool) *CheckUpsertOne {
+	return u.Update(func(s *CheckUpsert) {
+		s.SetHidden(v)
+	})
+}
+
+// UpdateHidden sets the "hidden" field to the value that was provided on create.
+func (u *CheckUpsertOne) UpdateHidden() *CheckUpsertOne {
+	return u.Update(func(s *CheckUpsert) {
+		s.UpdateHidden()
+	})
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (u *CheckUpsertOne) ClearHidden() *CheckUpsertOne {
+	return u.Update(func(s *CheckUpsert) {
+		s.ClearHidden()
+	})
+}
+
+// SetLog sets the "log" field.
+func (u *CheckUpsertOne) SetLog(v string) *CheckUpsertOne {
+	return u.Update(func(s *CheckUpsert) {
+		s.SetLog(v)
+	})
+}
+
+// UpdateLog sets the "log" field to the value that was provided on create.
+func (u *CheckUpsertOne) UpdateLog() *CheckUpsertOne {
+	return u.Update(func(s *CheckUpsert) {
+		s.UpdateLog()
+	})
+}
+
+// SetError sets the "error" field.
+func (u *CheckUpsertOne) SetError(v string) *CheckUpsertOne {
+	return u.Update(func(s *CheckUpsert) {
+		s.SetError(v)
+	})
+}
+
+// UpdateError sets the "error" field to the value that was provided on create.
+func (u *CheckUpsertOne) UpdateError() *CheckUpsertOne {
+	return u.Update(func(s *CheckUpsert) {
+		s.UpdateError()
+	})
+}
+
+// SetPassed sets the "passed" field.
+func (u *CheckUpsertOne) SetPassed(v bool) *CheckUpsertOne {
+	return u.Update(func(s *CheckUpsert) {
+		s.SetPassed(v)
+	})
+}
+
+// UpdatePassed sets the "passed" field to the value that was provided on create.
+func (u *CheckUpsertOne) UpdatePassed() *CheckUpsertOne {
+	return u.Update(func(s *CheckUpsert) {
+		s.UpdatePassed()
+	})
+}
+
+// Exec executes the query.
+func (u *CheckUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("entities: missing options for CheckCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *CheckUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *CheckUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("entities: CheckUpsertOne.ID is not supported by MySQL driver. Use CheckUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *CheckUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // CheckCreateBulk is the builder for creating many Check entities in bulk.
 type CheckCreateBulk struct {
 	config
 	builders []*CheckCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Check entities in the database.
@@ -323,6 +622,7 @@ func (ccb *CheckCreateBulk) Save(ctx context.Context) ([]*Check, error) {
 					_, err = mutators[i+1].Mutate(root, ccb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = ccb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, ccb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -369,6 +669,204 @@ func (ccb *CheckCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (ccb *CheckCreateBulk) ExecX(ctx context.Context) {
 	if err := ccb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Check.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.CheckUpsert) {
+//			SetPause(v+v).
+//		}).
+//		Exec(ctx)
+func (ccb *CheckCreateBulk) OnConflict(opts ...sql.ConflictOption) *CheckUpsertBulk {
+	ccb.conflict = opts
+	return &CheckUpsertBulk{
+		create: ccb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Check.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (ccb *CheckCreateBulk) OnConflictColumns(columns ...string) *CheckUpsertBulk {
+	ccb.conflict = append(ccb.conflict, sql.ConflictColumns(columns...))
+	return &CheckUpsertBulk{
+		create: ccb,
+	}
+}
+
+// CheckUpsertBulk is the builder for "upsert"-ing
+// a bulk of Check nodes.
+type CheckUpsertBulk struct {
+	create *CheckCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Check.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(check.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *CheckUpsertBulk) UpdateNewValues() *CheckUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(check.FieldID)
+			}
+			if _, exists := b.mutation.CompetitionID(); exists {
+				s.SetIgnore(check.FieldCompetitionID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Check.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *CheckUpsertBulk) Ignore() *CheckUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *CheckUpsertBulk) DoNothing() *CheckUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the CheckCreateBulk.OnConflict
+// documentation for more info.
+func (u *CheckUpsertBulk) Update(set func(*CheckUpsert)) *CheckUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&CheckUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetPause sets the "pause" field.
+func (u *CheckUpsertBulk) SetPause(v bool) *CheckUpsertBulk {
+	return u.Update(func(s *CheckUpsert) {
+		s.SetPause(v)
+	})
+}
+
+// UpdatePause sets the "pause" field to the value that was provided on create.
+func (u *CheckUpsertBulk) UpdatePause() *CheckUpsertBulk {
+	return u.Update(func(s *CheckUpsert) {
+		s.UpdatePause()
+	})
+}
+
+// ClearPause clears the value of the "pause" field.
+func (u *CheckUpsertBulk) ClearPause() *CheckUpsertBulk {
+	return u.Update(func(s *CheckUpsert) {
+		s.ClearPause()
+	})
+}
+
+// SetHidden sets the "hidden" field.
+func (u *CheckUpsertBulk) SetHidden(v bool) *CheckUpsertBulk {
+	return u.Update(func(s *CheckUpsert) {
+		s.SetHidden(v)
+	})
+}
+
+// UpdateHidden sets the "hidden" field to the value that was provided on create.
+func (u *CheckUpsertBulk) UpdateHidden() *CheckUpsertBulk {
+	return u.Update(func(s *CheckUpsert) {
+		s.UpdateHidden()
+	})
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (u *CheckUpsertBulk) ClearHidden() *CheckUpsertBulk {
+	return u.Update(func(s *CheckUpsert) {
+		s.ClearHidden()
+	})
+}
+
+// SetLog sets the "log" field.
+func (u *CheckUpsertBulk) SetLog(v string) *CheckUpsertBulk {
+	return u.Update(func(s *CheckUpsert) {
+		s.SetLog(v)
+	})
+}
+
+// UpdateLog sets the "log" field to the value that was provided on create.
+func (u *CheckUpsertBulk) UpdateLog() *CheckUpsertBulk {
+	return u.Update(func(s *CheckUpsert) {
+		s.UpdateLog()
+	})
+}
+
+// SetError sets the "error" field.
+func (u *CheckUpsertBulk) SetError(v string) *CheckUpsertBulk {
+	return u.Update(func(s *CheckUpsert) {
+		s.SetError(v)
+	})
+}
+
+// UpdateError sets the "error" field to the value that was provided on create.
+func (u *CheckUpsertBulk) UpdateError() *CheckUpsertBulk {
+	return u.Update(func(s *CheckUpsert) {
+		s.UpdateError()
+	})
+}
+
+// SetPassed sets the "passed" field.
+func (u *CheckUpsertBulk) SetPassed(v bool) *CheckUpsertBulk {
+	return u.Update(func(s *CheckUpsert) {
+		s.SetPassed(v)
+	})
+}
+
+// UpdatePassed sets the "passed" field to the value that was provided on create.
+func (u *CheckUpsertBulk) UpdatePassed() *CheckUpsertBulk {
+	return u.Update(func(s *CheckUpsert) {
+		s.UpdatePassed()
+	})
+}
+
+// Exec executes the query.
+func (u *CheckUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("entities: OnConflict was set for builder %d. Set it on the CheckCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("entities: missing options for CheckCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *CheckUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

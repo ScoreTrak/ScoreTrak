@@ -130,6 +130,9 @@ func (h *OgentHandler) UpdateCheck(ctx context.Context, req *UpdateCheckReq, par
 		b.SetPassed(v)
 	}
 	// Add all edges.
+	if v, ok := req.Competition.Get(); ok {
+		b.SetCompetitionID(v)
+	}
 	if v, ok := req.Rounds.Get(); ok {
 		b.SetRoundsID(v)
 	}
@@ -693,6 +696,9 @@ func (h *OgentHandler) UpdateHost(ctx context.Context, req *UpdateHostReq, param
 		b.SetEditable(v)
 	}
 	// Add all edges.
+	if v, ok := req.Competition.Get(); ok {
+		b.SetCompetitionID(v)
+	}
 	if v, ok := req.Team.Get(); ok {
 		b.SetTeamID(v)
 	}
@@ -1001,6 +1007,9 @@ func (h *OgentHandler) UpdateHostGroup(ctx context.Context, req *UpdateHostGroup
 		b.SetName(v)
 	}
 	// Add all edges.
+	if v, ok := req.Competition.Get(); ok {
+		b.SetCompetitionID(v)
+	}
 	if v, ok := req.Team.Get(); ok {
 		b.SetTeamID(v)
 	}
@@ -1276,6 +1285,9 @@ func (h *OgentHandler) UpdateProperty(ctx context.Context, req *UpdatePropertyRe
 		b.SetStatus(property.Status(v))
 	}
 	// Add all edges.
+	if v, ok := req.Competition.Get(); ok {
+		b.SetCompetitionID(v)
+	}
 	if v, ok := req.Team.Get(); ok {
 		b.SetTeamID(v)
 	}
@@ -1713,6 +1725,9 @@ func (h *OgentHandler) UpdateRound(ctx context.Context, req *UpdateRoundReq, par
 		b.SetFinishedAt(v)
 	}
 	// Add all edges.
+	if v, ok := req.Competition.Get(); ok {
+		b.SetCompetitionID(v)
+	}
 	if req.Checks != nil {
 		b.ClearChecks().AddCheckIDs(req.Checks...)
 	}
@@ -1987,6 +2002,9 @@ func (h *OgentHandler) UpdateService(ctx context.Context, req *UpdateServiceReq,
 		b.SetRoundDelay(v)
 	}
 	// Add all edges.
+	if v, ok := req.Competition.Get(); ok {
+		b.SetCompetitionID(v)
+	}
 	if v, ok := req.Team.Get(); ok {
 		b.SetTeamID(v)
 	}
@@ -2336,6 +2354,9 @@ func (h *OgentHandler) UpdateTeam(ctx context.Context, req *UpdateTeamReq, param
 		b.SetIndex(v)
 	}
 	// Add all edges.
+	if v, ok := req.Competition.Get(); ok {
+		b.SetCompetitionID(v)
+	}
 	if req.Users != nil {
 		b.ClearUsers().AddUserIDs(req.Users...)
 	}

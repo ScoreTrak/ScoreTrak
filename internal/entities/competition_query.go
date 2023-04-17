@@ -5,7 +5,6 @@ package entities
 import (
 	"context"
 	"database/sql/driver"
-	"errors"
 	"fmt"
 	"math"
 
@@ -399,12 +398,6 @@ func (cq *CompetitionQuery) prepareQuery(ctx context.Context) error {
 			return err
 		}
 		cq.sql = prev
-	}
-	if competition.Policy == nil {
-		return errors.New("entities: uninitialized competition.Policy (forgotten import entities/runtime?)")
-	}
-	if err := competition.Policy.EvalQuery(ctx, cq); err != nil {
-		return err
 	}
 	return nil
 }

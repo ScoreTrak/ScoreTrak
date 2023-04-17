@@ -563,8 +563,7 @@ func (c *CompetitionClient) QueryUsers(co *Competition) *UserQuery {
 
 // Hooks returns the client hooks.
 func (c *CompetitionClient) Hooks() []Hook {
-	hooks := c.hooks.Competition
-	return append(hooks[:len(hooks):len(hooks)], competition.Hooks[:]...)
+	return c.hooks.Competition
 }
 
 // Interceptors returns the client interceptors.
@@ -1860,8 +1859,7 @@ func (c *UserClient) QueryCompetitions(u *User) *CompetitionQuery {
 
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
-	hooks := c.hooks.User
-	return append(hooks[:len(hooks):len(hooks)], user.Hooks[:]...)
+	return c.hooks.User
 }
 
 // Interceptors returns the client interceptors.

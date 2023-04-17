@@ -4,7 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/privacy"
+	//"github.com/ScoreTrak/ScoreTrak/internal/entities/privacy"
 	"github.com/gofrs/uuid"
 	"regexp"
 )
@@ -37,13 +37,13 @@ func (User) Mixin() []ent.Mixin {
 	}
 }
 
-func (User) Policy() ent.Policy {
-	return privacy.Policy{
-		Mutation: privacy.MutationPolicy{
-			privacy.AlwaysDenyRule(),
-		},
-		Query: privacy.QueryPolicy{
-			privacy.AlwaysAllowRule(),
-		},
-	}
-}
+//func (User) Policy() ent.Policy {
+//	return privacy.Policy{
+//		Mutation: privacy.MutationPolicy{
+//			privacy.AlwaysDenyRule(),
+//		},
+//		Query: privacy.QueryPolicy{
+//			privacy.AlwaysAllowRule(),
+//		},
+//	}
+//}

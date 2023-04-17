@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
@@ -20,6 +22,7 @@ type HostGroupCreate struct {
 	config
 	mutation *HostGroupMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetPause sets the "pause" field.
@@ -201,6 +204,7 @@ func (hgc *HostGroupCreate) createSpec() (*HostGroup, *sqlgraph.CreateSpec) {
 		_node = &HostGroup{config: hgc.config}
 		_spec = sqlgraph.NewCreateSpec(hostgroup.Table, sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = hgc.conflict
 	if id, ok := hgc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -270,10 +274,279 @@ func (hgc *HostGroupCreate) createSpec() (*HostGroup, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.HostGroup.Create().
+//		SetPause(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.HostGroupUpsert) {
+//			SetPause(v+v).
+//		}).
+//		Exec(ctx)
+func (hgc *HostGroupCreate) OnConflict(opts ...sql.ConflictOption) *HostGroupUpsertOne {
+	hgc.conflict = opts
+	return &HostGroupUpsertOne{
+		create: hgc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.HostGroup.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (hgc *HostGroupCreate) OnConflictColumns(columns ...string) *HostGroupUpsertOne {
+	hgc.conflict = append(hgc.conflict, sql.ConflictColumns(columns...))
+	return &HostGroupUpsertOne{
+		create: hgc,
+	}
+}
+
+type (
+	// HostGroupUpsertOne is the builder for "upsert"-ing
+	//  one HostGroup node.
+	HostGroupUpsertOne struct {
+		create *HostGroupCreate
+	}
+
+	// HostGroupUpsert is the "OnConflict" setter.
+	HostGroupUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetPause sets the "pause" field.
+func (u *HostGroupUpsert) SetPause(v bool) *HostGroupUpsert {
+	u.Set(hostgroup.FieldPause, v)
+	return u
+}
+
+// UpdatePause sets the "pause" field to the value that was provided on create.
+func (u *HostGroupUpsert) UpdatePause() *HostGroupUpsert {
+	u.SetExcluded(hostgroup.FieldPause)
+	return u
+}
+
+// ClearPause clears the value of the "pause" field.
+func (u *HostGroupUpsert) ClearPause() *HostGroupUpsert {
+	u.SetNull(hostgroup.FieldPause)
+	return u
+}
+
+// SetHidden sets the "hidden" field.
+func (u *HostGroupUpsert) SetHidden(v bool) *HostGroupUpsert {
+	u.Set(hostgroup.FieldHidden, v)
+	return u
+}
+
+// UpdateHidden sets the "hidden" field to the value that was provided on create.
+func (u *HostGroupUpsert) UpdateHidden() *HostGroupUpsert {
+	u.SetExcluded(hostgroup.FieldHidden)
+	return u
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (u *HostGroupUpsert) ClearHidden() *HostGroupUpsert {
+	u.SetNull(hostgroup.FieldHidden)
+	return u
+}
+
+// SetTeamID sets the "team_id" field.
+func (u *HostGroupUpsert) SetTeamID(v string) *HostGroupUpsert {
+	u.Set(hostgroup.FieldTeamID, v)
+	return u
+}
+
+// UpdateTeamID sets the "team_id" field to the value that was provided on create.
+func (u *HostGroupUpsert) UpdateTeamID() *HostGroupUpsert {
+	u.SetExcluded(hostgroup.FieldTeamID)
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *HostGroupUpsert) SetName(v string) *HostGroupUpsert {
+	u.Set(hostgroup.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *HostGroupUpsert) UpdateName() *HostGroupUpsert {
+	u.SetExcluded(hostgroup.FieldName)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.HostGroup.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(hostgroup.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *HostGroupUpsertOne) UpdateNewValues() *HostGroupUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(hostgroup.FieldID)
+		}
+		if _, exists := u.create.mutation.CompetitionID(); exists {
+			s.SetIgnore(hostgroup.FieldCompetitionID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.HostGroup.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *HostGroupUpsertOne) Ignore() *HostGroupUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *HostGroupUpsertOne) DoNothing() *HostGroupUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the HostGroupCreate.OnConflict
+// documentation for more info.
+func (u *HostGroupUpsertOne) Update(set func(*HostGroupUpsert)) *HostGroupUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&HostGroupUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetPause sets the "pause" field.
+func (u *HostGroupUpsertOne) SetPause(v bool) *HostGroupUpsertOne {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.SetPause(v)
+	})
+}
+
+// UpdatePause sets the "pause" field to the value that was provided on create.
+func (u *HostGroupUpsertOne) UpdatePause() *HostGroupUpsertOne {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.UpdatePause()
+	})
+}
+
+// ClearPause clears the value of the "pause" field.
+func (u *HostGroupUpsertOne) ClearPause() *HostGroupUpsertOne {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.ClearPause()
+	})
+}
+
+// SetHidden sets the "hidden" field.
+func (u *HostGroupUpsertOne) SetHidden(v bool) *HostGroupUpsertOne {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.SetHidden(v)
+	})
+}
+
+// UpdateHidden sets the "hidden" field to the value that was provided on create.
+func (u *HostGroupUpsertOne) UpdateHidden() *HostGroupUpsertOne {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.UpdateHidden()
+	})
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (u *HostGroupUpsertOne) ClearHidden() *HostGroupUpsertOne {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.ClearHidden()
+	})
+}
+
+// SetTeamID sets the "team_id" field.
+func (u *HostGroupUpsertOne) SetTeamID(v string) *HostGroupUpsertOne {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.SetTeamID(v)
+	})
+}
+
+// UpdateTeamID sets the "team_id" field to the value that was provided on create.
+func (u *HostGroupUpsertOne) UpdateTeamID() *HostGroupUpsertOne {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.UpdateTeamID()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *HostGroupUpsertOne) SetName(v string) *HostGroupUpsertOne {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *HostGroupUpsertOne) UpdateName() *HostGroupUpsertOne {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.UpdateName()
+	})
+}
+
+// Exec executes the query.
+func (u *HostGroupUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("entities: missing options for HostGroupCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *HostGroupUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *HostGroupUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("entities: HostGroupUpsertOne.ID is not supported by MySQL driver. Use HostGroupUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *HostGroupUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // HostGroupCreateBulk is the builder for creating many HostGroup entities in bulk.
 type HostGroupCreateBulk struct {
 	config
 	builders []*HostGroupCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the HostGroup entities in the database.
@@ -300,6 +573,7 @@ func (hgcb *HostGroupCreateBulk) Save(ctx context.Context) ([]*HostGroup, error)
 					_, err = mutators[i+1].Mutate(root, hgcb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = hgcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, hgcb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -346,6 +620,190 @@ func (hgcb *HostGroupCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (hgcb *HostGroupCreateBulk) ExecX(ctx context.Context) {
 	if err := hgcb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.HostGroup.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.HostGroupUpsert) {
+//			SetPause(v+v).
+//		}).
+//		Exec(ctx)
+func (hgcb *HostGroupCreateBulk) OnConflict(opts ...sql.ConflictOption) *HostGroupUpsertBulk {
+	hgcb.conflict = opts
+	return &HostGroupUpsertBulk{
+		create: hgcb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.HostGroup.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (hgcb *HostGroupCreateBulk) OnConflictColumns(columns ...string) *HostGroupUpsertBulk {
+	hgcb.conflict = append(hgcb.conflict, sql.ConflictColumns(columns...))
+	return &HostGroupUpsertBulk{
+		create: hgcb,
+	}
+}
+
+// HostGroupUpsertBulk is the builder for "upsert"-ing
+// a bulk of HostGroup nodes.
+type HostGroupUpsertBulk struct {
+	create *HostGroupCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.HostGroup.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(hostgroup.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *HostGroupUpsertBulk) UpdateNewValues() *HostGroupUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(hostgroup.FieldID)
+			}
+			if _, exists := b.mutation.CompetitionID(); exists {
+				s.SetIgnore(hostgroup.FieldCompetitionID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.HostGroup.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *HostGroupUpsertBulk) Ignore() *HostGroupUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *HostGroupUpsertBulk) DoNothing() *HostGroupUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the HostGroupCreateBulk.OnConflict
+// documentation for more info.
+func (u *HostGroupUpsertBulk) Update(set func(*HostGroupUpsert)) *HostGroupUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&HostGroupUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetPause sets the "pause" field.
+func (u *HostGroupUpsertBulk) SetPause(v bool) *HostGroupUpsertBulk {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.SetPause(v)
+	})
+}
+
+// UpdatePause sets the "pause" field to the value that was provided on create.
+func (u *HostGroupUpsertBulk) UpdatePause() *HostGroupUpsertBulk {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.UpdatePause()
+	})
+}
+
+// ClearPause clears the value of the "pause" field.
+func (u *HostGroupUpsertBulk) ClearPause() *HostGroupUpsertBulk {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.ClearPause()
+	})
+}
+
+// SetHidden sets the "hidden" field.
+func (u *HostGroupUpsertBulk) SetHidden(v bool) *HostGroupUpsertBulk {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.SetHidden(v)
+	})
+}
+
+// UpdateHidden sets the "hidden" field to the value that was provided on create.
+func (u *HostGroupUpsertBulk) UpdateHidden() *HostGroupUpsertBulk {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.UpdateHidden()
+	})
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (u *HostGroupUpsertBulk) ClearHidden() *HostGroupUpsertBulk {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.ClearHidden()
+	})
+}
+
+// SetTeamID sets the "team_id" field.
+func (u *HostGroupUpsertBulk) SetTeamID(v string) *HostGroupUpsertBulk {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.SetTeamID(v)
+	})
+}
+
+// UpdateTeamID sets the "team_id" field to the value that was provided on create.
+func (u *HostGroupUpsertBulk) UpdateTeamID() *HostGroupUpsertBulk {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.UpdateTeamID()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *HostGroupUpsertBulk) SetName(v string) *HostGroupUpsertBulk {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *HostGroupUpsertBulk) UpdateName() *HostGroupUpsertBulk {
+	return u.Update(func(s *HostGroupUpsert) {
+		s.UpdateName()
+	})
+}
+
+// Exec executes the query.
+func (u *HostGroupUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("entities: OnConflict was set for builder %d. Set it on the HostGroupCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("entities: missing options for HostGroupCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *HostGroupUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

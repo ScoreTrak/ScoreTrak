@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/check"
@@ -22,6 +24,7 @@ type ServiceCreate struct {
 	config
 	mutation *ServiceMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetPause sets the "pause" field.
@@ -282,6 +285,7 @@ func (sc *ServiceCreate) createSpec() (*Service, *sqlgraph.CreateSpec) {
 		_node = &Service{config: sc.config}
 		_spec = sqlgraph.NewCreateSpec(service.Table, sqlgraph.NewFieldSpec(service.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = sc.conflict
 	if id, ok := sc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -404,10 +408,461 @@ func (sc *ServiceCreate) createSpec() (*Service, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Service.Create().
+//		SetPause(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.ServiceUpsert) {
+//			SetPause(v+v).
+//		}).
+//		Exec(ctx)
+func (sc *ServiceCreate) OnConflict(opts ...sql.ConflictOption) *ServiceUpsertOne {
+	sc.conflict = opts
+	return &ServiceUpsertOne{
+		create: sc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Service.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (sc *ServiceCreate) OnConflictColumns(columns ...string) *ServiceUpsertOne {
+	sc.conflict = append(sc.conflict, sql.ConflictColumns(columns...))
+	return &ServiceUpsertOne{
+		create: sc,
+	}
+}
+
+type (
+	// ServiceUpsertOne is the builder for "upsert"-ing
+	//  one Service node.
+	ServiceUpsertOne struct {
+		create *ServiceCreate
+	}
+
+	// ServiceUpsert is the "OnConflict" setter.
+	ServiceUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetPause sets the "pause" field.
+func (u *ServiceUpsert) SetPause(v bool) *ServiceUpsert {
+	u.Set(service.FieldPause, v)
+	return u
+}
+
+// UpdatePause sets the "pause" field to the value that was provided on create.
+func (u *ServiceUpsert) UpdatePause() *ServiceUpsert {
+	u.SetExcluded(service.FieldPause)
+	return u
+}
+
+// ClearPause clears the value of the "pause" field.
+func (u *ServiceUpsert) ClearPause() *ServiceUpsert {
+	u.SetNull(service.FieldPause)
+	return u
+}
+
+// SetHidden sets the "hidden" field.
+func (u *ServiceUpsert) SetHidden(v bool) *ServiceUpsert {
+	u.Set(service.FieldHidden, v)
+	return u
+}
+
+// UpdateHidden sets the "hidden" field to the value that was provided on create.
+func (u *ServiceUpsert) UpdateHidden() *ServiceUpsert {
+	u.SetExcluded(service.FieldHidden)
+	return u
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (u *ServiceUpsert) ClearHidden() *ServiceUpsert {
+	u.SetNull(service.FieldHidden)
+	return u
+}
+
+// SetTeamID sets the "team_id" field.
+func (u *ServiceUpsert) SetTeamID(v string) *ServiceUpsert {
+	u.Set(service.FieldTeamID, v)
+	return u
+}
+
+// UpdateTeamID sets the "team_id" field to the value that was provided on create.
+func (u *ServiceUpsert) UpdateTeamID() *ServiceUpsert {
+	u.SetExcluded(service.FieldTeamID)
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *ServiceUpsert) SetName(v string) *ServiceUpsert {
+	u.Set(service.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *ServiceUpsert) UpdateName() *ServiceUpsert {
+	u.SetExcluded(service.FieldName)
+	return u
+}
+
+// SetDisplayName sets the "display_name" field.
+func (u *ServiceUpsert) SetDisplayName(v string) *ServiceUpsert {
+	u.Set(service.FieldDisplayName, v)
+	return u
+}
+
+// UpdateDisplayName sets the "display_name" field to the value that was provided on create.
+func (u *ServiceUpsert) UpdateDisplayName() *ServiceUpsert {
+	u.SetExcluded(service.FieldDisplayName)
+	return u
+}
+
+// SetWeight sets the "weight" field.
+func (u *ServiceUpsert) SetWeight(v int) *ServiceUpsert {
+	u.Set(service.FieldWeight, v)
+	return u
+}
+
+// UpdateWeight sets the "weight" field to the value that was provided on create.
+func (u *ServiceUpsert) UpdateWeight() *ServiceUpsert {
+	u.SetExcluded(service.FieldWeight)
+	return u
+}
+
+// AddWeight adds v to the "weight" field.
+func (u *ServiceUpsert) AddWeight(v int) *ServiceUpsert {
+	u.Add(service.FieldWeight, v)
+	return u
+}
+
+// SetPointBoost sets the "point_boost" field.
+func (u *ServiceUpsert) SetPointBoost(v int) *ServiceUpsert {
+	u.Set(service.FieldPointBoost, v)
+	return u
+}
+
+// UpdatePointBoost sets the "point_boost" field to the value that was provided on create.
+func (u *ServiceUpsert) UpdatePointBoost() *ServiceUpsert {
+	u.SetExcluded(service.FieldPointBoost)
+	return u
+}
+
+// AddPointBoost adds v to the "point_boost" field.
+func (u *ServiceUpsert) AddPointBoost(v int) *ServiceUpsert {
+	u.Add(service.FieldPointBoost, v)
+	return u
+}
+
+// SetRoundUnits sets the "round_units" field.
+func (u *ServiceUpsert) SetRoundUnits(v int) *ServiceUpsert {
+	u.Set(service.FieldRoundUnits, v)
+	return u
+}
+
+// UpdateRoundUnits sets the "round_units" field to the value that was provided on create.
+func (u *ServiceUpsert) UpdateRoundUnits() *ServiceUpsert {
+	u.SetExcluded(service.FieldRoundUnits)
+	return u
+}
+
+// AddRoundUnits adds v to the "round_units" field.
+func (u *ServiceUpsert) AddRoundUnits(v int) *ServiceUpsert {
+	u.Add(service.FieldRoundUnits, v)
+	return u
+}
+
+// SetRoundDelay sets the "round_delay" field.
+func (u *ServiceUpsert) SetRoundDelay(v int) *ServiceUpsert {
+	u.Set(service.FieldRoundDelay, v)
+	return u
+}
+
+// UpdateRoundDelay sets the "round_delay" field to the value that was provided on create.
+func (u *ServiceUpsert) UpdateRoundDelay() *ServiceUpsert {
+	u.SetExcluded(service.FieldRoundDelay)
+	return u
+}
+
+// AddRoundDelay adds v to the "round_delay" field.
+func (u *ServiceUpsert) AddRoundDelay(v int) *ServiceUpsert {
+	u.Add(service.FieldRoundDelay, v)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.Service.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(service.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *ServiceUpsertOne) UpdateNewValues() *ServiceUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(service.FieldID)
+		}
+		if _, exists := u.create.mutation.CompetitionID(); exists {
+			s.SetIgnore(service.FieldCompetitionID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Service.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *ServiceUpsertOne) Ignore() *ServiceUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *ServiceUpsertOne) DoNothing() *ServiceUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the ServiceCreate.OnConflict
+// documentation for more info.
+func (u *ServiceUpsertOne) Update(set func(*ServiceUpsert)) *ServiceUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&ServiceUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetPause sets the "pause" field.
+func (u *ServiceUpsertOne) SetPause(v bool) *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetPause(v)
+	})
+}
+
+// UpdatePause sets the "pause" field to the value that was provided on create.
+func (u *ServiceUpsertOne) UpdatePause() *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdatePause()
+	})
+}
+
+// ClearPause clears the value of the "pause" field.
+func (u *ServiceUpsertOne) ClearPause() *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.ClearPause()
+	})
+}
+
+// SetHidden sets the "hidden" field.
+func (u *ServiceUpsertOne) SetHidden(v bool) *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetHidden(v)
+	})
+}
+
+// UpdateHidden sets the "hidden" field to the value that was provided on create.
+func (u *ServiceUpsertOne) UpdateHidden() *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdateHidden()
+	})
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (u *ServiceUpsertOne) ClearHidden() *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.ClearHidden()
+	})
+}
+
+// SetTeamID sets the "team_id" field.
+func (u *ServiceUpsertOne) SetTeamID(v string) *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetTeamID(v)
+	})
+}
+
+// UpdateTeamID sets the "team_id" field to the value that was provided on create.
+func (u *ServiceUpsertOne) UpdateTeamID() *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdateTeamID()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *ServiceUpsertOne) SetName(v string) *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *ServiceUpsertOne) UpdateName() *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetDisplayName sets the "display_name" field.
+func (u *ServiceUpsertOne) SetDisplayName(v string) *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetDisplayName(v)
+	})
+}
+
+// UpdateDisplayName sets the "display_name" field to the value that was provided on create.
+func (u *ServiceUpsertOne) UpdateDisplayName() *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdateDisplayName()
+	})
+}
+
+// SetWeight sets the "weight" field.
+func (u *ServiceUpsertOne) SetWeight(v int) *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetWeight(v)
+	})
+}
+
+// AddWeight adds v to the "weight" field.
+func (u *ServiceUpsertOne) AddWeight(v int) *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.AddWeight(v)
+	})
+}
+
+// UpdateWeight sets the "weight" field to the value that was provided on create.
+func (u *ServiceUpsertOne) UpdateWeight() *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdateWeight()
+	})
+}
+
+// SetPointBoost sets the "point_boost" field.
+func (u *ServiceUpsertOne) SetPointBoost(v int) *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetPointBoost(v)
+	})
+}
+
+// AddPointBoost adds v to the "point_boost" field.
+func (u *ServiceUpsertOne) AddPointBoost(v int) *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.AddPointBoost(v)
+	})
+}
+
+// UpdatePointBoost sets the "point_boost" field to the value that was provided on create.
+func (u *ServiceUpsertOne) UpdatePointBoost() *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdatePointBoost()
+	})
+}
+
+// SetRoundUnits sets the "round_units" field.
+func (u *ServiceUpsertOne) SetRoundUnits(v int) *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetRoundUnits(v)
+	})
+}
+
+// AddRoundUnits adds v to the "round_units" field.
+func (u *ServiceUpsertOne) AddRoundUnits(v int) *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.AddRoundUnits(v)
+	})
+}
+
+// UpdateRoundUnits sets the "round_units" field to the value that was provided on create.
+func (u *ServiceUpsertOne) UpdateRoundUnits() *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdateRoundUnits()
+	})
+}
+
+// SetRoundDelay sets the "round_delay" field.
+func (u *ServiceUpsertOne) SetRoundDelay(v int) *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetRoundDelay(v)
+	})
+}
+
+// AddRoundDelay adds v to the "round_delay" field.
+func (u *ServiceUpsertOne) AddRoundDelay(v int) *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.AddRoundDelay(v)
+	})
+}
+
+// UpdateRoundDelay sets the "round_delay" field to the value that was provided on create.
+func (u *ServiceUpsertOne) UpdateRoundDelay() *ServiceUpsertOne {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdateRoundDelay()
+	})
+}
+
+// Exec executes the query.
+func (u *ServiceUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("entities: missing options for ServiceCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *ServiceUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *ServiceUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("entities: ServiceUpsertOne.ID is not supported by MySQL driver. Use ServiceUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *ServiceUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // ServiceCreateBulk is the builder for creating many Service entities in bulk.
 type ServiceCreateBulk struct {
 	config
 	builders []*ServiceCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Service entities in the database.
@@ -434,6 +889,7 @@ func (scb *ServiceCreateBulk) Save(ctx context.Context) ([]*Service, error) {
 					_, err = mutators[i+1].Mutate(root, scb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = scb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, scb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -480,6 +936,288 @@ func (scb *ServiceCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (scb *ServiceCreateBulk) ExecX(ctx context.Context) {
 	if err := scb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Service.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.ServiceUpsert) {
+//			SetPause(v+v).
+//		}).
+//		Exec(ctx)
+func (scb *ServiceCreateBulk) OnConflict(opts ...sql.ConflictOption) *ServiceUpsertBulk {
+	scb.conflict = opts
+	return &ServiceUpsertBulk{
+		create: scb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Service.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (scb *ServiceCreateBulk) OnConflictColumns(columns ...string) *ServiceUpsertBulk {
+	scb.conflict = append(scb.conflict, sql.ConflictColumns(columns...))
+	return &ServiceUpsertBulk{
+		create: scb,
+	}
+}
+
+// ServiceUpsertBulk is the builder for "upsert"-ing
+// a bulk of Service nodes.
+type ServiceUpsertBulk struct {
+	create *ServiceCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Service.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(service.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *ServiceUpsertBulk) UpdateNewValues() *ServiceUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(service.FieldID)
+			}
+			if _, exists := b.mutation.CompetitionID(); exists {
+				s.SetIgnore(service.FieldCompetitionID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Service.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *ServiceUpsertBulk) Ignore() *ServiceUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *ServiceUpsertBulk) DoNothing() *ServiceUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the ServiceCreateBulk.OnConflict
+// documentation for more info.
+func (u *ServiceUpsertBulk) Update(set func(*ServiceUpsert)) *ServiceUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&ServiceUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetPause sets the "pause" field.
+func (u *ServiceUpsertBulk) SetPause(v bool) *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetPause(v)
+	})
+}
+
+// UpdatePause sets the "pause" field to the value that was provided on create.
+func (u *ServiceUpsertBulk) UpdatePause() *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdatePause()
+	})
+}
+
+// ClearPause clears the value of the "pause" field.
+func (u *ServiceUpsertBulk) ClearPause() *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.ClearPause()
+	})
+}
+
+// SetHidden sets the "hidden" field.
+func (u *ServiceUpsertBulk) SetHidden(v bool) *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetHidden(v)
+	})
+}
+
+// UpdateHidden sets the "hidden" field to the value that was provided on create.
+func (u *ServiceUpsertBulk) UpdateHidden() *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdateHidden()
+	})
+}
+
+// ClearHidden clears the value of the "hidden" field.
+func (u *ServiceUpsertBulk) ClearHidden() *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.ClearHidden()
+	})
+}
+
+// SetTeamID sets the "team_id" field.
+func (u *ServiceUpsertBulk) SetTeamID(v string) *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetTeamID(v)
+	})
+}
+
+// UpdateTeamID sets the "team_id" field to the value that was provided on create.
+func (u *ServiceUpsertBulk) UpdateTeamID() *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdateTeamID()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *ServiceUpsertBulk) SetName(v string) *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *ServiceUpsertBulk) UpdateName() *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetDisplayName sets the "display_name" field.
+func (u *ServiceUpsertBulk) SetDisplayName(v string) *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetDisplayName(v)
+	})
+}
+
+// UpdateDisplayName sets the "display_name" field to the value that was provided on create.
+func (u *ServiceUpsertBulk) UpdateDisplayName() *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdateDisplayName()
+	})
+}
+
+// SetWeight sets the "weight" field.
+func (u *ServiceUpsertBulk) SetWeight(v int) *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetWeight(v)
+	})
+}
+
+// AddWeight adds v to the "weight" field.
+func (u *ServiceUpsertBulk) AddWeight(v int) *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.AddWeight(v)
+	})
+}
+
+// UpdateWeight sets the "weight" field to the value that was provided on create.
+func (u *ServiceUpsertBulk) UpdateWeight() *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdateWeight()
+	})
+}
+
+// SetPointBoost sets the "point_boost" field.
+func (u *ServiceUpsertBulk) SetPointBoost(v int) *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetPointBoost(v)
+	})
+}
+
+// AddPointBoost adds v to the "point_boost" field.
+func (u *ServiceUpsertBulk) AddPointBoost(v int) *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.AddPointBoost(v)
+	})
+}
+
+// UpdatePointBoost sets the "point_boost" field to the value that was provided on create.
+func (u *ServiceUpsertBulk) UpdatePointBoost() *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdatePointBoost()
+	})
+}
+
+// SetRoundUnits sets the "round_units" field.
+func (u *ServiceUpsertBulk) SetRoundUnits(v int) *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetRoundUnits(v)
+	})
+}
+
+// AddRoundUnits adds v to the "round_units" field.
+func (u *ServiceUpsertBulk) AddRoundUnits(v int) *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.AddRoundUnits(v)
+	})
+}
+
+// UpdateRoundUnits sets the "round_units" field to the value that was provided on create.
+func (u *ServiceUpsertBulk) UpdateRoundUnits() *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdateRoundUnits()
+	})
+}
+
+// SetRoundDelay sets the "round_delay" field.
+func (u *ServiceUpsertBulk) SetRoundDelay(v int) *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.SetRoundDelay(v)
+	})
+}
+
+// AddRoundDelay adds v to the "round_delay" field.
+func (u *ServiceUpsertBulk) AddRoundDelay(v int) *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.AddRoundDelay(v)
+	})
+}
+
+// UpdateRoundDelay sets the "round_delay" field to the value that was provided on create.
+func (u *ServiceUpsertBulk) UpdateRoundDelay() *ServiceUpsertBulk {
+	return u.Update(func(s *ServiceUpsert) {
+		s.UpdateRoundDelay()
+	})
+}
+
+// Exec executes the query.
+func (u *ServiceUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("entities: OnConflict was set for builder %d. Set it on the ServiceCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("entities: missing options for ServiceCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *ServiceUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

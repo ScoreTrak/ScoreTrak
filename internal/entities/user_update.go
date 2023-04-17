@@ -127,9 +127,7 @@ func (uu *UserUpdate) RemoveCompetitions(c ...*Competition) *UserUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (uu *UserUpdate) Save(ctx context.Context) (int, error) {
-	if err := uu.defaults(); err != nil {
-		return 0, err
-	}
+	uu.defaults()
 	return withHooks[int, UserMutation](ctx, uu.sqlSave, uu.mutation, uu.hooks)
 }
 
@@ -156,15 +154,11 @@ func (uu *UserUpdate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (uu *UserUpdate) defaults() error {
+func (uu *UserUpdate) defaults() {
 	if _, ok := uu.mutation.UpdateTime(); !ok && !uu.mutation.UpdateTimeCleared() {
-		if user.UpdateDefaultUpdateTime == nil {
-			return fmt.Errorf("entities: uninitialized user.UpdateDefaultUpdateTime (forgotten import entities/runtime?)")
-		}
 		v := user.UpdateDefaultUpdateTime()
 		uu.mutation.SetUpdateTime(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -421,9 +415,7 @@ func (uuo *UserUpdateOne) Select(field string, fields ...string) *UserUpdateOne 
 
 // Save executes the query and returns the updated User entity.
 func (uuo *UserUpdateOne) Save(ctx context.Context) (*User, error) {
-	if err := uuo.defaults(); err != nil {
-		return nil, err
-	}
+	uuo.defaults()
 	return withHooks[*User, UserMutation](ctx, uuo.sqlSave, uuo.mutation, uuo.hooks)
 }
 
@@ -450,15 +442,11 @@ func (uuo *UserUpdateOne) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (uuo *UserUpdateOne) defaults() error {
+func (uuo *UserUpdateOne) defaults() {
 	if _, ok := uuo.mutation.UpdateTime(); !ok && !uuo.mutation.UpdateTimeCleared() {
-		if user.UpdateDefaultUpdateTime == nil {
-			return fmt.Errorf("entities: uninitialized user.UpdateDefaultUpdateTime (forgotten import entities/runtime?)")
-		}
 		v := user.UpdateDefaultUpdateTime()
 		uuo.mutation.SetUpdateTime(v)
 	}
-	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
