@@ -16,43 +16,47 @@ const (
 	FieldPause = "pause"
 	// FieldHidden holds the string denoting the hidden field in the database.
 	FieldHidden = "hidden"
-	// FieldCompetitionID holds the string denoting the competition_id field in the database.
-	FieldCompetitionID = "competition_id"
 	// FieldLog holds the string denoting the log field in the database.
 	FieldLog = "log"
 	// FieldError holds the string denoting the error field in the database.
 	FieldError = "error"
 	// FieldPassed holds the string denoting the passed field in the database.
 	FieldPassed = "passed"
-	// EdgeCompetition holds the string denoting the competition edge name in mutations.
-	EdgeCompetition = "competition"
+	// FieldRoundID holds the string denoting the round_id field in the database.
+	FieldRoundID = "round_id"
+	// FieldHostServiceID holds the string denoting the host_service_id field in the database.
+	FieldHostServiceID = "host_service_id"
+	// FieldTeamID holds the string denoting the team_id field in the database.
+	FieldTeamID = "team_id"
 	// EdgeRounds holds the string denoting the rounds edge name in mutations.
 	EdgeRounds = "rounds"
-	// EdgeServices holds the string denoting the services edge name in mutations.
-	EdgeServices = "services"
+	// EdgeHostservice holds the string denoting the hostservice edge name in mutations.
+	EdgeHostservice = "hostservice"
+	// EdgeTeam holds the string denoting the team edge name in mutations.
+	EdgeTeam = "team"
 	// Table holds the table name of the check in the database.
 	Table = "checks"
-	// CompetitionTable is the table that holds the competition relation/edge.
-	CompetitionTable = "checks"
-	// CompetitionInverseTable is the table name for the Competition entity.
-	// It exists in this package in order to avoid circular dependency with the "competition" package.
-	CompetitionInverseTable = "competitions"
-	// CompetitionColumn is the table column denoting the competition relation/edge.
-	CompetitionColumn = "competition_id"
 	// RoundsTable is the table that holds the rounds relation/edge.
 	RoundsTable = "checks"
 	// RoundsInverseTable is the table name for the Round entity.
 	// It exists in this package in order to avoid circular dependency with the "round" package.
 	RoundsInverseTable = "rounds"
 	// RoundsColumn is the table column denoting the rounds relation/edge.
-	RoundsColumn = "round_checks"
-	// ServicesTable is the table that holds the services relation/edge.
-	ServicesTable = "checks"
-	// ServicesInverseTable is the table name for the Service entity.
-	// It exists in this package in order to avoid circular dependency with the "service" package.
-	ServicesInverseTable = "services"
-	// ServicesColumn is the table column denoting the services relation/edge.
-	ServicesColumn = "service_checks"
+	RoundsColumn = "round_id"
+	// HostserviceTable is the table that holds the hostservice relation/edge.
+	HostserviceTable = "checks"
+	// HostserviceInverseTable is the table name for the HostService entity.
+	// It exists in this package in order to avoid circular dependency with the "hostservice" package.
+	HostserviceInverseTable = "host_services"
+	// HostserviceColumn is the table column denoting the hostservice relation/edge.
+	HostserviceColumn = "host_service_id"
+	// TeamTable is the table that holds the team relation/edge.
+	TeamTable = "checks"
+	// TeamInverseTable is the table name for the Team entity.
+	// It exists in this package in order to avoid circular dependency with the "team" package.
+	TeamInverseTable = "teams"
+	// TeamColumn is the table column denoting the team relation/edge.
+	TeamColumn = "team_id"
 )
 
 // Columns holds all SQL columns for check fields.
@@ -60,17 +64,18 @@ var Columns = []string{
 	FieldID,
 	FieldPause,
 	FieldHidden,
-	FieldCompetitionID,
 	FieldLog,
 	FieldError,
 	FieldPassed,
+	FieldRoundID,
+	FieldHostServiceID,
+	FieldTeamID,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "checks"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
 	"round_checks",
-	"service_checks",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -89,6 +94,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultHidden holds the default value on creation for the "hidden" field.
+	DefaultHidden bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
@@ -113,11 +120,6 @@ func ByHidden(opts ...sql.OrderTermOption) Order {
 	return sql.OrderByField(FieldHidden, opts...).ToFunc()
 }
 
-// ByCompetitionID orders the results by the competition_id field.
-func ByCompetitionID(opts ...sql.OrderTermOption) Order {
-	return sql.OrderByField(FieldCompetitionID, opts...).ToFunc()
-}
-
 // ByLog orders the results by the log field.
 func ByLog(opts ...sql.OrderTermOption) Order {
 	return sql.OrderByField(FieldLog, opts...).ToFunc()
@@ -133,11 +135,19 @@ func ByPassed(opts ...sql.OrderTermOption) Order {
 	return sql.OrderByField(FieldPassed, opts...).ToFunc()
 }
 
-// ByCompetitionField orders the results by competition field.
-func ByCompetitionField(field string, opts ...sql.OrderTermOption) Order {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCompetitionStep(), sql.OrderByField(field, opts...))
-	}
+// ByRoundID orders the results by the round_id field.
+func ByRoundID(opts ...sql.OrderTermOption) Order {
+	return sql.OrderByField(FieldRoundID, opts...).ToFunc()
+}
+
+// ByHostServiceID orders the results by the host_service_id field.
+func ByHostServiceID(opts ...sql.OrderTermOption) Order {
+	return sql.OrderByField(FieldHostServiceID, opts...).ToFunc()
+}
+
+// ByTeamID orders the results by the team_id field.
+func ByTeamID(opts ...sql.OrderTermOption) Order {
+	return sql.OrderByField(FieldTeamID, opts...).ToFunc()
 }
 
 // ByRoundsField orders the results by rounds field.
@@ -147,30 +157,37 @@ func ByRoundsField(field string, opts ...sql.OrderTermOption) Order {
 	}
 }
 
-// ByServicesField orders the results by services field.
-func ByServicesField(field string, opts ...sql.OrderTermOption) Order {
+// ByHostserviceField orders the results by hostservice field.
+func ByHostserviceField(field string, opts ...sql.OrderTermOption) Order {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newServicesStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newHostserviceStep(), sql.OrderByField(field, opts...))
 	}
 }
-func newCompetitionStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CompetitionInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, CompetitionTable, CompetitionColumn),
-	)
+
+// ByTeamField orders the results by team field.
+func ByTeamField(field string, opts ...sql.OrderTermOption) Order {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTeamStep(), sql.OrderByField(field, opts...))
+	}
 }
 func newRoundsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RoundsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, RoundsTable, RoundsColumn),
+		sqlgraph.Edge(sqlgraph.M2O, false, RoundsTable, RoundsColumn),
 	)
 }
-func newServicesStep() *sqlgraph.Step {
+func newHostserviceStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ServicesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, ServicesTable, ServicesColumn),
+		sqlgraph.To(HostserviceInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, HostserviceTable, HostserviceColumn),
+	)
+}
+func newTeamStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TeamInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, TeamTable, TeamColumn),
 	)
 }

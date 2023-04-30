@@ -18,8 +18,8 @@ type Tx struct {
 	Competition *CompetitionClient
 	// Host is the client for interacting with the Host builders.
 	Host *HostClient
-	// HostGroup is the client for interacting with the HostGroup builders.
-	HostGroup *HostGroupClient
+	// HostService is the client for interacting with the HostService builders.
+	HostService *HostServiceClient
 	// Property is the client for interacting with the Property builders.
 	Property *PropertyClient
 	// Report is the client for interacting with the Report builders.
@@ -30,8 +30,6 @@ type Tx struct {
 	Service *ServiceClient
 	// Team is the client for interacting with the Team builders.
 	Team *TeamClient
-	// User is the client for interacting with the User builders.
-	User *UserClient
 
 	// lazily loaded.
 	client     *Client
@@ -166,13 +164,12 @@ func (tx *Tx) init() {
 	tx.Check = NewCheckClient(tx.config)
 	tx.Competition = NewCompetitionClient(tx.config)
 	tx.Host = NewHostClient(tx.config)
-	tx.HostGroup = NewHostGroupClient(tx.config)
+	tx.HostService = NewHostServiceClient(tx.config)
 	tx.Property = NewPropertyClient(tx.config)
 	tx.Report = NewReportClient(tx.config)
 	tx.Round = NewRoundClient(tx.config)
 	tx.Service = NewServiceClient(tx.config)
 	tx.Team = NewTeamClient(tx.config)
-	tx.User = NewUserClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

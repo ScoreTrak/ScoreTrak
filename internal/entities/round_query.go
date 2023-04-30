@@ -24,8 +24,8 @@ type RoundQuery struct {
 	order           []round.Order
 	inters          []Interceptor
 	predicates      []predicate.Round
-	withCompetition *CompetitionQuery
 	withChecks      *CheckQuery
+	withCompetition *CompetitionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -62,28 +62,6 @@ func (rq *RoundQuery) Order(o ...round.Order) *RoundQuery {
 	return rq
 }
 
-// QueryCompetition chains the current query on the "competition" edge.
-func (rq *RoundQuery) QueryCompetition() *CompetitionQuery {
-	query := (&CompetitionClient{config: rq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := rq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := rq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(round.Table, round.FieldID, selector),
-			sqlgraph.To(competition.Table, competition.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, round.CompetitionTable, round.CompetitionColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
 // QueryChecks chains the current query on the "checks" edge.
 func (rq *RoundQuery) QueryChecks() *CheckQuery {
 	query := (&CheckClient{config: rq.config}).Query()
@@ -99,6 +77,28 @@ func (rq *RoundQuery) QueryChecks() *CheckQuery {
 			sqlgraph.From(round.Table, round.FieldID, selector),
 			sqlgraph.To(check.Table, check.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, round.ChecksTable, round.ChecksColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryCompetition chains the current query on the "competition" edge.
+func (rq *RoundQuery) QueryCompetition() *CompetitionQuery {
+	query := (&CompetitionClient{config: rq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := rq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := rq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(round.Table, round.FieldID, selector),
+			sqlgraph.To(competition.Table, competition.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, round.CompetitionTable, round.CompetitionColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
 		return fromU, nil
@@ -298,23 +298,12 @@ func (rq *RoundQuery) Clone() *RoundQuery {
 		order:           append([]round.Order{}, rq.order...),
 		inters:          append([]Interceptor{}, rq.inters...),
 		predicates:      append([]predicate.Round{}, rq.predicates...),
-		withCompetition: rq.withCompetition.Clone(),
 		withChecks:      rq.withChecks.Clone(),
+		withCompetition: rq.withCompetition.Clone(),
 		// clone intermediate query.
 		sql:  rq.sql.Clone(),
 		path: rq.path,
 	}
-}
-
-// WithCompetition tells the query-builder to eager-load the nodes that are connected to
-// the "competition" edge. The optional arguments are used to configure the query builder of the edge.
-func (rq *RoundQuery) WithCompetition(opts ...func(*CompetitionQuery)) *RoundQuery {
-	query := (&CompetitionClient{config: rq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	rq.withCompetition = query
-	return rq
 }
 
 // WithChecks tells the query-builder to eager-load the nodes that are connected to
@@ -328,18 +317,29 @@ func (rq *RoundQuery) WithChecks(opts ...func(*CheckQuery)) *RoundQuery {
 	return rq
 }
 
+// WithCompetition tells the query-builder to eager-load the nodes that are connected to
+// the "competition" edge. The optional arguments are used to configure the query builder of the edge.
+func (rq *RoundQuery) WithCompetition(opts ...func(*CompetitionQuery)) *RoundQuery {
+	query := (&CompetitionClient{config: rq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	rq.withCompetition = query
+	return rq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
 // Example:
 //
 //	var v []struct {
-//		CompetitionID string `json:"competition_id,omitempty"`
+//		RoundNumber int `json:"round_number,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Round.Query().
-//		GroupBy(round.FieldCompetitionID).
+//		GroupBy(round.FieldRoundNumber).
 //		Aggregate(entities.Count()).
 //		Scan(ctx, &v)
 func (rq *RoundQuery) GroupBy(field string, fields ...string) *RoundGroupBy {
@@ -357,11 +357,11 @@ func (rq *RoundQuery) GroupBy(field string, fields ...string) *RoundGroupBy {
 // Example:
 //
 //	var v []struct {
-//		CompetitionID string `json:"competition_id,omitempty"`
+//		RoundNumber int `json:"round_number,omitempty"`
 //	}
 //
 //	client.Round.Query().
-//		Select(round.FieldCompetitionID).
+//		Select(round.FieldRoundNumber).
 //		Scan(ctx, &v)
 func (rq *RoundQuery) Select(fields ...string) *RoundSelect {
 	rq.ctx.Fields = append(rq.ctx.Fields, fields...)
@@ -407,8 +407,8 @@ func (rq *RoundQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Round,
 		nodes       = []*Round{}
 		_spec       = rq.querySpec()
 		loadedTypes = [2]bool{
-			rq.withCompetition != nil,
 			rq.withChecks != nil,
+			rq.withCompetition != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -429,12 +429,6 @@ func (rq *RoundQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Round,
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := rq.withCompetition; query != nil {
-		if err := rq.loadCompetition(ctx, query, nodes, nil,
-			func(n *Round, e *Competition) { n.Edges.Competition = e }); err != nil {
-			return nil, err
-		}
-	}
 	if query := rq.withChecks; query != nil {
 		if err := rq.loadChecks(ctx, query, nodes,
 			func(n *Round) { n.Edges.Checks = []*Check{} },
@@ -442,38 +436,15 @@ func (rq *RoundQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Round,
 			return nil, err
 		}
 	}
+	if query := rq.withCompetition; query != nil {
+		if err := rq.loadCompetition(ctx, query, nodes, nil,
+			func(n *Round, e *Competition) { n.Edges.Competition = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
-func (rq *RoundQuery) loadCompetition(ctx context.Context, query *CompetitionQuery, nodes []*Round, init func(*Round), assign func(*Round, *Competition)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*Round)
-	for i := range nodes {
-		fk := nodes[i].CompetitionID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(competition.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "competition_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 func (rq *RoundQuery) loadChecks(ctx context.Context, query *CheckQuery, nodes []*Round, init func(*Round), assign func(*Round, *Check)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[string]*Round)
@@ -502,6 +473,35 @@ func (rq *RoundQuery) loadChecks(ctx context.Context, query *CheckQuery, nodes [
 			return fmt.Errorf(`unexpected foreign-key "round_checks" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
+	}
+	return nil
+}
+func (rq *RoundQuery) loadCompetition(ctx context.Context, query *CompetitionQuery, nodes []*Round, init func(*Round), assign func(*Round, *Competition)) error {
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Round)
+	for i := range nodes {
+		fk := nodes[i].CompetitionID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(competition.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "competition_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
 	}
 	return nil
 }

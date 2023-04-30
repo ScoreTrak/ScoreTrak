@@ -468,21 +468,67 @@ func HasTeamsWith(preds ...predicate.Team) predicate.Competition {
 	})
 }
 
-// HasUsers applies the HasEdge predicate on the "users" edge.
-func HasUsers() predicate.Competition {
+// HasServices applies the HasEdge predicate on the "services" edge.
+func HasServices() predicate.Competition {
 	return predicate.Competition(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, UsersTable, UsersPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, ServicesTable, ServicesColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasUsersWith applies the HasEdge predicate on the "users" edge with a given conditions (other predicates).
-func HasUsersWith(preds ...predicate.User) predicate.Competition {
+// HasServicesWith applies the HasEdge predicate on the "services" edge with a given conditions (other predicates).
+func HasServicesWith(preds ...predicate.Service) predicate.Competition {
 	return predicate.Competition(func(s *sql.Selector) {
-		step := newUsersStep()
+		step := newServicesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasReports applies the HasEdge predicate on the "reports" edge.
+func HasReports() predicate.Competition {
+	return predicate.Competition(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ReportsTable, ReportsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasReportsWith applies the HasEdge predicate on the "reports" edge with a given conditions (other predicates).
+func HasReportsWith(preds ...predicate.Report) predicate.Competition {
+	return predicate.Competition(func(s *sql.Selector) {
+		step := newReportsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasRounds applies the HasEdge predicate on the "rounds" edge.
+func HasRounds() predicate.Competition {
+	return predicate.Competition(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, RoundsTable, RoundsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRoundsWith applies the HasEdge predicate on the "rounds" edge with a given conditions (other predicates).
+func HasRoundsWith(preds ...predicate.Round) predicate.Competition {
+	return predicate.Competition(func(s *sql.Selector) {
+		step := newRoundsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

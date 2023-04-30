@@ -73,11 +73,6 @@ func Hidden(v bool) predicate.Check {
 	return predicate.Check(sql.FieldEQ(FieldHidden, v))
 }
 
-// CompetitionID applies equality check predicate on the "competition_id" field. It's identical to CompetitionIDEQ.
-func CompetitionID(v string) predicate.Check {
-	return predicate.Check(sql.FieldEQ(FieldCompetitionID, v))
-}
-
 // Log applies equality check predicate on the "log" field. It's identical to LogEQ.
 func Log(v string) predicate.Check {
 	return predicate.Check(sql.FieldEQ(FieldLog, v))
@@ -91,6 +86,21 @@ func Error(v string) predicate.Check {
 // Passed applies equality check predicate on the "passed" field. It's identical to PassedEQ.
 func Passed(v bool) predicate.Check {
 	return predicate.Check(sql.FieldEQ(FieldPassed, v))
+}
+
+// RoundID applies equality check predicate on the "round_id" field. It's identical to RoundIDEQ.
+func RoundID(v string) predicate.Check {
+	return predicate.Check(sql.FieldEQ(FieldRoundID, v))
+}
+
+// HostServiceID applies equality check predicate on the "host_service_id" field. It's identical to HostServiceIDEQ.
+func HostServiceID(v string) predicate.Check {
+	return predicate.Check(sql.FieldEQ(FieldHostServiceID, v))
+}
+
+// TeamID applies equality check predicate on the "team_id" field. It's identical to TeamIDEQ.
+func TeamID(v string) predicate.Check {
+	return predicate.Check(sql.FieldEQ(FieldTeamID, v))
 }
 
 // PauseEQ applies the EQ predicate on the "pause" field.
@@ -131,71 +141,6 @@ func HiddenIsNil() predicate.Check {
 // HiddenNotNil applies the NotNil predicate on the "hidden" field.
 func HiddenNotNil() predicate.Check {
 	return predicate.Check(sql.FieldNotNull(FieldHidden))
-}
-
-// CompetitionIDEQ applies the EQ predicate on the "competition_id" field.
-func CompetitionIDEQ(v string) predicate.Check {
-	return predicate.Check(sql.FieldEQ(FieldCompetitionID, v))
-}
-
-// CompetitionIDNEQ applies the NEQ predicate on the "competition_id" field.
-func CompetitionIDNEQ(v string) predicate.Check {
-	return predicate.Check(sql.FieldNEQ(FieldCompetitionID, v))
-}
-
-// CompetitionIDIn applies the In predicate on the "competition_id" field.
-func CompetitionIDIn(vs ...string) predicate.Check {
-	return predicate.Check(sql.FieldIn(FieldCompetitionID, vs...))
-}
-
-// CompetitionIDNotIn applies the NotIn predicate on the "competition_id" field.
-func CompetitionIDNotIn(vs ...string) predicate.Check {
-	return predicate.Check(sql.FieldNotIn(FieldCompetitionID, vs...))
-}
-
-// CompetitionIDGT applies the GT predicate on the "competition_id" field.
-func CompetitionIDGT(v string) predicate.Check {
-	return predicate.Check(sql.FieldGT(FieldCompetitionID, v))
-}
-
-// CompetitionIDGTE applies the GTE predicate on the "competition_id" field.
-func CompetitionIDGTE(v string) predicate.Check {
-	return predicate.Check(sql.FieldGTE(FieldCompetitionID, v))
-}
-
-// CompetitionIDLT applies the LT predicate on the "competition_id" field.
-func CompetitionIDLT(v string) predicate.Check {
-	return predicate.Check(sql.FieldLT(FieldCompetitionID, v))
-}
-
-// CompetitionIDLTE applies the LTE predicate on the "competition_id" field.
-func CompetitionIDLTE(v string) predicate.Check {
-	return predicate.Check(sql.FieldLTE(FieldCompetitionID, v))
-}
-
-// CompetitionIDContains applies the Contains predicate on the "competition_id" field.
-func CompetitionIDContains(v string) predicate.Check {
-	return predicate.Check(sql.FieldContains(FieldCompetitionID, v))
-}
-
-// CompetitionIDHasPrefix applies the HasPrefix predicate on the "competition_id" field.
-func CompetitionIDHasPrefix(v string) predicate.Check {
-	return predicate.Check(sql.FieldHasPrefix(FieldCompetitionID, v))
-}
-
-// CompetitionIDHasSuffix applies the HasSuffix predicate on the "competition_id" field.
-func CompetitionIDHasSuffix(v string) predicate.Check {
-	return predicate.Check(sql.FieldHasSuffix(FieldCompetitionID, v))
-}
-
-// CompetitionIDEqualFold applies the EqualFold predicate on the "competition_id" field.
-func CompetitionIDEqualFold(v string) predicate.Check {
-	return predicate.Check(sql.FieldEqualFold(FieldCompetitionID, v))
-}
-
-// CompetitionIDContainsFold applies the ContainsFold predicate on the "competition_id" field.
-func CompetitionIDContainsFold(v string) predicate.Check {
-	return predicate.Check(sql.FieldContainsFold(FieldCompetitionID, v))
 }
 
 // LogEQ applies the EQ predicate on the "log" field.
@@ -338,27 +283,199 @@ func PassedNEQ(v bool) predicate.Check {
 	return predicate.Check(sql.FieldNEQ(FieldPassed, v))
 }
 
-// HasCompetition applies the HasEdge predicate on the "competition" edge.
-func HasCompetition() predicate.Check {
-	return predicate.Check(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, CompetitionTable, CompetitionColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
+// RoundIDEQ applies the EQ predicate on the "round_id" field.
+func RoundIDEQ(v string) predicate.Check {
+	return predicate.Check(sql.FieldEQ(FieldRoundID, v))
 }
 
-// HasCompetitionWith applies the HasEdge predicate on the "competition" edge with a given conditions (other predicates).
-func HasCompetitionWith(preds ...predicate.Competition) predicate.Check {
-	return predicate.Check(func(s *sql.Selector) {
-		step := newCompetitionStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
+// RoundIDNEQ applies the NEQ predicate on the "round_id" field.
+func RoundIDNEQ(v string) predicate.Check {
+	return predicate.Check(sql.FieldNEQ(FieldRoundID, v))
+}
+
+// RoundIDIn applies the In predicate on the "round_id" field.
+func RoundIDIn(vs ...string) predicate.Check {
+	return predicate.Check(sql.FieldIn(FieldRoundID, vs...))
+}
+
+// RoundIDNotIn applies the NotIn predicate on the "round_id" field.
+func RoundIDNotIn(vs ...string) predicate.Check {
+	return predicate.Check(sql.FieldNotIn(FieldRoundID, vs...))
+}
+
+// RoundIDGT applies the GT predicate on the "round_id" field.
+func RoundIDGT(v string) predicate.Check {
+	return predicate.Check(sql.FieldGT(FieldRoundID, v))
+}
+
+// RoundIDGTE applies the GTE predicate on the "round_id" field.
+func RoundIDGTE(v string) predicate.Check {
+	return predicate.Check(sql.FieldGTE(FieldRoundID, v))
+}
+
+// RoundIDLT applies the LT predicate on the "round_id" field.
+func RoundIDLT(v string) predicate.Check {
+	return predicate.Check(sql.FieldLT(FieldRoundID, v))
+}
+
+// RoundIDLTE applies the LTE predicate on the "round_id" field.
+func RoundIDLTE(v string) predicate.Check {
+	return predicate.Check(sql.FieldLTE(FieldRoundID, v))
+}
+
+// RoundIDContains applies the Contains predicate on the "round_id" field.
+func RoundIDContains(v string) predicate.Check {
+	return predicate.Check(sql.FieldContains(FieldRoundID, v))
+}
+
+// RoundIDHasPrefix applies the HasPrefix predicate on the "round_id" field.
+func RoundIDHasPrefix(v string) predicate.Check {
+	return predicate.Check(sql.FieldHasPrefix(FieldRoundID, v))
+}
+
+// RoundIDHasSuffix applies the HasSuffix predicate on the "round_id" field.
+func RoundIDHasSuffix(v string) predicate.Check {
+	return predicate.Check(sql.FieldHasSuffix(FieldRoundID, v))
+}
+
+// RoundIDEqualFold applies the EqualFold predicate on the "round_id" field.
+func RoundIDEqualFold(v string) predicate.Check {
+	return predicate.Check(sql.FieldEqualFold(FieldRoundID, v))
+}
+
+// RoundIDContainsFold applies the ContainsFold predicate on the "round_id" field.
+func RoundIDContainsFold(v string) predicate.Check {
+	return predicate.Check(sql.FieldContainsFold(FieldRoundID, v))
+}
+
+// HostServiceIDEQ applies the EQ predicate on the "host_service_id" field.
+func HostServiceIDEQ(v string) predicate.Check {
+	return predicate.Check(sql.FieldEQ(FieldHostServiceID, v))
+}
+
+// HostServiceIDNEQ applies the NEQ predicate on the "host_service_id" field.
+func HostServiceIDNEQ(v string) predicate.Check {
+	return predicate.Check(sql.FieldNEQ(FieldHostServiceID, v))
+}
+
+// HostServiceIDIn applies the In predicate on the "host_service_id" field.
+func HostServiceIDIn(vs ...string) predicate.Check {
+	return predicate.Check(sql.FieldIn(FieldHostServiceID, vs...))
+}
+
+// HostServiceIDNotIn applies the NotIn predicate on the "host_service_id" field.
+func HostServiceIDNotIn(vs ...string) predicate.Check {
+	return predicate.Check(sql.FieldNotIn(FieldHostServiceID, vs...))
+}
+
+// HostServiceIDGT applies the GT predicate on the "host_service_id" field.
+func HostServiceIDGT(v string) predicate.Check {
+	return predicate.Check(sql.FieldGT(FieldHostServiceID, v))
+}
+
+// HostServiceIDGTE applies the GTE predicate on the "host_service_id" field.
+func HostServiceIDGTE(v string) predicate.Check {
+	return predicate.Check(sql.FieldGTE(FieldHostServiceID, v))
+}
+
+// HostServiceIDLT applies the LT predicate on the "host_service_id" field.
+func HostServiceIDLT(v string) predicate.Check {
+	return predicate.Check(sql.FieldLT(FieldHostServiceID, v))
+}
+
+// HostServiceIDLTE applies the LTE predicate on the "host_service_id" field.
+func HostServiceIDLTE(v string) predicate.Check {
+	return predicate.Check(sql.FieldLTE(FieldHostServiceID, v))
+}
+
+// HostServiceIDContains applies the Contains predicate on the "host_service_id" field.
+func HostServiceIDContains(v string) predicate.Check {
+	return predicate.Check(sql.FieldContains(FieldHostServiceID, v))
+}
+
+// HostServiceIDHasPrefix applies the HasPrefix predicate on the "host_service_id" field.
+func HostServiceIDHasPrefix(v string) predicate.Check {
+	return predicate.Check(sql.FieldHasPrefix(FieldHostServiceID, v))
+}
+
+// HostServiceIDHasSuffix applies the HasSuffix predicate on the "host_service_id" field.
+func HostServiceIDHasSuffix(v string) predicate.Check {
+	return predicate.Check(sql.FieldHasSuffix(FieldHostServiceID, v))
+}
+
+// HostServiceIDEqualFold applies the EqualFold predicate on the "host_service_id" field.
+func HostServiceIDEqualFold(v string) predicate.Check {
+	return predicate.Check(sql.FieldEqualFold(FieldHostServiceID, v))
+}
+
+// HostServiceIDContainsFold applies the ContainsFold predicate on the "host_service_id" field.
+func HostServiceIDContainsFold(v string) predicate.Check {
+	return predicate.Check(sql.FieldContainsFold(FieldHostServiceID, v))
+}
+
+// TeamIDEQ applies the EQ predicate on the "team_id" field.
+func TeamIDEQ(v string) predicate.Check {
+	return predicate.Check(sql.FieldEQ(FieldTeamID, v))
+}
+
+// TeamIDNEQ applies the NEQ predicate on the "team_id" field.
+func TeamIDNEQ(v string) predicate.Check {
+	return predicate.Check(sql.FieldNEQ(FieldTeamID, v))
+}
+
+// TeamIDIn applies the In predicate on the "team_id" field.
+func TeamIDIn(vs ...string) predicate.Check {
+	return predicate.Check(sql.FieldIn(FieldTeamID, vs...))
+}
+
+// TeamIDNotIn applies the NotIn predicate on the "team_id" field.
+func TeamIDNotIn(vs ...string) predicate.Check {
+	return predicate.Check(sql.FieldNotIn(FieldTeamID, vs...))
+}
+
+// TeamIDGT applies the GT predicate on the "team_id" field.
+func TeamIDGT(v string) predicate.Check {
+	return predicate.Check(sql.FieldGT(FieldTeamID, v))
+}
+
+// TeamIDGTE applies the GTE predicate on the "team_id" field.
+func TeamIDGTE(v string) predicate.Check {
+	return predicate.Check(sql.FieldGTE(FieldTeamID, v))
+}
+
+// TeamIDLT applies the LT predicate on the "team_id" field.
+func TeamIDLT(v string) predicate.Check {
+	return predicate.Check(sql.FieldLT(FieldTeamID, v))
+}
+
+// TeamIDLTE applies the LTE predicate on the "team_id" field.
+func TeamIDLTE(v string) predicate.Check {
+	return predicate.Check(sql.FieldLTE(FieldTeamID, v))
+}
+
+// TeamIDContains applies the Contains predicate on the "team_id" field.
+func TeamIDContains(v string) predicate.Check {
+	return predicate.Check(sql.FieldContains(FieldTeamID, v))
+}
+
+// TeamIDHasPrefix applies the HasPrefix predicate on the "team_id" field.
+func TeamIDHasPrefix(v string) predicate.Check {
+	return predicate.Check(sql.FieldHasPrefix(FieldTeamID, v))
+}
+
+// TeamIDHasSuffix applies the HasSuffix predicate on the "team_id" field.
+func TeamIDHasSuffix(v string) predicate.Check {
+	return predicate.Check(sql.FieldHasSuffix(FieldTeamID, v))
+}
+
+// TeamIDEqualFold applies the EqualFold predicate on the "team_id" field.
+func TeamIDEqualFold(v string) predicate.Check {
+	return predicate.Check(sql.FieldEqualFold(FieldTeamID, v))
+}
+
+// TeamIDContainsFold applies the ContainsFold predicate on the "team_id" field.
+func TeamIDContainsFold(v string) predicate.Check {
+	return predicate.Check(sql.FieldContainsFold(FieldTeamID, v))
 }
 
 // HasRounds applies the HasEdge predicate on the "rounds" edge.
@@ -366,7 +483,7 @@ func HasRounds() predicate.Check {
 	return predicate.Check(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, RoundsTable, RoundsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, RoundsTable, RoundsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -384,21 +501,44 @@ func HasRoundsWith(preds ...predicate.Round) predicate.Check {
 	})
 }
 
-// HasServices applies the HasEdge predicate on the "services" edge.
-func HasServices() predicate.Check {
+// HasHostservice applies the HasEdge predicate on the "hostservice" edge.
+func HasHostservice() predicate.Check {
 	return predicate.Check(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ServicesTable, ServicesColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, HostserviceTable, HostserviceColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasServicesWith applies the HasEdge predicate on the "services" edge with a given conditions (other predicates).
-func HasServicesWith(preds ...predicate.Service) predicate.Check {
+// HasHostserviceWith applies the HasEdge predicate on the "hostservice" edge with a given conditions (other predicates).
+func HasHostserviceWith(preds ...predicate.HostService) predicate.Check {
 	return predicate.Check(func(s *sql.Selector) {
-		step := newServicesStep()
+		step := newHostserviceStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasTeam applies the HasEdge predicate on the "team" edge.
+func HasTeam() predicate.Check {
+	return predicate.Check(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, TeamTable, TeamColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTeamWith applies the HasEdge predicate on the "team" edge with a given conditions (other predicates).
+func HasTeamWith(preds ...predicate.Team) predicate.Check {
+	return predicate.Check(func(s *sql.Selector) {
+		step := newTeamStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

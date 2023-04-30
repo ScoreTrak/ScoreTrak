@@ -11,6 +11,14 @@ func (s *CreatePropertyReq) setDefaults() {
 }
 
 // setDefaults set default value of fields.
+func (s *HostServicePropertiesList) setDefaults() {
+	{
+		val := HostServicePropertiesListStatus("view")
+		s.Status = val
+	}
+}
+
+// setDefaults set default value of fields.
 func (s *PropertyCreate) setDefaults() {
 	{
 		val := PropertyCreateStatus("view")
@@ -43,9 +51,9 @@ func (s *PropertyUpdate) setDefaults() {
 }
 
 // setDefaults set default value of fields.
-func (s *ServicePropertiesList) setDefaults() {
+func (s *TeamPropertiesList) setDefaults() {
 	{
-		val := ServicePropertiesListStatus("view")
+		val := TeamPropertiesListStatus("view")
 		s.Status = val
 	}
 }

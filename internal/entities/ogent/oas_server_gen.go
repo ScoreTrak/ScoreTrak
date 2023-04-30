@@ -26,12 +26,12 @@ type Handler interface {
 	//
 	// POST /hosts
 	CreateHost(ctx context.Context, req *CreateHostReq) (CreateHostRes, error)
-	// CreateHostGroup implements createHostGroup operation.
+	// CreateHostService implements createHostService operation.
 	//
-	// Creates a new HostGroup and persists it to storage.
+	// Creates a new HostService and persists it to storage.
 	//
-	// POST /host-groups
-	CreateHostGroup(ctx context.Context, req *CreateHostGroupReq) (CreateHostGroupRes, error)
+	// POST /host-services
+	CreateHostService(ctx context.Context, req *CreateHostServiceReq) (CreateHostServiceRes, error)
 	// CreateProperty implements createProperty operation.
 	//
 	// Creates a new Property and persists it to storage.
@@ -62,12 +62,6 @@ type Handler interface {
 	//
 	// POST /teams
 	CreateTeam(ctx context.Context, req *CreateTeamReq) (CreateTeamRes, error)
-	// CreateUser implements createUser operation.
-	//
-	// Creates a new User and persists it to storage.
-	//
-	// POST /users
-	CreateUser(ctx context.Context, req *CreateUserReq) (CreateUserRes, error)
 	// DeleteCheck implements deleteCheck operation.
 	//
 	// Deletes the Check with the requested ID.
@@ -86,12 +80,12 @@ type Handler interface {
 	//
 	// DELETE /hosts/{id}
 	DeleteHost(ctx context.Context, params DeleteHostParams) (DeleteHostRes, error)
-	// DeleteHostGroup implements deleteHostGroup operation.
+	// DeleteHostService implements deleteHostService operation.
 	//
-	// Deletes the HostGroup with the requested ID.
+	// Deletes the HostService with the requested ID.
 	//
-	// DELETE /host-groups/{id}
-	DeleteHostGroup(ctx context.Context, params DeleteHostGroupParams) (DeleteHostGroupRes, error)
+	// DELETE /host-services/{id}
+	DeleteHostService(ctx context.Context, params DeleteHostServiceParams) (DeleteHostServiceRes, error)
 	// DeleteProperty implements deleteProperty operation.
 	//
 	// Deletes the Property with the requested ID.
@@ -122,12 +116,6 @@ type Handler interface {
 	//
 	// DELETE /teams/{id}
 	DeleteTeam(ctx context.Context, params DeleteTeamParams) (DeleteTeamRes, error)
-	// DeleteUser implements deleteUser operation.
-	//
-	// Deletes the User with the requested ID.
-	//
-	// DELETE /users/{id}
-	DeleteUser(ctx context.Context, params DeleteUserParams) (DeleteUserRes, error)
 	// ListCheck implements listCheck operation.
 	//
 	// List Checks.
@@ -140,42 +128,60 @@ type Handler interface {
 	//
 	// GET /competitions
 	ListCompetition(ctx context.Context, params ListCompetitionParams) (ListCompetitionRes, error)
+	// ListCompetitionReports implements listCompetitionReports operation.
+	//
+	// List attached Reports.
+	//
+	// GET /competitions/{id}/reports
+	ListCompetitionReports(ctx context.Context, params ListCompetitionReportsParams) (ListCompetitionReportsRes, error)
+	// ListCompetitionRounds implements listCompetitionRounds operation.
+	//
+	// List attached Rounds.
+	//
+	// GET /competitions/{id}/rounds
+	ListCompetitionRounds(ctx context.Context, params ListCompetitionRoundsParams) (ListCompetitionRoundsRes, error)
+	// ListCompetitionServices implements listCompetitionServices operation.
+	//
+	// List attached Services.
+	//
+	// GET /competitions/{id}/services
+	ListCompetitionServices(ctx context.Context, params ListCompetitionServicesParams) (ListCompetitionServicesRes, error)
 	// ListCompetitionTeams implements listCompetitionTeams operation.
 	//
 	// List attached Teams.
 	//
 	// GET /competitions/{id}/teams
 	ListCompetitionTeams(ctx context.Context, params ListCompetitionTeamsParams) (ListCompetitionTeamsRes, error)
-	// ListCompetitionUsers implements listCompetitionUsers operation.
-	//
-	// List attached Users.
-	//
-	// GET /competitions/{id}/users
-	ListCompetitionUsers(ctx context.Context, params ListCompetitionUsersParams) (ListCompetitionUsersRes, error)
 	// ListHost implements listHost operation.
 	//
 	// List Hosts.
 	//
 	// GET /hosts
 	ListHost(ctx context.Context, params ListHostParams) (ListHostRes, error)
-	// ListHostGroup implements listHostGroup operation.
+	// ListHostHostservices implements listHostHostservices operation.
 	//
-	// List HostGroups.
+	// List attached Hostservices.
 	//
-	// GET /host-groups
-	ListHostGroup(ctx context.Context, params ListHostGroupParams) (ListHostGroupRes, error)
-	// ListHostGroupHosts implements listHostGroupHosts operation.
+	// GET /hosts/{id}/hostservices
+	ListHostHostservices(ctx context.Context, params ListHostHostservicesParams) (ListHostHostservicesRes, error)
+	// ListHostService implements listHostService operation.
 	//
-	// List attached Hosts.
+	// List HostServices.
 	//
-	// GET /host-groups/{id}/hosts
-	ListHostGroupHosts(ctx context.Context, params ListHostGroupHostsParams) (ListHostGroupHostsRes, error)
-	// ListHostServices implements listHostServices operation.
+	// GET /host-services
+	ListHostService(ctx context.Context, params ListHostServiceParams) (ListHostServiceRes, error)
+	// ListHostServiceChecks implements listHostServiceChecks operation.
 	//
-	// List attached Services.
+	// List attached Checks.
 	//
-	// GET /hosts/{id}/services
-	ListHostServices(ctx context.Context, params ListHostServicesParams) (ListHostServicesRes, error)
+	// GET /host-services/{id}/checks
+	ListHostServiceChecks(ctx context.Context, params ListHostServiceChecksParams) (ListHostServiceChecksRes, error)
+	// ListHostServiceProperties implements listHostServiceProperties operation.
+	//
+	// List attached Properties.
+	//
+	// GET /host-services/{id}/properties
+	ListHostServiceProperties(ctx context.Context, params ListHostServicePropertiesParams) (ListHostServicePropertiesRes, error)
 	// ListProperty implements listProperty operation.
 	//
 	// List Properties.
@@ -206,78 +212,60 @@ type Handler interface {
 	//
 	// GET /services
 	ListService(ctx context.Context, params ListServiceParams) (ListServiceRes, error)
-	// ListServiceChecks implements listServiceChecks operation.
-	//
-	// List attached Checks.
-	//
-	// GET /services/{id}/checks
-	ListServiceChecks(ctx context.Context, params ListServiceChecksParams) (ListServiceChecksRes, error)
-	// ListServiceProperties implements listServiceProperties operation.
-	//
-	// List attached Properties.
-	//
-	// GET /services/{id}/properties
-	ListServiceProperties(ctx context.Context, params ListServicePropertiesParams) (ListServicePropertiesRes, error)
 	// ListTeam implements listTeam operation.
 	//
 	// List Teams.
 	//
 	// GET /teams
 	ListTeam(ctx context.Context, params ListTeamParams) (ListTeamRes, error)
+	// ListTeamChecks implements listTeamChecks operation.
+	//
+	// List attached Checks.
+	//
+	// GET /teams/{id}/checks
+	ListTeamChecks(ctx context.Context, params ListTeamChecksParams) (ListTeamChecksRes, error)
 	// ListTeamHosts implements listTeamHosts operation.
 	//
 	// List attached Hosts.
 	//
 	// GET /teams/{id}/hosts
 	ListTeamHosts(ctx context.Context, params ListTeamHostsParams) (ListTeamHostsRes, error)
-	// ListTeamUsers implements listTeamUsers operation.
+	// ListTeamHostservices implements listTeamHostservices operation.
 	//
-	// List attached Users.
+	// List attached Hostservices.
 	//
-	// GET /teams/{id}/users
-	ListTeamUsers(ctx context.Context, params ListTeamUsersParams) (ListTeamUsersRes, error)
-	// ListUser implements listUser operation.
+	// GET /teams/{id}/hostservices
+	ListTeamHostservices(ctx context.Context, params ListTeamHostservicesParams) (ListTeamHostservicesRes, error)
+	// ListTeamProperties implements listTeamProperties operation.
 	//
-	// List Users.
+	// List attached Properties.
 	//
-	// GET /users
-	ListUser(ctx context.Context, params ListUserParams) (ListUserRes, error)
-	// ListUserCompetitions implements listUserCompetitions operation.
-	//
-	// List attached Competitions.
-	//
-	// GET /users/{id}/competitions
-	ListUserCompetitions(ctx context.Context, params ListUserCompetitionsParams) (ListUserCompetitionsRes, error)
-	// ListUserTeams implements listUserTeams operation.
-	//
-	// List attached Teams.
-	//
-	// GET /users/{id}/teams
-	ListUserTeams(ctx context.Context, params ListUserTeamsParams) (ListUserTeamsRes, error)
+	// GET /teams/{id}/properties
+	ListTeamProperties(ctx context.Context, params ListTeamPropertiesParams) (ListTeamPropertiesRes, error)
 	// ReadCheck implements readCheck operation.
 	//
 	// Finds the Check with the requested ID and returns it.
 	//
 	// GET /checks/{id}
 	ReadCheck(ctx context.Context, params ReadCheckParams) (ReadCheckRes, error)
-	// ReadCheckCompetition implements readCheckCompetition operation.
+	// ReadCheckHostservice implements readCheckHostservice operation.
 	//
-	// Find the attached Competition of the Check with the given ID.
+	// Find the attached HostService of the Check with the given ID.
 	//
-	// GET /checks/{id}/competition
-	ReadCheckCompetition(ctx context.Context, params ReadCheckCompetitionParams) (ReadCheckCompetitionRes, error)
+	// GET /checks/{id}/hostservice
+	ReadCheckHostservice(ctx context.Context, params ReadCheckHostserviceParams) (ReadCheckHostserviceRes, error)
 	// ReadCheckRounds implements readCheckRounds operation.
 	//
 	// Find the attached Round of the Check with the given ID.
 	//
 	// GET /checks/{id}/rounds
 	ReadCheckRounds(ctx context.Context, params ReadCheckRoundsParams) (ReadCheckRoundsRes, error)
-	// ReadCheckServices implements readCheckServices operation.
+	// ReadCheckTeam implements readCheckTeam operation.
 	//
-	// Find the attached Service of the Check with the given ID.
+	// Find the attached Team of the Check with the given ID.
 	//
-	// GET /checks/{id}/services
-	ReadCheckServices(ctx context.Context, params ReadCheckServicesParams) (ReadCheckServicesRes, error)
+	// GET /checks/{id}/team
+	ReadCheckTeam(ctx context.Context, params ReadCheckTeamParams) (ReadCheckTeamRes, error)
 	// ReadCompetition implements readCompetition operation.
 	//
 	// Finds the Competition with the requested ID and returns it.
@@ -290,36 +278,24 @@ type Handler interface {
 	//
 	// GET /hosts/{id}
 	ReadHost(ctx context.Context, params ReadHostParams) (ReadHostRes, error)
-	// ReadHostCompetition implements readHostCompetition operation.
+	// ReadHostService implements readHostService operation.
 	//
-	// Find the attached Competition of the Host with the given ID.
+	// Finds the HostService with the requested ID and returns it.
 	//
-	// GET /hosts/{id}/competition
-	ReadHostCompetition(ctx context.Context, params ReadHostCompetitionParams) (ReadHostCompetitionRes, error)
-	// ReadHostGroup implements readHostGroup operation.
+	// GET /host-services/{id}
+	ReadHostService(ctx context.Context, params ReadHostServiceParams) (ReadHostServiceRes, error)
+	// ReadHostServiceHost implements readHostServiceHost operation.
 	//
-	// Finds the HostGroup with the requested ID and returns it.
+	// Find the attached Host of the HostService with the given ID.
 	//
-	// GET /host-groups/{id}
-	ReadHostGroup(ctx context.Context, params ReadHostGroupParams) (ReadHostGroupRes, error)
-	// ReadHostGroupCompetition implements readHostGroupCompetition operation.
+	// GET /host-services/{id}/host
+	ReadHostServiceHost(ctx context.Context, params ReadHostServiceHostParams) (ReadHostServiceHostRes, error)
+	// ReadHostServiceTeam implements readHostServiceTeam operation.
 	//
-	// Find the attached Competition of the HostGroup with the given ID.
+	// Find the attached Team of the HostService with the given ID.
 	//
-	// GET /host-groups/{id}/competition
-	ReadHostGroupCompetition(ctx context.Context, params ReadHostGroupCompetitionParams) (ReadHostGroupCompetitionRes, error)
-	// ReadHostGroupTeam implements readHostGroupTeam operation.
-	//
-	// Find the attached Team of the HostGroup with the given ID.
-	//
-	// GET /host-groups/{id}/team
-	ReadHostGroupTeam(ctx context.Context, params ReadHostGroupTeamParams) (ReadHostGroupTeamRes, error)
-	// ReadHostHostGroup implements readHostHostGroup operation.
-	//
-	// Find the attached HostGroup of the Host with the given ID.
-	//
-	// GET /hosts/{id}/host-group
-	ReadHostHostGroup(ctx context.Context, params ReadHostHostGroupParams) (ReadHostHostGroupRes, error)
+	// GET /host-services/{id}/team
+	ReadHostServiceTeam(ctx context.Context, params ReadHostServiceTeamParams) (ReadHostServiceTeamRes, error)
 	// ReadHostTeam implements readHostTeam operation.
 	//
 	// Find the attached Team of the Host with the given ID.
@@ -332,18 +308,12 @@ type Handler interface {
 	//
 	// GET /properties/{id}
 	ReadProperty(ctx context.Context, params ReadPropertyParams) (ReadPropertyRes, error)
-	// ReadPropertyCompetition implements readPropertyCompetition operation.
+	// ReadPropertyHostservice implements readPropertyHostservice operation.
 	//
-	// Find the attached Competition of the Property with the given ID.
+	// Find the attached HostService of the Property with the given ID.
 	//
-	// GET /properties/{id}/competition
-	ReadPropertyCompetition(ctx context.Context, params ReadPropertyCompetitionParams) (ReadPropertyCompetitionRes, error)
-	// ReadPropertyServices implements readPropertyServices operation.
-	//
-	// Find the attached Service of the Property with the given ID.
-	//
-	// GET /properties/{id}/services
-	ReadPropertyServices(ctx context.Context, params ReadPropertyServicesParams) (ReadPropertyServicesRes, error)
+	// GET /properties/{id}/hostservice
+	ReadPropertyHostservice(ctx context.Context, params ReadPropertyHostserviceParams) (ReadPropertyHostserviceRes, error)
 	// ReadPropertyTeam implements readPropertyTeam operation.
 	//
 	// Find the attached Team of the Property with the given ID.
@@ -356,6 +326,12 @@ type Handler interface {
 	//
 	// GET /reports/{id}
 	ReadReport(ctx context.Context, params ReadReportParams) (ReadReportRes, error)
+	// ReadReportCompetition implements readReportCompetition operation.
+	//
+	// Find the attached Competition of the Report with the given ID.
+	//
+	// GET /reports/{id}/competition
+	ReadReportCompetition(ctx context.Context, params ReadReportCompetitionParams) (ReadReportCompetitionRes, error)
 	// ReadRound implements readRound operation.
 	//
 	// Finds the Round with the requested ID and returns it.
@@ -380,18 +356,6 @@ type Handler interface {
 	//
 	// GET /services/{id}/competition
 	ReadServiceCompetition(ctx context.Context, params ReadServiceCompetitionParams) (ReadServiceCompetitionRes, error)
-	// ReadServiceHosts implements readServiceHosts operation.
-	//
-	// Find the attached Host of the Service with the given ID.
-	//
-	// GET /services/{id}/hosts
-	ReadServiceHosts(ctx context.Context, params ReadServiceHostsParams) (ReadServiceHostsRes, error)
-	// ReadServiceTeam implements readServiceTeam operation.
-	//
-	// Find the attached Team of the Service with the given ID.
-	//
-	// GET /services/{id}/team
-	ReadServiceTeam(ctx context.Context, params ReadServiceTeamParams) (ReadServiceTeamRes, error)
 	// ReadTeam implements readTeam operation.
 	//
 	// Finds the Team with the requested ID and returns it.
@@ -404,12 +368,6 @@ type Handler interface {
 	//
 	// GET /teams/{id}/competition
 	ReadTeamCompetition(ctx context.Context, params ReadTeamCompetitionParams) (ReadTeamCompetitionRes, error)
-	// ReadUser implements readUser operation.
-	//
-	// Finds the User with the requested ID and returns it.
-	//
-	// GET /users/{id}
-	ReadUser(ctx context.Context, params ReadUserParams) (ReadUserRes, error)
 	// UpdateCheck implements updateCheck operation.
 	//
 	// Updates a Check and persists changes to storage.
@@ -428,12 +386,12 @@ type Handler interface {
 	//
 	// PATCH /hosts/{id}
 	UpdateHost(ctx context.Context, req *UpdateHostReq, params UpdateHostParams) (UpdateHostRes, error)
-	// UpdateHostGroup implements updateHostGroup operation.
+	// UpdateHostService implements updateHostService operation.
 	//
-	// Updates a HostGroup and persists changes to storage.
+	// Updates a HostService and persists changes to storage.
 	//
-	// PATCH /host-groups/{id}
-	UpdateHostGroup(ctx context.Context, req *UpdateHostGroupReq, params UpdateHostGroupParams) (UpdateHostGroupRes, error)
+	// PATCH /host-services/{id}
+	UpdateHostService(ctx context.Context, req *UpdateHostServiceReq, params UpdateHostServiceParams) (UpdateHostServiceRes, error)
 	// UpdateProperty implements updateProperty operation.
 	//
 	// Updates a Property and persists changes to storage.
@@ -464,12 +422,6 @@ type Handler interface {
 	//
 	// PATCH /teams/{id}
 	UpdateTeam(ctx context.Context, req *UpdateTeamReq, params UpdateTeamParams) (UpdateTeamRes, error)
-	// UpdateUser implements updateUser operation.
-	//
-	// Updates a User and persists changes to storage.
-	//
-	// PATCH /users/{id}
-	UpdateUser(ctx context.Context, req *UpdateUserReq, params UpdateUserParams) (UpdateUserRes, error)
 }
 
 // Server implements http server based on OpenAPI v3 specification and

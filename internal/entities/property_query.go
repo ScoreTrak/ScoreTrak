@@ -10,10 +10,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/property"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
 )
 
@@ -24,10 +23,8 @@ type PropertyQuery struct {
 	order           []property.Order
 	inters          []Interceptor
 	predicates      []predicate.Property
-	withCompetition *CompetitionQuery
+	withHostservice *HostServiceQuery
 	withTeam        *TeamQuery
-	withServices    *ServiceQuery
-	withFKs         bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -64,9 +61,9 @@ func (pq *PropertyQuery) Order(o ...property.Order) *PropertyQuery {
 	return pq
 }
 
-// QueryCompetition chains the current query on the "competition" edge.
-func (pq *PropertyQuery) QueryCompetition() *CompetitionQuery {
-	query := (&CompetitionClient{config: pq.config}).Query()
+// QueryHostservice chains the current query on the "hostservice" edge.
+func (pq *PropertyQuery) QueryHostservice() *HostServiceQuery {
+	query := (&HostServiceClient{config: pq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := pq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -77,8 +74,8 @@ func (pq *PropertyQuery) QueryCompetition() *CompetitionQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(property.Table, property.FieldID, selector),
-			sqlgraph.To(competition.Table, competition.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, property.CompetitionTable, property.CompetitionColumn),
+			sqlgraph.To(hostservice.Table, hostservice.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, property.HostserviceTable, property.HostserviceColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -100,29 +97,7 @@ func (pq *PropertyQuery) QueryTeam() *TeamQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(property.Table, property.FieldID, selector),
 			sqlgraph.To(team.Table, team.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, property.TeamTable, property.TeamColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryServices chains the current query on the "services" edge.
-func (pq *PropertyQuery) QueryServices() *ServiceQuery {
-	query := (&ServiceClient{config: pq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := pq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := pq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(property.Table, property.FieldID, selector),
-			sqlgraph.To(service.Table, service.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, property.ServicesTable, property.ServicesColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, property.TeamTable, property.TeamColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -322,23 +297,22 @@ func (pq *PropertyQuery) Clone() *PropertyQuery {
 		order:           append([]property.Order{}, pq.order...),
 		inters:          append([]Interceptor{}, pq.inters...),
 		predicates:      append([]predicate.Property{}, pq.predicates...),
-		withCompetition: pq.withCompetition.Clone(),
+		withHostservice: pq.withHostservice.Clone(),
 		withTeam:        pq.withTeam.Clone(),
-		withServices:    pq.withServices.Clone(),
 		// clone intermediate query.
 		sql:  pq.sql.Clone(),
 		path: pq.path,
 	}
 }
 
-// WithCompetition tells the query-builder to eager-load the nodes that are connected to
-// the "competition" edge. The optional arguments are used to configure the query builder of the edge.
-func (pq *PropertyQuery) WithCompetition(opts ...func(*CompetitionQuery)) *PropertyQuery {
-	query := (&CompetitionClient{config: pq.config}).Query()
+// WithHostservice tells the query-builder to eager-load the nodes that are connected to
+// the "hostservice" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *PropertyQuery) WithHostservice(opts ...func(*HostServiceQuery)) *PropertyQuery {
+	query := (&HostServiceClient{config: pq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	pq.withCompetition = query
+	pq.withHostservice = query
 	return pq
 }
 
@@ -353,29 +327,18 @@ func (pq *PropertyQuery) WithTeam(opts ...func(*TeamQuery)) *PropertyQuery {
 	return pq
 }
 
-// WithServices tells the query-builder to eager-load the nodes that are connected to
-// the "services" edge. The optional arguments are used to configure the query builder of the edge.
-func (pq *PropertyQuery) WithServices(opts ...func(*ServiceQuery)) *PropertyQuery {
-	query := (&ServiceClient{config: pq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	pq.withServices = query
-	return pq
-}
-
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
 // Example:
 //
 //	var v []struct {
-//		CompetitionID string `json:"competition_id,omitempty"`
+//		Key string `json:"key,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Property.Query().
-//		GroupBy(property.FieldCompetitionID).
+//		GroupBy(property.FieldKey).
 //		Aggregate(entities.Count()).
 //		Scan(ctx, &v)
 func (pq *PropertyQuery) GroupBy(field string, fields ...string) *PropertyGroupBy {
@@ -393,11 +356,11 @@ func (pq *PropertyQuery) GroupBy(field string, fields ...string) *PropertyGroupB
 // Example:
 //
 //	var v []struct {
-//		CompetitionID string `json:"competition_id,omitempty"`
+//		Key string `json:"key,omitempty"`
 //	}
 //
 //	client.Property.Query().
-//		Select(property.FieldCompetitionID).
+//		Select(property.FieldKey).
 //		Scan(ctx, &v)
 func (pq *PropertyQuery) Select(fields ...string) *PropertySelect {
 	pq.ctx.Fields = append(pq.ctx.Fields, fields...)
@@ -441,20 +404,12 @@ func (pq *PropertyQuery) prepareQuery(ctx context.Context) error {
 func (pq *PropertyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Property, error) {
 	var (
 		nodes       = []*Property{}
-		withFKs     = pq.withFKs
 		_spec       = pq.querySpec()
-		loadedTypes = [3]bool{
-			pq.withCompetition != nil,
+		loadedTypes = [2]bool{
+			pq.withHostservice != nil,
 			pq.withTeam != nil,
-			pq.withServices != nil,
 		}
 	)
-	if pq.withServices != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, property.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Property).scanValues(nil, columns)
 	}
@@ -473,9 +428,9 @@ func (pq *PropertyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pro
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := pq.withCompetition; query != nil {
-		if err := pq.loadCompetition(ctx, query, nodes, nil,
-			func(n *Property, e *Competition) { n.Edges.Competition = e }); err != nil {
+	if query := pq.withHostservice; query != nil {
+		if err := pq.loadHostservice(ctx, query, nodes, nil,
+			func(n *Property, e *HostService) { n.Edges.Hostservice = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -485,20 +440,14 @@ func (pq *PropertyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pro
 			return nil, err
 		}
 	}
-	if query := pq.withServices; query != nil {
-		if err := pq.loadServices(ctx, query, nodes, nil,
-			func(n *Property, e *Service) { n.Edges.Services = e }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
 }
 
-func (pq *PropertyQuery) loadCompetition(ctx context.Context, query *CompetitionQuery, nodes []*Property, init func(*Property), assign func(*Property, *Competition)) error {
+func (pq *PropertyQuery) loadHostservice(ctx context.Context, query *HostServiceQuery, nodes []*Property, init func(*Property), assign func(*Property, *HostService)) error {
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*Property)
 	for i := range nodes {
-		fk := nodes[i].CompetitionID
+		fk := nodes[i].HostServiceID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -507,7 +456,7 @@ func (pq *PropertyQuery) loadCompetition(ctx context.Context, query *Competition
 	if len(ids) == 0 {
 		return nil
 	}
-	query.Where(competition.IDIn(ids...))
+	query.Where(hostservice.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
@@ -515,7 +464,7 @@ func (pq *PropertyQuery) loadCompetition(ctx context.Context, query *Competition
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "competition_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "host_service_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -552,38 +501,6 @@ func (pq *PropertyQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes [
 	}
 	return nil
 }
-func (pq *PropertyQuery) loadServices(ctx context.Context, query *ServiceQuery, nodes []*Property, init func(*Property), assign func(*Property, *Service)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*Property)
-	for i := range nodes {
-		if nodes[i].service_properties == nil {
-			continue
-		}
-		fk := *nodes[i].service_properties
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(service.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "service_properties" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 
 func (pq *PropertyQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := pq.querySpec()
@@ -610,8 +527,8 @@ func (pq *PropertyQuery) querySpec() *sqlgraph.QuerySpec {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
-		if pq.withCompetition != nil {
-			_spec.Node.AddColumnOnce(property.FieldCompetitionID)
+		if pq.withHostservice != nil {
+			_spec.Node.AddColumnOnce(property.FieldHostServiceID)
 		}
 		if pq.withTeam != nil {
 			_spec.Node.AddColumnOnce(property.FieldTeamID)

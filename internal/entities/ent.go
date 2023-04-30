@@ -15,13 +15,12 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/check"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostgroup"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/property"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/report"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/round"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/user"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -85,13 +84,12 @@ func checkColumn(table, column string) error {
 			check.Table:       check.ValidColumn,
 			competition.Table: competition.ValidColumn,
 			host.Table:        host.ValidColumn,
-			hostgroup.Table:   hostgroup.ValidColumn,
+			hostservice.Table: hostservice.ValidColumn,
 			property.Table:    property.ValidColumn,
 			report.Table:      report.ValidColumn,
 			round.Table:       round.ValidColumn,
 			service.Table:     service.ValidColumn,
 			team.Table:        team.ValidColumn,
-			user.Table:        user.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

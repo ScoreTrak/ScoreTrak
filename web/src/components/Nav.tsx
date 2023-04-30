@@ -1,26 +1,34 @@
 import { useAuth } from "../contexts/AuthContext";
-import {Link} from "@tanstack/react-router";
+import {Link, NavLink} from "react-router-dom";
 
 
 export default function Nav() {
-  const { session, logoutUrl } = useAuth()
+  const { user, logoutUrl } = useAuth()
+
   return (
     <>
-      <Link to={"/"}>HOME</Link>
-      {
-        !session ?
-          <>
-            <Link to={"/auth/login"} >Login</Link>
-            <Link to={"/auth/register"} >Register</Link>
-          </>
-          :
-          <>
-            <Link to={logoutUrl} >Logout</Link>
-          </>
-
-      }
-      <Link to={"/competitions"} >Competitions</Link>
-      <Link to={"/dashboard"} >Dashboard</Link>
+      <header>
+        <nav aria-label={"main-nav"} className={"container flex flex-row p-2"}>
+          <div className={""}>
+            <NavLink to={"/"} className={"text-3xl font-bold tracking-wide"}>ScoreTrak</NavLink>
+          </div>
+          <div className={"grow"}></div>
+          <div className={""}>
+            { !user &&
+              <>
+                <NavLink to={"/auth/login"} className={"secondary"} >Login</NavLink>
+                <NavLink to={"/auth/register"} className={"secondary"} >Register</NavLink>
+              </>
+            }
+            { user && logoutUrl &&
+              <>
+                <NavLink to={"/me"}>{user.traits?.username}</NavLink>
+                <Link to={logoutUrl} className={"secondary"} >Logout</Link>
+              </>
+            }
+          </div>
+        </nav>
+      </header>
     </>
   )
 }

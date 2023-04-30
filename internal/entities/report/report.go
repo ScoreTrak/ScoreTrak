@@ -4,6 +4,7 @@ package report
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -15,8 +16,19 @@ const (
 	FieldLog = "log"
 	// FieldError holds the string denoting the error field in the database.
 	FieldError = "error"
+	// FieldCompetitionID holds the string denoting the competition_id field in the database.
+	FieldCompetitionID = "competition_id"
+	// EdgeCompetition holds the string denoting the competition edge name in mutations.
+	EdgeCompetition = "competition"
 	// Table holds the table name of the report in the database.
 	Table = "reports"
+	// CompetitionTable is the table that holds the competition relation/edge.
+	CompetitionTable = "reports"
+	// CompetitionInverseTable is the table name for the Competition entity.
+	// It exists in this package in order to avoid circular dependency with the "competition" package.
+	CompetitionInverseTable = "competitions"
+	// CompetitionColumn is the table column denoting the competition relation/edge.
+	CompetitionColumn = "competition_id"
 )
 
 // Columns holds all SQL columns for report fields.
@@ -24,6 +36,7 @@ var Columns = []string{
 	FieldID,
 	FieldLog,
 	FieldError,
+	FieldCompetitionID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -52,4 +65,23 @@ func ByLog(opts ...sql.OrderTermOption) Order {
 // ByError orders the results by the error field.
 func ByError(opts ...sql.OrderTermOption) Order {
 	return sql.OrderByField(FieldError, opts...).ToFunc()
+}
+
+// ByCompetitionID orders the results by the competition_id field.
+func ByCompetitionID(opts ...sql.OrderTermOption) Order {
+	return sql.OrderByField(FieldCompetitionID, opts...).ToFunc()
+}
+
+// ByCompetitionField orders the results by competition field.
+func ByCompetitionField(field string, opts ...sql.OrderTermOption) Order {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCompetitionStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newCompetitionStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CompetitionInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, CompetitionTable, CompetitionColumn),
+	)
 }

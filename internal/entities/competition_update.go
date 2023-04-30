@@ -13,8 +13,10 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/report"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/round"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/user"
 )
 
 // CompetitionUpdate is the builder for updating Competition entities.
@@ -177,19 +179,49 @@ func (cu *CompetitionUpdate) AddTeams(t ...*Team) *CompetitionUpdate {
 	return cu.AddTeamIDs(ids...)
 }
 
-// AddUserIDs adds the "users" edge to the User entity by IDs.
-func (cu *CompetitionUpdate) AddUserIDs(ids ...string) *CompetitionUpdate {
-	cu.mutation.AddUserIDs(ids...)
+// AddServiceIDs adds the "services" edge to the Service entity by IDs.
+func (cu *CompetitionUpdate) AddServiceIDs(ids ...string) *CompetitionUpdate {
+	cu.mutation.AddServiceIDs(ids...)
 	return cu
 }
 
-// AddUsers adds the "users" edges to the User entity.
-func (cu *CompetitionUpdate) AddUsers(u ...*User) *CompetitionUpdate {
-	ids := make([]string, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// AddServices adds the "services" edges to the Service entity.
+func (cu *CompetitionUpdate) AddServices(s ...*Service) *CompetitionUpdate {
+	ids := make([]string, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
 	}
-	return cu.AddUserIDs(ids...)
+	return cu.AddServiceIDs(ids...)
+}
+
+// AddReportIDs adds the "reports" edge to the Report entity by IDs.
+func (cu *CompetitionUpdate) AddReportIDs(ids ...int) *CompetitionUpdate {
+	cu.mutation.AddReportIDs(ids...)
+	return cu
+}
+
+// AddReports adds the "reports" edges to the Report entity.
+func (cu *CompetitionUpdate) AddReports(r ...*Report) *CompetitionUpdate {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return cu.AddReportIDs(ids...)
+}
+
+// AddRoundIDs adds the "rounds" edge to the Round entity by IDs.
+func (cu *CompetitionUpdate) AddRoundIDs(ids ...string) *CompetitionUpdate {
+	cu.mutation.AddRoundIDs(ids...)
+	return cu
+}
+
+// AddRounds adds the "rounds" edges to the Round entity.
+func (cu *CompetitionUpdate) AddRounds(r ...*Round) *CompetitionUpdate {
+	ids := make([]string, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return cu.AddRoundIDs(ids...)
 }
 
 // Mutation returns the CompetitionMutation object of the builder.
@@ -218,25 +250,67 @@ func (cu *CompetitionUpdate) RemoveTeams(t ...*Team) *CompetitionUpdate {
 	return cu.RemoveTeamIDs(ids...)
 }
 
-// ClearUsers clears all "users" edges to the User entity.
-func (cu *CompetitionUpdate) ClearUsers() *CompetitionUpdate {
-	cu.mutation.ClearUsers()
+// ClearServices clears all "services" edges to the Service entity.
+func (cu *CompetitionUpdate) ClearServices() *CompetitionUpdate {
+	cu.mutation.ClearServices()
 	return cu
 }
 
-// RemoveUserIDs removes the "users" edge to User entities by IDs.
-func (cu *CompetitionUpdate) RemoveUserIDs(ids ...string) *CompetitionUpdate {
-	cu.mutation.RemoveUserIDs(ids...)
+// RemoveServiceIDs removes the "services" edge to Service entities by IDs.
+func (cu *CompetitionUpdate) RemoveServiceIDs(ids ...string) *CompetitionUpdate {
+	cu.mutation.RemoveServiceIDs(ids...)
 	return cu
 }
 
-// RemoveUsers removes "users" edges to User entities.
-func (cu *CompetitionUpdate) RemoveUsers(u ...*User) *CompetitionUpdate {
-	ids := make([]string, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// RemoveServices removes "services" edges to Service entities.
+func (cu *CompetitionUpdate) RemoveServices(s ...*Service) *CompetitionUpdate {
+	ids := make([]string, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
 	}
-	return cu.RemoveUserIDs(ids...)
+	return cu.RemoveServiceIDs(ids...)
+}
+
+// ClearReports clears all "reports" edges to the Report entity.
+func (cu *CompetitionUpdate) ClearReports() *CompetitionUpdate {
+	cu.mutation.ClearReports()
+	return cu
+}
+
+// RemoveReportIDs removes the "reports" edge to Report entities by IDs.
+func (cu *CompetitionUpdate) RemoveReportIDs(ids ...int) *CompetitionUpdate {
+	cu.mutation.RemoveReportIDs(ids...)
+	return cu
+}
+
+// RemoveReports removes "reports" edges to Report entities.
+func (cu *CompetitionUpdate) RemoveReports(r ...*Report) *CompetitionUpdate {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return cu.RemoveReportIDs(ids...)
+}
+
+// ClearRounds clears all "rounds" edges to the Round entity.
+func (cu *CompetitionUpdate) ClearRounds() *CompetitionUpdate {
+	cu.mutation.ClearRounds()
+	return cu
+}
+
+// RemoveRoundIDs removes the "rounds" edge to Round entities by IDs.
+func (cu *CompetitionUpdate) RemoveRoundIDs(ids ...string) *CompetitionUpdate {
+	cu.mutation.RemoveRoundIDs(ids...)
+	return cu
+}
+
+// RemoveRounds removes "rounds" edges to Round entities.
+func (cu *CompetitionUpdate) RemoveRounds(r ...*Round) *CompetitionUpdate {
+	ids := make([]string, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return cu.RemoveRoundIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -271,6 +345,11 @@ func (cu *CompetitionUpdate) check() error {
 	if v, ok := cu.mutation.Name(); ok {
 		if err := competition.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`entities: validator failed for field "Competition.name": %w`, err)}
+		}
+	}
+	if v, ok := cu.mutation.DisplayName(); ok {
+		if err := competition.DisplayNameValidator(v); err != nil {
+			return &ValidationError{Name: "display_name", err: fmt.Errorf(`entities: validator failed for field "Competition.display_name": %w`, err)}
 		}
 	}
 	return nil
@@ -375,28 +454,28 @@ func (cu *CompetitionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if cu.mutation.UsersCleared() {
+	if cu.mutation.ServicesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   competition.UsersTable,
-			Columns: competition.UsersPrimaryKey,
+			Table:   competition.ServicesTable,
+			Columns: []string{competition.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cu.mutation.RemovedUsersIDs(); len(nodes) > 0 && !cu.mutation.UsersCleared() {
+	if nodes := cu.mutation.RemovedServicesIDs(); len(nodes) > 0 && !cu.mutation.ServicesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   competition.UsersTable,
-			Columns: competition.UsersPrimaryKey,
+			Table:   competition.ServicesTable,
+			Columns: []string{competition.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -404,15 +483,105 @@ func (cu *CompetitionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cu.mutation.UsersIDs(); len(nodes) > 0 {
+	if nodes := cu.mutation.ServicesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   competition.UsersTable,
-			Columns: competition.UsersPrimaryKey,
+			Table:   competition.ServicesTable,
+			Columns: []string{competition.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cu.mutation.ReportsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   competition.ReportsTable,
+			Columns: []string{competition.ReportsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(report.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.RemovedReportsIDs(); len(nodes) > 0 && !cu.mutation.ReportsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   competition.ReportsTable,
+			Columns: []string{competition.ReportsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(report.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.ReportsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   competition.ReportsTable,
+			Columns: []string{competition.ReportsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(report.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cu.mutation.RoundsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   competition.RoundsTable,
+			Columns: []string{competition.RoundsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.RemovedRoundsIDs(); len(nodes) > 0 && !cu.mutation.RoundsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   competition.RoundsTable,
+			Columns: []string{competition.RoundsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.RoundsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   competition.RoundsTable,
+			Columns: []string{competition.RoundsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -587,19 +756,49 @@ func (cuo *CompetitionUpdateOne) AddTeams(t ...*Team) *CompetitionUpdateOne {
 	return cuo.AddTeamIDs(ids...)
 }
 
-// AddUserIDs adds the "users" edge to the User entity by IDs.
-func (cuo *CompetitionUpdateOne) AddUserIDs(ids ...string) *CompetitionUpdateOne {
-	cuo.mutation.AddUserIDs(ids...)
+// AddServiceIDs adds the "services" edge to the Service entity by IDs.
+func (cuo *CompetitionUpdateOne) AddServiceIDs(ids ...string) *CompetitionUpdateOne {
+	cuo.mutation.AddServiceIDs(ids...)
 	return cuo
 }
 
-// AddUsers adds the "users" edges to the User entity.
-func (cuo *CompetitionUpdateOne) AddUsers(u ...*User) *CompetitionUpdateOne {
-	ids := make([]string, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// AddServices adds the "services" edges to the Service entity.
+func (cuo *CompetitionUpdateOne) AddServices(s ...*Service) *CompetitionUpdateOne {
+	ids := make([]string, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
 	}
-	return cuo.AddUserIDs(ids...)
+	return cuo.AddServiceIDs(ids...)
+}
+
+// AddReportIDs adds the "reports" edge to the Report entity by IDs.
+func (cuo *CompetitionUpdateOne) AddReportIDs(ids ...int) *CompetitionUpdateOne {
+	cuo.mutation.AddReportIDs(ids...)
+	return cuo
+}
+
+// AddReports adds the "reports" edges to the Report entity.
+func (cuo *CompetitionUpdateOne) AddReports(r ...*Report) *CompetitionUpdateOne {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return cuo.AddReportIDs(ids...)
+}
+
+// AddRoundIDs adds the "rounds" edge to the Round entity by IDs.
+func (cuo *CompetitionUpdateOne) AddRoundIDs(ids ...string) *CompetitionUpdateOne {
+	cuo.mutation.AddRoundIDs(ids...)
+	return cuo
+}
+
+// AddRounds adds the "rounds" edges to the Round entity.
+func (cuo *CompetitionUpdateOne) AddRounds(r ...*Round) *CompetitionUpdateOne {
+	ids := make([]string, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return cuo.AddRoundIDs(ids...)
 }
 
 // Mutation returns the CompetitionMutation object of the builder.
@@ -628,25 +827,67 @@ func (cuo *CompetitionUpdateOne) RemoveTeams(t ...*Team) *CompetitionUpdateOne {
 	return cuo.RemoveTeamIDs(ids...)
 }
 
-// ClearUsers clears all "users" edges to the User entity.
-func (cuo *CompetitionUpdateOne) ClearUsers() *CompetitionUpdateOne {
-	cuo.mutation.ClearUsers()
+// ClearServices clears all "services" edges to the Service entity.
+func (cuo *CompetitionUpdateOne) ClearServices() *CompetitionUpdateOne {
+	cuo.mutation.ClearServices()
 	return cuo
 }
 
-// RemoveUserIDs removes the "users" edge to User entities by IDs.
-func (cuo *CompetitionUpdateOne) RemoveUserIDs(ids ...string) *CompetitionUpdateOne {
-	cuo.mutation.RemoveUserIDs(ids...)
+// RemoveServiceIDs removes the "services" edge to Service entities by IDs.
+func (cuo *CompetitionUpdateOne) RemoveServiceIDs(ids ...string) *CompetitionUpdateOne {
+	cuo.mutation.RemoveServiceIDs(ids...)
 	return cuo
 }
 
-// RemoveUsers removes "users" edges to User entities.
-func (cuo *CompetitionUpdateOne) RemoveUsers(u ...*User) *CompetitionUpdateOne {
-	ids := make([]string, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// RemoveServices removes "services" edges to Service entities.
+func (cuo *CompetitionUpdateOne) RemoveServices(s ...*Service) *CompetitionUpdateOne {
+	ids := make([]string, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
 	}
-	return cuo.RemoveUserIDs(ids...)
+	return cuo.RemoveServiceIDs(ids...)
+}
+
+// ClearReports clears all "reports" edges to the Report entity.
+func (cuo *CompetitionUpdateOne) ClearReports() *CompetitionUpdateOne {
+	cuo.mutation.ClearReports()
+	return cuo
+}
+
+// RemoveReportIDs removes the "reports" edge to Report entities by IDs.
+func (cuo *CompetitionUpdateOne) RemoveReportIDs(ids ...int) *CompetitionUpdateOne {
+	cuo.mutation.RemoveReportIDs(ids...)
+	return cuo
+}
+
+// RemoveReports removes "reports" edges to Report entities.
+func (cuo *CompetitionUpdateOne) RemoveReports(r ...*Report) *CompetitionUpdateOne {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return cuo.RemoveReportIDs(ids...)
+}
+
+// ClearRounds clears all "rounds" edges to the Round entity.
+func (cuo *CompetitionUpdateOne) ClearRounds() *CompetitionUpdateOne {
+	cuo.mutation.ClearRounds()
+	return cuo
+}
+
+// RemoveRoundIDs removes the "rounds" edge to Round entities by IDs.
+func (cuo *CompetitionUpdateOne) RemoveRoundIDs(ids ...string) *CompetitionUpdateOne {
+	cuo.mutation.RemoveRoundIDs(ids...)
+	return cuo
+}
+
+// RemoveRounds removes "rounds" edges to Round entities.
+func (cuo *CompetitionUpdateOne) RemoveRounds(r ...*Round) *CompetitionUpdateOne {
+	ids := make([]string, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return cuo.RemoveRoundIDs(ids...)
 }
 
 // Where appends a list predicates to the CompetitionUpdate builder.
@@ -694,6 +935,11 @@ func (cuo *CompetitionUpdateOne) check() error {
 	if v, ok := cuo.mutation.Name(); ok {
 		if err := competition.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`entities: validator failed for field "Competition.name": %w`, err)}
+		}
+	}
+	if v, ok := cuo.mutation.DisplayName(); ok {
+		if err := competition.DisplayNameValidator(v); err != nil {
+			return &ValidationError{Name: "display_name", err: fmt.Errorf(`entities: validator failed for field "Competition.display_name": %w`, err)}
 		}
 	}
 	return nil
@@ -815,28 +1061,28 @@ func (cuo *CompetitionUpdateOne) sqlSave(ctx context.Context) (_node *Competitio
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if cuo.mutation.UsersCleared() {
+	if cuo.mutation.ServicesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   competition.UsersTable,
-			Columns: competition.UsersPrimaryKey,
+			Table:   competition.ServicesTable,
+			Columns: []string{competition.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cuo.mutation.RemovedUsersIDs(); len(nodes) > 0 && !cuo.mutation.UsersCleared() {
+	if nodes := cuo.mutation.RemovedServicesIDs(); len(nodes) > 0 && !cuo.mutation.ServicesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   competition.UsersTable,
-			Columns: competition.UsersPrimaryKey,
+			Table:   competition.ServicesTable,
+			Columns: []string{competition.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -844,15 +1090,105 @@ func (cuo *CompetitionUpdateOne) sqlSave(ctx context.Context) (_node *Competitio
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cuo.mutation.UsersIDs(); len(nodes) > 0 {
+	if nodes := cuo.mutation.ServicesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   competition.UsersTable,
-			Columns: competition.UsersPrimaryKey,
+			Table:   competition.ServicesTable,
+			Columns: []string{competition.ServicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cuo.mutation.ReportsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   competition.ReportsTable,
+			Columns: []string{competition.ReportsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(report.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.RemovedReportsIDs(); len(nodes) > 0 && !cuo.mutation.ReportsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   competition.ReportsTable,
+			Columns: []string{competition.ReportsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(report.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.ReportsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   competition.ReportsTable,
+			Columns: []string{competition.ReportsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(report.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if cuo.mutation.RoundsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   competition.RoundsTable,
+			Columns: []string{competition.RoundsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.RemovedRoundsIDs(); len(nodes) > 0 && !cuo.mutation.RoundsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   competition.RoundsTable,
+			Columns: []string{competition.RoundsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.RoundsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   competition.RoundsTable,
+			Columns: []string{competition.RoundsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

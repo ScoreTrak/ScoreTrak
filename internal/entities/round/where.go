@@ -65,11 +65,6 @@ func IDContainsFold(id string) predicate.Round {
 	return predicate.Round(sql.FieldContainsFold(FieldID, id))
 }
 
-// CompetitionID applies equality check predicate on the "competition_id" field. It's identical to CompetitionIDEQ.
-func CompetitionID(v string) predicate.Round {
-	return predicate.Round(sql.FieldEQ(FieldCompetitionID, v))
-}
-
 // RoundNumber applies equality check predicate on the "round_number" field. It's identical to RoundNumberEQ.
 func RoundNumber(v int) predicate.Round {
 	return predicate.Round(sql.FieldEQ(FieldRoundNumber, v))
@@ -95,69 +90,9 @@ func FinishedAt(v time.Time) predicate.Round {
 	return predicate.Round(sql.FieldEQ(FieldFinishedAt, v))
 }
 
-// CompetitionIDEQ applies the EQ predicate on the "competition_id" field.
-func CompetitionIDEQ(v string) predicate.Round {
+// CompetitionID applies equality check predicate on the "competition_id" field. It's identical to CompetitionIDEQ.
+func CompetitionID(v string) predicate.Round {
 	return predicate.Round(sql.FieldEQ(FieldCompetitionID, v))
-}
-
-// CompetitionIDNEQ applies the NEQ predicate on the "competition_id" field.
-func CompetitionIDNEQ(v string) predicate.Round {
-	return predicate.Round(sql.FieldNEQ(FieldCompetitionID, v))
-}
-
-// CompetitionIDIn applies the In predicate on the "competition_id" field.
-func CompetitionIDIn(vs ...string) predicate.Round {
-	return predicate.Round(sql.FieldIn(FieldCompetitionID, vs...))
-}
-
-// CompetitionIDNotIn applies the NotIn predicate on the "competition_id" field.
-func CompetitionIDNotIn(vs ...string) predicate.Round {
-	return predicate.Round(sql.FieldNotIn(FieldCompetitionID, vs...))
-}
-
-// CompetitionIDGT applies the GT predicate on the "competition_id" field.
-func CompetitionIDGT(v string) predicate.Round {
-	return predicate.Round(sql.FieldGT(FieldCompetitionID, v))
-}
-
-// CompetitionIDGTE applies the GTE predicate on the "competition_id" field.
-func CompetitionIDGTE(v string) predicate.Round {
-	return predicate.Round(sql.FieldGTE(FieldCompetitionID, v))
-}
-
-// CompetitionIDLT applies the LT predicate on the "competition_id" field.
-func CompetitionIDLT(v string) predicate.Round {
-	return predicate.Round(sql.FieldLT(FieldCompetitionID, v))
-}
-
-// CompetitionIDLTE applies the LTE predicate on the "competition_id" field.
-func CompetitionIDLTE(v string) predicate.Round {
-	return predicate.Round(sql.FieldLTE(FieldCompetitionID, v))
-}
-
-// CompetitionIDContains applies the Contains predicate on the "competition_id" field.
-func CompetitionIDContains(v string) predicate.Round {
-	return predicate.Round(sql.FieldContains(FieldCompetitionID, v))
-}
-
-// CompetitionIDHasPrefix applies the HasPrefix predicate on the "competition_id" field.
-func CompetitionIDHasPrefix(v string) predicate.Round {
-	return predicate.Round(sql.FieldHasPrefix(FieldCompetitionID, v))
-}
-
-// CompetitionIDHasSuffix applies the HasSuffix predicate on the "competition_id" field.
-func CompetitionIDHasSuffix(v string) predicate.Round {
-	return predicate.Round(sql.FieldHasSuffix(FieldCompetitionID, v))
-}
-
-// CompetitionIDEqualFold applies the EqualFold predicate on the "competition_id" field.
-func CompetitionIDEqualFold(v string) predicate.Round {
-	return predicate.Round(sql.FieldEqualFold(FieldCompetitionID, v))
-}
-
-// CompetitionIDContainsFold applies the ContainsFold predicate on the "competition_id" field.
-func CompetitionIDContainsFold(v string) predicate.Round {
-	return predicate.Round(sql.FieldContainsFold(FieldCompetitionID, v))
 }
 
 // RoundNumberEQ applies the EQ predicate on the "round_number" field.
@@ -410,27 +345,69 @@ func FinishedAtLTE(v time.Time) predicate.Round {
 	return predicate.Round(sql.FieldLTE(FieldFinishedAt, v))
 }
 
-// HasCompetition applies the HasEdge predicate on the "competition" edge.
-func HasCompetition() predicate.Round {
-	return predicate.Round(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, CompetitionTable, CompetitionColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
+// CompetitionIDEQ applies the EQ predicate on the "competition_id" field.
+func CompetitionIDEQ(v string) predicate.Round {
+	return predicate.Round(sql.FieldEQ(FieldCompetitionID, v))
 }
 
-// HasCompetitionWith applies the HasEdge predicate on the "competition" edge with a given conditions (other predicates).
-func HasCompetitionWith(preds ...predicate.Competition) predicate.Round {
-	return predicate.Round(func(s *sql.Selector) {
-		step := newCompetitionStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
+// CompetitionIDNEQ applies the NEQ predicate on the "competition_id" field.
+func CompetitionIDNEQ(v string) predicate.Round {
+	return predicate.Round(sql.FieldNEQ(FieldCompetitionID, v))
+}
+
+// CompetitionIDIn applies the In predicate on the "competition_id" field.
+func CompetitionIDIn(vs ...string) predicate.Round {
+	return predicate.Round(sql.FieldIn(FieldCompetitionID, vs...))
+}
+
+// CompetitionIDNotIn applies the NotIn predicate on the "competition_id" field.
+func CompetitionIDNotIn(vs ...string) predicate.Round {
+	return predicate.Round(sql.FieldNotIn(FieldCompetitionID, vs...))
+}
+
+// CompetitionIDGT applies the GT predicate on the "competition_id" field.
+func CompetitionIDGT(v string) predicate.Round {
+	return predicate.Round(sql.FieldGT(FieldCompetitionID, v))
+}
+
+// CompetitionIDGTE applies the GTE predicate on the "competition_id" field.
+func CompetitionIDGTE(v string) predicate.Round {
+	return predicate.Round(sql.FieldGTE(FieldCompetitionID, v))
+}
+
+// CompetitionIDLT applies the LT predicate on the "competition_id" field.
+func CompetitionIDLT(v string) predicate.Round {
+	return predicate.Round(sql.FieldLT(FieldCompetitionID, v))
+}
+
+// CompetitionIDLTE applies the LTE predicate on the "competition_id" field.
+func CompetitionIDLTE(v string) predicate.Round {
+	return predicate.Round(sql.FieldLTE(FieldCompetitionID, v))
+}
+
+// CompetitionIDContains applies the Contains predicate on the "competition_id" field.
+func CompetitionIDContains(v string) predicate.Round {
+	return predicate.Round(sql.FieldContains(FieldCompetitionID, v))
+}
+
+// CompetitionIDHasPrefix applies the HasPrefix predicate on the "competition_id" field.
+func CompetitionIDHasPrefix(v string) predicate.Round {
+	return predicate.Round(sql.FieldHasPrefix(FieldCompetitionID, v))
+}
+
+// CompetitionIDHasSuffix applies the HasSuffix predicate on the "competition_id" field.
+func CompetitionIDHasSuffix(v string) predicate.Round {
+	return predicate.Round(sql.FieldHasSuffix(FieldCompetitionID, v))
+}
+
+// CompetitionIDEqualFold applies the EqualFold predicate on the "competition_id" field.
+func CompetitionIDEqualFold(v string) predicate.Round {
+	return predicate.Round(sql.FieldEqualFold(FieldCompetitionID, v))
+}
+
+// CompetitionIDContainsFold applies the ContainsFold predicate on the "competition_id" field.
+func CompetitionIDContainsFold(v string) predicate.Round {
+	return predicate.Round(sql.FieldContainsFold(FieldCompetitionID, v))
 }
 
 // HasChecks applies the HasEdge predicate on the "checks" edge.
@@ -448,6 +425,29 @@ func HasChecks() predicate.Round {
 func HasChecksWith(preds ...predicate.Check) predicate.Round {
 	return predicate.Round(func(s *sql.Selector) {
 		step := newChecksStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasCompetition applies the HasEdge predicate on the "competition" edge.
+func HasCompetition() predicate.Round {
+	return predicate.Round(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, CompetitionTable, CompetitionColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCompetitionWith applies the HasEdge predicate on the "competition" edge with a given conditions (other predicates).
+func HasCompetitionWith(preds ...predicate.Competition) predicate.Round {
+	return predicate.Round(func(s *sql.Selector) {
+		step := newCompetitionStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

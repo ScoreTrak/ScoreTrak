@@ -1,4 +1,6 @@
 
-auth:
-  ory:
-    slug: nostalgiczhukovskyvei6jfxpja
+server:
+  cors:
+    allowedorigins: ["http://localhost:5173"]
+    allowcredentials: true
+

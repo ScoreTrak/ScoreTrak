@@ -17,40 +17,81 @@ type Team struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
+	// DisplayName holds the value of the "display_name" field.
+	DisplayName string `json:"display_name,omitempty"`
 	// Pause holds the value of the "pause" field.
 	Pause bool `json:"pause,omitempty"`
 	// Hidden holds the value of the "hidden" field.
 	Hidden bool `json:"hidden,omitempty"`
+	// Number holds the value of the "number" field.
+	Number int `json:"number,omitempty"`
 	// CompetitionID holds the value of the "competition_id" field.
 	CompetitionID string `json:"competition_id,omitempty"`
-	// Name holds the value of the "name" field.
-	Name string `json:"name,omitempty"`
-	// Index holds the value of the "index" field.
-	Index int `json:"index,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TeamQuery when eager-loading is set.
-	Edges             TeamEdges `json:"edges"`
-	competition_teams *string
-	selectValues      sql.SelectValues
+	Edges        TeamEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // TeamEdges holds the relations/edges for other nodes in the graph.
 type TeamEdges struct {
-	// Competition holds the value of the competition edge.
-	Competition *Competition `json:"competition,omitempty"`
-	// Users holds the value of the users edge.
-	Users []*User `json:"users,omitempty"`
 	// Hosts holds the value of the hosts edge.
 	Hosts []*Host `json:"hosts,omitempty"`
+	// Hostservices holds the value of the hostservices edge.
+	Hostservices []*HostService `json:"hostservices,omitempty"`
+	// Checks holds the value of the checks edge.
+	Checks []*Check `json:"checks,omitempty"`
+	// Properties holds the value of the properties edge.
+	Properties []*Property `json:"properties,omitempty"`
+	// Competition holds the value of the competition edge.
+	Competition *Competition `json:"competition,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [5]bool
+}
+
+// HostsOrErr returns the Hosts value or an error if the edge
+// was not loaded in eager-loading.
+func (e TeamEdges) HostsOrErr() ([]*Host, error) {
+	if e.loadedTypes[0] {
+		return e.Hosts, nil
+	}
+	return nil, &NotLoadedError{edge: "hosts"}
+}
+
+// HostservicesOrErr returns the Hostservices value or an error if the edge
+// was not loaded in eager-loading.
+func (e TeamEdges) HostservicesOrErr() ([]*HostService, error) {
+	if e.loadedTypes[1] {
+		return e.Hostservices, nil
+	}
+	return nil, &NotLoadedError{edge: "hostservices"}
+}
+
+// ChecksOrErr returns the Checks value or an error if the edge
+// was not loaded in eager-loading.
+func (e TeamEdges) ChecksOrErr() ([]*Check, error) {
+	if e.loadedTypes[2] {
+		return e.Checks, nil
+	}
+	return nil, &NotLoadedError{edge: "checks"}
+}
+
+// PropertiesOrErr returns the Properties value or an error if the edge
+// was not loaded in eager-loading.
+func (e TeamEdges) PropertiesOrErr() ([]*Property, error) {
+	if e.loadedTypes[3] {
+		return e.Properties, nil
+	}
+	return nil, &NotLoadedError{edge: "properties"}
 }
 
 // CompetitionOrErr returns the Competition value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e TeamEdges) CompetitionOrErr() (*Competition, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[4] {
 		if e.Competition == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: competition.Label}
@@ -60,24 +101,6 @@ func (e TeamEdges) CompetitionOrErr() (*Competition, error) {
 	return nil, &NotLoadedError{edge: "competition"}
 }
 
-// UsersOrErr returns the Users value or an error if the edge
-// was not loaded in eager-loading.
-func (e TeamEdges) UsersOrErr() ([]*User, error) {
-	if e.loadedTypes[1] {
-		return e.Users, nil
-	}
-	return nil, &NotLoadedError{edge: "users"}
-}
-
-// HostsOrErr returns the Hosts value or an error if the edge
-// was not loaded in eager-loading.
-func (e TeamEdges) HostsOrErr() ([]*Host, error) {
-	if e.loadedTypes[2] {
-		return e.Hosts, nil
-	}
-	return nil, &NotLoadedError{edge: "hosts"}
-}
-
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Team) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -85,11 +108,9 @@ func (*Team) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case team.FieldPause, team.FieldHidden:
 			values[i] = new(sql.NullBool)
-		case team.FieldIndex:
+		case team.FieldNumber:
 			values[i] = new(sql.NullInt64)
-		case team.FieldID, team.FieldCompetitionID, team.FieldName:
-			values[i] = new(sql.NullString)
-		case team.ForeignKeys[0]: // competition_teams
+		case team.FieldID, team.FieldName, team.FieldDisplayName, team.FieldCompetitionID:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -112,6 +133,18 @@ func (t *Team) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				t.ID = value.String
 			}
+		case team.FieldName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field name", values[i])
+			} else if value.Valid {
+				t.Name = value.String
+			}
+		case team.FieldDisplayName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field display_name", values[i])
+			} else if value.Valid {
+				t.DisplayName = value.String
+			}
 		case team.FieldPause:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field pause", values[i])
@@ -124,30 +157,17 @@ func (t *Team) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				t.Hidden = value.Bool
 			}
+		case team.FieldNumber:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field number", values[i])
+			} else if value.Valid {
+				t.Number = int(value.Int64)
+			}
 		case team.FieldCompetitionID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field competition_id", values[i])
 			} else if value.Valid {
 				t.CompetitionID = value.String
-			}
-		case team.FieldName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field name", values[i])
-			} else if value.Valid {
-				t.Name = value.String
-			}
-		case team.FieldIndex:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field index", values[i])
-			} else if value.Valid {
-				t.Index = int(value.Int64)
-			}
-		case team.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field competition_teams", values[i])
-			} else if value.Valid {
-				t.competition_teams = new(string)
-				*t.competition_teams = value.String
 			}
 		default:
 			t.selectValues.Set(columns[i], values[i])
@@ -162,19 +182,29 @@ func (t *Team) Value(name string) (ent.Value, error) {
 	return t.selectValues.Get(name)
 }
 
-// QueryCompetition queries the "competition" edge of the Team entity.
-func (t *Team) QueryCompetition() *CompetitionQuery {
-	return NewTeamClient(t.config).QueryCompetition(t)
-}
-
-// QueryUsers queries the "users" edge of the Team entity.
-func (t *Team) QueryUsers() *UserQuery {
-	return NewTeamClient(t.config).QueryUsers(t)
-}
-
 // QueryHosts queries the "hosts" edge of the Team entity.
 func (t *Team) QueryHosts() *HostQuery {
 	return NewTeamClient(t.config).QueryHosts(t)
+}
+
+// QueryHostservices queries the "hostservices" edge of the Team entity.
+func (t *Team) QueryHostservices() *HostServiceQuery {
+	return NewTeamClient(t.config).QueryHostservices(t)
+}
+
+// QueryChecks queries the "checks" edge of the Team entity.
+func (t *Team) QueryChecks() *CheckQuery {
+	return NewTeamClient(t.config).QueryChecks(t)
+}
+
+// QueryProperties queries the "properties" edge of the Team entity.
+func (t *Team) QueryProperties() *PropertyQuery {
+	return NewTeamClient(t.config).QueryProperties(t)
+}
+
+// QueryCompetition queries the "competition" edge of the Team entity.
+func (t *Team) QueryCompetition() *CompetitionQuery {
+	return NewTeamClient(t.config).QueryCompetition(t)
 }
 
 // Update returns a builder for updating this Team.
@@ -200,20 +230,23 @@ func (t *Team) String() string {
 	var builder strings.Builder
 	builder.WriteString("Team(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", t.ID))
+	builder.WriteString("name=")
+	builder.WriteString(t.Name)
+	builder.WriteString(", ")
+	builder.WriteString("display_name=")
+	builder.WriteString(t.DisplayName)
+	builder.WriteString(", ")
 	builder.WriteString("pause=")
 	builder.WriteString(fmt.Sprintf("%v", t.Pause))
 	builder.WriteString(", ")
 	builder.WriteString("hidden=")
 	builder.WriteString(fmt.Sprintf("%v", t.Hidden))
 	builder.WriteString(", ")
+	builder.WriteString("number=")
+	builder.WriteString(fmt.Sprintf("%v", t.Number))
+	builder.WriteString(", ")
 	builder.WriteString("competition_id=")
 	builder.WriteString(t.CompetitionID)
-	builder.WriteString(", ")
-	builder.WriteString("name=")
-	builder.WriteString(t.Name)
-	builder.WriteString(", ")
-	builder.WriteString("index=")
-	builder.WriteString(fmt.Sprintf("%v", t.Index))
 	builder.WriteByte(')')
 	return builder.String()
 }

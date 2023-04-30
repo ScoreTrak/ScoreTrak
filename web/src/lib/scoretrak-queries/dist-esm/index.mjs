@@ -43,49 +43,45 @@ function nullIfUndefined(value) {
 export const queryKeys = {
     listCheck: (page, itemsPerPage) => ["listCheck", nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
     readCheck: (id) => ["readCheck", id],
-    readCheckCompetition: (id) => ["readCheckCompetition", id],
     readCheckRounds: (id) => ["readCheckRounds", id],
     readCheckServices: (id) => ["readCheckServices", id],
+    readCheckTeam: (id) => ["readCheckTeam", id],
     listCompetition: (page, itemsPerPage) => ["listCompetition", nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
     readCompetition: (id) => ["readCompetition", id],
+    listCompetitionReports: (id, page, itemsPerPage) => ["listCompetitionReports", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
+    listCompetitionServices: (id, page, itemsPerPage) => ["listCompetitionServices", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
     listCompetitionTeams: (id, page, itemsPerPage) => ["listCompetitionTeams", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
-    listCompetitionUsers: (id, page, itemsPerPage) => ["listCompetitionUsers", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
-    listHostGroup: (page, itemsPerPage) => ["listHostGroup", nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
-    readHostGroup: (id) => ["readHostGroup", id],
-    readHostGroupCompetition: (id) => ["readHostGroupCompetition", id],
-    listHostGroupHosts: (id, page, itemsPerPage) => ["listHostGroupHosts", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
-    readHostGroupTeam: (id) => ["readHostGroupTeam", id],
+    listHostService: (page, itemsPerPage) => ["listHostService", nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
+    readHostService: (id) => ["readHostService", id],
+    listHostServiceChecks: (id, page, itemsPerPage) => ["listHostServiceChecks", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
+    readHostServiceHosts: (id) => ["readHostServiceHosts", id],
+    listHostServiceProperties: (id, page, itemsPerPage) => ["listHostServiceProperties", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
+    readHostServiceTeam: (id) => ["readHostServiceTeam", id],
     listHost: (page, itemsPerPage) => ["listHost", nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
     readHost: (id) => ["readHost", id],
-    readHostCompetition: (id) => ["readHostCompetition", id],
-    readHostHostGroup: (id) => ["readHostHostGroup", id],
-    listHostServices: (id, page, itemsPerPage) => ["listHostServices", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
+    listHostHostService: (id, page, itemsPerPage) => ["listHostHostService", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
+    readHostServices: (id) => ["readHostServices", id],
     readHostTeam: (id) => ["readHostTeam", id],
     listProperty: (page, itemsPerPage) => ["listProperty", nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
     readProperty: (id) => ["readProperty", id],
-    readPropertyCompetition: (id) => ["readPropertyCompetition", id],
     readPropertyServices: (id) => ["readPropertyServices", id],
     readPropertyTeam: (id) => ["readPropertyTeam", id],
+    listReport: (page, itemsPerPage) => ["listReport", nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
+    readReport: (id) => ["readReport", id],
     listRound: (page, itemsPerPage) => ["listRound", nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
     readRound: (id) => ["readRound", id],
     listRoundChecks: (id, page, itemsPerPage) => ["listRoundChecks", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
-    readRoundCompetition: (id) => ["readRoundCompetition", id],
     listService: (page, itemsPerPage) => ["listService", nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
     readService: (id) => ["readService", id],
-    listServiceChecks: (id, page, itemsPerPage) => ["listServiceChecks", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
     readServiceCompetition: (id) => ["readServiceCompetition", id],
-    readServiceHosts: (id) => ["readServiceHosts", id],
-    listServiceProperties: (id, page, itemsPerPage) => ["listServiceProperties", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
-    readServiceTeam: (id) => ["readServiceTeam", id],
+    listServiceHosts: (id, page, itemsPerPage) => ["listServiceHosts", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
     listTeam: (page, itemsPerPage) => ["listTeam", nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
     readTeam: (id) => ["readTeam", id],
+    listTeamChecks: (id, page, itemsPerPage) => ["listTeamChecks", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
     readTeamCompetition: (id) => ["readTeamCompetition", id],
     listTeamHosts: (id, page, itemsPerPage) => ["listTeamHosts", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
-    listTeamUsers: (id, page, itemsPerPage) => ["listTeamUsers", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
-    listUser: (page, itemsPerPage) => ["listUser", nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
-    readUser: (id) => ["readUser", id],
-    listUserCompetitions: (id, page, itemsPerPage) => ["listUserCompetitions", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
-    listUserTeams: (id, page, itemsPerPage) => ["listUserTeams", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)]
+    listTeamHostservices: (id, page, itemsPerPage) => ["listTeamHostservices", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)],
+    listTeamProperties: (id, page, itemsPerPage) => ["listTeamProperties", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)]
 };
 function makeRequests(axios, config) {
     return {
@@ -113,10 +109,6 @@ function makeRequests(axios, config) {
             url: `/checks/${id}`,
             data: payload
         }).then(res => res.data),
-        readCheckCompetition: (id) => axios.request({
-            method: "get",
-            url: `/checks/${id}/competition`
-        }).then(res => res.data),
         readCheckRounds: (id) => axios.request({
             method: "get",
             url: `/checks/${id}/rounds`
@@ -124,6 +116,10 @@ function makeRequests(axios, config) {
         readCheckServices: (id) => axios.request({
             method: "get",
             url: `/checks/${id}/services`
+        }).then(res => res.data),
+        readCheckTeam: (id) => axios.request({
+            method: "get",
+            url: `/checks/${id}/team`
         }).then(res => res.data),
         listCompetition: (page, itemsPerPage) => axios.request({
             method: "get",
@@ -149,55 +145,67 @@ function makeRequests(axios, config) {
             url: `/competitions/${id}`,
             data: payload
         }).then(res => res.data),
+        listCompetitionReports: (id, page, itemsPerPage) => axios.request({
+            method: "get",
+            url: `/competitions/${id}/reports`,
+            params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
+            paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
+        }).then(res => res.data),
+        listCompetitionServices: (id, page, itemsPerPage) => axios.request({
+            method: "get",
+            url: `/competitions/${id}/services`,
+            params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
+            paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
+        }).then(res => res.data),
         listCompetitionTeams: (id, page, itemsPerPage) => axios.request({
             method: "get",
             url: `/competitions/${id}/teams`,
             params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
             paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
         }).then(res => res.data),
-        listCompetitionUsers: (id, page, itemsPerPage) => axios.request({
+        listHostService: (page, itemsPerPage) => axios.request({
             method: "get",
-            url: `/competitions/${id}/users`,
+            url: `/host-services`,
             params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
             paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
         }).then(res => res.data),
-        listHostGroup: (page, itemsPerPage) => axios.request({
-            method: "get",
-            url: `/host-groups`,
-            params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
-            paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
-        }).then(res => res.data),
-        createHostGroup: (payload) => axios.request({
+        createHostService: (payload) => axios.request({
             method: "post",
-            url: `/host-groups`,
+            url: `/host-services`,
             data: payload
         }).then(res => res.data),
-        readHostGroup: (id) => axios.request({
+        readHostService: (id) => axios.request({
             method: "get",
-            url: `/host-groups/${id}`
+            url: `/host-services/${id}`
         }).then(res => res.data),
-        deleteHostGroup: (id) => axios.request({
+        deleteHostService: (id) => axios.request({
             method: "delete",
-            url: `/host-groups/${id}`
+            url: `/host-services/${id}`
         }).then(res => res.data),
-        updateHostGroup: (payload, id) => axios.request({
+        updateHostService: (payload, id) => axios.request({
             method: "patch",
-            url: `/host-groups/${id}`,
+            url: `/host-services/${id}`,
             data: payload
         }).then(res => res.data),
-        readHostGroupCompetition: (id) => axios.request({
+        listHostServiceChecks: (id, page, itemsPerPage) => axios.request({
             method: "get",
-            url: `/host-groups/${id}/competition`
-        }).then(res => res.data),
-        listHostGroupHosts: (id, page, itemsPerPage) => axios.request({
-            method: "get",
-            url: `/host-groups/${id}/hosts`,
+            url: `/host-services/${id}/checks`,
             params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
             paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
         }).then(res => res.data),
-        readHostGroupTeam: (id) => axios.request({
+        readHostServiceHosts: (id) => axios.request({
             method: "get",
-            url: `/host-groups/${id}/team`
+            url: `/host-services/${id}/hosts`
+        }).then(res => res.data),
+        listHostServiceProperties: (id, page, itemsPerPage) => axios.request({
+            method: "get",
+            url: `/host-services/${id}/properties`,
+            params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
+            paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
+        }).then(res => res.data),
+        readHostServiceTeam: (id) => axios.request({
+            method: "get",
+            url: `/host-services/${id}/team`
         }).then(res => res.data),
         listHost: (page, itemsPerPage) => axios.request({
             method: "get",
@@ -223,19 +231,15 @@ function makeRequests(axios, config) {
             url: `/hosts/${id}`,
             data: payload
         }).then(res => res.data),
-        readHostCompetition: (id) => axios.request({
+        listHostHostService: (id, page, itemsPerPage) => axios.request({
             method: "get",
-            url: `/hosts/${id}/competition`
-        }).then(res => res.data),
-        readHostHostGroup: (id) => axios.request({
-            method: "get",
-            url: `/hosts/${id}/host-group`
-        }).then(res => res.data),
-        listHostServices: (id, page, itemsPerPage) => axios.request({
-            method: "get",
-            url: `/hosts/${id}/services`,
+            url: `/hosts/${id}/host-service`,
             params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
             paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
+        }).then(res => res.data),
+        readHostServices: (id) => axios.request({
+            method: "get",
+            url: `/hosts/${id}/services`
         }).then(res => res.data),
         readHostTeam: (id) => axios.request({
             method: "get",
@@ -265,10 +269,6 @@ function makeRequests(axios, config) {
             url: `/properties/${id}`,
             data: payload
         }).then(res => res.data),
-        readPropertyCompetition: (id) => axios.request({
-            method: "get",
-            url: `/properties/${id}/competition`
-        }).then(res => res.data),
         readPropertyServices: (id) => axios.request({
             method: "get",
             url: `/properties/${id}/services`
@@ -276,6 +276,30 @@ function makeRequests(axios, config) {
         readPropertyTeam: (id) => axios.request({
             method: "get",
             url: `/properties/${id}/team`
+        }).then(res => res.data),
+        listReport: (page, itemsPerPage) => axios.request({
+            method: "get",
+            url: `/reports`,
+            params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
+            paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
+        }).then(res => res.data),
+        createReport: (payload) => axios.request({
+            method: "post",
+            url: `/reports`,
+            data: payload
+        }).then(res => res.data),
+        readReport: (id) => axios.request({
+            method: "get",
+            url: `/reports/${id}`
+        }).then(res => res.data),
+        deleteReport: (id) => axios.request({
+            method: "delete",
+            url: `/reports/${id}`
+        }).then(res => res.data),
+        updateReport: (payload, id) => axios.request({
+            method: "patch",
+            url: `/reports/${id}`,
+            data: payload
         }).then(res => res.data),
         listRound: (page, itemsPerPage) => axios.request({
             method: "get",
@@ -307,10 +331,6 @@ function makeRequests(axios, config) {
             params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
             paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
         }).then(res => res.data),
-        readRoundCompetition: (id) => axios.request({
-            method: "get",
-            url: `/rounds/${id}/competition`
-        }).then(res => res.data),
         listService: (page, itemsPerPage) => axios.request({
             method: "get",
             url: `/services`,
@@ -335,29 +355,15 @@ function makeRequests(axios, config) {
             url: `/services/${id}`,
             data: payload
         }).then(res => res.data),
-        listServiceChecks: (id, page, itemsPerPage) => axios.request({
-            method: "get",
-            url: `/services/${id}/checks`,
-            params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
-            paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
-        }).then(res => res.data),
         readServiceCompetition: (id) => axios.request({
             method: "get",
             url: `/services/${id}/competition`
         }).then(res => res.data),
-        readServiceHosts: (id) => axios.request({
+        listServiceHosts: (id, page, itemsPerPage) => axios.request({
             method: "get",
-            url: `/services/${id}/hosts`
-        }).then(res => res.data),
-        listServiceProperties: (id, page, itemsPerPage) => axios.request({
-            method: "get",
-            url: `/services/${id}/properties`,
+            url: `/services/${id}/hosts`,
             params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
             paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
-        }).then(res => res.data),
-        readServiceTeam: (id) => axios.request({
-            method: "get",
-            url: `/services/${id}/team`
         }).then(res => res.data),
         listTeam: (page, itemsPerPage) => axios.request({
             method: "get",
@@ -383,6 +389,12 @@ function makeRequests(axios, config) {
             url: `/teams/${id}`,
             data: payload
         }).then(res => res.data),
+        listTeamChecks: (id, page, itemsPerPage) => axios.request({
+            method: "get",
+            url: `/teams/${id}/checks`,
+            params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
+            paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
+        }).then(res => res.data),
         readTeamCompetition: (id) => axios.request({
             method: "get",
             url: `/teams/${id}/competition`
@@ -393,45 +405,15 @@ function makeRequests(axios, config) {
             params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
             paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
         }).then(res => res.data),
-        listTeamUsers: (id, page, itemsPerPage) => axios.request({
+        listTeamHostservices: (id, page, itemsPerPage) => axios.request({
             method: "get",
-            url: `/teams/${id}/users`,
+            url: `/teams/${id}/hostservices`,
             params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
             paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
         }).then(res => res.data),
-        listUser: (page, itemsPerPage) => axios.request({
+        listTeamProperties: (id, page, itemsPerPage) => axios.request({
             method: "get",
-            url: `/users`,
-            params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
-            paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
-        }).then(res => res.data),
-        createUser: (payload) => axios.request({
-            method: "post",
-            url: `/users`,
-            data: payload
-        }).then(res => res.data),
-        readUser: (id) => axios.request({
-            method: "get",
-            url: `/users/${id}`
-        }).then(res => res.data),
-        deleteUser: (id) => axios.request({
-            method: "delete",
-            url: `/users/${id}`
-        }).then(res => res.data),
-        updateUser: (payload, id) => axios.request({
-            method: "patch",
-            url: `/users/${id}`,
-            data: payload
-        }).then(res => res.data),
-        listUserCompetitions: (id, page, itemsPerPage) => axios.request({
-            method: "get",
-            url: `/users/${id}/competitions`,
-            params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
-            paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
-        }).then(res => res.data),
-        listUserTeams: (id, page, itemsPerPage) => axios.request({
-            method: "get",
-            url: `/users/${id}/teams`,
+            url: `/teams/${id}/properties`,
             params: Object.assign(Object.assign({}, (page !== undefined ? { page } : undefined)), (itemsPerPage !== undefined ? { itemsPerPage } : undefined)),
             paramsSerializer: config === null || config === void 0 ? void 0 : config.paramsSerializer
         }).then(res => res.data)
@@ -441,49 +423,45 @@ function makeQueries(requests) {
     return {
         useListCheck: (page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listCheck(page, itemsPerPage), queryFn: () => requests.listCheck(page, itemsPerPage) }, options)),
         useReadCheck: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readCheck(id), queryFn: () => requests.readCheck(id) }, options)),
-        useReadCheckCompetition: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readCheckCompetition(id), queryFn: () => requests.readCheckCompetition(id) }, options)),
         useReadCheckRounds: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readCheckRounds(id), queryFn: () => requests.readCheckRounds(id) }, options)),
         useReadCheckServices: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readCheckServices(id), queryFn: () => requests.readCheckServices(id) }, options)),
+        useReadCheckTeam: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readCheckTeam(id), queryFn: () => requests.readCheckTeam(id) }, options)),
         useListCompetition: (page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listCompetition(page, itemsPerPage), queryFn: () => requests.listCompetition(page, itemsPerPage) }, options)),
         useReadCompetition: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readCompetition(id), queryFn: () => requests.readCompetition(id) }, options)),
+        useListCompetitionReports: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listCompetitionReports(id, page, itemsPerPage), queryFn: () => requests.listCompetitionReports(id, page, itemsPerPage) }, options)),
+        useListCompetitionServices: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listCompetitionServices(id, page, itemsPerPage), queryFn: () => requests.listCompetitionServices(id, page, itemsPerPage) }, options)),
         useListCompetitionTeams: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listCompetitionTeams(id, page, itemsPerPage), queryFn: () => requests.listCompetitionTeams(id, page, itemsPerPage) }, options)),
-        useListCompetitionUsers: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listCompetitionUsers(id, page, itemsPerPage), queryFn: () => requests.listCompetitionUsers(id, page, itemsPerPage) }, options)),
-        useListHostGroup: (page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listHostGroup(page, itemsPerPage), queryFn: () => requests.listHostGroup(page, itemsPerPage) }, options)),
-        useReadHostGroup: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readHostGroup(id), queryFn: () => requests.readHostGroup(id) }, options)),
-        useReadHostGroupCompetition: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readHostGroupCompetition(id), queryFn: () => requests.readHostGroupCompetition(id) }, options)),
-        useListHostGroupHosts: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listHostGroupHosts(id, page, itemsPerPage), queryFn: () => requests.listHostGroupHosts(id, page, itemsPerPage) }, options)),
-        useReadHostGroupTeam: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readHostGroupTeam(id), queryFn: () => requests.readHostGroupTeam(id) }, options)),
+        useListHostService: (page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listHostService(page, itemsPerPage), queryFn: () => requests.listHostService(page, itemsPerPage) }, options)),
+        useReadHostService: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readHostService(id), queryFn: () => requests.readHostService(id) }, options)),
+        useListHostServiceChecks: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listHostServiceChecks(id, page, itemsPerPage), queryFn: () => requests.listHostServiceChecks(id, page, itemsPerPage) }, options)),
+        useReadHostServiceHosts: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readHostServiceHosts(id), queryFn: () => requests.readHostServiceHosts(id) }, options)),
+        useListHostServiceProperties: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listHostServiceProperties(id, page, itemsPerPage), queryFn: () => requests.listHostServiceProperties(id, page, itemsPerPage) }, options)),
+        useReadHostServiceTeam: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readHostServiceTeam(id), queryFn: () => requests.readHostServiceTeam(id) }, options)),
         useListHost: (page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listHost(page, itemsPerPage), queryFn: () => requests.listHost(page, itemsPerPage) }, options)),
         useReadHost: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readHost(id), queryFn: () => requests.readHost(id) }, options)),
-        useReadHostCompetition: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readHostCompetition(id), queryFn: () => requests.readHostCompetition(id) }, options)),
-        useReadHostHostGroup: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readHostHostGroup(id), queryFn: () => requests.readHostHostGroup(id) }, options)),
-        useListHostServices: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listHostServices(id, page, itemsPerPage), queryFn: () => requests.listHostServices(id, page, itemsPerPage) }, options)),
+        useListHostHostService: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listHostHostService(id, page, itemsPerPage), queryFn: () => requests.listHostHostService(id, page, itemsPerPage) }, options)),
+        useReadHostServices: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readHostServices(id), queryFn: () => requests.readHostServices(id) }, options)),
         useReadHostTeam: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readHostTeam(id), queryFn: () => requests.readHostTeam(id) }, options)),
         useListProperty: (page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listProperty(page, itemsPerPage), queryFn: () => requests.listProperty(page, itemsPerPage) }, options)),
         useReadProperty: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readProperty(id), queryFn: () => requests.readProperty(id) }, options)),
-        useReadPropertyCompetition: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readPropertyCompetition(id), queryFn: () => requests.readPropertyCompetition(id) }, options)),
         useReadPropertyServices: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readPropertyServices(id), queryFn: () => requests.readPropertyServices(id) }, options)),
         useReadPropertyTeam: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readPropertyTeam(id), queryFn: () => requests.readPropertyTeam(id) }, options)),
+        useListReport: (page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listReport(page, itemsPerPage), queryFn: () => requests.listReport(page, itemsPerPage) }, options)),
+        useReadReport: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readReport(id), queryFn: () => requests.readReport(id) }, options)),
         useListRound: (page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listRound(page, itemsPerPage), queryFn: () => requests.listRound(page, itemsPerPage) }, options)),
         useReadRound: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readRound(id), queryFn: () => requests.readRound(id) }, options)),
         useListRoundChecks: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listRoundChecks(id, page, itemsPerPage), queryFn: () => requests.listRoundChecks(id, page, itemsPerPage) }, options)),
-        useReadRoundCompetition: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readRoundCompetition(id), queryFn: () => requests.readRoundCompetition(id) }, options)),
         useListService: (page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listService(page, itemsPerPage), queryFn: () => requests.listService(page, itemsPerPage) }, options)),
         useReadService: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readService(id), queryFn: () => requests.readService(id) }, options)),
-        useListServiceChecks: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listServiceChecks(id, page, itemsPerPage), queryFn: () => requests.listServiceChecks(id, page, itemsPerPage) }, options)),
         useReadServiceCompetition: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readServiceCompetition(id), queryFn: () => requests.readServiceCompetition(id) }, options)),
-        useReadServiceHosts: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readServiceHosts(id), queryFn: () => requests.readServiceHosts(id) }, options)),
-        useListServiceProperties: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listServiceProperties(id, page, itemsPerPage), queryFn: () => requests.listServiceProperties(id, page, itemsPerPage) }, options)),
-        useReadServiceTeam: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readServiceTeam(id), queryFn: () => requests.readServiceTeam(id) }, options)),
+        useListServiceHosts: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listServiceHosts(id, page, itemsPerPage), queryFn: () => requests.listServiceHosts(id, page, itemsPerPage) }, options)),
         useListTeam: (page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listTeam(page, itemsPerPage), queryFn: () => requests.listTeam(page, itemsPerPage) }, options)),
         useReadTeam: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readTeam(id), queryFn: () => requests.readTeam(id) }, options)),
+        useListTeamChecks: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listTeamChecks(id, page, itemsPerPage), queryFn: () => requests.listTeamChecks(id, page, itemsPerPage) }, options)),
         useReadTeamCompetition: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readTeamCompetition(id), queryFn: () => requests.readTeamCompetition(id) }, options)),
         useListTeamHosts: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listTeamHosts(id, page, itemsPerPage), queryFn: () => requests.listTeamHosts(id, page, itemsPerPage) }, options)),
-        useListTeamUsers: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listTeamUsers(id, page, itemsPerPage), queryFn: () => requests.listTeamUsers(id, page, itemsPerPage) }, options)),
-        useListUser: (page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listUser(page, itemsPerPage), queryFn: () => requests.listUser(page, itemsPerPage) }, options)),
-        useReadUser: (id, options) => useQuery(Object.assign({ queryKey: queryKeys.readUser(id), queryFn: () => requests.readUser(id) }, options)),
-        useListUserCompetitions: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listUserCompetitions(id, page, itemsPerPage), queryFn: () => requests.listUserCompetitions(id, page, itemsPerPage) }, options)),
-        useListUserTeams: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listUserTeams(id, page, itemsPerPage), queryFn: () => requests.listUserTeams(id, page, itemsPerPage) }, options))
+        useListTeamHostservices: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listTeamHostservices(id, page, itemsPerPage), queryFn: () => requests.listTeamHostservices(id, page, itemsPerPage) }, options)),
+        useListTeamProperties: (id, page, itemsPerPage, options) => useQuery(Object.assign({ queryKey: queryKeys.listTeamProperties(id, page, itemsPerPage), queryFn: () => requests.listTeamProperties(id, page, itemsPerPage) }, options))
     };
 }
 function makeMutations(requests, config) {
@@ -494,15 +472,18 @@ function makeMutations(requests, config) {
         useCreateCompetition: (options) => useRapiniMutation(payload => requests.createCompetition(payload), config === null || config === void 0 ? void 0 : config.useCreateCompetition, options),
         useUpdateCompetition: (id, options) => useRapiniMutation(payload => requests.updateCompetition(payload, id), config === null || config === void 0 ? void 0 : config.useUpdateCompetition, options),
         useDeleteCompetition: (id, options) => useRapiniMutation(() => requests.deleteCompetition(id), config === null || config === void 0 ? void 0 : config.useDeleteCompetition, options),
-        useCreateHostGroup: (options) => useRapiniMutation(payload => requests.createHostGroup(payload), config === null || config === void 0 ? void 0 : config.useCreateHostGroup, options),
-        useUpdateHostGroup: (id, options) => useRapiniMutation(payload => requests.updateHostGroup(payload, id), config === null || config === void 0 ? void 0 : config.useUpdateHostGroup, options),
-        useDeleteHostGroup: (id, options) => useRapiniMutation(() => requests.deleteHostGroup(id), config === null || config === void 0 ? void 0 : config.useDeleteHostGroup, options),
+        useCreateHostService: (options) => useRapiniMutation(payload => requests.createHostService(payload), config === null || config === void 0 ? void 0 : config.useCreateHostService, options),
+        useUpdateHostService: (id, options) => useRapiniMutation(payload => requests.updateHostService(payload, id), config === null || config === void 0 ? void 0 : config.useUpdateHostService, options),
+        useDeleteHostService: (id, options) => useRapiniMutation(() => requests.deleteHostService(id), config === null || config === void 0 ? void 0 : config.useDeleteHostService, options),
         useCreateHost: (options) => useRapiniMutation(payload => requests.createHost(payload), config === null || config === void 0 ? void 0 : config.useCreateHost, options),
         useUpdateHost: (id, options) => useRapiniMutation(payload => requests.updateHost(payload, id), config === null || config === void 0 ? void 0 : config.useUpdateHost, options),
         useDeleteHost: (id, options) => useRapiniMutation(() => requests.deleteHost(id), config === null || config === void 0 ? void 0 : config.useDeleteHost, options),
         useCreateProperty: (options) => useRapiniMutation(payload => requests.createProperty(payload), config === null || config === void 0 ? void 0 : config.useCreateProperty, options),
         useUpdateProperty: (id, options) => useRapiniMutation(payload => requests.updateProperty(payload, id), config === null || config === void 0 ? void 0 : config.useUpdateProperty, options),
         useDeleteProperty: (id, options) => useRapiniMutation(() => requests.deleteProperty(id), config === null || config === void 0 ? void 0 : config.useDeleteProperty, options),
+        useCreateReport: (options) => useRapiniMutation(payload => requests.createReport(payload), config === null || config === void 0 ? void 0 : config.useCreateReport, options),
+        useUpdateReport: (id, options) => useRapiniMutation(payload => requests.updateReport(payload, id), config === null || config === void 0 ? void 0 : config.useUpdateReport, options),
+        useDeleteReport: (id, options) => useRapiniMutation(() => requests.deleteReport(id), config === null || config === void 0 ? void 0 : config.useDeleteReport, options),
         useCreateRound: (options) => useRapiniMutation(payload => requests.createRound(payload), config === null || config === void 0 ? void 0 : config.useCreateRound, options),
         useUpdateRound: (id, options) => useRapiniMutation(payload => requests.updateRound(payload, id), config === null || config === void 0 ? void 0 : config.useUpdateRound, options),
         useDeleteRound: (id, options) => useRapiniMutation(() => requests.deleteRound(id), config === null || config === void 0 ? void 0 : config.useDeleteRound, options),
@@ -511,9 +492,6 @@ function makeMutations(requests, config) {
         useDeleteService: (id, options) => useRapiniMutation(() => requests.deleteService(id), config === null || config === void 0 ? void 0 : config.useDeleteService, options),
         useCreateTeam: (options) => useRapiniMutation(payload => requests.createTeam(payload), config === null || config === void 0 ? void 0 : config.useCreateTeam, options),
         useUpdateTeam: (id, options) => useRapiniMutation(payload => requests.updateTeam(payload, id), config === null || config === void 0 ? void 0 : config.useUpdateTeam, options),
-        useDeleteTeam: (id, options) => useRapiniMutation(() => requests.deleteTeam(id), config === null || config === void 0 ? void 0 : config.useDeleteTeam, options),
-        useCreateUser: (options) => useRapiniMutation(payload => requests.createUser(payload), config === null || config === void 0 ? void 0 : config.useCreateUser, options),
-        useUpdateUser: (id, options) => useRapiniMutation(payload => requests.updateUser(payload, id), config === null || config === void 0 ? void 0 : config.useUpdateUser, options),
-        useDeleteUser: (id, options) => useRapiniMutation(() => requests.deleteUser(id), config === null || config === void 0 ? void 0 : config.useDeleteUser, options)
+        useDeleteTeam: (id, options) => useRapiniMutation(() => requests.deleteTeam(id), config === null || config === void 0 ? void 0 : config.useDeleteTeam, options)
     };
 }

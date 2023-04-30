@@ -11,10 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostgroup"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
 )
 
 // HostUpdate is the builder for updating Host entities.
@@ -70,59 +68,25 @@ func (hu *HostUpdate) ClearHidden() *HostUpdate {
 	return hu
 }
 
-// SetTeamID sets the "team_id" field.
-func (hu *HostUpdate) SetTeamID(s string) *HostUpdate {
-	hu.mutation.SetTeamID(s)
-	return hu
-}
-
 // SetAddress sets the "address" field.
 func (hu *HostUpdate) SetAddress(s string) *HostUpdate {
 	hu.mutation.SetAddress(s)
 	return hu
 }
 
-// SetAddressListRange sets the "address_list_range" field.
-func (hu *HostUpdate) SetAddressListRange(s string) *HostUpdate {
-	hu.mutation.SetAddressListRange(s)
+// AddHostserviceIDs adds the "hostservices" edge to the HostService entity by IDs.
+func (hu *HostUpdate) AddHostserviceIDs(ids ...string) *HostUpdate {
+	hu.mutation.AddHostserviceIDs(ids...)
 	return hu
 }
 
-// SetEditable sets the "editable" field.
-func (hu *HostUpdate) SetEditable(b bool) *HostUpdate {
-	hu.mutation.SetEditable(b)
-	return hu
-}
-
-// SetTeam sets the "team" edge to the Team entity.
-func (hu *HostUpdate) SetTeam(t *Team) *HostUpdate {
-	return hu.SetTeamID(t.ID)
-}
-
-// AddServiceIDs adds the "services" edge to the Service entity by IDs.
-func (hu *HostUpdate) AddServiceIDs(ids ...string) *HostUpdate {
-	hu.mutation.AddServiceIDs(ids...)
-	return hu
-}
-
-// AddServices adds the "services" edges to the Service entity.
-func (hu *HostUpdate) AddServices(s ...*Service) *HostUpdate {
-	ids := make([]string, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddHostservices adds the "hostservices" edges to the HostService entity.
+func (hu *HostUpdate) AddHostservices(h ...*HostService) *HostUpdate {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
 	}
-	return hu.AddServiceIDs(ids...)
-}
-
-// SetHostGroupID sets the "host_group" edge to the HostGroup entity by ID.
-func (hu *HostUpdate) SetHostGroupID(id string) *HostUpdate {
-	hu.mutation.SetHostGroupID(id)
-	return hu
-}
-
-// SetHostGroup sets the "host_group" edge to the HostGroup entity.
-func (hu *HostUpdate) SetHostGroup(h *HostGroup) *HostUpdate {
-	return hu.SetHostGroupID(h.ID)
+	return hu.AddHostserviceIDs(ids...)
 }
 
 // Mutation returns the HostMutation object of the builder.
@@ -130,37 +94,25 @@ func (hu *HostUpdate) Mutation() *HostMutation {
 	return hu.mutation
 }
 
-// ClearTeam clears the "team" edge to the Team entity.
-func (hu *HostUpdate) ClearTeam() *HostUpdate {
-	hu.mutation.ClearTeam()
+// ClearHostservices clears all "hostservices" edges to the HostService entity.
+func (hu *HostUpdate) ClearHostservices() *HostUpdate {
+	hu.mutation.ClearHostservices()
 	return hu
 }
 
-// ClearServices clears all "services" edges to the Service entity.
-func (hu *HostUpdate) ClearServices() *HostUpdate {
-	hu.mutation.ClearServices()
+// RemoveHostserviceIDs removes the "hostservices" edge to HostService entities by IDs.
+func (hu *HostUpdate) RemoveHostserviceIDs(ids ...string) *HostUpdate {
+	hu.mutation.RemoveHostserviceIDs(ids...)
 	return hu
 }
 
-// RemoveServiceIDs removes the "services" edge to Service entities by IDs.
-func (hu *HostUpdate) RemoveServiceIDs(ids ...string) *HostUpdate {
-	hu.mutation.RemoveServiceIDs(ids...)
-	return hu
-}
-
-// RemoveServices removes "services" edges to Service entities.
-func (hu *HostUpdate) RemoveServices(s ...*Service) *HostUpdate {
-	ids := make([]string, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// RemoveHostservices removes "hostservices" edges to HostService entities.
+func (hu *HostUpdate) RemoveHostservices(h ...*HostService) *HostUpdate {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
 	}
-	return hu.RemoveServiceIDs(ids...)
-}
-
-// ClearHostGroup clears the "host_group" edge to the HostGroup entity.
-func (hu *HostUpdate) ClearHostGroup() *HostUpdate {
-	hu.mutation.ClearHostGroup()
-	return hu
+	return hu.RemoveHostserviceIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -192,19 +144,8 @@ func (hu *HostUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (hu *HostUpdate) check() error {
-	if v, ok := hu.mutation.Address(); ok {
-		if err := host.AddressValidator(v); err != nil {
-			return &ValidationError{Name: "address", err: fmt.Errorf(`entities: validator failed for field "Host.address": %w`, err)}
-		}
-	}
-	if _, ok := hu.mutation.CompetitionID(); hu.mutation.CompetitionCleared() && !ok {
-		return errors.New(`entities: clearing a required unique edge "Host.competition"`)
-	}
 	if _, ok := hu.mutation.TeamID(); hu.mutation.TeamCleared() && !ok {
 		return errors.New(`entities: clearing a required unique edge "Host.team"`)
-	}
-	if _, ok := hu.mutation.HostGroupID(); hu.mutation.HostGroupCleared() && !ok {
-		return errors.New(`entities: clearing a required unique edge "Host.host_group"`)
 	}
 	return nil
 }
@@ -236,63 +177,28 @@ func (hu *HostUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := hu.mutation.Address(); ok {
 		_spec.SetField(host.FieldAddress, field.TypeString, value)
 	}
-	if value, ok := hu.mutation.AddressListRange(); ok {
-		_spec.SetField(host.FieldAddressListRange, field.TypeString, value)
-	}
-	if value, ok := hu.mutation.Editable(); ok {
-		_spec.SetField(host.FieldEditable, field.TypeBool, value)
-	}
-	if hu.mutation.TeamCleared() {
+	if hu.mutation.HostservicesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   host.TeamTable,
-			Columns: []string{host.TeamColumn},
+			Table:   host.HostservicesTable,
+			Columns: []string{host.HostservicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := hu.mutation.TeamIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   host.TeamTable,
-			Columns: []string{host.TeamColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if hu.mutation.ServicesCleared() {
+	if nodes := hu.mutation.RemovedHostservicesIDs(); len(nodes) > 0 && !hu.mutation.HostservicesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   host.ServicesTable,
-			Columns: []string{host.ServicesColumn},
+			Table:   host.HostservicesTable,
+			Columns: []string{host.HostservicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := hu.mutation.RemovedServicesIDs(); len(nodes) > 0 && !hu.mutation.ServicesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   host.ServicesTable,
-			Columns: []string{host.ServicesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -300,44 +206,15 @@ func (hu *HostUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := hu.mutation.ServicesIDs(); len(nodes) > 0 {
+	if nodes := hu.mutation.HostservicesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   host.ServicesTable,
-			Columns: []string{host.ServicesColumn},
+			Table:   host.HostservicesTable,
+			Columns: []string{host.HostservicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if hu.mutation.HostGroupCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   host.HostGroupTable,
-			Columns: []string{host.HostGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := hu.mutation.HostGroupIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   host.HostGroupTable,
-			Columns: []string{host.HostGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -405,59 +282,25 @@ func (huo *HostUpdateOne) ClearHidden() *HostUpdateOne {
 	return huo
 }
 
-// SetTeamID sets the "team_id" field.
-func (huo *HostUpdateOne) SetTeamID(s string) *HostUpdateOne {
-	huo.mutation.SetTeamID(s)
-	return huo
-}
-
 // SetAddress sets the "address" field.
 func (huo *HostUpdateOne) SetAddress(s string) *HostUpdateOne {
 	huo.mutation.SetAddress(s)
 	return huo
 }
 
-// SetAddressListRange sets the "address_list_range" field.
-func (huo *HostUpdateOne) SetAddressListRange(s string) *HostUpdateOne {
-	huo.mutation.SetAddressListRange(s)
+// AddHostserviceIDs adds the "hostservices" edge to the HostService entity by IDs.
+func (huo *HostUpdateOne) AddHostserviceIDs(ids ...string) *HostUpdateOne {
+	huo.mutation.AddHostserviceIDs(ids...)
 	return huo
 }
 
-// SetEditable sets the "editable" field.
-func (huo *HostUpdateOne) SetEditable(b bool) *HostUpdateOne {
-	huo.mutation.SetEditable(b)
-	return huo
-}
-
-// SetTeam sets the "team" edge to the Team entity.
-func (huo *HostUpdateOne) SetTeam(t *Team) *HostUpdateOne {
-	return huo.SetTeamID(t.ID)
-}
-
-// AddServiceIDs adds the "services" edge to the Service entity by IDs.
-func (huo *HostUpdateOne) AddServiceIDs(ids ...string) *HostUpdateOne {
-	huo.mutation.AddServiceIDs(ids...)
-	return huo
-}
-
-// AddServices adds the "services" edges to the Service entity.
-func (huo *HostUpdateOne) AddServices(s ...*Service) *HostUpdateOne {
-	ids := make([]string, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// AddHostservices adds the "hostservices" edges to the HostService entity.
+func (huo *HostUpdateOne) AddHostservices(h ...*HostService) *HostUpdateOne {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
 	}
-	return huo.AddServiceIDs(ids...)
-}
-
-// SetHostGroupID sets the "host_group" edge to the HostGroup entity by ID.
-func (huo *HostUpdateOne) SetHostGroupID(id string) *HostUpdateOne {
-	huo.mutation.SetHostGroupID(id)
-	return huo
-}
-
-// SetHostGroup sets the "host_group" edge to the HostGroup entity.
-func (huo *HostUpdateOne) SetHostGroup(h *HostGroup) *HostUpdateOne {
-	return huo.SetHostGroupID(h.ID)
+	return huo.AddHostserviceIDs(ids...)
 }
 
 // Mutation returns the HostMutation object of the builder.
@@ -465,37 +308,25 @@ func (huo *HostUpdateOne) Mutation() *HostMutation {
 	return huo.mutation
 }
 
-// ClearTeam clears the "team" edge to the Team entity.
-func (huo *HostUpdateOne) ClearTeam() *HostUpdateOne {
-	huo.mutation.ClearTeam()
+// ClearHostservices clears all "hostservices" edges to the HostService entity.
+func (huo *HostUpdateOne) ClearHostservices() *HostUpdateOne {
+	huo.mutation.ClearHostservices()
 	return huo
 }
 
-// ClearServices clears all "services" edges to the Service entity.
-func (huo *HostUpdateOne) ClearServices() *HostUpdateOne {
-	huo.mutation.ClearServices()
+// RemoveHostserviceIDs removes the "hostservices" edge to HostService entities by IDs.
+func (huo *HostUpdateOne) RemoveHostserviceIDs(ids ...string) *HostUpdateOne {
+	huo.mutation.RemoveHostserviceIDs(ids...)
 	return huo
 }
 
-// RemoveServiceIDs removes the "services" edge to Service entities by IDs.
-func (huo *HostUpdateOne) RemoveServiceIDs(ids ...string) *HostUpdateOne {
-	huo.mutation.RemoveServiceIDs(ids...)
-	return huo
-}
-
-// RemoveServices removes "services" edges to Service entities.
-func (huo *HostUpdateOne) RemoveServices(s ...*Service) *HostUpdateOne {
-	ids := make([]string, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+// RemoveHostservices removes "hostservices" edges to HostService entities.
+func (huo *HostUpdateOne) RemoveHostservices(h ...*HostService) *HostUpdateOne {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
 	}
-	return huo.RemoveServiceIDs(ids...)
-}
-
-// ClearHostGroup clears the "host_group" edge to the HostGroup entity.
-func (huo *HostUpdateOne) ClearHostGroup() *HostUpdateOne {
-	huo.mutation.ClearHostGroup()
-	return huo
+	return huo.RemoveHostserviceIDs(ids...)
 }
 
 // Where appends a list predicates to the HostUpdate builder.
@@ -540,19 +371,8 @@ func (huo *HostUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (huo *HostUpdateOne) check() error {
-	if v, ok := huo.mutation.Address(); ok {
-		if err := host.AddressValidator(v); err != nil {
-			return &ValidationError{Name: "address", err: fmt.Errorf(`entities: validator failed for field "Host.address": %w`, err)}
-		}
-	}
-	if _, ok := huo.mutation.CompetitionID(); huo.mutation.CompetitionCleared() && !ok {
-		return errors.New(`entities: clearing a required unique edge "Host.competition"`)
-	}
 	if _, ok := huo.mutation.TeamID(); huo.mutation.TeamCleared() && !ok {
 		return errors.New(`entities: clearing a required unique edge "Host.team"`)
-	}
-	if _, ok := huo.mutation.HostGroupID(); huo.mutation.HostGroupCleared() && !ok {
-		return errors.New(`entities: clearing a required unique edge "Host.host_group"`)
 	}
 	return nil
 }
@@ -601,63 +421,28 @@ func (huo *HostUpdateOne) sqlSave(ctx context.Context) (_node *Host, err error) 
 	if value, ok := huo.mutation.Address(); ok {
 		_spec.SetField(host.FieldAddress, field.TypeString, value)
 	}
-	if value, ok := huo.mutation.AddressListRange(); ok {
-		_spec.SetField(host.FieldAddressListRange, field.TypeString, value)
-	}
-	if value, ok := huo.mutation.Editable(); ok {
-		_spec.SetField(host.FieldEditable, field.TypeBool, value)
-	}
-	if huo.mutation.TeamCleared() {
+	if huo.mutation.HostservicesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   host.TeamTable,
-			Columns: []string{host.TeamColumn},
+			Table:   host.HostservicesTable,
+			Columns: []string{host.HostservicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := huo.mutation.TeamIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   host.TeamTable,
-			Columns: []string{host.TeamColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if huo.mutation.ServicesCleared() {
+	if nodes := huo.mutation.RemovedHostservicesIDs(); len(nodes) > 0 && !huo.mutation.HostservicesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   host.ServicesTable,
-			Columns: []string{host.ServicesColumn},
+			Table:   host.HostservicesTable,
+			Columns: []string{host.HostservicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := huo.mutation.RemovedServicesIDs(); len(nodes) > 0 && !huo.mutation.ServicesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   host.ServicesTable,
-			Columns: []string{host.ServicesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -665,44 +450,15 @@ func (huo *HostUpdateOne) sqlSave(ctx context.Context) (_node *Host, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := huo.mutation.ServicesIDs(); len(nodes) > 0 {
+	if nodes := huo.mutation.HostservicesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   host.ServicesTable,
-			Columns: []string{host.ServicesColumn},
+			Table:   host.HostservicesTable,
+			Columns: []string{host.HostservicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if huo.mutation.HostGroupCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   host.HostGroupTable,
-			Columns: []string{host.HostGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := huo.mutation.HostGroupIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   host.HostGroupTable,
-			Columns: []string{host.HostGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

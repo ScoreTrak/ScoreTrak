@@ -1,7 +1,10 @@
 package queue
 
 import (
+	"context"
 	"errors"
+	"github.com/golang-queue/queue"
+	"go.uber.org/fx"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ScoreTrak/ScoreTrak/pkg/queue/none"
@@ -63,4 +66,21 @@ func NewWorkerQueue(c config.Config) (WorkerQueue, error) {
 	default:
 		return nil, ErrInvalidQueue
 	}
+}
+
+func NewQueue(lc fx.Lifecycle, c *config.Config, queueOptions ...queue.Option) *queue.Queue {
+	q := queue.NewPool(c.Queue.Pool, queueOptions...)
+
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			go q.Start()
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			go q.Release()
+			return nil
+		},
+	})
+
+	return q
 }

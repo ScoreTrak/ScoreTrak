@@ -63,6 +63,16 @@ func IDContainsFold(id string) predicate.Service {
 	return predicate.Service(sql.FieldContainsFold(FieldID, id))
 }
 
+// Name applies equality check predicate on the "name" field. It's identical to NameEQ.
+func Name(v string) predicate.Service {
+	return predicate.Service(sql.FieldEQ(FieldName, v))
+}
+
+// DisplayName applies equality check predicate on the "display_name" field. It's identical to DisplayNameEQ.
+func DisplayName(v string) predicate.Service {
+	return predicate.Service(sql.FieldEQ(FieldDisplayName, v))
+}
+
 // Pause applies equality check predicate on the "pause" field. It's identical to PauseEQ.
 func Pause(v bool) predicate.Service {
 	return predicate.Service(sql.FieldEQ(FieldPause, v))
@@ -76,211 +86,6 @@ func Hidden(v bool) predicate.Service {
 // CompetitionID applies equality check predicate on the "competition_id" field. It's identical to CompetitionIDEQ.
 func CompetitionID(v string) predicate.Service {
 	return predicate.Service(sql.FieldEQ(FieldCompetitionID, v))
-}
-
-// TeamID applies equality check predicate on the "team_id" field. It's identical to TeamIDEQ.
-func TeamID(v string) predicate.Service {
-	return predicate.Service(sql.FieldEQ(FieldTeamID, v))
-}
-
-// Name applies equality check predicate on the "name" field. It's identical to NameEQ.
-func Name(v string) predicate.Service {
-	return predicate.Service(sql.FieldEQ(FieldName, v))
-}
-
-// DisplayName applies equality check predicate on the "display_name" field. It's identical to DisplayNameEQ.
-func DisplayName(v string) predicate.Service {
-	return predicate.Service(sql.FieldEQ(FieldDisplayName, v))
-}
-
-// Weight applies equality check predicate on the "weight" field. It's identical to WeightEQ.
-func Weight(v int) predicate.Service {
-	return predicate.Service(sql.FieldEQ(FieldWeight, v))
-}
-
-// PointBoost applies equality check predicate on the "point_boost" field. It's identical to PointBoostEQ.
-func PointBoost(v int) predicate.Service {
-	return predicate.Service(sql.FieldEQ(FieldPointBoost, v))
-}
-
-// RoundUnits applies equality check predicate on the "round_units" field. It's identical to RoundUnitsEQ.
-func RoundUnits(v int) predicate.Service {
-	return predicate.Service(sql.FieldEQ(FieldRoundUnits, v))
-}
-
-// RoundDelay applies equality check predicate on the "round_delay" field. It's identical to RoundDelayEQ.
-func RoundDelay(v int) predicate.Service {
-	return predicate.Service(sql.FieldEQ(FieldRoundDelay, v))
-}
-
-// PauseEQ applies the EQ predicate on the "pause" field.
-func PauseEQ(v bool) predicate.Service {
-	return predicate.Service(sql.FieldEQ(FieldPause, v))
-}
-
-// PauseNEQ applies the NEQ predicate on the "pause" field.
-func PauseNEQ(v bool) predicate.Service {
-	return predicate.Service(sql.FieldNEQ(FieldPause, v))
-}
-
-// PauseIsNil applies the IsNil predicate on the "pause" field.
-func PauseIsNil() predicate.Service {
-	return predicate.Service(sql.FieldIsNull(FieldPause))
-}
-
-// PauseNotNil applies the NotNil predicate on the "pause" field.
-func PauseNotNil() predicate.Service {
-	return predicate.Service(sql.FieldNotNull(FieldPause))
-}
-
-// HiddenEQ applies the EQ predicate on the "hidden" field.
-func HiddenEQ(v bool) predicate.Service {
-	return predicate.Service(sql.FieldEQ(FieldHidden, v))
-}
-
-// HiddenNEQ applies the NEQ predicate on the "hidden" field.
-func HiddenNEQ(v bool) predicate.Service {
-	return predicate.Service(sql.FieldNEQ(FieldHidden, v))
-}
-
-// HiddenIsNil applies the IsNil predicate on the "hidden" field.
-func HiddenIsNil() predicate.Service {
-	return predicate.Service(sql.FieldIsNull(FieldHidden))
-}
-
-// HiddenNotNil applies the NotNil predicate on the "hidden" field.
-func HiddenNotNil() predicate.Service {
-	return predicate.Service(sql.FieldNotNull(FieldHidden))
-}
-
-// CompetitionIDEQ applies the EQ predicate on the "competition_id" field.
-func CompetitionIDEQ(v string) predicate.Service {
-	return predicate.Service(sql.FieldEQ(FieldCompetitionID, v))
-}
-
-// CompetitionIDNEQ applies the NEQ predicate on the "competition_id" field.
-func CompetitionIDNEQ(v string) predicate.Service {
-	return predicate.Service(sql.FieldNEQ(FieldCompetitionID, v))
-}
-
-// CompetitionIDIn applies the In predicate on the "competition_id" field.
-func CompetitionIDIn(vs ...string) predicate.Service {
-	return predicate.Service(sql.FieldIn(FieldCompetitionID, vs...))
-}
-
-// CompetitionIDNotIn applies the NotIn predicate on the "competition_id" field.
-func CompetitionIDNotIn(vs ...string) predicate.Service {
-	return predicate.Service(sql.FieldNotIn(FieldCompetitionID, vs...))
-}
-
-// CompetitionIDGT applies the GT predicate on the "competition_id" field.
-func CompetitionIDGT(v string) predicate.Service {
-	return predicate.Service(sql.FieldGT(FieldCompetitionID, v))
-}
-
-// CompetitionIDGTE applies the GTE predicate on the "competition_id" field.
-func CompetitionIDGTE(v string) predicate.Service {
-	return predicate.Service(sql.FieldGTE(FieldCompetitionID, v))
-}
-
-// CompetitionIDLT applies the LT predicate on the "competition_id" field.
-func CompetitionIDLT(v string) predicate.Service {
-	return predicate.Service(sql.FieldLT(FieldCompetitionID, v))
-}
-
-// CompetitionIDLTE applies the LTE predicate on the "competition_id" field.
-func CompetitionIDLTE(v string) predicate.Service {
-	return predicate.Service(sql.FieldLTE(FieldCompetitionID, v))
-}
-
-// CompetitionIDContains applies the Contains predicate on the "competition_id" field.
-func CompetitionIDContains(v string) predicate.Service {
-	return predicate.Service(sql.FieldContains(FieldCompetitionID, v))
-}
-
-// CompetitionIDHasPrefix applies the HasPrefix predicate on the "competition_id" field.
-func CompetitionIDHasPrefix(v string) predicate.Service {
-	return predicate.Service(sql.FieldHasPrefix(FieldCompetitionID, v))
-}
-
-// CompetitionIDHasSuffix applies the HasSuffix predicate on the "competition_id" field.
-func CompetitionIDHasSuffix(v string) predicate.Service {
-	return predicate.Service(sql.FieldHasSuffix(FieldCompetitionID, v))
-}
-
-// CompetitionIDEqualFold applies the EqualFold predicate on the "competition_id" field.
-func CompetitionIDEqualFold(v string) predicate.Service {
-	return predicate.Service(sql.FieldEqualFold(FieldCompetitionID, v))
-}
-
-// CompetitionIDContainsFold applies the ContainsFold predicate on the "competition_id" field.
-func CompetitionIDContainsFold(v string) predicate.Service {
-	return predicate.Service(sql.FieldContainsFold(FieldCompetitionID, v))
-}
-
-// TeamIDEQ applies the EQ predicate on the "team_id" field.
-func TeamIDEQ(v string) predicate.Service {
-	return predicate.Service(sql.FieldEQ(FieldTeamID, v))
-}
-
-// TeamIDNEQ applies the NEQ predicate on the "team_id" field.
-func TeamIDNEQ(v string) predicate.Service {
-	return predicate.Service(sql.FieldNEQ(FieldTeamID, v))
-}
-
-// TeamIDIn applies the In predicate on the "team_id" field.
-func TeamIDIn(vs ...string) predicate.Service {
-	return predicate.Service(sql.FieldIn(FieldTeamID, vs...))
-}
-
-// TeamIDNotIn applies the NotIn predicate on the "team_id" field.
-func TeamIDNotIn(vs ...string) predicate.Service {
-	return predicate.Service(sql.FieldNotIn(FieldTeamID, vs...))
-}
-
-// TeamIDGT applies the GT predicate on the "team_id" field.
-func TeamIDGT(v string) predicate.Service {
-	return predicate.Service(sql.FieldGT(FieldTeamID, v))
-}
-
-// TeamIDGTE applies the GTE predicate on the "team_id" field.
-func TeamIDGTE(v string) predicate.Service {
-	return predicate.Service(sql.FieldGTE(FieldTeamID, v))
-}
-
-// TeamIDLT applies the LT predicate on the "team_id" field.
-func TeamIDLT(v string) predicate.Service {
-	return predicate.Service(sql.FieldLT(FieldTeamID, v))
-}
-
-// TeamIDLTE applies the LTE predicate on the "team_id" field.
-func TeamIDLTE(v string) predicate.Service {
-	return predicate.Service(sql.FieldLTE(FieldTeamID, v))
-}
-
-// TeamIDContains applies the Contains predicate on the "team_id" field.
-func TeamIDContains(v string) predicate.Service {
-	return predicate.Service(sql.FieldContains(FieldTeamID, v))
-}
-
-// TeamIDHasPrefix applies the HasPrefix predicate on the "team_id" field.
-func TeamIDHasPrefix(v string) predicate.Service {
-	return predicate.Service(sql.FieldHasPrefix(FieldTeamID, v))
-}
-
-// TeamIDHasSuffix applies the HasSuffix predicate on the "team_id" field.
-func TeamIDHasSuffix(v string) predicate.Service {
-	return predicate.Service(sql.FieldHasSuffix(FieldTeamID, v))
-}
-
-// TeamIDEqualFold applies the EqualFold predicate on the "team_id" field.
-func TeamIDEqualFold(v string) predicate.Service {
-	return predicate.Service(sql.FieldEqualFold(FieldTeamID, v))
-}
-
-// TeamIDContainsFold applies the ContainsFold predicate on the "team_id" field.
-func TeamIDContainsFold(v string) predicate.Service {
-	return predicate.Service(sql.FieldContainsFold(FieldTeamID, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.
@@ -413,164 +218,109 @@ func DisplayNameContainsFold(v string) predicate.Service {
 	return predicate.Service(sql.FieldContainsFold(FieldDisplayName, v))
 }
 
-// WeightEQ applies the EQ predicate on the "weight" field.
-func WeightEQ(v int) predicate.Service {
-	return predicate.Service(sql.FieldEQ(FieldWeight, v))
+// PauseEQ applies the EQ predicate on the "pause" field.
+func PauseEQ(v bool) predicate.Service {
+	return predicate.Service(sql.FieldEQ(FieldPause, v))
 }
 
-// WeightNEQ applies the NEQ predicate on the "weight" field.
-func WeightNEQ(v int) predicate.Service {
-	return predicate.Service(sql.FieldNEQ(FieldWeight, v))
+// PauseNEQ applies the NEQ predicate on the "pause" field.
+func PauseNEQ(v bool) predicate.Service {
+	return predicate.Service(sql.FieldNEQ(FieldPause, v))
 }
 
-// WeightIn applies the In predicate on the "weight" field.
-func WeightIn(vs ...int) predicate.Service {
-	return predicate.Service(sql.FieldIn(FieldWeight, vs...))
+// PauseIsNil applies the IsNil predicate on the "pause" field.
+func PauseIsNil() predicate.Service {
+	return predicate.Service(sql.FieldIsNull(FieldPause))
 }
 
-// WeightNotIn applies the NotIn predicate on the "weight" field.
-func WeightNotIn(vs ...int) predicate.Service {
-	return predicate.Service(sql.FieldNotIn(FieldWeight, vs...))
+// PauseNotNil applies the NotNil predicate on the "pause" field.
+func PauseNotNil() predicate.Service {
+	return predicate.Service(sql.FieldNotNull(FieldPause))
 }
 
-// WeightGT applies the GT predicate on the "weight" field.
-func WeightGT(v int) predicate.Service {
-	return predicate.Service(sql.FieldGT(FieldWeight, v))
+// HiddenEQ applies the EQ predicate on the "hidden" field.
+func HiddenEQ(v bool) predicate.Service {
+	return predicate.Service(sql.FieldEQ(FieldHidden, v))
 }
 
-// WeightGTE applies the GTE predicate on the "weight" field.
-func WeightGTE(v int) predicate.Service {
-	return predicate.Service(sql.FieldGTE(FieldWeight, v))
+// HiddenNEQ applies the NEQ predicate on the "hidden" field.
+func HiddenNEQ(v bool) predicate.Service {
+	return predicate.Service(sql.FieldNEQ(FieldHidden, v))
 }
 
-// WeightLT applies the LT predicate on the "weight" field.
-func WeightLT(v int) predicate.Service {
-	return predicate.Service(sql.FieldLT(FieldWeight, v))
+// HiddenIsNil applies the IsNil predicate on the "hidden" field.
+func HiddenIsNil() predicate.Service {
+	return predicate.Service(sql.FieldIsNull(FieldHidden))
 }
 
-// WeightLTE applies the LTE predicate on the "weight" field.
-func WeightLTE(v int) predicate.Service {
-	return predicate.Service(sql.FieldLTE(FieldWeight, v))
+// HiddenNotNil applies the NotNil predicate on the "hidden" field.
+func HiddenNotNil() predicate.Service {
+	return predicate.Service(sql.FieldNotNull(FieldHidden))
 }
 
-// PointBoostEQ applies the EQ predicate on the "point_boost" field.
-func PointBoostEQ(v int) predicate.Service {
-	return predicate.Service(sql.FieldEQ(FieldPointBoost, v))
+// CompetitionIDEQ applies the EQ predicate on the "competition_id" field.
+func CompetitionIDEQ(v string) predicate.Service {
+	return predicate.Service(sql.FieldEQ(FieldCompetitionID, v))
 }
 
-// PointBoostNEQ applies the NEQ predicate on the "point_boost" field.
-func PointBoostNEQ(v int) predicate.Service {
-	return predicate.Service(sql.FieldNEQ(FieldPointBoost, v))
+// CompetitionIDNEQ applies the NEQ predicate on the "competition_id" field.
+func CompetitionIDNEQ(v string) predicate.Service {
+	return predicate.Service(sql.FieldNEQ(FieldCompetitionID, v))
 }
 
-// PointBoostIn applies the In predicate on the "point_boost" field.
-func PointBoostIn(vs ...int) predicate.Service {
-	return predicate.Service(sql.FieldIn(FieldPointBoost, vs...))
+// CompetitionIDIn applies the In predicate on the "competition_id" field.
+func CompetitionIDIn(vs ...string) predicate.Service {
+	return predicate.Service(sql.FieldIn(FieldCompetitionID, vs...))
 }
 
-// PointBoostNotIn applies the NotIn predicate on the "point_boost" field.
-func PointBoostNotIn(vs ...int) predicate.Service {
-	return predicate.Service(sql.FieldNotIn(FieldPointBoost, vs...))
+// CompetitionIDNotIn applies the NotIn predicate on the "competition_id" field.
+func CompetitionIDNotIn(vs ...string) predicate.Service {
+	return predicate.Service(sql.FieldNotIn(FieldCompetitionID, vs...))
 }
 
-// PointBoostGT applies the GT predicate on the "point_boost" field.
-func PointBoostGT(v int) predicate.Service {
-	return predicate.Service(sql.FieldGT(FieldPointBoost, v))
+// CompetitionIDGT applies the GT predicate on the "competition_id" field.
+func CompetitionIDGT(v string) predicate.Service {
+	return predicate.Service(sql.FieldGT(FieldCompetitionID, v))
 }
 
-// PointBoostGTE applies the GTE predicate on the "point_boost" field.
-func PointBoostGTE(v int) predicate.Service {
-	return predicate.Service(sql.FieldGTE(FieldPointBoost, v))
+// CompetitionIDGTE applies the GTE predicate on the "competition_id" field.
+func CompetitionIDGTE(v string) predicate.Service {
+	return predicate.Service(sql.FieldGTE(FieldCompetitionID, v))
 }
 
-// PointBoostLT applies the LT predicate on the "point_boost" field.
-func PointBoostLT(v int) predicate.Service {
-	return predicate.Service(sql.FieldLT(FieldPointBoost, v))
+// CompetitionIDLT applies the LT predicate on the "competition_id" field.
+func CompetitionIDLT(v string) predicate.Service {
+	return predicate.Service(sql.FieldLT(FieldCompetitionID, v))
 }
 
-// PointBoostLTE applies the LTE predicate on the "point_boost" field.
-func PointBoostLTE(v int) predicate.Service {
-	return predicate.Service(sql.FieldLTE(FieldPointBoost, v))
+// CompetitionIDLTE applies the LTE predicate on the "competition_id" field.
+func CompetitionIDLTE(v string) predicate.Service {
+	return predicate.Service(sql.FieldLTE(FieldCompetitionID, v))
 }
 
-// RoundUnitsEQ applies the EQ predicate on the "round_units" field.
-func RoundUnitsEQ(v int) predicate.Service {
-	return predicate.Service(sql.FieldEQ(FieldRoundUnits, v))
+// CompetitionIDContains applies the Contains predicate on the "competition_id" field.
+func CompetitionIDContains(v string) predicate.Service {
+	return predicate.Service(sql.FieldContains(FieldCompetitionID, v))
 }
 
-// RoundUnitsNEQ applies the NEQ predicate on the "round_units" field.
-func RoundUnitsNEQ(v int) predicate.Service {
-	return predicate.Service(sql.FieldNEQ(FieldRoundUnits, v))
+// CompetitionIDHasPrefix applies the HasPrefix predicate on the "competition_id" field.
+func CompetitionIDHasPrefix(v string) predicate.Service {
+	return predicate.Service(sql.FieldHasPrefix(FieldCompetitionID, v))
 }
 
-// RoundUnitsIn applies the In predicate on the "round_units" field.
-func RoundUnitsIn(vs ...int) predicate.Service {
-	return predicate.Service(sql.FieldIn(FieldRoundUnits, vs...))
+// CompetitionIDHasSuffix applies the HasSuffix predicate on the "competition_id" field.
+func CompetitionIDHasSuffix(v string) predicate.Service {
+	return predicate.Service(sql.FieldHasSuffix(FieldCompetitionID, v))
 }
 
-// RoundUnitsNotIn applies the NotIn predicate on the "round_units" field.
-func RoundUnitsNotIn(vs ...int) predicate.Service {
-	return predicate.Service(sql.FieldNotIn(FieldRoundUnits, vs...))
+// CompetitionIDEqualFold applies the EqualFold predicate on the "competition_id" field.
+func CompetitionIDEqualFold(v string) predicate.Service {
+	return predicate.Service(sql.FieldEqualFold(FieldCompetitionID, v))
 }
 
-// RoundUnitsGT applies the GT predicate on the "round_units" field.
-func RoundUnitsGT(v int) predicate.Service {
-	return predicate.Service(sql.FieldGT(FieldRoundUnits, v))
-}
-
-// RoundUnitsGTE applies the GTE predicate on the "round_units" field.
-func RoundUnitsGTE(v int) predicate.Service {
-	return predicate.Service(sql.FieldGTE(FieldRoundUnits, v))
-}
-
-// RoundUnitsLT applies the LT predicate on the "round_units" field.
-func RoundUnitsLT(v int) predicate.Service {
-	return predicate.Service(sql.FieldLT(FieldRoundUnits, v))
-}
-
-// RoundUnitsLTE applies the LTE predicate on the "round_units" field.
-func RoundUnitsLTE(v int) predicate.Service {
-	return predicate.Service(sql.FieldLTE(FieldRoundUnits, v))
-}
-
-// RoundDelayEQ applies the EQ predicate on the "round_delay" field.
-func RoundDelayEQ(v int) predicate.Service {
-	return predicate.Service(sql.FieldEQ(FieldRoundDelay, v))
-}
-
-// RoundDelayNEQ applies the NEQ predicate on the "round_delay" field.
-func RoundDelayNEQ(v int) predicate.Service {
-	return predicate.Service(sql.FieldNEQ(FieldRoundDelay, v))
-}
-
-// RoundDelayIn applies the In predicate on the "round_delay" field.
-func RoundDelayIn(vs ...int) predicate.Service {
-	return predicate.Service(sql.FieldIn(FieldRoundDelay, vs...))
-}
-
-// RoundDelayNotIn applies the NotIn predicate on the "round_delay" field.
-func RoundDelayNotIn(vs ...int) predicate.Service {
-	return predicate.Service(sql.FieldNotIn(FieldRoundDelay, vs...))
-}
-
-// RoundDelayGT applies the GT predicate on the "round_delay" field.
-func RoundDelayGT(v int) predicate.Service {
-	return predicate.Service(sql.FieldGT(FieldRoundDelay, v))
-}
-
-// RoundDelayGTE applies the GTE predicate on the "round_delay" field.
-func RoundDelayGTE(v int) predicate.Service {
-	return predicate.Service(sql.FieldGTE(FieldRoundDelay, v))
-}
-
-// RoundDelayLT applies the LT predicate on the "round_delay" field.
-func RoundDelayLT(v int) predicate.Service {
-	return predicate.Service(sql.FieldLT(FieldRoundDelay, v))
-}
-
-// RoundDelayLTE applies the LTE predicate on the "round_delay" field.
-func RoundDelayLTE(v int) predicate.Service {
-	return predicate.Service(sql.FieldLTE(FieldRoundDelay, v))
+// CompetitionIDContainsFold applies the ContainsFold predicate on the "competition_id" field.
+func CompetitionIDContainsFold(v string) predicate.Service {
+	return predicate.Service(sql.FieldContainsFold(FieldCompetitionID, v))
 }
 
 // HasCompetition applies the HasEdge predicate on the "competition" edge.
@@ -578,7 +328,7 @@ func HasCompetition() predicate.Service {
 	return predicate.Service(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, CompetitionTable, CompetitionColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, CompetitionTable, CompetitionColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -588,98 +338,6 @@ func HasCompetition() predicate.Service {
 func HasCompetitionWith(preds ...predicate.Competition) predicate.Service {
 	return predicate.Service(func(s *sql.Selector) {
 		step := newCompetitionStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasTeam applies the HasEdge predicate on the "team" edge.
-func HasTeam() predicate.Service {
-	return predicate.Service(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, TeamTable, TeamColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasTeamWith applies the HasEdge predicate on the "team" edge with a given conditions (other predicates).
-func HasTeamWith(preds ...predicate.Team) predicate.Service {
-	return predicate.Service(func(s *sql.Selector) {
-		step := newTeamStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasHosts applies the HasEdge predicate on the "hosts" edge.
-func HasHosts() predicate.Service {
-	return predicate.Service(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, HostsTable, HostsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasHostsWith applies the HasEdge predicate on the "hosts" edge with a given conditions (other predicates).
-func HasHostsWith(preds ...predicate.Host) predicate.Service {
-	return predicate.Service(func(s *sql.Selector) {
-		step := newHostsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasChecks applies the HasEdge predicate on the "checks" edge.
-func HasChecks() predicate.Service {
-	return predicate.Service(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ChecksTable, ChecksColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasChecksWith applies the HasEdge predicate on the "checks" edge with a given conditions (other predicates).
-func HasChecksWith(preds ...predicate.Check) predicate.Service {
-	return predicate.Service(func(s *sql.Selector) {
-		step := newChecksStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasProperties applies the HasEdge predicate on the "properties" edge.
-func HasProperties() predicate.Service {
-	return predicate.Service(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, PropertiesTable, PropertiesColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasPropertiesWith applies the HasEdge predicate on the "properties" edge with a given conditions (other predicates).
-func HasPropertiesWith(preds ...predicate.Property) predicate.Service {
-	return predicate.Service(func(s *sql.Selector) {
-		step := newPropertiesStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

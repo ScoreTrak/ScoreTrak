@@ -45,16 +45,16 @@ func (f HostFunc) Mutate(ctx context.Context, m entities.Mutation) (entities.Val
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *entities.HostMutation", m)
 }
 
-// The HostGroupFunc type is an adapter to allow the use of ordinary
-// function as HostGroup mutator.
-type HostGroupFunc func(context.Context, *entities.HostGroupMutation) (entities.Value, error)
+// The HostServiceFunc type is an adapter to allow the use of ordinary
+// function as HostService mutator.
+type HostServiceFunc func(context.Context, *entities.HostServiceMutation) (entities.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f HostGroupFunc) Mutate(ctx context.Context, m entities.Mutation) (entities.Value, error) {
-	if mv, ok := m.(*entities.HostGroupMutation); ok {
+func (f HostServiceFunc) Mutate(ctx context.Context, m entities.Mutation) (entities.Value, error) {
+	if mv, ok := m.(*entities.HostServiceMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *entities.HostGroupMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *entities.HostServiceMutation", m)
 }
 
 // The PropertyFunc type is an adapter to allow the use of ordinary
@@ -115,18 +115,6 @@ func (f TeamFunc) Mutate(ctx context.Context, m entities.Mutation) (entities.Val
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *entities.TeamMutation", m)
-}
-
-// The UserFunc type is an adapter to allow the use of ordinary
-// function as User mutator.
-type UserFunc func(context.Context, *entities.UserMutation) (entities.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f UserFunc) Mutate(ctx context.Context, m entities.Mutation) (entities.Value, error) {
-	if mv, ok := m.(*entities.UserMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *entities.UserMutation", m)
 }
 
 // Condition is a hook condition function.

@@ -73,29 +73,14 @@ func Hidden(v bool) predicate.Host {
 	return predicate.Host(sql.FieldEQ(FieldHidden, v))
 }
 
-// CompetitionID applies equality check predicate on the "competition_id" field. It's identical to CompetitionIDEQ.
-func CompetitionID(v string) predicate.Host {
-	return predicate.Host(sql.FieldEQ(FieldCompetitionID, v))
-}
-
-// TeamID applies equality check predicate on the "team_id" field. It's identical to TeamIDEQ.
-func TeamID(v string) predicate.Host {
-	return predicate.Host(sql.FieldEQ(FieldTeamID, v))
-}
-
 // Address applies equality check predicate on the "address" field. It's identical to AddressEQ.
 func Address(v string) predicate.Host {
 	return predicate.Host(sql.FieldEQ(FieldAddress, v))
 }
 
-// AddressListRange applies equality check predicate on the "address_list_range" field. It's identical to AddressListRangeEQ.
-func AddressListRange(v string) predicate.Host {
-	return predicate.Host(sql.FieldEQ(FieldAddressListRange, v))
-}
-
-// Editable applies equality check predicate on the "editable" field. It's identical to EditableEQ.
-func Editable(v bool) predicate.Host {
-	return predicate.Host(sql.FieldEQ(FieldEditable, v))
+// TeamID applies equality check predicate on the "team_id" field. It's identical to TeamIDEQ.
+func TeamID(v string) predicate.Host {
+	return predicate.Host(sql.FieldEQ(FieldTeamID, v))
 }
 
 // PauseEQ applies the EQ predicate on the "pause" field.
@@ -136,136 +121,6 @@ func HiddenIsNil() predicate.Host {
 // HiddenNotNil applies the NotNil predicate on the "hidden" field.
 func HiddenNotNil() predicate.Host {
 	return predicate.Host(sql.FieldNotNull(FieldHidden))
-}
-
-// CompetitionIDEQ applies the EQ predicate on the "competition_id" field.
-func CompetitionIDEQ(v string) predicate.Host {
-	return predicate.Host(sql.FieldEQ(FieldCompetitionID, v))
-}
-
-// CompetitionIDNEQ applies the NEQ predicate on the "competition_id" field.
-func CompetitionIDNEQ(v string) predicate.Host {
-	return predicate.Host(sql.FieldNEQ(FieldCompetitionID, v))
-}
-
-// CompetitionIDIn applies the In predicate on the "competition_id" field.
-func CompetitionIDIn(vs ...string) predicate.Host {
-	return predicate.Host(sql.FieldIn(FieldCompetitionID, vs...))
-}
-
-// CompetitionIDNotIn applies the NotIn predicate on the "competition_id" field.
-func CompetitionIDNotIn(vs ...string) predicate.Host {
-	return predicate.Host(sql.FieldNotIn(FieldCompetitionID, vs...))
-}
-
-// CompetitionIDGT applies the GT predicate on the "competition_id" field.
-func CompetitionIDGT(v string) predicate.Host {
-	return predicate.Host(sql.FieldGT(FieldCompetitionID, v))
-}
-
-// CompetitionIDGTE applies the GTE predicate on the "competition_id" field.
-func CompetitionIDGTE(v string) predicate.Host {
-	return predicate.Host(sql.FieldGTE(FieldCompetitionID, v))
-}
-
-// CompetitionIDLT applies the LT predicate on the "competition_id" field.
-func CompetitionIDLT(v string) predicate.Host {
-	return predicate.Host(sql.FieldLT(FieldCompetitionID, v))
-}
-
-// CompetitionIDLTE applies the LTE predicate on the "competition_id" field.
-func CompetitionIDLTE(v string) predicate.Host {
-	return predicate.Host(sql.FieldLTE(FieldCompetitionID, v))
-}
-
-// CompetitionIDContains applies the Contains predicate on the "competition_id" field.
-func CompetitionIDContains(v string) predicate.Host {
-	return predicate.Host(sql.FieldContains(FieldCompetitionID, v))
-}
-
-// CompetitionIDHasPrefix applies the HasPrefix predicate on the "competition_id" field.
-func CompetitionIDHasPrefix(v string) predicate.Host {
-	return predicate.Host(sql.FieldHasPrefix(FieldCompetitionID, v))
-}
-
-// CompetitionIDHasSuffix applies the HasSuffix predicate on the "competition_id" field.
-func CompetitionIDHasSuffix(v string) predicate.Host {
-	return predicate.Host(sql.FieldHasSuffix(FieldCompetitionID, v))
-}
-
-// CompetitionIDEqualFold applies the EqualFold predicate on the "competition_id" field.
-func CompetitionIDEqualFold(v string) predicate.Host {
-	return predicate.Host(sql.FieldEqualFold(FieldCompetitionID, v))
-}
-
-// CompetitionIDContainsFold applies the ContainsFold predicate on the "competition_id" field.
-func CompetitionIDContainsFold(v string) predicate.Host {
-	return predicate.Host(sql.FieldContainsFold(FieldCompetitionID, v))
-}
-
-// TeamIDEQ applies the EQ predicate on the "team_id" field.
-func TeamIDEQ(v string) predicate.Host {
-	return predicate.Host(sql.FieldEQ(FieldTeamID, v))
-}
-
-// TeamIDNEQ applies the NEQ predicate on the "team_id" field.
-func TeamIDNEQ(v string) predicate.Host {
-	return predicate.Host(sql.FieldNEQ(FieldTeamID, v))
-}
-
-// TeamIDIn applies the In predicate on the "team_id" field.
-func TeamIDIn(vs ...string) predicate.Host {
-	return predicate.Host(sql.FieldIn(FieldTeamID, vs...))
-}
-
-// TeamIDNotIn applies the NotIn predicate on the "team_id" field.
-func TeamIDNotIn(vs ...string) predicate.Host {
-	return predicate.Host(sql.FieldNotIn(FieldTeamID, vs...))
-}
-
-// TeamIDGT applies the GT predicate on the "team_id" field.
-func TeamIDGT(v string) predicate.Host {
-	return predicate.Host(sql.FieldGT(FieldTeamID, v))
-}
-
-// TeamIDGTE applies the GTE predicate on the "team_id" field.
-func TeamIDGTE(v string) predicate.Host {
-	return predicate.Host(sql.FieldGTE(FieldTeamID, v))
-}
-
-// TeamIDLT applies the LT predicate on the "team_id" field.
-func TeamIDLT(v string) predicate.Host {
-	return predicate.Host(sql.FieldLT(FieldTeamID, v))
-}
-
-// TeamIDLTE applies the LTE predicate on the "team_id" field.
-func TeamIDLTE(v string) predicate.Host {
-	return predicate.Host(sql.FieldLTE(FieldTeamID, v))
-}
-
-// TeamIDContains applies the Contains predicate on the "team_id" field.
-func TeamIDContains(v string) predicate.Host {
-	return predicate.Host(sql.FieldContains(FieldTeamID, v))
-}
-
-// TeamIDHasPrefix applies the HasPrefix predicate on the "team_id" field.
-func TeamIDHasPrefix(v string) predicate.Host {
-	return predicate.Host(sql.FieldHasPrefix(FieldTeamID, v))
-}
-
-// TeamIDHasSuffix applies the HasSuffix predicate on the "team_id" field.
-func TeamIDHasSuffix(v string) predicate.Host {
-	return predicate.Host(sql.FieldHasSuffix(FieldTeamID, v))
-}
-
-// TeamIDEqualFold applies the EqualFold predicate on the "team_id" field.
-func TeamIDEqualFold(v string) predicate.Host {
-	return predicate.Host(sql.FieldEqualFold(FieldTeamID, v))
-}
-
-// TeamIDContainsFold applies the ContainsFold predicate on the "team_id" field.
-func TeamIDContainsFold(v string) predicate.Host {
-	return predicate.Host(sql.FieldContainsFold(FieldTeamID, v))
 }
 
 // AddressEQ applies the EQ predicate on the "address" field.
@@ -333,96 +188,86 @@ func AddressContainsFold(v string) predicate.Host {
 	return predicate.Host(sql.FieldContainsFold(FieldAddress, v))
 }
 
-// AddressListRangeEQ applies the EQ predicate on the "address_list_range" field.
-func AddressListRangeEQ(v string) predicate.Host {
-	return predicate.Host(sql.FieldEQ(FieldAddressListRange, v))
+// TeamIDEQ applies the EQ predicate on the "team_id" field.
+func TeamIDEQ(v string) predicate.Host {
+	return predicate.Host(sql.FieldEQ(FieldTeamID, v))
 }
 
-// AddressListRangeNEQ applies the NEQ predicate on the "address_list_range" field.
-func AddressListRangeNEQ(v string) predicate.Host {
-	return predicate.Host(sql.FieldNEQ(FieldAddressListRange, v))
+// TeamIDNEQ applies the NEQ predicate on the "team_id" field.
+func TeamIDNEQ(v string) predicate.Host {
+	return predicate.Host(sql.FieldNEQ(FieldTeamID, v))
 }
 
-// AddressListRangeIn applies the In predicate on the "address_list_range" field.
-func AddressListRangeIn(vs ...string) predicate.Host {
-	return predicate.Host(sql.FieldIn(FieldAddressListRange, vs...))
+// TeamIDIn applies the In predicate on the "team_id" field.
+func TeamIDIn(vs ...string) predicate.Host {
+	return predicate.Host(sql.FieldIn(FieldTeamID, vs...))
 }
 
-// AddressListRangeNotIn applies the NotIn predicate on the "address_list_range" field.
-func AddressListRangeNotIn(vs ...string) predicate.Host {
-	return predicate.Host(sql.FieldNotIn(FieldAddressListRange, vs...))
+// TeamIDNotIn applies the NotIn predicate on the "team_id" field.
+func TeamIDNotIn(vs ...string) predicate.Host {
+	return predicate.Host(sql.FieldNotIn(FieldTeamID, vs...))
 }
 
-// AddressListRangeGT applies the GT predicate on the "address_list_range" field.
-func AddressListRangeGT(v string) predicate.Host {
-	return predicate.Host(sql.FieldGT(FieldAddressListRange, v))
+// TeamIDGT applies the GT predicate on the "team_id" field.
+func TeamIDGT(v string) predicate.Host {
+	return predicate.Host(sql.FieldGT(FieldTeamID, v))
 }
 
-// AddressListRangeGTE applies the GTE predicate on the "address_list_range" field.
-func AddressListRangeGTE(v string) predicate.Host {
-	return predicate.Host(sql.FieldGTE(FieldAddressListRange, v))
+// TeamIDGTE applies the GTE predicate on the "team_id" field.
+func TeamIDGTE(v string) predicate.Host {
+	return predicate.Host(sql.FieldGTE(FieldTeamID, v))
 }
 
-// AddressListRangeLT applies the LT predicate on the "address_list_range" field.
-func AddressListRangeLT(v string) predicate.Host {
-	return predicate.Host(sql.FieldLT(FieldAddressListRange, v))
+// TeamIDLT applies the LT predicate on the "team_id" field.
+func TeamIDLT(v string) predicate.Host {
+	return predicate.Host(sql.FieldLT(FieldTeamID, v))
 }
 
-// AddressListRangeLTE applies the LTE predicate on the "address_list_range" field.
-func AddressListRangeLTE(v string) predicate.Host {
-	return predicate.Host(sql.FieldLTE(FieldAddressListRange, v))
+// TeamIDLTE applies the LTE predicate on the "team_id" field.
+func TeamIDLTE(v string) predicate.Host {
+	return predicate.Host(sql.FieldLTE(FieldTeamID, v))
 }
 
-// AddressListRangeContains applies the Contains predicate on the "address_list_range" field.
-func AddressListRangeContains(v string) predicate.Host {
-	return predicate.Host(sql.FieldContains(FieldAddressListRange, v))
+// TeamIDContains applies the Contains predicate on the "team_id" field.
+func TeamIDContains(v string) predicate.Host {
+	return predicate.Host(sql.FieldContains(FieldTeamID, v))
 }
 
-// AddressListRangeHasPrefix applies the HasPrefix predicate on the "address_list_range" field.
-func AddressListRangeHasPrefix(v string) predicate.Host {
-	return predicate.Host(sql.FieldHasPrefix(FieldAddressListRange, v))
+// TeamIDHasPrefix applies the HasPrefix predicate on the "team_id" field.
+func TeamIDHasPrefix(v string) predicate.Host {
+	return predicate.Host(sql.FieldHasPrefix(FieldTeamID, v))
 }
 
-// AddressListRangeHasSuffix applies the HasSuffix predicate on the "address_list_range" field.
-func AddressListRangeHasSuffix(v string) predicate.Host {
-	return predicate.Host(sql.FieldHasSuffix(FieldAddressListRange, v))
+// TeamIDHasSuffix applies the HasSuffix predicate on the "team_id" field.
+func TeamIDHasSuffix(v string) predicate.Host {
+	return predicate.Host(sql.FieldHasSuffix(FieldTeamID, v))
 }
 
-// AddressListRangeEqualFold applies the EqualFold predicate on the "address_list_range" field.
-func AddressListRangeEqualFold(v string) predicate.Host {
-	return predicate.Host(sql.FieldEqualFold(FieldAddressListRange, v))
+// TeamIDEqualFold applies the EqualFold predicate on the "team_id" field.
+func TeamIDEqualFold(v string) predicate.Host {
+	return predicate.Host(sql.FieldEqualFold(FieldTeamID, v))
 }
 
-// AddressListRangeContainsFold applies the ContainsFold predicate on the "address_list_range" field.
-func AddressListRangeContainsFold(v string) predicate.Host {
-	return predicate.Host(sql.FieldContainsFold(FieldAddressListRange, v))
+// TeamIDContainsFold applies the ContainsFold predicate on the "team_id" field.
+func TeamIDContainsFold(v string) predicate.Host {
+	return predicate.Host(sql.FieldContainsFold(FieldTeamID, v))
 }
 
-// EditableEQ applies the EQ predicate on the "editable" field.
-func EditableEQ(v bool) predicate.Host {
-	return predicate.Host(sql.FieldEQ(FieldEditable, v))
-}
-
-// EditableNEQ applies the NEQ predicate on the "editable" field.
-func EditableNEQ(v bool) predicate.Host {
-	return predicate.Host(sql.FieldNEQ(FieldEditable, v))
-}
-
-// HasCompetition applies the HasEdge predicate on the "competition" edge.
-func HasCompetition() predicate.Host {
+// HasHostservices applies the HasEdge predicate on the "hostservices" edge.
+func HasHostservices() predicate.Host {
 	return predicate.Host(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, CompetitionTable, CompetitionColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, HostservicesTable, HostservicesColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasCompetitionWith applies the HasEdge predicate on the "competition" edge with a given conditions (other predicates).
-func HasCompetitionWith(preds ...predicate.Competition) predicate.Host {
+// HasHostservicesWith applies the HasEdge predicate on the "hostservices" edge with a given conditions (other predicates).
+func HasHostservicesWith(preds ...predicate.HostService) predicate.Host {
 	return predicate.Host(func(s *sql.Selector) {
-		step := newCompetitionStep()
+		step := newHostservicesStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -436,7 +281,7 @@ func HasTeam() predicate.Host {
 	return predicate.Host(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, TeamTable, TeamColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, TeamTable, TeamColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -446,52 +291,6 @@ func HasTeam() predicate.Host {
 func HasTeamWith(preds ...predicate.Team) predicate.Host {
 	return predicate.Host(func(s *sql.Selector) {
 		step := newTeamStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasServices applies the HasEdge predicate on the "services" edge.
-func HasServices() predicate.Host {
-	return predicate.Host(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ServicesTable, ServicesColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasServicesWith applies the HasEdge predicate on the "services" edge with a given conditions (other predicates).
-func HasServicesWith(preds ...predicate.Service) predicate.Host {
-	return predicate.Host(func(s *sql.Selector) {
-		step := newServicesStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasHostGroup applies the HasEdge predicate on the "host_group" edge.
-func HasHostGroup() predicate.Host {
-	return predicate.Host(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, HostGroupTable, HostGroupColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasHostGroupWith applies the HasEdge predicate on the "host_group" edge with a given conditions (other predicates).
-func HasHostGroupWith(preds ...predicate.HostGroup) predicate.Host {
-	return predicate.Host(func(s *sql.Selector) {
-		step := newHostGroupStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -13,19 +13,23 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/report"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/round"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/user"
 )
 
 // CompetitionQuery is the builder for querying Competition entities.
 type CompetitionQuery struct {
 	config
-	ctx        *QueryContext
-	order      []competition.Order
-	inters     []Interceptor
-	predicates []predicate.Competition
-	withTeams  *TeamQuery
-	withUsers  *UserQuery
+	ctx          *QueryContext
+	order        []competition.Order
+	inters       []Interceptor
+	predicates   []predicate.Competition
+	withTeams    *TeamQuery
+	withServices *ServiceQuery
+	withReports  *ReportQuery
+	withRounds   *RoundQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -84,9 +88,9 @@ func (cq *CompetitionQuery) QueryTeams() *TeamQuery {
 	return query
 }
 
-// QueryUsers chains the current query on the "users" edge.
-func (cq *CompetitionQuery) QueryUsers() *UserQuery {
-	query := (&UserClient{config: cq.config}).Query()
+// QueryServices chains the current query on the "services" edge.
+func (cq *CompetitionQuery) QueryServices() *ServiceQuery {
+	query := (&ServiceClient{config: cq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := cq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -97,8 +101,52 @@ func (cq *CompetitionQuery) QueryUsers() *UserQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(competition.Table, competition.FieldID, selector),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, competition.UsersTable, competition.UsersPrimaryKey...),
+			sqlgraph.To(service.Table, service.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, competition.ServicesTable, competition.ServicesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryReports chains the current query on the "reports" edge.
+func (cq *CompetitionQuery) QueryReports() *ReportQuery {
+	query := (&ReportClient{config: cq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(competition.Table, competition.FieldID, selector),
+			sqlgraph.To(report.Table, report.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, competition.ReportsTable, competition.ReportsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryRounds chains the current query on the "rounds" edge.
+func (cq *CompetitionQuery) QueryRounds() *RoundQuery {
+	query := (&RoundClient{config: cq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(competition.Table, competition.FieldID, selector),
+			sqlgraph.To(round.Table, round.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, competition.RoundsTable, competition.RoundsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
 		return fromU, nil
@@ -293,13 +341,15 @@ func (cq *CompetitionQuery) Clone() *CompetitionQuery {
 		return nil
 	}
 	return &CompetitionQuery{
-		config:     cq.config,
-		ctx:        cq.ctx.Clone(),
-		order:      append([]competition.Order{}, cq.order...),
-		inters:     append([]Interceptor{}, cq.inters...),
-		predicates: append([]predicate.Competition{}, cq.predicates...),
-		withTeams:  cq.withTeams.Clone(),
-		withUsers:  cq.withUsers.Clone(),
+		config:       cq.config,
+		ctx:          cq.ctx.Clone(),
+		order:        append([]competition.Order{}, cq.order...),
+		inters:       append([]Interceptor{}, cq.inters...),
+		predicates:   append([]predicate.Competition{}, cq.predicates...),
+		withTeams:    cq.withTeams.Clone(),
+		withServices: cq.withServices.Clone(),
+		withReports:  cq.withReports.Clone(),
+		withRounds:   cq.withRounds.Clone(),
 		// clone intermediate query.
 		sql:  cq.sql.Clone(),
 		path: cq.path,
@@ -317,14 +367,36 @@ func (cq *CompetitionQuery) WithTeams(opts ...func(*TeamQuery)) *CompetitionQuer
 	return cq
 }
 
-// WithUsers tells the query-builder to eager-load the nodes that are connected to
-// the "users" edge. The optional arguments are used to configure the query builder of the edge.
-func (cq *CompetitionQuery) WithUsers(opts ...func(*UserQuery)) *CompetitionQuery {
-	query := (&UserClient{config: cq.config}).Query()
+// WithServices tells the query-builder to eager-load the nodes that are connected to
+// the "services" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *CompetitionQuery) WithServices(opts ...func(*ServiceQuery)) *CompetitionQuery {
+	query := (&ServiceClient{config: cq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	cq.withUsers = query
+	cq.withServices = query
+	return cq
+}
+
+// WithReports tells the query-builder to eager-load the nodes that are connected to
+// the "reports" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *CompetitionQuery) WithReports(opts ...func(*ReportQuery)) *CompetitionQuery {
+	query := (&ReportClient{config: cq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withReports = query
+	return cq
+}
+
+// WithRounds tells the query-builder to eager-load the nodes that are connected to
+// the "rounds" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *CompetitionQuery) WithRounds(opts ...func(*RoundQuery)) *CompetitionQuery {
+	query := (&RoundClient{config: cq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withRounds = query
 	return cq
 }
 
@@ -406,9 +478,11 @@ func (cq *CompetitionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	var (
 		nodes       = []*Competition{}
 		_spec       = cq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [4]bool{
 			cq.withTeams != nil,
-			cq.withUsers != nil,
+			cq.withServices != nil,
+			cq.withReports != nil,
+			cq.withRounds != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -436,10 +510,24 @@ func (cq *CompetitionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 			return nil, err
 		}
 	}
-	if query := cq.withUsers; query != nil {
-		if err := cq.loadUsers(ctx, query, nodes,
-			func(n *Competition) { n.Edges.Users = []*User{} },
-			func(n *Competition, e *User) { n.Edges.Users = append(n.Edges.Users, e) }); err != nil {
+	if query := cq.withServices; query != nil {
+		if err := cq.loadServices(ctx, query, nodes,
+			func(n *Competition) { n.Edges.Services = []*Service{} },
+			func(n *Competition, e *Service) { n.Edges.Services = append(n.Edges.Services, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := cq.withReports; query != nil {
+		if err := cq.loadReports(ctx, query, nodes,
+			func(n *Competition) { n.Edges.Reports = []*Report{} },
+			func(n *Competition, e *Report) { n.Edges.Reports = append(n.Edges.Reports, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := cq.withRounds; query != nil {
+		if err := cq.loadRounds(ctx, query, nodes,
+			func(n *Competition) { n.Edges.Rounds = []*Round{} },
+			func(n *Competition, e *Round) { n.Edges.Rounds = append(n.Edges.Rounds, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -456,7 +544,6 @@ func (cq *CompetitionQuery) loadTeams(ctx context.Context, query *TeamQuery, nod
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
 	query.Where(predicate.Team(func(s *sql.Selector) {
 		s.Where(sql.InValues(competition.TeamsColumn, fks...))
 	}))
@@ -465,76 +552,93 @@ func (cq *CompetitionQuery) loadTeams(ctx context.Context, query *TeamQuery, nod
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.competition_teams
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "competition_teams" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.CompetitionID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "competition_teams" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "competition_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
 	return nil
 }
-func (cq *CompetitionQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*Competition, init func(*Competition), assign func(*Competition, *User)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[string]*Competition)
-	nids := make(map[string]map[*Competition]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
+func (cq *CompetitionQuery) loadServices(ctx context.Context, query *ServiceQuery, nodes []*Competition, init func(*Competition), assign func(*Competition, *Service)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Competition)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
 		if init != nil {
-			init(node)
+			init(nodes[i])
 		}
 	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(competition.UsersTable)
-		s.Join(joinT).On(s.C(user.FieldID), joinT.C(competition.UsersPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(competition.UsersPrimaryKey[0]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(competition.UsersPrimaryKey[0]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
-	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(sql.NullString)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := values[0].(*sql.NullString).String
-				inValue := values[1].(*sql.NullString).String
-				if nids[inValue] == nil {
-					nids[inValue] = map[*Competition]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*User](ctx, query, qr, query.inters)
+	query.Where(predicate.Service(func(s *sql.Selector) {
+		s.Where(sql.InValues(competition.ServicesColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
+		fk := n.CompetitionID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected "users" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "competition_id" returned %v for node %v`, fk, n.ID)
 		}
-		for kn := range nodes {
-			assign(kn, n)
+		assign(node, n)
+	}
+	return nil
+}
+func (cq *CompetitionQuery) loadReports(ctx context.Context, query *ReportQuery, nodes []*Competition, init func(*Competition), assign func(*Competition, *Report)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Competition)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
 		}
+	}
+	query.Where(predicate.Report(func(s *sql.Selector) {
+		s.Where(sql.InValues(competition.ReportsColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.CompetitionID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "competition_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (cq *CompetitionQuery) loadRounds(ctx context.Context, query *RoundQuery, nodes []*Competition, init func(*Competition), assign func(*Competition, *Round)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Competition)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.Where(predicate.Round(func(s *sql.Selector) {
+		s.Where(sql.InValues(competition.RoundsColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.CompetitionID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "competition_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

@@ -5,37 +5,25 @@ import (
 	"go.uber.org/fx"
 )
 
-var LoggingModule = fx.Options(
+var Module = fx.Options(
+	// OTEL Resource
+	fx.Provide(telemetry.NewResource),
+
 	// Logging
 	fx.Provide(telemetry.NewLogger),
-)
-
-var OTELModule = fx.Options(
-	// Resource
-	fx.Provide(telemetry.NewResource),
 
 	// Tracing
 	fx.Provide(
 		telemetry.NewTracerProvider,
+		telemetry.NewOtlpTraceGrpcExporter,
+		//telemetry.NewOtlpTraceHttpExporter,
 	),
 
 	// Metrics
 	fx.Provide(
 		telemetry.NewMeterProvider,
-		telemetry.NewMetricExporter,
+		//telemetry.NewOtlpMetricGrpcExporter,
+		//telemetry.NewOtlpMetricHttpExporter,
+		telemetry.NewPrometheusExporter,
 	),
-
-	// Exporters
-	fx.Provide(
-		telemetry.NewOtlpGrpcExporter,
-		telemetry.NewOtlpHttpExporter,
-	),
-)
-
-var Module = fx.Options(
-	// Open Telemetry
-	OTELModule,
-
-	// Logging
-	LoggingModule,
 )

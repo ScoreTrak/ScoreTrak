@@ -132,8 +132,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								break
 							}
 							switch elem[0] {
-							case 'c': // Prefix: "competition"
-								if l := len("competition"); len(elem) >= l && elem[0:l] == "competition" {
+							case 'h': // Prefix: "hostservice"
+								if l := len("hostservice"); len(elem) >= l && elem[0:l] == "hostservice" {
 									elem = elem[l:]
 								} else {
 									break
@@ -143,7 +143,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 									// Leaf node.
 									switch r.Method {
 									case "GET":
-										s.handleReadCheckCompetitionRequest([1]string{
+										s.handleReadCheckHostserviceRequest([1]string{
 											args[0],
 										}, w, r)
 									default:
@@ -172,8 +172,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 									return
 								}
-							case 's': // Prefix: "services"
-								if l := len("services"); len(elem) >= l && elem[0:l] == "services" {
+							case 't': // Prefix: "team"
+								if l := len("team"); len(elem) >= l && elem[0:l] == "team" {
 									elem = elem[l:]
 								} else {
 									break
@@ -183,7 +183,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 									// Leaf node.
 									switch r.Method {
 									case "GET":
-										s.handleReadCheckServicesRequest([1]string{
+										s.handleReadCheckTeamRequest([1]string{
 											args[0],
 										}, w, r)
 									default:
@@ -263,6 +263,78 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								break
 							}
 							switch elem[0] {
+							case 'r': // Prefix: "r"
+								if l := len("r"); len(elem) >= l && elem[0:l] == "r" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									break
+								}
+								switch elem[0] {
+								case 'e': // Prefix: "eports"
+									if l := len("eports"); len(elem) >= l && elem[0:l] == "eports" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "GET":
+											s.handleListCompetitionReportsRequest([1]string{
+												args[0],
+											}, w, r)
+										default:
+											s.notAllowed(w, r, "GET")
+										}
+
+										return
+									}
+								case 'o': // Prefix: "ounds"
+									if l := len("ounds"); len(elem) >= l && elem[0:l] == "ounds" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "GET":
+											s.handleListCompetitionRoundsRequest([1]string{
+												args[0],
+											}, w, r)
+										default:
+											s.notAllowed(w, r, "GET")
+										}
+
+										return
+									}
+								}
+							case 's': // Prefix: "services"
+								if l := len("services"); len(elem) >= l && elem[0:l] == "services" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleListCompetitionServicesRequest([1]string{
+											args[0],
+										}, w, r)
+									default:
+										s.notAllowed(w, r, "GET")
+									}
+
+									return
+								}
 							case 't': // Prefix: "teams"
 								if l := len("teams"); len(elem) >= l && elem[0:l] == "teams" {
 									elem = elem[l:]
@@ -275,26 +347,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 									switch r.Method {
 									case "GET":
 										s.handleListCompetitionTeamsRequest([1]string{
-											args[0],
-										}, w, r)
-									default:
-										s.notAllowed(w, r, "GET")
-									}
-
-									return
-								}
-							case 'u': // Prefix: "users"
-								if l := len("users"); len(elem) >= l && elem[0:l] == "users" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch r.Method {
-									case "GET":
-										s.handleListCompetitionUsersRequest([1]string{
 											args[0],
 										}, w, r)
 									default:
@@ -318,8 +370,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 				switch elem[0] {
-				case '-': // Prefix: "-groups"
-					if l := len("-groups"); len(elem) >= l && elem[0:l] == "-groups" {
+				case '-': // Prefix: "-services"
+					if l := len("-services"); len(elem) >= l && elem[0:l] == "-services" {
 						elem = elem[l:]
 					} else {
 						break
@@ -328,9 +380,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					if len(elem) == 0 {
 						switch r.Method {
 						case "GET":
-							s.handleListHostGroupRequest([0]string{}, w, r)
+							s.handleListHostServiceRequest([0]string{}, w, r)
 						case "POST":
-							s.handleCreateHostGroupRequest([0]string{}, w, r)
+							s.handleCreateHostServiceRequest([0]string{}, w, r)
 						default:
 							s.notAllowed(w, r, "GET,POST")
 						}
@@ -357,15 +409,15 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						if len(elem) == 0 {
 							switch r.Method {
 							case "DELETE":
-								s.handleDeleteHostGroupRequest([1]string{
+								s.handleDeleteHostServiceRequest([1]string{
 									args[0],
 								}, w, r)
 							case "GET":
-								s.handleReadHostGroupRequest([1]string{
+								s.handleReadHostServiceRequest([1]string{
 									args[0],
 								}, w, r)
 							case "PATCH":
-								s.handleUpdateHostGroupRequest([1]string{
+								s.handleUpdateHostServiceRequest([1]string{
 									args[0],
 								}, w, r)
 							default:
@@ -386,8 +438,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								break
 							}
 							switch elem[0] {
-							case 'c': // Prefix: "competition"
-								if l := len("competition"); len(elem) >= l && elem[0:l] == "competition" {
+							case 'c': // Prefix: "checks"
+								if l := len("checks"); len(elem) >= l && elem[0:l] == "checks" {
 									elem = elem[l:]
 								} else {
 									break
@@ -397,7 +449,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 									// Leaf node.
 									switch r.Method {
 									case "GET":
-										s.handleReadHostGroupCompetitionRequest([1]string{
+										s.handleListHostServiceChecksRequest([1]string{
 											args[0],
 										}, w, r)
 									default:
@@ -406,8 +458,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 									return
 								}
-							case 'h': // Prefix: "hosts"
-								if l := len("hosts"); len(elem) >= l && elem[0:l] == "hosts" {
+							case 'h': // Prefix: "host"
+								if l := len("host"); len(elem) >= l && elem[0:l] == "host" {
 									elem = elem[l:]
 								} else {
 									break
@@ -417,7 +469,27 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 									// Leaf node.
 									switch r.Method {
 									case "GET":
-										s.handleListHostGroupHostsRequest([1]string{
+										s.handleReadHostServiceHostRequest([1]string{
+											args[0],
+										}, w, r)
+									default:
+										s.notAllowed(w, r, "GET")
+									}
+
+									return
+								}
+							case 'p': // Prefix: "properties"
+								if l := len("properties"); len(elem) >= l && elem[0:l] == "properties" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleListHostServicePropertiesRequest([1]string{
 											args[0],
 										}, w, r)
 									default:
@@ -437,7 +509,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 									// Leaf node.
 									switch r.Method {
 									case "GET":
-										s.handleReadHostGroupTeamRequest([1]string{
+										s.handleReadHostServiceTeamRequest([1]string{
 											args[0],
 										}, w, r)
 									default:
@@ -517,8 +589,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								break
 							}
 							switch elem[0] {
-							case 'c': // Prefix: "competition"
-								if l := len("competition"); len(elem) >= l && elem[0:l] == "competition" {
+							case 'h': // Prefix: "hostservices"
+								if l := len("hostservices"); len(elem) >= l && elem[0:l] == "hostservices" {
 									elem = elem[l:]
 								} else {
 									break
@@ -528,47 +600,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 									// Leaf node.
 									switch r.Method {
 									case "GET":
-										s.handleReadHostCompetitionRequest([1]string{
-											args[0],
-										}, w, r)
-									default:
-										s.notAllowed(w, r, "GET")
-									}
-
-									return
-								}
-							case 'h': // Prefix: "host-group"
-								if l := len("host-group"); len(elem) >= l && elem[0:l] == "host-group" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch r.Method {
-									case "GET":
-										s.handleReadHostHostGroupRequest([1]string{
-											args[0],
-										}, w, r)
-									default:
-										s.notAllowed(w, r, "GET")
-									}
-
-									return
-								}
-							case 's': // Prefix: "services"
-								if l := len("services"); len(elem) >= l && elem[0:l] == "services" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch r.Method {
-									case "GET":
-										s.handleListHostServicesRequest([1]string{
+										s.handleListHostHostservicesRequest([1]string{
 											args[0],
 										}, w, r)
 									default:
@@ -669,8 +701,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							break
 						}
 						switch elem[0] {
-						case 'c': // Prefix: "competition"
-							if l := len("competition"); len(elem) >= l && elem[0:l] == "competition" {
+						case 'h': // Prefix: "hostservice"
+							if l := len("hostservice"); len(elem) >= l && elem[0:l] == "hostservice" {
 								elem = elem[l:]
 							} else {
 								break
@@ -680,27 +712,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								// Leaf node.
 								switch r.Method {
 								case "GET":
-									s.handleReadPropertyCompetitionRequest([1]string{
-										args[0],
-									}, w, r)
-								default:
-									s.notAllowed(w, r, "GET")
-								}
-
-								return
-							}
-						case 's': // Prefix: "services"
-							if l := len("services"); len(elem) >= l && elem[0:l] == "services" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleReadPropertyServicesRequest([1]string{
+									s.handleReadPropertyHostserviceRequest([1]string{
 										args[0],
 									}, w, r)
 								default:
@@ -771,12 +783,15 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						}
 
 						// Param: "id"
-						// Leaf parameter
-						args[0] = elem
-						elem = ""
+						// Match until "/"
+						idx := strings.IndexByte(elem, '/')
+						if idx < 0 {
+							idx = len(elem)
+						}
+						args[0] = elem[:idx]
+						elem = elem[idx:]
 
 						if len(elem) == 0 {
-							// Leaf node.
 							switch r.Method {
 							case "DELETE":
 								s.handleDeleteReportRequest([1]string{
@@ -795,6 +810,28 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							}
 
 							return
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/competition"
+							if l := len("/competition"); len(elem) >= l && elem[0:l] == "/competition" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "GET":
+									s.handleReadReportCompetitionRequest([1]string{
+										args[0],
+									}, w, r)
+								default:
+									s.notAllowed(w, r, "GET")
+								}
+
+								return
+							}
 						}
 					}
 				case 'o': // Prefix: "ounds"
@@ -966,129 +1003,25 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/"
-						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+					case '/': // Prefix: "/competition"
+						if l := len("/competition"); len(elem) >= l && elem[0:l] == "/competition" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							break
-						}
-						switch elem[0] {
-						case 'c': // Prefix: "c"
-							if l := len("c"); len(elem) >= l && elem[0:l] == "c" {
-								elem = elem[l:]
-							} else {
-								break
+							// Leaf node.
+							switch r.Method {
+							case "GET":
+								s.handleReadServiceCompetitionRequest([1]string{
+									args[0],
+								}, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
 							}
 
-							if len(elem) == 0 {
-								break
-							}
-							switch elem[0] {
-							case 'h': // Prefix: "hecks"
-								if l := len("hecks"); len(elem) >= l && elem[0:l] == "hecks" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch r.Method {
-									case "GET":
-										s.handleListServiceChecksRequest([1]string{
-											args[0],
-										}, w, r)
-									default:
-										s.notAllowed(w, r, "GET")
-									}
-
-									return
-								}
-							case 'o': // Prefix: "ompetition"
-								if l := len("ompetition"); len(elem) >= l && elem[0:l] == "ompetition" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch r.Method {
-									case "GET":
-										s.handleReadServiceCompetitionRequest([1]string{
-											args[0],
-										}, w, r)
-									default:
-										s.notAllowed(w, r, "GET")
-									}
-
-									return
-								}
-							}
-						case 'h': // Prefix: "hosts"
-							if l := len("hosts"); len(elem) >= l && elem[0:l] == "hosts" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleReadServiceHostsRequest([1]string{
-										args[0],
-									}, w, r)
-								default:
-									s.notAllowed(w, r, "GET")
-								}
-
-								return
-							}
-						case 'p': // Prefix: "properties"
-							if l := len("properties"); len(elem) >= l && elem[0:l] == "properties" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleListServicePropertiesRequest([1]string{
-										args[0],
-									}, w, r)
-								default:
-									s.notAllowed(w, r, "GET")
-								}
-
-								return
-							}
-						case 't': // Prefix: "team"
-							if l := len("team"); len(elem) >= l && elem[0:l] == "team" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleReadServiceTeamRequest([1]string{
-										args[0],
-									}, w, r)
-								default:
-									s.notAllowed(w, r, "GET")
-								}
-
-								return
-							}
+							return
 						}
 					}
 				}
@@ -1160,25 +1093,57 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							break
 						}
 						switch elem[0] {
-						case 'c': // Prefix: "competition"
-							if l := len("competition"); len(elem) >= l && elem[0:l] == "competition" {
+						case 'c': // Prefix: "c"
+							if l := len("c"); len(elem) >= l && elem[0:l] == "c" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleReadTeamCompetitionRequest([1]string{
-										args[0],
-									}, w, r)
-								default:
-									s.notAllowed(w, r, "GET")
+								break
+							}
+							switch elem[0] {
+							case 'h': // Prefix: "hecks"
+								if l := len("hecks"); len(elem) >= l && elem[0:l] == "hecks" {
+									elem = elem[l:]
+								} else {
+									break
 								}
 
-								return
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleListTeamChecksRequest([1]string{
+											args[0],
+										}, w, r)
+									default:
+										s.notAllowed(w, r, "GET")
+									}
+
+									return
+								}
+							case 'o': // Prefix: "ompetition"
+								if l := len("ompetition"); len(elem) >= l && elem[0:l] == "ompetition" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleReadTeamCompetitionRequest([1]string{
+											args[0],
+										}, w, r)
+									default:
+										s.notAllowed(w, r, "GET")
+									}
+
+									return
+								}
 							}
 						case 'h': // Prefix: "hosts"
 							if l := len("hosts"); len(elem) >= l && elem[0:l] == "hosts" {
@@ -1188,7 +1153,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
 								switch r.Method {
 								case "GET":
 									s.handleListTeamHostsRequest([1]string{
@@ -1200,119 +1164,30 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 								return
 							}
-						case 'u': // Prefix: "users"
-							if l := len("users"); len(elem) >= l && elem[0:l] == "users" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleListTeamUsersRequest([1]string{
-										args[0],
-									}, w, r)
-								default:
-									s.notAllowed(w, r, "GET")
+							switch elem[0] {
+							case 'e': // Prefix: "ervices"
+								if l := len("ervices"); len(elem) >= l && elem[0:l] == "ervices" {
+									elem = elem[l:]
+								} else {
+									break
 								}
 
-								return
-							}
-						}
-					}
-				}
-			case 'u': // Prefix: "users"
-				if l := len("users"); len(elem) >= l && elem[0:l] == "users" {
-					elem = elem[l:]
-				} else {
-					break
-				}
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleListTeamHostservicesRequest([1]string{
+											args[0],
+										}, w, r)
+									default:
+										s.notAllowed(w, r, "GET")
+									}
 
-				if len(elem) == 0 {
-					switch r.Method {
-					case "GET":
-						s.handleListUserRequest([0]string{}, w, r)
-					case "POST":
-						s.handleCreateUserRequest([0]string{}, w, r)
-					default:
-						s.notAllowed(w, r, "GET,POST")
-					}
-
-					return
-				}
-				switch elem[0] {
-				case '/': // Prefix: "/"
-					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
-						elem = elem[l:]
-					} else {
-						break
-					}
-
-					// Param: "id"
-					// Match until "/"
-					idx := strings.IndexByte(elem, '/')
-					if idx < 0 {
-						idx = len(elem)
-					}
-					args[0] = elem[:idx]
-					elem = elem[idx:]
-
-					if len(elem) == 0 {
-						switch r.Method {
-						case "DELETE":
-							s.handleDeleteUserRequest([1]string{
-								args[0],
-							}, w, r)
-						case "GET":
-							s.handleReadUserRequest([1]string{
-								args[0],
-							}, w, r)
-						case "PATCH":
-							s.handleUpdateUserRequest([1]string{
-								args[0],
-							}, w, r)
-						default:
-							s.notAllowed(w, r, "DELETE,GET,PATCH")
-						}
-
-						return
-					}
-					switch elem[0] {
-					case '/': // Prefix: "/"
-						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
-							elem = elem[l:]
-						} else {
-							break
-						}
-
-						if len(elem) == 0 {
-							break
-						}
-						switch elem[0] {
-						case 'c': // Prefix: "competitions"
-							if l := len("competitions"); len(elem) >= l && elem[0:l] == "competitions" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleListUserCompetitionsRequest([1]string{
-										args[0],
-									}, w, r)
-								default:
-									s.notAllowed(w, r, "GET")
+									return
 								}
-
-								return
 							}
-						case 't': // Prefix: "teams"
-							if l := len("teams"); len(elem) >= l && elem[0:l] == "teams" {
+						case 'p': // Prefix: "properties"
+							if l := len("properties"); len(elem) >= l && elem[0:l] == "properties" {
 								elem = elem[l:]
 							} else {
 								break
@@ -1322,7 +1197,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								// Leaf node.
 								switch r.Method {
 								case "GET":
-									s.handleListUserTeamsRequest([1]string{
+									s.handleListTeamPropertiesRequest([1]string{
 										args[0],
 									}, w, r)
 								default:
@@ -1509,8 +1384,8 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								break
 							}
 							switch elem[0] {
-							case 'c': // Prefix: "competition"
-								if l := len("competition"); len(elem) >= l && elem[0:l] == "competition" {
+							case 'h': // Prefix: "hostservice"
+								if l := len("hostservice"); len(elem) >= l && elem[0:l] == "hostservice" {
 									elem = elem[l:]
 								} else {
 									break
@@ -1519,10 +1394,10 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								if len(elem) == 0 {
 									switch method {
 									case "GET":
-										// Leaf: ReadCheckCompetition
-										r.name = "ReadCheckCompetition"
-										r.operationID = "readCheckCompetition"
-										r.pathPattern = "/checks/{id}/competition"
+										// Leaf: ReadCheckHostservice
+										r.name = "ReadCheckHostservice"
+										r.operationID = "readCheckHostservice"
+										r.pathPattern = "/checks/{id}/hostservice"
 										r.args = args
 										r.count = 1
 										return r, true
@@ -1551,8 +1426,8 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										return
 									}
 								}
-							case 's': // Prefix: "services"
-								if l := len("services"); len(elem) >= l && elem[0:l] == "services" {
+							case 't': // Prefix: "team"
+								if l := len("team"); len(elem) >= l && elem[0:l] == "team" {
 									elem = elem[l:]
 								} else {
 									break
@@ -1561,10 +1436,10 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								if len(elem) == 0 {
 									switch method {
 									case "GET":
-										// Leaf: ReadCheckServices
-										r.name = "ReadCheckServices"
-										r.operationID = "readCheckServices"
-										r.pathPattern = "/checks/{id}/services"
+										// Leaf: ReadCheckTeam
+										r.name = "ReadCheckTeam"
+										r.operationID = "readCheckTeam"
+										r.pathPattern = "/checks/{id}/team"
 										r.args = args
 										r.count = 1
 										return r, true
@@ -1658,6 +1533,81 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								break
 							}
 							switch elem[0] {
+							case 'r': // Prefix: "r"
+								if l := len("r"); len(elem) >= l && elem[0:l] == "r" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									break
+								}
+								switch elem[0] {
+								case 'e': // Prefix: "eports"
+									if l := len("eports"); len(elem) >= l && elem[0:l] == "eports" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										switch method {
+										case "GET":
+											// Leaf: ListCompetitionReports
+											r.name = "ListCompetitionReports"
+											r.operationID = "listCompetitionReports"
+											r.pathPattern = "/competitions/{id}/reports"
+											r.args = args
+											r.count = 1
+											return r, true
+										default:
+											return
+										}
+									}
+								case 'o': // Prefix: "ounds"
+									if l := len("ounds"); len(elem) >= l && elem[0:l] == "ounds" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										switch method {
+										case "GET":
+											// Leaf: ListCompetitionRounds
+											r.name = "ListCompetitionRounds"
+											r.operationID = "listCompetitionRounds"
+											r.pathPattern = "/competitions/{id}/rounds"
+											r.args = args
+											r.count = 1
+											return r, true
+										default:
+											return
+										}
+									}
+								}
+							case 's': // Prefix: "services"
+								if l := len("services"); len(elem) >= l && elem[0:l] == "services" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									switch method {
+									case "GET":
+										// Leaf: ListCompetitionServices
+										r.name = "ListCompetitionServices"
+										r.operationID = "listCompetitionServices"
+										r.pathPattern = "/competitions/{id}/services"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
 							case 't': // Prefix: "teams"
 								if l := len("teams"); len(elem) >= l && elem[0:l] == "teams" {
 									elem = elem[l:]
@@ -1672,27 +1622,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										r.name = "ListCompetitionTeams"
 										r.operationID = "listCompetitionTeams"
 										r.pathPattern = "/competitions/{id}/teams"
-										r.args = args
-										r.count = 1
-										return r, true
-									default:
-										return
-									}
-								}
-							case 'u': // Prefix: "users"
-								if l := len("users"); len(elem) >= l && elem[0:l] == "users" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									switch method {
-									case "GET":
-										// Leaf: ListCompetitionUsers
-										r.name = "ListCompetitionUsers"
-										r.operationID = "listCompetitionUsers"
-										r.pathPattern = "/competitions/{id}/users"
 										r.args = args
 										r.count = 1
 										return r, true
@@ -1715,8 +1644,8 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					break
 				}
 				switch elem[0] {
-				case '-': // Prefix: "-groups"
-					if l := len("-groups"); len(elem) >= l && elem[0:l] == "-groups" {
+				case '-': // Prefix: "-services"
+					if l := len("-services"); len(elem) >= l && elem[0:l] == "-services" {
 						elem = elem[l:]
 					} else {
 						break
@@ -1725,16 +1654,16 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					if len(elem) == 0 {
 						switch method {
 						case "GET":
-							r.name = "ListHostGroup"
-							r.operationID = "listHostGroup"
-							r.pathPattern = "/host-groups"
+							r.name = "ListHostService"
+							r.operationID = "listHostService"
+							r.pathPattern = "/host-services"
 							r.args = args
 							r.count = 0
 							return r, true
 						case "POST":
-							r.name = "CreateHostGroup"
-							r.operationID = "createHostGroup"
-							r.pathPattern = "/host-groups"
+							r.name = "CreateHostService"
+							r.operationID = "createHostService"
+							r.pathPattern = "/host-services"
 							r.args = args
 							r.count = 0
 							return r, true
@@ -1762,23 +1691,23 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						if len(elem) == 0 {
 							switch method {
 							case "DELETE":
-								r.name = "DeleteHostGroup"
-								r.operationID = "deleteHostGroup"
-								r.pathPattern = "/host-groups/{id}"
+								r.name = "DeleteHostService"
+								r.operationID = "deleteHostService"
+								r.pathPattern = "/host-services/{id}"
 								r.args = args
 								r.count = 1
 								return r, true
 							case "GET":
-								r.name = "ReadHostGroup"
-								r.operationID = "readHostGroup"
-								r.pathPattern = "/host-groups/{id}"
+								r.name = "ReadHostService"
+								r.operationID = "readHostService"
+								r.pathPattern = "/host-services/{id}"
 								r.args = args
 								r.count = 1
 								return r, true
 							case "PATCH":
-								r.name = "UpdateHostGroup"
-								r.operationID = "updateHostGroup"
-								r.pathPattern = "/host-groups/{id}"
+								r.name = "UpdateHostService"
+								r.operationID = "updateHostService"
+								r.pathPattern = "/host-services/{id}"
 								r.args = args
 								r.count = 1
 								return r, true
@@ -1798,8 +1727,8 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								break
 							}
 							switch elem[0] {
-							case 'c': // Prefix: "competition"
-								if l := len("competition"); len(elem) >= l && elem[0:l] == "competition" {
+							case 'c': // Prefix: "checks"
+								if l := len("checks"); len(elem) >= l && elem[0:l] == "checks" {
 									elem = elem[l:]
 								} else {
 									break
@@ -1808,10 +1737,10 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								if len(elem) == 0 {
 									switch method {
 									case "GET":
-										// Leaf: ReadHostGroupCompetition
-										r.name = "ReadHostGroupCompetition"
-										r.operationID = "readHostGroupCompetition"
-										r.pathPattern = "/host-groups/{id}/competition"
+										// Leaf: ListHostServiceChecks
+										r.name = "ListHostServiceChecks"
+										r.operationID = "listHostServiceChecks"
+										r.pathPattern = "/host-services/{id}/checks"
 										r.args = args
 										r.count = 1
 										return r, true
@@ -1819,8 +1748,8 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										return
 									}
 								}
-							case 'h': // Prefix: "hosts"
-								if l := len("hosts"); len(elem) >= l && elem[0:l] == "hosts" {
+							case 'h': // Prefix: "host"
+								if l := len("host"); len(elem) >= l && elem[0:l] == "host" {
 									elem = elem[l:]
 								} else {
 									break
@@ -1829,10 +1758,31 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								if len(elem) == 0 {
 									switch method {
 									case "GET":
-										// Leaf: ListHostGroupHosts
-										r.name = "ListHostGroupHosts"
-										r.operationID = "listHostGroupHosts"
-										r.pathPattern = "/host-groups/{id}/hosts"
+										// Leaf: ReadHostServiceHost
+										r.name = "ReadHostServiceHost"
+										r.operationID = "readHostServiceHost"
+										r.pathPattern = "/host-services/{id}/host"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+							case 'p': // Prefix: "properties"
+								if l := len("properties"); len(elem) >= l && elem[0:l] == "properties" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									switch method {
+									case "GET":
+										// Leaf: ListHostServiceProperties
+										r.name = "ListHostServiceProperties"
+										r.operationID = "listHostServiceProperties"
+										r.pathPattern = "/host-services/{id}/properties"
 										r.args = args
 										r.count = 1
 										return r, true
@@ -1850,10 +1800,10 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								if len(elem) == 0 {
 									switch method {
 									case "GET":
-										// Leaf: ReadHostGroupTeam
-										r.name = "ReadHostGroupTeam"
-										r.operationID = "readHostGroupTeam"
-										r.pathPattern = "/host-groups/{id}/team"
+										// Leaf: ReadHostServiceTeam
+										r.name = "ReadHostServiceTeam"
+										r.operationID = "readHostServiceTeam"
+										r.pathPattern = "/host-services/{id}/team"
 										r.args = args
 										r.count = 1
 										return r, true
@@ -1947,8 +1897,8 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								break
 							}
 							switch elem[0] {
-							case 'c': // Prefix: "competition"
-								if l := len("competition"); len(elem) >= l && elem[0:l] == "competition" {
+							case 'h': // Prefix: "hostservices"
+								if l := len("hostservices"); len(elem) >= l && elem[0:l] == "hostservices" {
 									elem = elem[l:]
 								} else {
 									break
@@ -1957,52 +1907,10 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								if len(elem) == 0 {
 									switch method {
 									case "GET":
-										// Leaf: ReadHostCompetition
-										r.name = "ReadHostCompetition"
-										r.operationID = "readHostCompetition"
-										r.pathPattern = "/hosts/{id}/competition"
-										r.args = args
-										r.count = 1
-										return r, true
-									default:
-										return
-									}
-								}
-							case 'h': // Prefix: "host-group"
-								if l := len("host-group"); len(elem) >= l && elem[0:l] == "host-group" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									switch method {
-									case "GET":
-										// Leaf: ReadHostHostGroup
-										r.name = "ReadHostHostGroup"
-										r.operationID = "readHostHostGroup"
-										r.pathPattern = "/hosts/{id}/host-group"
-										r.args = args
-										r.count = 1
-										return r, true
-									default:
-										return
-									}
-								}
-							case 's': // Prefix: "services"
-								if l := len("services"); len(elem) >= l && elem[0:l] == "services" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									switch method {
-									case "GET":
-										// Leaf: ListHostServices
-										r.name = "ListHostServices"
-										r.operationID = "listHostServices"
-										r.pathPattern = "/hosts/{id}/services"
+										// Leaf: ListHostHostservices
+										r.name = "ListHostHostservices"
+										r.operationID = "listHostHostservices"
+										r.pathPattern = "/hosts/{id}/hostservices"
 										r.args = args
 										r.count = 1
 										return r, true
@@ -2118,8 +2026,8 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							break
 						}
 						switch elem[0] {
-						case 'c': // Prefix: "competition"
-							if l := len("competition"); len(elem) >= l && elem[0:l] == "competition" {
+						case 'h': // Prefix: "hostservice"
+							if l := len("hostservice"); len(elem) >= l && elem[0:l] == "hostservice" {
 								elem = elem[l:]
 							} else {
 								break
@@ -2128,31 +2036,10 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							if len(elem) == 0 {
 								switch method {
 								case "GET":
-									// Leaf: ReadPropertyCompetition
-									r.name = "ReadPropertyCompetition"
-									r.operationID = "readPropertyCompetition"
-									r.pathPattern = "/properties/{id}/competition"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
-								}
-							}
-						case 's': // Prefix: "services"
-							if l := len("services"); len(elem) >= l && elem[0:l] == "services" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								switch method {
-								case "GET":
-									// Leaf: ReadPropertyServices
-									r.name = "ReadPropertyServices"
-									r.operationID = "readPropertyServices"
-									r.pathPattern = "/properties/{id}/services"
+									// Leaf: ReadPropertyHostservice
+									r.name = "ReadPropertyHostservice"
+									r.operationID = "readPropertyHostservice"
+									r.pathPattern = "/properties/{id}/hostservice"
 									r.args = args
 									r.count = 1
 									return r, true
@@ -2231,14 +2118,17 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						}
 
 						// Param: "id"
-						// Leaf parameter
-						args[0] = elem
-						elem = ""
+						// Match until "/"
+						idx := strings.IndexByte(elem, '/')
+						if idx < 0 {
+							idx = len(elem)
+						}
+						args[0] = elem[:idx]
+						elem = elem[idx:]
 
 						if len(elem) == 0 {
 							switch method {
 							case "DELETE":
-								// Leaf: DeleteReport
 								r.name = "DeleteReport"
 								r.operationID = "deleteReport"
 								r.pathPattern = "/reports/{id}"
@@ -2246,7 +2136,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								r.count = 1
 								return r, true
 							case "GET":
-								// Leaf: ReadReport
 								r.name = "ReadReport"
 								r.operationID = "readReport"
 								r.pathPattern = "/reports/{id}"
@@ -2254,7 +2143,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								r.count = 1
 								return r, true
 							case "PATCH":
-								// Leaf: UpdateReport
 								r.name = "UpdateReport"
 								r.operationID = "updateReport"
 								r.pathPattern = "/reports/{id}"
@@ -2263,6 +2151,29 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								return r, true
 							default:
 								return
+							}
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/competition"
+							if l := len("/competition"); len(elem) >= l && elem[0:l] == "/competition" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								switch method {
+								case "GET":
+									// Leaf: ReadReportCompetition
+									r.name = "ReadReportCompetition"
+									r.operationID = "readReportCompetition"
+									r.pathPattern = "/reports/{id}/competition"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
 							}
 						}
 					}
@@ -2467,133 +2378,25 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						}
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/"
-						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+					case '/': // Prefix: "/competition"
+						if l := len("/competition"); len(elem) >= l && elem[0:l] == "/competition" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							break
-						}
-						switch elem[0] {
-						case 'c': // Prefix: "c"
-							if l := len("c"); len(elem) >= l && elem[0:l] == "c" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								break
-							}
-							switch elem[0] {
-							case 'h': // Prefix: "hecks"
-								if l := len("hecks"); len(elem) >= l && elem[0:l] == "hecks" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									switch method {
-									case "GET":
-										// Leaf: ListServiceChecks
-										r.name = "ListServiceChecks"
-										r.operationID = "listServiceChecks"
-										r.pathPattern = "/services/{id}/checks"
-										r.args = args
-										r.count = 1
-										return r, true
-									default:
-										return
-									}
-								}
-							case 'o': // Prefix: "ompetition"
-								if l := len("ompetition"); len(elem) >= l && elem[0:l] == "ompetition" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									switch method {
-									case "GET":
-										// Leaf: ReadServiceCompetition
-										r.name = "ReadServiceCompetition"
-										r.operationID = "readServiceCompetition"
-										r.pathPattern = "/services/{id}/competition"
-										r.args = args
-										r.count = 1
-										return r, true
-									default:
-										return
-									}
-								}
-							}
-						case 'h': // Prefix: "hosts"
-							if l := len("hosts"); len(elem) >= l && elem[0:l] == "hosts" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								switch method {
-								case "GET":
-									// Leaf: ReadServiceHosts
-									r.name = "ReadServiceHosts"
-									r.operationID = "readServiceHosts"
-									r.pathPattern = "/services/{id}/hosts"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
-								}
-							}
-						case 'p': // Prefix: "properties"
-							if l := len("properties"); len(elem) >= l && elem[0:l] == "properties" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								switch method {
-								case "GET":
-									// Leaf: ListServiceProperties
-									r.name = "ListServiceProperties"
-									r.operationID = "listServiceProperties"
-									r.pathPattern = "/services/{id}/properties"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
-								}
-							}
-						case 't': // Prefix: "team"
-							if l := len("team"); len(elem) >= l && elem[0:l] == "team" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								switch method {
-								case "GET":
-									// Leaf: ReadServiceTeam
-									r.name = "ReadServiceTeam"
-									r.operationID = "readServiceTeam"
-									r.pathPattern = "/services/{id}/team"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
-								}
+							switch method {
+							case "GET":
+								// Leaf: ReadServiceCompetition
+								r.name = "ReadServiceCompetition"
+								r.operationID = "readServiceCompetition"
+								r.pathPattern = "/services/{id}/competition"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
 							}
 						}
 					}
@@ -2681,25 +2484,58 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							break
 						}
 						switch elem[0] {
-						case 'c': // Prefix: "competition"
-							if l := len("competition"); len(elem) >= l && elem[0:l] == "competition" {
+						case 'c': // Prefix: "c"
+							if l := len("c"); len(elem) >= l && elem[0:l] == "c" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								switch method {
-								case "GET":
-									// Leaf: ReadTeamCompetition
-									r.name = "ReadTeamCompetition"
-									r.operationID = "readTeamCompetition"
-									r.pathPattern = "/teams/{id}/competition"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
+								break
+							}
+							switch elem[0] {
+							case 'h': // Prefix: "hecks"
+								if l := len("hecks"); len(elem) >= l && elem[0:l] == "hecks" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									switch method {
+									case "GET":
+										// Leaf: ListTeamChecks
+										r.name = "ListTeamChecks"
+										r.operationID = "listTeamChecks"
+										r.pathPattern = "/teams/{id}/checks"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+							case 'o': // Prefix: "ompetition"
+								if l := len("ompetition"); len(elem) >= l && elem[0:l] == "ompetition" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									switch method {
+									case "GET":
+										// Leaf: ReadTeamCompetition
+										r.name = "ReadTeamCompetition"
+										r.operationID = "readTeamCompetition"
+										r.pathPattern = "/teams/{id}/competition"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
 								}
 							}
 						case 'h': // Prefix: "hosts"
@@ -2712,7 +2548,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							if len(elem) == 0 {
 								switch method {
 								case "GET":
-									// Leaf: ListTeamHosts
 									r.name = "ListTeamHosts"
 									r.operationID = "listTeamHosts"
 									r.pathPattern = "/teams/{id}/hosts"
@@ -2723,115 +2558,31 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									return
 								}
 							}
-						case 'u': // Prefix: "users"
-							if l := len("users"); len(elem) >= l && elem[0:l] == "users" {
-								elem = elem[l:]
-							} else {
-								break
-							}
+							switch elem[0] {
+							case 'e': // Prefix: "ervices"
+								if l := len("ervices"); len(elem) >= l && elem[0:l] == "ervices" {
+									elem = elem[l:]
+								} else {
+									break
+								}
 
-							if len(elem) == 0 {
-								switch method {
-								case "GET":
-									// Leaf: ListTeamUsers
-									r.name = "ListTeamUsers"
-									r.operationID = "listTeamUsers"
-									r.pathPattern = "/teams/{id}/users"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
+								if len(elem) == 0 {
+									switch method {
+									case "GET":
+										// Leaf: ListTeamHostservices
+										r.name = "ListTeamHostservices"
+										r.operationID = "listTeamHostservices"
+										r.pathPattern = "/teams/{id}/hostservices"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
 								}
 							}
-						}
-					}
-				}
-			case 'u': // Prefix: "users"
-				if l := len("users"); len(elem) >= l && elem[0:l] == "users" {
-					elem = elem[l:]
-				} else {
-					break
-				}
-
-				if len(elem) == 0 {
-					switch method {
-					case "GET":
-						r.name = "ListUser"
-						r.operationID = "listUser"
-						r.pathPattern = "/users"
-						r.args = args
-						r.count = 0
-						return r, true
-					case "POST":
-						r.name = "CreateUser"
-						r.operationID = "createUser"
-						r.pathPattern = "/users"
-						r.args = args
-						r.count = 0
-						return r, true
-					default:
-						return
-					}
-				}
-				switch elem[0] {
-				case '/': // Prefix: "/"
-					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
-						elem = elem[l:]
-					} else {
-						break
-					}
-
-					// Param: "id"
-					// Match until "/"
-					idx := strings.IndexByte(elem, '/')
-					if idx < 0 {
-						idx = len(elem)
-					}
-					args[0] = elem[:idx]
-					elem = elem[idx:]
-
-					if len(elem) == 0 {
-						switch method {
-						case "DELETE":
-							r.name = "DeleteUser"
-							r.operationID = "deleteUser"
-							r.pathPattern = "/users/{id}"
-							r.args = args
-							r.count = 1
-							return r, true
-						case "GET":
-							r.name = "ReadUser"
-							r.operationID = "readUser"
-							r.pathPattern = "/users/{id}"
-							r.args = args
-							r.count = 1
-							return r, true
-						case "PATCH":
-							r.name = "UpdateUser"
-							r.operationID = "updateUser"
-							r.pathPattern = "/users/{id}"
-							r.args = args
-							r.count = 1
-							return r, true
-						default:
-							return
-						}
-					}
-					switch elem[0] {
-					case '/': // Prefix: "/"
-						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
-							elem = elem[l:]
-						} else {
-							break
-						}
-
-						if len(elem) == 0 {
-							break
-						}
-						switch elem[0] {
-						case 'c': // Prefix: "competitions"
-							if l := len("competitions"); len(elem) >= l && elem[0:l] == "competitions" {
+						case 'p': // Prefix: "properties"
+							if l := len("properties"); len(elem) >= l && elem[0:l] == "properties" {
 								elem = elem[l:]
 							} else {
 								break
@@ -2840,31 +2591,10 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							if len(elem) == 0 {
 								switch method {
 								case "GET":
-									// Leaf: ListUserCompetitions
-									r.name = "ListUserCompetitions"
-									r.operationID = "listUserCompetitions"
-									r.pathPattern = "/users/{id}/competitions"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
-								}
-							}
-						case 't': // Prefix: "teams"
-							if l := len("teams"); len(elem) >= l && elem[0:l] == "teams" {
-								elem = elem[l:]
-							} else {
-								break
-							}
-
-							if len(elem) == 0 {
-								switch method {
-								case "GET":
-									// Leaf: ListUserTeams
-									r.name = "ListUserTeams"
-									r.operationID = "listUserTeams"
-									r.pathPattern = "/users/{id}/teams"
+									// Leaf: ListTeamProperties
+									r.name = "ListTeamProperties"
+									r.operationID = "listTeamProperties"
+									r.pathPattern = "/teams/{id}/properties"
 									r.args = args
 									r.count = 1
 									return r, true

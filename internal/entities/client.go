@@ -17,13 +17,12 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/check"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostgroup"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/property"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/report"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/round"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/user"
 )
 
 // Client is the client that holds all ent builders.
@@ -37,8 +36,8 @@ type Client struct {
 	Competition *CompetitionClient
 	// Host is the client for interacting with the Host builders.
 	Host *HostClient
-	// HostGroup is the client for interacting with the HostGroup builders.
-	HostGroup *HostGroupClient
+	// HostService is the client for interacting with the HostService builders.
+	HostService *HostServiceClient
 	// Property is the client for interacting with the Property builders.
 	Property *PropertyClient
 	// Report is the client for interacting with the Report builders.
@@ -49,8 +48,6 @@ type Client struct {
 	Service *ServiceClient
 	// Team is the client for interacting with the Team builders.
 	Team *TeamClient
-	// User is the client for interacting with the User builders.
-	User *UserClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -67,13 +64,12 @@ func (c *Client) init() {
 	c.Check = NewCheckClient(c.config)
 	c.Competition = NewCompetitionClient(c.config)
 	c.Host = NewHostClient(c.config)
-	c.HostGroup = NewHostGroupClient(c.config)
+	c.HostService = NewHostServiceClient(c.config)
 	c.Property = NewPropertyClient(c.config)
 	c.Report = NewReportClient(c.config)
 	c.Round = NewRoundClient(c.config)
 	c.Service = NewServiceClient(c.config)
 	c.Team = NewTeamClient(c.config)
-	c.User = NewUserClient(c.config)
 }
 
 type (
@@ -159,13 +155,12 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Check:       NewCheckClient(cfg),
 		Competition: NewCompetitionClient(cfg),
 		Host:        NewHostClient(cfg),
-		HostGroup:   NewHostGroupClient(cfg),
+		HostService: NewHostServiceClient(cfg),
 		Property:    NewPropertyClient(cfg),
 		Report:      NewReportClient(cfg),
 		Round:       NewRoundClient(cfg),
 		Service:     NewServiceClient(cfg),
 		Team:        NewTeamClient(cfg),
-		User:        NewUserClient(cfg),
 	}, nil
 }
 
@@ -188,13 +183,12 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Check:       NewCheckClient(cfg),
 		Competition: NewCompetitionClient(cfg),
 		Host:        NewHostClient(cfg),
-		HostGroup:   NewHostGroupClient(cfg),
+		HostService: NewHostServiceClient(cfg),
 		Property:    NewPropertyClient(cfg),
 		Report:      NewReportClient(cfg),
 		Round:       NewRoundClient(cfg),
 		Service:     NewServiceClient(cfg),
 		Team:        NewTeamClient(cfg),
-		User:        NewUserClient(cfg),
 	}, nil
 }
 
@@ -224,8 +218,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Check, c.Competition, c.Host, c.HostGroup, c.Property, c.Report, c.Round,
-		c.Service, c.Team, c.User,
+		c.Check, c.Competition, c.Host, c.HostService, c.Property, c.Report, c.Round,
+		c.Service, c.Team,
 	} {
 		n.Use(hooks...)
 	}
@@ -235,8 +229,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Check, c.Competition, c.Host, c.HostGroup, c.Property, c.Report, c.Round,
-		c.Service, c.Team, c.User,
+		c.Check, c.Competition, c.Host, c.HostService, c.Property, c.Report, c.Round,
+		c.Service, c.Team,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -251,8 +245,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Competition.mutate(ctx, m)
 	case *HostMutation:
 		return c.Host.mutate(ctx, m)
-	case *HostGroupMutation:
-		return c.HostGroup.mutate(ctx, m)
+	case *HostServiceMutation:
+		return c.HostService.mutate(ctx, m)
 	case *PropertyMutation:
 		return c.Property.mutate(ctx, m)
 	case *ReportMutation:
@@ -263,8 +257,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Service.mutate(ctx, m)
 	case *TeamMutation:
 		return c.Team.mutate(ctx, m)
-	case *UserMutation:
-		return c.User.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("entities: unknown mutation type %T", m)
 	}
@@ -363,22 +355,6 @@ func (c *CheckClient) GetX(ctx context.Context, id string) *Check {
 	return obj
 }
 
-// QueryCompetition queries the competition edge of a Check.
-func (c *CheckClient) QueryCompetition(ch *Check) *CompetitionQuery {
-	query := (&CompetitionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := ch.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(check.Table, check.FieldID, id),
-			sqlgraph.To(competition.Table, competition.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, check.CompetitionTable, check.CompetitionColumn),
-		)
-		fromV = sqlgraph.Neighbors(ch.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryRounds queries the rounds edge of a Check.
 func (c *CheckClient) QueryRounds(ch *Check) *RoundQuery {
 	query := (&RoundClient{config: c.config}).Query()
@@ -387,7 +363,7 @@ func (c *CheckClient) QueryRounds(ch *Check) *RoundQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(check.Table, check.FieldID, id),
 			sqlgraph.To(round.Table, round.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, check.RoundsTable, check.RoundsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, check.RoundsTable, check.RoundsColumn),
 		)
 		fromV = sqlgraph.Neighbors(ch.driver.Dialect(), step)
 		return fromV, nil
@@ -395,15 +371,31 @@ func (c *CheckClient) QueryRounds(ch *Check) *RoundQuery {
 	return query
 }
 
-// QueryServices queries the services edge of a Check.
-func (c *CheckClient) QueryServices(ch *Check) *ServiceQuery {
-	query := (&ServiceClient{config: c.config}).Query()
+// QueryHostservice queries the hostservice edge of a Check.
+func (c *CheckClient) QueryHostservice(ch *Check) *HostServiceQuery {
+	query := (&HostServiceClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := ch.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(check.Table, check.FieldID, id),
-			sqlgraph.To(service.Table, service.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, check.ServicesTable, check.ServicesColumn),
+			sqlgraph.To(hostservice.Table, hostservice.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, check.HostserviceTable, check.HostserviceColumn),
+		)
+		fromV = sqlgraph.Neighbors(ch.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTeam queries the team edge of a Check.
+func (c *CheckClient) QueryTeam(ch *Check) *TeamQuery {
+	query := (&TeamClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ch.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(check.Table, check.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, check.TeamTable, check.TeamColumn),
 		)
 		fromV = sqlgraph.Neighbors(ch.driver.Dialect(), step)
 		return fromV, nil
@@ -545,15 +537,47 @@ func (c *CompetitionClient) QueryTeams(co *Competition) *TeamQuery {
 	return query
 }
 
-// QueryUsers queries the users edge of a Competition.
-func (c *CompetitionClient) QueryUsers(co *Competition) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
+// QueryServices queries the services edge of a Competition.
+func (c *CompetitionClient) QueryServices(co *Competition) *ServiceQuery {
+	query := (&ServiceClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := co.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(competition.Table, competition.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, competition.UsersTable, competition.UsersPrimaryKey...),
+			sqlgraph.To(service.Table, service.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, competition.ServicesTable, competition.ServicesColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryReports queries the reports edge of a Competition.
+func (c *CompetitionClient) QueryReports(co *Competition) *ReportQuery {
+	query := (&ReportClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(competition.Table, competition.FieldID, id),
+			sqlgraph.To(report.Table, report.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, competition.ReportsTable, competition.ReportsColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryRounds queries the rounds edge of a Competition.
+func (c *CompetitionClient) QueryRounds(co *Competition) *RoundQuery {
+	query := (&RoundClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(competition.Table, competition.FieldID, id),
+			sqlgraph.To(round.Table, round.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, competition.RoundsTable, competition.RoundsColumn),
 		)
 		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
 		return fromV, nil
@@ -679,15 +703,15 @@ func (c *HostClient) GetX(ctx context.Context, id string) *Host {
 	return obj
 }
 
-// QueryCompetition queries the competition edge of a Host.
-func (c *HostClient) QueryCompetition(h *Host) *CompetitionQuery {
-	query := (&CompetitionClient{config: c.config}).Query()
+// QueryHostservices queries the hostservices edge of a Host.
+func (c *HostClient) QueryHostservices(h *Host) *HostServiceQuery {
+	query := (&HostServiceClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := h.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(host.Table, host.FieldID, id),
-			sqlgraph.To(competition.Table, competition.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, host.CompetitionTable, host.CompetitionColumn),
+			sqlgraph.To(hostservice.Table, hostservice.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, host.HostservicesTable, host.HostservicesColumn),
 		)
 		fromV = sqlgraph.Neighbors(h.driver.Dialect(), step)
 		return fromV, nil
@@ -703,39 +727,7 @@ func (c *HostClient) QueryTeam(h *Host) *TeamQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(host.Table, host.FieldID, id),
 			sqlgraph.To(team.Table, team.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, host.TeamTable, host.TeamColumn),
-		)
-		fromV = sqlgraph.Neighbors(h.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryServices queries the services edge of a Host.
-func (c *HostClient) QueryServices(h *Host) *ServiceQuery {
-	query := (&ServiceClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := h.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(host.Table, host.FieldID, id),
-			sqlgraph.To(service.Table, service.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, host.ServicesTable, host.ServicesColumn),
-		)
-		fromV = sqlgraph.Neighbors(h.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryHostGroup queries the host_group edge of a Host.
-func (c *HostClient) QueryHostGroup(h *Host) *HostGroupQuery {
-	query := (&HostGroupClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := h.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(host.Table, host.FieldID, id),
-			sqlgraph.To(hostgroup.Table, hostgroup.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, host.HostGroupTable, host.HostGroupColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, host.TeamTable, host.TeamColumn),
 		)
 		fromV = sqlgraph.Neighbors(h.driver.Dialect(), step)
 		return fromV, nil
@@ -768,92 +760,92 @@ func (c *HostClient) mutate(ctx context.Context, m *HostMutation) (Value, error)
 	}
 }
 
-// HostGroupClient is a client for the HostGroup schema.
-type HostGroupClient struct {
+// HostServiceClient is a client for the HostService schema.
+type HostServiceClient struct {
 	config
 }
 
-// NewHostGroupClient returns a client for the HostGroup from the given config.
-func NewHostGroupClient(c config) *HostGroupClient {
-	return &HostGroupClient{config: c}
+// NewHostServiceClient returns a client for the HostService from the given config.
+func NewHostServiceClient(c config) *HostServiceClient {
+	return &HostServiceClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `hostgroup.Hooks(f(g(h())))`.
-func (c *HostGroupClient) Use(hooks ...Hook) {
-	c.hooks.HostGroup = append(c.hooks.HostGroup, hooks...)
+// A call to `Use(f, g, h)` equals to `hostservice.Hooks(f(g(h())))`.
+func (c *HostServiceClient) Use(hooks ...Hook) {
+	c.hooks.HostService = append(c.hooks.HostService, hooks...)
 }
 
 // Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `hostgroup.Intercept(f(g(h())))`.
-func (c *HostGroupClient) Intercept(interceptors ...Interceptor) {
-	c.inters.HostGroup = append(c.inters.HostGroup, interceptors...)
+// A call to `Intercept(f, g, h)` equals to `hostservice.Intercept(f(g(h())))`.
+func (c *HostServiceClient) Intercept(interceptors ...Interceptor) {
+	c.inters.HostService = append(c.inters.HostService, interceptors...)
 }
 
-// Create returns a builder for creating a HostGroup entity.
-func (c *HostGroupClient) Create() *HostGroupCreate {
-	mutation := newHostGroupMutation(c.config, OpCreate)
-	return &HostGroupCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a HostService entity.
+func (c *HostServiceClient) Create() *HostServiceCreate {
+	mutation := newHostServiceMutation(c.config, OpCreate)
+	return &HostServiceCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of HostGroup entities.
-func (c *HostGroupClient) CreateBulk(builders ...*HostGroupCreate) *HostGroupCreateBulk {
-	return &HostGroupCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of HostService entities.
+func (c *HostServiceClient) CreateBulk(builders ...*HostServiceCreate) *HostServiceCreateBulk {
+	return &HostServiceCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for HostGroup.
-func (c *HostGroupClient) Update() *HostGroupUpdate {
-	mutation := newHostGroupMutation(c.config, OpUpdate)
-	return &HostGroupUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for HostService.
+func (c *HostServiceClient) Update() *HostServiceUpdate {
+	mutation := newHostServiceMutation(c.config, OpUpdate)
+	return &HostServiceUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *HostGroupClient) UpdateOne(hg *HostGroup) *HostGroupUpdateOne {
-	mutation := newHostGroupMutation(c.config, OpUpdateOne, withHostGroup(hg))
-	return &HostGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *HostServiceClient) UpdateOne(hs *HostService) *HostServiceUpdateOne {
+	mutation := newHostServiceMutation(c.config, OpUpdateOne, withHostService(hs))
+	return &HostServiceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *HostGroupClient) UpdateOneID(id string) *HostGroupUpdateOne {
-	mutation := newHostGroupMutation(c.config, OpUpdateOne, withHostGroupID(id))
-	return &HostGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *HostServiceClient) UpdateOneID(id string) *HostServiceUpdateOne {
+	mutation := newHostServiceMutation(c.config, OpUpdateOne, withHostServiceID(id))
+	return &HostServiceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for HostGroup.
-func (c *HostGroupClient) Delete() *HostGroupDelete {
-	mutation := newHostGroupMutation(c.config, OpDelete)
-	return &HostGroupDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for HostService.
+func (c *HostServiceClient) Delete() *HostServiceDelete {
+	mutation := newHostServiceMutation(c.config, OpDelete)
+	return &HostServiceDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *HostGroupClient) DeleteOne(hg *HostGroup) *HostGroupDeleteOne {
-	return c.DeleteOneID(hg.ID)
+func (c *HostServiceClient) DeleteOne(hs *HostService) *HostServiceDeleteOne {
+	return c.DeleteOneID(hs.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *HostGroupClient) DeleteOneID(id string) *HostGroupDeleteOne {
-	builder := c.Delete().Where(hostgroup.ID(id))
+func (c *HostServiceClient) DeleteOneID(id string) *HostServiceDeleteOne {
+	builder := c.Delete().Where(hostservice.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &HostGroupDeleteOne{builder}
+	return &HostServiceDeleteOne{builder}
 }
 
-// Query returns a query builder for HostGroup.
-func (c *HostGroupClient) Query() *HostGroupQuery {
-	return &HostGroupQuery{
+// Query returns a query builder for HostService.
+func (c *HostServiceClient) Query() *HostServiceQuery {
+	return &HostServiceQuery{
 		config: c.config,
-		ctx:    &QueryContext{Type: TypeHostGroup},
+		ctx:    &QueryContext{Type: TypeHostService},
 		inters: c.Interceptors(),
 	}
 }
 
-// Get returns a HostGroup entity by its id.
-func (c *HostGroupClient) Get(ctx context.Context, id string) (*HostGroup, error) {
-	return c.Query().Where(hostgroup.ID(id)).Only(ctx)
+// Get returns a HostService entity by its id.
+func (c *HostServiceClient) Get(ctx context.Context, id string) (*HostService, error) {
+	return c.Query().Where(hostservice.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *HostGroupClient) GetX(ctx context.Context, id string) *HostGroup {
+func (c *HostServiceClient) GetX(ctx context.Context, id string) *HostService {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -861,76 +853,92 @@ func (c *HostGroupClient) GetX(ctx context.Context, id string) *HostGroup {
 	return obj
 }
 
-// QueryCompetition queries the competition edge of a HostGroup.
-func (c *HostGroupClient) QueryCompetition(hg *HostGroup) *CompetitionQuery {
-	query := (&CompetitionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := hg.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(hostgroup.Table, hostgroup.FieldID, id),
-			sqlgraph.To(competition.Table, competition.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, hostgroup.CompetitionTable, hostgroup.CompetitionColumn),
-		)
-		fromV = sqlgraph.Neighbors(hg.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryTeam queries the team edge of a HostGroup.
-func (c *HostGroupClient) QueryTeam(hg *HostGroup) *TeamQuery {
-	query := (&TeamClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := hg.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(hostgroup.Table, hostgroup.FieldID, id),
-			sqlgraph.To(team.Table, team.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, hostgroup.TeamTable, hostgroup.TeamColumn),
-		)
-		fromV = sqlgraph.Neighbors(hg.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryHosts queries the hosts edge of a HostGroup.
-func (c *HostGroupClient) QueryHosts(hg *HostGroup) *HostQuery {
+// QueryHost queries the host edge of a HostService.
+func (c *HostServiceClient) QueryHost(hs *HostService) *HostQuery {
 	query := (&HostClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := hg.ID
+		id := hs.ID
 		step := sqlgraph.NewStep(
-			sqlgraph.From(hostgroup.Table, hostgroup.FieldID, id),
+			sqlgraph.From(hostservice.Table, hostservice.FieldID, id),
 			sqlgraph.To(host.Table, host.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, hostgroup.HostsTable, hostgroup.HostsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, hostservice.HostTable, hostservice.HostColumn),
 		)
-		fromV = sqlgraph.Neighbors(hg.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(hs.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryChecks queries the checks edge of a HostService.
+func (c *HostServiceClient) QueryChecks(hs *HostService) *CheckQuery {
+	query := (&CheckClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := hs.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(hostservice.Table, hostservice.FieldID, id),
+			sqlgraph.To(check.Table, check.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, hostservice.ChecksTable, hostservice.ChecksColumn),
+		)
+		fromV = sqlgraph.Neighbors(hs.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProperties queries the properties edge of a HostService.
+func (c *HostServiceClient) QueryProperties(hs *HostService) *PropertyQuery {
+	query := (&PropertyClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := hs.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(hostservice.Table, hostservice.FieldID, id),
+			sqlgraph.To(property.Table, property.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, hostservice.PropertiesTable, hostservice.PropertiesColumn),
+		)
+		fromV = sqlgraph.Neighbors(hs.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTeam queries the team edge of a HostService.
+func (c *HostServiceClient) QueryTeam(hs *HostService) *TeamQuery {
+	query := (&TeamClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := hs.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(hostservice.Table, hostservice.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, hostservice.TeamTable, hostservice.TeamColumn),
+		)
+		fromV = sqlgraph.Neighbors(hs.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // Hooks returns the client hooks.
-func (c *HostGroupClient) Hooks() []Hook {
-	return c.hooks.HostGroup
+func (c *HostServiceClient) Hooks() []Hook {
+	return c.hooks.HostService
 }
 
 // Interceptors returns the client interceptors.
-func (c *HostGroupClient) Interceptors() []Interceptor {
-	return c.inters.HostGroup
+func (c *HostServiceClient) Interceptors() []Interceptor {
+	return c.inters.HostService
 }
 
-func (c *HostGroupClient) mutate(ctx context.Context, m *HostGroupMutation) (Value, error) {
+func (c *HostServiceClient) mutate(ctx context.Context, m *HostServiceMutation) (Value, error) {
 	switch m.Op() {
 	case OpCreate:
-		return (&HostGroupCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&HostServiceCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdate:
-		return (&HostGroupUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&HostServiceUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdateOne:
-		return (&HostGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&HostServiceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpDelete, OpDeleteOne:
-		return (&HostGroupDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+		return (&HostServiceDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("entities: unknown HostGroup mutation op: %q", m.Op())
+		return nil, fmt.Errorf("entities: unknown HostService mutation op: %q", m.Op())
 	}
 }
 
@@ -1027,15 +1035,15 @@ func (c *PropertyClient) GetX(ctx context.Context, id string) *Property {
 	return obj
 }
 
-// QueryCompetition queries the competition edge of a Property.
-func (c *PropertyClient) QueryCompetition(pr *Property) *CompetitionQuery {
-	query := (&CompetitionClient{config: c.config}).Query()
+// QueryHostservice queries the hostservice edge of a Property.
+func (c *PropertyClient) QueryHostservice(pr *Property) *HostServiceQuery {
+	query := (&HostServiceClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := pr.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(property.Table, property.FieldID, id),
-			sqlgraph.To(competition.Table, competition.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, property.CompetitionTable, property.CompetitionColumn),
+			sqlgraph.To(hostservice.Table, hostservice.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, property.HostserviceTable, property.HostserviceColumn),
 		)
 		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
 		return fromV, nil
@@ -1051,23 +1059,7 @@ func (c *PropertyClient) QueryTeam(pr *Property) *TeamQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(property.Table, property.FieldID, id),
 			sqlgraph.To(team.Table, team.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, property.TeamTable, property.TeamColumn),
-		)
-		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryServices queries the services edge of a Property.
-func (c *PropertyClient) QueryServices(pr *Property) *ServiceQuery {
-	query := (&ServiceClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := pr.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(property.Table, property.FieldID, id),
-			sqlgraph.To(service.Table, service.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, property.ServicesTable, property.ServicesColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, property.TeamTable, property.TeamColumn),
 		)
 		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
 		return fromV, nil
@@ -1193,6 +1185,22 @@ func (c *ReportClient) GetX(ctx context.Context, id int) *Report {
 	return obj
 }
 
+// QueryCompetition queries the competition edge of a Report.
+func (c *ReportClient) QueryCompetition(r *Report) *CompetitionQuery {
+	query := (&CompetitionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := r.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(report.Table, report.FieldID, id),
+			sqlgraph.To(competition.Table, competition.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, report.CompetitionTable, report.CompetitionColumn),
+		)
+		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *ReportClient) Hooks() []Hook {
 	return c.hooks.Report
@@ -1311,22 +1319,6 @@ func (c *RoundClient) GetX(ctx context.Context, id string) *Round {
 	return obj
 }
 
-// QueryCompetition queries the competition edge of a Round.
-func (c *RoundClient) QueryCompetition(r *Round) *CompetitionQuery {
-	query := (&CompetitionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := r.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(round.Table, round.FieldID, id),
-			sqlgraph.To(competition.Table, competition.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, round.CompetitionTable, round.CompetitionColumn),
-		)
-		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryChecks queries the checks edge of a Round.
 func (c *RoundClient) QueryChecks(r *Round) *CheckQuery {
 	query := (&CheckClient{config: c.config}).Query()
@@ -1336,6 +1328,22 @@ func (c *RoundClient) QueryChecks(r *Round) *CheckQuery {
 			sqlgraph.From(round.Table, round.FieldID, id),
 			sqlgraph.To(check.Table, check.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, round.ChecksTable, round.ChecksColumn),
+		)
+		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCompetition queries the competition edge of a Round.
+func (c *RoundClient) QueryCompetition(r *Round) *CompetitionQuery {
+	query := (&CompetitionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := r.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(round.Table, round.FieldID, id),
+			sqlgraph.To(competition.Table, competition.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, round.CompetitionTable, round.CompetitionColumn),
 		)
 		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
 		return fromV, nil
@@ -1469,71 +1477,7 @@ func (c *ServiceClient) QueryCompetition(s *Service) *CompetitionQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(service.Table, service.FieldID, id),
 			sqlgraph.To(competition.Table, competition.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, service.CompetitionTable, service.CompetitionColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryTeam queries the team edge of a Service.
-func (c *ServiceClient) QueryTeam(s *Service) *TeamQuery {
-	query := (&TeamClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(service.Table, service.FieldID, id),
-			sqlgraph.To(team.Table, team.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, service.TeamTable, service.TeamColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryHosts queries the hosts edge of a Service.
-func (c *ServiceClient) QueryHosts(s *Service) *HostQuery {
-	query := (&HostClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(service.Table, service.FieldID, id),
-			sqlgraph.To(host.Table, host.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, service.HostsTable, service.HostsColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryChecks queries the checks edge of a Service.
-func (c *ServiceClient) QueryChecks(s *Service) *CheckQuery {
-	query := (&CheckClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(service.Table, service.FieldID, id),
-			sqlgraph.To(check.Table, check.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, service.ChecksTable, service.ChecksColumn),
-		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryProperties queries the properties edge of a Service.
-func (c *ServiceClient) QueryProperties(s *Service) *PropertyQuery {
-	query := (&PropertyClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(service.Table, service.FieldID, id),
-			sqlgraph.To(property.Table, property.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, service.PropertiesTable, service.PropertiesColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, service.CompetitionTable, service.CompetitionColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil
@@ -1659,38 +1603,6 @@ func (c *TeamClient) GetX(ctx context.Context, id string) *Team {
 	return obj
 }
 
-// QueryCompetition queries the competition edge of a Team.
-func (c *TeamClient) QueryCompetition(t *Team) *CompetitionQuery {
-	query := (&CompetitionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := t.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(team.Table, team.FieldID, id),
-			sqlgraph.To(competition.Table, competition.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, team.CompetitionTable, team.CompetitionColumn),
-		)
-		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryUsers queries the users edge of a Team.
-func (c *TeamClient) QueryUsers(t *Team) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := t.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(team.Table, team.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, team.UsersTable, team.UsersPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryHosts queries the hosts edge of a Team.
 func (c *TeamClient) QueryHosts(t *Team) *HostQuery {
 	query := (&HostClient{config: c.config}).Query()
@@ -1700,6 +1612,70 @@ func (c *TeamClient) QueryHosts(t *Team) *HostQuery {
 			sqlgraph.From(team.Table, team.FieldID, id),
 			sqlgraph.To(host.Table, host.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, team.HostsTable, team.HostsColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryHostservices queries the hostservices edge of a Team.
+func (c *TeamClient) QueryHostservices(t *Team) *HostServiceQuery {
+	query := (&HostServiceClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, id),
+			sqlgraph.To(hostservice.Table, hostservice.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.HostservicesTable, team.HostservicesColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryChecks queries the checks edge of a Team.
+func (c *TeamClient) QueryChecks(t *Team) *CheckQuery {
+	query := (&CheckClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, id),
+			sqlgraph.To(check.Table, check.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.ChecksTable, team.ChecksColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProperties queries the properties edge of a Team.
+func (c *TeamClient) QueryProperties(t *Team) *PropertyQuery {
+	query := (&PropertyClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, id),
+			sqlgraph.To(property.Table, property.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, team.PropertiesTable, team.PropertiesColumn),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCompetition queries the competition edge of a Team.
+func (c *TeamClient) QueryCompetition(t *Team) *CompetitionQuery {
+	query := (&CompetitionClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, id),
+			sqlgraph.To(competition.Table, competition.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, team.CompetitionTable, team.CompetitionColumn),
 		)
 		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
 		return fromV, nil
@@ -1732,164 +1708,14 @@ func (c *TeamClient) mutate(ctx context.Context, m *TeamMutation) (Value, error)
 	}
 }
 
-// UserClient is a client for the User schema.
-type UserClient struct {
-	config
-}
-
-// NewUserClient returns a client for the User from the given config.
-func NewUserClient(c config) *UserClient {
-	return &UserClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `user.Hooks(f(g(h())))`.
-func (c *UserClient) Use(hooks ...Hook) {
-	c.hooks.User = append(c.hooks.User, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `user.Intercept(f(g(h())))`.
-func (c *UserClient) Intercept(interceptors ...Interceptor) {
-	c.inters.User = append(c.inters.User, interceptors...)
-}
-
-// Create returns a builder for creating a User entity.
-func (c *UserClient) Create() *UserCreate {
-	mutation := newUserMutation(c.config, OpCreate)
-	return &UserCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of User entities.
-func (c *UserClient) CreateBulk(builders ...*UserCreate) *UserCreateBulk {
-	return &UserCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for User.
-func (c *UserClient) Update() *UserUpdate {
-	mutation := newUserMutation(c.config, OpUpdate)
-	return &UserUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *UserClient) UpdateOne(u *User) *UserUpdateOne {
-	mutation := newUserMutation(c.config, OpUpdateOne, withUser(u))
-	return &UserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *UserClient) UpdateOneID(id string) *UserUpdateOne {
-	mutation := newUserMutation(c.config, OpUpdateOne, withUserID(id))
-	return &UserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for User.
-func (c *UserClient) Delete() *UserDelete {
-	mutation := newUserMutation(c.config, OpDelete)
-	return &UserDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *UserClient) DeleteOne(u *User) *UserDeleteOne {
-	return c.DeleteOneID(u.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *UserClient) DeleteOneID(id string) *UserDeleteOne {
-	builder := c.Delete().Where(user.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &UserDeleteOne{builder}
-}
-
-// Query returns a query builder for User.
-func (c *UserClient) Query() *UserQuery {
-	return &UserQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeUser},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a User entity by its id.
-func (c *UserClient) Get(ctx context.Context, id string) (*User, error) {
-	return c.Query().Where(user.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *UserClient) GetX(ctx context.Context, id string) *User {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryTeams queries the teams edge of a User.
-func (c *UserClient) QueryTeams(u *User) *TeamQuery {
-	query := (&TeamClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(team.Table, team.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, user.TeamsTable, user.TeamsPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryCompetitions queries the competitions edge of a User.
-func (c *UserClient) QueryCompetitions(u *User) *CompetitionQuery {
-	query := (&CompetitionClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(competition.Table, competition.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, user.CompetitionsTable, user.CompetitionsPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *UserClient) Hooks() []Hook {
-	return c.hooks.User
-}
-
-// Interceptors returns the client interceptors.
-func (c *UserClient) Interceptors() []Interceptor {
-	return c.inters.User
-}
-
-func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&UserCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&UserUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&UserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&UserDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("entities: unknown User mutation op: %q", m.Op())
-	}
-}
-
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Check, Competition, Host, HostGroup, Property, Report, Round, Service, Team,
-		User []ent.Hook
+		Check, Competition, Host, HostService, Property, Report, Round, Service,
+		Team []ent.Hook
 	}
 	inters struct {
-		Check, Competition, Host, HostGroup, Property, Report, Round, Service, Team,
-		User []ent.Interceptor
+		Check, Competition, Host, HostService, Property, Report, Round, Service,
+		Team []ent.Interceptor
 	}
 )

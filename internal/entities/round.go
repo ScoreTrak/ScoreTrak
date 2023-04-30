@@ -18,8 +18,6 @@ type Round struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
-	// CompetitionID holds the value of the "competition_id" field.
-	CompetitionID string `json:"competition_id,omitempty"`
 	// RoundNumber holds the value of the "round_number" field.
 	RoundNumber int `json:"round_number,omitempty"`
 	// Note holds the value of the "note" field.
@@ -30,6 +28,8 @@ type Round struct {
 	StartedAt time.Time `json:"started_at,omitempty"`
 	// FinishedAt holds the value of the "finished_at" field.
 	FinishedAt time.Time `json:"finished_at,omitempty"`
+	// CompetitionID holds the value of the "competition_id" field.
+	CompetitionID string `json:"competition_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the RoundQuery when eager-loading is set.
 	Edges        RoundEdges `json:"edges"`
@@ -38,19 +38,28 @@ type Round struct {
 
 // RoundEdges holds the relations/edges for other nodes in the graph.
 type RoundEdges struct {
-	// Competition holds the value of the competition edge.
-	Competition *Competition `json:"competition,omitempty"`
 	// Checks holds the value of the checks edge.
 	Checks []*Check `json:"checks,omitempty"`
+	// Competition holds the value of the competition edge.
+	Competition *Competition `json:"competition,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
 }
 
+// ChecksOrErr returns the Checks value or an error if the edge
+// was not loaded in eager-loading.
+func (e RoundEdges) ChecksOrErr() ([]*Check, error) {
+	if e.loadedTypes[0] {
+		return e.Checks, nil
+	}
+	return nil, &NotLoadedError{edge: "checks"}
+}
+
 // CompetitionOrErr returns the Competition value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e RoundEdges) CompetitionOrErr() (*Competition, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		if e.Competition == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: competition.Label}
@@ -60,15 +69,6 @@ func (e RoundEdges) CompetitionOrErr() (*Competition, error) {
 	return nil, &NotLoadedError{edge: "competition"}
 }
 
-// ChecksOrErr returns the Checks value or an error if the edge
-// was not loaded in eager-loading.
-func (e RoundEdges) ChecksOrErr() ([]*Check, error) {
-	if e.loadedTypes[1] {
-		return e.Checks, nil
-	}
-	return nil, &NotLoadedError{edge: "checks"}
-}
-
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Round) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -76,7 +76,7 @@ func (*Round) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case round.FieldRoundNumber:
 			values[i] = new(sql.NullInt64)
-		case round.FieldID, round.FieldCompetitionID, round.FieldNote, round.FieldErr:
+		case round.FieldID, round.FieldNote, round.FieldErr, round.FieldCompetitionID:
 			values[i] = new(sql.NullString)
 		case round.FieldStartedAt, round.FieldFinishedAt:
 			values[i] = new(sql.NullTime)
@@ -100,12 +100,6 @@ func (r *Round) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				r.ID = value.String
-			}
-		case round.FieldCompetitionID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field competition_id", values[i])
-			} else if value.Valid {
-				r.CompetitionID = value.String
 			}
 		case round.FieldRoundNumber:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -137,6 +131,12 @@ func (r *Round) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				r.FinishedAt = value.Time
 			}
+		case round.FieldCompetitionID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field competition_id", values[i])
+			} else if value.Valid {
+				r.CompetitionID = value.String
+			}
 		default:
 			r.selectValues.Set(columns[i], values[i])
 		}
@@ -150,14 +150,14 @@ func (r *Round) Value(name string) (ent.Value, error) {
 	return r.selectValues.Get(name)
 }
 
-// QueryCompetition queries the "competition" edge of the Round entity.
-func (r *Round) QueryCompetition() *CompetitionQuery {
-	return NewRoundClient(r.config).QueryCompetition(r)
-}
-
 // QueryChecks queries the "checks" edge of the Round entity.
 func (r *Round) QueryChecks() *CheckQuery {
 	return NewRoundClient(r.config).QueryChecks(r)
+}
+
+// QueryCompetition queries the "competition" edge of the Round entity.
+func (r *Round) QueryCompetition() *CompetitionQuery {
+	return NewRoundClient(r.config).QueryCompetition(r)
 }
 
 // Update returns a builder for updating this Round.
@@ -183,9 +183,6 @@ func (r *Round) String() string {
 	var builder strings.Builder
 	builder.WriteString("Round(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", r.ID))
-	builder.WriteString("competition_id=")
-	builder.WriteString(r.CompetitionID)
-	builder.WriteString(", ")
 	builder.WriteString("round_number=")
 	builder.WriteString(fmt.Sprintf("%v", r.RoundNumber))
 	builder.WriteString(", ")
@@ -200,6 +197,9 @@ func (r *Round) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("finished_at=")
 	builder.WriteString(r.FinishedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("competition_id=")
+	builder.WriteString(r.CompetitionID)
 	builder.WriteByte(')')
 	return builder.String()
 }

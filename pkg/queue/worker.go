@@ -12,7 +12,6 @@ func NewNsqWorker(cfg *config.Config, logger queue.Logger) *nsq.Worker {
 		nsq.WithAddr(cfg.Queue.NSQ.Worker.NSQD),
 		nsq.WithChannel(cfg.Queue.NSQ.Worker.Channel),
 		nsq.WithMaxInFlight(cfg.Queue.NSQ.Worker.MaxInFlight),
-		//nsq.
 		nsq.WithLogger(logger),
 	)
 

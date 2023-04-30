@@ -1,8 +1,7 @@
 import { FrontendApi, Configuration } from "@ory/client"
 import {AxiosError} from "axios";
-import {MakeLinkOptions, useNavigate} from "@tanstack/react-router";
 import {useCallback} from "react";
-import {authLoginRoute} from "../../routes/auth/login";
+import {NavigateFunction} from "react-router-dom";
 
 
 const basePath = import.meta.env.VITE_API_ORY_URL || "http://localhost:4000"
@@ -26,7 +25,7 @@ export const oryError = (
   getFlow: ((flowId: string) => Promise<void | AxiosError>) | undefined,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setFlow: React.Dispatch<React.SetStateAction<any>> | undefined,
-  navigate: (opts?: MakeLinkOptions  | undefined) => Promise<void>,
+  navigate: NavigateFunction,
   defaultNav: string | undefined,
   fatalToDash = false,
 ) => {
@@ -41,7 +40,7 @@ export const oryError = (
             console.warn(
               "authError 400: `session_already_available`. Navigate to /",
             )
-            navigate({ to: "/" })
+            navigate("/")
             return Promise.resolve()
           }
           // the request could contain invalid parameters which would set error messages in the flow
@@ -54,13 +53,13 @@ export const oryError = (
         }
         case 401: {
           console.warn("authError 401: Navigate to /login")
-          navigate({ to: authLoginRoute.id })
+          navigate("/auth/login")
           return Promise.resolve()
         }
         case 403: {
           // the user might have a session, but would require 2FA (Two-Factor Authentication)
           if (responseData.error?.id === "session_aal2_required") {
-            navigate({ to: "/auth/login?aal2=true" })
+            navigate("/auth/login?aal2=true")
             return Promise.resolve()
           }
 
@@ -85,7 +84,7 @@ export const oryError = (
             }
 
             navigate(
-              { to : `/error?error=${encodeURIComponent(JSON.stringify(errorMsg))}` }
+              `/auth/error?error=${encodeURIComponent(JSON.stringify(errorMsg))}`
             )
             return Promise.resolve()
           }
@@ -99,7 +98,7 @@ export const oryError = (
               console.error(error)
 
               if (defaultNav !== undefined) {
-                navigate( { to: defaultNav })
+                navigate(defaultNav)
               } else {
                 // Rethrow error when can't navigate and let caller handle
                 throw error
@@ -107,7 +106,7 @@ export const oryError = (
             })
           } else if (defaultNav !== undefined) {
             console.warn("authError 410: Navigate to", defaultNav)
-            navigate( { to: defaultNav })
+            navigate(defaultNav)
             return Promise.resolve()
           }
           break
@@ -127,8 +126,7 @@ export const oryError = (
               // remove /ui prefix from the path in case it is present (not setup correctly inside the project config)
               // since this is an SPA we don't need to redirect to the Account Experience.
               redirect.pathname = redirect.pathname.replace("/ui", "")
-              navigate({ to: redirect.pathname + redirect.search
-              })
+              navigate(redirect.pathname + redirect.search)
               return Promise.resolve()
             }
 
@@ -143,7 +141,7 @@ export const oryError = (
                 console.error(error)
 
                 if (defaultNav !== undefined) {
-                  navigate({ to: defaultNav })
+                  navigate(defaultNav)
                 } else {
                   // Rethrow error when can't navigate and let caller handle
                   throw error
@@ -162,7 +160,7 @@ export const oryError = (
 
       if (fatalToDash) {
         console.warn("authError: fatal error redirect to dashboard")
-        navigate({ to: "/" })
+        navigate("/")
         return Promise.resolve()
       }
 

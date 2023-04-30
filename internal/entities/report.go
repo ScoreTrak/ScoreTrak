@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/report"
 )
 
@@ -19,8 +20,35 @@ type Report struct {
 	// Log holds the value of the "log" field.
 	Log string `json:"log,omitempty"`
 	// Error holds the value of the "error" field.
-	Error        string `json:"error,omitempty"`
+	Error string `json:"error,omitempty"`
+	// CompetitionID holds the value of the "competition_id" field.
+	CompetitionID string `json:"competition_id,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ReportQuery when eager-loading is set.
+	Edges        ReportEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// ReportEdges holds the relations/edges for other nodes in the graph.
+type ReportEdges struct {
+	// Competition holds the value of the competition edge.
+	Competition *Competition `json:"competition,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// CompetitionOrErr returns the Competition value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e ReportEdges) CompetitionOrErr() (*Competition, error) {
+	if e.loadedTypes[0] {
+		if e.Competition == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: competition.Label}
+		}
+		return e.Competition, nil
+	}
+	return nil, &NotLoadedError{edge: "competition"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -30,7 +58,7 @@ func (*Report) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case report.FieldID:
 			values[i] = new(sql.NullInt64)
-		case report.FieldLog, report.FieldError:
+		case report.FieldLog, report.FieldError, report.FieldCompetitionID:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -65,6 +93,12 @@ func (r *Report) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				r.Error = value.String
 			}
+		case report.FieldCompetitionID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field competition_id", values[i])
+			} else if value.Valid {
+				r.CompetitionID = value.String
+			}
 		default:
 			r.selectValues.Set(columns[i], values[i])
 		}
@@ -76,6 +110,11 @@ func (r *Report) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (r *Report) Value(name string) (ent.Value, error) {
 	return r.selectValues.Get(name)
+}
+
+// QueryCompetition queries the "competition" edge of the Report entity.
+func (r *Report) QueryCompetition() *CompetitionQuery {
+	return NewReportClient(r.config).QueryCompetition(r)
 }
 
 // Update returns a builder for updating this Report.
@@ -106,6 +145,9 @@ func (r *Report) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("error=")
 	builder.WriteString(r.Error)
+	builder.WriteString(", ")
+	builder.WriteString("competition_id=")
+	builder.WriteString(r.CompetitionID)
 	builder.WriteByte(')')
 	return builder.String()
 }

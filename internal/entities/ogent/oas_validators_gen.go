@@ -40,6 +40,36 @@ func (s CreatePropertyReqStatus) Validate() error {
 		return errors.Errorf("invalid value: %v", s)
 	}
 }
+func (s *HostServicePropertiesList) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Status.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "status",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+func (s HostServicePropertiesListStatus) Validate() error {
+	switch s {
+	case "view":
+		return nil
+	case "edit":
+		return nil
+	case "hide":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
 func (s ListCheckOKApplicationJSON) Validate() error {
 	if s == nil {
 		return errors.New("nil is invalid value")
@@ -52,25 +82,31 @@ func (s ListCompetitionOKApplicationJSON) Validate() error {
 	}
 	return nil
 }
+func (s ListCompetitionReportsOKApplicationJSON) Validate() error {
+	if s == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+func (s ListCompetitionRoundsOKApplicationJSON) Validate() error {
+	if s == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+func (s ListCompetitionServicesOKApplicationJSON) Validate() error {
+	if s == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
 func (s ListCompetitionTeamsOKApplicationJSON) Validate() error {
 	if s == nil {
 		return errors.New("nil is invalid value")
 	}
 	return nil
 }
-func (s ListCompetitionUsersOKApplicationJSON) Validate() error {
-	if s == nil {
-		return errors.New("nil is invalid value")
-	}
-	return nil
-}
-func (s ListHostGroupHostsOKApplicationJSON) Validate() error {
-	if s == nil {
-		return errors.New("nil is invalid value")
-	}
-	return nil
-}
-func (s ListHostGroupOKApplicationJSON) Validate() error {
+func (s ListHostHostservicesOKApplicationJSON) Validate() error {
 	if s == nil {
 		return errors.New("nil is invalid value")
 	}
@@ -82,9 +118,38 @@ func (s ListHostOKApplicationJSON) Validate() error {
 	}
 	return nil
 }
-func (s ListHostServicesOKApplicationJSON) Validate() error {
+func (s ListHostServiceChecksOKApplicationJSON) Validate() error {
 	if s == nil {
 		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+func (s ListHostServiceOKApplicationJSON) Validate() error {
+	if s == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+func (s ListHostServicePropertiesOKApplicationJSON) Validate() error {
+	if s == nil {
+		return errors.New("nil is invalid value")
+	}
+	var failures []validate.FieldError
+	for i, elem := range s {
+		if err := func() error {
+			if err := elem.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			failures = append(failures, validate.FieldError{
+				Name:  fmt.Sprintf("[%d]", i),
+				Error: err,
+			})
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 	return nil
 }
@@ -129,19 +194,37 @@ func (s ListRoundOKApplicationJSON) Validate() error {
 	}
 	return nil
 }
-func (s ListServiceChecksOKApplicationJSON) Validate() error {
-	if s == nil {
-		return errors.New("nil is invalid value")
-	}
-	return nil
-}
 func (s ListServiceOKApplicationJSON) Validate() error {
 	if s == nil {
 		return errors.New("nil is invalid value")
 	}
 	return nil
 }
-func (s ListServicePropertiesOKApplicationJSON) Validate() error {
+func (s ListTeamChecksOKApplicationJSON) Validate() error {
+	if s == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+func (s ListTeamHostsOKApplicationJSON) Validate() error {
+	if s == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+func (s ListTeamHostservicesOKApplicationJSON) Validate() error {
+	if s == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+func (s ListTeamOKApplicationJSON) Validate() error {
+	if s == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+func (s ListTeamPropertiesOKApplicationJSON) Validate() error {
 	if s == nil {
 		return errors.New("nil is invalid value")
 	}
@@ -161,42 +244,6 @@ func (s ListServicePropertiesOKApplicationJSON) Validate() error {
 	}
 	if len(failures) > 0 {
 		return &validate.Error{Fields: failures}
-	}
-	return nil
-}
-func (s ListTeamHostsOKApplicationJSON) Validate() error {
-	if s == nil {
-		return errors.New("nil is invalid value")
-	}
-	return nil
-}
-func (s ListTeamOKApplicationJSON) Validate() error {
-	if s == nil {
-		return errors.New("nil is invalid value")
-	}
-	return nil
-}
-func (s ListTeamUsersOKApplicationJSON) Validate() error {
-	if s == nil {
-		return errors.New("nil is invalid value")
-	}
-	return nil
-}
-func (s ListUserCompetitionsOKApplicationJSON) Validate() error {
-	if s == nil {
-		return errors.New("nil is invalid value")
-	}
-	return nil
-}
-func (s ListUserOKApplicationJSON) Validate() error {
-	if s == nil {
-		return errors.New("nil is invalid value")
-	}
-	return nil
-}
-func (s ListUserTeamsOKApplicationJSON) Validate() error {
-	if s == nil {
-		return errors.New("nil is invalid value")
 	}
 	return nil
 }
@@ -321,7 +368,7 @@ func (s PropertyUpdateStatus) Validate() error {
 		return errors.Errorf("invalid value: %v", s)
 	}
 }
-func (s *ServicePropertiesList) Validate() error {
+func (s *TeamPropertiesList) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
 		if err := s.Status.Validate(); err != nil {
@@ -339,7 +386,7 @@ func (s *ServicePropertiesList) Validate() error {
 	}
 	return nil
 }
-func (s ServicePropertiesListStatus) Validate() error {
+func (s TeamPropertiesListStatus) Validate() error {
 	switch s {
 	case "view":
 		return nil

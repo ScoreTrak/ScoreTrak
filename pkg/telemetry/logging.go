@@ -11,7 +11,7 @@ func newLoggerConfig() {
 
 func NewLogger(config config.Config) (*zap.SugaredLogger, error) {
 	var zapLogger *zap.Logger
-	// var otelZapSuggaredLogger *otelzap.SugaredLogger
+	//var otelZapSuggaredLogger *otelzap.SugaredLogger
 	var zapSugaredLogger *zap.SugaredLogger
 	var err error
 	if config.Prod {

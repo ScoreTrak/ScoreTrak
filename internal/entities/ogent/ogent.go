@@ -10,13 +10,12 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/check"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostgroup"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/property"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/report"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/round"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/user"
 	"github.com/go-faster/jx"
 )
 
@@ -45,14 +44,16 @@ func (h *OgentHandler) CreateCheck(ctx context.Context, req *CreateCheckReq) (Cr
 	if v, ok := req.Hidden.Get(); ok {
 		b.SetHidden(v)
 	}
-	b.SetCompetitionID(req.CompetitionID)
 	b.SetLog(req.Log)
 	b.SetError(req.Error)
 	b.SetPassed(req.Passed)
+	b.SetRoundID(req.RoundID)
+	b.SetHostServiceID(req.HostServiceID)
+	b.SetTeamID(req.TeamID)
 	// Add all edges.
-	b.SetCompetitionID(req.Competition)
 	b.SetRoundsID(req.Rounds)
-	b.SetServicesID(req.Services)
+	b.SetHostserviceID(req.Hostservice)
+	b.SetTeamID(req.Team)
 	// Persist to storage.
 	e, err := b.Save(ctx)
 	if err != nil {
@@ -129,15 +130,18 @@ func (h *OgentHandler) UpdateCheck(ctx context.Context, req *UpdateCheckReq, par
 	if v, ok := req.Passed.Get(); ok {
 		b.SetPassed(v)
 	}
-	// Add all edges.
-	if v, ok := req.Competition.Get(); ok {
-		b.SetCompetitionID(v)
+	if v, ok := req.RoundID.Get(); ok {
+		b.SetRoundID(v)
 	}
+	if v, ok := req.HostServiceID.Get(); ok {
+		b.SetHostServiceID(v)
+	}
+	// Add all edges.
 	if v, ok := req.Rounds.Get(); ok {
 		b.SetRoundsID(v)
 	}
-	if v, ok := req.Services.Get(); ok {
-		b.SetServicesID(v)
+	if v, ok := req.Hostservice.Get(); ok {
+		b.SetHostserviceID(v)
 	}
 	// Persist to storage.
 	e, err := b.Save(ctx)
@@ -233,32 +237,6 @@ func (h *OgentHandler) ListCheck(ctx context.Context, params ListCheckParams) (L
 	return (*ListCheckOKApplicationJSON)(&r), nil
 }
 
-// ReadCheckCompetition handles GET /checks/{id}/competition requests.
-func (h *OgentHandler) ReadCheckCompetition(ctx context.Context, params ReadCheckCompetitionParams) (ReadCheckCompetitionRes, error) {
-	q := h.client.Check.Query().Where(check.IDEQ(params.ID)).QueryCompetition()
-	e, err := q.Only(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return NewCheckCompetitionRead(e), nil
-}
-
 // ReadCheckRounds handles GET /checks/{id}/rounds requests.
 func (h *OgentHandler) ReadCheckRounds(ctx context.Context, params ReadCheckRoundsParams) (ReadCheckRoundsRes, error) {
 	q := h.client.Check.Query().Where(check.IDEQ(params.ID)).QueryRounds()
@@ -285,9 +263,9 @@ func (h *OgentHandler) ReadCheckRounds(ctx context.Context, params ReadCheckRoun
 	return NewCheckRoundsRead(e), nil
 }
 
-// ReadCheckServices handles GET /checks/{id}/services requests.
-func (h *OgentHandler) ReadCheckServices(ctx context.Context, params ReadCheckServicesParams) (ReadCheckServicesRes, error) {
-	q := h.client.Check.Query().Where(check.IDEQ(params.ID)).QueryServices()
+// ReadCheckHostservice handles GET /checks/{id}/hostservice requests.
+func (h *OgentHandler) ReadCheckHostservice(ctx context.Context, params ReadCheckHostserviceParams) (ReadCheckHostserviceRes, error) {
+	q := h.client.Check.Query().Where(check.IDEQ(params.ID)).QueryHostservice()
 	e, err := q.Only(ctx)
 	if err != nil {
 		switch {
@@ -308,7 +286,33 @@ func (h *OgentHandler) ReadCheckServices(ctx context.Context, params ReadCheckSe
 			return nil, err
 		}
 	}
-	return NewCheckServicesRead(e), nil
+	return NewCheckHostserviceRead(e), nil
+}
+
+// ReadCheckTeam handles GET /checks/{id}/team requests.
+func (h *OgentHandler) ReadCheckTeam(ctx context.Context, params ReadCheckTeamParams) (ReadCheckTeamRes, error) {
+	q := h.client.Check.Query().Where(check.IDEQ(params.ID)).QueryTeam()
+	e, err := q.Only(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return NewCheckTeamRead(e), nil
 }
 
 // CreateCompetition handles POST /competitions requests.
@@ -337,7 +341,9 @@ func (h *OgentHandler) CreateCompetition(ctx context.Context, req *CreateCompeti
 	}
 	// Add all edges.
 	b.AddTeamIDs(req.Teams...)
-	b.AddUserIDs(req.Users...)
+	b.AddServiceIDs(req.Services...)
+	b.AddReportIDs(req.Reports...)
+	b.AddRoundIDs(req.Rounds...)
 	// Persist to storage.
 	e, err := b.Save(ctx)
 	if err != nil {
@@ -427,8 +433,14 @@ func (h *OgentHandler) UpdateCompetition(ctx context.Context, req *UpdateCompeti
 	if req.Teams != nil {
 		b.ClearTeams().AddTeamIDs(req.Teams...)
 	}
-	if req.Users != nil {
-		b.ClearUsers().AddUserIDs(req.Users...)
+	if req.Services != nil {
+		b.ClearServices().AddServiceIDs(req.Services...)
+	}
+	if req.Reports != nil {
+		b.ClearReports().AddReportIDs(req.Reports...)
+	}
+	if req.Rounds != nil {
+		b.ClearRounds().AddRoundIDs(req.Rounds...)
 	}
 	// Persist to storage.
 	e, err := b.Save(ctx)
@@ -560,9 +572,9 @@ func (h *OgentHandler) ListCompetitionTeams(ctx context.Context, params ListComp
 	return (*ListCompetitionTeamsOKApplicationJSON)(&r), nil
 }
 
-// ListCompetitionUsers handles GET /competitions/{id}/users requests.
-func (h *OgentHandler) ListCompetitionUsers(ctx context.Context, params ListCompetitionUsersParams) (ListCompetitionUsersRes, error) {
-	q := h.client.Competition.Query().Where(competition.IDEQ(params.ID)).QueryUsers()
+// ListCompetitionServices handles GET /competitions/{id}/services requests.
+func (h *OgentHandler) ListCompetitionServices(ctx context.Context, params ListCompetitionServicesParams) (ListCompetitionServicesRes, error) {
+	q := h.client.Competition.Query().Where(competition.IDEQ(params.ID)).QueryServices()
 	page := 1
 	if v, ok := params.Page.Get(); ok {
 		page = v
@@ -592,8 +604,80 @@ func (h *OgentHandler) ListCompetitionUsers(ctx context.Context, params ListComp
 			return nil, err
 		}
 	}
-	r := NewCompetitionUsersLists(es)
-	return (*ListCompetitionUsersOKApplicationJSON)(&r), nil
+	r := NewCompetitionServicesLists(es)
+	return (*ListCompetitionServicesOKApplicationJSON)(&r), nil
+}
+
+// ListCompetitionReports handles GET /competitions/{id}/reports requests.
+func (h *OgentHandler) ListCompetitionReports(ctx context.Context, params ListCompetitionReportsParams) (ListCompetitionReportsRes, error) {
+	q := h.client.Competition.Query().Where(competition.IDEQ(params.ID)).QueryReports()
+	page := 1
+	if v, ok := params.Page.Get(); ok {
+		page = v
+	}
+	itemsPerPage := 30
+	if v, ok := params.ItemsPerPage.Get(); ok {
+		itemsPerPage = v
+	}
+	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
+	es, err := q.All(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	r := NewCompetitionReportsLists(es)
+	return (*ListCompetitionReportsOKApplicationJSON)(&r), nil
+}
+
+// ListCompetitionRounds handles GET /competitions/{id}/rounds requests.
+func (h *OgentHandler) ListCompetitionRounds(ctx context.Context, params ListCompetitionRoundsParams) (ListCompetitionRoundsRes, error) {
+	q := h.client.Competition.Query().Where(competition.IDEQ(params.ID)).QueryRounds()
+	page := 1
+	if v, ok := params.Page.Get(); ok {
+		page = v
+	}
+	itemsPerPage := 30
+	if v, ok := params.ItemsPerPage.Get(); ok {
+		itemsPerPage = v
+	}
+	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
+	es, err := q.All(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	r := NewCompetitionRoundsLists(es)
+	return (*ListCompetitionRoundsOKApplicationJSON)(&r), nil
 }
 
 // CreateHost handles POST /hosts requests.
@@ -606,16 +690,11 @@ func (h *OgentHandler) CreateHost(ctx context.Context, req *CreateHostReq) (Crea
 	if v, ok := req.Hidden.Get(); ok {
 		b.SetHidden(v)
 	}
-	b.SetCompetitionID(req.CompetitionID)
-	b.SetTeamID(req.TeamID)
 	b.SetAddress(req.Address)
-	b.SetAddressListRange(req.AddressListRange)
-	b.SetEditable(req.Editable)
+	b.SetTeamID(req.TeamID)
 	// Add all edges.
-	b.SetCompetitionID(req.Competition)
+	b.AddHostserviceIDs(req.Hostservices...)
 	b.SetTeamID(req.Team)
-	b.AddServiceIDs(req.Services...)
-	b.SetHostGroupID(req.HostGroup)
 	// Persist to storage.
 	e, err := b.Save(ctx)
 	if err != nil {
@@ -683,30 +762,12 @@ func (h *OgentHandler) UpdateHost(ctx context.Context, req *UpdateHostReq, param
 	if v, ok := req.Hidden.Get(); ok {
 		b.SetHidden(v)
 	}
-	if v, ok := req.TeamID.Get(); ok {
-		b.SetTeamID(v)
-	}
 	if v, ok := req.Address.Get(); ok {
 		b.SetAddress(v)
 	}
-	if v, ok := req.AddressListRange.Get(); ok {
-		b.SetAddressListRange(v)
-	}
-	if v, ok := req.Editable.Get(); ok {
-		b.SetEditable(v)
-	}
 	// Add all edges.
-	if v, ok := req.Competition.Get(); ok {
-		b.SetCompetitionID(v)
-	}
-	if v, ok := req.Team.Get(); ok {
-		b.SetTeamID(v)
-	}
-	if req.Services != nil {
-		b.ClearServices().AddServiceIDs(req.Services...)
-	}
-	if v, ok := req.HostGroup.Get(); ok {
-		b.SetHostGroupID(v)
+	if req.Hostservices != nil {
+		b.ClearHostservices().AddHostserviceIDs(req.Hostservices...)
 	}
 	// Persist to storage.
 	e, err := b.Save(ctx)
@@ -802,10 +863,19 @@ func (h *OgentHandler) ListHost(ctx context.Context, params ListHostParams) (Lis
 	return (*ListHostOKApplicationJSON)(&r), nil
 }
 
-// ReadHostCompetition handles GET /hosts/{id}/competition requests.
-func (h *OgentHandler) ReadHostCompetition(ctx context.Context, params ReadHostCompetitionParams) (ReadHostCompetitionRes, error) {
-	q := h.client.Host.Query().Where(host.IDEQ(params.ID)).QueryCompetition()
-	e, err := q.Only(ctx)
+// ListHostHostservices handles GET /hosts/{id}/hostservices requests.
+func (h *OgentHandler) ListHostHostservices(ctx context.Context, params ListHostHostservicesParams) (ListHostHostservicesRes, error) {
+	q := h.client.Host.Query().Where(host.IDEQ(params.ID)).QueryHostservices()
+	page := 1
+	if v, ok := params.Page.Get(); ok {
+		page = v
+	}
+	itemsPerPage := 30
+	if v, ok := params.ItemsPerPage.Get(); ok {
+		itemsPerPage = v
+	}
+	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
+	es, err := q.All(ctx)
 	if err != nil {
 		switch {
 		case entities.IsNotFound(err):
@@ -825,7 +895,8 @@ func (h *OgentHandler) ReadHostCompetition(ctx context.Context, params ReadHostC
 			return nil, err
 		}
 	}
-	return NewHostCompetitionRead(e), nil
+	r := NewHostHostservicesLists(es)
+	return (*ListHostHostservicesOKApplicationJSON)(&r), nil
 }
 
 // ReadHostTeam handles GET /hosts/{id}/team requests.
@@ -854,85 +925,29 @@ func (h *OgentHandler) ReadHostTeam(ctx context.Context, params ReadHostTeamPara
 	return NewHostTeamRead(e), nil
 }
 
-// ListHostServices handles GET /hosts/{id}/services requests.
-func (h *OgentHandler) ListHostServices(ctx context.Context, params ListHostServicesParams) (ListHostServicesRes, error) {
-	q := h.client.Host.Query().Where(host.IDEQ(params.ID)).QueryServices()
-	page := 1
-	if v, ok := params.Page.Get(); ok {
-		page = v
-	}
-	itemsPerPage := 30
-	if v, ok := params.ItemsPerPage.Get(); ok {
-		itemsPerPage = v
-	}
-	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
-	es, err := q.All(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	r := NewHostServicesLists(es)
-	return (*ListHostServicesOKApplicationJSON)(&r), nil
-}
-
-// ReadHostHostGroup handles GET /hosts/{id}/host-group requests.
-func (h *OgentHandler) ReadHostHostGroup(ctx context.Context, params ReadHostHostGroupParams) (ReadHostHostGroupRes, error) {
-	q := h.client.Host.Query().Where(host.IDEQ(params.ID)).QueryHostGroup()
-	e, err := q.Only(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return NewHostHostGroupRead(e), nil
-}
-
-// CreateHostGroup handles POST /host-groups requests.
-func (h *OgentHandler) CreateHostGroup(ctx context.Context, req *CreateHostGroupReq) (CreateHostGroupRes, error) {
-	b := h.client.HostGroup.Create()
+// CreateHostService handles POST /host-services requests.
+func (h *OgentHandler) CreateHostService(ctx context.Context, req *CreateHostServiceReq) (CreateHostServiceRes, error) {
+	b := h.client.HostService.Create()
 	// Add all fields.
+	b.SetName(req.Name)
+	b.SetDisplayName(req.DisplayName)
 	if v, ok := req.Pause.Get(); ok {
 		b.SetPause(v)
 	}
 	if v, ok := req.Hidden.Get(); ok {
 		b.SetHidden(v)
 	}
-	b.SetCompetitionID(req.CompetitionID)
+	b.SetWeight(req.Weight)
+	b.SetPointBoost(req.PointBoost)
+	b.SetRoundUnits(req.RoundUnits)
+	b.SetRoundDelay(req.RoundDelay)
+	b.SetHostID(req.HostID)
 	b.SetTeamID(req.TeamID)
-	b.SetName(req.Name)
 	// Add all edges.
-	b.SetCompetitionID(req.Competition)
+	b.SetHostID(req.Host)
+	b.AddCheckIDs(req.Checks...)
+	b.AddPropertyIDs(req.Properties...)
 	b.SetTeamID(req.Team)
-	b.AddHostIDs(req.Hosts...)
 	// Persist to storage.
 	e, err := b.Save(ctx)
 	if err != nil {
@@ -955,18 +970,18 @@ func (h *OgentHandler) CreateHostGroup(ctx context.Context, req *CreateHostGroup
 		}
 	}
 	// Reload the entity to attach all eager-loaded edges.
-	q := h.client.HostGroup.Query().Where(hostgroup.ID(e.ID))
+	q := h.client.HostService.Query().Where(hostservice.ID(e.ID))
 	e, err = q.Only(ctx)
 	if err != nil {
 		// This should never happen.
 		return nil, err
 	}
-	return NewHostGroupCreate(e), nil
+	return NewHostServiceCreate(e), nil
 }
 
-// ReadHostGroup handles GET /host-groups/{id} requests.
-func (h *OgentHandler) ReadHostGroup(ctx context.Context, params ReadHostGroupParams) (ReadHostGroupRes, error) {
-	q := h.client.HostGroup.Query().Where(hostgroup.IDEQ(params.ID))
+// ReadHostService handles GET /host-services/{id} requests.
+func (h *OgentHandler) ReadHostService(ctx context.Context, params ReadHostServiceParams) (ReadHostServiceRes, error) {
+	q := h.client.HostService.Query().Where(hostservice.IDEQ(params.ID))
 	e, err := q.Only(ctx)
 	if err != nil {
 		switch {
@@ -987,34 +1002,49 @@ func (h *OgentHandler) ReadHostGroup(ctx context.Context, params ReadHostGroupPa
 			return nil, err
 		}
 	}
-	return NewHostGroupRead(e), nil
+	return NewHostServiceRead(e), nil
 }
 
-// UpdateHostGroup handles PATCH /host-groups/{id} requests.
-func (h *OgentHandler) UpdateHostGroup(ctx context.Context, req *UpdateHostGroupReq, params UpdateHostGroupParams) (UpdateHostGroupRes, error) {
-	b := h.client.HostGroup.UpdateOneID(params.ID)
+// UpdateHostService handles PATCH /host-services/{id} requests.
+func (h *OgentHandler) UpdateHostService(ctx context.Context, req *UpdateHostServiceReq, params UpdateHostServiceParams) (UpdateHostServiceRes, error) {
+	b := h.client.HostService.UpdateOneID(params.ID)
 	// Add all fields.
-	if v, ok := req.Pause.Get(); ok {
-		b.SetPause(v)
-	}
-	if v, ok := req.Hidden.Get(); ok {
-		b.SetHidden(v)
-	}
-	if v, ok := req.TeamID.Get(); ok {
-		b.SetTeamID(v)
-	}
 	if v, ok := req.Name.Get(); ok {
 		b.SetName(v)
 	}
+	if v, ok := req.DisplayName.Get(); ok {
+		b.SetDisplayName(v)
+	}
+	if v, ok := req.Pause.Get(); ok {
+		b.SetPause(v)
+	}
+	if v, ok := req.Hidden.Get(); ok {
+		b.SetHidden(v)
+	}
+	if v, ok := req.Weight.Get(); ok {
+		b.SetWeight(v)
+	}
+	if v, ok := req.PointBoost.Get(); ok {
+		b.SetPointBoost(v)
+	}
+	if v, ok := req.RoundUnits.Get(); ok {
+		b.SetRoundUnits(v)
+	}
+	if v, ok := req.RoundDelay.Get(); ok {
+		b.SetRoundDelay(v)
+	}
+	if v, ok := req.HostID.Get(); ok {
+		b.SetHostID(v)
+	}
 	// Add all edges.
-	if v, ok := req.Competition.Get(); ok {
-		b.SetCompetitionID(v)
+	if v, ok := req.Host.Get(); ok {
+		b.SetHostID(v)
 	}
-	if v, ok := req.Team.Get(); ok {
-		b.SetTeamID(v)
+	if req.Checks != nil {
+		b.ClearChecks().AddCheckIDs(req.Checks...)
 	}
-	if req.Hosts != nil {
-		b.ClearHosts().AddHostIDs(req.Hosts...)
+	if req.Properties != nil {
+		b.ClearProperties().AddPropertyIDs(req.Properties...)
 	}
 	// Persist to storage.
 	e, err := b.Save(ctx)
@@ -1038,18 +1068,18 @@ func (h *OgentHandler) UpdateHostGroup(ctx context.Context, req *UpdateHostGroup
 		}
 	}
 	// Reload the entity to attach all eager-loaded edges.
-	q := h.client.HostGroup.Query().Where(hostgroup.ID(e.ID))
+	q := h.client.HostService.Query().Where(hostservice.ID(e.ID))
 	e, err = q.Only(ctx)
 	if err != nil {
 		// This should never happen.
 		return nil, err
 	}
-	return NewHostGroupUpdate(e), nil
+	return NewHostServiceUpdate(e), nil
 }
 
-// DeleteHostGroup handles DELETE /host-groups/{id} requests.
-func (h *OgentHandler) DeleteHostGroup(ctx context.Context, params DeleteHostGroupParams) (DeleteHostGroupRes, error) {
-	err := h.client.HostGroup.DeleteOneID(params.ID).Exec(ctx)
+// DeleteHostService handles DELETE /host-services/{id} requests.
+func (h *OgentHandler) DeleteHostService(ctx context.Context, params DeleteHostServiceParams) (DeleteHostServiceRes, error) {
+	err := h.client.HostService.DeleteOneID(params.ID).Exec(ctx)
 	if err != nil {
 		switch {
 		case entities.IsNotFound(err):
@@ -1069,13 +1099,13 @@ func (h *OgentHandler) DeleteHostGroup(ctx context.Context, params DeleteHostGro
 			return nil, err
 		}
 	}
-	return new(DeleteHostGroupNoContent), nil
+	return new(DeleteHostServiceNoContent), nil
 
 }
 
-// ListHostGroup handles GET /host-groups requests.
-func (h *OgentHandler) ListHostGroup(ctx context.Context, params ListHostGroupParams) (ListHostGroupRes, error) {
-	q := h.client.HostGroup.Query()
+// ListHostService handles GET /host-services requests.
+func (h *OgentHandler) ListHostService(ctx context.Context, params ListHostServiceParams) (ListHostServiceRes, error) {
+	q := h.client.HostService.Query()
 	page := 1
 	if v, ok := params.Page.Get(); ok {
 		page = v
@@ -1106,13 +1136,13 @@ func (h *OgentHandler) ListHostGroup(ctx context.Context, params ListHostGroupPa
 			return nil, err
 		}
 	}
-	r := NewHostGroupLists(es)
-	return (*ListHostGroupOKApplicationJSON)(&r), nil
+	r := NewHostServiceLists(es)
+	return (*ListHostServiceOKApplicationJSON)(&r), nil
 }
 
-// ReadHostGroupCompetition handles GET /host-groups/{id}/competition requests.
-func (h *OgentHandler) ReadHostGroupCompetition(ctx context.Context, params ReadHostGroupCompetitionParams) (ReadHostGroupCompetitionRes, error) {
-	q := h.client.HostGroup.Query().Where(hostgroup.IDEQ(params.ID)).QueryCompetition()
+// ReadHostServiceHost handles GET /host-services/{id}/host requests.
+func (h *OgentHandler) ReadHostServiceHost(ctx context.Context, params ReadHostServiceHostParams) (ReadHostServiceHostRes, error) {
+	q := h.client.HostService.Query().Where(hostservice.IDEQ(params.ID)).QueryHost()
 	e, err := q.Only(ctx)
 	if err != nil {
 		switch {
@@ -1133,38 +1163,12 @@ func (h *OgentHandler) ReadHostGroupCompetition(ctx context.Context, params Read
 			return nil, err
 		}
 	}
-	return NewHostGroupCompetitionRead(e), nil
+	return NewHostServiceHostRead(e), nil
 }
 
-// ReadHostGroupTeam handles GET /host-groups/{id}/team requests.
-func (h *OgentHandler) ReadHostGroupTeam(ctx context.Context, params ReadHostGroupTeamParams) (ReadHostGroupTeamRes, error) {
-	q := h.client.HostGroup.Query().Where(hostgroup.IDEQ(params.ID)).QueryTeam()
-	e, err := q.Only(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return NewHostGroupTeamRead(e), nil
-}
-
-// ListHostGroupHosts handles GET /host-groups/{id}/hosts requests.
-func (h *OgentHandler) ListHostGroupHosts(ctx context.Context, params ListHostGroupHostsParams) (ListHostGroupHostsRes, error) {
-	q := h.client.HostGroup.Query().Where(hostgroup.IDEQ(params.ID)).QueryHosts()
+// ListHostServiceChecks handles GET /host-services/{id}/checks requests.
+func (h *OgentHandler) ListHostServiceChecks(ctx context.Context, params ListHostServiceChecksParams) (ListHostServiceChecksRes, error) {
+	q := h.client.HostService.Query().Where(hostservice.IDEQ(params.ID)).QueryChecks()
 	page := 1
 	if v, ok := params.Page.Get(); ok {
 		page = v
@@ -1194,23 +1198,84 @@ func (h *OgentHandler) ListHostGroupHosts(ctx context.Context, params ListHostGr
 			return nil, err
 		}
 	}
-	r := NewHostGroupHostsLists(es)
-	return (*ListHostGroupHostsOKApplicationJSON)(&r), nil
+	r := NewHostServiceChecksLists(es)
+	return (*ListHostServiceChecksOKApplicationJSON)(&r), nil
+}
+
+// ListHostServiceProperties handles GET /host-services/{id}/properties requests.
+func (h *OgentHandler) ListHostServiceProperties(ctx context.Context, params ListHostServicePropertiesParams) (ListHostServicePropertiesRes, error) {
+	q := h.client.HostService.Query().Where(hostservice.IDEQ(params.ID)).QueryProperties()
+	page := 1
+	if v, ok := params.Page.Get(); ok {
+		page = v
+	}
+	itemsPerPage := 30
+	if v, ok := params.ItemsPerPage.Get(); ok {
+		itemsPerPage = v
+	}
+	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
+	es, err := q.All(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	r := NewHostServicePropertiesLists(es)
+	return (*ListHostServicePropertiesOKApplicationJSON)(&r), nil
+}
+
+// ReadHostServiceTeam handles GET /host-services/{id}/team requests.
+func (h *OgentHandler) ReadHostServiceTeam(ctx context.Context, params ReadHostServiceTeamParams) (ReadHostServiceTeamRes, error) {
+	q := h.client.HostService.Query().Where(hostservice.IDEQ(params.ID)).QueryTeam()
+	e, err := q.Only(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return NewHostServiceTeamRead(e), nil
 }
 
 // CreateProperty handles POST /properties requests.
 func (h *OgentHandler) CreateProperty(ctx context.Context, req *CreatePropertyReq) (CreatePropertyRes, error) {
 	b := h.client.Property.Create()
 	// Add all fields.
-	b.SetCompetitionID(req.CompetitionID)
-	b.SetTeamID(req.TeamID)
 	b.SetKey(req.Key)
 	b.SetValue(req.Value)
 	b.SetStatus(property.Status(req.Status))
+	b.SetHostServiceID(req.HostServiceID)
+	b.SetTeamID(req.TeamID)
 	// Add all edges.
-	b.SetCompetitionID(req.Competition)
+	b.SetHostserviceID(req.Hostservice)
 	b.SetTeamID(req.Team)
-	b.SetServicesID(req.Services)
 	// Persist to storage.
 	e, err := b.Save(ctx)
 	if err != nil {
@@ -1272,9 +1337,6 @@ func (h *OgentHandler) ReadProperty(ctx context.Context, params ReadPropertyPara
 func (h *OgentHandler) UpdateProperty(ctx context.Context, req *UpdatePropertyReq, params UpdatePropertyParams) (UpdatePropertyRes, error) {
 	b := h.client.Property.UpdateOneID(params.ID)
 	// Add all fields.
-	if v, ok := req.TeamID.Get(); ok {
-		b.SetTeamID(v)
-	}
 	if v, ok := req.Key.Get(); ok {
 		b.SetKey(v)
 	}
@@ -1284,15 +1346,12 @@ func (h *OgentHandler) UpdateProperty(ctx context.Context, req *UpdatePropertyRe
 	if v, ok := req.Status.Get(); ok {
 		b.SetStatus(property.Status(v))
 	}
+	if v, ok := req.HostServiceID.Get(); ok {
+		b.SetHostServiceID(v)
+	}
 	// Add all edges.
-	if v, ok := req.Competition.Get(); ok {
-		b.SetCompetitionID(v)
-	}
-	if v, ok := req.Team.Get(); ok {
-		b.SetTeamID(v)
-	}
-	if v, ok := req.Services.Get(); ok {
-		b.SetServicesID(v)
+	if v, ok := req.Hostservice.Get(); ok {
+		b.SetHostserviceID(v)
 	}
 	// Persist to storage.
 	e, err := b.Save(ctx)
@@ -1388,9 +1447,9 @@ func (h *OgentHandler) ListProperty(ctx context.Context, params ListPropertyPara
 	return (*ListPropertyOKApplicationJSON)(&r), nil
 }
 
-// ReadPropertyCompetition handles GET /properties/{id}/competition requests.
-func (h *OgentHandler) ReadPropertyCompetition(ctx context.Context, params ReadPropertyCompetitionParams) (ReadPropertyCompetitionRes, error) {
-	q := h.client.Property.Query().Where(property.IDEQ(params.ID)).QueryCompetition()
+// ReadPropertyHostservice handles GET /properties/{id}/hostservice requests.
+func (h *OgentHandler) ReadPropertyHostservice(ctx context.Context, params ReadPropertyHostserviceParams) (ReadPropertyHostserviceRes, error) {
+	q := h.client.Property.Query().Where(property.IDEQ(params.ID)).QueryHostservice()
 	e, err := q.Only(ctx)
 	if err != nil {
 		switch {
@@ -1411,7 +1470,7 @@ func (h *OgentHandler) ReadPropertyCompetition(ctx context.Context, params ReadP
 			return nil, err
 		}
 	}
-	return NewPropertyCompetitionRead(e), nil
+	return NewPropertyHostserviceRead(e), nil
 }
 
 // ReadPropertyTeam handles GET /properties/{id}/team requests.
@@ -1440,39 +1499,15 @@ func (h *OgentHandler) ReadPropertyTeam(ctx context.Context, params ReadProperty
 	return NewPropertyTeamRead(e), nil
 }
 
-// ReadPropertyServices handles GET /properties/{id}/services requests.
-func (h *OgentHandler) ReadPropertyServices(ctx context.Context, params ReadPropertyServicesParams) (ReadPropertyServicesRes, error) {
-	q := h.client.Property.Query().Where(property.IDEQ(params.ID)).QueryServices()
-	e, err := q.Only(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return NewPropertyServicesRead(e), nil
-}
-
 // CreateReport handles POST /reports requests.
 func (h *OgentHandler) CreateReport(ctx context.Context, req *CreateReportReq) (CreateReportRes, error) {
 	b := h.client.Report.Create()
 	// Add all fields.
 	b.SetLog(req.Log)
 	b.SetError(req.Error)
+	b.SetCompetitionID(req.CompetitionID)
 	// Add all edges.
+	b.SetCompetitionID(req.Competition)
 	// Persist to storage.
 	e, err := b.Save(ctx)
 	if err != nil {
@@ -1635,19 +1670,45 @@ func (h *OgentHandler) ListReport(ctx context.Context, params ListReportParams) 
 	return (*ListReportOKApplicationJSON)(&r), nil
 }
 
+// ReadReportCompetition handles GET /reports/{id}/competition requests.
+func (h *OgentHandler) ReadReportCompetition(ctx context.Context, params ReadReportCompetitionParams) (ReadReportCompetitionRes, error) {
+	q := h.client.Report.Query().Where(report.IDEQ(params.ID)).QueryCompetition()
+	e, err := q.Only(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return NewReportCompetitionRead(e), nil
+}
+
 // CreateRound handles POST /rounds requests.
 func (h *OgentHandler) CreateRound(ctx context.Context, req *CreateRoundReq) (CreateRoundRes, error) {
 	b := h.client.Round.Create()
 	// Add all fields.
-	b.SetCompetitionID(req.CompetitionID)
 	b.SetRoundNumber(req.RoundNumber)
 	b.SetNote(req.Note)
 	b.SetErr(req.Err)
 	b.SetStartedAt(req.StartedAt)
 	b.SetFinishedAt(req.FinishedAt)
+	b.SetCompetitionID(req.CompetitionID)
 	// Add all edges.
-	b.SetCompetitionID(req.Competition)
 	b.AddCheckIDs(req.Checks...)
+	b.SetCompetitionID(req.Competition)
 	// Persist to storage.
 	e, err := b.Save(ctx)
 	if err != nil {
@@ -1725,9 +1786,6 @@ func (h *OgentHandler) UpdateRound(ctx context.Context, req *UpdateRoundReq, par
 		b.SetFinishedAt(v)
 	}
 	// Add all edges.
-	if v, ok := req.Competition.Get(); ok {
-		b.SetCompetitionID(v)
-	}
 	if req.Checks != nil {
 		b.ClearChecks().AddCheckIDs(req.Checks...)
 	}
@@ -1825,32 +1883,6 @@ func (h *OgentHandler) ListRound(ctx context.Context, params ListRoundParams) (L
 	return (*ListRoundOKApplicationJSON)(&r), nil
 }
 
-// ReadRoundCompetition handles GET /rounds/{id}/competition requests.
-func (h *OgentHandler) ReadRoundCompetition(ctx context.Context, params ReadRoundCompetitionParams) (ReadRoundCompetitionRes, error) {
-	q := h.client.Round.Query().Where(round.IDEQ(params.ID)).QueryCompetition()
-	e, err := q.Only(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return NewRoundCompetitionRead(e), nil
-}
-
 // ListRoundChecks handles GET /rounds/{id}/checks requests.
 func (h *OgentHandler) ListRoundChecks(ctx context.Context, params ListRoundChecksParams) (ListRoundChecksRes, error) {
 	q := h.client.Round.Query().Where(round.IDEQ(params.ID)).QueryChecks()
@@ -1887,10 +1919,38 @@ func (h *OgentHandler) ListRoundChecks(ctx context.Context, params ListRoundChec
 	return (*ListRoundChecksOKApplicationJSON)(&r), nil
 }
 
+// ReadRoundCompetition handles GET /rounds/{id}/competition requests.
+func (h *OgentHandler) ReadRoundCompetition(ctx context.Context, params ReadRoundCompetitionParams) (ReadRoundCompetitionRes, error) {
+	q := h.client.Round.Query().Where(round.IDEQ(params.ID)).QueryCompetition()
+	e, err := q.Only(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return NewRoundCompetitionRead(e), nil
+}
+
 // CreateService handles POST /services requests.
 func (h *OgentHandler) CreateService(ctx context.Context, req *CreateServiceReq) (CreateServiceRes, error) {
 	b := h.client.Service.Create()
 	// Add all fields.
+	b.SetName(req.Name)
+	b.SetDisplayName(req.DisplayName)
 	if v, ok := req.Pause.Get(); ok {
 		b.SetPause(v)
 	}
@@ -1898,21 +1958,8 @@ func (h *OgentHandler) CreateService(ctx context.Context, req *CreateServiceReq)
 		b.SetHidden(v)
 	}
 	b.SetCompetitionID(req.CompetitionID)
-	b.SetTeamID(req.TeamID)
-	b.SetName(req.Name)
-	b.SetDisplayName(req.DisplayName)
-	b.SetWeight(req.Weight)
-	b.SetPointBoost(req.PointBoost)
-	b.SetRoundUnits(req.RoundUnits)
-	b.SetRoundDelay(req.RoundDelay)
 	// Add all edges.
 	b.SetCompetitionID(req.Competition)
-	b.SetTeamID(req.Team)
-	if v, ok := req.Hosts.Get(); ok {
-		b.SetHostsID(v)
-	}
-	b.AddCheckIDs(req.Checks...)
-	b.AddPropertyIDs(req.Properties...)
 	// Persist to storage.
 	e, err := b.Save(ctx)
 	if err != nil {
@@ -1974,49 +2021,19 @@ func (h *OgentHandler) ReadService(ctx context.Context, params ReadServiceParams
 func (h *OgentHandler) UpdateService(ctx context.Context, req *UpdateServiceReq, params UpdateServiceParams) (UpdateServiceRes, error) {
 	b := h.client.Service.UpdateOneID(params.ID)
 	// Add all fields.
-	if v, ok := req.Pause.Get(); ok {
-		b.SetPause(v)
-	}
-	if v, ok := req.Hidden.Get(); ok {
-		b.SetHidden(v)
-	}
-	if v, ok := req.TeamID.Get(); ok {
-		b.SetTeamID(v)
-	}
 	if v, ok := req.Name.Get(); ok {
 		b.SetName(v)
 	}
 	if v, ok := req.DisplayName.Get(); ok {
 		b.SetDisplayName(v)
 	}
-	if v, ok := req.Weight.Get(); ok {
-		b.SetWeight(v)
+	if v, ok := req.Pause.Get(); ok {
+		b.SetPause(v)
 	}
-	if v, ok := req.PointBoost.Get(); ok {
-		b.SetPointBoost(v)
-	}
-	if v, ok := req.RoundUnits.Get(); ok {
-		b.SetRoundUnits(v)
-	}
-	if v, ok := req.RoundDelay.Get(); ok {
-		b.SetRoundDelay(v)
+	if v, ok := req.Hidden.Get(); ok {
+		b.SetHidden(v)
 	}
 	// Add all edges.
-	if v, ok := req.Competition.Get(); ok {
-		b.SetCompetitionID(v)
-	}
-	if v, ok := req.Team.Get(); ok {
-		b.SetTeamID(v)
-	}
-	if v, ok := req.Hosts.Get(); ok {
-		b.SetHostsID(v)
-	}
-	if req.Checks != nil {
-		b.ClearChecks().AddCheckIDs(req.Checks...)
-	}
-	if req.Properties != nil {
-		b.ClearProperties().AddPropertyIDs(req.Properties...)
-	}
 	// Persist to storage.
 	e, err := b.Save(ctx)
 	if err != nil {
@@ -2137,149 +2154,26 @@ func (h *OgentHandler) ReadServiceCompetition(ctx context.Context, params ReadSe
 	return NewServiceCompetitionRead(e), nil
 }
 
-// ReadServiceTeam handles GET /services/{id}/team requests.
-func (h *OgentHandler) ReadServiceTeam(ctx context.Context, params ReadServiceTeamParams) (ReadServiceTeamRes, error) {
-	q := h.client.Service.Query().Where(service.IDEQ(params.ID)).QueryTeam()
-	e, err := q.Only(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return NewServiceTeamRead(e), nil
-}
-
-// ReadServiceHosts handles GET /services/{id}/hosts requests.
-func (h *OgentHandler) ReadServiceHosts(ctx context.Context, params ReadServiceHostsParams) (ReadServiceHostsRes, error) {
-	q := h.client.Service.Query().Where(service.IDEQ(params.ID)).QueryHosts()
-	e, err := q.Only(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return NewServiceHostsRead(e), nil
-}
-
-// ListServiceChecks handles GET /services/{id}/checks requests.
-func (h *OgentHandler) ListServiceChecks(ctx context.Context, params ListServiceChecksParams) (ListServiceChecksRes, error) {
-	q := h.client.Service.Query().Where(service.IDEQ(params.ID)).QueryChecks()
-	page := 1
-	if v, ok := params.Page.Get(); ok {
-		page = v
-	}
-	itemsPerPage := 30
-	if v, ok := params.ItemsPerPage.Get(); ok {
-		itemsPerPage = v
-	}
-	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
-	es, err := q.All(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	r := NewServiceChecksLists(es)
-	return (*ListServiceChecksOKApplicationJSON)(&r), nil
-}
-
-// ListServiceProperties handles GET /services/{id}/properties requests.
-func (h *OgentHandler) ListServiceProperties(ctx context.Context, params ListServicePropertiesParams) (ListServicePropertiesRes, error) {
-	q := h.client.Service.Query().Where(service.IDEQ(params.ID)).QueryProperties()
-	page := 1
-	if v, ok := params.Page.Get(); ok {
-		page = v
-	}
-	itemsPerPage := 30
-	if v, ok := params.ItemsPerPage.Get(); ok {
-		itemsPerPage = v
-	}
-	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
-	es, err := q.All(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	r := NewServicePropertiesLists(es)
-	return (*ListServicePropertiesOKApplicationJSON)(&r), nil
-}
-
 // CreateTeam handles POST /teams requests.
 func (h *OgentHandler) CreateTeam(ctx context.Context, req *CreateTeamReq) (CreateTeamRes, error) {
 	b := h.client.Team.Create()
 	// Add all fields.
+	b.SetName(req.Name)
+	b.SetDisplayName(req.DisplayName)
 	if v, ok := req.Pause.Get(); ok {
 		b.SetPause(v)
 	}
 	if v, ok := req.Hidden.Get(); ok {
 		b.SetHidden(v)
 	}
+	b.SetNumber(req.Number)
 	b.SetCompetitionID(req.CompetitionID)
-	b.SetName(req.Name)
-	if v, ok := req.Index.Get(); ok {
-		b.SetIndex(v)
-	}
 	// Add all edges.
-	b.SetCompetitionID(req.Competition)
-	b.AddUserIDs(req.Users...)
 	b.AddHostIDs(req.Hosts...)
+	b.AddHostserviceIDs(req.Hostservices...)
+	b.AddCheckIDs(req.Checks...)
+	b.AddPropertyIDs(req.Properties...)
+	b.SetCompetitionID(req.Competition)
 	// Persist to storage.
 	e, err := b.Save(ctx)
 	if err != nil {
@@ -2341,27 +2235,33 @@ func (h *OgentHandler) ReadTeam(ctx context.Context, params ReadTeamParams) (Rea
 func (h *OgentHandler) UpdateTeam(ctx context.Context, req *UpdateTeamReq, params UpdateTeamParams) (UpdateTeamRes, error) {
 	b := h.client.Team.UpdateOneID(params.ID)
 	// Add all fields.
+	if v, ok := req.Name.Get(); ok {
+		b.SetName(v)
+	}
+	if v, ok := req.DisplayName.Get(); ok {
+		b.SetDisplayName(v)
+	}
 	if v, ok := req.Pause.Get(); ok {
 		b.SetPause(v)
 	}
 	if v, ok := req.Hidden.Get(); ok {
 		b.SetHidden(v)
 	}
-	if v, ok := req.Name.Get(); ok {
-		b.SetName(v)
-	}
-	if v, ok := req.Index.Get(); ok {
-		b.SetIndex(v)
+	if v, ok := req.Number.Get(); ok {
+		b.SetNumber(v)
 	}
 	// Add all edges.
-	if v, ok := req.Competition.Get(); ok {
-		b.SetCompetitionID(v)
-	}
-	if req.Users != nil {
-		b.ClearUsers().AddUserIDs(req.Users...)
-	}
 	if req.Hosts != nil {
 		b.ClearHosts().AddHostIDs(req.Hosts...)
+	}
+	if req.Hostservices != nil {
+		b.ClearHostservices().AddHostserviceIDs(req.Hostservices...)
+	}
+	if req.Checks != nil {
+		b.ClearChecks().AddCheckIDs(req.Checks...)
+	}
+	if req.Properties != nil {
+		b.ClearProperties().AddPropertyIDs(req.Properties...)
 	}
 	// Persist to storage.
 	e, err := b.Save(ctx)
@@ -2457,68 +2357,6 @@ func (h *OgentHandler) ListTeam(ctx context.Context, params ListTeamParams) (Lis
 	return (*ListTeamOKApplicationJSON)(&r), nil
 }
 
-// ReadTeamCompetition handles GET /teams/{id}/competition requests.
-func (h *OgentHandler) ReadTeamCompetition(ctx context.Context, params ReadTeamCompetitionParams) (ReadTeamCompetitionRes, error) {
-	q := h.client.Team.Query().Where(team.IDEQ(params.ID)).QueryCompetition()
-	e, err := q.Only(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return NewTeamCompetitionRead(e), nil
-}
-
-// ListTeamUsers handles GET /teams/{id}/users requests.
-func (h *OgentHandler) ListTeamUsers(ctx context.Context, params ListTeamUsersParams) (ListTeamUsersRes, error) {
-	q := h.client.Team.Query().Where(team.IDEQ(params.ID)).QueryUsers()
-	page := 1
-	if v, ok := params.Page.Get(); ok {
-		page = v
-	}
-	itemsPerPage := 30
-	if v, ok := params.ItemsPerPage.Get(); ok {
-		itemsPerPage = v
-	}
-	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
-	es, err := q.All(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	r := NewTeamUsersLists(es)
-	return (*ListTeamUsersOKApplicationJSON)(&r), nil
-}
-
 // ListTeamHosts handles GET /teams/{id}/hosts requests.
 func (h *OgentHandler) ListTeamHosts(ctx context.Context, params ListTeamHostsParams) (ListTeamHostsRes, error) {
 	q := h.client.Team.Query().Where(team.IDEQ(params.ID)).QueryHosts()
@@ -2555,32 +2393,28 @@ func (h *OgentHandler) ListTeamHosts(ctx context.Context, params ListTeamHostsPa
 	return (*ListTeamHostsOKApplicationJSON)(&r), nil
 }
 
-// CreateUser handles POST /users requests.
-func (h *OgentHandler) CreateUser(ctx context.Context, req *CreateUserReq) (CreateUserRes, error) {
-	b := h.client.User.Create()
-	// Add all fields.
-	if v, ok := req.CreateTime.Get(); ok {
-		b.SetCreateTime(v)
+// ListTeamHostservices handles GET /teams/{id}/hostservices requests.
+func (h *OgentHandler) ListTeamHostservices(ctx context.Context, params ListTeamHostservicesParams) (ListTeamHostservicesRes, error) {
+	q := h.client.Team.Query().Where(team.IDEQ(params.ID)).QueryHostservices()
+	page := 1
+	if v, ok := params.Page.Get(); ok {
+		page = v
 	}
-	if v, ok := req.UpdateTime.Get(); ok {
-		b.SetUpdateTime(v)
+	itemsPerPage := 30
+	if v, ok := params.ItemsPerPage.Get(); ok {
+		itemsPerPage = v
 	}
-	b.SetUsername(req.Username)
-	b.SetOryID(req.OryID)
-	// Add all edges.
-	b.AddTeamIDs(req.Teams...)
-	b.AddCompetitionIDs(req.Competitions...)
-	// Persist to storage.
-	e, err := b.Save(ctx)
+	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
+	es, err := q.All(ctx)
 	if err != nil {
 		switch {
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
 				Errors: rawError(err),
 			}, nil
-		case entities.IsConstraintError(err):
+		case entities.IsNotSingular(err):
 			return &R409{
 				Code:   http.StatusConflict,
 				Status: http.StatusText(http.StatusConflict),
@@ -2591,19 +2425,85 @@ func (h *OgentHandler) CreateUser(ctx context.Context, req *CreateUserReq) (Crea
 			return nil, err
 		}
 	}
-	// Reload the entity to attach all eager-loaded edges.
-	q := h.client.User.Query().Where(user.ID(e.ID))
-	e, err = q.Only(ctx)
-	if err != nil {
-		// This should never happen.
-		return nil, err
-	}
-	return NewUserCreate(e), nil
+	r := NewTeamHostservicesLists(es)
+	return (*ListTeamHostservicesOKApplicationJSON)(&r), nil
 }
 
-// ReadUser handles GET /users/{id} requests.
-func (h *OgentHandler) ReadUser(ctx context.Context, params ReadUserParams) (ReadUserRes, error) {
-	q := h.client.User.Query().Where(user.IDEQ(params.ID))
+// ListTeamChecks handles GET /teams/{id}/checks requests.
+func (h *OgentHandler) ListTeamChecks(ctx context.Context, params ListTeamChecksParams) (ListTeamChecksRes, error) {
+	q := h.client.Team.Query().Where(team.IDEQ(params.ID)).QueryChecks()
+	page := 1
+	if v, ok := params.Page.Get(); ok {
+		page = v
+	}
+	itemsPerPage := 30
+	if v, ok := params.ItemsPerPage.Get(); ok {
+		itemsPerPage = v
+	}
+	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
+	es, err := q.All(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	r := NewTeamChecksLists(es)
+	return (*ListTeamChecksOKApplicationJSON)(&r), nil
+}
+
+// ListTeamProperties handles GET /teams/{id}/properties requests.
+func (h *OgentHandler) ListTeamProperties(ctx context.Context, params ListTeamPropertiesParams) (ListTeamPropertiesRes, error) {
+	q := h.client.Team.Query().Where(team.IDEQ(params.ID)).QueryProperties()
+	page := 1
+	if v, ok := params.Page.Get(); ok {
+		page = v
+	}
+	itemsPerPage := 30
+	if v, ok := params.ItemsPerPage.Get(); ok {
+		itemsPerPage = v
+	}
+	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
+	es, err := q.All(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	r := NewTeamPropertiesLists(es)
+	return (*ListTeamPropertiesOKApplicationJSON)(&r), nil
+}
+
+// ReadTeamCompetition handles GET /teams/{id}/competition requests.
+func (h *OgentHandler) ReadTeamCompetition(ctx context.Context, params ReadTeamCompetitionParams) (ReadTeamCompetitionRes, error) {
+	q := h.client.Team.Query().Where(team.IDEQ(params.ID)).QueryCompetition()
 	e, err := q.Only(ctx)
 	if err != nil {
 		switch {
@@ -2624,188 +2524,5 @@ func (h *OgentHandler) ReadUser(ctx context.Context, params ReadUserParams) (Rea
 			return nil, err
 		}
 	}
-	return NewUserRead(e), nil
-}
-
-// UpdateUser handles PATCH /users/{id} requests.
-func (h *OgentHandler) UpdateUser(ctx context.Context, req *UpdateUserReq, params UpdateUserParams) (UpdateUserRes, error) {
-	b := h.client.User.UpdateOneID(params.ID)
-	// Add all fields.
-	if v, ok := req.UpdateTime.Get(); ok {
-		b.SetUpdateTime(v)
-	}
-	if v, ok := req.Username.Get(); ok {
-		b.SetUsername(v)
-	}
-	// Add all edges.
-	if req.Teams != nil {
-		b.ClearTeams().AddTeamIDs(req.Teams...)
-	}
-	if req.Competitions != nil {
-		b.ClearCompetitions().AddCompetitionIDs(req.Competitions...)
-	}
-	// Persist to storage.
-	e, err := b.Save(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsConstraintError(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	// Reload the entity to attach all eager-loaded edges.
-	q := h.client.User.Query().Where(user.ID(e.ID))
-	e, err = q.Only(ctx)
-	if err != nil {
-		// This should never happen.
-		return nil, err
-	}
-	return NewUserUpdate(e), nil
-}
-
-// DeleteUser handles DELETE /users/{id} requests.
-func (h *OgentHandler) DeleteUser(ctx context.Context, params DeleteUserParams) (DeleteUserRes, error) {
-	err := h.client.User.DeleteOneID(params.ID).Exec(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsConstraintError(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return new(DeleteUserNoContent), nil
-
-}
-
-// ListUser handles GET /users requests.
-func (h *OgentHandler) ListUser(ctx context.Context, params ListUserParams) (ListUserRes, error) {
-	q := h.client.User.Query()
-	page := 1
-	if v, ok := params.Page.Get(); ok {
-		page = v
-	}
-	itemsPerPage := 30
-	if v, ok := params.ItemsPerPage.Get(); ok {
-		itemsPerPage = v
-	}
-	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
-
-	es, err := q.All(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	r := NewUserLists(es)
-	return (*ListUserOKApplicationJSON)(&r), nil
-}
-
-// ListUserTeams handles GET /users/{id}/teams requests.
-func (h *OgentHandler) ListUserTeams(ctx context.Context, params ListUserTeamsParams) (ListUserTeamsRes, error) {
-	q := h.client.User.Query().Where(user.IDEQ(params.ID)).QueryTeams()
-	page := 1
-	if v, ok := params.Page.Get(); ok {
-		page = v
-	}
-	itemsPerPage := 30
-	if v, ok := params.ItemsPerPage.Get(); ok {
-		itemsPerPage = v
-	}
-	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
-	es, err := q.All(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	r := NewUserTeamsLists(es)
-	return (*ListUserTeamsOKApplicationJSON)(&r), nil
-}
-
-// ListUserCompetitions handles GET /users/{id}/competitions requests.
-func (h *OgentHandler) ListUserCompetitions(ctx context.Context, params ListUserCompetitionsParams) (ListUserCompetitionsRes, error) {
-	q := h.client.User.Query().Where(user.IDEQ(params.ID)).QueryCompetitions()
-	page := 1
-	if v, ok := params.Page.Get(); ok {
-		page = v
-	}
-	itemsPerPage := 30
-	if v, ok := params.ItemsPerPage.Get(); ok {
-		itemsPerPage = v
-	}
-	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
-	es, err := q.All(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	r := NewUserCompetitionsLists(es)
-	return (*ListUserCompetitionsOKApplicationJSON)(&r), nil
+	return NewTeamCompetitionRead(e), nil
 }

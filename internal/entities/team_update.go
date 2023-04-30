@@ -10,10 +10,12 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/check"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/property"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/user"
 )
 
 // TeamUpdate is the builder for updating Team entities.
@@ -26,6 +28,18 @@ type TeamUpdate struct {
 // Where appends a list predicates to the TeamUpdate builder.
 func (tu *TeamUpdate) Where(ps ...predicate.Team) *TeamUpdate {
 	tu.mutation.Where(ps...)
+	return tu
+}
+
+// SetName sets the "name" field.
+func (tu *TeamUpdate) SetName(s string) *TeamUpdate {
+	tu.mutation.SetName(s)
+	return tu
+}
+
+// SetDisplayName sets the "display_name" field.
+func (tu *TeamUpdate) SetDisplayName(s string) *TeamUpdate {
+	tu.mutation.SetDisplayName(s)
 	return tu
 }
 
@@ -69,52 +83,17 @@ func (tu *TeamUpdate) ClearHidden() *TeamUpdate {
 	return tu
 }
 
-// SetName sets the "name" field.
-func (tu *TeamUpdate) SetName(s string) *TeamUpdate {
-	tu.mutation.SetName(s)
+// SetNumber sets the "number" field.
+func (tu *TeamUpdate) SetNumber(i int) *TeamUpdate {
+	tu.mutation.ResetNumber()
+	tu.mutation.SetNumber(i)
 	return tu
 }
 
-// SetIndex sets the "index" field.
-func (tu *TeamUpdate) SetIndex(i int) *TeamUpdate {
-	tu.mutation.ResetIndex()
-	tu.mutation.SetIndex(i)
+// AddNumber adds i to the "number" field.
+func (tu *TeamUpdate) AddNumber(i int) *TeamUpdate {
+	tu.mutation.AddNumber(i)
 	return tu
-}
-
-// SetNillableIndex sets the "index" field if the given value is not nil.
-func (tu *TeamUpdate) SetNillableIndex(i *int) *TeamUpdate {
-	if i != nil {
-		tu.SetIndex(*i)
-	}
-	return tu
-}
-
-// AddIndex adds i to the "index" field.
-func (tu *TeamUpdate) AddIndex(i int) *TeamUpdate {
-	tu.mutation.AddIndex(i)
-	return tu
-}
-
-// ClearIndex clears the value of the "index" field.
-func (tu *TeamUpdate) ClearIndex() *TeamUpdate {
-	tu.mutation.ClearIndex()
-	return tu
-}
-
-// AddUserIDs adds the "users" edge to the User entity by IDs.
-func (tu *TeamUpdate) AddUserIDs(ids ...string) *TeamUpdate {
-	tu.mutation.AddUserIDs(ids...)
-	return tu
-}
-
-// AddUsers adds the "users" edges to the User entity.
-func (tu *TeamUpdate) AddUsers(u ...*User) *TeamUpdate {
-	ids := make([]string, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return tu.AddUserIDs(ids...)
 }
 
 // AddHostIDs adds the "hosts" edge to the Host entity by IDs.
@@ -132,30 +111,54 @@ func (tu *TeamUpdate) AddHosts(h ...*Host) *TeamUpdate {
 	return tu.AddHostIDs(ids...)
 }
 
+// AddHostserviceIDs adds the "hostservices" edge to the HostService entity by IDs.
+func (tu *TeamUpdate) AddHostserviceIDs(ids ...string) *TeamUpdate {
+	tu.mutation.AddHostserviceIDs(ids...)
+	return tu
+}
+
+// AddHostservices adds the "hostservices" edges to the HostService entity.
+func (tu *TeamUpdate) AddHostservices(h ...*HostService) *TeamUpdate {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return tu.AddHostserviceIDs(ids...)
+}
+
+// AddCheckIDs adds the "checks" edge to the Check entity by IDs.
+func (tu *TeamUpdate) AddCheckIDs(ids ...string) *TeamUpdate {
+	tu.mutation.AddCheckIDs(ids...)
+	return tu
+}
+
+// AddChecks adds the "checks" edges to the Check entity.
+func (tu *TeamUpdate) AddChecks(c ...*Check) *TeamUpdate {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return tu.AddCheckIDs(ids...)
+}
+
+// AddPropertyIDs adds the "properties" edge to the Property entity by IDs.
+func (tu *TeamUpdate) AddPropertyIDs(ids ...string) *TeamUpdate {
+	tu.mutation.AddPropertyIDs(ids...)
+	return tu
+}
+
+// AddProperties adds the "properties" edges to the Property entity.
+func (tu *TeamUpdate) AddProperties(p ...*Property) *TeamUpdate {
+	ids := make([]string, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tu.AddPropertyIDs(ids...)
+}
+
 // Mutation returns the TeamMutation object of the builder.
 func (tu *TeamUpdate) Mutation() *TeamMutation {
 	return tu.mutation
-}
-
-// ClearUsers clears all "users" edges to the User entity.
-func (tu *TeamUpdate) ClearUsers() *TeamUpdate {
-	tu.mutation.ClearUsers()
-	return tu
-}
-
-// RemoveUserIDs removes the "users" edge to User entities by IDs.
-func (tu *TeamUpdate) RemoveUserIDs(ids ...string) *TeamUpdate {
-	tu.mutation.RemoveUserIDs(ids...)
-	return tu
-}
-
-// RemoveUsers removes "users" edges to User entities.
-func (tu *TeamUpdate) RemoveUsers(u ...*User) *TeamUpdate {
-	ids := make([]string, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return tu.RemoveUserIDs(ids...)
 }
 
 // ClearHosts clears all "hosts" edges to the Host entity.
@@ -177,6 +180,69 @@ func (tu *TeamUpdate) RemoveHosts(h ...*Host) *TeamUpdate {
 		ids[i] = h[i].ID
 	}
 	return tu.RemoveHostIDs(ids...)
+}
+
+// ClearHostservices clears all "hostservices" edges to the HostService entity.
+func (tu *TeamUpdate) ClearHostservices() *TeamUpdate {
+	tu.mutation.ClearHostservices()
+	return tu
+}
+
+// RemoveHostserviceIDs removes the "hostservices" edge to HostService entities by IDs.
+func (tu *TeamUpdate) RemoveHostserviceIDs(ids ...string) *TeamUpdate {
+	tu.mutation.RemoveHostserviceIDs(ids...)
+	return tu
+}
+
+// RemoveHostservices removes "hostservices" edges to HostService entities.
+func (tu *TeamUpdate) RemoveHostservices(h ...*HostService) *TeamUpdate {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return tu.RemoveHostserviceIDs(ids...)
+}
+
+// ClearChecks clears all "checks" edges to the Check entity.
+func (tu *TeamUpdate) ClearChecks() *TeamUpdate {
+	tu.mutation.ClearChecks()
+	return tu
+}
+
+// RemoveCheckIDs removes the "checks" edge to Check entities by IDs.
+func (tu *TeamUpdate) RemoveCheckIDs(ids ...string) *TeamUpdate {
+	tu.mutation.RemoveCheckIDs(ids...)
+	return tu
+}
+
+// RemoveChecks removes "checks" edges to Check entities.
+func (tu *TeamUpdate) RemoveChecks(c ...*Check) *TeamUpdate {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return tu.RemoveCheckIDs(ids...)
+}
+
+// ClearProperties clears all "properties" edges to the Property entity.
+func (tu *TeamUpdate) ClearProperties() *TeamUpdate {
+	tu.mutation.ClearProperties()
+	return tu
+}
+
+// RemovePropertyIDs removes the "properties" edge to Property entities by IDs.
+func (tu *TeamUpdate) RemovePropertyIDs(ids ...string) *TeamUpdate {
+	tu.mutation.RemovePropertyIDs(ids...)
+	return tu
+}
+
+// RemoveProperties removes "properties" edges to Property entities.
+func (tu *TeamUpdate) RemoveProperties(p ...*Property) *TeamUpdate {
+	ids := make([]string, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tu.RemovePropertyIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -208,9 +274,19 @@ func (tu *TeamUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (tu *TeamUpdate) check() error {
-	if v, ok := tu.mutation.Index(); ok {
-		if err := team.IndexValidator(v); err != nil {
-			return &ValidationError{Name: "index", err: fmt.Errorf(`entities: validator failed for field "Team.index": %w`, err)}
+	if v, ok := tu.mutation.Name(); ok {
+		if err := team.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`entities: validator failed for field "Team.name": %w`, err)}
+		}
+	}
+	if v, ok := tu.mutation.DisplayName(); ok {
+		if err := team.DisplayNameValidator(v); err != nil {
+			return &ValidationError{Name: "display_name", err: fmt.Errorf(`entities: validator failed for field "Team.display_name": %w`, err)}
+		}
+	}
+	if v, ok := tu.mutation.Number(); ok {
+		if err := team.NumberValidator(v); err != nil {
+			return &ValidationError{Name: "number", err: fmt.Errorf(`entities: validator failed for field "Team.number": %w`, err)}
 		}
 	}
 	if _, ok := tu.mutation.CompetitionID(); tu.mutation.CompetitionCleared() && !ok {
@@ -231,6 +307,12 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := tu.mutation.Name(); ok {
+		_spec.SetField(team.FieldName, field.TypeString, value)
+	}
+	if value, ok := tu.mutation.DisplayName(); ok {
+		_spec.SetField(team.FieldDisplayName, field.TypeString, value)
+	}
 	if value, ok := tu.mutation.Pause(); ok {
 		_spec.SetField(team.FieldPause, field.TypeBool, value)
 	}
@@ -243,62 +325,11 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if tu.mutation.HiddenCleared() {
 		_spec.ClearField(team.FieldHidden, field.TypeBool)
 	}
-	if value, ok := tu.mutation.Name(); ok {
-		_spec.SetField(team.FieldName, field.TypeString, value)
+	if value, ok := tu.mutation.Number(); ok {
+		_spec.SetField(team.FieldNumber, field.TypeInt, value)
 	}
-	if value, ok := tu.mutation.Index(); ok {
-		_spec.SetField(team.FieldIndex, field.TypeInt, value)
-	}
-	if value, ok := tu.mutation.AddedIndex(); ok {
-		_spec.AddField(team.FieldIndex, field.TypeInt, value)
-	}
-	if tu.mutation.IndexCleared() {
-		_spec.ClearField(team.FieldIndex, field.TypeInt)
-	}
-	if tu.mutation.UsersCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   team.UsersTable,
-			Columns: team.UsersPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := tu.mutation.RemovedUsersIDs(); len(nodes) > 0 && !tu.mutation.UsersCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   team.UsersTable,
-			Columns: team.UsersPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := tu.mutation.UsersIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   team.UsersTable,
-			Columns: team.UsersPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	if value, ok := tu.mutation.AddedNumber(); ok {
+		_spec.AddField(team.FieldNumber, field.TypeInt, value)
 	}
 	if tu.mutation.HostsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -345,6 +376,141 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if tu.mutation.HostservicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.HostservicesTable,
+			Columns: []string{team.HostservicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.RemovedHostservicesIDs(); len(nodes) > 0 && !tu.mutation.HostservicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.HostservicesTable,
+			Columns: []string{team.HostservicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.HostservicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.HostservicesTable,
+			Columns: []string{team.HostservicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tu.mutation.ChecksCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.ChecksTable,
+			Columns: []string{team.ChecksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.RemovedChecksIDs(); len(nodes) > 0 && !tu.mutation.ChecksCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.ChecksTable,
+			Columns: []string{team.ChecksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.ChecksIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.ChecksTable,
+			Columns: []string{team.ChecksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tu.mutation.PropertiesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.PropertiesTable,
+			Columns: []string{team.PropertiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.RemovedPropertiesIDs(); len(nodes) > 0 && !tu.mutation.PropertiesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.PropertiesTable,
+			Columns: []string{team.PropertiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tu.mutation.PropertiesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.PropertiesTable,
+			Columns: []string{team.PropertiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, tu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{team.Label}
@@ -363,6 +529,18 @@ type TeamUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *TeamMutation
+}
+
+// SetName sets the "name" field.
+func (tuo *TeamUpdateOne) SetName(s string) *TeamUpdateOne {
+	tuo.mutation.SetName(s)
+	return tuo
+}
+
+// SetDisplayName sets the "display_name" field.
+func (tuo *TeamUpdateOne) SetDisplayName(s string) *TeamUpdateOne {
+	tuo.mutation.SetDisplayName(s)
+	return tuo
 }
 
 // SetPause sets the "pause" field.
@@ -405,52 +583,17 @@ func (tuo *TeamUpdateOne) ClearHidden() *TeamUpdateOne {
 	return tuo
 }
 
-// SetName sets the "name" field.
-func (tuo *TeamUpdateOne) SetName(s string) *TeamUpdateOne {
-	tuo.mutation.SetName(s)
+// SetNumber sets the "number" field.
+func (tuo *TeamUpdateOne) SetNumber(i int) *TeamUpdateOne {
+	tuo.mutation.ResetNumber()
+	tuo.mutation.SetNumber(i)
 	return tuo
 }
 
-// SetIndex sets the "index" field.
-func (tuo *TeamUpdateOne) SetIndex(i int) *TeamUpdateOne {
-	tuo.mutation.ResetIndex()
-	tuo.mutation.SetIndex(i)
+// AddNumber adds i to the "number" field.
+func (tuo *TeamUpdateOne) AddNumber(i int) *TeamUpdateOne {
+	tuo.mutation.AddNumber(i)
 	return tuo
-}
-
-// SetNillableIndex sets the "index" field if the given value is not nil.
-func (tuo *TeamUpdateOne) SetNillableIndex(i *int) *TeamUpdateOne {
-	if i != nil {
-		tuo.SetIndex(*i)
-	}
-	return tuo
-}
-
-// AddIndex adds i to the "index" field.
-func (tuo *TeamUpdateOne) AddIndex(i int) *TeamUpdateOne {
-	tuo.mutation.AddIndex(i)
-	return tuo
-}
-
-// ClearIndex clears the value of the "index" field.
-func (tuo *TeamUpdateOne) ClearIndex() *TeamUpdateOne {
-	tuo.mutation.ClearIndex()
-	return tuo
-}
-
-// AddUserIDs adds the "users" edge to the User entity by IDs.
-func (tuo *TeamUpdateOne) AddUserIDs(ids ...string) *TeamUpdateOne {
-	tuo.mutation.AddUserIDs(ids...)
-	return tuo
-}
-
-// AddUsers adds the "users" edges to the User entity.
-func (tuo *TeamUpdateOne) AddUsers(u ...*User) *TeamUpdateOne {
-	ids := make([]string, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return tuo.AddUserIDs(ids...)
 }
 
 // AddHostIDs adds the "hosts" edge to the Host entity by IDs.
@@ -468,30 +611,54 @@ func (tuo *TeamUpdateOne) AddHosts(h ...*Host) *TeamUpdateOne {
 	return tuo.AddHostIDs(ids...)
 }
 
+// AddHostserviceIDs adds the "hostservices" edge to the HostService entity by IDs.
+func (tuo *TeamUpdateOne) AddHostserviceIDs(ids ...string) *TeamUpdateOne {
+	tuo.mutation.AddHostserviceIDs(ids...)
+	return tuo
+}
+
+// AddHostservices adds the "hostservices" edges to the HostService entity.
+func (tuo *TeamUpdateOne) AddHostservices(h ...*HostService) *TeamUpdateOne {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return tuo.AddHostserviceIDs(ids...)
+}
+
+// AddCheckIDs adds the "checks" edge to the Check entity by IDs.
+func (tuo *TeamUpdateOne) AddCheckIDs(ids ...string) *TeamUpdateOne {
+	tuo.mutation.AddCheckIDs(ids...)
+	return tuo
+}
+
+// AddChecks adds the "checks" edges to the Check entity.
+func (tuo *TeamUpdateOne) AddChecks(c ...*Check) *TeamUpdateOne {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return tuo.AddCheckIDs(ids...)
+}
+
+// AddPropertyIDs adds the "properties" edge to the Property entity by IDs.
+func (tuo *TeamUpdateOne) AddPropertyIDs(ids ...string) *TeamUpdateOne {
+	tuo.mutation.AddPropertyIDs(ids...)
+	return tuo
+}
+
+// AddProperties adds the "properties" edges to the Property entity.
+func (tuo *TeamUpdateOne) AddProperties(p ...*Property) *TeamUpdateOne {
+	ids := make([]string, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tuo.AddPropertyIDs(ids...)
+}
+
 // Mutation returns the TeamMutation object of the builder.
 func (tuo *TeamUpdateOne) Mutation() *TeamMutation {
 	return tuo.mutation
-}
-
-// ClearUsers clears all "users" edges to the User entity.
-func (tuo *TeamUpdateOne) ClearUsers() *TeamUpdateOne {
-	tuo.mutation.ClearUsers()
-	return tuo
-}
-
-// RemoveUserIDs removes the "users" edge to User entities by IDs.
-func (tuo *TeamUpdateOne) RemoveUserIDs(ids ...string) *TeamUpdateOne {
-	tuo.mutation.RemoveUserIDs(ids...)
-	return tuo
-}
-
-// RemoveUsers removes "users" edges to User entities.
-func (tuo *TeamUpdateOne) RemoveUsers(u ...*User) *TeamUpdateOne {
-	ids := make([]string, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
-	}
-	return tuo.RemoveUserIDs(ids...)
 }
 
 // ClearHosts clears all "hosts" edges to the Host entity.
@@ -513,6 +680,69 @@ func (tuo *TeamUpdateOne) RemoveHosts(h ...*Host) *TeamUpdateOne {
 		ids[i] = h[i].ID
 	}
 	return tuo.RemoveHostIDs(ids...)
+}
+
+// ClearHostservices clears all "hostservices" edges to the HostService entity.
+func (tuo *TeamUpdateOne) ClearHostservices() *TeamUpdateOne {
+	tuo.mutation.ClearHostservices()
+	return tuo
+}
+
+// RemoveHostserviceIDs removes the "hostservices" edge to HostService entities by IDs.
+func (tuo *TeamUpdateOne) RemoveHostserviceIDs(ids ...string) *TeamUpdateOne {
+	tuo.mutation.RemoveHostserviceIDs(ids...)
+	return tuo
+}
+
+// RemoveHostservices removes "hostservices" edges to HostService entities.
+func (tuo *TeamUpdateOne) RemoveHostservices(h ...*HostService) *TeamUpdateOne {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return tuo.RemoveHostserviceIDs(ids...)
+}
+
+// ClearChecks clears all "checks" edges to the Check entity.
+func (tuo *TeamUpdateOne) ClearChecks() *TeamUpdateOne {
+	tuo.mutation.ClearChecks()
+	return tuo
+}
+
+// RemoveCheckIDs removes the "checks" edge to Check entities by IDs.
+func (tuo *TeamUpdateOne) RemoveCheckIDs(ids ...string) *TeamUpdateOne {
+	tuo.mutation.RemoveCheckIDs(ids...)
+	return tuo
+}
+
+// RemoveChecks removes "checks" edges to Check entities.
+func (tuo *TeamUpdateOne) RemoveChecks(c ...*Check) *TeamUpdateOne {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return tuo.RemoveCheckIDs(ids...)
+}
+
+// ClearProperties clears all "properties" edges to the Property entity.
+func (tuo *TeamUpdateOne) ClearProperties() *TeamUpdateOne {
+	tuo.mutation.ClearProperties()
+	return tuo
+}
+
+// RemovePropertyIDs removes the "properties" edge to Property entities by IDs.
+func (tuo *TeamUpdateOne) RemovePropertyIDs(ids ...string) *TeamUpdateOne {
+	tuo.mutation.RemovePropertyIDs(ids...)
+	return tuo
+}
+
+// RemoveProperties removes "properties" edges to Property entities.
+func (tuo *TeamUpdateOne) RemoveProperties(p ...*Property) *TeamUpdateOne {
+	ids := make([]string, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return tuo.RemovePropertyIDs(ids...)
 }
 
 // Where appends a list predicates to the TeamUpdate builder.
@@ -557,9 +787,19 @@ func (tuo *TeamUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (tuo *TeamUpdateOne) check() error {
-	if v, ok := tuo.mutation.Index(); ok {
-		if err := team.IndexValidator(v); err != nil {
-			return &ValidationError{Name: "index", err: fmt.Errorf(`entities: validator failed for field "Team.index": %w`, err)}
+	if v, ok := tuo.mutation.Name(); ok {
+		if err := team.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`entities: validator failed for field "Team.name": %w`, err)}
+		}
+	}
+	if v, ok := tuo.mutation.DisplayName(); ok {
+		if err := team.DisplayNameValidator(v); err != nil {
+			return &ValidationError{Name: "display_name", err: fmt.Errorf(`entities: validator failed for field "Team.display_name": %w`, err)}
+		}
+	}
+	if v, ok := tuo.mutation.Number(); ok {
+		if err := team.NumberValidator(v); err != nil {
+			return &ValidationError{Name: "number", err: fmt.Errorf(`entities: validator failed for field "Team.number": %w`, err)}
 		}
 	}
 	if _, ok := tuo.mutation.CompetitionID(); tuo.mutation.CompetitionCleared() && !ok {
@@ -597,6 +837,12 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 			}
 		}
 	}
+	if value, ok := tuo.mutation.Name(); ok {
+		_spec.SetField(team.FieldName, field.TypeString, value)
+	}
+	if value, ok := tuo.mutation.DisplayName(); ok {
+		_spec.SetField(team.FieldDisplayName, field.TypeString, value)
+	}
 	if value, ok := tuo.mutation.Pause(); ok {
 		_spec.SetField(team.FieldPause, field.TypeBool, value)
 	}
@@ -609,62 +855,11 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 	if tuo.mutation.HiddenCleared() {
 		_spec.ClearField(team.FieldHidden, field.TypeBool)
 	}
-	if value, ok := tuo.mutation.Name(); ok {
-		_spec.SetField(team.FieldName, field.TypeString, value)
+	if value, ok := tuo.mutation.Number(); ok {
+		_spec.SetField(team.FieldNumber, field.TypeInt, value)
 	}
-	if value, ok := tuo.mutation.Index(); ok {
-		_spec.SetField(team.FieldIndex, field.TypeInt, value)
-	}
-	if value, ok := tuo.mutation.AddedIndex(); ok {
-		_spec.AddField(team.FieldIndex, field.TypeInt, value)
-	}
-	if tuo.mutation.IndexCleared() {
-		_spec.ClearField(team.FieldIndex, field.TypeInt)
-	}
-	if tuo.mutation.UsersCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   team.UsersTable,
-			Columns: team.UsersPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := tuo.mutation.RemovedUsersIDs(); len(nodes) > 0 && !tuo.mutation.UsersCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   team.UsersTable,
-			Columns: team.UsersPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := tuo.mutation.UsersIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   team.UsersTable,
-			Columns: team.UsersPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	if value, ok := tuo.mutation.AddedNumber(); ok {
+		_spec.AddField(team.FieldNumber, field.TypeInt, value)
 	}
 	if tuo.mutation.HostsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -704,6 +899,141 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tuo.mutation.HostservicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.HostservicesTable,
+			Columns: []string{team.HostservicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.RemovedHostservicesIDs(); len(nodes) > 0 && !tuo.mutation.HostservicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.HostservicesTable,
+			Columns: []string{team.HostservicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.HostservicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.HostservicesTable,
+			Columns: []string{team.HostservicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tuo.mutation.ChecksCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.ChecksTable,
+			Columns: []string{team.ChecksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.RemovedChecksIDs(); len(nodes) > 0 && !tuo.mutation.ChecksCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.ChecksTable,
+			Columns: []string{team.ChecksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.ChecksIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.ChecksTable,
+			Columns: []string{team.ChecksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if tuo.mutation.PropertiesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.PropertiesTable,
+			Columns: []string{team.PropertiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.RemovedPropertiesIDs(); len(nodes) > 0 && !tuo.mutation.PropertiesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.PropertiesTable,
+			Columns: []string{team.PropertiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := tuo.mutation.PropertiesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   team.PropertiesTable,
+			Columns: []string{team.PropertiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

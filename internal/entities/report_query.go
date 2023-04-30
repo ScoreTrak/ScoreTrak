@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/report"
 )
@@ -17,10 +18,11 @@ import (
 // ReportQuery is the builder for querying Report entities.
 type ReportQuery struct {
 	config
-	ctx        *QueryContext
-	order      []report.Order
-	inters     []Interceptor
-	predicates []predicate.Report
+	ctx             *QueryContext
+	order           []report.Order
+	inters          []Interceptor
+	predicates      []predicate.Report
+	withCompetition *CompetitionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -55,6 +57,28 @@ func (rq *ReportQuery) Unique(unique bool) *ReportQuery {
 func (rq *ReportQuery) Order(o ...report.Order) *ReportQuery {
 	rq.order = append(rq.order, o...)
 	return rq
+}
+
+// QueryCompetition chains the current query on the "competition" edge.
+func (rq *ReportQuery) QueryCompetition() *CompetitionQuery {
+	query := (&CompetitionClient{config: rq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := rq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := rq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(report.Table, report.FieldID, selector),
+			sqlgraph.To(competition.Table, competition.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, report.CompetitionTable, report.CompetitionColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(rq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Report entity from the query.
@@ -244,15 +268,27 @@ func (rq *ReportQuery) Clone() *ReportQuery {
 		return nil
 	}
 	return &ReportQuery{
-		config:     rq.config,
-		ctx:        rq.ctx.Clone(),
-		order:      append([]report.Order{}, rq.order...),
-		inters:     append([]Interceptor{}, rq.inters...),
-		predicates: append([]predicate.Report{}, rq.predicates...),
+		config:          rq.config,
+		ctx:             rq.ctx.Clone(),
+		order:           append([]report.Order{}, rq.order...),
+		inters:          append([]Interceptor{}, rq.inters...),
+		predicates:      append([]predicate.Report{}, rq.predicates...),
+		withCompetition: rq.withCompetition.Clone(),
 		// clone intermediate query.
 		sql:  rq.sql.Clone(),
 		path: rq.path,
 	}
+}
+
+// WithCompetition tells the query-builder to eager-load the nodes that are connected to
+// the "competition" edge. The optional arguments are used to configure the query builder of the edge.
+func (rq *ReportQuery) WithCompetition(opts ...func(*CompetitionQuery)) *ReportQuery {
+	query := (&CompetitionClient{config: rq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	rq.withCompetition = query
+	return rq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -331,8 +367,11 @@ func (rq *ReportQuery) prepareQuery(ctx context.Context) error {
 
 func (rq *ReportQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Report, error) {
 	var (
-		nodes = []*Report{}
-		_spec = rq.querySpec()
+		nodes       = []*Report{}
+		_spec       = rq.querySpec()
+		loadedTypes = [1]bool{
+			rq.withCompetition != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Report).scanValues(nil, columns)
@@ -340,6 +379,7 @@ func (rq *ReportQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Repor
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Report{config: rq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -351,7 +391,43 @@ func (rq *ReportQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Repor
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := rq.withCompetition; query != nil {
+		if err := rq.loadCompetition(ctx, query, nodes, nil,
+			func(n *Report, e *Competition) { n.Edges.Competition = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (rq *ReportQuery) loadCompetition(ctx context.Context, query *CompetitionQuery, nodes []*Report, init func(*Report), assign func(*Report, *Competition)) error {
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Report)
+	for i := range nodes {
+		fk := nodes[i].CompetitionID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(competition.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "competition_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (rq *ReportQuery) sqlCount(ctx context.Context) (int, error) {
@@ -378,6 +454,9 @@ func (rq *ReportQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != report.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if rq.withCompetition != nil {
+			_spec.Node.AddColumnOnce(report.FieldCompetitionID)
 		}
 	}
 	if ps := rq.predicates; len(ps) > 0 {

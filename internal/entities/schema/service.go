@@ -14,31 +14,22 @@ type Service struct {
 // Fields of the Service.
 func (Service) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name"),
-		field.String("display_name"),
-		field.Int("weight"),
-		field.Int("point_boost"),
-		field.Int("round_units"),
-		field.Int("round_delay"),
+		field.String("competition_id").Immutable(),
 	}
 }
 
 // Edges of the Service.
 func (Service) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("hosts", Host.Type).Ref("services").Unique(),
-		edge.To("checks", Check.Type),
-		edge.To("properties", Property.Type),
+		edge.From("competition", Competition.Type).Ref("services").Field("competition_id").Unique().Required().Immutable(),
 	}
 }
 
-// Mixins of the Service.
 func (Service) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		BaseMixin{},
+		NameMixin{},
 		PauseMixin{},
 		HideMixin{},
-		CompetitonMixin{},
-		TeamMixin{},
 	}
 }

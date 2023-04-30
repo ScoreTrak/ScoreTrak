@@ -1,5 +1,11 @@
 package scheduler
 
+import "github.com/ScoreTrak/ScoreTrak/internal/entities"
+
+type Scheduler struct {
+	entitiesClient entities.Client
+}
+
 // import (
 // 	"context"
 // 	"database/sql"

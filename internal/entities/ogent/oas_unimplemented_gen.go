@@ -40,12 +40,12 @@ func (UnimplementedHandler) CreateHost(ctx context.Context, req *CreateHostReq) 
 	return r, ht.ErrNotImplemented
 }
 
-// CreateHostGroup implements createHostGroup operation.
+// CreateHostService implements createHostService operation.
 //
-// Creates a new HostGroup and persists it to storage.
+// Creates a new HostService and persists it to storage.
 //
-// POST /host-groups
-func (UnimplementedHandler) CreateHostGroup(ctx context.Context, req *CreateHostGroupReq) (r CreateHostGroupRes, _ error) {
+// POST /host-services
+func (UnimplementedHandler) CreateHostService(ctx context.Context, req *CreateHostServiceReq) (r CreateHostServiceRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -94,15 +94,6 @@ func (UnimplementedHandler) CreateTeam(ctx context.Context, req *CreateTeamReq) 
 	return r, ht.ErrNotImplemented
 }
 
-// CreateUser implements createUser operation.
-//
-// Creates a new User and persists it to storage.
-//
-// POST /users
-func (UnimplementedHandler) CreateUser(ctx context.Context, req *CreateUserReq) (r CreateUserRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // DeleteCheck implements deleteCheck operation.
 //
 // Deletes the Check with the requested ID.
@@ -130,12 +121,12 @@ func (UnimplementedHandler) DeleteHost(ctx context.Context, params DeleteHostPar
 	return r, ht.ErrNotImplemented
 }
 
-// DeleteHostGroup implements deleteHostGroup operation.
+// DeleteHostService implements deleteHostService operation.
 //
-// Deletes the HostGroup with the requested ID.
+// Deletes the HostService with the requested ID.
 //
-// DELETE /host-groups/{id}
-func (UnimplementedHandler) DeleteHostGroup(ctx context.Context, params DeleteHostGroupParams) (r DeleteHostGroupRes, _ error) {
+// DELETE /host-services/{id}
+func (UnimplementedHandler) DeleteHostService(ctx context.Context, params DeleteHostServiceParams) (r DeleteHostServiceRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -184,15 +175,6 @@ func (UnimplementedHandler) DeleteTeam(ctx context.Context, params DeleteTeamPar
 	return r, ht.ErrNotImplemented
 }
 
-// DeleteUser implements deleteUser operation.
-//
-// Deletes the User with the requested ID.
-//
-// DELETE /users/{id}
-func (UnimplementedHandler) DeleteUser(ctx context.Context, params DeleteUserParams) (r DeleteUserRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // ListCheck implements listCheck operation.
 //
 // List Checks.
@@ -211,21 +193,39 @@ func (UnimplementedHandler) ListCompetition(ctx context.Context, params ListComp
 	return r, ht.ErrNotImplemented
 }
 
+// ListCompetitionReports implements listCompetitionReports operation.
+//
+// List attached Reports.
+//
+// GET /competitions/{id}/reports
+func (UnimplementedHandler) ListCompetitionReports(ctx context.Context, params ListCompetitionReportsParams) (r ListCompetitionReportsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListCompetitionRounds implements listCompetitionRounds operation.
+//
+// List attached Rounds.
+//
+// GET /competitions/{id}/rounds
+func (UnimplementedHandler) ListCompetitionRounds(ctx context.Context, params ListCompetitionRoundsParams) (r ListCompetitionRoundsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListCompetitionServices implements listCompetitionServices operation.
+//
+// List attached Services.
+//
+// GET /competitions/{id}/services
+func (UnimplementedHandler) ListCompetitionServices(ctx context.Context, params ListCompetitionServicesParams) (r ListCompetitionServicesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ListCompetitionTeams implements listCompetitionTeams operation.
 //
 // List attached Teams.
 //
 // GET /competitions/{id}/teams
 func (UnimplementedHandler) ListCompetitionTeams(ctx context.Context, params ListCompetitionTeamsParams) (r ListCompetitionTeamsRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// ListCompetitionUsers implements listCompetitionUsers operation.
-//
-// List attached Users.
-//
-// GET /competitions/{id}/users
-func (UnimplementedHandler) ListCompetitionUsers(ctx context.Context, params ListCompetitionUsersParams) (r ListCompetitionUsersRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -238,30 +238,39 @@ func (UnimplementedHandler) ListHost(ctx context.Context, params ListHostParams)
 	return r, ht.ErrNotImplemented
 }
 
-// ListHostGroup implements listHostGroup operation.
+// ListHostHostservices implements listHostHostservices operation.
 //
-// List HostGroups.
+// List attached Hostservices.
 //
-// GET /host-groups
-func (UnimplementedHandler) ListHostGroup(ctx context.Context, params ListHostGroupParams) (r ListHostGroupRes, _ error) {
+// GET /hosts/{id}/hostservices
+func (UnimplementedHandler) ListHostHostservices(ctx context.Context, params ListHostHostservicesParams) (r ListHostHostservicesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
-// ListHostGroupHosts implements listHostGroupHosts operation.
+// ListHostService implements listHostService operation.
 //
-// List attached Hosts.
+// List HostServices.
 //
-// GET /host-groups/{id}/hosts
-func (UnimplementedHandler) ListHostGroupHosts(ctx context.Context, params ListHostGroupHostsParams) (r ListHostGroupHostsRes, _ error) {
+// GET /host-services
+func (UnimplementedHandler) ListHostService(ctx context.Context, params ListHostServiceParams) (r ListHostServiceRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
-// ListHostServices implements listHostServices operation.
+// ListHostServiceChecks implements listHostServiceChecks operation.
 //
-// List attached Services.
+// List attached Checks.
 //
-// GET /hosts/{id}/services
-func (UnimplementedHandler) ListHostServices(ctx context.Context, params ListHostServicesParams) (r ListHostServicesRes, _ error) {
+// GET /host-services/{id}/checks
+func (UnimplementedHandler) ListHostServiceChecks(ctx context.Context, params ListHostServiceChecksParams) (r ListHostServiceChecksRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListHostServiceProperties implements listHostServiceProperties operation.
+//
+// List attached Properties.
+//
+// GET /host-services/{id}/properties
+func (UnimplementedHandler) ListHostServiceProperties(ctx context.Context, params ListHostServicePropertiesParams) (r ListHostServicePropertiesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -310,30 +319,21 @@ func (UnimplementedHandler) ListService(ctx context.Context, params ListServiceP
 	return r, ht.ErrNotImplemented
 }
 
-// ListServiceChecks implements listServiceChecks operation.
-//
-// List attached Checks.
-//
-// GET /services/{id}/checks
-func (UnimplementedHandler) ListServiceChecks(ctx context.Context, params ListServiceChecksParams) (r ListServiceChecksRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// ListServiceProperties implements listServiceProperties operation.
-//
-// List attached Properties.
-//
-// GET /services/{id}/properties
-func (UnimplementedHandler) ListServiceProperties(ctx context.Context, params ListServicePropertiesParams) (r ListServicePropertiesRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // ListTeam implements listTeam operation.
 //
 // List Teams.
 //
 // GET /teams
 func (UnimplementedHandler) ListTeam(ctx context.Context, params ListTeamParams) (r ListTeamRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListTeamChecks implements listTeamChecks operation.
+//
+// List attached Checks.
+//
+// GET /teams/{id}/checks
+func (UnimplementedHandler) ListTeamChecks(ctx context.Context, params ListTeamChecksParams) (r ListTeamChecksRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -346,39 +346,21 @@ func (UnimplementedHandler) ListTeamHosts(ctx context.Context, params ListTeamHo
 	return r, ht.ErrNotImplemented
 }
 
-// ListTeamUsers implements listTeamUsers operation.
+// ListTeamHostservices implements listTeamHostservices operation.
 //
-// List attached Users.
+// List attached Hostservices.
 //
-// GET /teams/{id}/users
-func (UnimplementedHandler) ListTeamUsers(ctx context.Context, params ListTeamUsersParams) (r ListTeamUsersRes, _ error) {
+// GET /teams/{id}/hostservices
+func (UnimplementedHandler) ListTeamHostservices(ctx context.Context, params ListTeamHostservicesParams) (r ListTeamHostservicesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
-// ListUser implements listUser operation.
+// ListTeamProperties implements listTeamProperties operation.
 //
-// List Users.
+// List attached Properties.
 //
-// GET /users
-func (UnimplementedHandler) ListUser(ctx context.Context, params ListUserParams) (r ListUserRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// ListUserCompetitions implements listUserCompetitions operation.
-//
-// List attached Competitions.
-//
-// GET /users/{id}/competitions
-func (UnimplementedHandler) ListUserCompetitions(ctx context.Context, params ListUserCompetitionsParams) (r ListUserCompetitionsRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// ListUserTeams implements listUserTeams operation.
-//
-// List attached Teams.
-//
-// GET /users/{id}/teams
-func (UnimplementedHandler) ListUserTeams(ctx context.Context, params ListUserTeamsParams) (r ListUserTeamsRes, _ error) {
+// GET /teams/{id}/properties
+func (UnimplementedHandler) ListTeamProperties(ctx context.Context, params ListTeamPropertiesParams) (r ListTeamPropertiesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -391,12 +373,12 @@ func (UnimplementedHandler) ReadCheck(ctx context.Context, params ReadCheckParam
 	return r, ht.ErrNotImplemented
 }
 
-// ReadCheckCompetition implements readCheckCompetition operation.
+// ReadCheckHostservice implements readCheckHostservice operation.
 //
-// Find the attached Competition of the Check with the given ID.
+// Find the attached HostService of the Check with the given ID.
 //
-// GET /checks/{id}/competition
-func (UnimplementedHandler) ReadCheckCompetition(ctx context.Context, params ReadCheckCompetitionParams) (r ReadCheckCompetitionRes, _ error) {
+// GET /checks/{id}/hostservice
+func (UnimplementedHandler) ReadCheckHostservice(ctx context.Context, params ReadCheckHostserviceParams) (r ReadCheckHostserviceRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -409,12 +391,12 @@ func (UnimplementedHandler) ReadCheckRounds(ctx context.Context, params ReadChec
 	return r, ht.ErrNotImplemented
 }
 
-// ReadCheckServices implements readCheckServices operation.
+// ReadCheckTeam implements readCheckTeam operation.
 //
-// Find the attached Service of the Check with the given ID.
+// Find the attached Team of the Check with the given ID.
 //
-// GET /checks/{id}/services
-func (UnimplementedHandler) ReadCheckServices(ctx context.Context, params ReadCheckServicesParams) (r ReadCheckServicesRes, _ error) {
+// GET /checks/{id}/team
+func (UnimplementedHandler) ReadCheckTeam(ctx context.Context, params ReadCheckTeamParams) (r ReadCheckTeamRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -436,48 +418,30 @@ func (UnimplementedHandler) ReadHost(ctx context.Context, params ReadHostParams)
 	return r, ht.ErrNotImplemented
 }
 
-// ReadHostCompetition implements readHostCompetition operation.
+// ReadHostService implements readHostService operation.
 //
-// Find the attached Competition of the Host with the given ID.
+// Finds the HostService with the requested ID and returns it.
 //
-// GET /hosts/{id}/competition
-func (UnimplementedHandler) ReadHostCompetition(ctx context.Context, params ReadHostCompetitionParams) (r ReadHostCompetitionRes, _ error) {
+// GET /host-services/{id}
+func (UnimplementedHandler) ReadHostService(ctx context.Context, params ReadHostServiceParams) (r ReadHostServiceRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
-// ReadHostGroup implements readHostGroup operation.
+// ReadHostServiceHost implements readHostServiceHost operation.
 //
-// Finds the HostGroup with the requested ID and returns it.
+// Find the attached Host of the HostService with the given ID.
 //
-// GET /host-groups/{id}
-func (UnimplementedHandler) ReadHostGroup(ctx context.Context, params ReadHostGroupParams) (r ReadHostGroupRes, _ error) {
+// GET /host-services/{id}/host
+func (UnimplementedHandler) ReadHostServiceHost(ctx context.Context, params ReadHostServiceHostParams) (r ReadHostServiceHostRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
-// ReadHostGroupCompetition implements readHostGroupCompetition operation.
+// ReadHostServiceTeam implements readHostServiceTeam operation.
 //
-// Find the attached Competition of the HostGroup with the given ID.
+// Find the attached Team of the HostService with the given ID.
 //
-// GET /host-groups/{id}/competition
-func (UnimplementedHandler) ReadHostGroupCompetition(ctx context.Context, params ReadHostGroupCompetitionParams) (r ReadHostGroupCompetitionRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// ReadHostGroupTeam implements readHostGroupTeam operation.
-//
-// Find the attached Team of the HostGroup with the given ID.
-//
-// GET /host-groups/{id}/team
-func (UnimplementedHandler) ReadHostGroupTeam(ctx context.Context, params ReadHostGroupTeamParams) (r ReadHostGroupTeamRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// ReadHostHostGroup implements readHostHostGroup operation.
-//
-// Find the attached HostGroup of the Host with the given ID.
-//
-// GET /hosts/{id}/host-group
-func (UnimplementedHandler) ReadHostHostGroup(ctx context.Context, params ReadHostHostGroupParams) (r ReadHostHostGroupRes, _ error) {
+// GET /host-services/{id}/team
+func (UnimplementedHandler) ReadHostServiceTeam(ctx context.Context, params ReadHostServiceTeamParams) (r ReadHostServiceTeamRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -499,21 +463,12 @@ func (UnimplementedHandler) ReadProperty(ctx context.Context, params ReadPropert
 	return r, ht.ErrNotImplemented
 }
 
-// ReadPropertyCompetition implements readPropertyCompetition operation.
+// ReadPropertyHostservice implements readPropertyHostservice operation.
 //
-// Find the attached Competition of the Property with the given ID.
+// Find the attached HostService of the Property with the given ID.
 //
-// GET /properties/{id}/competition
-func (UnimplementedHandler) ReadPropertyCompetition(ctx context.Context, params ReadPropertyCompetitionParams) (r ReadPropertyCompetitionRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// ReadPropertyServices implements readPropertyServices operation.
-//
-// Find the attached Service of the Property with the given ID.
-//
-// GET /properties/{id}/services
-func (UnimplementedHandler) ReadPropertyServices(ctx context.Context, params ReadPropertyServicesParams) (r ReadPropertyServicesRes, _ error) {
+// GET /properties/{id}/hostservice
+func (UnimplementedHandler) ReadPropertyHostservice(ctx context.Context, params ReadPropertyHostserviceParams) (r ReadPropertyHostserviceRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -532,6 +487,15 @@ func (UnimplementedHandler) ReadPropertyTeam(ctx context.Context, params ReadPro
 //
 // GET /reports/{id}
 func (UnimplementedHandler) ReadReport(ctx context.Context, params ReadReportParams) (r ReadReportRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ReadReportCompetition implements readReportCompetition operation.
+//
+// Find the attached Competition of the Report with the given ID.
+//
+// GET /reports/{id}/competition
+func (UnimplementedHandler) ReadReportCompetition(ctx context.Context, params ReadReportCompetitionParams) (r ReadReportCompetitionRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -571,24 +535,6 @@ func (UnimplementedHandler) ReadServiceCompetition(ctx context.Context, params R
 	return r, ht.ErrNotImplemented
 }
 
-// ReadServiceHosts implements readServiceHosts operation.
-//
-// Find the attached Host of the Service with the given ID.
-//
-// GET /services/{id}/hosts
-func (UnimplementedHandler) ReadServiceHosts(ctx context.Context, params ReadServiceHostsParams) (r ReadServiceHostsRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// ReadServiceTeam implements readServiceTeam operation.
-//
-// Find the attached Team of the Service with the given ID.
-//
-// GET /services/{id}/team
-func (UnimplementedHandler) ReadServiceTeam(ctx context.Context, params ReadServiceTeamParams) (r ReadServiceTeamRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // ReadTeam implements readTeam operation.
 //
 // Finds the Team with the requested ID and returns it.
@@ -604,15 +550,6 @@ func (UnimplementedHandler) ReadTeam(ctx context.Context, params ReadTeamParams)
 //
 // GET /teams/{id}/competition
 func (UnimplementedHandler) ReadTeamCompetition(ctx context.Context, params ReadTeamCompetitionParams) (r ReadTeamCompetitionRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// ReadUser implements readUser operation.
-//
-// Finds the User with the requested ID and returns it.
-//
-// GET /users/{id}
-func (UnimplementedHandler) ReadUser(ctx context.Context, params ReadUserParams) (r ReadUserRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -643,12 +580,12 @@ func (UnimplementedHandler) UpdateHost(ctx context.Context, req *UpdateHostReq, 
 	return r, ht.ErrNotImplemented
 }
 
-// UpdateHostGroup implements updateHostGroup operation.
+// UpdateHostService implements updateHostService operation.
 //
-// Updates a HostGroup and persists changes to storage.
+// Updates a HostService and persists changes to storage.
 //
-// PATCH /host-groups/{id}
-func (UnimplementedHandler) UpdateHostGroup(ctx context.Context, req *UpdateHostGroupReq, params UpdateHostGroupParams) (r UpdateHostGroupRes, _ error) {
+// PATCH /host-services/{id}
+func (UnimplementedHandler) UpdateHostService(ctx context.Context, req *UpdateHostServiceReq, params UpdateHostServiceParams) (r UpdateHostServiceRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -694,14 +631,5 @@ func (UnimplementedHandler) UpdateService(ctx context.Context, req *UpdateServic
 //
 // PATCH /teams/{id}
 func (UnimplementedHandler) UpdateTeam(ctx context.Context, req *UpdateTeamReq, params UpdateTeamParams) (r UpdateTeamRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// UpdateUser implements updateUser operation.
-//
-// Updates a User and persists changes to storage.
-//
-// PATCH /users/{id}
-func (UnimplementedHandler) UpdateUser(ctx context.Context, req *UpdateUserReq, params UpdateUserParams) (r UpdateUserRes, _ error) {
 	return r, ht.ErrNotImplemented
 }

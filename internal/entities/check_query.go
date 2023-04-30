@@ -11,10 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/check"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/round"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
 )
 
 // CheckQuery is the builder for querying Check entities.
@@ -24,9 +24,9 @@ type CheckQuery struct {
 	order           []check.Order
 	inters          []Interceptor
 	predicates      []predicate.Check
-	withCompetition *CompetitionQuery
 	withRounds      *RoundQuery
-	withServices    *ServiceQuery
+	withHostservice *HostServiceQuery
+	withTeam        *TeamQuery
 	withFKs         bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -64,28 +64,6 @@ func (cq *CheckQuery) Order(o ...check.Order) *CheckQuery {
 	return cq
 }
 
-// QueryCompetition chains the current query on the "competition" edge.
-func (cq *CheckQuery) QueryCompetition() *CompetitionQuery {
-	query := (&CompetitionClient{config: cq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := cq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := cq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(check.Table, check.FieldID, selector),
-			sqlgraph.To(competition.Table, competition.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, check.CompetitionTable, check.CompetitionColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
 // QueryRounds chains the current query on the "rounds" edge.
 func (cq *CheckQuery) QueryRounds() *RoundQuery {
 	query := (&RoundClient{config: cq.config}).Query()
@@ -100,7 +78,7 @@ func (cq *CheckQuery) QueryRounds() *RoundQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(check.Table, check.FieldID, selector),
 			sqlgraph.To(round.Table, round.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, check.RoundsTable, check.RoundsColumn),
+			sqlgraph.Edge(sqlgraph.M2O, false, check.RoundsTable, check.RoundsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
 		return fromU, nil
@@ -108,9 +86,9 @@ func (cq *CheckQuery) QueryRounds() *RoundQuery {
 	return query
 }
 
-// QueryServices chains the current query on the "services" edge.
-func (cq *CheckQuery) QueryServices() *ServiceQuery {
-	query := (&ServiceClient{config: cq.config}).Query()
+// QueryHostservice chains the current query on the "hostservice" edge.
+func (cq *CheckQuery) QueryHostservice() *HostServiceQuery {
+	query := (&HostServiceClient{config: cq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := cq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -121,8 +99,30 @@ func (cq *CheckQuery) QueryServices() *ServiceQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(check.Table, check.FieldID, selector),
-			sqlgraph.To(service.Table, service.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, check.ServicesTable, check.ServicesColumn),
+			sqlgraph.To(hostservice.Table, hostservice.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, check.HostserviceTable, check.HostserviceColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryTeam chains the current query on the "team" edge.
+func (cq *CheckQuery) QueryTeam() *TeamQuery {
+	query := (&TeamClient{config: cq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(check.Table, check.FieldID, selector),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, check.TeamTable, check.TeamColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
 		return fromU, nil
@@ -322,24 +322,13 @@ func (cq *CheckQuery) Clone() *CheckQuery {
 		order:           append([]check.Order{}, cq.order...),
 		inters:          append([]Interceptor{}, cq.inters...),
 		predicates:      append([]predicate.Check{}, cq.predicates...),
-		withCompetition: cq.withCompetition.Clone(),
 		withRounds:      cq.withRounds.Clone(),
-		withServices:    cq.withServices.Clone(),
+		withHostservice: cq.withHostservice.Clone(),
+		withTeam:        cq.withTeam.Clone(),
 		// clone intermediate query.
 		sql:  cq.sql.Clone(),
 		path: cq.path,
 	}
-}
-
-// WithCompetition tells the query-builder to eager-load the nodes that are connected to
-// the "competition" edge. The optional arguments are used to configure the query builder of the edge.
-func (cq *CheckQuery) WithCompetition(opts ...func(*CompetitionQuery)) *CheckQuery {
-	query := (&CompetitionClient{config: cq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	cq.withCompetition = query
-	return cq
 }
 
 // WithRounds tells the query-builder to eager-load the nodes that are connected to
@@ -353,14 +342,25 @@ func (cq *CheckQuery) WithRounds(opts ...func(*RoundQuery)) *CheckQuery {
 	return cq
 }
 
-// WithServices tells the query-builder to eager-load the nodes that are connected to
-// the "services" edge. The optional arguments are used to configure the query builder of the edge.
-func (cq *CheckQuery) WithServices(opts ...func(*ServiceQuery)) *CheckQuery {
-	query := (&ServiceClient{config: cq.config}).Query()
+// WithHostservice tells the query-builder to eager-load the nodes that are connected to
+// the "hostservice" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *CheckQuery) WithHostservice(opts ...func(*HostServiceQuery)) *CheckQuery {
+	query := (&HostServiceClient{config: cq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	cq.withServices = query
+	cq.withHostservice = query
+	return cq
+}
+
+// WithTeam tells the query-builder to eager-load the nodes that are connected to
+// the "team" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *CheckQuery) WithTeam(opts ...func(*TeamQuery)) *CheckQuery {
+	query := (&TeamClient{config: cq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withTeam = query
 	return cq
 }
 
@@ -444,14 +444,11 @@ func (cq *CheckQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Check,
 		withFKs     = cq.withFKs
 		_spec       = cq.querySpec()
 		loadedTypes = [3]bool{
-			cq.withCompetition != nil,
 			cq.withRounds != nil,
-			cq.withServices != nil,
+			cq.withHostservice != nil,
+			cq.withTeam != nil,
 		}
 	)
-	if cq.withRounds != nil || cq.withServices != nil {
-		withFKs = true
-	}
 	if withFKs {
 		_spec.Node.Columns = append(_spec.Node.Columns, check.ForeignKeys...)
 	}
@@ -473,64 +470,32 @@ func (cq *CheckQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Check,
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := cq.withCompetition; query != nil {
-		if err := cq.loadCompetition(ctx, query, nodes, nil,
-			func(n *Check, e *Competition) { n.Edges.Competition = e }); err != nil {
-			return nil, err
-		}
-	}
 	if query := cq.withRounds; query != nil {
 		if err := cq.loadRounds(ctx, query, nodes, nil,
 			func(n *Check, e *Round) { n.Edges.Rounds = e }); err != nil {
 			return nil, err
 		}
 	}
-	if query := cq.withServices; query != nil {
-		if err := cq.loadServices(ctx, query, nodes, nil,
-			func(n *Check, e *Service) { n.Edges.Services = e }); err != nil {
+	if query := cq.withHostservice; query != nil {
+		if err := cq.loadHostservice(ctx, query, nodes, nil,
+			func(n *Check, e *HostService) { n.Edges.Hostservice = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := cq.withTeam; query != nil {
+		if err := cq.loadTeam(ctx, query, nodes, nil,
+			func(n *Check, e *Team) { n.Edges.Team = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (cq *CheckQuery) loadCompetition(ctx context.Context, query *CompetitionQuery, nodes []*Check, init func(*Check), assign func(*Check, *Competition)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*Check)
-	for i := range nodes {
-		fk := nodes[i].CompetitionID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(competition.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "competition_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 func (cq *CheckQuery) loadRounds(ctx context.Context, query *RoundQuery, nodes []*Check, init func(*Check), assign func(*Check, *Round)) error {
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*Check)
 	for i := range nodes {
-		if nodes[i].round_checks == nil {
-			continue
-		}
-		fk := *nodes[i].round_checks
+		fk := nodes[i].RoundID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -547,7 +512,7 @@ func (cq *CheckQuery) loadRounds(ctx context.Context, query *RoundQuery, nodes [
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "round_checks" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "round_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -555,14 +520,11 @@ func (cq *CheckQuery) loadRounds(ctx context.Context, query *RoundQuery, nodes [
 	}
 	return nil
 }
-func (cq *CheckQuery) loadServices(ctx context.Context, query *ServiceQuery, nodes []*Check, init func(*Check), assign func(*Check, *Service)) error {
+func (cq *CheckQuery) loadHostservice(ctx context.Context, query *HostServiceQuery, nodes []*Check, init func(*Check), assign func(*Check, *HostService)) error {
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*Check)
 	for i := range nodes {
-		if nodes[i].service_checks == nil {
-			continue
-		}
-		fk := *nodes[i].service_checks
+		fk := nodes[i].HostServiceID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -571,7 +533,7 @@ func (cq *CheckQuery) loadServices(ctx context.Context, query *ServiceQuery, nod
 	if len(ids) == 0 {
 		return nil
 	}
-	query.Where(service.IDIn(ids...))
+	query.Where(hostservice.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
@@ -579,7 +541,36 @@ func (cq *CheckQuery) loadServices(ctx context.Context, query *ServiceQuery, nod
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "service_checks" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "host_service_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (cq *CheckQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*Check, init func(*Check), assign func(*Check, *Team)) error {
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Check)
+	for i := range nodes {
+		fk := nodes[i].TeamID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(team.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "team_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -613,8 +604,14 @@ func (cq *CheckQuery) querySpec() *sqlgraph.QuerySpec {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
-		if cq.withCompetition != nil {
-			_spec.Node.AddColumnOnce(check.FieldCompetitionID)
+		if cq.withRounds != nil {
+			_spec.Node.AddColumnOnce(check.FieldRoundID)
+		}
+		if cq.withHostservice != nil {
+			_spec.Node.AddColumnOnce(check.FieldHostServiceID)
+		}
+		if cq.withTeam != nil {
+			_spec.Node.AddColumnOnce(check.FieldTeamID)
 		}
 	}
 	if ps := cq.predicates; len(ps) > 0 {

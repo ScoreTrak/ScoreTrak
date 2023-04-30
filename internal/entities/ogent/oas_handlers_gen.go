@@ -323,20 +323,20 @@ func (s *Server) handleCreateHostRequest(args [0]string, w http.ResponseWriter, 
 	}
 }
 
-// handleCreateHostGroupRequest handles createHostGroup operation.
+// handleCreateHostServiceRequest handles createHostService operation.
 //
-// Creates a new HostGroup and persists it to storage.
+// Creates a new HostService and persists it to storage.
 //
-// POST /host-groups
-func (s *Server) handleCreateHostGroupRequest(args [0]string, w http.ResponseWriter, r *http.Request) {
+// POST /host-services
+func (s *Server) handleCreateHostServiceRequest(args [0]string, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("createHostGroup"),
+		otelogen.OperationID("createHostService"),
 		semconv.HTTPMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/host-groups"),
+		semconv.HTTPRouteKey.String("/host-services"),
 	}
 
 	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "CreateHostGroup",
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "CreateHostService",
 		trace.WithAttributes(otelAttrs...),
 		serverSpanKind,
 	)
@@ -360,11 +360,11 @@ func (s *Server) handleCreateHostGroupRequest(args [0]string, w http.ResponseWri
 		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: "CreateHostGroup",
-			ID:   "createHostGroup",
+			Name: "CreateHostService",
+			ID:   "createHostService",
 		}
 	)
-	request, close, err := s.decodeCreateHostGroupRequest(r)
+	request, close, err := s.decodeCreateHostServiceRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
 			OperationContext: opErrContext,
@@ -380,21 +380,21 @@ func (s *Server) handleCreateHostGroupRequest(args [0]string, w http.ResponseWri
 		}
 	}()
 
-	var response CreateHostGroupRes
+	var response CreateHostServiceRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
-			OperationName: "CreateHostGroup",
-			OperationID:   "createHostGroup",
+			OperationName: "CreateHostService",
+			OperationID:   "createHostService",
 			Body:          request,
 			Params:        middleware.Parameters{},
 			Raw:           r,
 		}
 
 		type (
-			Request  = *CreateHostGroupReq
+			Request  = *CreateHostServiceReq
 			Params   = struct{}
-			Response = CreateHostGroupRes
+			Response = CreateHostServiceRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -405,12 +405,12 @@ func (s *Server) handleCreateHostGroupRequest(args [0]string, w http.ResponseWri
 			mreq,
 			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.CreateHostGroup(ctx, request)
+				response, err = s.h.CreateHostService(ctx, request)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.CreateHostGroup(ctx, request)
+		response, err = s.h.CreateHostService(ctx, request)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -418,7 +418,7 @@ func (s *Server) handleCreateHostGroupRequest(args [0]string, w http.ResponseWri
 		return
 	}
 
-	if err := encodeCreateHostGroupResponse(response, w, span); err != nil {
+	if err := encodeCreateHostServiceResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
@@ -935,108 +935,6 @@ func (s *Server) handleCreateTeamRequest(args [0]string, w http.ResponseWriter, 
 	}
 }
 
-// handleCreateUserRequest handles createUser operation.
-//
-// Creates a new User and persists it to storage.
-//
-// POST /users
-func (s *Server) handleCreateUserRequest(args [0]string, w http.ResponseWriter, r *http.Request) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("createUser"),
-		semconv.HTTPMethodKey.String("POST"),
-		semconv.HTTPRouteKey.String("/users"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "CreateUser",
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
-	}()
-
-	// Increment request counter.
-	s.requests.Add(ctx, 1, otelAttrs...)
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			s.errors.Add(ctx, 1, otelAttrs...)
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: "CreateUser",
-			ID:   "createUser",
-		}
-	)
-	request, close, err := s.decodeCreateUserRequest(r)
-	if err != nil {
-		err = &ogenerrors.DecodeRequestError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeRequest", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-	defer func() {
-		if err := close(); err != nil {
-			recordError("CloseRequest", err)
-		}
-	}()
-
-	var response CreateUserRes
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "CreateUser",
-			OperationID:   "createUser",
-			Body:          request,
-			Params:        middleware.Parameters{},
-			Raw:           r,
-		}
-
-		type (
-			Request  = *CreateUserReq
-			Params   = struct{}
-			Response = CreateUserRes
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			nil,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.CreateUser(ctx, request)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.CreateUser(ctx, request)
-	}
-	if err != nil {
-		recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeCreateUserResponse(response, w, span); err != nil {
-		recordError("EncodeResponse", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-}
-
 // handleDeleteCheckRequest handles deleteCheck operation.
 //
 // Deletes the Check with the requested ID.
@@ -1343,20 +1241,20 @@ func (s *Server) handleDeleteHostRequest(args [1]string, w http.ResponseWriter, 
 	}
 }
 
-// handleDeleteHostGroupRequest handles deleteHostGroup operation.
+// handleDeleteHostServiceRequest handles deleteHostService operation.
 //
-// Deletes the HostGroup with the requested ID.
+// Deletes the HostService with the requested ID.
 //
-// DELETE /host-groups/{id}
-func (s *Server) handleDeleteHostGroupRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+// DELETE /host-services/{id}
+func (s *Server) handleDeleteHostServiceRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("deleteHostGroup"),
+		otelogen.OperationID("deleteHostService"),
 		semconv.HTTPMethodKey.String("DELETE"),
-		semconv.HTTPRouteKey.String("/host-groups/{id}"),
+		semconv.HTTPRouteKey.String("/host-services/{id}"),
 	}
 
 	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "DeleteHostGroup",
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "DeleteHostService",
 		trace.WithAttributes(otelAttrs...),
 		serverSpanKind,
 	)
@@ -1380,11 +1278,11 @@ func (s *Server) handleDeleteHostGroupRequest(args [1]string, w http.ResponseWri
 		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: "DeleteHostGroup",
-			ID:   "deleteHostGroup",
+			Name: "DeleteHostService",
+			ID:   "deleteHostService",
 		}
 	)
-	params, err := decodeDeleteHostGroupParams(args, r)
+	params, err := decodeDeleteHostServiceParams(args, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -1395,12 +1293,12 @@ func (s *Server) handleDeleteHostGroupRequest(args [1]string, w http.ResponseWri
 		return
 	}
 
-	var response DeleteHostGroupRes
+	var response DeleteHostServiceRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
-			OperationName: "DeleteHostGroup",
-			OperationID:   "deleteHostGroup",
+			OperationName: "DeleteHostService",
+			OperationID:   "deleteHostService",
 			Body:          nil,
 			Params: middleware.Parameters{
 				{
@@ -1413,8 +1311,8 @@ func (s *Server) handleDeleteHostGroupRequest(args [1]string, w http.ResponseWri
 
 		type (
 			Request  = struct{}
-			Params   = DeleteHostGroupParams
-			Response = DeleteHostGroupRes
+			Params   = DeleteHostServiceParams
+			Response = DeleteHostServiceRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1423,14 +1321,14 @@ func (s *Server) handleDeleteHostGroupRequest(args [1]string, w http.ResponseWri
 		](
 			m,
 			mreq,
-			unpackDeleteHostGroupParams,
+			unpackDeleteHostServiceParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.DeleteHostGroup(ctx, params)
+				response, err = s.h.DeleteHostService(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.DeleteHostGroup(ctx, params)
+		response, err = s.h.DeleteHostService(ctx, params)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -1438,7 +1336,7 @@ func (s *Server) handleDeleteHostGroupRequest(args [1]string, w http.ResponseWri
 		return
 	}
 
-	if err := encodeDeleteHostGroupResponse(response, w, span); err != nil {
+	if err := encodeDeleteHostServiceResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
@@ -1955,108 +1853,6 @@ func (s *Server) handleDeleteTeamRequest(args [1]string, w http.ResponseWriter, 
 	}
 }
 
-// handleDeleteUserRequest handles deleteUser operation.
-//
-// Deletes the User with the requested ID.
-//
-// DELETE /users/{id}
-func (s *Server) handleDeleteUserRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("deleteUser"),
-		semconv.HTTPMethodKey.String("DELETE"),
-		semconv.HTTPRouteKey.String("/users/{id}"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "DeleteUser",
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
-	}()
-
-	// Increment request counter.
-	s.requests.Add(ctx, 1, otelAttrs...)
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			s.errors.Add(ctx, 1, otelAttrs...)
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: "DeleteUser",
-			ID:   "deleteUser",
-		}
-	)
-	params, err := decodeDeleteUserParams(args, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	var response DeleteUserRes
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "DeleteUser",
-			OperationID:   "deleteUser",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = struct{}
-			Params   = DeleteUserParams
-			Response = DeleteUserRes
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackDeleteUserParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.DeleteUser(ctx, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.DeleteUser(ctx, params)
-	}
-	if err != nil {
-		recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeDeleteUserResponse(response, w, span); err != nil {
-		recordError("EncodeResponse", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-}
-
 // handleListCheckRequest handles listCheck operation.
 //
 // List Checks.
@@ -2269,6 +2065,336 @@ func (s *Server) handleListCompetitionRequest(args [0]string, w http.ResponseWri
 	}
 }
 
+// handleListCompetitionReportsRequest handles listCompetitionReports operation.
+//
+// List attached Reports.
+//
+// GET /competitions/{id}/reports
+func (s *Server) handleListCompetitionReportsRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("listCompetitionReports"),
+		semconv.HTTPMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/competitions/{id}/reports"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListCompetitionReports",
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
+	}()
+
+	// Increment request counter.
+	s.requests.Add(ctx, 1, otelAttrs...)
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			s.errors.Add(ctx, 1, otelAttrs...)
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: "ListCompetitionReports",
+			ID:   "listCompetitionReports",
+		}
+	)
+	params, err := decodeListCompetitionReportsParams(args, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	var response ListCompetitionReportsRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:       ctx,
+			OperationName: "ListCompetitionReports",
+			OperationID:   "listCompetitionReports",
+			Body:          nil,
+			Params: middleware.Parameters{
+				{
+					Name: "id",
+					In:   "path",
+				}: params.ID,
+				{
+					Name: "page",
+					In:   "query",
+				}: params.Page,
+				{
+					Name: "itemsPerPage",
+					In:   "query",
+				}: params.ItemsPerPage,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = ListCompetitionReportsParams
+			Response = ListCompetitionReportsRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackListCompetitionReportsParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.ListCompetitionReports(ctx, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.ListCompetitionReports(ctx, params)
+	}
+	if err != nil {
+		recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeListCompetitionReportsResponse(response, w, span); err != nil {
+		recordError("EncodeResponse", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+}
+
+// handleListCompetitionRoundsRequest handles listCompetitionRounds operation.
+//
+// List attached Rounds.
+//
+// GET /competitions/{id}/rounds
+func (s *Server) handleListCompetitionRoundsRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("listCompetitionRounds"),
+		semconv.HTTPMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/competitions/{id}/rounds"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListCompetitionRounds",
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
+	}()
+
+	// Increment request counter.
+	s.requests.Add(ctx, 1, otelAttrs...)
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			s.errors.Add(ctx, 1, otelAttrs...)
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: "ListCompetitionRounds",
+			ID:   "listCompetitionRounds",
+		}
+	)
+	params, err := decodeListCompetitionRoundsParams(args, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	var response ListCompetitionRoundsRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:       ctx,
+			OperationName: "ListCompetitionRounds",
+			OperationID:   "listCompetitionRounds",
+			Body:          nil,
+			Params: middleware.Parameters{
+				{
+					Name: "id",
+					In:   "path",
+				}: params.ID,
+				{
+					Name: "page",
+					In:   "query",
+				}: params.Page,
+				{
+					Name: "itemsPerPage",
+					In:   "query",
+				}: params.ItemsPerPage,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = ListCompetitionRoundsParams
+			Response = ListCompetitionRoundsRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackListCompetitionRoundsParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.ListCompetitionRounds(ctx, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.ListCompetitionRounds(ctx, params)
+	}
+	if err != nil {
+		recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeListCompetitionRoundsResponse(response, w, span); err != nil {
+		recordError("EncodeResponse", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+}
+
+// handleListCompetitionServicesRequest handles listCompetitionServices operation.
+//
+// List attached Services.
+//
+// GET /competitions/{id}/services
+func (s *Server) handleListCompetitionServicesRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("listCompetitionServices"),
+		semconv.HTTPMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/competitions/{id}/services"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListCompetitionServices",
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
+	}()
+
+	// Increment request counter.
+	s.requests.Add(ctx, 1, otelAttrs...)
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			s.errors.Add(ctx, 1, otelAttrs...)
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: "ListCompetitionServices",
+			ID:   "listCompetitionServices",
+		}
+	)
+	params, err := decodeListCompetitionServicesParams(args, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	var response ListCompetitionServicesRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:       ctx,
+			OperationName: "ListCompetitionServices",
+			OperationID:   "listCompetitionServices",
+			Body:          nil,
+			Params: middleware.Parameters{
+				{
+					Name: "id",
+					In:   "path",
+				}: params.ID,
+				{
+					Name: "page",
+					In:   "query",
+				}: params.Page,
+				{
+					Name: "itemsPerPage",
+					In:   "query",
+				}: params.ItemsPerPage,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = ListCompetitionServicesParams
+			Response = ListCompetitionServicesRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackListCompetitionServicesParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.ListCompetitionServices(ctx, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.ListCompetitionServices(ctx, params)
+	}
+	if err != nil {
+		recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeListCompetitionServicesResponse(response, w, span); err != nil {
+		recordError("EncodeResponse", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+}
+
 // handleListCompetitionTeamsRequest handles listCompetitionTeams operation.
 //
 // List attached Teams.
@@ -2373,116 +2499,6 @@ func (s *Server) handleListCompetitionTeamsRequest(args [1]string, w http.Respon
 	}
 
 	if err := encodeListCompetitionTeamsResponse(response, w, span); err != nil {
-		recordError("EncodeResponse", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-}
-
-// handleListCompetitionUsersRequest handles listCompetitionUsers operation.
-//
-// List attached Users.
-//
-// GET /competitions/{id}/users
-func (s *Server) handleListCompetitionUsersRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("listCompetitionUsers"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/competitions/{id}/users"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListCompetitionUsers",
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
-	}()
-
-	// Increment request counter.
-	s.requests.Add(ctx, 1, otelAttrs...)
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			s.errors.Add(ctx, 1, otelAttrs...)
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: "ListCompetitionUsers",
-			ID:   "listCompetitionUsers",
-		}
-	)
-	params, err := decodeListCompetitionUsersParams(args, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	var response ListCompetitionUsersRes
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "ListCompetitionUsers",
-			OperationID:   "listCompetitionUsers",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-				{
-					Name: "page",
-					In:   "query",
-				}: params.Page,
-				{
-					Name: "itemsPerPage",
-					In:   "query",
-				}: params.ItemsPerPage,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = struct{}
-			Params   = ListCompetitionUsersParams
-			Response = ListCompetitionUsersRes
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackListCompetitionUsersParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ListCompetitionUsers(ctx, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.ListCompetitionUsers(ctx, params)
-	}
-	if err != nil {
-		recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeListCompetitionUsersResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
@@ -2595,20 +2611,20 @@ func (s *Server) handleListHostRequest(args [0]string, w http.ResponseWriter, r 
 	}
 }
 
-// handleListHostGroupRequest handles listHostGroup operation.
+// handleListHostHostservicesRequest handles listHostHostservices operation.
 //
-// List HostGroups.
+// List attached Hostservices.
 //
-// GET /host-groups
-func (s *Server) handleListHostGroupRequest(args [0]string, w http.ResponseWriter, r *http.Request) {
+// GET /hosts/{id}/hostservices
+func (s *Server) handleListHostHostservicesRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("listHostGroup"),
+		otelogen.OperationID("listHostHostservices"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/host-groups"),
+		semconv.HTTPRouteKey.String("/hosts/{id}/hostservices"),
 	}
 
 	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListHostGroup",
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListHostHostservices",
 		trace.WithAttributes(otelAttrs...),
 		serverSpanKind,
 	)
@@ -2632,11 +2648,11 @@ func (s *Server) handleListHostGroupRequest(args [0]string, w http.ResponseWrite
 		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: "ListHostGroup",
-			ID:   "listHostGroup",
+			Name: "ListHostHostservices",
+			ID:   "listHostHostservices",
 		}
 	)
-	params, err := decodeListHostGroupParams(args, r)
+	params, err := decodeListHostHostservicesParams(args, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -2647,118 +2663,12 @@ func (s *Server) handleListHostGroupRequest(args [0]string, w http.ResponseWrite
 		return
 	}
 
-	var response ListHostGroupRes
+	var response ListHostHostservicesRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
-			OperationName: "ListHostGroup",
-			OperationID:   "listHostGroup",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "page",
-					In:   "query",
-				}: params.Page,
-				{
-					Name: "itemsPerPage",
-					In:   "query",
-				}: params.ItemsPerPage,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = struct{}
-			Params   = ListHostGroupParams
-			Response = ListHostGroupRes
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackListHostGroupParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ListHostGroup(ctx, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.ListHostGroup(ctx, params)
-	}
-	if err != nil {
-		recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeListHostGroupResponse(response, w, span); err != nil {
-		recordError("EncodeResponse", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-}
-
-// handleListHostGroupHostsRequest handles listHostGroupHosts operation.
-//
-// List attached Hosts.
-//
-// GET /host-groups/{id}/hosts
-func (s *Server) handleListHostGroupHostsRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("listHostGroupHosts"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/host-groups/{id}/hosts"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListHostGroupHosts",
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
-	}()
-
-	// Increment request counter.
-	s.requests.Add(ctx, 1, otelAttrs...)
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			s.errors.Add(ctx, 1, otelAttrs...)
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: "ListHostGroupHosts",
-			ID:   "listHostGroupHosts",
-		}
-	)
-	params, err := decodeListHostGroupHostsParams(args, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	var response ListHostGroupHostsRes
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "ListHostGroupHosts",
-			OperationID:   "listHostGroupHosts",
+			OperationName: "ListHostHostservices",
+			OperationID:   "listHostHostservices",
 			Body:          nil,
 			Params: middleware.Parameters{
 				{
@@ -2779,8 +2689,8 @@ func (s *Server) handleListHostGroupHostsRequest(args [1]string, w http.Response
 
 		type (
 			Request  = struct{}
-			Params   = ListHostGroupHostsParams
-			Response = ListHostGroupHostsRes
+			Params   = ListHostHostservicesParams
+			Response = ListHostHostservicesRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -2789,14 +2699,14 @@ func (s *Server) handleListHostGroupHostsRequest(args [1]string, w http.Response
 		](
 			m,
 			mreq,
-			unpackListHostGroupHostsParams,
+			unpackListHostHostservicesParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ListHostGroupHosts(ctx, params)
+				response, err = s.h.ListHostHostservices(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.ListHostGroupHosts(ctx, params)
+		response, err = s.h.ListHostHostservices(ctx, params)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -2804,27 +2714,27 @@ func (s *Server) handleListHostGroupHostsRequest(args [1]string, w http.Response
 		return
 	}
 
-	if err := encodeListHostGroupHostsResponse(response, w, span); err != nil {
+	if err := encodeListHostHostservicesResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
 }
 
-// handleListHostServicesRequest handles listHostServices operation.
+// handleListHostServiceRequest handles listHostService operation.
 //
-// List attached Services.
+// List HostServices.
 //
-// GET /hosts/{id}/services
-func (s *Server) handleListHostServicesRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+// GET /host-services
+func (s *Server) handleListHostServiceRequest(args [0]string, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("listHostServices"),
+		otelogen.OperationID("listHostService"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/hosts/{id}/services"),
+		semconv.HTTPRouteKey.String("/host-services"),
 	}
 
 	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListHostServices",
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListHostService",
 		trace.WithAttributes(otelAttrs...),
 		serverSpanKind,
 	)
@@ -2848,11 +2758,11 @@ func (s *Server) handleListHostServicesRequest(args [1]string, w http.ResponseWr
 		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: "ListHostServices",
-			ID:   "listHostServices",
+			Name: "ListHostService",
+			ID:   "listHostService",
 		}
 	)
-	params, err := decodeListHostServicesParams(args, r)
+	params, err := decodeListHostServiceParams(args, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -2863,12 +2773,118 @@ func (s *Server) handleListHostServicesRequest(args [1]string, w http.ResponseWr
 		return
 	}
 
-	var response ListHostServicesRes
+	var response ListHostServiceRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
-			OperationName: "ListHostServices",
-			OperationID:   "listHostServices",
+			OperationName: "ListHostService",
+			OperationID:   "listHostService",
+			Body:          nil,
+			Params: middleware.Parameters{
+				{
+					Name: "page",
+					In:   "query",
+				}: params.Page,
+				{
+					Name: "itemsPerPage",
+					In:   "query",
+				}: params.ItemsPerPage,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = ListHostServiceParams
+			Response = ListHostServiceRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackListHostServiceParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.ListHostService(ctx, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.ListHostService(ctx, params)
+	}
+	if err != nil {
+		recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeListHostServiceResponse(response, w, span); err != nil {
+		recordError("EncodeResponse", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+}
+
+// handleListHostServiceChecksRequest handles listHostServiceChecks operation.
+//
+// List attached Checks.
+//
+// GET /host-services/{id}/checks
+func (s *Server) handleListHostServiceChecksRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("listHostServiceChecks"),
+		semconv.HTTPMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/host-services/{id}/checks"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListHostServiceChecks",
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
+	}()
+
+	// Increment request counter.
+	s.requests.Add(ctx, 1, otelAttrs...)
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			s.errors.Add(ctx, 1, otelAttrs...)
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: "ListHostServiceChecks",
+			ID:   "listHostServiceChecks",
+		}
+	)
+	params, err := decodeListHostServiceChecksParams(args, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	var response ListHostServiceChecksRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:       ctx,
+			OperationName: "ListHostServiceChecks",
+			OperationID:   "listHostServiceChecks",
 			Body:          nil,
 			Params: middleware.Parameters{
 				{
@@ -2889,8 +2905,8 @@ func (s *Server) handleListHostServicesRequest(args [1]string, w http.ResponseWr
 
 		type (
 			Request  = struct{}
-			Params   = ListHostServicesParams
-			Response = ListHostServicesRes
+			Params   = ListHostServiceChecksParams
+			Response = ListHostServiceChecksRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -2899,14 +2915,14 @@ func (s *Server) handleListHostServicesRequest(args [1]string, w http.ResponseWr
 		](
 			m,
 			mreq,
-			unpackListHostServicesParams,
+			unpackListHostServiceChecksParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ListHostServices(ctx, params)
+				response, err = s.h.ListHostServiceChecks(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.ListHostServices(ctx, params)
+		response, err = s.h.ListHostServiceChecks(ctx, params)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -2914,7 +2930,117 @@ func (s *Server) handleListHostServicesRequest(args [1]string, w http.ResponseWr
 		return
 	}
 
-	if err := encodeListHostServicesResponse(response, w, span); err != nil {
+	if err := encodeListHostServiceChecksResponse(response, w, span); err != nil {
+		recordError("EncodeResponse", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+}
+
+// handleListHostServicePropertiesRequest handles listHostServiceProperties operation.
+//
+// List attached Properties.
+//
+// GET /host-services/{id}/properties
+func (s *Server) handleListHostServicePropertiesRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("listHostServiceProperties"),
+		semconv.HTTPMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/host-services/{id}/properties"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListHostServiceProperties",
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
+	}()
+
+	// Increment request counter.
+	s.requests.Add(ctx, 1, otelAttrs...)
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			s.errors.Add(ctx, 1, otelAttrs...)
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: "ListHostServiceProperties",
+			ID:   "listHostServiceProperties",
+		}
+	)
+	params, err := decodeListHostServicePropertiesParams(args, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	var response ListHostServicePropertiesRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:       ctx,
+			OperationName: "ListHostServiceProperties",
+			OperationID:   "listHostServiceProperties",
+			Body:          nil,
+			Params: middleware.Parameters{
+				{
+					Name: "id",
+					In:   "path",
+				}: params.ID,
+				{
+					Name: "page",
+					In:   "query",
+				}: params.Page,
+				{
+					Name: "itemsPerPage",
+					In:   "query",
+				}: params.ItemsPerPage,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = ListHostServicePropertiesParams
+			Response = ListHostServicePropertiesRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackListHostServicePropertiesParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.ListHostServiceProperties(ctx, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.ListHostServiceProperties(ctx, params)
+	}
+	if err != nil {
+		recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeListHostServicePropertiesResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
@@ -3455,226 +3581,6 @@ func (s *Server) handleListServiceRequest(args [0]string, w http.ResponseWriter,
 	}
 }
 
-// handleListServiceChecksRequest handles listServiceChecks operation.
-//
-// List attached Checks.
-//
-// GET /services/{id}/checks
-func (s *Server) handleListServiceChecksRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("listServiceChecks"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/services/{id}/checks"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListServiceChecks",
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
-	}()
-
-	// Increment request counter.
-	s.requests.Add(ctx, 1, otelAttrs...)
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			s.errors.Add(ctx, 1, otelAttrs...)
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: "ListServiceChecks",
-			ID:   "listServiceChecks",
-		}
-	)
-	params, err := decodeListServiceChecksParams(args, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	var response ListServiceChecksRes
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "ListServiceChecks",
-			OperationID:   "listServiceChecks",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-				{
-					Name: "page",
-					In:   "query",
-				}: params.Page,
-				{
-					Name: "itemsPerPage",
-					In:   "query",
-				}: params.ItemsPerPage,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = struct{}
-			Params   = ListServiceChecksParams
-			Response = ListServiceChecksRes
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackListServiceChecksParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ListServiceChecks(ctx, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.ListServiceChecks(ctx, params)
-	}
-	if err != nil {
-		recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeListServiceChecksResponse(response, w, span); err != nil {
-		recordError("EncodeResponse", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-}
-
-// handleListServicePropertiesRequest handles listServiceProperties operation.
-//
-// List attached Properties.
-//
-// GET /services/{id}/properties
-func (s *Server) handleListServicePropertiesRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("listServiceProperties"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/services/{id}/properties"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListServiceProperties",
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
-	}()
-
-	// Increment request counter.
-	s.requests.Add(ctx, 1, otelAttrs...)
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			s.errors.Add(ctx, 1, otelAttrs...)
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: "ListServiceProperties",
-			ID:   "listServiceProperties",
-		}
-	)
-	params, err := decodeListServicePropertiesParams(args, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	var response ListServicePropertiesRes
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "ListServiceProperties",
-			OperationID:   "listServiceProperties",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-				{
-					Name: "page",
-					In:   "query",
-				}: params.Page,
-				{
-					Name: "itemsPerPage",
-					In:   "query",
-				}: params.ItemsPerPage,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = struct{}
-			Params   = ListServicePropertiesParams
-			Response = ListServicePropertiesRes
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackListServicePropertiesParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ListServiceProperties(ctx, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.ListServiceProperties(ctx, params)
-	}
-	if err != nil {
-		recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeListServicePropertiesResponse(response, w, span); err != nil {
-		recordError("EncodeResponse", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-}
-
 // handleListTeamRequest handles listTeam operation.
 //
 // List Teams.
@@ -3775,6 +3681,116 @@ func (s *Server) handleListTeamRequest(args [0]string, w http.ResponseWriter, r 
 	}
 
 	if err := encodeListTeamResponse(response, w, span); err != nil {
+		recordError("EncodeResponse", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+}
+
+// handleListTeamChecksRequest handles listTeamChecks operation.
+//
+// List attached Checks.
+//
+// GET /teams/{id}/checks
+func (s *Server) handleListTeamChecksRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("listTeamChecks"),
+		semconv.HTTPMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/teams/{id}/checks"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListTeamChecks",
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
+	}()
+
+	// Increment request counter.
+	s.requests.Add(ctx, 1, otelAttrs...)
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			s.errors.Add(ctx, 1, otelAttrs...)
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: "ListTeamChecks",
+			ID:   "listTeamChecks",
+		}
+	)
+	params, err := decodeListTeamChecksParams(args, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	var response ListTeamChecksRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:       ctx,
+			OperationName: "ListTeamChecks",
+			OperationID:   "listTeamChecks",
+			Body:          nil,
+			Params: middleware.Parameters{
+				{
+					Name: "id",
+					In:   "path",
+				}: params.ID,
+				{
+					Name: "page",
+					In:   "query",
+				}: params.Page,
+				{
+					Name: "itemsPerPage",
+					In:   "query",
+				}: params.ItemsPerPage,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = ListTeamChecksParams
+			Response = ListTeamChecksRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackListTeamChecksParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.ListTeamChecks(ctx, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.ListTeamChecks(ctx, params)
+	}
+	if err != nil {
+		recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeListTeamChecksResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
@@ -3891,20 +3907,20 @@ func (s *Server) handleListTeamHostsRequest(args [1]string, w http.ResponseWrite
 	}
 }
 
-// handleListTeamUsersRequest handles listTeamUsers operation.
+// handleListTeamHostservicesRequest handles listTeamHostservices operation.
 //
-// List attached Users.
+// List attached Hostservices.
 //
-// GET /teams/{id}/users
-func (s *Server) handleListTeamUsersRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+// GET /teams/{id}/hostservices
+func (s *Server) handleListTeamHostservicesRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("listTeamUsers"),
+		otelogen.OperationID("listTeamHostservices"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/teams/{id}/users"),
+		semconv.HTTPRouteKey.String("/teams/{id}/hostservices"),
 	}
 
 	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListTeamUsers",
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListTeamHostservices",
 		trace.WithAttributes(otelAttrs...),
 		serverSpanKind,
 	)
@@ -3928,11 +3944,11 @@ func (s *Server) handleListTeamUsersRequest(args [1]string, w http.ResponseWrite
 		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: "ListTeamUsers",
-			ID:   "listTeamUsers",
+			Name: "ListTeamHostservices",
+			ID:   "listTeamHostservices",
 		}
 	)
-	params, err := decodeListTeamUsersParams(args, r)
+	params, err := decodeListTeamHostservicesParams(args, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -3943,12 +3959,12 @@ func (s *Server) handleListTeamUsersRequest(args [1]string, w http.ResponseWrite
 		return
 	}
 
-	var response ListTeamUsersRes
+	var response ListTeamHostservicesRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
-			OperationName: "ListTeamUsers",
-			OperationID:   "listTeamUsers",
+			OperationName: "ListTeamHostservices",
+			OperationID:   "listTeamHostservices",
 			Body:          nil,
 			Params: middleware.Parameters{
 				{
@@ -3969,8 +3985,8 @@ func (s *Server) handleListTeamUsersRequest(args [1]string, w http.ResponseWrite
 
 		type (
 			Request  = struct{}
-			Params   = ListTeamUsersParams
-			Response = ListTeamUsersRes
+			Params   = ListTeamHostservicesParams
+			Response = ListTeamHostservicesRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -3979,14 +3995,14 @@ func (s *Server) handleListTeamUsersRequest(args [1]string, w http.ResponseWrite
 		](
 			m,
 			mreq,
-			unpackListTeamUsersParams,
+			unpackListTeamHostservicesParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ListTeamUsers(ctx, params)
+				response, err = s.h.ListTeamHostservices(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.ListTeamUsers(ctx, params)
+		response, err = s.h.ListTeamHostservices(ctx, params)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -3994,27 +4010,27 @@ func (s *Server) handleListTeamUsersRequest(args [1]string, w http.ResponseWrite
 		return
 	}
 
-	if err := encodeListTeamUsersResponse(response, w, span); err != nil {
+	if err := encodeListTeamHostservicesResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
 }
 
-// handleListUserRequest handles listUser operation.
+// handleListTeamPropertiesRequest handles listTeamProperties operation.
 //
-// List Users.
+// List attached Properties.
 //
-// GET /users
-func (s *Server) handleListUserRequest(args [0]string, w http.ResponseWriter, r *http.Request) {
+// GET /teams/{id}/properties
+func (s *Server) handleListTeamPropertiesRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("listUser"),
+		otelogen.OperationID("listTeamProperties"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/users"),
+		semconv.HTTPRouteKey.String("/teams/{id}/properties"),
 	}
 
 	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListUser",
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListTeamProperties",
 		trace.WithAttributes(otelAttrs...),
 		serverSpanKind,
 	)
@@ -4038,11 +4054,11 @@ func (s *Server) handleListUserRequest(args [0]string, w http.ResponseWriter, r 
 		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: "ListUser",
-			ID:   "listUser",
+			Name: "ListTeamProperties",
+			ID:   "listTeamProperties",
 		}
 	)
-	params, err := decodeListUserParams(args, r)
+	params, err := decodeListTeamPropertiesParams(args, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -4053,118 +4069,12 @@ func (s *Server) handleListUserRequest(args [0]string, w http.ResponseWriter, r 
 		return
 	}
 
-	var response ListUserRes
+	var response ListTeamPropertiesRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
-			OperationName: "ListUser",
-			OperationID:   "listUser",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "page",
-					In:   "query",
-				}: params.Page,
-				{
-					Name: "itemsPerPage",
-					In:   "query",
-				}: params.ItemsPerPage,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = struct{}
-			Params   = ListUserParams
-			Response = ListUserRes
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackListUserParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ListUser(ctx, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.ListUser(ctx, params)
-	}
-	if err != nil {
-		recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeListUserResponse(response, w, span); err != nil {
-		recordError("EncodeResponse", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-}
-
-// handleListUserCompetitionsRequest handles listUserCompetitions operation.
-//
-// List attached Competitions.
-//
-// GET /users/{id}/competitions
-func (s *Server) handleListUserCompetitionsRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("listUserCompetitions"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/users/{id}/competitions"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListUserCompetitions",
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
-	}()
-
-	// Increment request counter.
-	s.requests.Add(ctx, 1, otelAttrs...)
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			s.errors.Add(ctx, 1, otelAttrs...)
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: "ListUserCompetitions",
-			ID:   "listUserCompetitions",
-		}
-	)
-	params, err := decodeListUserCompetitionsParams(args, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	var response ListUserCompetitionsRes
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "ListUserCompetitions",
-			OperationID:   "listUserCompetitions",
+			OperationName: "ListTeamProperties",
+			OperationID:   "listTeamProperties",
 			Body:          nil,
 			Params: middleware.Parameters{
 				{
@@ -4185,8 +4095,8 @@ func (s *Server) handleListUserCompetitionsRequest(args [1]string, w http.Respon
 
 		type (
 			Request  = struct{}
-			Params   = ListUserCompetitionsParams
-			Response = ListUserCompetitionsRes
+			Params   = ListTeamPropertiesParams
+			Response = ListTeamPropertiesRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -4195,14 +4105,14 @@ func (s *Server) handleListUserCompetitionsRequest(args [1]string, w http.Respon
 		](
 			m,
 			mreq,
-			unpackListUserCompetitionsParams,
+			unpackListTeamPropertiesParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ListUserCompetitions(ctx, params)
+				response, err = s.h.ListTeamProperties(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.ListUserCompetitions(ctx, params)
+		response, err = s.h.ListTeamProperties(ctx, params)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -4210,117 +4120,7 @@ func (s *Server) handleListUserCompetitionsRequest(args [1]string, w http.Respon
 		return
 	}
 
-	if err := encodeListUserCompetitionsResponse(response, w, span); err != nil {
-		recordError("EncodeResponse", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-}
-
-// handleListUserTeamsRequest handles listUserTeams operation.
-//
-// List attached Teams.
-//
-// GET /users/{id}/teams
-func (s *Server) handleListUserTeamsRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("listUserTeams"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/users/{id}/teams"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ListUserTeams",
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
-	}()
-
-	// Increment request counter.
-	s.requests.Add(ctx, 1, otelAttrs...)
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			s.errors.Add(ctx, 1, otelAttrs...)
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: "ListUserTeams",
-			ID:   "listUserTeams",
-		}
-	)
-	params, err := decodeListUserTeamsParams(args, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	var response ListUserTeamsRes
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "ListUserTeams",
-			OperationID:   "listUserTeams",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-				{
-					Name: "page",
-					In:   "query",
-				}: params.Page,
-				{
-					Name: "itemsPerPage",
-					In:   "query",
-				}: params.ItemsPerPage,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = struct{}
-			Params   = ListUserTeamsParams
-			Response = ListUserTeamsRes
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackListUserTeamsParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ListUserTeams(ctx, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.ListUserTeams(ctx, params)
-	}
-	if err != nil {
-		recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeListUserTeamsResponse(response, w, span); err != nil {
+	if err := encodeListTeamPropertiesResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
@@ -4429,20 +4229,20 @@ func (s *Server) handleReadCheckRequest(args [1]string, w http.ResponseWriter, r
 	}
 }
 
-// handleReadCheckCompetitionRequest handles readCheckCompetition operation.
+// handleReadCheckHostserviceRequest handles readCheckHostservice operation.
 //
-// Find the attached Competition of the Check with the given ID.
+// Find the attached HostService of the Check with the given ID.
 //
-// GET /checks/{id}/competition
-func (s *Server) handleReadCheckCompetitionRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+// GET /checks/{id}/hostservice
+func (s *Server) handleReadCheckHostserviceRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("readCheckCompetition"),
+		otelogen.OperationID("readCheckHostservice"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/checks/{id}/competition"),
+		semconv.HTTPRouteKey.String("/checks/{id}/hostservice"),
 	}
 
 	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadCheckCompetition",
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadCheckHostservice",
 		trace.WithAttributes(otelAttrs...),
 		serverSpanKind,
 	)
@@ -4466,11 +4266,11 @@ func (s *Server) handleReadCheckCompetitionRequest(args [1]string, w http.Respon
 		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: "ReadCheckCompetition",
-			ID:   "readCheckCompetition",
+			Name: "ReadCheckHostservice",
+			ID:   "readCheckHostservice",
 		}
 	)
-	params, err := decodeReadCheckCompetitionParams(args, r)
+	params, err := decodeReadCheckHostserviceParams(args, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -4481,12 +4281,12 @@ func (s *Server) handleReadCheckCompetitionRequest(args [1]string, w http.Respon
 		return
 	}
 
-	var response ReadCheckCompetitionRes
+	var response ReadCheckHostserviceRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
-			OperationName: "ReadCheckCompetition",
-			OperationID:   "readCheckCompetition",
+			OperationName: "ReadCheckHostservice",
+			OperationID:   "readCheckHostservice",
 			Body:          nil,
 			Params: middleware.Parameters{
 				{
@@ -4499,8 +4299,8 @@ func (s *Server) handleReadCheckCompetitionRequest(args [1]string, w http.Respon
 
 		type (
 			Request  = struct{}
-			Params   = ReadCheckCompetitionParams
-			Response = ReadCheckCompetitionRes
+			Params   = ReadCheckHostserviceParams
+			Response = ReadCheckHostserviceRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -4509,14 +4309,14 @@ func (s *Server) handleReadCheckCompetitionRequest(args [1]string, w http.Respon
 		](
 			m,
 			mreq,
-			unpackReadCheckCompetitionParams,
+			unpackReadCheckHostserviceParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ReadCheckCompetition(ctx, params)
+				response, err = s.h.ReadCheckHostservice(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.ReadCheckCompetition(ctx, params)
+		response, err = s.h.ReadCheckHostservice(ctx, params)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -4524,7 +4324,7 @@ func (s *Server) handleReadCheckCompetitionRequest(args [1]string, w http.Respon
 		return
 	}
 
-	if err := encodeReadCheckCompetitionResponse(response, w, span); err != nil {
+	if err := encodeReadCheckHostserviceResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
@@ -4633,20 +4433,20 @@ func (s *Server) handleReadCheckRoundsRequest(args [1]string, w http.ResponseWri
 	}
 }
 
-// handleReadCheckServicesRequest handles readCheckServices operation.
+// handleReadCheckTeamRequest handles readCheckTeam operation.
 //
-// Find the attached Service of the Check with the given ID.
+// Find the attached Team of the Check with the given ID.
 //
-// GET /checks/{id}/services
-func (s *Server) handleReadCheckServicesRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+// GET /checks/{id}/team
+func (s *Server) handleReadCheckTeamRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("readCheckServices"),
+		otelogen.OperationID("readCheckTeam"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/checks/{id}/services"),
+		semconv.HTTPRouteKey.String("/checks/{id}/team"),
 	}
 
 	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadCheckServices",
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadCheckTeam",
 		trace.WithAttributes(otelAttrs...),
 		serverSpanKind,
 	)
@@ -4670,11 +4470,11 @@ func (s *Server) handleReadCheckServicesRequest(args [1]string, w http.ResponseW
 		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: "ReadCheckServices",
-			ID:   "readCheckServices",
+			Name: "ReadCheckTeam",
+			ID:   "readCheckTeam",
 		}
 	)
-	params, err := decodeReadCheckServicesParams(args, r)
+	params, err := decodeReadCheckTeamParams(args, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -4685,12 +4485,12 @@ func (s *Server) handleReadCheckServicesRequest(args [1]string, w http.ResponseW
 		return
 	}
 
-	var response ReadCheckServicesRes
+	var response ReadCheckTeamRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
-			OperationName: "ReadCheckServices",
-			OperationID:   "readCheckServices",
+			OperationName: "ReadCheckTeam",
+			OperationID:   "readCheckTeam",
 			Body:          nil,
 			Params: middleware.Parameters{
 				{
@@ -4703,8 +4503,8 @@ func (s *Server) handleReadCheckServicesRequest(args [1]string, w http.ResponseW
 
 		type (
 			Request  = struct{}
-			Params   = ReadCheckServicesParams
-			Response = ReadCheckServicesRes
+			Params   = ReadCheckTeamParams
+			Response = ReadCheckTeamRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -4713,14 +4513,14 @@ func (s *Server) handleReadCheckServicesRequest(args [1]string, w http.ResponseW
 		](
 			m,
 			mreq,
-			unpackReadCheckServicesParams,
+			unpackReadCheckTeamParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ReadCheckServices(ctx, params)
+				response, err = s.h.ReadCheckTeam(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.ReadCheckServices(ctx, params)
+		response, err = s.h.ReadCheckTeam(ctx, params)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -4728,7 +4528,7 @@ func (s *Server) handleReadCheckServicesRequest(args [1]string, w http.ResponseW
 		return
 	}
 
-	if err := encodeReadCheckServicesResponse(response, w, span); err != nil {
+	if err := encodeReadCheckTeamResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
@@ -4939,20 +4739,20 @@ func (s *Server) handleReadHostRequest(args [1]string, w http.ResponseWriter, r 
 	}
 }
 
-// handleReadHostCompetitionRequest handles readHostCompetition operation.
+// handleReadHostServiceRequest handles readHostService operation.
 //
-// Find the attached Competition of the Host with the given ID.
+// Finds the HostService with the requested ID and returns it.
 //
-// GET /hosts/{id}/competition
-func (s *Server) handleReadHostCompetitionRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+// GET /host-services/{id}
+func (s *Server) handleReadHostServiceRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("readHostCompetition"),
+		otelogen.OperationID("readHostService"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/hosts/{id}/competition"),
+		semconv.HTTPRouteKey.String("/host-services/{id}"),
 	}
 
 	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadHostCompetition",
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadHostService",
 		trace.WithAttributes(otelAttrs...),
 		serverSpanKind,
 	)
@@ -4976,11 +4776,11 @@ func (s *Server) handleReadHostCompetitionRequest(args [1]string, w http.Respons
 		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: "ReadHostCompetition",
-			ID:   "readHostCompetition",
+			Name: "ReadHostService",
+			ID:   "readHostService",
 		}
 	)
-	params, err := decodeReadHostCompetitionParams(args, r)
+	params, err := decodeReadHostServiceParams(args, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -4991,12 +4791,12 @@ func (s *Server) handleReadHostCompetitionRequest(args [1]string, w http.Respons
 		return
 	}
 
-	var response ReadHostCompetitionRes
+	var response ReadHostServiceRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
-			OperationName: "ReadHostCompetition",
-			OperationID:   "readHostCompetition",
+			OperationName: "ReadHostService",
+			OperationID:   "readHostService",
 			Body:          nil,
 			Params: middleware.Parameters{
 				{
@@ -5009,8 +4809,8 @@ func (s *Server) handleReadHostCompetitionRequest(args [1]string, w http.Respons
 
 		type (
 			Request  = struct{}
-			Params   = ReadHostCompetitionParams
-			Response = ReadHostCompetitionRes
+			Params   = ReadHostServiceParams
+			Response = ReadHostServiceRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -5019,14 +4819,14 @@ func (s *Server) handleReadHostCompetitionRequest(args [1]string, w http.Respons
 		](
 			m,
 			mreq,
-			unpackReadHostCompetitionParams,
+			unpackReadHostServiceParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ReadHostCompetition(ctx, params)
+				response, err = s.h.ReadHostService(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.ReadHostCompetition(ctx, params)
+		response, err = s.h.ReadHostService(ctx, params)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -5034,27 +4834,27 @@ func (s *Server) handleReadHostCompetitionRequest(args [1]string, w http.Respons
 		return
 	}
 
-	if err := encodeReadHostCompetitionResponse(response, w, span); err != nil {
+	if err := encodeReadHostServiceResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
 }
 
-// handleReadHostGroupRequest handles readHostGroup operation.
+// handleReadHostServiceHostRequest handles readHostServiceHost operation.
 //
-// Finds the HostGroup with the requested ID and returns it.
+// Find the attached Host of the HostService with the given ID.
 //
-// GET /host-groups/{id}
-func (s *Server) handleReadHostGroupRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+// GET /host-services/{id}/host
+func (s *Server) handleReadHostServiceHostRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("readHostGroup"),
+		otelogen.OperationID("readHostServiceHost"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/host-groups/{id}"),
+		semconv.HTTPRouteKey.String("/host-services/{id}/host"),
 	}
 
 	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadHostGroup",
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadHostServiceHost",
 		trace.WithAttributes(otelAttrs...),
 		serverSpanKind,
 	)
@@ -5078,11 +4878,11 @@ func (s *Server) handleReadHostGroupRequest(args [1]string, w http.ResponseWrite
 		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: "ReadHostGroup",
-			ID:   "readHostGroup",
+			Name: "ReadHostServiceHost",
+			ID:   "readHostServiceHost",
 		}
 	)
-	params, err := decodeReadHostGroupParams(args, r)
+	params, err := decodeReadHostServiceHostParams(args, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -5093,12 +4893,12 @@ func (s *Server) handleReadHostGroupRequest(args [1]string, w http.ResponseWrite
 		return
 	}
 
-	var response ReadHostGroupRes
+	var response ReadHostServiceHostRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
-			OperationName: "ReadHostGroup",
-			OperationID:   "readHostGroup",
+			OperationName: "ReadHostServiceHost",
+			OperationID:   "readHostServiceHost",
 			Body:          nil,
 			Params: middleware.Parameters{
 				{
@@ -5111,8 +4911,8 @@ func (s *Server) handleReadHostGroupRequest(args [1]string, w http.ResponseWrite
 
 		type (
 			Request  = struct{}
-			Params   = ReadHostGroupParams
-			Response = ReadHostGroupRes
+			Params   = ReadHostServiceHostParams
+			Response = ReadHostServiceHostRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -5121,14 +4921,14 @@ func (s *Server) handleReadHostGroupRequest(args [1]string, w http.ResponseWrite
 		](
 			m,
 			mreq,
-			unpackReadHostGroupParams,
+			unpackReadHostServiceHostParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ReadHostGroup(ctx, params)
+				response, err = s.h.ReadHostServiceHost(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.ReadHostGroup(ctx, params)
+		response, err = s.h.ReadHostServiceHost(ctx, params)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -5136,27 +4936,27 @@ func (s *Server) handleReadHostGroupRequest(args [1]string, w http.ResponseWrite
 		return
 	}
 
-	if err := encodeReadHostGroupResponse(response, w, span); err != nil {
+	if err := encodeReadHostServiceHostResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
 }
 
-// handleReadHostGroupCompetitionRequest handles readHostGroupCompetition operation.
+// handleReadHostServiceTeamRequest handles readHostServiceTeam operation.
 //
-// Find the attached Competition of the HostGroup with the given ID.
+// Find the attached Team of the HostService with the given ID.
 //
-// GET /host-groups/{id}/competition
-func (s *Server) handleReadHostGroupCompetitionRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+// GET /host-services/{id}/team
+func (s *Server) handleReadHostServiceTeamRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("readHostGroupCompetition"),
+		otelogen.OperationID("readHostServiceTeam"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/host-groups/{id}/competition"),
+		semconv.HTTPRouteKey.String("/host-services/{id}/team"),
 	}
 
 	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadHostGroupCompetition",
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadHostServiceTeam",
 		trace.WithAttributes(otelAttrs...),
 		serverSpanKind,
 	)
@@ -5180,11 +4980,11 @@ func (s *Server) handleReadHostGroupCompetitionRequest(args [1]string, w http.Re
 		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: "ReadHostGroupCompetition",
-			ID:   "readHostGroupCompetition",
+			Name: "ReadHostServiceTeam",
+			ID:   "readHostServiceTeam",
 		}
 	)
-	params, err := decodeReadHostGroupCompetitionParams(args, r)
+	params, err := decodeReadHostServiceTeamParams(args, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -5195,12 +4995,12 @@ func (s *Server) handleReadHostGroupCompetitionRequest(args [1]string, w http.Re
 		return
 	}
 
-	var response ReadHostGroupCompetitionRes
+	var response ReadHostServiceTeamRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
-			OperationName: "ReadHostGroupCompetition",
-			OperationID:   "readHostGroupCompetition",
+			OperationName: "ReadHostServiceTeam",
+			OperationID:   "readHostServiceTeam",
 			Body:          nil,
 			Params: middleware.Parameters{
 				{
@@ -5213,8 +5013,8 @@ func (s *Server) handleReadHostGroupCompetitionRequest(args [1]string, w http.Re
 
 		type (
 			Request  = struct{}
-			Params   = ReadHostGroupCompetitionParams
-			Response = ReadHostGroupCompetitionRes
+			Params   = ReadHostServiceTeamParams
+			Response = ReadHostServiceTeamRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -5223,14 +5023,14 @@ func (s *Server) handleReadHostGroupCompetitionRequest(args [1]string, w http.Re
 		](
 			m,
 			mreq,
-			unpackReadHostGroupCompetitionParams,
+			unpackReadHostServiceTeamParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ReadHostGroupCompetition(ctx, params)
+				response, err = s.h.ReadHostServiceTeam(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.ReadHostGroupCompetition(ctx, params)
+		response, err = s.h.ReadHostServiceTeam(ctx, params)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -5238,211 +5038,7 @@ func (s *Server) handleReadHostGroupCompetitionRequest(args [1]string, w http.Re
 		return
 	}
 
-	if err := encodeReadHostGroupCompetitionResponse(response, w, span); err != nil {
-		recordError("EncodeResponse", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-}
-
-// handleReadHostGroupTeamRequest handles readHostGroupTeam operation.
-//
-// Find the attached Team of the HostGroup with the given ID.
-//
-// GET /host-groups/{id}/team
-func (s *Server) handleReadHostGroupTeamRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("readHostGroupTeam"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/host-groups/{id}/team"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadHostGroupTeam",
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
-	}()
-
-	// Increment request counter.
-	s.requests.Add(ctx, 1, otelAttrs...)
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			s.errors.Add(ctx, 1, otelAttrs...)
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: "ReadHostGroupTeam",
-			ID:   "readHostGroupTeam",
-		}
-	)
-	params, err := decodeReadHostGroupTeamParams(args, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	var response ReadHostGroupTeamRes
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "ReadHostGroupTeam",
-			OperationID:   "readHostGroupTeam",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = struct{}
-			Params   = ReadHostGroupTeamParams
-			Response = ReadHostGroupTeamRes
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackReadHostGroupTeamParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ReadHostGroupTeam(ctx, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.ReadHostGroupTeam(ctx, params)
-	}
-	if err != nil {
-		recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeReadHostGroupTeamResponse(response, w, span); err != nil {
-		recordError("EncodeResponse", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-}
-
-// handleReadHostHostGroupRequest handles readHostHostGroup operation.
-//
-// Find the attached HostGroup of the Host with the given ID.
-//
-// GET /hosts/{id}/host-group
-func (s *Server) handleReadHostHostGroupRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("readHostHostGroup"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/hosts/{id}/host-group"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadHostHostGroup",
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
-	}()
-
-	// Increment request counter.
-	s.requests.Add(ctx, 1, otelAttrs...)
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			s.errors.Add(ctx, 1, otelAttrs...)
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: "ReadHostHostGroup",
-			ID:   "readHostHostGroup",
-		}
-	)
-	params, err := decodeReadHostHostGroupParams(args, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	var response ReadHostHostGroupRes
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "ReadHostHostGroup",
-			OperationID:   "readHostHostGroup",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = struct{}
-			Params   = ReadHostHostGroupParams
-			Response = ReadHostHostGroupRes
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackReadHostHostGroupParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ReadHostHostGroup(ctx, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.ReadHostHostGroup(ctx, params)
-	}
-	if err != nil {
-		recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeReadHostHostGroupResponse(response, w, span); err != nil {
+	if err := encodeReadHostServiceTeamResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
@@ -5653,20 +5249,20 @@ func (s *Server) handleReadPropertyRequest(args [1]string, w http.ResponseWriter
 	}
 }
 
-// handleReadPropertyCompetitionRequest handles readPropertyCompetition operation.
+// handleReadPropertyHostserviceRequest handles readPropertyHostservice operation.
 //
-// Find the attached Competition of the Property with the given ID.
+// Find the attached HostService of the Property with the given ID.
 //
-// GET /properties/{id}/competition
-func (s *Server) handleReadPropertyCompetitionRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+// GET /properties/{id}/hostservice
+func (s *Server) handleReadPropertyHostserviceRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("readPropertyCompetition"),
+		otelogen.OperationID("readPropertyHostservice"),
 		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/properties/{id}/competition"),
+		semconv.HTTPRouteKey.String("/properties/{id}/hostservice"),
 	}
 
 	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadPropertyCompetition",
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadPropertyHostservice",
 		trace.WithAttributes(otelAttrs...),
 		serverSpanKind,
 	)
@@ -5690,11 +5286,11 @@ func (s *Server) handleReadPropertyCompetitionRequest(args [1]string, w http.Res
 		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: "ReadPropertyCompetition",
-			ID:   "readPropertyCompetition",
+			Name: "ReadPropertyHostservice",
+			ID:   "readPropertyHostservice",
 		}
 	)
-	params, err := decodeReadPropertyCompetitionParams(args, r)
+	params, err := decodeReadPropertyHostserviceParams(args, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -5705,12 +5301,12 @@ func (s *Server) handleReadPropertyCompetitionRequest(args [1]string, w http.Res
 		return
 	}
 
-	var response ReadPropertyCompetitionRes
+	var response ReadPropertyHostserviceRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
-			OperationName: "ReadPropertyCompetition",
-			OperationID:   "readPropertyCompetition",
+			OperationName: "ReadPropertyHostservice",
+			OperationID:   "readPropertyHostservice",
 			Body:          nil,
 			Params: middleware.Parameters{
 				{
@@ -5723,8 +5319,8 @@ func (s *Server) handleReadPropertyCompetitionRequest(args [1]string, w http.Res
 
 		type (
 			Request  = struct{}
-			Params   = ReadPropertyCompetitionParams
-			Response = ReadPropertyCompetitionRes
+			Params   = ReadPropertyHostserviceParams
+			Response = ReadPropertyHostserviceRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -5733,14 +5329,14 @@ func (s *Server) handleReadPropertyCompetitionRequest(args [1]string, w http.Res
 		](
 			m,
 			mreq,
-			unpackReadPropertyCompetitionParams,
+			unpackReadPropertyHostserviceParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ReadPropertyCompetition(ctx, params)
+				response, err = s.h.ReadPropertyHostservice(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.ReadPropertyCompetition(ctx, params)
+		response, err = s.h.ReadPropertyHostservice(ctx, params)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -5748,109 +5344,7 @@ func (s *Server) handleReadPropertyCompetitionRequest(args [1]string, w http.Res
 		return
 	}
 
-	if err := encodeReadPropertyCompetitionResponse(response, w, span); err != nil {
-		recordError("EncodeResponse", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-}
-
-// handleReadPropertyServicesRequest handles readPropertyServices operation.
-//
-// Find the attached Service of the Property with the given ID.
-//
-// GET /properties/{id}/services
-func (s *Server) handleReadPropertyServicesRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("readPropertyServices"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/properties/{id}/services"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadPropertyServices",
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
-	}()
-
-	// Increment request counter.
-	s.requests.Add(ctx, 1, otelAttrs...)
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			s.errors.Add(ctx, 1, otelAttrs...)
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: "ReadPropertyServices",
-			ID:   "readPropertyServices",
-		}
-	)
-	params, err := decodeReadPropertyServicesParams(args, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	var response ReadPropertyServicesRes
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "ReadPropertyServices",
-			OperationID:   "readPropertyServices",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = struct{}
-			Params   = ReadPropertyServicesParams
-			Response = ReadPropertyServicesRes
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackReadPropertyServicesParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ReadPropertyServices(ctx, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.ReadPropertyServices(ctx, params)
-	}
-	if err != nil {
-		recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeReadPropertyServicesResponse(response, w, span); err != nil {
+	if err := encodeReadPropertyHostserviceResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
@@ -6055,6 +5549,108 @@ func (s *Server) handleReadReportRequest(args [1]string, w http.ResponseWriter, 
 	}
 
 	if err := encodeReadReportResponse(response, w, span); err != nil {
+		recordError("EncodeResponse", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+}
+
+// handleReadReportCompetitionRequest handles readReportCompetition operation.
+//
+// Find the attached Competition of the Report with the given ID.
+//
+// GET /reports/{id}/competition
+func (s *Server) handleReadReportCompetitionRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("readReportCompetition"),
+		semconv.HTTPMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/reports/{id}/competition"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadReportCompetition",
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
+	}()
+
+	// Increment request counter.
+	s.requests.Add(ctx, 1, otelAttrs...)
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			s.errors.Add(ctx, 1, otelAttrs...)
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: "ReadReportCompetition",
+			ID:   "readReportCompetition",
+		}
+	)
+	params, err := decodeReadReportCompetitionParams(args, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	var response ReadReportCompetitionRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:       ctx,
+			OperationName: "ReadReportCompetition",
+			OperationID:   "readReportCompetition",
+			Body:          nil,
+			Params: middleware.Parameters{
+				{
+					Name: "id",
+					In:   "path",
+				}: params.ID,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = ReadReportCompetitionParams
+			Response = ReadReportCompetitionRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackReadReportCompetitionParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.ReadReportCompetition(ctx, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.ReadReportCompetition(ctx, params)
+	}
+	if err != nil {
+		recordError("Internal", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	if err := encodeReadReportCompetitionResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
@@ -6469,210 +6065,6 @@ func (s *Server) handleReadServiceCompetitionRequest(args [1]string, w http.Resp
 	}
 }
 
-// handleReadServiceHostsRequest handles readServiceHosts operation.
-//
-// Find the attached Host of the Service with the given ID.
-//
-// GET /services/{id}/hosts
-func (s *Server) handleReadServiceHostsRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("readServiceHosts"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/services/{id}/hosts"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadServiceHosts",
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
-	}()
-
-	// Increment request counter.
-	s.requests.Add(ctx, 1, otelAttrs...)
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			s.errors.Add(ctx, 1, otelAttrs...)
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: "ReadServiceHosts",
-			ID:   "readServiceHosts",
-		}
-	)
-	params, err := decodeReadServiceHostsParams(args, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	var response ReadServiceHostsRes
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "ReadServiceHosts",
-			OperationID:   "readServiceHosts",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = struct{}
-			Params   = ReadServiceHostsParams
-			Response = ReadServiceHostsRes
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackReadServiceHostsParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ReadServiceHosts(ctx, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.ReadServiceHosts(ctx, params)
-	}
-	if err != nil {
-		recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeReadServiceHostsResponse(response, w, span); err != nil {
-		recordError("EncodeResponse", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-}
-
-// handleReadServiceTeamRequest handles readServiceTeam operation.
-//
-// Find the attached Team of the Service with the given ID.
-//
-// GET /services/{id}/team
-func (s *Server) handleReadServiceTeamRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("readServiceTeam"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/services/{id}/team"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadServiceTeam",
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
-	}()
-
-	// Increment request counter.
-	s.requests.Add(ctx, 1, otelAttrs...)
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			s.errors.Add(ctx, 1, otelAttrs...)
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: "ReadServiceTeam",
-			ID:   "readServiceTeam",
-		}
-	)
-	params, err := decodeReadServiceTeamParams(args, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	var response ReadServiceTeamRes
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "ReadServiceTeam",
-			OperationID:   "readServiceTeam",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = struct{}
-			Params   = ReadServiceTeamParams
-			Response = ReadServiceTeamRes
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackReadServiceTeamParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ReadServiceTeam(ctx, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.ReadServiceTeam(ctx, params)
-	}
-	if err != nil {
-		recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeReadServiceTeamResponse(response, w, span); err != nil {
-		recordError("EncodeResponse", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-}
-
 // handleReadTeamRequest handles readTeam operation.
 //
 // Finds the Team with the requested ID and returns it.
@@ -6871,108 +6263,6 @@ func (s *Server) handleReadTeamCompetitionRequest(args [1]string, w http.Respons
 	}
 
 	if err := encodeReadTeamCompetitionResponse(response, w, span); err != nil {
-		recordError("EncodeResponse", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-}
-
-// handleReadUserRequest handles readUser operation.
-//
-// Finds the User with the requested ID and returns it.
-//
-// GET /users/{id}
-func (s *Server) handleReadUserRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("readUser"),
-		semconv.HTTPMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/users/{id}"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "ReadUser",
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
-	}()
-
-	// Increment request counter.
-	s.requests.Add(ctx, 1, otelAttrs...)
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			s.errors.Add(ctx, 1, otelAttrs...)
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: "ReadUser",
-			ID:   "readUser",
-		}
-	)
-	params, err := decodeReadUserParams(args, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	var response ReadUserRes
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "ReadUser",
-			OperationID:   "readUser",
-			Body:          nil,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = struct{}
-			Params   = ReadUserParams
-			Response = ReadUserRes
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackReadUserParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ReadUser(ctx, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.ReadUser(ctx, params)
-	}
-	if err != nil {
-		recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeReadUserResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
@@ -7330,20 +6620,20 @@ func (s *Server) handleUpdateHostRequest(args [1]string, w http.ResponseWriter, 
 	}
 }
 
-// handleUpdateHostGroupRequest handles updateHostGroup operation.
+// handleUpdateHostServiceRequest handles updateHostService operation.
 //
-// Updates a HostGroup and persists changes to storage.
+// Updates a HostService and persists changes to storage.
 //
-// PATCH /host-groups/{id}
-func (s *Server) handleUpdateHostGroupRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
+// PATCH /host-services/{id}
+func (s *Server) handleUpdateHostServiceRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("updateHostGroup"),
+		otelogen.OperationID("updateHostService"),
 		semconv.HTTPMethodKey.String("PATCH"),
-		semconv.HTTPRouteKey.String("/host-groups/{id}"),
+		semconv.HTTPRouteKey.String("/host-services/{id}"),
 	}
 
 	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "UpdateHostGroup",
+	ctx, span := s.cfg.Tracer.Start(r.Context(), "UpdateHostService",
 		trace.WithAttributes(otelAttrs...),
 		serverSpanKind,
 	)
@@ -7367,11 +6657,11 @@ func (s *Server) handleUpdateHostGroupRequest(args [1]string, w http.ResponseWri
 		}
 		err          error
 		opErrContext = ogenerrors.OperationContext{
-			Name: "UpdateHostGroup",
-			ID:   "updateHostGroup",
+			Name: "UpdateHostService",
+			ID:   "updateHostService",
 		}
 	)
-	params, err := decodeUpdateHostGroupParams(args, r)
+	params, err := decodeUpdateHostServiceParams(args, r)
 	if err != nil {
 		err = &ogenerrors.DecodeParamsError{
 			OperationContext: opErrContext,
@@ -7381,7 +6671,7 @@ func (s *Server) handleUpdateHostGroupRequest(args [1]string, w http.ResponseWri
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
-	request, close, err := s.decodeUpdateHostGroupRequest(r)
+	request, close, err := s.decodeUpdateHostServiceRequest(r)
 	if err != nil {
 		err = &ogenerrors.DecodeRequestError{
 			OperationContext: opErrContext,
@@ -7397,12 +6687,12 @@ func (s *Server) handleUpdateHostGroupRequest(args [1]string, w http.ResponseWri
 		}
 	}()
 
-	var response UpdateHostGroupRes
+	var response UpdateHostServiceRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:       ctx,
-			OperationName: "UpdateHostGroup",
-			OperationID:   "updateHostGroup",
+			OperationName: "UpdateHostService",
+			OperationID:   "updateHostService",
 			Body:          request,
 			Params: middleware.Parameters{
 				{
@@ -7414,9 +6704,9 @@ func (s *Server) handleUpdateHostGroupRequest(args [1]string, w http.ResponseWri
 		}
 
 		type (
-			Request  = *UpdateHostGroupReq
-			Params   = UpdateHostGroupParams
-			Response = UpdateHostGroupRes
+			Request  = *UpdateHostServiceReq
+			Params   = UpdateHostServiceParams
+			Response = UpdateHostServiceRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -7425,14 +6715,14 @@ func (s *Server) handleUpdateHostGroupRequest(args [1]string, w http.ResponseWri
 		](
 			m,
 			mreq,
-			unpackUpdateHostGroupParams,
+			unpackUpdateHostServiceParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.UpdateHostGroup(ctx, request, params)
+				response, err = s.h.UpdateHostService(ctx, request, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.UpdateHostGroup(ctx, request, params)
+		response, err = s.h.UpdateHostService(ctx, request, params)
 	}
 	if err != nil {
 		recordError("Internal", err)
@@ -7440,7 +6730,7 @@ func (s *Server) handleUpdateHostGroupRequest(args [1]string, w http.ResponseWri
 		return
 	}
 
-	if err := encodeUpdateHostGroupResponse(response, w, span); err != nil {
+	if err := encodeUpdateHostServiceResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
@@ -8026,123 +7316,6 @@ func (s *Server) handleUpdateTeamRequest(args [1]string, w http.ResponseWriter, 
 	}
 
 	if err := encodeUpdateTeamResponse(response, w, span); err != nil {
-		recordError("EncodeResponse", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-}
-
-// handleUpdateUserRequest handles updateUser operation.
-//
-// Updates a User and persists changes to storage.
-//
-// PATCH /users/{id}
-func (s *Server) handleUpdateUserRequest(args [1]string, w http.ResponseWriter, r *http.Request) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("updateUser"),
-		semconv.HTTPMethodKey.String("PATCH"),
-		semconv.HTTPRouteKey.String("/users/{id}"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), "UpdateUser",
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-		s.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
-	}()
-
-	// Increment request counter.
-	s.requests.Add(ctx, 1, otelAttrs...)
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			s.errors.Add(ctx, 1, otelAttrs...)
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: "UpdateUser",
-			ID:   "updateUser",
-		}
-	)
-	params, err := decodeUpdateUserParams(args, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-	request, close, err := s.decodeUpdateUserRequest(r)
-	if err != nil {
-		err = &ogenerrors.DecodeRequestError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		recordError("DecodeRequest", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-	defer func() {
-		if err := close(); err != nil {
-			recordError("CloseRequest", err)
-		}
-	}()
-
-	var response UpdateUserRes
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:       ctx,
-			OperationName: "UpdateUser",
-			OperationID:   "updateUser",
-			Body:          request,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = *UpdateUserReq
-			Params   = UpdateUserParams
-			Response = UpdateUserRes
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackUpdateUserParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.UpdateUser(ctx, request, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.UpdateUser(ctx, request, params)
-	}
-	if err != nil {
-		recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeUpdateUserResponse(response, w, span); err != nil {
 		recordError("EncodeResponse", err)
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return

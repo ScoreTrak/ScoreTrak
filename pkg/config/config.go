@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/creasty/defaults"
+	"github.com/rs/cors"
 	"github.com/spf13/viper"
 )
 
@@ -9,10 +10,10 @@ import (
 // Config is read only at the moment, hence there is no lock / prevention to race conditions.
 type Config struct {
 	DB struct {
-		Use     string `default:"sqlite3"`
-		DSN     string `default:"file:ent?mode=memory&cache=shared&_fk=1"`
-		Migrate bool   `default:"false"`
-		Seed    bool   `default:"false"`
+		Use string `default:"sqlite3"`
+		DSN string `default:"file:ent?mode=memory&cache=shared&_fk=1"`
+		//Migrate bool   `default:"false"`
+		//Seed    bool   `default:"false"`
 		// Cockroach struct {
 		// 	ConfigureZones    bool `default:"true"`
 		// 	DefaultZoneConfig struct {
@@ -31,6 +32,7 @@ type Config struct {
 
 	Queue struct {
 		Use   string `default:"none"`
+		Pool  int    `default:5`
 		Kafka struct {
 		}
 		NSQ struct {
@@ -71,10 +73,6 @@ type Config struct {
 		ChannelPrefix             string `default:"master"`
 	}
 
-	//AdminUsername string `default:"admin"`
-	//
-	//AdminPassword string `default:"changeme"`
-
 	Server struct {
 		Address string `default:"127.0.0.1"`
 		Port    string `default:"3000"`
@@ -82,6 +80,7 @@ type Config struct {
 			CertFile string
 			KeyFile  string
 		}
+		Cors cors.Options
 	}
 
 	Prod bool `default:"false"`
@@ -94,10 +93,12 @@ type Config struct {
 		Ory struct {
 			SelfHosted  bool
 			Slug        string
-			Cookie      string `default:"ory_kratos_session"`
-			AdminApiUrl string `default:"http://localhost:4000"`
+			CookieName  string `default:"ory_kratos_session"`
+			AdminApiUrl string `default:"http://localhost:4433"`
 		}
 	}
+
+	Debug bool `default:"false"`
 }
 
 const (
@@ -116,4 +117,11 @@ func NewScoreTrakConfig() (*Config, error) {
 	}
 
 	return c, nil
+}
+
+func NewCorsConfig(c *Config) *cors.Cors {
+	crsCfg := c.Server.Cors
+	crsCfg.Debug = c.Debug
+	crs := cors.New(crsCfg)
+	return crs
 }

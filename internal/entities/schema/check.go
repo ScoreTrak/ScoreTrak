@@ -17,14 +17,20 @@ func (Check) Fields() []ent.Field {
 		field.String("log"),
 		field.String("error"),
 		field.Bool("passed"),
+		field.String("round_id").Immutable(),
+		field.String("host_service_id").Immutable(),
+		field.String("team_id").Immutable(),
+		//field.String("competition_id").Immutable(),
 	}
 }
 
 // Edges of the Check.
 func (Check) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("rounds", Round.Type).Ref("checks").Unique().Required(),
-		edge.From("services", Service.Type).Ref("checks").Unique().Required(),
+		edge.To("rounds", Round.Type).Field("round_id").Unique().Required().Immutable(),
+		edge.From("hostservice", HostService.Type).Ref("checks").Field("host_service_id").Unique().Required().Immutable(),
+		edge.From("team", Team.Type).Ref("checks").Field("team_id").Unique().Required().Immutable(),
+		//edge.From("competition", Competition.Type).Ref("checks").Field("competition_id").Unique().Required().Immutable(),
 	}
 }
 
@@ -34,7 +40,5 @@ func (Check) Mixin() []ent.Mixin {
 		BaseMixin{},
 		PauseMixin{},
 		HideMixin{},
-		CompetitonMixin{},
-		//TeamMixin{},
 	}
 }

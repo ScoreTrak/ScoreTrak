@@ -8,9 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostgroup"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
 )
 
@@ -23,50 +21,34 @@ type Host struct {
 	Pause bool `json:"pause,omitempty"`
 	// Hidden holds the value of the "hidden" field.
 	Hidden bool `json:"hidden,omitempty"`
-	// CompetitionID holds the value of the "competition_id" field.
-	CompetitionID string `json:"competition_id,omitempty"`
-	// TeamID holds the value of the "team_id" field.
-	TeamID string `json:"team_id,omitempty"`
 	// Address holds the value of the "address" field.
 	Address string `json:"address,omitempty"`
-	// AddressListRange holds the value of the "address_list_range" field.
-	AddressListRange string `json:"address_list_range,omitempty"`
-	// Editable holds the value of the "editable" field.
-	Editable bool `json:"editable,omitempty"`
+	// TeamID holds the value of the "team_id" field.
+	TeamID string `json:"team_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the HostQuery when eager-loading is set.
-	Edges            HostEdges `json:"edges"`
-	host_group_hosts *string
-	team_hosts       *string
-	selectValues     sql.SelectValues
+	Edges        HostEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // HostEdges holds the relations/edges for other nodes in the graph.
 type HostEdges struct {
-	// Competition holds the value of the competition edge.
-	Competition *Competition `json:"competition,omitempty"`
+	// Hostservices holds the value of the hostservices edge.
+	Hostservices []*HostService `json:"hostservices,omitempty"`
 	// Team holds the value of the team edge.
 	Team *Team `json:"team,omitempty"`
-	// Services holds the value of the services edge.
-	Services []*Service `json:"services,omitempty"`
-	// HostGroup holds the value of the host_group edge.
-	HostGroup *HostGroup `json:"host_group,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [2]bool
 }
 
-// CompetitionOrErr returns the Competition value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e HostEdges) CompetitionOrErr() (*Competition, error) {
+// HostservicesOrErr returns the Hostservices value or an error if the edge
+// was not loaded in eager-loading.
+func (e HostEdges) HostservicesOrErr() ([]*HostService, error) {
 	if e.loadedTypes[0] {
-		if e.Competition == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: competition.Label}
-		}
-		return e.Competition, nil
+		return e.Hostservices, nil
 	}
-	return nil, &NotLoadedError{edge: "competition"}
+	return nil, &NotLoadedError{edge: "hostservices"}
 }
 
 // TeamOrErr returns the Team value or an error if the edge
@@ -82,40 +64,14 @@ func (e HostEdges) TeamOrErr() (*Team, error) {
 	return nil, &NotLoadedError{edge: "team"}
 }
 
-// ServicesOrErr returns the Services value or an error if the edge
-// was not loaded in eager-loading.
-func (e HostEdges) ServicesOrErr() ([]*Service, error) {
-	if e.loadedTypes[2] {
-		return e.Services, nil
-	}
-	return nil, &NotLoadedError{edge: "services"}
-}
-
-// HostGroupOrErr returns the HostGroup value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e HostEdges) HostGroupOrErr() (*HostGroup, error) {
-	if e.loadedTypes[3] {
-		if e.HostGroup == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: hostgroup.Label}
-		}
-		return e.HostGroup, nil
-	}
-	return nil, &NotLoadedError{edge: "host_group"}
-}
-
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Host) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case host.FieldPause, host.FieldHidden, host.FieldEditable:
+		case host.FieldPause, host.FieldHidden:
 			values[i] = new(sql.NullBool)
-		case host.FieldID, host.FieldCompetitionID, host.FieldTeamID, host.FieldAddress, host.FieldAddressListRange:
-			values[i] = new(sql.NullString)
-		case host.ForeignKeys[0]: // host_group_hosts
-			values[i] = new(sql.NullString)
-		case host.ForeignKeys[1]: // team_hosts
+		case host.FieldID, host.FieldAddress, host.FieldTeamID:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -150,49 +106,17 @@ func (h *Host) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				h.Hidden = value.Bool
 			}
-		case host.FieldCompetitionID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field competition_id", values[i])
-			} else if value.Valid {
-				h.CompetitionID = value.String
-			}
-		case host.FieldTeamID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field team_id", values[i])
-			} else if value.Valid {
-				h.TeamID = value.String
-			}
 		case host.FieldAddress:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field address", values[i])
 			} else if value.Valid {
 				h.Address = value.String
 			}
-		case host.FieldAddressListRange:
+		case host.FieldTeamID:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field address_list_range", values[i])
+				return fmt.Errorf("unexpected type %T for field team_id", values[i])
 			} else if value.Valid {
-				h.AddressListRange = value.String
-			}
-		case host.FieldEditable:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field editable", values[i])
-			} else if value.Valid {
-				h.Editable = value.Bool
-			}
-		case host.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field host_group_hosts", values[i])
-			} else if value.Valid {
-				h.host_group_hosts = new(string)
-				*h.host_group_hosts = value.String
-			}
-		case host.ForeignKeys[1]:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field team_hosts", values[i])
-			} else if value.Valid {
-				h.team_hosts = new(string)
-				*h.team_hosts = value.String
+				h.TeamID = value.String
 			}
 		default:
 			h.selectValues.Set(columns[i], values[i])
@@ -207,24 +131,14 @@ func (h *Host) Value(name string) (ent.Value, error) {
 	return h.selectValues.Get(name)
 }
 
-// QueryCompetition queries the "competition" edge of the Host entity.
-func (h *Host) QueryCompetition() *CompetitionQuery {
-	return NewHostClient(h.config).QueryCompetition(h)
+// QueryHostservices queries the "hostservices" edge of the Host entity.
+func (h *Host) QueryHostservices() *HostServiceQuery {
+	return NewHostClient(h.config).QueryHostservices(h)
 }
 
 // QueryTeam queries the "team" edge of the Host entity.
 func (h *Host) QueryTeam() *TeamQuery {
 	return NewHostClient(h.config).QueryTeam(h)
-}
-
-// QueryServices queries the "services" edge of the Host entity.
-func (h *Host) QueryServices() *ServiceQuery {
-	return NewHostClient(h.config).QueryServices(h)
-}
-
-// QueryHostGroup queries the "host_group" edge of the Host entity.
-func (h *Host) QueryHostGroup() *HostGroupQuery {
-	return NewHostClient(h.config).QueryHostGroup(h)
 }
 
 // Update returns a builder for updating this Host.
@@ -256,20 +170,11 @@ func (h *Host) String() string {
 	builder.WriteString("hidden=")
 	builder.WriteString(fmt.Sprintf("%v", h.Hidden))
 	builder.WriteString(", ")
-	builder.WriteString("competition_id=")
-	builder.WriteString(h.CompetitionID)
-	builder.WriteString(", ")
-	builder.WriteString("team_id=")
-	builder.WriteString(h.TeamID)
-	builder.WriteString(", ")
 	builder.WriteString("address=")
 	builder.WriteString(h.Address)
 	builder.WriteString(", ")
-	builder.WriteString("address_list_range=")
-	builder.WriteString(h.AddressListRange)
-	builder.WriteString(", ")
-	builder.WriteString("editable=")
-	builder.WriteString(fmt.Sprintf("%v", h.Editable))
+	builder.WriteString("team_id=")
+	builder.WriteString(h.TeamID)
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -71,7 +71,18 @@ func (ru *ReportUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (ru *ReportUpdate) check() error {
+	if _, ok := ru.mutation.CompetitionID(); ru.mutation.CompetitionCleared() && !ok {
+		return errors.New(`entities: clearing a required unique edge "Report.competition"`)
+	}
+	return nil
+}
+
 func (ru *ReportUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := ru.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(report.Table, report.Columns, sqlgraph.NewFieldSpec(report.FieldID, field.TypeInt))
 	if ps := ru.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -163,7 +174,18 @@ func (ruo *ReportUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (ruo *ReportUpdateOne) check() error {
+	if _, ok := ruo.mutation.CompetitionID(); ruo.mutation.CompetitionCleared() && !ok {
+		return errors.New(`entities: clearing a required unique edge "Report.competition"`)
+	}
+	return nil
+}
+
 func (ruo *ReportUpdateOne) sqlSave(ctx context.Context) (_node *Report, err error) {
+	if err := ruo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(report.Table, report.Columns, sqlgraph.NewFieldSpec(report.FieldID, field.TypeInt))
 	id, ok := ruo.mutation.ID()
 	if !ok {

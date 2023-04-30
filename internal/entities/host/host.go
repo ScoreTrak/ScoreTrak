@@ -16,33 +16,23 @@ const (
 	FieldPause = "pause"
 	// FieldHidden holds the string denoting the hidden field in the database.
 	FieldHidden = "hidden"
-	// FieldCompetitionID holds the string denoting the competition_id field in the database.
-	FieldCompetitionID = "competition_id"
-	// FieldTeamID holds the string denoting the team_id field in the database.
-	FieldTeamID = "team_id"
 	// FieldAddress holds the string denoting the address field in the database.
 	FieldAddress = "address"
-	// FieldAddressListRange holds the string denoting the address_list_range field in the database.
-	FieldAddressListRange = "address_list_range"
-	// FieldEditable holds the string denoting the editable field in the database.
-	FieldEditable = "editable"
-	// EdgeCompetition holds the string denoting the competition edge name in mutations.
-	EdgeCompetition = "competition"
+	// FieldTeamID holds the string denoting the team_id field in the database.
+	FieldTeamID = "team_id"
+	// EdgeHostservices holds the string denoting the hostservices edge name in mutations.
+	EdgeHostservices = "hostservices"
 	// EdgeTeam holds the string denoting the team edge name in mutations.
 	EdgeTeam = "team"
-	// EdgeServices holds the string denoting the services edge name in mutations.
-	EdgeServices = "services"
-	// EdgeHostGroup holds the string denoting the host_group edge name in mutations.
-	EdgeHostGroup = "host_group"
 	// Table holds the table name of the host in the database.
 	Table = "hosts"
-	// CompetitionTable is the table that holds the competition relation/edge.
-	CompetitionTable = "hosts"
-	// CompetitionInverseTable is the table name for the Competition entity.
-	// It exists in this package in order to avoid circular dependency with the "competition" package.
-	CompetitionInverseTable = "competitions"
-	// CompetitionColumn is the table column denoting the competition relation/edge.
-	CompetitionColumn = "competition_id"
+	// HostservicesTable is the table that holds the hostservices relation/edge.
+	HostservicesTable = "host_services"
+	// HostservicesInverseTable is the table name for the HostService entity.
+	// It exists in this package in order to avoid circular dependency with the "hostservice" package.
+	HostservicesInverseTable = "host_services"
+	// HostservicesColumn is the table column denoting the hostservices relation/edge.
+	HostservicesColumn = "host_id"
 	// TeamTable is the table that holds the team relation/edge.
 	TeamTable = "hosts"
 	// TeamInverseTable is the table name for the Team entity.
@@ -50,20 +40,6 @@ const (
 	TeamInverseTable = "teams"
 	// TeamColumn is the table column denoting the team relation/edge.
 	TeamColumn = "team_id"
-	// ServicesTable is the table that holds the services relation/edge.
-	ServicesTable = "services"
-	// ServicesInverseTable is the table name for the Service entity.
-	// It exists in this package in order to avoid circular dependency with the "service" package.
-	ServicesInverseTable = "services"
-	// ServicesColumn is the table column denoting the services relation/edge.
-	ServicesColumn = "host_services"
-	// HostGroupTable is the table that holds the host_group relation/edge.
-	HostGroupTable = "hosts"
-	// HostGroupInverseTable is the table name for the HostGroup entity.
-	// It exists in this package in order to avoid circular dependency with the "hostgroup" package.
-	HostGroupInverseTable = "host_groups"
-	// HostGroupColumn is the table column denoting the host_group relation/edge.
-	HostGroupColumn = "host_group_hosts"
 )
 
 // Columns holds all SQL columns for host fields.
@@ -71,18 +47,8 @@ var Columns = []string{
 	FieldID,
 	FieldPause,
 	FieldHidden,
-	FieldCompetitionID,
-	FieldTeamID,
 	FieldAddress,
-	FieldAddressListRange,
-	FieldEditable,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "hosts"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"host_group_hosts",
-	"team_hosts",
+	FieldTeamID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -92,17 +58,12 @@ func ValidColumn(column string) bool {
 			return true
 		}
 	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
-			return true
-		}
-	}
 	return false
 }
 
 var (
-	// AddressValidator is a validator for the "address" field. It is called by the builders before save.
-	AddressValidator func(string) error
+	// DefaultHidden holds the default value on creation for the "hidden" field.
+	DefaultHidden bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
@@ -127,9 +88,9 @@ func ByHidden(opts ...sql.OrderTermOption) Order {
 	return sql.OrderByField(FieldHidden, opts...).ToFunc()
 }
 
-// ByCompetitionID orders the results by the competition_id field.
-func ByCompetitionID(opts ...sql.OrderTermOption) Order {
-	return sql.OrderByField(FieldCompetitionID, opts...).ToFunc()
+// ByAddress orders the results by the address field.
+func ByAddress(opts ...sql.OrderTermOption) Order {
+	return sql.OrderByField(FieldAddress, opts...).ToFunc()
 }
 
 // ByTeamID orders the results by the team_id field.
@@ -137,25 +98,17 @@ func ByTeamID(opts ...sql.OrderTermOption) Order {
 	return sql.OrderByField(FieldTeamID, opts...).ToFunc()
 }
 
-// ByAddress orders the results by the address field.
-func ByAddress(opts ...sql.OrderTermOption) Order {
-	return sql.OrderByField(FieldAddress, opts...).ToFunc()
-}
-
-// ByAddressListRange orders the results by the address_list_range field.
-func ByAddressListRange(opts ...sql.OrderTermOption) Order {
-	return sql.OrderByField(FieldAddressListRange, opts...).ToFunc()
-}
-
-// ByEditable orders the results by the editable field.
-func ByEditable(opts ...sql.OrderTermOption) Order {
-	return sql.OrderByField(FieldEditable, opts...).ToFunc()
-}
-
-// ByCompetitionField orders the results by competition field.
-func ByCompetitionField(field string, opts ...sql.OrderTermOption) Order {
+// ByHostservicesCount orders the results by hostservices count.
+func ByHostservicesCount(opts ...sql.OrderTermOption) Order {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCompetitionStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newHostservicesStep(), opts...)
+	}
+}
+
+// ByHostservices orders the results by hostservices terms.
+func ByHostservices(term sql.OrderTerm, terms ...sql.OrderTerm) Order {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newHostservicesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -165,52 +118,17 @@ func ByTeamField(field string, opts ...sql.OrderTermOption) Order {
 		sqlgraph.OrderByNeighborTerms(s, newTeamStep(), sql.OrderByField(field, opts...))
 	}
 }
-
-// ByServicesCount orders the results by services count.
-func ByServicesCount(opts ...sql.OrderTermOption) Order {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newServicesStep(), opts...)
-	}
-}
-
-// ByServices orders the results by services terms.
-func ByServices(term sql.OrderTerm, terms ...sql.OrderTerm) Order {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newServicesStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
-// ByHostGroupField orders the results by host_group field.
-func ByHostGroupField(field string, opts ...sql.OrderTermOption) Order {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newHostGroupStep(), sql.OrderByField(field, opts...))
-	}
-}
-func newCompetitionStep() *sqlgraph.Step {
+func newHostservicesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CompetitionInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, CompetitionTable, CompetitionColumn),
+		sqlgraph.To(HostservicesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, HostservicesTable, HostservicesColumn),
 	)
 }
 func newTeamStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(TeamInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, TeamTable, TeamColumn),
-	)
-}
-func newServicesStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(ServicesInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, ServicesTable, ServicesColumn),
-	)
-}
-func newHostGroupStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(HostGroupInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, HostGroupTable, HostGroupColumn),
+		sqlgraph.Edge(sqlgraph.M2O, true, TeamTable, TeamColumn),
 	)
 }

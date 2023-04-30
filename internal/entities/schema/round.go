@@ -19,6 +19,7 @@ func (Round) Fields() []ent.Field {
 		field.String("err"),
 		field.Time("started_at"),
 		field.Time("finished_at"),
+		field.String("competition_id").Immutable(),
 	}
 }
 
@@ -26,12 +27,12 @@ func (Round) Fields() []ent.Field {
 func (Round) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("checks", Check.Type),
+		edge.From("competition", Competition.Type).Ref("rounds").Field("competition_id").Unique().Required().Immutable(),
 	}
 }
 
 func (Round) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		BaseMixin{},
-		CompetitonMixin{},
 	}
 }

@@ -53,8 +53,8 @@ func encodeCreateHostRequest(
 	return nil
 }
 
-func encodeCreateHostGroupRequest(
-	req *CreateHostGroupReq,
+func encodeCreateHostServiceRequest(
+	req *CreateHostServiceReq,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -137,20 +137,6 @@ func encodeCreateTeamRequest(
 	return nil
 }
 
-func encodeCreateUserRequest(
-	req *CreateUserReq,
-	r *http.Request,
-) error {
-	const contentType = "application/json"
-	e := jx.GetEncoder()
-	{
-		req.Encode(e)
-	}
-	encoded := e.Bytes()
-	ht.SetBody(r, bytes.NewReader(encoded), contentType)
-	return nil
-}
-
 func encodeUpdateCheckRequest(
 	req *UpdateCheckReq,
 	r *http.Request,
@@ -193,8 +179,8 @@ func encodeUpdateHostRequest(
 	return nil
 }
 
-func encodeUpdateHostGroupRequest(
-	req *UpdateHostGroupReq,
+func encodeUpdateHostServiceRequest(
+	req *UpdateHostServiceReq,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -265,20 +251,6 @@ func encodeUpdateServiceRequest(
 
 func encodeUpdateTeamRequest(
 	req *UpdateTeamReq,
-	r *http.Request,
-) error {
-	const contentType = "application/json"
-	e := jx.GetEncoder()
-	{
-		req.Encode(e)
-	}
-	encoded := e.Bytes()
-	ht.SetBody(r, bytes.NewReader(encoded), contentType)
-	return nil
-}
-
-func encodeUpdateUserRequest(
-	req *UpdateUserReq,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

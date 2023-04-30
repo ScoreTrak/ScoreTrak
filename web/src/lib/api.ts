@@ -1,8 +1,11 @@
-import axios, {AxiosInstance} from "axios";
+import axios, {AxiosRequestConfig} from "axios";
+import {AxiosConfig} from "./scoretrak-queries";
 
-export const api: AxiosInstance = axios.create({
+const axiosConfig: AxiosRequestConfig & AxiosConfig = {
   baseURL: import.meta.env.VITE_API_SERVER_URL || "http://localhost:3000",
   timeout: 3000,
-  withCredentials: true
-})
+  withCredentials: true,
+}
+
+export const scoretrakAxiosInstance = axios.create(axiosConfig)
 

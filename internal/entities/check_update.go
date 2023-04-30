@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/check"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/round"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 )
 
 // CheckUpdate is the builder for updating Check entities.
@@ -87,6 +87,18 @@ func (cu *CheckUpdate) SetPassed(b bool) *CheckUpdate {
 	return cu
 }
 
+// SetRoundID sets the "round_id" field.
+func (cu *CheckUpdate) SetRoundID(s string) *CheckUpdate {
+	cu.mutation.SetRoundID(s)
+	return cu
+}
+
+// SetHostServiceID sets the "host_service_id" field.
+func (cu *CheckUpdate) SetHostServiceID(s string) *CheckUpdate {
+	cu.mutation.SetHostServiceID(s)
+	return cu
+}
+
 // SetRoundsID sets the "rounds" edge to the Round entity by ID.
 func (cu *CheckUpdate) SetRoundsID(id string) *CheckUpdate {
 	cu.mutation.SetRoundsID(id)
@@ -98,15 +110,15 @@ func (cu *CheckUpdate) SetRounds(r *Round) *CheckUpdate {
 	return cu.SetRoundsID(r.ID)
 }
 
-// SetServicesID sets the "services" edge to the Service entity by ID.
-func (cu *CheckUpdate) SetServicesID(id string) *CheckUpdate {
-	cu.mutation.SetServicesID(id)
+// SetHostserviceID sets the "hostservice" edge to the HostService entity by ID.
+func (cu *CheckUpdate) SetHostserviceID(id string) *CheckUpdate {
+	cu.mutation.SetHostserviceID(id)
 	return cu
 }
 
-// SetServices sets the "services" edge to the Service entity.
-func (cu *CheckUpdate) SetServices(s *Service) *CheckUpdate {
-	return cu.SetServicesID(s.ID)
+// SetHostservice sets the "hostservice" edge to the HostService entity.
+func (cu *CheckUpdate) SetHostservice(h *HostService) *CheckUpdate {
+	return cu.SetHostserviceID(h.ID)
 }
 
 // Mutation returns the CheckMutation object of the builder.
@@ -120,9 +132,9 @@ func (cu *CheckUpdate) ClearRounds() *CheckUpdate {
 	return cu
 }
 
-// ClearServices clears the "services" edge to the Service entity.
-func (cu *CheckUpdate) ClearServices() *CheckUpdate {
-	cu.mutation.ClearServices()
+// ClearHostservice clears the "hostservice" edge to the HostService entity.
+func (cu *CheckUpdate) ClearHostservice() *CheckUpdate {
+	cu.mutation.ClearHostservice()
 	return cu
 }
 
@@ -155,14 +167,14 @@ func (cu *CheckUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (cu *CheckUpdate) check() error {
-	if _, ok := cu.mutation.CompetitionID(); cu.mutation.CompetitionCleared() && !ok {
-		return errors.New(`entities: clearing a required unique edge "Check.competition"`)
-	}
 	if _, ok := cu.mutation.RoundsID(); cu.mutation.RoundsCleared() && !ok {
 		return errors.New(`entities: clearing a required unique edge "Check.rounds"`)
 	}
-	if _, ok := cu.mutation.ServicesID(); cu.mutation.ServicesCleared() && !ok {
-		return errors.New(`entities: clearing a required unique edge "Check.services"`)
+	if _, ok := cu.mutation.HostserviceID(); cu.mutation.HostserviceCleared() && !ok {
+		return errors.New(`entities: clearing a required unique edge "Check.hostservice"`)
+	}
+	if _, ok := cu.mutation.TeamID(); cu.mutation.TeamCleared() && !ok {
+		return errors.New(`entities: clearing a required unique edge "Check.team"`)
 	}
 	return nil
 }
@@ -203,7 +215,7 @@ func (cu *CheckUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if cu.mutation.RoundsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   check.RoundsTable,
 			Columns: []string{check.RoundsColumn},
 			Bidi:    false,
@@ -216,7 +228,7 @@ func (cu *CheckUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if nodes := cu.mutation.RoundsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   check.RoundsTable,
 			Columns: []string{check.RoundsColumn},
 			Bidi:    false,
@@ -229,28 +241,28 @@ func (cu *CheckUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if cu.mutation.ServicesCleared() {
+	if cu.mutation.HostserviceCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   check.ServicesTable,
-			Columns: []string{check.ServicesColumn},
+			Table:   check.HostserviceTable,
+			Columns: []string{check.HostserviceColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cu.mutation.ServicesIDs(); len(nodes) > 0 {
+	if nodes := cu.mutation.HostserviceIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   check.ServicesTable,
-			Columns: []string{check.ServicesColumn},
+			Table:   check.HostserviceTable,
+			Columns: []string{check.HostserviceColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -336,6 +348,18 @@ func (cuo *CheckUpdateOne) SetPassed(b bool) *CheckUpdateOne {
 	return cuo
 }
 
+// SetRoundID sets the "round_id" field.
+func (cuo *CheckUpdateOne) SetRoundID(s string) *CheckUpdateOne {
+	cuo.mutation.SetRoundID(s)
+	return cuo
+}
+
+// SetHostServiceID sets the "host_service_id" field.
+func (cuo *CheckUpdateOne) SetHostServiceID(s string) *CheckUpdateOne {
+	cuo.mutation.SetHostServiceID(s)
+	return cuo
+}
+
 // SetRoundsID sets the "rounds" edge to the Round entity by ID.
 func (cuo *CheckUpdateOne) SetRoundsID(id string) *CheckUpdateOne {
 	cuo.mutation.SetRoundsID(id)
@@ -347,15 +371,15 @@ func (cuo *CheckUpdateOne) SetRounds(r *Round) *CheckUpdateOne {
 	return cuo.SetRoundsID(r.ID)
 }
 
-// SetServicesID sets the "services" edge to the Service entity by ID.
-func (cuo *CheckUpdateOne) SetServicesID(id string) *CheckUpdateOne {
-	cuo.mutation.SetServicesID(id)
+// SetHostserviceID sets the "hostservice" edge to the HostService entity by ID.
+func (cuo *CheckUpdateOne) SetHostserviceID(id string) *CheckUpdateOne {
+	cuo.mutation.SetHostserviceID(id)
 	return cuo
 }
 
-// SetServices sets the "services" edge to the Service entity.
-func (cuo *CheckUpdateOne) SetServices(s *Service) *CheckUpdateOne {
-	return cuo.SetServicesID(s.ID)
+// SetHostservice sets the "hostservice" edge to the HostService entity.
+func (cuo *CheckUpdateOne) SetHostservice(h *HostService) *CheckUpdateOne {
+	return cuo.SetHostserviceID(h.ID)
 }
 
 // Mutation returns the CheckMutation object of the builder.
@@ -369,9 +393,9 @@ func (cuo *CheckUpdateOne) ClearRounds() *CheckUpdateOne {
 	return cuo
 }
 
-// ClearServices clears the "services" edge to the Service entity.
-func (cuo *CheckUpdateOne) ClearServices() *CheckUpdateOne {
-	cuo.mutation.ClearServices()
+// ClearHostservice clears the "hostservice" edge to the HostService entity.
+func (cuo *CheckUpdateOne) ClearHostservice() *CheckUpdateOne {
+	cuo.mutation.ClearHostservice()
 	return cuo
 }
 
@@ -417,14 +441,14 @@ func (cuo *CheckUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (cuo *CheckUpdateOne) check() error {
-	if _, ok := cuo.mutation.CompetitionID(); cuo.mutation.CompetitionCleared() && !ok {
-		return errors.New(`entities: clearing a required unique edge "Check.competition"`)
-	}
 	if _, ok := cuo.mutation.RoundsID(); cuo.mutation.RoundsCleared() && !ok {
 		return errors.New(`entities: clearing a required unique edge "Check.rounds"`)
 	}
-	if _, ok := cuo.mutation.ServicesID(); cuo.mutation.ServicesCleared() && !ok {
-		return errors.New(`entities: clearing a required unique edge "Check.services"`)
+	if _, ok := cuo.mutation.HostserviceID(); cuo.mutation.HostserviceCleared() && !ok {
+		return errors.New(`entities: clearing a required unique edge "Check.hostservice"`)
+	}
+	if _, ok := cuo.mutation.TeamID(); cuo.mutation.TeamCleared() && !ok {
+		return errors.New(`entities: clearing a required unique edge "Check.team"`)
 	}
 	return nil
 }
@@ -482,7 +506,7 @@ func (cuo *CheckUpdateOne) sqlSave(ctx context.Context) (_node *Check, err error
 	if cuo.mutation.RoundsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   check.RoundsTable,
 			Columns: []string{check.RoundsColumn},
 			Bidi:    false,
@@ -495,7 +519,7 @@ func (cuo *CheckUpdateOne) sqlSave(ctx context.Context) (_node *Check, err error
 	if nodes := cuo.mutation.RoundsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: true,
+			Inverse: false,
 			Table:   check.RoundsTable,
 			Columns: []string{check.RoundsColumn},
 			Bidi:    false,
@@ -508,28 +532,28 @@ func (cuo *CheckUpdateOne) sqlSave(ctx context.Context) (_node *Check, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if cuo.mutation.ServicesCleared() {
+	if cuo.mutation.HostserviceCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   check.ServicesTable,
-			Columns: []string{check.ServicesColumn},
+			Table:   check.HostserviceTable,
+			Columns: []string{check.HostserviceColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := cuo.mutation.ServicesIDs(); len(nodes) > 0 {
+	if nodes := cuo.mutation.HostserviceIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   check.ServicesTable,
-			Columns: []string{check.ServicesColumn},
+			Table:   check.HostserviceTable,
+			Columns: []string{check.HostserviceColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

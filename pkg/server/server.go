@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/ScoreTrak/ScoreTrak/pkg/server/middleware"
+	"github.com/justinas/alice"
 	"log"
 	"net"
 	"net/http"
@@ -13,11 +13,11 @@ import (
 	"go.uber.org/fx"
 )
 
-func NewServer(lc fx.Lifecycle, c *config.Config, entityServer *ogent.Server, km *middleware.KratosMiddleware) (*http.Server, error) {
+func NewServer(lc fx.Lifecycle, c *config.Config, entityServer *ogent.Server, middlewares alice.Chain) (*http.Server, error) {
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", c.Server.Address, c.Server.Port),
-		Handler: entityServer,
+		Handler: middlewares.Then(entityServer),
 	}
 
 	lc.Append(fx.Hook{

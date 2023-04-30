@@ -43,11 +43,15 @@ type Competition struct {
 type CompetitionEdges struct {
 	// Teams holds the value of the teams edge.
 	Teams []*Team `json:"teams,omitempty"`
-	// Users holds the value of the users edge.
-	Users []*User `json:"users,omitempty"`
+	// Services holds the value of the services edge.
+	Services []*Service `json:"services,omitempty"`
+	// Reports holds the value of the reports edge.
+	Reports []*Report `json:"reports,omitempty"`
+	// Rounds holds the value of the rounds edge.
+	Rounds []*Round `json:"rounds,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [4]bool
 }
 
 // TeamsOrErr returns the Teams value or an error if the edge
@@ -59,13 +63,31 @@ func (e CompetitionEdges) TeamsOrErr() ([]*Team, error) {
 	return nil, &NotLoadedError{edge: "teams"}
 }
 
-// UsersOrErr returns the Users value or an error if the edge
+// ServicesOrErr returns the Services value or an error if the edge
 // was not loaded in eager-loading.
-func (e CompetitionEdges) UsersOrErr() ([]*User, error) {
+func (e CompetitionEdges) ServicesOrErr() ([]*Service, error) {
 	if e.loadedTypes[1] {
-		return e.Users, nil
+		return e.Services, nil
 	}
-	return nil, &NotLoadedError{edge: "users"}
+	return nil, &NotLoadedError{edge: "services"}
+}
+
+// ReportsOrErr returns the Reports value or an error if the edge
+// was not loaded in eager-loading.
+func (e CompetitionEdges) ReportsOrErr() ([]*Report, error) {
+	if e.loadedTypes[2] {
+		return e.Reports, nil
+	}
+	return nil, &NotLoadedError{edge: "reports"}
+}
+
+// RoundsOrErr returns the Rounds value or an error if the edge
+// was not loaded in eager-loading.
+func (e CompetitionEdges) RoundsOrErr() ([]*Round, error) {
+	if e.loadedTypes[3] {
+		return e.Rounds, nil
+	}
+	return nil, &NotLoadedError{edge: "rounds"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -170,9 +192,19 @@ func (c *Competition) QueryTeams() *TeamQuery {
 	return NewCompetitionClient(c.config).QueryTeams(c)
 }
 
-// QueryUsers queries the "users" edge of the Competition entity.
-func (c *Competition) QueryUsers() *UserQuery {
-	return NewCompetitionClient(c.config).QueryUsers(c)
+// QueryServices queries the "services" edge of the Competition entity.
+func (c *Competition) QueryServices() *ServiceQuery {
+	return NewCompetitionClient(c.config).QueryServices(c)
+}
+
+// QueryReports queries the "reports" edge of the Competition entity.
+func (c *Competition) QueryReports() *ReportQuery {
+	return NewCompetitionClient(c.config).QueryReports(c)
+}
+
+// QueryRounds queries the "rounds" edge of the Competition entity.
+func (c *Competition) QueryRounds() *RoundQuery {
+	return NewCompetitionClient(c.config).QueryRounds(c)
 }
 
 // Update returns a builder for updating this Competition.

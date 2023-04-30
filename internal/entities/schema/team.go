@@ -4,7 +4,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/mixin"
 )
 
 // Team holds the schema definition for the Team entity.
@@ -15,16 +14,19 @@ type Team struct {
 // Fields of the Team.
 func (Team) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name"),
-		field.Int("index").Optional().NonNegative(),
+		field.Int("number").NonNegative(),
+		field.String("competition_id").Immutable(),
 	}
 }
 
 // Edges of the Team.
 func (Team) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("users", User.Type),
 		edge.To("hosts", Host.Type),
+		edge.To("hostservices", HostService.Type),
+		edge.To("checks", Check.Type),
+		edge.To("properties", Property.Type),
+		edge.From("competition", Competition.Type).Ref("teams").Field("competition_id").Unique().Required().Immutable(),
 	}
 }
 
@@ -32,24 +34,8 @@ func (Team) Edges() []ent.Edge {
 func (Team) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		BaseMixin{},
+		NameMixin{},
 		PauseMixin{},
 		HideMixin{},
-		CompetitonMixin{},
-	}
-}
-
-type TeamMixin struct {
-	mixin.Schema
-}
-
-func (TeamMixin) Fields() []ent.Field {
-	return []ent.Field{
-		field.String("team_id"),
-	}
-}
-
-func (TeamMixin) Edges() []ent.Edge {
-	return []ent.Edge{
-		edge.To("team", Team.Type).Field("team_id").Unique().Required(),
 	}
 }

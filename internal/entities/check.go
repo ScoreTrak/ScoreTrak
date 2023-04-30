@@ -9,9 +9,9 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/check"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/round"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
 )
 
 // Check is the model entity for the Check schema.
@@ -23,52 +23,42 @@ type Check struct {
 	Pause bool `json:"pause,omitempty"`
 	// Hidden holds the value of the "hidden" field.
 	Hidden bool `json:"hidden,omitempty"`
-	// CompetitionID holds the value of the "competition_id" field.
-	CompetitionID string `json:"competition_id,omitempty"`
 	// Log holds the value of the "log" field.
 	Log string `json:"log,omitempty"`
 	// Error holds the value of the "error" field.
 	Error string `json:"error,omitempty"`
 	// Passed holds the value of the "passed" field.
 	Passed bool `json:"passed,omitempty"`
+	// RoundID holds the value of the "round_id" field.
+	RoundID string `json:"round_id,omitempty"`
+	// HostServiceID holds the value of the "host_service_id" field.
+	HostServiceID string `json:"host_service_id,omitempty"`
+	// TeamID holds the value of the "team_id" field.
+	TeamID string `json:"team_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CheckQuery when eager-loading is set.
-	Edges          CheckEdges `json:"edges"`
-	round_checks   *string
-	service_checks *string
-	selectValues   sql.SelectValues
+	Edges        CheckEdges `json:"edges"`
+	round_checks *string
+	selectValues sql.SelectValues
 }
 
 // CheckEdges holds the relations/edges for other nodes in the graph.
 type CheckEdges struct {
-	// Competition holds the value of the competition edge.
-	Competition *Competition `json:"competition,omitempty"`
 	// Rounds holds the value of the rounds edge.
 	Rounds *Round `json:"rounds,omitempty"`
-	// Services holds the value of the services edge.
-	Services *Service `json:"services,omitempty"`
+	// Hostservice holds the value of the hostservice edge.
+	Hostservice *HostService `json:"hostservice,omitempty"`
+	// Team holds the value of the team edge.
+	Team *Team `json:"team,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [3]bool
 }
 
-// CompetitionOrErr returns the Competition value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e CheckEdges) CompetitionOrErr() (*Competition, error) {
-	if e.loadedTypes[0] {
-		if e.Competition == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: competition.Label}
-		}
-		return e.Competition, nil
-	}
-	return nil, &NotLoadedError{edge: "competition"}
-}
-
 // RoundsOrErr returns the Rounds value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e CheckEdges) RoundsOrErr() (*Round, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[0] {
 		if e.Rounds == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: round.Label}
@@ -78,17 +68,30 @@ func (e CheckEdges) RoundsOrErr() (*Round, error) {
 	return nil, &NotLoadedError{edge: "rounds"}
 }
 
-// ServicesOrErr returns the Services value or an error if the edge
+// HostserviceOrErr returns the Hostservice value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e CheckEdges) ServicesOrErr() (*Service, error) {
-	if e.loadedTypes[2] {
-		if e.Services == nil {
+func (e CheckEdges) HostserviceOrErr() (*HostService, error) {
+	if e.loadedTypes[1] {
+		if e.Hostservice == nil {
 			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: service.Label}
+			return nil, &NotFoundError{label: hostservice.Label}
 		}
-		return e.Services, nil
+		return e.Hostservice, nil
 	}
-	return nil, &NotLoadedError{edge: "services"}
+	return nil, &NotLoadedError{edge: "hostservice"}
+}
+
+// TeamOrErr returns the Team value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e CheckEdges) TeamOrErr() (*Team, error) {
+	if e.loadedTypes[2] {
+		if e.Team == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: team.Label}
+		}
+		return e.Team, nil
+	}
+	return nil, &NotLoadedError{edge: "team"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -98,11 +101,9 @@ func (*Check) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case check.FieldPause, check.FieldHidden, check.FieldPassed:
 			values[i] = new(sql.NullBool)
-		case check.FieldID, check.FieldCompetitionID, check.FieldLog, check.FieldError:
+		case check.FieldID, check.FieldLog, check.FieldError, check.FieldRoundID, check.FieldHostServiceID, check.FieldTeamID:
 			values[i] = new(sql.NullString)
 		case check.ForeignKeys[0]: // round_checks
-			values[i] = new(sql.NullString)
-		case check.ForeignKeys[1]: // service_checks
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -137,12 +138,6 @@ func (c *Check) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				c.Hidden = value.Bool
 			}
-		case check.FieldCompetitionID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field competition_id", values[i])
-			} else if value.Valid {
-				c.CompetitionID = value.String
-			}
 		case check.FieldLog:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field log", values[i])
@@ -161,19 +156,30 @@ func (c *Check) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				c.Passed = value.Bool
 			}
+		case check.FieldRoundID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field round_id", values[i])
+			} else if value.Valid {
+				c.RoundID = value.String
+			}
+		case check.FieldHostServiceID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field host_service_id", values[i])
+			} else if value.Valid {
+				c.HostServiceID = value.String
+			}
+		case check.FieldTeamID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field team_id", values[i])
+			} else if value.Valid {
+				c.TeamID = value.String
+			}
 		case check.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field round_checks", values[i])
 			} else if value.Valid {
 				c.round_checks = new(string)
 				*c.round_checks = value.String
-			}
-		case check.ForeignKeys[1]:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field service_checks", values[i])
-			} else if value.Valid {
-				c.service_checks = new(string)
-				*c.service_checks = value.String
 			}
 		default:
 			c.selectValues.Set(columns[i], values[i])
@@ -188,19 +194,19 @@ func (c *Check) Value(name string) (ent.Value, error) {
 	return c.selectValues.Get(name)
 }
 
-// QueryCompetition queries the "competition" edge of the Check entity.
-func (c *Check) QueryCompetition() *CompetitionQuery {
-	return NewCheckClient(c.config).QueryCompetition(c)
-}
-
 // QueryRounds queries the "rounds" edge of the Check entity.
 func (c *Check) QueryRounds() *RoundQuery {
 	return NewCheckClient(c.config).QueryRounds(c)
 }
 
-// QueryServices queries the "services" edge of the Check entity.
-func (c *Check) QueryServices() *ServiceQuery {
-	return NewCheckClient(c.config).QueryServices(c)
+// QueryHostservice queries the "hostservice" edge of the Check entity.
+func (c *Check) QueryHostservice() *HostServiceQuery {
+	return NewCheckClient(c.config).QueryHostservice(c)
+}
+
+// QueryTeam queries the "team" edge of the Check entity.
+func (c *Check) QueryTeam() *TeamQuery {
+	return NewCheckClient(c.config).QueryTeam(c)
 }
 
 // Update returns a builder for updating this Check.
@@ -232,9 +238,6 @@ func (c *Check) String() string {
 	builder.WriteString("hidden=")
 	builder.WriteString(fmt.Sprintf("%v", c.Hidden))
 	builder.WriteString(", ")
-	builder.WriteString("competition_id=")
-	builder.WriteString(c.CompetitionID)
-	builder.WriteString(", ")
 	builder.WriteString("log=")
 	builder.WriteString(c.Log)
 	builder.WriteString(", ")
@@ -243,6 +246,15 @@ func (c *Check) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("passed=")
 	builder.WriteString(fmt.Sprintf("%v", c.Passed))
+	builder.WriteString(", ")
+	builder.WriteString("round_id=")
+	builder.WriteString(c.RoundID)
+	builder.WriteString(", ")
+	builder.WriteString("host_service_id=")
+	builder.WriteString(c.HostServiceID)
+	builder.WriteString(", ")
+	builder.WriteString("team_id=")
+	builder.WriteString(c.TeamID)
 	builder.WriteByte(')')
 	return builder.String()
 }

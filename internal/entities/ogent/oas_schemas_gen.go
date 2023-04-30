@@ -7,123 +7,19 @@ import (
 
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
-	"github.com/google/uuid"
 )
-
-// Ref: #/components/schemas/Check_CompetitionRead
-type CheckCompetitionRead struct {
-	ID               string      `json:"id"`
-	Hidden           OptBool     `json:"hidden"`
-	Pause            OptBool     `json:"pause"`
-	Name             string      `json:"name"`
-	DisplayName      string      `json:"display_name"`
-	ViewableToPublic OptBool     `json:"viewable_to_public"`
-	ToBeStartedAt    OptDateTime `json:"to_be_started_at"`
-	StartedAt        OptDateTime `json:"started_at"`
-	FinishedAt       OptDateTime `json:"finished_at"`
-}
-
-// GetID returns the value of ID.
-func (s *CheckCompetitionRead) GetID() string {
-	return s.ID
-}
-
-// GetHidden returns the value of Hidden.
-func (s *CheckCompetitionRead) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetPause returns the value of Pause.
-func (s *CheckCompetitionRead) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetName returns the value of Name.
-func (s *CheckCompetitionRead) GetName() string {
-	return s.Name
-}
-
-// GetDisplayName returns the value of DisplayName.
-func (s *CheckCompetitionRead) GetDisplayName() string {
-	return s.DisplayName
-}
-
-// GetViewableToPublic returns the value of ViewableToPublic.
-func (s *CheckCompetitionRead) GetViewableToPublic() OptBool {
-	return s.ViewableToPublic
-}
-
-// GetToBeStartedAt returns the value of ToBeStartedAt.
-func (s *CheckCompetitionRead) GetToBeStartedAt() OptDateTime {
-	return s.ToBeStartedAt
-}
-
-// GetStartedAt returns the value of StartedAt.
-func (s *CheckCompetitionRead) GetStartedAt() OptDateTime {
-	return s.StartedAt
-}
-
-// GetFinishedAt returns the value of FinishedAt.
-func (s *CheckCompetitionRead) GetFinishedAt() OptDateTime {
-	return s.FinishedAt
-}
-
-// SetID sets the value of ID.
-func (s *CheckCompetitionRead) SetID(val string) {
-	s.ID = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *CheckCompetitionRead) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetPause sets the value of Pause.
-func (s *CheckCompetitionRead) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetName sets the value of Name.
-func (s *CheckCompetitionRead) SetName(val string) {
-	s.Name = val
-}
-
-// SetDisplayName sets the value of DisplayName.
-func (s *CheckCompetitionRead) SetDisplayName(val string) {
-	s.DisplayName = val
-}
-
-// SetViewableToPublic sets the value of ViewableToPublic.
-func (s *CheckCompetitionRead) SetViewableToPublic(val OptBool) {
-	s.ViewableToPublic = val
-}
-
-// SetToBeStartedAt sets the value of ToBeStartedAt.
-func (s *CheckCompetitionRead) SetToBeStartedAt(val OptDateTime) {
-	s.ToBeStartedAt = val
-}
-
-// SetStartedAt sets the value of StartedAt.
-func (s *CheckCompetitionRead) SetStartedAt(val OptDateTime) {
-	s.StartedAt = val
-}
-
-// SetFinishedAt sets the value of FinishedAt.
-func (s *CheckCompetitionRead) SetFinishedAt(val OptDateTime) {
-	s.FinishedAt = val
-}
-
-func (*CheckCompetitionRead) readCheckCompetitionRes() {}
 
 // Ref: #/components/schemas/CheckCreate
 type CheckCreate struct {
 	ID            string  `json:"id"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
 	Log           string  `json:"log"`
 	Error         string  `json:"error"`
 	Passed        bool    `json:"passed"`
+	RoundID       string  `json:"round_id"`
+	HostServiceID string  `json:"host_service_id"`
+	TeamID        string  `json:"team_id"`
 }
 
 // GetID returns the value of ID.
@@ -141,11 +37,6 @@ func (s *CheckCreate) GetHidden() OptBool {
 	return s.Hidden
 }
 
-// GetCompetitionID returns the value of CompetitionID.
-func (s *CheckCreate) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
 // GetLog returns the value of Log.
 func (s *CheckCreate) GetLog() string {
 	return s.Log
@@ -159,6 +50,21 @@ func (s *CheckCreate) GetError() string {
 // GetPassed returns the value of Passed.
 func (s *CheckCreate) GetPassed() bool {
 	return s.Passed
+}
+
+// GetRoundID returns the value of RoundID.
+func (s *CheckCreate) GetRoundID() string {
+	return s.RoundID
+}
+
+// GetHostServiceID returns the value of HostServiceID.
+func (s *CheckCreate) GetHostServiceID() string {
+	return s.HostServiceID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *CheckCreate) GetTeamID() string {
+	return s.TeamID
 }
 
 // SetID sets the value of ID.
@@ -176,11 +82,6 @@ func (s *CheckCreate) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
-// SetCompetitionID sets the value of CompetitionID.
-func (s *CheckCreate) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
 // SetLog sets the value of Log.
 func (s *CheckCreate) SetLog(val string) {
 	s.Log = val
@@ -196,17 +97,161 @@ func (s *CheckCreate) SetPassed(val bool) {
 	s.Passed = val
 }
 
+// SetRoundID sets the value of RoundID.
+func (s *CheckCreate) SetRoundID(val string) {
+	s.RoundID = val
+}
+
+// SetHostServiceID sets the value of HostServiceID.
+func (s *CheckCreate) SetHostServiceID(val string) {
+	s.HostServiceID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *CheckCreate) SetTeamID(val string) {
+	s.TeamID = val
+}
+
 func (*CheckCreate) createCheckRes() {}
+
+// Ref: #/components/schemas/Check_HostserviceRead
+type CheckHostserviceRead struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	DisplayName string  `json:"display_name"`
+	Pause       OptBool `json:"pause"`
+	Hidden      OptBool `json:"hidden"`
+	Weight      int     `json:"weight"`
+	PointBoost  int     `json:"point_boost"`
+	RoundUnits  int     `json:"round_units"`
+	RoundDelay  int     `json:"round_delay"`
+	HostID      string  `json:"host_id"`
+	TeamID      string  `json:"team_id"`
+}
+
+// GetID returns the value of ID.
+func (s *CheckHostserviceRead) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *CheckHostserviceRead) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *CheckHostserviceRead) GetDisplayName() string {
+	return s.DisplayName
+}
+
+// GetPause returns the value of Pause.
+func (s *CheckHostserviceRead) GetPause() OptBool {
+	return s.Pause
+}
+
+// GetHidden returns the value of Hidden.
+func (s *CheckHostserviceRead) GetHidden() OptBool {
+	return s.Hidden
+}
+
+// GetWeight returns the value of Weight.
+func (s *CheckHostserviceRead) GetWeight() int {
+	return s.Weight
+}
+
+// GetPointBoost returns the value of PointBoost.
+func (s *CheckHostserviceRead) GetPointBoost() int {
+	return s.PointBoost
+}
+
+// GetRoundUnits returns the value of RoundUnits.
+func (s *CheckHostserviceRead) GetRoundUnits() int {
+	return s.RoundUnits
+}
+
+// GetRoundDelay returns the value of RoundDelay.
+func (s *CheckHostserviceRead) GetRoundDelay() int {
+	return s.RoundDelay
+}
+
+// GetHostID returns the value of HostID.
+func (s *CheckHostserviceRead) GetHostID() string {
+	return s.HostID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *CheckHostserviceRead) GetTeamID() string {
+	return s.TeamID
+}
+
+// SetID sets the value of ID.
+func (s *CheckHostserviceRead) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *CheckHostserviceRead) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *CheckHostserviceRead) SetDisplayName(val string) {
+	s.DisplayName = val
+}
+
+// SetPause sets the value of Pause.
+func (s *CheckHostserviceRead) SetPause(val OptBool) {
+	s.Pause = val
+}
+
+// SetHidden sets the value of Hidden.
+func (s *CheckHostserviceRead) SetHidden(val OptBool) {
+	s.Hidden = val
+}
+
+// SetWeight sets the value of Weight.
+func (s *CheckHostserviceRead) SetWeight(val int) {
+	s.Weight = val
+}
+
+// SetPointBoost sets the value of PointBoost.
+func (s *CheckHostserviceRead) SetPointBoost(val int) {
+	s.PointBoost = val
+}
+
+// SetRoundUnits sets the value of RoundUnits.
+func (s *CheckHostserviceRead) SetRoundUnits(val int) {
+	s.RoundUnits = val
+}
+
+// SetRoundDelay sets the value of RoundDelay.
+func (s *CheckHostserviceRead) SetRoundDelay(val int) {
+	s.RoundDelay = val
+}
+
+// SetHostID sets the value of HostID.
+func (s *CheckHostserviceRead) SetHostID(val string) {
+	s.HostID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *CheckHostserviceRead) SetTeamID(val string) {
+	s.TeamID = val
+}
+
+func (*CheckHostserviceRead) readCheckHostserviceRes() {}
 
 // Ref: #/components/schemas/CheckList
 type CheckList struct {
 	ID            string  `json:"id"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
 	Log           string  `json:"log"`
 	Error         string  `json:"error"`
 	Passed        bool    `json:"passed"`
+	RoundID       string  `json:"round_id"`
+	HostServiceID string  `json:"host_service_id"`
+	TeamID        string  `json:"team_id"`
 }
 
 // GetID returns the value of ID.
@@ -224,11 +269,6 @@ func (s *CheckList) GetHidden() OptBool {
 	return s.Hidden
 }
 
-// GetCompetitionID returns the value of CompetitionID.
-func (s *CheckList) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
 // GetLog returns the value of Log.
 func (s *CheckList) GetLog() string {
 	return s.Log
@@ -242,6 +282,21 @@ func (s *CheckList) GetError() string {
 // GetPassed returns the value of Passed.
 func (s *CheckList) GetPassed() bool {
 	return s.Passed
+}
+
+// GetRoundID returns the value of RoundID.
+func (s *CheckList) GetRoundID() string {
+	return s.RoundID
+}
+
+// GetHostServiceID returns the value of HostServiceID.
+func (s *CheckList) GetHostServiceID() string {
+	return s.HostServiceID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *CheckList) GetTeamID() string {
+	return s.TeamID
 }
 
 // SetID sets the value of ID.
@@ -259,11 +314,6 @@ func (s *CheckList) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
-// SetCompetitionID sets the value of CompetitionID.
-func (s *CheckList) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
 // SetLog sets the value of Log.
 func (s *CheckList) SetLog(val string) {
 	s.Log = val
@@ -279,15 +329,32 @@ func (s *CheckList) SetPassed(val bool) {
 	s.Passed = val
 }
 
+// SetRoundID sets the value of RoundID.
+func (s *CheckList) SetRoundID(val string) {
+	s.RoundID = val
+}
+
+// SetHostServiceID sets the value of HostServiceID.
+func (s *CheckList) SetHostServiceID(val string) {
+	s.HostServiceID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *CheckList) SetTeamID(val string) {
+	s.TeamID = val
+}
+
 // Ref: #/components/schemas/CheckRead
 type CheckRead struct {
 	ID            string  `json:"id"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
 	Log           string  `json:"log"`
 	Error         string  `json:"error"`
 	Passed        bool    `json:"passed"`
+	RoundID       string  `json:"round_id"`
+	HostServiceID string  `json:"host_service_id"`
+	TeamID        string  `json:"team_id"`
 }
 
 // GetID returns the value of ID.
@@ -305,11 +372,6 @@ func (s *CheckRead) GetHidden() OptBool {
 	return s.Hidden
 }
 
-// GetCompetitionID returns the value of CompetitionID.
-func (s *CheckRead) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
 // GetLog returns the value of Log.
 func (s *CheckRead) GetLog() string {
 	return s.Log
@@ -323,6 +385,21 @@ func (s *CheckRead) GetError() string {
 // GetPassed returns the value of Passed.
 func (s *CheckRead) GetPassed() bool {
 	return s.Passed
+}
+
+// GetRoundID returns the value of RoundID.
+func (s *CheckRead) GetRoundID() string {
+	return s.RoundID
+}
+
+// GetHostServiceID returns the value of HostServiceID.
+func (s *CheckRead) GetHostServiceID() string {
+	return s.HostServiceID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *CheckRead) GetTeamID() string {
+	return s.TeamID
 }
 
 // SetID sets the value of ID.
@@ -340,11 +417,6 @@ func (s *CheckRead) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
-// SetCompetitionID sets the value of CompetitionID.
-func (s *CheckRead) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
 // SetLog sets the value of Log.
 func (s *CheckRead) SetLog(val string) {
 	s.Log = val
@@ -360,27 +432,37 @@ func (s *CheckRead) SetPassed(val bool) {
 	s.Passed = val
 }
 
+// SetRoundID sets the value of RoundID.
+func (s *CheckRead) SetRoundID(val string) {
+	s.RoundID = val
+}
+
+// SetHostServiceID sets the value of HostServiceID.
+func (s *CheckRead) SetHostServiceID(val string) {
+	s.HostServiceID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *CheckRead) SetTeamID(val string) {
+	s.TeamID = val
+}
+
 func (*CheckRead) readCheckRes() {}
 
 // Ref: #/components/schemas/Check_RoundsRead
 type CheckRoundsRead struct {
 	ID            string    `json:"id"`
-	CompetitionID string    `json:"competition_id"`
 	RoundNumber   int       `json:"round_number"`
 	Note          string    `json:"note"`
 	Err           string    `json:"err"`
 	StartedAt     time.Time `json:"started_at"`
 	FinishedAt    time.Time `json:"finished_at"`
+	CompetitionID string    `json:"competition_id"`
 }
 
 // GetID returns the value of ID.
 func (s *CheckRoundsRead) GetID() string {
 	return s.ID
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *CheckRoundsRead) GetCompetitionID() string {
-	return s.CompetitionID
 }
 
 // GetRoundNumber returns the value of RoundNumber.
@@ -408,14 +490,14 @@ func (s *CheckRoundsRead) GetFinishedAt() time.Time {
 	return s.FinishedAt
 }
 
+// GetCompetitionID returns the value of CompetitionID.
+func (s *CheckRoundsRead) GetCompetitionID() string {
+	return s.CompetitionID
+}
+
 // SetID sets the value of ID.
 func (s *CheckRoundsRead) SetID(val string) {
 	s.ID = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *CheckRoundsRead) SetCompetitionID(val string) {
-	s.CompetitionID = val
 }
 
 // SetRoundNumber sets the value of RoundNumber.
@@ -443,144 +525,107 @@ func (s *CheckRoundsRead) SetFinishedAt(val time.Time) {
 	s.FinishedAt = val
 }
 
+// SetCompetitionID sets the value of CompetitionID.
+func (s *CheckRoundsRead) SetCompetitionID(val string) {
+	s.CompetitionID = val
+}
+
 func (*CheckRoundsRead) readCheckRoundsRes() {}
 
-// Ref: #/components/schemas/Check_ServicesRead
-type CheckServicesRead struct {
+// Ref: #/components/schemas/Check_TeamRead
+type CheckTeamRead struct {
 	ID            string  `json:"id"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
-	TeamID        string  `json:"team_id"`
 	Name          string  `json:"name"`
 	DisplayName   string  `json:"display_name"`
-	Weight        int     `json:"weight"`
-	PointBoost    int     `json:"point_boost"`
-	RoundUnits    int     `json:"round_units"`
-	RoundDelay    int     `json:"round_delay"`
+	Pause         OptBool `json:"pause"`
+	Hidden        OptBool `json:"hidden"`
+	Number        int     `json:"number"`
+	CompetitionID string  `json:"competition_id"`
 }
 
 // GetID returns the value of ID.
-func (s *CheckServicesRead) GetID() string {
+func (s *CheckTeamRead) GetID() string {
 	return s.ID
 }
 
-// GetPause returns the value of Pause.
-func (s *CheckServicesRead) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetHidden returns the value of Hidden.
-func (s *CheckServicesRead) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *CheckServicesRead) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *CheckServicesRead) GetTeamID() string {
-	return s.TeamID
-}
-
 // GetName returns the value of Name.
-func (s *CheckServicesRead) GetName() string {
+func (s *CheckTeamRead) GetName() string {
 	return s.Name
 }
 
 // GetDisplayName returns the value of DisplayName.
-func (s *CheckServicesRead) GetDisplayName() string {
+func (s *CheckTeamRead) GetDisplayName() string {
 	return s.DisplayName
 }
 
-// GetWeight returns the value of Weight.
-func (s *CheckServicesRead) GetWeight() int {
-	return s.Weight
+// GetPause returns the value of Pause.
+func (s *CheckTeamRead) GetPause() OptBool {
+	return s.Pause
 }
 
-// GetPointBoost returns the value of PointBoost.
-func (s *CheckServicesRead) GetPointBoost() int {
-	return s.PointBoost
+// GetHidden returns the value of Hidden.
+func (s *CheckTeamRead) GetHidden() OptBool {
+	return s.Hidden
 }
 
-// GetRoundUnits returns the value of RoundUnits.
-func (s *CheckServicesRead) GetRoundUnits() int {
-	return s.RoundUnits
+// GetNumber returns the value of Number.
+func (s *CheckTeamRead) GetNumber() int {
+	return s.Number
 }
 
-// GetRoundDelay returns the value of RoundDelay.
-func (s *CheckServicesRead) GetRoundDelay() int {
-	return s.RoundDelay
+// GetCompetitionID returns the value of CompetitionID.
+func (s *CheckTeamRead) GetCompetitionID() string {
+	return s.CompetitionID
 }
 
 // SetID sets the value of ID.
-func (s *CheckServicesRead) SetID(val string) {
+func (s *CheckTeamRead) SetID(val string) {
 	s.ID = val
 }
 
-// SetPause sets the value of Pause.
-func (s *CheckServicesRead) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *CheckServicesRead) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *CheckServicesRead) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *CheckServicesRead) SetTeamID(val string) {
-	s.TeamID = val
-}
-
 // SetName sets the value of Name.
-func (s *CheckServicesRead) SetName(val string) {
+func (s *CheckTeamRead) SetName(val string) {
 	s.Name = val
 }
 
 // SetDisplayName sets the value of DisplayName.
-func (s *CheckServicesRead) SetDisplayName(val string) {
+func (s *CheckTeamRead) SetDisplayName(val string) {
 	s.DisplayName = val
 }
 
-// SetWeight sets the value of Weight.
-func (s *CheckServicesRead) SetWeight(val int) {
-	s.Weight = val
+// SetPause sets the value of Pause.
+func (s *CheckTeamRead) SetPause(val OptBool) {
+	s.Pause = val
 }
 
-// SetPointBoost sets the value of PointBoost.
-func (s *CheckServicesRead) SetPointBoost(val int) {
-	s.PointBoost = val
+// SetHidden sets the value of Hidden.
+func (s *CheckTeamRead) SetHidden(val OptBool) {
+	s.Hidden = val
 }
 
-// SetRoundUnits sets the value of RoundUnits.
-func (s *CheckServicesRead) SetRoundUnits(val int) {
-	s.RoundUnits = val
+// SetNumber sets the value of Number.
+func (s *CheckTeamRead) SetNumber(val int) {
+	s.Number = val
 }
 
-// SetRoundDelay sets the value of RoundDelay.
-func (s *CheckServicesRead) SetRoundDelay(val int) {
-	s.RoundDelay = val
+// SetCompetitionID sets the value of CompetitionID.
+func (s *CheckTeamRead) SetCompetitionID(val string) {
+	s.CompetitionID = val
 }
 
-func (*CheckServicesRead) readCheckServicesRes() {}
+func (*CheckTeamRead) readCheckTeamRes() {}
 
 // Ref: #/components/schemas/CheckUpdate
 type CheckUpdate struct {
 	ID            string  `json:"id"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
 	Log           string  `json:"log"`
 	Error         string  `json:"error"`
 	Passed        bool    `json:"passed"`
+	RoundID       string  `json:"round_id"`
+	HostServiceID string  `json:"host_service_id"`
+	TeamID        string  `json:"team_id"`
 }
 
 // GetID returns the value of ID.
@@ -598,11 +643,6 @@ func (s *CheckUpdate) GetHidden() OptBool {
 	return s.Hidden
 }
 
-// GetCompetitionID returns the value of CompetitionID.
-func (s *CheckUpdate) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
 // GetLog returns the value of Log.
 func (s *CheckUpdate) GetLog() string {
 	return s.Log
@@ -616,6 +656,21 @@ func (s *CheckUpdate) GetError() string {
 // GetPassed returns the value of Passed.
 func (s *CheckUpdate) GetPassed() bool {
 	return s.Passed
+}
+
+// GetRoundID returns the value of RoundID.
+func (s *CheckUpdate) GetRoundID() string {
+	return s.RoundID
+}
+
+// GetHostServiceID returns the value of HostServiceID.
+func (s *CheckUpdate) GetHostServiceID() string {
+	return s.HostServiceID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *CheckUpdate) GetTeamID() string {
+	return s.TeamID
 }
 
 // SetID sets the value of ID.
@@ -633,11 +688,6 @@ func (s *CheckUpdate) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
-// SetCompetitionID sets the value of CompetitionID.
-func (s *CheckUpdate) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
 // SetLog sets the value of Log.
 func (s *CheckUpdate) SetLog(val string) {
 	s.Log = val
@@ -651,6 +701,21 @@ func (s *CheckUpdate) SetError(val string) {
 // SetPassed sets the value of Passed.
 func (s *CheckUpdate) SetPassed(val bool) {
 	s.Passed = val
+}
+
+// SetRoundID sets the value of RoundID.
+func (s *CheckUpdate) SetRoundID(val string) {
+	s.RoundID = val
+}
+
+// SetHostServiceID sets the value of HostServiceID.
+func (s *CheckUpdate) SetHostServiceID(val string) {
+	s.HostServiceID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *CheckUpdate) SetTeamID(val string) {
+	s.TeamID = val
 }
 
 func (*CheckUpdate) updateCheckRes() {}
@@ -968,19 +1033,229 @@ func (s *CompetitionRead) SetFinishedAt(val OptDateTime) {
 
 func (*CompetitionRead) readCompetitionRes() {}
 
-// Ref: #/components/schemas/Competition_TeamsList
-type CompetitionTeamsList struct {
+// Ref: #/components/schemas/Competition_ReportsList
+type CompetitionReportsList struct {
+	ID            int    `json:"id"`
+	Log           string `json:"log"`
+	Error         string `json:"error"`
+	CompetitionID string `json:"competition_id"`
+}
+
+// GetID returns the value of ID.
+func (s *CompetitionReportsList) GetID() int {
+	return s.ID
+}
+
+// GetLog returns the value of Log.
+func (s *CompetitionReportsList) GetLog() string {
+	return s.Log
+}
+
+// GetError returns the value of Error.
+func (s *CompetitionReportsList) GetError() string {
+	return s.Error
+}
+
+// GetCompetitionID returns the value of CompetitionID.
+func (s *CompetitionReportsList) GetCompetitionID() string {
+	return s.CompetitionID
+}
+
+// SetID sets the value of ID.
+func (s *CompetitionReportsList) SetID(val int) {
+	s.ID = val
+}
+
+// SetLog sets the value of Log.
+func (s *CompetitionReportsList) SetLog(val string) {
+	s.Log = val
+}
+
+// SetError sets the value of Error.
+func (s *CompetitionReportsList) SetError(val string) {
+	s.Error = val
+}
+
+// SetCompetitionID sets the value of CompetitionID.
+func (s *CompetitionReportsList) SetCompetitionID(val string) {
+	s.CompetitionID = val
+}
+
+// Ref: #/components/schemas/Competition_RoundsList
+type CompetitionRoundsList struct {
+	ID            string    `json:"id"`
+	RoundNumber   int       `json:"round_number"`
+	Note          string    `json:"note"`
+	Err           string    `json:"err"`
+	StartedAt     time.Time `json:"started_at"`
+	FinishedAt    time.Time `json:"finished_at"`
+	CompetitionID string    `json:"competition_id"`
+}
+
+// GetID returns the value of ID.
+func (s *CompetitionRoundsList) GetID() string {
+	return s.ID
+}
+
+// GetRoundNumber returns the value of RoundNumber.
+func (s *CompetitionRoundsList) GetRoundNumber() int {
+	return s.RoundNumber
+}
+
+// GetNote returns the value of Note.
+func (s *CompetitionRoundsList) GetNote() string {
+	return s.Note
+}
+
+// GetErr returns the value of Err.
+func (s *CompetitionRoundsList) GetErr() string {
+	return s.Err
+}
+
+// GetStartedAt returns the value of StartedAt.
+func (s *CompetitionRoundsList) GetStartedAt() time.Time {
+	return s.StartedAt
+}
+
+// GetFinishedAt returns the value of FinishedAt.
+func (s *CompetitionRoundsList) GetFinishedAt() time.Time {
+	return s.FinishedAt
+}
+
+// GetCompetitionID returns the value of CompetitionID.
+func (s *CompetitionRoundsList) GetCompetitionID() string {
+	return s.CompetitionID
+}
+
+// SetID sets the value of ID.
+func (s *CompetitionRoundsList) SetID(val string) {
+	s.ID = val
+}
+
+// SetRoundNumber sets the value of RoundNumber.
+func (s *CompetitionRoundsList) SetRoundNumber(val int) {
+	s.RoundNumber = val
+}
+
+// SetNote sets the value of Note.
+func (s *CompetitionRoundsList) SetNote(val string) {
+	s.Note = val
+}
+
+// SetErr sets the value of Err.
+func (s *CompetitionRoundsList) SetErr(val string) {
+	s.Err = val
+}
+
+// SetStartedAt sets the value of StartedAt.
+func (s *CompetitionRoundsList) SetStartedAt(val time.Time) {
+	s.StartedAt = val
+}
+
+// SetFinishedAt sets the value of FinishedAt.
+func (s *CompetitionRoundsList) SetFinishedAt(val time.Time) {
+	s.FinishedAt = val
+}
+
+// SetCompetitionID sets the value of CompetitionID.
+func (s *CompetitionRoundsList) SetCompetitionID(val string) {
+	s.CompetitionID = val
+}
+
+// Ref: #/components/schemas/Competition_ServicesList
+type CompetitionServicesList struct {
 	ID            string  `json:"id"`
+	Name          string  `json:"name"`
+	DisplayName   string  `json:"display_name"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
 	CompetitionID string  `json:"competition_id"`
+}
+
+// GetID returns the value of ID.
+func (s *CompetitionServicesList) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *CompetitionServicesList) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *CompetitionServicesList) GetDisplayName() string {
+	return s.DisplayName
+}
+
+// GetPause returns the value of Pause.
+func (s *CompetitionServicesList) GetPause() OptBool {
+	return s.Pause
+}
+
+// GetHidden returns the value of Hidden.
+func (s *CompetitionServicesList) GetHidden() OptBool {
+	return s.Hidden
+}
+
+// GetCompetitionID returns the value of CompetitionID.
+func (s *CompetitionServicesList) GetCompetitionID() string {
+	return s.CompetitionID
+}
+
+// SetID sets the value of ID.
+func (s *CompetitionServicesList) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *CompetitionServicesList) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *CompetitionServicesList) SetDisplayName(val string) {
+	s.DisplayName = val
+}
+
+// SetPause sets the value of Pause.
+func (s *CompetitionServicesList) SetPause(val OptBool) {
+	s.Pause = val
+}
+
+// SetHidden sets the value of Hidden.
+func (s *CompetitionServicesList) SetHidden(val OptBool) {
+	s.Hidden = val
+}
+
+// SetCompetitionID sets the value of CompetitionID.
+func (s *CompetitionServicesList) SetCompetitionID(val string) {
+	s.CompetitionID = val
+}
+
+// Ref: #/components/schemas/Competition_TeamsList
+type CompetitionTeamsList struct {
+	ID            string  `json:"id"`
 	Name          string  `json:"name"`
-	Index         OptInt  `json:"index"`
+	DisplayName   string  `json:"display_name"`
+	Pause         OptBool `json:"pause"`
+	Hidden        OptBool `json:"hidden"`
+	Number        int     `json:"number"`
+	CompetitionID string  `json:"competition_id"`
 }
 
 // GetID returns the value of ID.
 func (s *CompetitionTeamsList) GetID() string {
 	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *CompetitionTeamsList) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *CompetitionTeamsList) GetDisplayName() string {
+	return s.DisplayName
 }
 
 // GetPause returns the value of Pause.
@@ -993,24 +1268,29 @@ func (s *CompetitionTeamsList) GetHidden() OptBool {
 	return s.Hidden
 }
 
+// GetNumber returns the value of Number.
+func (s *CompetitionTeamsList) GetNumber() int {
+	return s.Number
+}
+
 // GetCompetitionID returns the value of CompetitionID.
 func (s *CompetitionTeamsList) GetCompetitionID() string {
 	return s.CompetitionID
 }
 
-// GetName returns the value of Name.
-func (s *CompetitionTeamsList) GetName() string {
-	return s.Name
-}
-
-// GetIndex returns the value of Index.
-func (s *CompetitionTeamsList) GetIndex() OptInt {
-	return s.Index
-}
-
 // SetID sets the value of ID.
 func (s *CompetitionTeamsList) SetID(val string) {
 	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *CompetitionTeamsList) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *CompetitionTeamsList) SetDisplayName(val string) {
+	s.DisplayName = val
 }
 
 // SetPause sets the value of Pause.
@@ -1023,19 +1303,14 @@ func (s *CompetitionTeamsList) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
+// SetNumber sets the value of Number.
+func (s *CompetitionTeamsList) SetNumber(val int) {
+	s.Number = val
+}
+
 // SetCompetitionID sets the value of CompetitionID.
 func (s *CompetitionTeamsList) SetCompetitionID(val string) {
 	s.CompetitionID = val
-}
-
-// SetName sets the value of Name.
-func (s *CompetitionTeamsList) SetName(val string) {
-	s.Name = val
-}
-
-// SetIndex sets the value of Index.
-func (s *CompetitionTeamsList) SetIndex(val OptInt) {
-	s.Index = val
 }
 
 // Ref: #/components/schemas/CompetitionUpdate
@@ -1143,75 +1418,18 @@ func (s *CompetitionUpdate) SetFinishedAt(val OptDateTime) {
 
 func (*CompetitionUpdate) updateCompetitionRes() {}
 
-// Ref: #/components/schemas/Competition_UsersList
-type CompetitionUsersList struct {
-	ID         string      `json:"id"`
-	CreateTime OptDateTime `json:"create_time"`
-	UpdateTime OptDateTime `json:"update_time"`
-	Username   string      `json:"username"`
-	OryID      uuid.UUID   `json:"ory_id"`
-}
-
-// GetID returns the value of ID.
-func (s *CompetitionUsersList) GetID() string {
-	return s.ID
-}
-
-// GetCreateTime returns the value of CreateTime.
-func (s *CompetitionUsersList) GetCreateTime() OptDateTime {
-	return s.CreateTime
-}
-
-// GetUpdateTime returns the value of UpdateTime.
-func (s *CompetitionUsersList) GetUpdateTime() OptDateTime {
-	return s.UpdateTime
-}
-
-// GetUsername returns the value of Username.
-func (s *CompetitionUsersList) GetUsername() string {
-	return s.Username
-}
-
-// GetOryID returns the value of OryID.
-func (s *CompetitionUsersList) GetOryID() uuid.UUID {
-	return s.OryID
-}
-
-// SetID sets the value of ID.
-func (s *CompetitionUsersList) SetID(val string) {
-	s.ID = val
-}
-
-// SetCreateTime sets the value of CreateTime.
-func (s *CompetitionUsersList) SetCreateTime(val OptDateTime) {
-	s.CreateTime = val
-}
-
-// SetUpdateTime sets the value of UpdateTime.
-func (s *CompetitionUsersList) SetUpdateTime(val OptDateTime) {
-	s.UpdateTime = val
-}
-
-// SetUsername sets the value of Username.
-func (s *CompetitionUsersList) SetUsername(val string) {
-	s.Username = val
-}
-
-// SetOryID sets the value of OryID.
-func (s *CompetitionUsersList) SetOryID(val uuid.UUID) {
-	s.OryID = val
-}
-
 type CreateCheckReq struct {
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
 	Log           string  `json:"log"`
 	Error         string  `json:"error"`
 	Passed        bool    `json:"passed"`
-	Competition   string  `json:"competition"`
+	RoundID       string  `json:"round_id"`
+	HostServiceID string  `json:"host_service_id"`
+	TeamID        string  `json:"team_id"`
 	Rounds        string  `json:"rounds"`
-	Services      string  `json:"services"`
+	Hostservice   string  `json:"hostservice"`
+	Team          string  `json:"team"`
 }
 
 // GetPause returns the value of Pause.
@@ -1222,11 +1440,6 @@ func (s *CreateCheckReq) GetPause() OptBool {
 // GetHidden returns the value of Hidden.
 func (s *CreateCheckReq) GetHidden() OptBool {
 	return s.Hidden
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *CreateCheckReq) GetCompetitionID() string {
-	return s.CompetitionID
 }
 
 // GetLog returns the value of Log.
@@ -1244,9 +1457,19 @@ func (s *CreateCheckReq) GetPassed() bool {
 	return s.Passed
 }
 
-// GetCompetition returns the value of Competition.
-func (s *CreateCheckReq) GetCompetition() string {
-	return s.Competition
+// GetRoundID returns the value of RoundID.
+func (s *CreateCheckReq) GetRoundID() string {
+	return s.RoundID
+}
+
+// GetHostServiceID returns the value of HostServiceID.
+func (s *CreateCheckReq) GetHostServiceID() string {
+	return s.HostServiceID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *CreateCheckReq) GetTeamID() string {
+	return s.TeamID
 }
 
 // GetRounds returns the value of Rounds.
@@ -1254,9 +1477,14 @@ func (s *CreateCheckReq) GetRounds() string {
 	return s.Rounds
 }
 
-// GetServices returns the value of Services.
-func (s *CreateCheckReq) GetServices() string {
-	return s.Services
+// GetHostservice returns the value of Hostservice.
+func (s *CreateCheckReq) GetHostservice() string {
+	return s.Hostservice
+}
+
+// GetTeam returns the value of Team.
+func (s *CreateCheckReq) GetTeam() string {
+	return s.Team
 }
 
 // SetPause sets the value of Pause.
@@ -1267,11 +1495,6 @@ func (s *CreateCheckReq) SetPause(val OptBool) {
 // SetHidden sets the value of Hidden.
 func (s *CreateCheckReq) SetHidden(val OptBool) {
 	s.Hidden = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *CreateCheckReq) SetCompetitionID(val string) {
-	s.CompetitionID = val
 }
 
 // SetLog sets the value of Log.
@@ -1289,9 +1512,19 @@ func (s *CreateCheckReq) SetPassed(val bool) {
 	s.Passed = val
 }
 
-// SetCompetition sets the value of Competition.
-func (s *CreateCheckReq) SetCompetition(val string) {
-	s.Competition = val
+// SetRoundID sets the value of RoundID.
+func (s *CreateCheckReq) SetRoundID(val string) {
+	s.RoundID = val
+}
+
+// SetHostServiceID sets the value of HostServiceID.
+func (s *CreateCheckReq) SetHostServiceID(val string) {
+	s.HostServiceID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *CreateCheckReq) SetTeamID(val string) {
+	s.TeamID = val
 }
 
 // SetRounds sets the value of Rounds.
@@ -1299,9 +1532,14 @@ func (s *CreateCheckReq) SetRounds(val string) {
 	s.Rounds = val
 }
 
-// SetServices sets the value of Services.
-func (s *CreateCheckReq) SetServices(val string) {
-	s.Services = val
+// SetHostservice sets the value of Hostservice.
+func (s *CreateCheckReq) SetHostservice(val string) {
+	s.Hostservice = val
+}
+
+// SetTeam sets the value of Team.
+func (s *CreateCheckReq) SetTeam(val string) {
+	s.Team = val
 }
 
 type CreateCompetitionReq struct {
@@ -1314,7 +1552,9 @@ type CreateCompetitionReq struct {
 	StartedAt        OptDateTime `json:"started_at"`
 	FinishedAt       OptDateTime `json:"finished_at"`
 	Teams            []string    `json:"teams"`
-	Users            []string    `json:"users"`
+	Services         []string    `json:"services"`
+	Reports          []int       `json:"reports"`
+	Rounds           []string    `json:"rounds"`
 }
 
 // GetHidden returns the value of Hidden.
@@ -1362,9 +1602,19 @@ func (s *CreateCompetitionReq) GetTeams() []string {
 	return s.Teams
 }
 
-// GetUsers returns the value of Users.
-func (s *CreateCompetitionReq) GetUsers() []string {
-	return s.Users
+// GetServices returns the value of Services.
+func (s *CreateCompetitionReq) GetServices() []string {
+	return s.Services
+}
+
+// GetReports returns the value of Reports.
+func (s *CreateCompetitionReq) GetReports() []int {
+	return s.Reports
+}
+
+// GetRounds returns the value of Rounds.
+func (s *CreateCompetitionReq) GetRounds() []string {
+	return s.Rounds
 }
 
 // SetHidden sets the value of Hidden.
@@ -1412,114 +1662,28 @@ func (s *CreateCompetitionReq) SetTeams(val []string) {
 	s.Teams = val
 }
 
-// SetUsers sets the value of Users.
-func (s *CreateCompetitionReq) SetUsers(val []string) {
-	s.Users = val
+// SetServices sets the value of Services.
+func (s *CreateCompetitionReq) SetServices(val []string) {
+	s.Services = val
 }
 
-type CreateHostGroupReq struct {
-	Pause         OptBool  `json:"pause"`
-	Hidden        OptBool  `json:"hidden"`
-	CompetitionID string   `json:"competition_id"`
-	TeamID        string   `json:"team_id"`
-	Name          string   `json:"name"`
-	Competition   string   `json:"competition"`
-	Team          string   `json:"team"`
-	Hosts         []string `json:"hosts"`
+// SetReports sets the value of Reports.
+func (s *CreateCompetitionReq) SetReports(val []int) {
+	s.Reports = val
 }
 
-// GetPause returns the value of Pause.
-func (s *CreateHostGroupReq) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetHidden returns the value of Hidden.
-func (s *CreateHostGroupReq) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *CreateHostGroupReq) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *CreateHostGroupReq) GetTeamID() string {
-	return s.TeamID
-}
-
-// GetName returns the value of Name.
-func (s *CreateHostGroupReq) GetName() string {
-	return s.Name
-}
-
-// GetCompetition returns the value of Competition.
-func (s *CreateHostGroupReq) GetCompetition() string {
-	return s.Competition
-}
-
-// GetTeam returns the value of Team.
-func (s *CreateHostGroupReq) GetTeam() string {
-	return s.Team
-}
-
-// GetHosts returns the value of Hosts.
-func (s *CreateHostGroupReq) GetHosts() []string {
-	return s.Hosts
-}
-
-// SetPause sets the value of Pause.
-func (s *CreateHostGroupReq) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *CreateHostGroupReq) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *CreateHostGroupReq) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *CreateHostGroupReq) SetTeamID(val string) {
-	s.TeamID = val
-}
-
-// SetName sets the value of Name.
-func (s *CreateHostGroupReq) SetName(val string) {
-	s.Name = val
-}
-
-// SetCompetition sets the value of Competition.
-func (s *CreateHostGroupReq) SetCompetition(val string) {
-	s.Competition = val
-}
-
-// SetTeam sets the value of Team.
-func (s *CreateHostGroupReq) SetTeam(val string) {
-	s.Team = val
-}
-
-// SetHosts sets the value of Hosts.
-func (s *CreateHostGroupReq) SetHosts(val []string) {
-	s.Hosts = val
+// SetRounds sets the value of Rounds.
+func (s *CreateCompetitionReq) SetRounds(val []string) {
+	s.Rounds = val
 }
 
 type CreateHostReq struct {
-	Pause            OptBool  `json:"pause"`
-	Hidden           OptBool  `json:"hidden"`
-	CompetitionID    string   `json:"competition_id"`
-	TeamID           string   `json:"team_id"`
-	Address          string   `json:"address"`
-	AddressListRange string   `json:"address_list_range"`
-	Editable         bool     `json:"editable"`
-	Competition      string   `json:"competition"`
-	Team             string   `json:"team"`
-	Services         []string `json:"services"`
-	HostGroup        string   `json:"host_group"`
+	Pause        OptBool  `json:"pause"`
+	Hidden       OptBool  `json:"hidden"`
+	Address      string   `json:"address"`
+	TeamID       string   `json:"team_id"`
+	Hostservices []string `json:"hostservices"`
+	Team         string   `json:"team"`
 }
 
 // GetPause returns the value of Pause.
@@ -1532,9 +1696,9 @@ func (s *CreateHostReq) GetHidden() OptBool {
 	return s.Hidden
 }
 
-// GetCompetitionID returns the value of CompetitionID.
-func (s *CreateHostReq) GetCompetitionID() string {
-	return s.CompetitionID
+// GetAddress returns the value of Address.
+func (s *CreateHostReq) GetAddress() string {
+	return s.Address
 }
 
 // GetTeamID returns the value of TeamID.
@@ -1542,39 +1706,14 @@ func (s *CreateHostReq) GetTeamID() string {
 	return s.TeamID
 }
 
-// GetAddress returns the value of Address.
-func (s *CreateHostReq) GetAddress() string {
-	return s.Address
-}
-
-// GetAddressListRange returns the value of AddressListRange.
-func (s *CreateHostReq) GetAddressListRange() string {
-	return s.AddressListRange
-}
-
-// GetEditable returns the value of Editable.
-func (s *CreateHostReq) GetEditable() bool {
-	return s.Editable
-}
-
-// GetCompetition returns the value of Competition.
-func (s *CreateHostReq) GetCompetition() string {
-	return s.Competition
+// GetHostservices returns the value of Hostservices.
+func (s *CreateHostReq) GetHostservices() []string {
+	return s.Hostservices
 }
 
 // GetTeam returns the value of Team.
 func (s *CreateHostReq) GetTeam() string {
 	return s.Team
-}
-
-// GetServices returns the value of Services.
-func (s *CreateHostReq) GetServices() []string {
-	return s.Services
-}
-
-// GetHostGroup returns the value of HostGroup.
-func (s *CreateHostReq) GetHostGroup() string {
-	return s.HostGroup
 }
 
 // SetPause sets the value of Pause.
@@ -1587,9 +1726,9 @@ func (s *CreateHostReq) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
-// SetCompetitionID sets the value of CompetitionID.
-func (s *CreateHostReq) SetCompetitionID(val string) {
-	s.CompetitionID = val
+// SetAddress sets the value of Address.
+func (s *CreateHostReq) SetAddress(val string) {
+	s.Address = val
 }
 
 // SetTeamID sets the value of TeamID.
@@ -1597,24 +1736,9 @@ func (s *CreateHostReq) SetTeamID(val string) {
 	s.TeamID = val
 }
 
-// SetAddress sets the value of Address.
-func (s *CreateHostReq) SetAddress(val string) {
-	s.Address = val
-}
-
-// SetAddressListRange sets the value of AddressListRange.
-func (s *CreateHostReq) SetAddressListRange(val string) {
-	s.AddressListRange = val
-}
-
-// SetEditable sets the value of Editable.
-func (s *CreateHostReq) SetEditable(val bool) {
-	s.Editable = val
-}
-
-// SetCompetition sets the value of Competition.
-func (s *CreateHostReq) SetCompetition(val string) {
-	s.Competition = val
+// SetHostservices sets the value of Hostservices.
+func (s *CreateHostReq) SetHostservices(val []string) {
+	s.Hostservices = val
 }
 
 // SetTeam sets the value of Team.
@@ -1622,35 +1746,171 @@ func (s *CreateHostReq) SetTeam(val string) {
 	s.Team = val
 }
 
-// SetServices sets the value of Services.
-func (s *CreateHostReq) SetServices(val []string) {
-	s.Services = val
+type CreateHostServiceReq struct {
+	Name        string   `json:"name"`
+	DisplayName string   `json:"display_name"`
+	Pause       OptBool  `json:"pause"`
+	Hidden      OptBool  `json:"hidden"`
+	Weight      int      `json:"weight"`
+	PointBoost  int      `json:"point_boost"`
+	RoundUnits  int      `json:"round_units"`
+	RoundDelay  int      `json:"round_delay"`
+	HostID      string   `json:"host_id"`
+	TeamID      string   `json:"team_id"`
+	Host        string   `json:"host"`
+	Checks      []string `json:"checks"`
+	Properties  []string `json:"properties"`
+	Team        string   `json:"team"`
 }
 
-// SetHostGroup sets the value of HostGroup.
-func (s *CreateHostReq) SetHostGroup(val string) {
-	s.HostGroup = val
+// GetName returns the value of Name.
+func (s *CreateHostServiceReq) GetName() string {
+	return s.Name
 }
 
-type CreatePropertyReq struct {
-	CompetitionID string                  `json:"competition_id"`
-	TeamID        string                  `json:"team_id"`
-	Key           string                  `json:"key"`
-	Value         string                  `json:"value"`
-	Status        CreatePropertyReqStatus `json:"status"`
-	Competition   string                  `json:"competition"`
-	Team          string                  `json:"team"`
-	Services      string                  `json:"services"`
+// GetDisplayName returns the value of DisplayName.
+func (s *CreateHostServiceReq) GetDisplayName() string {
+	return s.DisplayName
 }
 
-// GetCompetitionID returns the value of CompetitionID.
-func (s *CreatePropertyReq) GetCompetitionID() string {
-	return s.CompetitionID
+// GetPause returns the value of Pause.
+func (s *CreateHostServiceReq) GetPause() OptBool {
+	return s.Pause
+}
+
+// GetHidden returns the value of Hidden.
+func (s *CreateHostServiceReq) GetHidden() OptBool {
+	return s.Hidden
+}
+
+// GetWeight returns the value of Weight.
+func (s *CreateHostServiceReq) GetWeight() int {
+	return s.Weight
+}
+
+// GetPointBoost returns the value of PointBoost.
+func (s *CreateHostServiceReq) GetPointBoost() int {
+	return s.PointBoost
+}
+
+// GetRoundUnits returns the value of RoundUnits.
+func (s *CreateHostServiceReq) GetRoundUnits() int {
+	return s.RoundUnits
+}
+
+// GetRoundDelay returns the value of RoundDelay.
+func (s *CreateHostServiceReq) GetRoundDelay() int {
+	return s.RoundDelay
+}
+
+// GetHostID returns the value of HostID.
+func (s *CreateHostServiceReq) GetHostID() string {
+	return s.HostID
 }
 
 // GetTeamID returns the value of TeamID.
-func (s *CreatePropertyReq) GetTeamID() string {
+func (s *CreateHostServiceReq) GetTeamID() string {
 	return s.TeamID
+}
+
+// GetHost returns the value of Host.
+func (s *CreateHostServiceReq) GetHost() string {
+	return s.Host
+}
+
+// GetChecks returns the value of Checks.
+func (s *CreateHostServiceReq) GetChecks() []string {
+	return s.Checks
+}
+
+// GetProperties returns the value of Properties.
+func (s *CreateHostServiceReq) GetProperties() []string {
+	return s.Properties
+}
+
+// GetTeam returns the value of Team.
+func (s *CreateHostServiceReq) GetTeam() string {
+	return s.Team
+}
+
+// SetName sets the value of Name.
+func (s *CreateHostServiceReq) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *CreateHostServiceReq) SetDisplayName(val string) {
+	s.DisplayName = val
+}
+
+// SetPause sets the value of Pause.
+func (s *CreateHostServiceReq) SetPause(val OptBool) {
+	s.Pause = val
+}
+
+// SetHidden sets the value of Hidden.
+func (s *CreateHostServiceReq) SetHidden(val OptBool) {
+	s.Hidden = val
+}
+
+// SetWeight sets the value of Weight.
+func (s *CreateHostServiceReq) SetWeight(val int) {
+	s.Weight = val
+}
+
+// SetPointBoost sets the value of PointBoost.
+func (s *CreateHostServiceReq) SetPointBoost(val int) {
+	s.PointBoost = val
+}
+
+// SetRoundUnits sets the value of RoundUnits.
+func (s *CreateHostServiceReq) SetRoundUnits(val int) {
+	s.RoundUnits = val
+}
+
+// SetRoundDelay sets the value of RoundDelay.
+func (s *CreateHostServiceReq) SetRoundDelay(val int) {
+	s.RoundDelay = val
+}
+
+// SetHostID sets the value of HostID.
+func (s *CreateHostServiceReq) SetHostID(val string) {
+	s.HostID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *CreateHostServiceReq) SetTeamID(val string) {
+	s.TeamID = val
+}
+
+// SetHost sets the value of Host.
+func (s *CreateHostServiceReq) SetHost(val string) {
+	s.Host = val
+}
+
+// SetChecks sets the value of Checks.
+func (s *CreateHostServiceReq) SetChecks(val []string) {
+	s.Checks = val
+}
+
+// SetProperties sets the value of Properties.
+func (s *CreateHostServiceReq) SetProperties(val []string) {
+	s.Properties = val
+}
+
+// SetTeam sets the value of Team.
+func (s *CreateHostServiceReq) SetTeam(val string) {
+	s.Team = val
+}
+
+type CreatePropertyReq struct {
+	Key           string                  `json:"key"`
+	Value         string                  `json:"value"`
+	Status        CreatePropertyReqStatus `json:"status"`
+	HostServiceID string                  `json:"host_service_id"`
+	TeamID        string                  `json:"team_id"`
+	Hostservice   string                  `json:"hostservice"`
+	Team          string                  `json:"team"`
 }
 
 // GetKey returns the value of Key.
@@ -1668,29 +1928,24 @@ func (s *CreatePropertyReq) GetStatus() CreatePropertyReqStatus {
 	return s.Status
 }
 
-// GetCompetition returns the value of Competition.
-func (s *CreatePropertyReq) GetCompetition() string {
-	return s.Competition
+// GetHostServiceID returns the value of HostServiceID.
+func (s *CreatePropertyReq) GetHostServiceID() string {
+	return s.HostServiceID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *CreatePropertyReq) GetTeamID() string {
+	return s.TeamID
+}
+
+// GetHostservice returns the value of Hostservice.
+func (s *CreatePropertyReq) GetHostservice() string {
+	return s.Hostservice
 }
 
 // GetTeam returns the value of Team.
 func (s *CreatePropertyReq) GetTeam() string {
 	return s.Team
-}
-
-// GetServices returns the value of Services.
-func (s *CreatePropertyReq) GetServices() string {
-	return s.Services
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *CreatePropertyReq) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *CreatePropertyReq) SetTeamID(val string) {
-	s.TeamID = val
 }
 
 // SetKey sets the value of Key.
@@ -1708,19 +1963,24 @@ func (s *CreatePropertyReq) SetStatus(val CreatePropertyReqStatus) {
 	s.Status = val
 }
 
-// SetCompetition sets the value of Competition.
-func (s *CreatePropertyReq) SetCompetition(val string) {
-	s.Competition = val
+// SetHostServiceID sets the value of HostServiceID.
+func (s *CreatePropertyReq) SetHostServiceID(val string) {
+	s.HostServiceID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *CreatePropertyReq) SetTeamID(val string) {
+	s.TeamID = val
+}
+
+// SetHostservice sets the value of Hostservice.
+func (s *CreatePropertyReq) SetHostservice(val string) {
+	s.Hostservice = val
 }
 
 // SetTeam sets the value of Team.
 func (s *CreatePropertyReq) SetTeam(val string) {
 	s.Team = val
-}
-
-// SetServices sets the value of Services.
-func (s *CreatePropertyReq) SetServices(val string) {
-	s.Services = val
 }
 
 type CreatePropertyReqStatus string
@@ -1763,8 +2023,10 @@ func (s *CreatePropertyReqStatus) UnmarshalText(data []byte) error {
 }
 
 type CreateReportReq struct {
-	Log   string `json:"log"`
-	Error string `json:"error"`
+	Log           string `json:"log"`
+	Error         string `json:"error"`
+	CompetitionID string `json:"competition_id"`
+	Competition   string `json:"competition"`
 }
 
 // GetLog returns the value of Log.
@@ -1777,6 +2039,16 @@ func (s *CreateReportReq) GetError() string {
 	return s.Error
 }
 
+// GetCompetitionID returns the value of CompetitionID.
+func (s *CreateReportReq) GetCompetitionID() string {
+	return s.CompetitionID
+}
+
+// GetCompetition returns the value of Competition.
+func (s *CreateReportReq) GetCompetition() string {
+	return s.Competition
+}
+
 // SetLog sets the value of Log.
 func (s *CreateReportReq) SetLog(val string) {
 	s.Log = val
@@ -1787,20 +2059,25 @@ func (s *CreateReportReq) SetError(val string) {
 	s.Error = val
 }
 
+// SetCompetitionID sets the value of CompetitionID.
+func (s *CreateReportReq) SetCompetitionID(val string) {
+	s.CompetitionID = val
+}
+
+// SetCompetition sets the value of Competition.
+func (s *CreateReportReq) SetCompetition(val string) {
+	s.Competition = val
+}
+
 type CreateRoundReq struct {
-	CompetitionID string    `json:"competition_id"`
 	RoundNumber   int       `json:"round_number"`
 	Note          string    `json:"note"`
 	Err           string    `json:"err"`
 	StartedAt     time.Time `json:"started_at"`
 	FinishedAt    time.Time `json:"finished_at"`
-	Competition   string    `json:"competition"`
+	CompetitionID string    `json:"competition_id"`
 	Checks        []string  `json:"checks"`
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *CreateRoundReq) GetCompetitionID() string {
-	return s.CompetitionID
+	Competition   string    `json:"competition"`
 }
 
 // GetRoundNumber returns the value of RoundNumber.
@@ -1828,9 +2105,9 @@ func (s *CreateRoundReq) GetFinishedAt() time.Time {
 	return s.FinishedAt
 }
 
-// GetCompetition returns the value of Competition.
-func (s *CreateRoundReq) GetCompetition() string {
-	return s.Competition
+// GetCompetitionID returns the value of CompetitionID.
+func (s *CreateRoundReq) GetCompetitionID() string {
+	return s.CompetitionID
 }
 
 // GetChecks returns the value of Checks.
@@ -1838,9 +2115,9 @@ func (s *CreateRoundReq) GetChecks() []string {
 	return s.Checks
 }
 
-// SetCompetitionID sets the value of CompetitionID.
-func (s *CreateRoundReq) SetCompetitionID(val string) {
-	s.CompetitionID = val
+// GetCompetition returns the value of Competition.
+func (s *CreateRoundReq) GetCompetition() string {
+	return s.Competition
 }
 
 // SetRoundNumber sets the value of RoundNumber.
@@ -1868,9 +2145,9 @@ func (s *CreateRoundReq) SetFinishedAt(val time.Time) {
 	s.FinishedAt = val
 }
 
-// SetCompetition sets the value of Competition.
-func (s *CreateRoundReq) SetCompetition(val string) {
-	s.Competition = val
+// SetCompetitionID sets the value of CompetitionID.
+func (s *CreateRoundReq) SetCompetitionID(val string) {
+	s.CompetitionID = val
 }
 
 // SetChecks sets the value of Checks.
@@ -1878,22 +2155,28 @@ func (s *CreateRoundReq) SetChecks(val []string) {
 	s.Checks = val
 }
 
+// SetCompetition sets the value of Competition.
+func (s *CreateRoundReq) SetCompetition(val string) {
+	s.Competition = val
+}
+
 type CreateServiceReq struct {
-	Pause         OptBool   `json:"pause"`
-	Hidden        OptBool   `json:"hidden"`
-	CompetitionID string    `json:"competition_id"`
-	TeamID        string    `json:"team_id"`
-	Name          string    `json:"name"`
-	DisplayName   string    `json:"display_name"`
-	Weight        int       `json:"weight"`
-	PointBoost    int       `json:"point_boost"`
-	RoundUnits    int       `json:"round_units"`
-	RoundDelay    int       `json:"round_delay"`
-	Competition   string    `json:"competition"`
-	Team          string    `json:"team"`
-	Hosts         OptString `json:"hosts"`
-	Checks        []string  `json:"checks"`
-	Properties    []string  `json:"properties"`
+	Name          string  `json:"name"`
+	DisplayName   string  `json:"display_name"`
+	Pause         OptBool `json:"pause"`
+	Hidden        OptBool `json:"hidden"`
+	CompetitionID string  `json:"competition_id"`
+	Competition   string  `json:"competition"`
+}
+
+// GetName returns the value of Name.
+func (s *CreateServiceReq) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *CreateServiceReq) GetDisplayName() string {
+	return s.DisplayName
 }
 
 // GetPause returns the value of Pause.
@@ -1911,64 +2194,19 @@ func (s *CreateServiceReq) GetCompetitionID() string {
 	return s.CompetitionID
 }
 
-// GetTeamID returns the value of TeamID.
-func (s *CreateServiceReq) GetTeamID() string {
-	return s.TeamID
-}
-
-// GetName returns the value of Name.
-func (s *CreateServiceReq) GetName() string {
-	return s.Name
-}
-
-// GetDisplayName returns the value of DisplayName.
-func (s *CreateServiceReq) GetDisplayName() string {
-	return s.DisplayName
-}
-
-// GetWeight returns the value of Weight.
-func (s *CreateServiceReq) GetWeight() int {
-	return s.Weight
-}
-
-// GetPointBoost returns the value of PointBoost.
-func (s *CreateServiceReq) GetPointBoost() int {
-	return s.PointBoost
-}
-
-// GetRoundUnits returns the value of RoundUnits.
-func (s *CreateServiceReq) GetRoundUnits() int {
-	return s.RoundUnits
-}
-
-// GetRoundDelay returns the value of RoundDelay.
-func (s *CreateServiceReq) GetRoundDelay() int {
-	return s.RoundDelay
-}
-
 // GetCompetition returns the value of Competition.
 func (s *CreateServiceReq) GetCompetition() string {
 	return s.Competition
 }
 
-// GetTeam returns the value of Team.
-func (s *CreateServiceReq) GetTeam() string {
-	return s.Team
+// SetName sets the value of Name.
+func (s *CreateServiceReq) SetName(val string) {
+	s.Name = val
 }
 
-// GetHosts returns the value of Hosts.
-func (s *CreateServiceReq) GetHosts() OptString {
-	return s.Hosts
-}
-
-// GetChecks returns the value of Checks.
-func (s *CreateServiceReq) GetChecks() []string {
-	return s.Checks
-}
-
-// GetProperties returns the value of Properties.
-func (s *CreateServiceReq) GetProperties() []string {
-	return s.Properties
+// SetDisplayName sets the value of DisplayName.
+func (s *CreateServiceReq) SetDisplayName(val string) {
+	s.DisplayName = val
 }
 
 // SetPause sets the value of Pause.
@@ -1986,75 +2224,33 @@ func (s *CreateServiceReq) SetCompetitionID(val string) {
 	s.CompetitionID = val
 }
 
-// SetTeamID sets the value of TeamID.
-func (s *CreateServiceReq) SetTeamID(val string) {
-	s.TeamID = val
-}
-
-// SetName sets the value of Name.
-func (s *CreateServiceReq) SetName(val string) {
-	s.Name = val
-}
-
-// SetDisplayName sets the value of DisplayName.
-func (s *CreateServiceReq) SetDisplayName(val string) {
-	s.DisplayName = val
-}
-
-// SetWeight sets the value of Weight.
-func (s *CreateServiceReq) SetWeight(val int) {
-	s.Weight = val
-}
-
-// SetPointBoost sets the value of PointBoost.
-func (s *CreateServiceReq) SetPointBoost(val int) {
-	s.PointBoost = val
-}
-
-// SetRoundUnits sets the value of RoundUnits.
-func (s *CreateServiceReq) SetRoundUnits(val int) {
-	s.RoundUnits = val
-}
-
-// SetRoundDelay sets the value of RoundDelay.
-func (s *CreateServiceReq) SetRoundDelay(val int) {
-	s.RoundDelay = val
-}
-
 // SetCompetition sets the value of Competition.
 func (s *CreateServiceReq) SetCompetition(val string) {
 	s.Competition = val
 }
 
-// SetTeam sets the value of Team.
-func (s *CreateServiceReq) SetTeam(val string) {
-	s.Team = val
-}
-
-// SetHosts sets the value of Hosts.
-func (s *CreateServiceReq) SetHosts(val OptString) {
-	s.Hosts = val
-}
-
-// SetChecks sets the value of Checks.
-func (s *CreateServiceReq) SetChecks(val []string) {
-	s.Checks = val
-}
-
-// SetProperties sets the value of Properties.
-func (s *CreateServiceReq) SetProperties(val []string) {
-	s.Properties = val
-}
-
 type CreateTeamReq struct {
+	Name          string   `json:"name"`
+	DisplayName   string   `json:"display_name"`
 	Pause         OptBool  `json:"pause"`
 	Hidden        OptBool  `json:"hidden"`
+	Number        int      `json:"number"`
 	CompetitionID string   `json:"competition_id"`
-	Name          string   `json:"name"`
-	Index         OptInt   `json:"index"`
-	Competition   string   `json:"competition"`
-	Users         []string `json:"users"`
 	Hosts         []string `json:"hosts"`
+	Hostservices  []string `json:"hostservices"`
+	Checks        []string `json:"checks"`
+	Properties    []string `json:"properties"`
+	Competition   string   `json:"competition"`
+}
+
+// GetName returns the value of Name.
+func (s *CreateTeamReq) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *CreateTeamReq) GetDisplayName() string {
+	return s.DisplayName
 }
 
 // GetPause returns the value of Pause.
@@ -2067,19 +2263,34 @@ func (s *CreateTeamReq) GetHidden() OptBool {
 	return s.Hidden
 }
 
+// GetNumber returns the value of Number.
+func (s *CreateTeamReq) GetNumber() int {
+	return s.Number
+}
+
 // GetCompetitionID returns the value of CompetitionID.
 func (s *CreateTeamReq) GetCompetitionID() string {
 	return s.CompetitionID
 }
 
-// GetName returns the value of Name.
-func (s *CreateTeamReq) GetName() string {
-	return s.Name
+// GetHosts returns the value of Hosts.
+func (s *CreateTeamReq) GetHosts() []string {
+	return s.Hosts
 }
 
-// GetIndex returns the value of Index.
-func (s *CreateTeamReq) GetIndex() OptInt {
-	return s.Index
+// GetHostservices returns the value of Hostservices.
+func (s *CreateTeamReq) GetHostservices() []string {
+	return s.Hostservices
+}
+
+// GetChecks returns the value of Checks.
+func (s *CreateTeamReq) GetChecks() []string {
+	return s.Checks
+}
+
+// GetProperties returns the value of Properties.
+func (s *CreateTeamReq) GetProperties() []string {
+	return s.Properties
 }
 
 // GetCompetition returns the value of Competition.
@@ -2087,14 +2298,14 @@ func (s *CreateTeamReq) GetCompetition() string {
 	return s.Competition
 }
 
-// GetUsers returns the value of Users.
-func (s *CreateTeamReq) GetUsers() []string {
-	return s.Users
+// SetName sets the value of Name.
+func (s *CreateTeamReq) SetName(val string) {
+	s.Name = val
 }
 
-// GetHosts returns the value of Hosts.
-func (s *CreateTeamReq) GetHosts() []string {
-	return s.Hosts
+// SetDisplayName sets the value of DisplayName.
+func (s *CreateTeamReq) SetDisplayName(val string) {
+	s.DisplayName = val
 }
 
 // SetPause sets the value of Pause.
@@ -2107,29 +2318,14 @@ func (s *CreateTeamReq) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
+// SetNumber sets the value of Number.
+func (s *CreateTeamReq) SetNumber(val int) {
+	s.Number = val
+}
+
 // SetCompetitionID sets the value of CompetitionID.
 func (s *CreateTeamReq) SetCompetitionID(val string) {
 	s.CompetitionID = val
-}
-
-// SetName sets the value of Name.
-func (s *CreateTeamReq) SetName(val string) {
-	s.Name = val
-}
-
-// SetIndex sets the value of Index.
-func (s *CreateTeamReq) SetIndex(val OptInt) {
-	s.Index = val
-}
-
-// SetCompetition sets the value of Competition.
-func (s *CreateTeamReq) SetCompetition(val string) {
-	s.Competition = val
-}
-
-// SetUsers sets the value of Users.
-func (s *CreateTeamReq) SetUsers(val []string) {
-	s.Users = val
 }
 
 // SetHosts sets the value of Hosts.
@@ -2137,73 +2333,24 @@ func (s *CreateTeamReq) SetHosts(val []string) {
 	s.Hosts = val
 }
 
-type CreateUserReq struct {
-	CreateTime   OptDateTime `json:"create_time"`
-	UpdateTime   OptDateTime `json:"update_time"`
-	Username     string      `json:"username"`
-	OryID        uuid.UUID   `json:"ory_id"`
-	Teams        []string    `json:"teams"`
-	Competitions []string    `json:"competitions"`
+// SetHostservices sets the value of Hostservices.
+func (s *CreateTeamReq) SetHostservices(val []string) {
+	s.Hostservices = val
 }
 
-// GetCreateTime returns the value of CreateTime.
-func (s *CreateUserReq) GetCreateTime() OptDateTime {
-	return s.CreateTime
+// SetChecks sets the value of Checks.
+func (s *CreateTeamReq) SetChecks(val []string) {
+	s.Checks = val
 }
 
-// GetUpdateTime returns the value of UpdateTime.
-func (s *CreateUserReq) GetUpdateTime() OptDateTime {
-	return s.UpdateTime
+// SetProperties sets the value of Properties.
+func (s *CreateTeamReq) SetProperties(val []string) {
+	s.Properties = val
 }
 
-// GetUsername returns the value of Username.
-func (s *CreateUserReq) GetUsername() string {
-	return s.Username
-}
-
-// GetOryID returns the value of OryID.
-func (s *CreateUserReq) GetOryID() uuid.UUID {
-	return s.OryID
-}
-
-// GetTeams returns the value of Teams.
-func (s *CreateUserReq) GetTeams() []string {
-	return s.Teams
-}
-
-// GetCompetitions returns the value of Competitions.
-func (s *CreateUserReq) GetCompetitions() []string {
-	return s.Competitions
-}
-
-// SetCreateTime sets the value of CreateTime.
-func (s *CreateUserReq) SetCreateTime(val OptDateTime) {
-	s.CreateTime = val
-}
-
-// SetUpdateTime sets the value of UpdateTime.
-func (s *CreateUserReq) SetUpdateTime(val OptDateTime) {
-	s.UpdateTime = val
-}
-
-// SetUsername sets the value of Username.
-func (s *CreateUserReq) SetUsername(val string) {
-	s.Username = val
-}
-
-// SetOryID sets the value of OryID.
-func (s *CreateUserReq) SetOryID(val uuid.UUID) {
-	s.OryID = val
-}
-
-// SetTeams sets the value of Teams.
-func (s *CreateUserReq) SetTeams(val []string) {
-	s.Teams = val
-}
-
-// SetCompetitions sets the value of Competitions.
-func (s *CreateUserReq) SetCompetitions(val []string) {
-	s.Competitions = val
+// SetCompetition sets the value of Competition.
+func (s *CreateTeamReq) SetCompetition(val string) {
+	s.Competition = val
 }
 
 // DeleteCheckNoContent is response for DeleteCheck operation.
@@ -2216,15 +2363,15 @@ type DeleteCompetitionNoContent struct{}
 
 func (*DeleteCompetitionNoContent) deleteCompetitionRes() {}
 
-// DeleteHostGroupNoContent is response for DeleteHostGroup operation.
-type DeleteHostGroupNoContent struct{}
-
-func (*DeleteHostGroupNoContent) deleteHostGroupRes() {}
-
 // DeleteHostNoContent is response for DeleteHost operation.
 type DeleteHostNoContent struct{}
 
 func (*DeleteHostNoContent) deleteHostRes() {}
+
+// DeleteHostServiceNoContent is response for DeleteHostService operation.
+type DeleteHostServiceNoContent struct{}
+
+func (*DeleteHostServiceNoContent) deleteHostServiceRes() {}
 
 // DeletePropertyNoContent is response for DeleteProperty operation.
 type DeletePropertyNoContent struct{}
@@ -2251,126 +2398,13 @@ type DeleteTeamNoContent struct{}
 
 func (*DeleteTeamNoContent) deleteTeamRes() {}
 
-// DeleteUserNoContent is response for DeleteUser operation.
-type DeleteUserNoContent struct{}
-
-func (*DeleteUserNoContent) deleteUserRes() {}
-
-// Ref: #/components/schemas/Host_CompetitionRead
-type HostCompetitionRead struct {
-	ID               string      `json:"id"`
-	Hidden           OptBool     `json:"hidden"`
-	Pause            OptBool     `json:"pause"`
-	Name             string      `json:"name"`
-	DisplayName      string      `json:"display_name"`
-	ViewableToPublic OptBool     `json:"viewable_to_public"`
-	ToBeStartedAt    OptDateTime `json:"to_be_started_at"`
-	StartedAt        OptDateTime `json:"started_at"`
-	FinishedAt       OptDateTime `json:"finished_at"`
-}
-
-// GetID returns the value of ID.
-func (s *HostCompetitionRead) GetID() string {
-	return s.ID
-}
-
-// GetHidden returns the value of Hidden.
-func (s *HostCompetitionRead) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetPause returns the value of Pause.
-func (s *HostCompetitionRead) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetName returns the value of Name.
-func (s *HostCompetitionRead) GetName() string {
-	return s.Name
-}
-
-// GetDisplayName returns the value of DisplayName.
-func (s *HostCompetitionRead) GetDisplayName() string {
-	return s.DisplayName
-}
-
-// GetViewableToPublic returns the value of ViewableToPublic.
-func (s *HostCompetitionRead) GetViewableToPublic() OptBool {
-	return s.ViewableToPublic
-}
-
-// GetToBeStartedAt returns the value of ToBeStartedAt.
-func (s *HostCompetitionRead) GetToBeStartedAt() OptDateTime {
-	return s.ToBeStartedAt
-}
-
-// GetStartedAt returns the value of StartedAt.
-func (s *HostCompetitionRead) GetStartedAt() OptDateTime {
-	return s.StartedAt
-}
-
-// GetFinishedAt returns the value of FinishedAt.
-func (s *HostCompetitionRead) GetFinishedAt() OptDateTime {
-	return s.FinishedAt
-}
-
-// SetID sets the value of ID.
-func (s *HostCompetitionRead) SetID(val string) {
-	s.ID = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *HostCompetitionRead) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetPause sets the value of Pause.
-func (s *HostCompetitionRead) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetName sets the value of Name.
-func (s *HostCompetitionRead) SetName(val string) {
-	s.Name = val
-}
-
-// SetDisplayName sets the value of DisplayName.
-func (s *HostCompetitionRead) SetDisplayName(val string) {
-	s.DisplayName = val
-}
-
-// SetViewableToPublic sets the value of ViewableToPublic.
-func (s *HostCompetitionRead) SetViewableToPublic(val OptBool) {
-	s.ViewableToPublic = val
-}
-
-// SetToBeStartedAt sets the value of ToBeStartedAt.
-func (s *HostCompetitionRead) SetToBeStartedAt(val OptDateTime) {
-	s.ToBeStartedAt = val
-}
-
-// SetStartedAt sets the value of StartedAt.
-func (s *HostCompetitionRead) SetStartedAt(val OptDateTime) {
-	s.StartedAt = val
-}
-
-// SetFinishedAt sets the value of FinishedAt.
-func (s *HostCompetitionRead) SetFinishedAt(val OptDateTime) {
-	s.FinishedAt = val
-}
-
-func (*HostCompetitionRead) readHostCompetitionRes() {}
-
 // Ref: #/components/schemas/HostCreate
 type HostCreate struct {
-	ID               string  `json:"id"`
-	Pause            OptBool `json:"pause"`
-	Hidden           OptBool `json:"hidden"`
-	CompetitionID    string  `json:"competition_id"`
-	TeamID           string  `json:"team_id"`
-	Address          string  `json:"address"`
-	AddressListRange string  `json:"address_list_range"`
-	Editable         bool    `json:"editable"`
+	ID      string  `json:"id"`
+	Pause   OptBool `json:"pause"`
+	Hidden  OptBool `json:"hidden"`
+	Address string  `json:"address"`
+	TeamID  string  `json:"team_id"`
 }
 
 // GetID returns the value of ID.
@@ -2388,29 +2422,14 @@ func (s *HostCreate) GetHidden() OptBool {
 	return s.Hidden
 }
 
-// GetCompetitionID returns the value of CompetitionID.
-func (s *HostCreate) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *HostCreate) GetTeamID() string {
-	return s.TeamID
-}
-
 // GetAddress returns the value of Address.
 func (s *HostCreate) GetAddress() string {
 	return s.Address
 }
 
-// GetAddressListRange returns the value of AddressListRange.
-func (s *HostCreate) GetAddressListRange() string {
-	return s.AddressListRange
-}
-
-// GetEditable returns the value of Editable.
-func (s *HostCreate) GetEditable() bool {
-	return s.Editable
+// GetTeamID returns the value of TeamID.
+func (s *HostCreate) GetTeamID() string {
+	return s.TeamID
 }
 
 // SetID sets the value of ID.
@@ -2428,9 +2447,9 @@ func (s *HostCreate) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
-// SetCompetitionID sets the value of CompetitionID.
-func (s *HostCreate) SetCompetitionID(val string) {
-	s.CompetitionID = val
+// SetAddress sets the value of Address.
+func (s *HostCreate) SetAddress(val string) {
+	s.Address = val
 }
 
 // SetTeamID sets the value of TeamID.
@@ -2438,660 +2457,140 @@ func (s *HostCreate) SetTeamID(val string) {
 	s.TeamID = val
 }
 
-// SetAddress sets the value of Address.
-func (s *HostCreate) SetAddress(val string) {
-	s.Address = val
-}
-
-// SetAddressListRange sets the value of AddressListRange.
-func (s *HostCreate) SetAddressListRange(val string) {
-	s.AddressListRange = val
-}
-
-// SetEditable sets the value of Editable.
-func (s *HostCreate) SetEditable(val bool) {
-	s.Editable = val
-}
-
 func (*HostCreate) createHostRes() {}
 
-// Ref: #/components/schemas/HostGroup_CompetitionRead
-type HostGroupCompetitionRead struct {
-	ID               string      `json:"id"`
-	Hidden           OptBool     `json:"hidden"`
-	Pause            OptBool     `json:"pause"`
-	Name             string      `json:"name"`
-	DisplayName      string      `json:"display_name"`
-	ViewableToPublic OptBool     `json:"viewable_to_public"`
-	ToBeStartedAt    OptDateTime `json:"to_be_started_at"`
-	StartedAt        OptDateTime `json:"started_at"`
-	FinishedAt       OptDateTime `json:"finished_at"`
+// Ref: #/components/schemas/Host_HostservicesList
+type HostHostservicesList struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	DisplayName string  `json:"display_name"`
+	Pause       OptBool `json:"pause"`
+	Hidden      OptBool `json:"hidden"`
+	Weight      int     `json:"weight"`
+	PointBoost  int     `json:"point_boost"`
+	RoundUnits  int     `json:"round_units"`
+	RoundDelay  int     `json:"round_delay"`
+	HostID      string  `json:"host_id"`
+	TeamID      string  `json:"team_id"`
 }
 
 // GetID returns the value of ID.
-func (s *HostGroupCompetitionRead) GetID() string {
+func (s *HostHostservicesList) GetID() string {
 	return s.ID
 }
 
-// GetHidden returns the value of Hidden.
-func (s *HostGroupCompetitionRead) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetPause returns the value of Pause.
-func (s *HostGroupCompetitionRead) GetPause() OptBool {
-	return s.Pause
-}
-
 // GetName returns the value of Name.
-func (s *HostGroupCompetitionRead) GetName() string {
+func (s *HostHostservicesList) GetName() string {
 	return s.Name
 }
 
 // GetDisplayName returns the value of DisplayName.
-func (s *HostGroupCompetitionRead) GetDisplayName() string {
+func (s *HostHostservicesList) GetDisplayName() string {
 	return s.DisplayName
 }
 
-// GetViewableToPublic returns the value of ViewableToPublic.
-func (s *HostGroupCompetitionRead) GetViewableToPublic() OptBool {
-	return s.ViewableToPublic
+// GetPause returns the value of Pause.
+func (s *HostHostservicesList) GetPause() OptBool {
+	return s.Pause
 }
 
-// GetToBeStartedAt returns the value of ToBeStartedAt.
-func (s *HostGroupCompetitionRead) GetToBeStartedAt() OptDateTime {
-	return s.ToBeStartedAt
+// GetHidden returns the value of Hidden.
+func (s *HostHostservicesList) GetHidden() OptBool {
+	return s.Hidden
 }
 
-// GetStartedAt returns the value of StartedAt.
-func (s *HostGroupCompetitionRead) GetStartedAt() OptDateTime {
-	return s.StartedAt
+// GetWeight returns the value of Weight.
+func (s *HostHostservicesList) GetWeight() int {
+	return s.Weight
 }
 
-// GetFinishedAt returns the value of FinishedAt.
-func (s *HostGroupCompetitionRead) GetFinishedAt() OptDateTime {
-	return s.FinishedAt
+// GetPointBoost returns the value of PointBoost.
+func (s *HostHostservicesList) GetPointBoost() int {
+	return s.PointBoost
+}
+
+// GetRoundUnits returns the value of RoundUnits.
+func (s *HostHostservicesList) GetRoundUnits() int {
+	return s.RoundUnits
+}
+
+// GetRoundDelay returns the value of RoundDelay.
+func (s *HostHostservicesList) GetRoundDelay() int {
+	return s.RoundDelay
+}
+
+// GetHostID returns the value of HostID.
+func (s *HostHostservicesList) GetHostID() string {
+	return s.HostID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *HostHostservicesList) GetTeamID() string {
+	return s.TeamID
 }
 
 // SetID sets the value of ID.
-func (s *HostGroupCompetitionRead) SetID(val string) {
+func (s *HostHostservicesList) SetID(val string) {
 	s.ID = val
 }
 
-// SetHidden sets the value of Hidden.
-func (s *HostGroupCompetitionRead) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetPause sets the value of Pause.
-func (s *HostGroupCompetitionRead) SetPause(val OptBool) {
-	s.Pause = val
-}
-
 // SetName sets the value of Name.
-func (s *HostGroupCompetitionRead) SetName(val string) {
+func (s *HostHostservicesList) SetName(val string) {
 	s.Name = val
 }
 
 // SetDisplayName sets the value of DisplayName.
-func (s *HostGroupCompetitionRead) SetDisplayName(val string) {
+func (s *HostHostservicesList) SetDisplayName(val string) {
 	s.DisplayName = val
 }
 
-// SetViewableToPublic sets the value of ViewableToPublic.
-func (s *HostGroupCompetitionRead) SetViewableToPublic(val OptBool) {
-	s.ViewableToPublic = val
-}
-
-// SetToBeStartedAt sets the value of ToBeStartedAt.
-func (s *HostGroupCompetitionRead) SetToBeStartedAt(val OptDateTime) {
-	s.ToBeStartedAt = val
-}
-
-// SetStartedAt sets the value of StartedAt.
-func (s *HostGroupCompetitionRead) SetStartedAt(val OptDateTime) {
-	s.StartedAt = val
-}
-
-// SetFinishedAt sets the value of FinishedAt.
-func (s *HostGroupCompetitionRead) SetFinishedAt(val OptDateTime) {
-	s.FinishedAt = val
-}
-
-func (*HostGroupCompetitionRead) readHostGroupCompetitionRes() {}
-
-// Ref: #/components/schemas/HostGroupCreate
-type HostGroupCreate struct {
-	ID            string  `json:"id"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
-	TeamID        string  `json:"team_id"`
-	Name          string  `json:"name"`
-}
-
-// GetID returns the value of ID.
-func (s *HostGroupCreate) GetID() string {
-	return s.ID
-}
-
-// GetPause returns the value of Pause.
-func (s *HostGroupCreate) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetHidden returns the value of Hidden.
-func (s *HostGroupCreate) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *HostGroupCreate) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *HostGroupCreate) GetTeamID() string {
-	return s.TeamID
-}
-
-// GetName returns the value of Name.
-func (s *HostGroupCreate) GetName() string {
-	return s.Name
-}
-
-// SetID sets the value of ID.
-func (s *HostGroupCreate) SetID(val string) {
-	s.ID = val
-}
-
 // SetPause sets the value of Pause.
-func (s *HostGroupCreate) SetPause(val OptBool) {
+func (s *HostHostservicesList) SetPause(val OptBool) {
 	s.Pause = val
 }
 
 // SetHidden sets the value of Hidden.
-func (s *HostGroupCreate) SetHidden(val OptBool) {
+func (s *HostHostservicesList) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
-// SetCompetitionID sets the value of CompetitionID.
-func (s *HostGroupCreate) SetCompetitionID(val string) {
-	s.CompetitionID = val
+// SetWeight sets the value of Weight.
+func (s *HostHostservicesList) SetWeight(val int) {
+	s.Weight = val
+}
+
+// SetPointBoost sets the value of PointBoost.
+func (s *HostHostservicesList) SetPointBoost(val int) {
+	s.PointBoost = val
+}
+
+// SetRoundUnits sets the value of RoundUnits.
+func (s *HostHostservicesList) SetRoundUnits(val int) {
+	s.RoundUnits = val
+}
+
+// SetRoundDelay sets the value of RoundDelay.
+func (s *HostHostservicesList) SetRoundDelay(val int) {
+	s.RoundDelay = val
+}
+
+// SetHostID sets the value of HostID.
+func (s *HostHostservicesList) SetHostID(val string) {
+	s.HostID = val
 }
 
 // SetTeamID sets the value of TeamID.
-func (s *HostGroupCreate) SetTeamID(val string) {
+func (s *HostHostservicesList) SetTeamID(val string) {
 	s.TeamID = val
 }
-
-// SetName sets the value of Name.
-func (s *HostGroupCreate) SetName(val string) {
-	s.Name = val
-}
-
-func (*HostGroupCreate) createHostGroupRes() {}
-
-// Ref: #/components/schemas/HostGroup_HostsList
-type HostGroupHostsList struct {
-	ID               string  `json:"id"`
-	Pause            OptBool `json:"pause"`
-	Hidden           OptBool `json:"hidden"`
-	CompetitionID    string  `json:"competition_id"`
-	TeamID           string  `json:"team_id"`
-	Address          string  `json:"address"`
-	AddressListRange string  `json:"address_list_range"`
-	Editable         bool    `json:"editable"`
-}
-
-// GetID returns the value of ID.
-func (s *HostGroupHostsList) GetID() string {
-	return s.ID
-}
-
-// GetPause returns the value of Pause.
-func (s *HostGroupHostsList) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetHidden returns the value of Hidden.
-func (s *HostGroupHostsList) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *HostGroupHostsList) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *HostGroupHostsList) GetTeamID() string {
-	return s.TeamID
-}
-
-// GetAddress returns the value of Address.
-func (s *HostGroupHostsList) GetAddress() string {
-	return s.Address
-}
-
-// GetAddressListRange returns the value of AddressListRange.
-func (s *HostGroupHostsList) GetAddressListRange() string {
-	return s.AddressListRange
-}
-
-// GetEditable returns the value of Editable.
-func (s *HostGroupHostsList) GetEditable() bool {
-	return s.Editable
-}
-
-// SetID sets the value of ID.
-func (s *HostGroupHostsList) SetID(val string) {
-	s.ID = val
-}
-
-// SetPause sets the value of Pause.
-func (s *HostGroupHostsList) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *HostGroupHostsList) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *HostGroupHostsList) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *HostGroupHostsList) SetTeamID(val string) {
-	s.TeamID = val
-}
-
-// SetAddress sets the value of Address.
-func (s *HostGroupHostsList) SetAddress(val string) {
-	s.Address = val
-}
-
-// SetAddressListRange sets the value of AddressListRange.
-func (s *HostGroupHostsList) SetAddressListRange(val string) {
-	s.AddressListRange = val
-}
-
-// SetEditable sets the value of Editable.
-func (s *HostGroupHostsList) SetEditable(val bool) {
-	s.Editable = val
-}
-
-// Ref: #/components/schemas/HostGroupList
-type HostGroupList struct {
-	ID            string  `json:"id"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
-	TeamID        string  `json:"team_id"`
-	Name          string  `json:"name"`
-}
-
-// GetID returns the value of ID.
-func (s *HostGroupList) GetID() string {
-	return s.ID
-}
-
-// GetPause returns the value of Pause.
-func (s *HostGroupList) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetHidden returns the value of Hidden.
-func (s *HostGroupList) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *HostGroupList) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *HostGroupList) GetTeamID() string {
-	return s.TeamID
-}
-
-// GetName returns the value of Name.
-func (s *HostGroupList) GetName() string {
-	return s.Name
-}
-
-// SetID sets the value of ID.
-func (s *HostGroupList) SetID(val string) {
-	s.ID = val
-}
-
-// SetPause sets the value of Pause.
-func (s *HostGroupList) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *HostGroupList) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *HostGroupList) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *HostGroupList) SetTeamID(val string) {
-	s.TeamID = val
-}
-
-// SetName sets the value of Name.
-func (s *HostGroupList) SetName(val string) {
-	s.Name = val
-}
-
-// Ref: #/components/schemas/HostGroupRead
-type HostGroupRead struct {
-	ID            string  `json:"id"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
-	TeamID        string  `json:"team_id"`
-	Name          string  `json:"name"`
-}
-
-// GetID returns the value of ID.
-func (s *HostGroupRead) GetID() string {
-	return s.ID
-}
-
-// GetPause returns the value of Pause.
-func (s *HostGroupRead) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetHidden returns the value of Hidden.
-func (s *HostGroupRead) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *HostGroupRead) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *HostGroupRead) GetTeamID() string {
-	return s.TeamID
-}
-
-// GetName returns the value of Name.
-func (s *HostGroupRead) GetName() string {
-	return s.Name
-}
-
-// SetID sets the value of ID.
-func (s *HostGroupRead) SetID(val string) {
-	s.ID = val
-}
-
-// SetPause sets the value of Pause.
-func (s *HostGroupRead) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *HostGroupRead) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *HostGroupRead) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *HostGroupRead) SetTeamID(val string) {
-	s.TeamID = val
-}
-
-// SetName sets the value of Name.
-func (s *HostGroupRead) SetName(val string) {
-	s.Name = val
-}
-
-func (*HostGroupRead) readHostGroupRes() {}
-
-// Ref: #/components/schemas/HostGroup_TeamRead
-type HostGroupTeamRead struct {
-	ID            string  `json:"id"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
-	Name          string  `json:"name"`
-	Index         OptInt  `json:"index"`
-}
-
-// GetID returns the value of ID.
-func (s *HostGroupTeamRead) GetID() string {
-	return s.ID
-}
-
-// GetPause returns the value of Pause.
-func (s *HostGroupTeamRead) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetHidden returns the value of Hidden.
-func (s *HostGroupTeamRead) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *HostGroupTeamRead) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetName returns the value of Name.
-func (s *HostGroupTeamRead) GetName() string {
-	return s.Name
-}
-
-// GetIndex returns the value of Index.
-func (s *HostGroupTeamRead) GetIndex() OptInt {
-	return s.Index
-}
-
-// SetID sets the value of ID.
-func (s *HostGroupTeamRead) SetID(val string) {
-	s.ID = val
-}
-
-// SetPause sets the value of Pause.
-func (s *HostGroupTeamRead) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *HostGroupTeamRead) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *HostGroupTeamRead) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetName sets the value of Name.
-func (s *HostGroupTeamRead) SetName(val string) {
-	s.Name = val
-}
-
-// SetIndex sets the value of Index.
-func (s *HostGroupTeamRead) SetIndex(val OptInt) {
-	s.Index = val
-}
-
-func (*HostGroupTeamRead) readHostGroupTeamRes() {}
-
-// Ref: #/components/schemas/HostGroupUpdate
-type HostGroupUpdate struct {
-	ID            string  `json:"id"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
-	TeamID        string  `json:"team_id"`
-	Name          string  `json:"name"`
-}
-
-// GetID returns the value of ID.
-func (s *HostGroupUpdate) GetID() string {
-	return s.ID
-}
-
-// GetPause returns the value of Pause.
-func (s *HostGroupUpdate) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetHidden returns the value of Hidden.
-func (s *HostGroupUpdate) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *HostGroupUpdate) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *HostGroupUpdate) GetTeamID() string {
-	return s.TeamID
-}
-
-// GetName returns the value of Name.
-func (s *HostGroupUpdate) GetName() string {
-	return s.Name
-}
-
-// SetID sets the value of ID.
-func (s *HostGroupUpdate) SetID(val string) {
-	s.ID = val
-}
-
-// SetPause sets the value of Pause.
-func (s *HostGroupUpdate) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *HostGroupUpdate) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *HostGroupUpdate) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *HostGroupUpdate) SetTeamID(val string) {
-	s.TeamID = val
-}
-
-// SetName sets the value of Name.
-func (s *HostGroupUpdate) SetName(val string) {
-	s.Name = val
-}
-
-func (*HostGroupUpdate) updateHostGroupRes() {}
-
-// Ref: #/components/schemas/Host_HostGroupRead
-type HostHostGroupRead struct {
-	ID            string  `json:"id"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
-	TeamID        string  `json:"team_id"`
-	Name          string  `json:"name"`
-}
-
-// GetID returns the value of ID.
-func (s *HostHostGroupRead) GetID() string {
-	return s.ID
-}
-
-// GetPause returns the value of Pause.
-func (s *HostHostGroupRead) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetHidden returns the value of Hidden.
-func (s *HostHostGroupRead) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *HostHostGroupRead) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *HostHostGroupRead) GetTeamID() string {
-	return s.TeamID
-}
-
-// GetName returns the value of Name.
-func (s *HostHostGroupRead) GetName() string {
-	return s.Name
-}
-
-// SetID sets the value of ID.
-func (s *HostHostGroupRead) SetID(val string) {
-	s.ID = val
-}
-
-// SetPause sets the value of Pause.
-func (s *HostHostGroupRead) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *HostHostGroupRead) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *HostHostGroupRead) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *HostHostGroupRead) SetTeamID(val string) {
-	s.TeamID = val
-}
-
-// SetName sets the value of Name.
-func (s *HostHostGroupRead) SetName(val string) {
-	s.Name = val
-}
-
-func (*HostHostGroupRead) readHostHostGroupRes() {}
 
 // Ref: #/components/schemas/HostList
 type HostList struct {
-	ID               string  `json:"id"`
-	Pause            OptBool `json:"pause"`
-	Hidden           OptBool `json:"hidden"`
-	CompetitionID    string  `json:"competition_id"`
-	TeamID           string  `json:"team_id"`
-	Address          string  `json:"address"`
-	AddressListRange string  `json:"address_list_range"`
-	Editable         bool    `json:"editable"`
+	ID      string  `json:"id"`
+	Pause   OptBool `json:"pause"`
+	Hidden  OptBool `json:"hidden"`
+	Address string  `json:"address"`
+	TeamID  string  `json:"team_id"`
 }
 
 // GetID returns the value of ID.
@@ -3109,29 +2608,14 @@ func (s *HostList) GetHidden() OptBool {
 	return s.Hidden
 }
 
-// GetCompetitionID returns the value of CompetitionID.
-func (s *HostList) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *HostList) GetTeamID() string {
-	return s.TeamID
-}
-
 // GetAddress returns the value of Address.
 func (s *HostList) GetAddress() string {
 	return s.Address
 }
 
-// GetAddressListRange returns the value of AddressListRange.
-func (s *HostList) GetAddressListRange() string {
-	return s.AddressListRange
-}
-
-// GetEditable returns the value of Editable.
-func (s *HostList) GetEditable() bool {
-	return s.Editable
+// GetTeamID returns the value of TeamID.
+func (s *HostList) GetTeamID() string {
+	return s.TeamID
 }
 
 // SetID sets the value of ID.
@@ -3149,9 +2633,9 @@ func (s *HostList) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
-// SetCompetitionID sets the value of CompetitionID.
-func (s *HostList) SetCompetitionID(val string) {
-	s.CompetitionID = val
+// SetAddress sets the value of Address.
+func (s *HostList) SetAddress(val string) {
+	s.Address = val
 }
 
 // SetTeamID sets the value of TeamID.
@@ -3159,31 +2643,13 @@ func (s *HostList) SetTeamID(val string) {
 	s.TeamID = val
 }
 
-// SetAddress sets the value of Address.
-func (s *HostList) SetAddress(val string) {
-	s.Address = val
-}
-
-// SetAddressListRange sets the value of AddressListRange.
-func (s *HostList) SetAddressListRange(val string) {
-	s.AddressListRange = val
-}
-
-// SetEditable sets the value of Editable.
-func (s *HostList) SetEditable(val bool) {
-	s.Editable = val
-}
-
 // Ref: #/components/schemas/HostRead
 type HostRead struct {
-	ID               string  `json:"id"`
-	Pause            OptBool `json:"pause"`
-	Hidden           OptBool `json:"hidden"`
-	CompetitionID    string  `json:"competition_id"`
-	TeamID           string  `json:"team_id"`
-	Address          string  `json:"address"`
-	AddressListRange string  `json:"address_list_range"`
-	Editable         bool    `json:"editable"`
+	ID      string  `json:"id"`
+	Pause   OptBool `json:"pause"`
+	Hidden  OptBool `json:"hidden"`
+	Address string  `json:"address"`
+	TeamID  string  `json:"team_id"`
 }
 
 // GetID returns the value of ID.
@@ -3201,29 +2667,14 @@ func (s *HostRead) GetHidden() OptBool {
 	return s.Hidden
 }
 
-// GetCompetitionID returns the value of CompetitionID.
-func (s *HostRead) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *HostRead) GetTeamID() string {
-	return s.TeamID
-}
-
 // GetAddress returns the value of Address.
 func (s *HostRead) GetAddress() string {
 	return s.Address
 }
 
-// GetAddressListRange returns the value of AddressListRange.
-func (s *HostRead) GetAddressListRange() string {
-	return s.AddressListRange
-}
-
-// GetEditable returns the value of Editable.
-func (s *HostRead) GetEditable() bool {
-	return s.Editable
+// GetTeamID returns the value of TeamID.
+func (s *HostRead) GetTeamID() string {
+	return s.TeamID
 }
 
 // SetID sets the value of ID.
@@ -3241,9 +2692,9 @@ func (s *HostRead) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
-// SetCompetitionID sets the value of CompetitionID.
-func (s *HostRead) SetCompetitionID(val string) {
-	s.CompetitionID = val
+// SetAddress sets the value of Address.
+func (s *HostRead) SetAddress(val string) {
+	s.Address = val
 }
 
 // SetTeamID sets the value of TeamID.
@@ -3251,161 +2702,894 @@ func (s *HostRead) SetTeamID(val string) {
 	s.TeamID = val
 }
 
-// SetAddress sets the value of Address.
-func (s *HostRead) SetAddress(val string) {
-	s.Address = val
-}
-
-// SetAddressListRange sets the value of AddressListRange.
-func (s *HostRead) SetAddressListRange(val string) {
-	s.AddressListRange = val
-}
-
-// SetEditable sets the value of Editable.
-func (s *HostRead) SetEditable(val bool) {
-	s.Editable = val
-}
-
 func (*HostRead) readHostRes() {}
 
-// Ref: #/components/schemas/Host_ServicesList
-type HostServicesList struct {
+// Ref: #/components/schemas/HostService_ChecksList
+type HostServiceChecksList struct {
 	ID            string  `json:"id"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
+	Log           string  `json:"log"`
+	Error         string  `json:"error"`
+	Passed        bool    `json:"passed"`
+	RoundID       string  `json:"round_id"`
+	HostServiceID string  `json:"host_service_id"`
 	TeamID        string  `json:"team_id"`
-	Name          string  `json:"name"`
-	DisplayName   string  `json:"display_name"`
-	Weight        int     `json:"weight"`
-	PointBoost    int     `json:"point_boost"`
-	RoundUnits    int     `json:"round_units"`
-	RoundDelay    int     `json:"round_delay"`
 }
 
 // GetID returns the value of ID.
-func (s *HostServicesList) GetID() string {
+func (s *HostServiceChecksList) GetID() string {
 	return s.ID
 }
 
 // GetPause returns the value of Pause.
-func (s *HostServicesList) GetPause() OptBool {
+func (s *HostServiceChecksList) GetPause() OptBool {
 	return s.Pause
 }
 
 // GetHidden returns the value of Hidden.
-func (s *HostServicesList) GetHidden() OptBool {
+func (s *HostServiceChecksList) GetHidden() OptBool {
 	return s.Hidden
 }
 
-// GetCompetitionID returns the value of CompetitionID.
-func (s *HostServicesList) GetCompetitionID() string {
-	return s.CompetitionID
+// GetLog returns the value of Log.
+func (s *HostServiceChecksList) GetLog() string {
+	return s.Log
+}
+
+// GetError returns the value of Error.
+func (s *HostServiceChecksList) GetError() string {
+	return s.Error
+}
+
+// GetPassed returns the value of Passed.
+func (s *HostServiceChecksList) GetPassed() bool {
+	return s.Passed
+}
+
+// GetRoundID returns the value of RoundID.
+func (s *HostServiceChecksList) GetRoundID() string {
+	return s.RoundID
+}
+
+// GetHostServiceID returns the value of HostServiceID.
+func (s *HostServiceChecksList) GetHostServiceID() string {
+	return s.HostServiceID
 }
 
 // GetTeamID returns the value of TeamID.
-func (s *HostServicesList) GetTeamID() string {
+func (s *HostServiceChecksList) GetTeamID() string {
 	return s.TeamID
 }
 
-// GetName returns the value of Name.
-func (s *HostServicesList) GetName() string {
-	return s.Name
-}
-
-// GetDisplayName returns the value of DisplayName.
-func (s *HostServicesList) GetDisplayName() string {
-	return s.DisplayName
-}
-
-// GetWeight returns the value of Weight.
-func (s *HostServicesList) GetWeight() int {
-	return s.Weight
-}
-
-// GetPointBoost returns the value of PointBoost.
-func (s *HostServicesList) GetPointBoost() int {
-	return s.PointBoost
-}
-
-// GetRoundUnits returns the value of RoundUnits.
-func (s *HostServicesList) GetRoundUnits() int {
-	return s.RoundUnits
-}
-
-// GetRoundDelay returns the value of RoundDelay.
-func (s *HostServicesList) GetRoundDelay() int {
-	return s.RoundDelay
-}
-
 // SetID sets the value of ID.
-func (s *HostServicesList) SetID(val string) {
+func (s *HostServiceChecksList) SetID(val string) {
 	s.ID = val
 }
 
 // SetPause sets the value of Pause.
-func (s *HostServicesList) SetPause(val OptBool) {
+func (s *HostServiceChecksList) SetPause(val OptBool) {
 	s.Pause = val
 }
 
 // SetHidden sets the value of Hidden.
-func (s *HostServicesList) SetHidden(val OptBool) {
+func (s *HostServiceChecksList) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
-// SetCompetitionID sets the value of CompetitionID.
-func (s *HostServicesList) SetCompetitionID(val string) {
-	s.CompetitionID = val
+// SetLog sets the value of Log.
+func (s *HostServiceChecksList) SetLog(val string) {
+	s.Log = val
+}
+
+// SetError sets the value of Error.
+func (s *HostServiceChecksList) SetError(val string) {
+	s.Error = val
+}
+
+// SetPassed sets the value of Passed.
+func (s *HostServiceChecksList) SetPassed(val bool) {
+	s.Passed = val
+}
+
+// SetRoundID sets the value of RoundID.
+func (s *HostServiceChecksList) SetRoundID(val string) {
+	s.RoundID = val
+}
+
+// SetHostServiceID sets the value of HostServiceID.
+func (s *HostServiceChecksList) SetHostServiceID(val string) {
+	s.HostServiceID = val
 }
 
 // SetTeamID sets the value of TeamID.
-func (s *HostServicesList) SetTeamID(val string) {
+func (s *HostServiceChecksList) SetTeamID(val string) {
 	s.TeamID = val
 }
 
+// Ref: #/components/schemas/HostServiceCreate
+type HostServiceCreate struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	DisplayName string  `json:"display_name"`
+	Pause       OptBool `json:"pause"`
+	Hidden      OptBool `json:"hidden"`
+	Weight      int     `json:"weight"`
+	PointBoost  int     `json:"point_boost"`
+	RoundUnits  int     `json:"round_units"`
+	RoundDelay  int     `json:"round_delay"`
+	HostID      string  `json:"host_id"`
+	TeamID      string  `json:"team_id"`
+}
+
+// GetID returns the value of ID.
+func (s *HostServiceCreate) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *HostServiceCreate) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *HostServiceCreate) GetDisplayName() string {
+	return s.DisplayName
+}
+
+// GetPause returns the value of Pause.
+func (s *HostServiceCreate) GetPause() OptBool {
+	return s.Pause
+}
+
+// GetHidden returns the value of Hidden.
+func (s *HostServiceCreate) GetHidden() OptBool {
+	return s.Hidden
+}
+
+// GetWeight returns the value of Weight.
+func (s *HostServiceCreate) GetWeight() int {
+	return s.Weight
+}
+
+// GetPointBoost returns the value of PointBoost.
+func (s *HostServiceCreate) GetPointBoost() int {
+	return s.PointBoost
+}
+
+// GetRoundUnits returns the value of RoundUnits.
+func (s *HostServiceCreate) GetRoundUnits() int {
+	return s.RoundUnits
+}
+
+// GetRoundDelay returns the value of RoundDelay.
+func (s *HostServiceCreate) GetRoundDelay() int {
+	return s.RoundDelay
+}
+
+// GetHostID returns the value of HostID.
+func (s *HostServiceCreate) GetHostID() string {
+	return s.HostID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *HostServiceCreate) GetTeamID() string {
+	return s.TeamID
+}
+
+// SetID sets the value of ID.
+func (s *HostServiceCreate) SetID(val string) {
+	s.ID = val
+}
+
 // SetName sets the value of Name.
-func (s *HostServicesList) SetName(val string) {
+func (s *HostServiceCreate) SetName(val string) {
 	s.Name = val
 }
 
 // SetDisplayName sets the value of DisplayName.
-func (s *HostServicesList) SetDisplayName(val string) {
+func (s *HostServiceCreate) SetDisplayName(val string) {
 	s.DisplayName = val
 }
 
+// SetPause sets the value of Pause.
+func (s *HostServiceCreate) SetPause(val OptBool) {
+	s.Pause = val
+}
+
+// SetHidden sets the value of Hidden.
+func (s *HostServiceCreate) SetHidden(val OptBool) {
+	s.Hidden = val
+}
+
 // SetWeight sets the value of Weight.
-func (s *HostServicesList) SetWeight(val int) {
+func (s *HostServiceCreate) SetWeight(val int) {
 	s.Weight = val
 }
 
 // SetPointBoost sets the value of PointBoost.
-func (s *HostServicesList) SetPointBoost(val int) {
+func (s *HostServiceCreate) SetPointBoost(val int) {
 	s.PointBoost = val
 }
 
 // SetRoundUnits sets the value of RoundUnits.
-func (s *HostServicesList) SetRoundUnits(val int) {
+func (s *HostServiceCreate) SetRoundUnits(val int) {
 	s.RoundUnits = val
 }
 
 // SetRoundDelay sets the value of RoundDelay.
-func (s *HostServicesList) SetRoundDelay(val int) {
+func (s *HostServiceCreate) SetRoundDelay(val int) {
 	s.RoundDelay = val
 }
+
+// SetHostID sets the value of HostID.
+func (s *HostServiceCreate) SetHostID(val string) {
+	s.HostID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *HostServiceCreate) SetTeamID(val string) {
+	s.TeamID = val
+}
+
+func (*HostServiceCreate) createHostServiceRes() {}
+
+// Ref: #/components/schemas/HostService_HostRead
+type HostServiceHostRead struct {
+	ID      string  `json:"id"`
+	Pause   OptBool `json:"pause"`
+	Hidden  OptBool `json:"hidden"`
+	Address string  `json:"address"`
+	TeamID  string  `json:"team_id"`
+}
+
+// GetID returns the value of ID.
+func (s *HostServiceHostRead) GetID() string {
+	return s.ID
+}
+
+// GetPause returns the value of Pause.
+func (s *HostServiceHostRead) GetPause() OptBool {
+	return s.Pause
+}
+
+// GetHidden returns the value of Hidden.
+func (s *HostServiceHostRead) GetHidden() OptBool {
+	return s.Hidden
+}
+
+// GetAddress returns the value of Address.
+func (s *HostServiceHostRead) GetAddress() string {
+	return s.Address
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *HostServiceHostRead) GetTeamID() string {
+	return s.TeamID
+}
+
+// SetID sets the value of ID.
+func (s *HostServiceHostRead) SetID(val string) {
+	s.ID = val
+}
+
+// SetPause sets the value of Pause.
+func (s *HostServiceHostRead) SetPause(val OptBool) {
+	s.Pause = val
+}
+
+// SetHidden sets the value of Hidden.
+func (s *HostServiceHostRead) SetHidden(val OptBool) {
+	s.Hidden = val
+}
+
+// SetAddress sets the value of Address.
+func (s *HostServiceHostRead) SetAddress(val string) {
+	s.Address = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *HostServiceHostRead) SetTeamID(val string) {
+	s.TeamID = val
+}
+
+func (*HostServiceHostRead) readHostServiceHostRes() {}
+
+// Ref: #/components/schemas/HostServiceList
+type HostServiceList struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	DisplayName string  `json:"display_name"`
+	Pause       OptBool `json:"pause"`
+	Hidden      OptBool `json:"hidden"`
+	Weight      int     `json:"weight"`
+	PointBoost  int     `json:"point_boost"`
+	RoundUnits  int     `json:"round_units"`
+	RoundDelay  int     `json:"round_delay"`
+	HostID      string  `json:"host_id"`
+	TeamID      string  `json:"team_id"`
+}
+
+// GetID returns the value of ID.
+func (s *HostServiceList) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *HostServiceList) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *HostServiceList) GetDisplayName() string {
+	return s.DisplayName
+}
+
+// GetPause returns the value of Pause.
+func (s *HostServiceList) GetPause() OptBool {
+	return s.Pause
+}
+
+// GetHidden returns the value of Hidden.
+func (s *HostServiceList) GetHidden() OptBool {
+	return s.Hidden
+}
+
+// GetWeight returns the value of Weight.
+func (s *HostServiceList) GetWeight() int {
+	return s.Weight
+}
+
+// GetPointBoost returns the value of PointBoost.
+func (s *HostServiceList) GetPointBoost() int {
+	return s.PointBoost
+}
+
+// GetRoundUnits returns the value of RoundUnits.
+func (s *HostServiceList) GetRoundUnits() int {
+	return s.RoundUnits
+}
+
+// GetRoundDelay returns the value of RoundDelay.
+func (s *HostServiceList) GetRoundDelay() int {
+	return s.RoundDelay
+}
+
+// GetHostID returns the value of HostID.
+func (s *HostServiceList) GetHostID() string {
+	return s.HostID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *HostServiceList) GetTeamID() string {
+	return s.TeamID
+}
+
+// SetID sets the value of ID.
+func (s *HostServiceList) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *HostServiceList) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *HostServiceList) SetDisplayName(val string) {
+	s.DisplayName = val
+}
+
+// SetPause sets the value of Pause.
+func (s *HostServiceList) SetPause(val OptBool) {
+	s.Pause = val
+}
+
+// SetHidden sets the value of Hidden.
+func (s *HostServiceList) SetHidden(val OptBool) {
+	s.Hidden = val
+}
+
+// SetWeight sets the value of Weight.
+func (s *HostServiceList) SetWeight(val int) {
+	s.Weight = val
+}
+
+// SetPointBoost sets the value of PointBoost.
+func (s *HostServiceList) SetPointBoost(val int) {
+	s.PointBoost = val
+}
+
+// SetRoundUnits sets the value of RoundUnits.
+func (s *HostServiceList) SetRoundUnits(val int) {
+	s.RoundUnits = val
+}
+
+// SetRoundDelay sets the value of RoundDelay.
+func (s *HostServiceList) SetRoundDelay(val int) {
+	s.RoundDelay = val
+}
+
+// SetHostID sets the value of HostID.
+func (s *HostServiceList) SetHostID(val string) {
+	s.HostID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *HostServiceList) SetTeamID(val string) {
+	s.TeamID = val
+}
+
+// Ref: #/components/schemas/HostService_PropertiesList
+type HostServicePropertiesList struct {
+	ID            string                          `json:"id"`
+	Key           string                          `json:"key"`
+	Value         string                          `json:"value"`
+	Status        HostServicePropertiesListStatus `json:"status"`
+	HostServiceID string                          `json:"host_service_id"`
+	TeamID        string                          `json:"team_id"`
+}
+
+// GetID returns the value of ID.
+func (s *HostServicePropertiesList) GetID() string {
+	return s.ID
+}
+
+// GetKey returns the value of Key.
+func (s *HostServicePropertiesList) GetKey() string {
+	return s.Key
+}
+
+// GetValue returns the value of Value.
+func (s *HostServicePropertiesList) GetValue() string {
+	return s.Value
+}
+
+// GetStatus returns the value of Status.
+func (s *HostServicePropertiesList) GetStatus() HostServicePropertiesListStatus {
+	return s.Status
+}
+
+// GetHostServiceID returns the value of HostServiceID.
+func (s *HostServicePropertiesList) GetHostServiceID() string {
+	return s.HostServiceID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *HostServicePropertiesList) GetTeamID() string {
+	return s.TeamID
+}
+
+// SetID sets the value of ID.
+func (s *HostServicePropertiesList) SetID(val string) {
+	s.ID = val
+}
+
+// SetKey sets the value of Key.
+func (s *HostServicePropertiesList) SetKey(val string) {
+	s.Key = val
+}
+
+// SetValue sets the value of Value.
+func (s *HostServicePropertiesList) SetValue(val string) {
+	s.Value = val
+}
+
+// SetStatus sets the value of Status.
+func (s *HostServicePropertiesList) SetStatus(val HostServicePropertiesListStatus) {
+	s.Status = val
+}
+
+// SetHostServiceID sets the value of HostServiceID.
+func (s *HostServicePropertiesList) SetHostServiceID(val string) {
+	s.HostServiceID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *HostServicePropertiesList) SetTeamID(val string) {
+	s.TeamID = val
+}
+
+type HostServicePropertiesListStatus string
+
+const (
+	HostServicePropertiesListStatusView HostServicePropertiesListStatus = "view"
+	HostServicePropertiesListStatusEdit HostServicePropertiesListStatus = "edit"
+	HostServicePropertiesListStatusHide HostServicePropertiesListStatus = "hide"
+)
+
+// MarshalText implements encoding.TextMarshaler.
+func (s HostServicePropertiesListStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case HostServicePropertiesListStatusView:
+		return []byte(s), nil
+	case HostServicePropertiesListStatusEdit:
+		return []byte(s), nil
+	case HostServicePropertiesListStatusHide:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *HostServicePropertiesListStatus) UnmarshalText(data []byte) error {
+	switch HostServicePropertiesListStatus(data) {
+	case HostServicePropertiesListStatusView:
+		*s = HostServicePropertiesListStatusView
+		return nil
+	case HostServicePropertiesListStatusEdit:
+		*s = HostServicePropertiesListStatusEdit
+		return nil
+	case HostServicePropertiesListStatusHide:
+		*s = HostServicePropertiesListStatusHide
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/HostServiceRead
+type HostServiceRead struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	DisplayName string  `json:"display_name"`
+	Pause       OptBool `json:"pause"`
+	Hidden      OptBool `json:"hidden"`
+	Weight      int     `json:"weight"`
+	PointBoost  int     `json:"point_boost"`
+	RoundUnits  int     `json:"round_units"`
+	RoundDelay  int     `json:"round_delay"`
+	HostID      string  `json:"host_id"`
+	TeamID      string  `json:"team_id"`
+}
+
+// GetID returns the value of ID.
+func (s *HostServiceRead) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *HostServiceRead) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *HostServiceRead) GetDisplayName() string {
+	return s.DisplayName
+}
+
+// GetPause returns the value of Pause.
+func (s *HostServiceRead) GetPause() OptBool {
+	return s.Pause
+}
+
+// GetHidden returns the value of Hidden.
+func (s *HostServiceRead) GetHidden() OptBool {
+	return s.Hidden
+}
+
+// GetWeight returns the value of Weight.
+func (s *HostServiceRead) GetWeight() int {
+	return s.Weight
+}
+
+// GetPointBoost returns the value of PointBoost.
+func (s *HostServiceRead) GetPointBoost() int {
+	return s.PointBoost
+}
+
+// GetRoundUnits returns the value of RoundUnits.
+func (s *HostServiceRead) GetRoundUnits() int {
+	return s.RoundUnits
+}
+
+// GetRoundDelay returns the value of RoundDelay.
+func (s *HostServiceRead) GetRoundDelay() int {
+	return s.RoundDelay
+}
+
+// GetHostID returns the value of HostID.
+func (s *HostServiceRead) GetHostID() string {
+	return s.HostID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *HostServiceRead) GetTeamID() string {
+	return s.TeamID
+}
+
+// SetID sets the value of ID.
+func (s *HostServiceRead) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *HostServiceRead) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *HostServiceRead) SetDisplayName(val string) {
+	s.DisplayName = val
+}
+
+// SetPause sets the value of Pause.
+func (s *HostServiceRead) SetPause(val OptBool) {
+	s.Pause = val
+}
+
+// SetHidden sets the value of Hidden.
+func (s *HostServiceRead) SetHidden(val OptBool) {
+	s.Hidden = val
+}
+
+// SetWeight sets the value of Weight.
+func (s *HostServiceRead) SetWeight(val int) {
+	s.Weight = val
+}
+
+// SetPointBoost sets the value of PointBoost.
+func (s *HostServiceRead) SetPointBoost(val int) {
+	s.PointBoost = val
+}
+
+// SetRoundUnits sets the value of RoundUnits.
+func (s *HostServiceRead) SetRoundUnits(val int) {
+	s.RoundUnits = val
+}
+
+// SetRoundDelay sets the value of RoundDelay.
+func (s *HostServiceRead) SetRoundDelay(val int) {
+	s.RoundDelay = val
+}
+
+// SetHostID sets the value of HostID.
+func (s *HostServiceRead) SetHostID(val string) {
+	s.HostID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *HostServiceRead) SetTeamID(val string) {
+	s.TeamID = val
+}
+
+func (*HostServiceRead) readHostServiceRes() {}
+
+// Ref: #/components/schemas/HostService_TeamRead
+type HostServiceTeamRead struct {
+	ID            string  `json:"id"`
+	Name          string  `json:"name"`
+	DisplayName   string  `json:"display_name"`
+	Pause         OptBool `json:"pause"`
+	Hidden        OptBool `json:"hidden"`
+	Number        int     `json:"number"`
+	CompetitionID string  `json:"competition_id"`
+}
+
+// GetID returns the value of ID.
+func (s *HostServiceTeamRead) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *HostServiceTeamRead) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *HostServiceTeamRead) GetDisplayName() string {
+	return s.DisplayName
+}
+
+// GetPause returns the value of Pause.
+func (s *HostServiceTeamRead) GetPause() OptBool {
+	return s.Pause
+}
+
+// GetHidden returns the value of Hidden.
+func (s *HostServiceTeamRead) GetHidden() OptBool {
+	return s.Hidden
+}
+
+// GetNumber returns the value of Number.
+func (s *HostServiceTeamRead) GetNumber() int {
+	return s.Number
+}
+
+// GetCompetitionID returns the value of CompetitionID.
+func (s *HostServiceTeamRead) GetCompetitionID() string {
+	return s.CompetitionID
+}
+
+// SetID sets the value of ID.
+func (s *HostServiceTeamRead) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *HostServiceTeamRead) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *HostServiceTeamRead) SetDisplayName(val string) {
+	s.DisplayName = val
+}
+
+// SetPause sets the value of Pause.
+func (s *HostServiceTeamRead) SetPause(val OptBool) {
+	s.Pause = val
+}
+
+// SetHidden sets the value of Hidden.
+func (s *HostServiceTeamRead) SetHidden(val OptBool) {
+	s.Hidden = val
+}
+
+// SetNumber sets the value of Number.
+func (s *HostServiceTeamRead) SetNumber(val int) {
+	s.Number = val
+}
+
+// SetCompetitionID sets the value of CompetitionID.
+func (s *HostServiceTeamRead) SetCompetitionID(val string) {
+	s.CompetitionID = val
+}
+
+func (*HostServiceTeamRead) readHostServiceTeamRes() {}
+
+// Ref: #/components/schemas/HostServiceUpdate
+type HostServiceUpdate struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	DisplayName string  `json:"display_name"`
+	Pause       OptBool `json:"pause"`
+	Hidden      OptBool `json:"hidden"`
+	Weight      int     `json:"weight"`
+	PointBoost  int     `json:"point_boost"`
+	RoundUnits  int     `json:"round_units"`
+	RoundDelay  int     `json:"round_delay"`
+	HostID      string  `json:"host_id"`
+	TeamID      string  `json:"team_id"`
+}
+
+// GetID returns the value of ID.
+func (s *HostServiceUpdate) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *HostServiceUpdate) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *HostServiceUpdate) GetDisplayName() string {
+	return s.DisplayName
+}
+
+// GetPause returns the value of Pause.
+func (s *HostServiceUpdate) GetPause() OptBool {
+	return s.Pause
+}
+
+// GetHidden returns the value of Hidden.
+func (s *HostServiceUpdate) GetHidden() OptBool {
+	return s.Hidden
+}
+
+// GetWeight returns the value of Weight.
+func (s *HostServiceUpdate) GetWeight() int {
+	return s.Weight
+}
+
+// GetPointBoost returns the value of PointBoost.
+func (s *HostServiceUpdate) GetPointBoost() int {
+	return s.PointBoost
+}
+
+// GetRoundUnits returns the value of RoundUnits.
+func (s *HostServiceUpdate) GetRoundUnits() int {
+	return s.RoundUnits
+}
+
+// GetRoundDelay returns the value of RoundDelay.
+func (s *HostServiceUpdate) GetRoundDelay() int {
+	return s.RoundDelay
+}
+
+// GetHostID returns the value of HostID.
+func (s *HostServiceUpdate) GetHostID() string {
+	return s.HostID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *HostServiceUpdate) GetTeamID() string {
+	return s.TeamID
+}
+
+// SetID sets the value of ID.
+func (s *HostServiceUpdate) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *HostServiceUpdate) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *HostServiceUpdate) SetDisplayName(val string) {
+	s.DisplayName = val
+}
+
+// SetPause sets the value of Pause.
+func (s *HostServiceUpdate) SetPause(val OptBool) {
+	s.Pause = val
+}
+
+// SetHidden sets the value of Hidden.
+func (s *HostServiceUpdate) SetHidden(val OptBool) {
+	s.Hidden = val
+}
+
+// SetWeight sets the value of Weight.
+func (s *HostServiceUpdate) SetWeight(val int) {
+	s.Weight = val
+}
+
+// SetPointBoost sets the value of PointBoost.
+func (s *HostServiceUpdate) SetPointBoost(val int) {
+	s.PointBoost = val
+}
+
+// SetRoundUnits sets the value of RoundUnits.
+func (s *HostServiceUpdate) SetRoundUnits(val int) {
+	s.RoundUnits = val
+}
+
+// SetRoundDelay sets the value of RoundDelay.
+func (s *HostServiceUpdate) SetRoundDelay(val int) {
+	s.RoundDelay = val
+}
+
+// SetHostID sets the value of HostID.
+func (s *HostServiceUpdate) SetHostID(val string) {
+	s.HostID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *HostServiceUpdate) SetTeamID(val string) {
+	s.TeamID = val
+}
+
+func (*HostServiceUpdate) updateHostServiceRes() {}
 
 // Ref: #/components/schemas/Host_TeamRead
 type HostTeamRead struct {
 	ID            string  `json:"id"`
+	Name          string  `json:"name"`
+	DisplayName   string  `json:"display_name"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
+	Number        int     `json:"number"`
 	CompetitionID string  `json:"competition_id"`
-	Name          string  `json:"name"`
-	Index         OptInt  `json:"index"`
 }
 
 // GetID returns the value of ID.
 func (s *HostTeamRead) GetID() string {
 	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *HostTeamRead) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *HostTeamRead) GetDisplayName() string {
+	return s.DisplayName
 }
 
 // GetPause returns the value of Pause.
@@ -3418,24 +3602,29 @@ func (s *HostTeamRead) GetHidden() OptBool {
 	return s.Hidden
 }
 
+// GetNumber returns the value of Number.
+func (s *HostTeamRead) GetNumber() int {
+	return s.Number
+}
+
 // GetCompetitionID returns the value of CompetitionID.
 func (s *HostTeamRead) GetCompetitionID() string {
 	return s.CompetitionID
 }
 
-// GetName returns the value of Name.
-func (s *HostTeamRead) GetName() string {
-	return s.Name
-}
-
-// GetIndex returns the value of Index.
-func (s *HostTeamRead) GetIndex() OptInt {
-	return s.Index
-}
-
 // SetID sets the value of ID.
 func (s *HostTeamRead) SetID(val string) {
 	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *HostTeamRead) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *HostTeamRead) SetDisplayName(val string) {
+	s.DisplayName = val
 }
 
 // SetPause sets the value of Pause.
@@ -3448,33 +3637,25 @@ func (s *HostTeamRead) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
+// SetNumber sets the value of Number.
+func (s *HostTeamRead) SetNumber(val int) {
+	s.Number = val
+}
+
 // SetCompetitionID sets the value of CompetitionID.
 func (s *HostTeamRead) SetCompetitionID(val string) {
 	s.CompetitionID = val
-}
-
-// SetName sets the value of Name.
-func (s *HostTeamRead) SetName(val string) {
-	s.Name = val
-}
-
-// SetIndex sets the value of Index.
-func (s *HostTeamRead) SetIndex(val OptInt) {
-	s.Index = val
 }
 
 func (*HostTeamRead) readHostTeamRes() {}
 
 // Ref: #/components/schemas/HostUpdate
 type HostUpdate struct {
-	ID               string  `json:"id"`
-	Pause            OptBool `json:"pause"`
-	Hidden           OptBool `json:"hidden"`
-	CompetitionID    string  `json:"competition_id"`
-	TeamID           string  `json:"team_id"`
-	Address          string  `json:"address"`
-	AddressListRange string  `json:"address_list_range"`
-	Editable         bool    `json:"editable"`
+	ID      string  `json:"id"`
+	Pause   OptBool `json:"pause"`
+	Hidden  OptBool `json:"hidden"`
+	Address string  `json:"address"`
+	TeamID  string  `json:"team_id"`
 }
 
 // GetID returns the value of ID.
@@ -3492,29 +3673,14 @@ func (s *HostUpdate) GetHidden() OptBool {
 	return s.Hidden
 }
 
-// GetCompetitionID returns the value of CompetitionID.
-func (s *HostUpdate) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *HostUpdate) GetTeamID() string {
-	return s.TeamID
-}
-
 // GetAddress returns the value of Address.
 func (s *HostUpdate) GetAddress() string {
 	return s.Address
 }
 
-// GetAddressListRange returns the value of AddressListRange.
-func (s *HostUpdate) GetAddressListRange() string {
-	return s.AddressListRange
-}
-
-// GetEditable returns the value of Editable.
-func (s *HostUpdate) GetEditable() bool {
-	return s.Editable
+// GetTeamID returns the value of TeamID.
+func (s *HostUpdate) GetTeamID() string {
+	return s.TeamID
 }
 
 // SetID sets the value of ID.
@@ -3532,29 +3698,14 @@ func (s *HostUpdate) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
-// SetCompetitionID sets the value of CompetitionID.
-func (s *HostUpdate) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *HostUpdate) SetTeamID(val string) {
-	s.TeamID = val
-}
-
 // SetAddress sets the value of Address.
 func (s *HostUpdate) SetAddress(val string) {
 	s.Address = val
 }
 
-// SetAddressListRange sets the value of AddressListRange.
-func (s *HostUpdate) SetAddressListRange(val string) {
-	s.AddressListRange = val
-}
-
-// SetEditable sets the value of Editable.
-func (s *HostUpdate) SetEditable(val bool) {
-	s.Editable = val
+// SetTeamID sets the value of TeamID.
+func (s *HostUpdate) SetTeamID(val string) {
+	s.TeamID = val
 }
 
 func (*HostUpdate) updateHostRes() {}
@@ -3567,29 +3718,41 @@ type ListCompetitionOKApplicationJSON []CompetitionList
 
 func (*ListCompetitionOKApplicationJSON) listCompetitionRes() {}
 
+type ListCompetitionReportsOKApplicationJSON []CompetitionReportsList
+
+func (*ListCompetitionReportsOKApplicationJSON) listCompetitionReportsRes() {}
+
+type ListCompetitionRoundsOKApplicationJSON []CompetitionRoundsList
+
+func (*ListCompetitionRoundsOKApplicationJSON) listCompetitionRoundsRes() {}
+
+type ListCompetitionServicesOKApplicationJSON []CompetitionServicesList
+
+func (*ListCompetitionServicesOKApplicationJSON) listCompetitionServicesRes() {}
+
 type ListCompetitionTeamsOKApplicationJSON []CompetitionTeamsList
 
 func (*ListCompetitionTeamsOKApplicationJSON) listCompetitionTeamsRes() {}
 
-type ListCompetitionUsersOKApplicationJSON []CompetitionUsersList
+type ListHostHostservicesOKApplicationJSON []HostHostservicesList
 
-func (*ListCompetitionUsersOKApplicationJSON) listCompetitionUsersRes() {}
-
-type ListHostGroupHostsOKApplicationJSON []HostGroupHostsList
-
-func (*ListHostGroupHostsOKApplicationJSON) listHostGroupHostsRes() {}
-
-type ListHostGroupOKApplicationJSON []HostGroupList
-
-func (*ListHostGroupOKApplicationJSON) listHostGroupRes() {}
+func (*ListHostHostservicesOKApplicationJSON) listHostHostservicesRes() {}
 
 type ListHostOKApplicationJSON []HostList
 
 func (*ListHostOKApplicationJSON) listHostRes() {}
 
-type ListHostServicesOKApplicationJSON []HostServicesList
+type ListHostServiceChecksOKApplicationJSON []HostServiceChecksList
 
-func (*ListHostServicesOKApplicationJSON) listHostServicesRes() {}
+func (*ListHostServiceChecksOKApplicationJSON) listHostServiceChecksRes() {}
+
+type ListHostServiceOKApplicationJSON []HostServiceList
+
+func (*ListHostServiceOKApplicationJSON) listHostServiceRes() {}
+
+type ListHostServicePropertiesOKApplicationJSON []HostServicePropertiesList
+
+func (*ListHostServicePropertiesOKApplicationJSON) listHostServicePropertiesRes() {}
 
 type ListPropertyOKApplicationJSON []PropertyList
 
@@ -3607,41 +3770,29 @@ type ListRoundOKApplicationJSON []RoundList
 
 func (*ListRoundOKApplicationJSON) listRoundRes() {}
 
-type ListServiceChecksOKApplicationJSON []ServiceChecksList
-
-func (*ListServiceChecksOKApplicationJSON) listServiceChecksRes() {}
-
 type ListServiceOKApplicationJSON []ServiceList
 
 func (*ListServiceOKApplicationJSON) listServiceRes() {}
 
-type ListServicePropertiesOKApplicationJSON []ServicePropertiesList
+type ListTeamChecksOKApplicationJSON []TeamChecksList
 
-func (*ListServicePropertiesOKApplicationJSON) listServicePropertiesRes() {}
+func (*ListTeamChecksOKApplicationJSON) listTeamChecksRes() {}
 
 type ListTeamHostsOKApplicationJSON []TeamHostsList
 
 func (*ListTeamHostsOKApplicationJSON) listTeamHostsRes() {}
 
+type ListTeamHostservicesOKApplicationJSON []TeamHostservicesList
+
+func (*ListTeamHostservicesOKApplicationJSON) listTeamHostservicesRes() {}
+
 type ListTeamOKApplicationJSON []TeamList
 
 func (*ListTeamOKApplicationJSON) listTeamRes() {}
 
-type ListTeamUsersOKApplicationJSON []TeamUsersList
+type ListTeamPropertiesOKApplicationJSON []TeamPropertiesList
 
-func (*ListTeamUsersOKApplicationJSON) listTeamUsersRes() {}
-
-type ListUserCompetitionsOKApplicationJSON []UserCompetitionsList
-
-func (*ListUserCompetitionsOKApplicationJSON) listUserCompetitionsRes() {}
-
-type ListUserOKApplicationJSON []UserList
-
-func (*ListUserOKApplicationJSON) listUserRes() {}
-
-type ListUserTeamsOKApplicationJSON []UserTeamsList
-
-func (*ListUserTeamsOKApplicationJSON) listUserTeamsRes() {}
+func (*ListTeamPropertiesOKApplicationJSON) listTeamPropertiesRes() {}
 
 // NewOptBool returns new OptBool with value set to v.
 func NewOptBool(v bool) OptBool {
@@ -3873,134 +4024,19 @@ func (o OptUpdatePropertyReqStatus) Or(d UpdatePropertyReqStatus) UpdateProperty
 	return d
 }
 
-// Ref: #/components/schemas/Property_CompetitionRead
-type PropertyCompetitionRead struct {
-	ID               string      `json:"id"`
-	Hidden           OptBool     `json:"hidden"`
-	Pause            OptBool     `json:"pause"`
-	Name             string      `json:"name"`
-	DisplayName      string      `json:"display_name"`
-	ViewableToPublic OptBool     `json:"viewable_to_public"`
-	ToBeStartedAt    OptDateTime `json:"to_be_started_at"`
-	StartedAt        OptDateTime `json:"started_at"`
-	FinishedAt       OptDateTime `json:"finished_at"`
-}
-
-// GetID returns the value of ID.
-func (s *PropertyCompetitionRead) GetID() string {
-	return s.ID
-}
-
-// GetHidden returns the value of Hidden.
-func (s *PropertyCompetitionRead) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetPause returns the value of Pause.
-func (s *PropertyCompetitionRead) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetName returns the value of Name.
-func (s *PropertyCompetitionRead) GetName() string {
-	return s.Name
-}
-
-// GetDisplayName returns the value of DisplayName.
-func (s *PropertyCompetitionRead) GetDisplayName() string {
-	return s.DisplayName
-}
-
-// GetViewableToPublic returns the value of ViewableToPublic.
-func (s *PropertyCompetitionRead) GetViewableToPublic() OptBool {
-	return s.ViewableToPublic
-}
-
-// GetToBeStartedAt returns the value of ToBeStartedAt.
-func (s *PropertyCompetitionRead) GetToBeStartedAt() OptDateTime {
-	return s.ToBeStartedAt
-}
-
-// GetStartedAt returns the value of StartedAt.
-func (s *PropertyCompetitionRead) GetStartedAt() OptDateTime {
-	return s.StartedAt
-}
-
-// GetFinishedAt returns the value of FinishedAt.
-func (s *PropertyCompetitionRead) GetFinishedAt() OptDateTime {
-	return s.FinishedAt
-}
-
-// SetID sets the value of ID.
-func (s *PropertyCompetitionRead) SetID(val string) {
-	s.ID = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *PropertyCompetitionRead) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetPause sets the value of Pause.
-func (s *PropertyCompetitionRead) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetName sets the value of Name.
-func (s *PropertyCompetitionRead) SetName(val string) {
-	s.Name = val
-}
-
-// SetDisplayName sets the value of DisplayName.
-func (s *PropertyCompetitionRead) SetDisplayName(val string) {
-	s.DisplayName = val
-}
-
-// SetViewableToPublic sets the value of ViewableToPublic.
-func (s *PropertyCompetitionRead) SetViewableToPublic(val OptBool) {
-	s.ViewableToPublic = val
-}
-
-// SetToBeStartedAt sets the value of ToBeStartedAt.
-func (s *PropertyCompetitionRead) SetToBeStartedAt(val OptDateTime) {
-	s.ToBeStartedAt = val
-}
-
-// SetStartedAt sets the value of StartedAt.
-func (s *PropertyCompetitionRead) SetStartedAt(val OptDateTime) {
-	s.StartedAt = val
-}
-
-// SetFinishedAt sets the value of FinishedAt.
-func (s *PropertyCompetitionRead) SetFinishedAt(val OptDateTime) {
-	s.FinishedAt = val
-}
-
-func (*PropertyCompetitionRead) readPropertyCompetitionRes() {}
-
 // Ref: #/components/schemas/PropertyCreate
 type PropertyCreate struct {
 	ID            string               `json:"id"`
-	CompetitionID string               `json:"competition_id"`
-	TeamID        string               `json:"team_id"`
 	Key           string               `json:"key"`
 	Value         string               `json:"value"`
 	Status        PropertyCreateStatus `json:"status"`
+	HostServiceID string               `json:"host_service_id"`
+	TeamID        string               `json:"team_id"`
 }
 
 // GetID returns the value of ID.
 func (s *PropertyCreate) GetID() string {
 	return s.ID
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *PropertyCreate) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *PropertyCreate) GetTeamID() string {
-	return s.TeamID
 }
 
 // GetKey returns the value of Key.
@@ -4018,19 +4054,19 @@ func (s *PropertyCreate) GetStatus() PropertyCreateStatus {
 	return s.Status
 }
 
+// GetHostServiceID returns the value of HostServiceID.
+func (s *PropertyCreate) GetHostServiceID() string {
+	return s.HostServiceID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *PropertyCreate) GetTeamID() string {
+	return s.TeamID
+}
+
 // SetID sets the value of ID.
 func (s *PropertyCreate) SetID(val string) {
 	s.ID = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *PropertyCreate) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *PropertyCreate) SetTeamID(val string) {
-	s.TeamID = val
 }
 
 // SetKey sets the value of Key.
@@ -4046,6 +4082,16 @@ func (s *PropertyCreate) SetValue(val string) {
 // SetStatus sets the value of Status.
 func (s *PropertyCreate) SetStatus(val PropertyCreateStatus) {
 	s.Status = val
+}
+
+// SetHostServiceID sets the value of HostServiceID.
+func (s *PropertyCreate) SetHostServiceID(val string) {
+	s.HostServiceID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *PropertyCreate) SetTeamID(val string) {
+	s.TeamID = val
 }
 
 func (*PropertyCreate) createPropertyRes() {}
@@ -4089,29 +4135,146 @@ func (s *PropertyCreateStatus) UnmarshalText(data []byte) error {
 	}
 }
 
+// Ref: #/components/schemas/Property_HostserviceRead
+type PropertyHostserviceRead struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	DisplayName string  `json:"display_name"`
+	Pause       OptBool `json:"pause"`
+	Hidden      OptBool `json:"hidden"`
+	Weight      int     `json:"weight"`
+	PointBoost  int     `json:"point_boost"`
+	RoundUnits  int     `json:"round_units"`
+	RoundDelay  int     `json:"round_delay"`
+	HostID      string  `json:"host_id"`
+	TeamID      string  `json:"team_id"`
+}
+
+// GetID returns the value of ID.
+func (s *PropertyHostserviceRead) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *PropertyHostserviceRead) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *PropertyHostserviceRead) GetDisplayName() string {
+	return s.DisplayName
+}
+
+// GetPause returns the value of Pause.
+func (s *PropertyHostserviceRead) GetPause() OptBool {
+	return s.Pause
+}
+
+// GetHidden returns the value of Hidden.
+func (s *PropertyHostserviceRead) GetHidden() OptBool {
+	return s.Hidden
+}
+
+// GetWeight returns the value of Weight.
+func (s *PropertyHostserviceRead) GetWeight() int {
+	return s.Weight
+}
+
+// GetPointBoost returns the value of PointBoost.
+func (s *PropertyHostserviceRead) GetPointBoost() int {
+	return s.PointBoost
+}
+
+// GetRoundUnits returns the value of RoundUnits.
+func (s *PropertyHostserviceRead) GetRoundUnits() int {
+	return s.RoundUnits
+}
+
+// GetRoundDelay returns the value of RoundDelay.
+func (s *PropertyHostserviceRead) GetRoundDelay() int {
+	return s.RoundDelay
+}
+
+// GetHostID returns the value of HostID.
+func (s *PropertyHostserviceRead) GetHostID() string {
+	return s.HostID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *PropertyHostserviceRead) GetTeamID() string {
+	return s.TeamID
+}
+
+// SetID sets the value of ID.
+func (s *PropertyHostserviceRead) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *PropertyHostserviceRead) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *PropertyHostserviceRead) SetDisplayName(val string) {
+	s.DisplayName = val
+}
+
+// SetPause sets the value of Pause.
+func (s *PropertyHostserviceRead) SetPause(val OptBool) {
+	s.Pause = val
+}
+
+// SetHidden sets the value of Hidden.
+func (s *PropertyHostserviceRead) SetHidden(val OptBool) {
+	s.Hidden = val
+}
+
+// SetWeight sets the value of Weight.
+func (s *PropertyHostserviceRead) SetWeight(val int) {
+	s.Weight = val
+}
+
+// SetPointBoost sets the value of PointBoost.
+func (s *PropertyHostserviceRead) SetPointBoost(val int) {
+	s.PointBoost = val
+}
+
+// SetRoundUnits sets the value of RoundUnits.
+func (s *PropertyHostserviceRead) SetRoundUnits(val int) {
+	s.RoundUnits = val
+}
+
+// SetRoundDelay sets the value of RoundDelay.
+func (s *PropertyHostserviceRead) SetRoundDelay(val int) {
+	s.RoundDelay = val
+}
+
+// SetHostID sets the value of HostID.
+func (s *PropertyHostserviceRead) SetHostID(val string) {
+	s.HostID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *PropertyHostserviceRead) SetTeamID(val string) {
+	s.TeamID = val
+}
+
+func (*PropertyHostserviceRead) readPropertyHostserviceRes() {}
+
 // Ref: #/components/schemas/PropertyList
 type PropertyList struct {
 	ID            string             `json:"id"`
-	CompetitionID string             `json:"competition_id"`
-	TeamID        string             `json:"team_id"`
 	Key           string             `json:"key"`
 	Value         string             `json:"value"`
 	Status        PropertyListStatus `json:"status"`
+	HostServiceID string             `json:"host_service_id"`
+	TeamID        string             `json:"team_id"`
 }
 
 // GetID returns the value of ID.
 func (s *PropertyList) GetID() string {
 	return s.ID
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *PropertyList) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *PropertyList) GetTeamID() string {
-	return s.TeamID
 }
 
 // GetKey returns the value of Key.
@@ -4129,19 +4292,19 @@ func (s *PropertyList) GetStatus() PropertyListStatus {
 	return s.Status
 }
 
+// GetHostServiceID returns the value of HostServiceID.
+func (s *PropertyList) GetHostServiceID() string {
+	return s.HostServiceID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *PropertyList) GetTeamID() string {
+	return s.TeamID
+}
+
 // SetID sets the value of ID.
 func (s *PropertyList) SetID(val string) {
 	s.ID = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *PropertyList) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *PropertyList) SetTeamID(val string) {
-	s.TeamID = val
 }
 
 // SetKey sets the value of Key.
@@ -4157,6 +4320,16 @@ func (s *PropertyList) SetValue(val string) {
 // SetStatus sets the value of Status.
 func (s *PropertyList) SetStatus(val PropertyListStatus) {
 	s.Status = val
+}
+
+// SetHostServiceID sets the value of HostServiceID.
+func (s *PropertyList) SetHostServiceID(val string) {
+	s.HostServiceID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *PropertyList) SetTeamID(val string) {
+	s.TeamID = val
 }
 
 type PropertyListStatus string
@@ -4201,26 +4374,16 @@ func (s *PropertyListStatus) UnmarshalText(data []byte) error {
 // Ref: #/components/schemas/PropertyRead
 type PropertyRead struct {
 	ID            string             `json:"id"`
-	CompetitionID string             `json:"competition_id"`
-	TeamID        string             `json:"team_id"`
 	Key           string             `json:"key"`
 	Value         string             `json:"value"`
 	Status        PropertyReadStatus `json:"status"`
+	HostServiceID string             `json:"host_service_id"`
+	TeamID        string             `json:"team_id"`
 }
 
 // GetID returns the value of ID.
 func (s *PropertyRead) GetID() string {
 	return s.ID
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *PropertyRead) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *PropertyRead) GetTeamID() string {
-	return s.TeamID
 }
 
 // GetKey returns the value of Key.
@@ -4238,19 +4401,19 @@ func (s *PropertyRead) GetStatus() PropertyReadStatus {
 	return s.Status
 }
 
+// GetHostServiceID returns the value of HostServiceID.
+func (s *PropertyRead) GetHostServiceID() string {
+	return s.HostServiceID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *PropertyRead) GetTeamID() string {
+	return s.TeamID
+}
+
 // SetID sets the value of ID.
 func (s *PropertyRead) SetID(val string) {
 	s.ID = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *PropertyRead) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *PropertyRead) SetTeamID(val string) {
-	s.TeamID = val
 }
 
 // SetKey sets the value of Key.
@@ -4266,6 +4429,16 @@ func (s *PropertyRead) SetValue(val string) {
 // SetStatus sets the value of Status.
 func (s *PropertyRead) SetStatus(val PropertyReadStatus) {
 	s.Status = val
+}
+
+// SetHostServiceID sets the value of HostServiceID.
+func (s *PropertyRead) SetHostServiceID(val string) {
+	s.HostServiceID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *PropertyRead) SetTeamID(val string) {
+	s.TeamID = val
 }
 
 func (*PropertyRead) readPropertyRes() {}
@@ -4309,146 +4482,30 @@ func (s *PropertyReadStatus) UnmarshalText(data []byte) error {
 	}
 }
 
-// Ref: #/components/schemas/Property_ServicesRead
-type PropertyServicesRead struct {
-	ID            string  `json:"id"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
-	TeamID        string  `json:"team_id"`
-	Name          string  `json:"name"`
-	DisplayName   string  `json:"display_name"`
-	Weight        int     `json:"weight"`
-	PointBoost    int     `json:"point_boost"`
-	RoundUnits    int     `json:"round_units"`
-	RoundDelay    int     `json:"round_delay"`
-}
-
-// GetID returns the value of ID.
-func (s *PropertyServicesRead) GetID() string {
-	return s.ID
-}
-
-// GetPause returns the value of Pause.
-func (s *PropertyServicesRead) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetHidden returns the value of Hidden.
-func (s *PropertyServicesRead) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *PropertyServicesRead) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *PropertyServicesRead) GetTeamID() string {
-	return s.TeamID
-}
-
-// GetName returns the value of Name.
-func (s *PropertyServicesRead) GetName() string {
-	return s.Name
-}
-
-// GetDisplayName returns the value of DisplayName.
-func (s *PropertyServicesRead) GetDisplayName() string {
-	return s.DisplayName
-}
-
-// GetWeight returns the value of Weight.
-func (s *PropertyServicesRead) GetWeight() int {
-	return s.Weight
-}
-
-// GetPointBoost returns the value of PointBoost.
-func (s *PropertyServicesRead) GetPointBoost() int {
-	return s.PointBoost
-}
-
-// GetRoundUnits returns the value of RoundUnits.
-func (s *PropertyServicesRead) GetRoundUnits() int {
-	return s.RoundUnits
-}
-
-// GetRoundDelay returns the value of RoundDelay.
-func (s *PropertyServicesRead) GetRoundDelay() int {
-	return s.RoundDelay
-}
-
-// SetID sets the value of ID.
-func (s *PropertyServicesRead) SetID(val string) {
-	s.ID = val
-}
-
-// SetPause sets the value of Pause.
-func (s *PropertyServicesRead) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *PropertyServicesRead) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *PropertyServicesRead) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *PropertyServicesRead) SetTeamID(val string) {
-	s.TeamID = val
-}
-
-// SetName sets the value of Name.
-func (s *PropertyServicesRead) SetName(val string) {
-	s.Name = val
-}
-
-// SetDisplayName sets the value of DisplayName.
-func (s *PropertyServicesRead) SetDisplayName(val string) {
-	s.DisplayName = val
-}
-
-// SetWeight sets the value of Weight.
-func (s *PropertyServicesRead) SetWeight(val int) {
-	s.Weight = val
-}
-
-// SetPointBoost sets the value of PointBoost.
-func (s *PropertyServicesRead) SetPointBoost(val int) {
-	s.PointBoost = val
-}
-
-// SetRoundUnits sets the value of RoundUnits.
-func (s *PropertyServicesRead) SetRoundUnits(val int) {
-	s.RoundUnits = val
-}
-
-// SetRoundDelay sets the value of RoundDelay.
-func (s *PropertyServicesRead) SetRoundDelay(val int) {
-	s.RoundDelay = val
-}
-
-func (*PropertyServicesRead) readPropertyServicesRes() {}
-
 // Ref: #/components/schemas/Property_TeamRead
 type PropertyTeamRead struct {
 	ID            string  `json:"id"`
+	Name          string  `json:"name"`
+	DisplayName   string  `json:"display_name"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
+	Number        int     `json:"number"`
 	CompetitionID string  `json:"competition_id"`
-	Name          string  `json:"name"`
-	Index         OptInt  `json:"index"`
 }
 
 // GetID returns the value of ID.
 func (s *PropertyTeamRead) GetID() string {
 	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *PropertyTeamRead) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *PropertyTeamRead) GetDisplayName() string {
+	return s.DisplayName
 }
 
 // GetPause returns the value of Pause.
@@ -4461,24 +4518,29 @@ func (s *PropertyTeamRead) GetHidden() OptBool {
 	return s.Hidden
 }
 
+// GetNumber returns the value of Number.
+func (s *PropertyTeamRead) GetNumber() int {
+	return s.Number
+}
+
 // GetCompetitionID returns the value of CompetitionID.
 func (s *PropertyTeamRead) GetCompetitionID() string {
 	return s.CompetitionID
 }
 
-// GetName returns the value of Name.
-func (s *PropertyTeamRead) GetName() string {
-	return s.Name
-}
-
-// GetIndex returns the value of Index.
-func (s *PropertyTeamRead) GetIndex() OptInt {
-	return s.Index
-}
-
 // SetID sets the value of ID.
 func (s *PropertyTeamRead) SetID(val string) {
 	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *PropertyTeamRead) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *PropertyTeamRead) SetDisplayName(val string) {
+	s.DisplayName = val
 }
 
 // SetPause sets the value of Pause.
@@ -4491,19 +4553,14 @@ func (s *PropertyTeamRead) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
+// SetNumber sets the value of Number.
+func (s *PropertyTeamRead) SetNumber(val int) {
+	s.Number = val
+}
+
 // SetCompetitionID sets the value of CompetitionID.
 func (s *PropertyTeamRead) SetCompetitionID(val string) {
 	s.CompetitionID = val
-}
-
-// SetName sets the value of Name.
-func (s *PropertyTeamRead) SetName(val string) {
-	s.Name = val
-}
-
-// SetIndex sets the value of Index.
-func (s *PropertyTeamRead) SetIndex(val OptInt) {
-	s.Index = val
 }
 
 func (*PropertyTeamRead) readPropertyTeamRes() {}
@@ -4511,26 +4568,16 @@ func (*PropertyTeamRead) readPropertyTeamRes() {}
 // Ref: #/components/schemas/PropertyUpdate
 type PropertyUpdate struct {
 	ID            string               `json:"id"`
-	CompetitionID string               `json:"competition_id"`
-	TeamID        string               `json:"team_id"`
 	Key           string               `json:"key"`
 	Value         string               `json:"value"`
 	Status        PropertyUpdateStatus `json:"status"`
+	HostServiceID string               `json:"host_service_id"`
+	TeamID        string               `json:"team_id"`
 }
 
 // GetID returns the value of ID.
 func (s *PropertyUpdate) GetID() string {
 	return s.ID
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *PropertyUpdate) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *PropertyUpdate) GetTeamID() string {
-	return s.TeamID
 }
 
 // GetKey returns the value of Key.
@@ -4548,19 +4595,19 @@ func (s *PropertyUpdate) GetStatus() PropertyUpdateStatus {
 	return s.Status
 }
 
+// GetHostServiceID returns the value of HostServiceID.
+func (s *PropertyUpdate) GetHostServiceID() string {
+	return s.HostServiceID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *PropertyUpdate) GetTeamID() string {
+	return s.TeamID
+}
+
 // SetID sets the value of ID.
 func (s *PropertyUpdate) SetID(val string) {
 	s.ID = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *PropertyUpdate) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *PropertyUpdate) SetTeamID(val string) {
-	s.TeamID = val
 }
 
 // SetKey sets the value of Key.
@@ -4576,6 +4623,16 @@ func (s *PropertyUpdate) SetValue(val string) {
 // SetStatus sets the value of Status.
 func (s *PropertyUpdate) SetStatus(val PropertyUpdateStatus) {
 	s.Status = val
+}
+
+// SetHostServiceID sets the value of HostServiceID.
+func (s *PropertyUpdate) SetHostServiceID(val string) {
+	s.HostServiceID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *PropertyUpdate) SetTeamID(val string) {
+	s.TeamID = val
 }
 
 func (*PropertyUpdate) updatePropertyRes() {}
@@ -4655,83 +4712,75 @@ func (s *R400) SetErrors(val jx.Raw) {
 	s.Errors = val
 }
 
-func (*R400) createCheckRes()              {}
-func (*R400) createCompetitionRes()        {}
-func (*R400) createHostGroupRes()          {}
-func (*R400) createHostRes()               {}
-func (*R400) createPropertyRes()           {}
-func (*R400) createReportRes()             {}
-func (*R400) createRoundRes()              {}
-func (*R400) createServiceRes()            {}
-func (*R400) createTeamRes()               {}
-func (*R400) createUserRes()               {}
-func (*R400) deleteCheckRes()              {}
-func (*R400) deleteCompetitionRes()        {}
-func (*R400) deleteHostGroupRes()          {}
-func (*R400) deleteHostRes()               {}
-func (*R400) deletePropertyRes()           {}
-func (*R400) deleteReportRes()             {}
-func (*R400) deleteRoundRes()              {}
-func (*R400) deleteServiceRes()            {}
-func (*R400) deleteTeamRes()               {}
-func (*R400) deleteUserRes()               {}
-func (*R400) listCheckRes()                {}
-func (*R400) listCompetitionRes()          {}
-func (*R400) listCompetitionTeamsRes()     {}
-func (*R400) listCompetitionUsersRes()     {}
-func (*R400) listHostGroupHostsRes()       {}
-func (*R400) listHostGroupRes()            {}
-func (*R400) listHostRes()                 {}
-func (*R400) listHostServicesRes()         {}
-func (*R400) listPropertyRes()             {}
-func (*R400) listReportRes()               {}
-func (*R400) listRoundChecksRes()          {}
-func (*R400) listRoundRes()                {}
-func (*R400) listServiceChecksRes()        {}
-func (*R400) listServicePropertiesRes()    {}
-func (*R400) listServiceRes()              {}
-func (*R400) listTeamHostsRes()            {}
-func (*R400) listTeamRes()                 {}
-func (*R400) listTeamUsersRes()            {}
-func (*R400) listUserCompetitionsRes()     {}
-func (*R400) listUserRes()                 {}
-func (*R400) listUserTeamsRes()            {}
-func (*R400) readCheckCompetitionRes()     {}
-func (*R400) readCheckRes()                {}
-func (*R400) readCheckRoundsRes()          {}
-func (*R400) readCheckServicesRes()        {}
-func (*R400) readCompetitionRes()          {}
-func (*R400) readHostCompetitionRes()      {}
-func (*R400) readHostGroupCompetitionRes() {}
-func (*R400) readHostGroupRes()            {}
-func (*R400) readHostGroupTeamRes()        {}
-func (*R400) readHostHostGroupRes()        {}
-func (*R400) readHostRes()                 {}
-func (*R400) readHostTeamRes()             {}
-func (*R400) readPropertyCompetitionRes()  {}
-func (*R400) readPropertyRes()             {}
-func (*R400) readPropertyServicesRes()     {}
-func (*R400) readPropertyTeamRes()         {}
-func (*R400) readReportRes()               {}
-func (*R400) readRoundCompetitionRes()     {}
-func (*R400) readRoundRes()                {}
-func (*R400) readServiceCompetitionRes()   {}
-func (*R400) readServiceHostsRes()         {}
-func (*R400) readServiceRes()              {}
-func (*R400) readServiceTeamRes()          {}
-func (*R400) readTeamCompetitionRes()      {}
-func (*R400) readTeamRes()                 {}
-func (*R400) readUserRes()                 {}
-func (*R400) updateCheckRes()              {}
-func (*R400) updateCompetitionRes()        {}
-func (*R400) updateHostGroupRes()          {}
-func (*R400) updateHostRes()               {}
-func (*R400) updatePropertyRes()           {}
-func (*R400) updateReportRes()             {}
-func (*R400) updateRoundRes()              {}
-func (*R400) updateServiceRes()            {}
-func (*R400) updateTeamRes()               {}
-func (*R400) updateUserRes()               {}
+func (*R400) createCheckRes()               {}
+func (*R400) createCompetitionRes()         {}
+func (*R400) createHostRes()                {}
+func (*R400) createHostServiceRes()         {}
+func (*R400) createPropertyRes()            {}
+func (*R400) createReportRes()              {}
+func (*R400) createRoundRes()               {}
+func (*R400) createServiceRes()             {}
+func (*R400) createTeamRes()                {}
+func (*R400) deleteCheckRes()               {}
+func (*R400) deleteCompetitionRes()         {}
+func (*R400) deleteHostRes()                {}
+func (*R400) deleteHostServiceRes()         {}
+func (*R400) deletePropertyRes()            {}
+func (*R400) deleteReportRes()              {}
+func (*R400) deleteRoundRes()               {}
+func (*R400) deleteServiceRes()             {}
+func (*R400) deleteTeamRes()                {}
+func (*R400) listCheckRes()                 {}
+func (*R400) listCompetitionReportsRes()    {}
+func (*R400) listCompetitionRes()           {}
+func (*R400) listCompetitionRoundsRes()     {}
+func (*R400) listCompetitionServicesRes()   {}
+func (*R400) listCompetitionTeamsRes()      {}
+func (*R400) listHostHostservicesRes()      {}
+func (*R400) listHostRes()                  {}
+func (*R400) listHostServiceChecksRes()     {}
+func (*R400) listHostServicePropertiesRes() {}
+func (*R400) listHostServiceRes()           {}
+func (*R400) listPropertyRes()              {}
+func (*R400) listReportRes()                {}
+func (*R400) listRoundChecksRes()           {}
+func (*R400) listRoundRes()                 {}
+func (*R400) listServiceRes()               {}
+func (*R400) listTeamChecksRes()            {}
+func (*R400) listTeamHostsRes()             {}
+func (*R400) listTeamHostservicesRes()      {}
+func (*R400) listTeamPropertiesRes()        {}
+func (*R400) listTeamRes()                  {}
+func (*R400) readCheckHostserviceRes()      {}
+func (*R400) readCheckRes()                 {}
+func (*R400) readCheckRoundsRes()           {}
+func (*R400) readCheckTeamRes()             {}
+func (*R400) readCompetitionRes()           {}
+func (*R400) readHostRes()                  {}
+func (*R400) readHostServiceHostRes()       {}
+func (*R400) readHostServiceRes()           {}
+func (*R400) readHostServiceTeamRes()       {}
+func (*R400) readHostTeamRes()              {}
+func (*R400) readPropertyHostserviceRes()   {}
+func (*R400) readPropertyRes()              {}
+func (*R400) readPropertyTeamRes()          {}
+func (*R400) readReportCompetitionRes()     {}
+func (*R400) readReportRes()                {}
+func (*R400) readRoundCompetitionRes()      {}
+func (*R400) readRoundRes()                 {}
+func (*R400) readServiceCompetitionRes()    {}
+func (*R400) readServiceRes()               {}
+func (*R400) readTeamCompetitionRes()       {}
+func (*R400) readTeamRes()                  {}
+func (*R400) updateCheckRes()               {}
+func (*R400) updateCompetitionRes()         {}
+func (*R400) updateHostRes()                {}
+func (*R400) updateHostServiceRes()         {}
+func (*R400) updatePropertyRes()            {}
+func (*R400) updateReportRes()              {}
+func (*R400) updateRoundRes()               {}
+func (*R400) updateServiceRes()             {}
+func (*R400) updateTeamRes()                {}
 
 type R404 struct {
 	Code   int    `json:"code"`
@@ -4769,73 +4818,66 @@ func (s *R404) SetErrors(val jx.Raw) {
 	s.Errors = val
 }
 
-func (*R404) deleteCheckRes()              {}
-func (*R404) deleteCompetitionRes()        {}
-func (*R404) deleteHostGroupRes()          {}
-func (*R404) deleteHostRes()               {}
-func (*R404) deletePropertyRes()           {}
-func (*R404) deleteReportRes()             {}
-func (*R404) deleteRoundRes()              {}
-func (*R404) deleteServiceRes()            {}
-func (*R404) deleteTeamRes()               {}
-func (*R404) deleteUserRes()               {}
-func (*R404) listCheckRes()                {}
-func (*R404) listCompetitionRes()          {}
-func (*R404) listCompetitionTeamsRes()     {}
-func (*R404) listCompetitionUsersRes()     {}
-func (*R404) listHostGroupHostsRes()       {}
-func (*R404) listHostGroupRes()            {}
-func (*R404) listHostRes()                 {}
-func (*R404) listHostServicesRes()         {}
-func (*R404) listPropertyRes()             {}
-func (*R404) listReportRes()               {}
-func (*R404) listRoundChecksRes()          {}
-func (*R404) listRoundRes()                {}
-func (*R404) listServiceChecksRes()        {}
-func (*R404) listServicePropertiesRes()    {}
-func (*R404) listServiceRes()              {}
-func (*R404) listTeamHostsRes()            {}
-func (*R404) listTeamRes()                 {}
-func (*R404) listTeamUsersRes()            {}
-func (*R404) listUserCompetitionsRes()     {}
-func (*R404) listUserRes()                 {}
-func (*R404) listUserTeamsRes()            {}
-func (*R404) readCheckCompetitionRes()     {}
-func (*R404) readCheckRes()                {}
-func (*R404) readCheckRoundsRes()          {}
-func (*R404) readCheckServicesRes()        {}
-func (*R404) readCompetitionRes()          {}
-func (*R404) readHostCompetitionRes()      {}
-func (*R404) readHostGroupCompetitionRes() {}
-func (*R404) readHostGroupRes()            {}
-func (*R404) readHostGroupTeamRes()        {}
-func (*R404) readHostHostGroupRes()        {}
-func (*R404) readHostRes()                 {}
-func (*R404) readHostTeamRes()             {}
-func (*R404) readPropertyCompetitionRes()  {}
-func (*R404) readPropertyRes()             {}
-func (*R404) readPropertyServicesRes()     {}
-func (*R404) readPropertyTeamRes()         {}
-func (*R404) readReportRes()               {}
-func (*R404) readRoundCompetitionRes()     {}
-func (*R404) readRoundRes()                {}
-func (*R404) readServiceCompetitionRes()   {}
-func (*R404) readServiceHostsRes()         {}
-func (*R404) readServiceRes()              {}
-func (*R404) readServiceTeamRes()          {}
-func (*R404) readTeamCompetitionRes()      {}
-func (*R404) readTeamRes()                 {}
-func (*R404) readUserRes()                 {}
-func (*R404) updateCheckRes()              {}
-func (*R404) updateCompetitionRes()        {}
-func (*R404) updateHostGroupRes()          {}
-func (*R404) updateHostRes()               {}
-func (*R404) updatePropertyRes()           {}
-func (*R404) updateReportRes()             {}
-func (*R404) updateRoundRes()              {}
-func (*R404) updateServiceRes()            {}
-func (*R404) updateTeamRes()               {}
-func (*R404) updateUserRes()               {}
+func (*R404) deleteCheckRes()               {}
+func (*R404) deleteCompetitionRes()         {}
+func (*R404) deleteHostRes()                {}
+func (*R404) deleteHostServiceRes()         {}
+func (*R404) deletePropertyRes()            {}
+func (*R404) deleteReportRes()              {}
+func (*R404) deleteRoundRes()               {}
+func (*R404) deleteServiceRes()             {}
+func (*R404) deleteTeamRes()                {}
+func (*R404) listCheckRes()                 {}
+func (*R404) listCompetitionReportsRes()    {}
+func (*R404) listCompetitionRes()           {}
+func (*R404) listCompetitionRoundsRes()     {}
+func (*R404) listCompetitionServicesRes()   {}
+func (*R404) listCompetitionTeamsRes()      {}
+func (*R404) listHostHostservicesRes()      {}
+func (*R404) listHostRes()                  {}
+func (*R404) listHostServiceChecksRes()     {}
+func (*R404) listHostServicePropertiesRes() {}
+func (*R404) listHostServiceRes()           {}
+func (*R404) listPropertyRes()              {}
+func (*R404) listReportRes()                {}
+func (*R404) listRoundChecksRes()           {}
+func (*R404) listRoundRes()                 {}
+func (*R404) listServiceRes()               {}
+func (*R404) listTeamChecksRes()            {}
+func (*R404) listTeamHostsRes()             {}
+func (*R404) listTeamHostservicesRes()      {}
+func (*R404) listTeamPropertiesRes()        {}
+func (*R404) listTeamRes()                  {}
+func (*R404) readCheckHostserviceRes()      {}
+func (*R404) readCheckRes()                 {}
+func (*R404) readCheckRoundsRes()           {}
+func (*R404) readCheckTeamRes()             {}
+func (*R404) readCompetitionRes()           {}
+func (*R404) readHostRes()                  {}
+func (*R404) readHostServiceHostRes()       {}
+func (*R404) readHostServiceRes()           {}
+func (*R404) readHostServiceTeamRes()       {}
+func (*R404) readHostTeamRes()              {}
+func (*R404) readPropertyHostserviceRes()   {}
+func (*R404) readPropertyRes()              {}
+func (*R404) readPropertyTeamRes()          {}
+func (*R404) readReportCompetitionRes()     {}
+func (*R404) readReportRes()                {}
+func (*R404) readRoundCompetitionRes()      {}
+func (*R404) readRoundRes()                 {}
+func (*R404) readServiceCompetitionRes()    {}
+func (*R404) readServiceRes()               {}
+func (*R404) readTeamCompetitionRes()       {}
+func (*R404) readTeamRes()                  {}
+func (*R404) updateCheckRes()               {}
+func (*R404) updateCompetitionRes()         {}
+func (*R404) updateHostRes()                {}
+func (*R404) updateHostServiceRes()         {}
+func (*R404) updatePropertyRes()            {}
+func (*R404) updateReportRes()              {}
+func (*R404) updateRoundRes()               {}
+func (*R404) updateServiceRes()             {}
+func (*R404) updateTeamRes()                {}
 
 type R409 struct {
 	Code   int    `json:"code"`
@@ -4873,83 +4915,75 @@ func (s *R409) SetErrors(val jx.Raw) {
 	s.Errors = val
 }
 
-func (*R409) createCheckRes()              {}
-func (*R409) createCompetitionRes()        {}
-func (*R409) createHostGroupRes()          {}
-func (*R409) createHostRes()               {}
-func (*R409) createPropertyRes()           {}
-func (*R409) createReportRes()             {}
-func (*R409) createRoundRes()              {}
-func (*R409) createServiceRes()            {}
-func (*R409) createTeamRes()               {}
-func (*R409) createUserRes()               {}
-func (*R409) deleteCheckRes()              {}
-func (*R409) deleteCompetitionRes()        {}
-func (*R409) deleteHostGroupRes()          {}
-func (*R409) deleteHostRes()               {}
-func (*R409) deletePropertyRes()           {}
-func (*R409) deleteReportRes()             {}
-func (*R409) deleteRoundRes()              {}
-func (*R409) deleteServiceRes()            {}
-func (*R409) deleteTeamRes()               {}
-func (*R409) deleteUserRes()               {}
-func (*R409) listCheckRes()                {}
-func (*R409) listCompetitionRes()          {}
-func (*R409) listCompetitionTeamsRes()     {}
-func (*R409) listCompetitionUsersRes()     {}
-func (*R409) listHostGroupHostsRes()       {}
-func (*R409) listHostGroupRes()            {}
-func (*R409) listHostRes()                 {}
-func (*R409) listHostServicesRes()         {}
-func (*R409) listPropertyRes()             {}
-func (*R409) listReportRes()               {}
-func (*R409) listRoundChecksRes()          {}
-func (*R409) listRoundRes()                {}
-func (*R409) listServiceChecksRes()        {}
-func (*R409) listServicePropertiesRes()    {}
-func (*R409) listServiceRes()              {}
-func (*R409) listTeamHostsRes()            {}
-func (*R409) listTeamRes()                 {}
-func (*R409) listTeamUsersRes()            {}
-func (*R409) listUserCompetitionsRes()     {}
-func (*R409) listUserRes()                 {}
-func (*R409) listUserTeamsRes()            {}
-func (*R409) readCheckCompetitionRes()     {}
-func (*R409) readCheckRes()                {}
-func (*R409) readCheckRoundsRes()          {}
-func (*R409) readCheckServicesRes()        {}
-func (*R409) readCompetitionRes()          {}
-func (*R409) readHostCompetitionRes()      {}
-func (*R409) readHostGroupCompetitionRes() {}
-func (*R409) readHostGroupRes()            {}
-func (*R409) readHostGroupTeamRes()        {}
-func (*R409) readHostHostGroupRes()        {}
-func (*R409) readHostRes()                 {}
-func (*R409) readHostTeamRes()             {}
-func (*R409) readPropertyCompetitionRes()  {}
-func (*R409) readPropertyRes()             {}
-func (*R409) readPropertyServicesRes()     {}
-func (*R409) readPropertyTeamRes()         {}
-func (*R409) readReportRes()               {}
-func (*R409) readRoundCompetitionRes()     {}
-func (*R409) readRoundRes()                {}
-func (*R409) readServiceCompetitionRes()   {}
-func (*R409) readServiceHostsRes()         {}
-func (*R409) readServiceRes()              {}
-func (*R409) readServiceTeamRes()          {}
-func (*R409) readTeamCompetitionRes()      {}
-func (*R409) readTeamRes()                 {}
-func (*R409) readUserRes()                 {}
-func (*R409) updateCheckRes()              {}
-func (*R409) updateCompetitionRes()        {}
-func (*R409) updateHostGroupRes()          {}
-func (*R409) updateHostRes()               {}
-func (*R409) updatePropertyRes()           {}
-func (*R409) updateReportRes()             {}
-func (*R409) updateRoundRes()              {}
-func (*R409) updateServiceRes()            {}
-func (*R409) updateTeamRes()               {}
-func (*R409) updateUserRes()               {}
+func (*R409) createCheckRes()               {}
+func (*R409) createCompetitionRes()         {}
+func (*R409) createHostRes()                {}
+func (*R409) createHostServiceRes()         {}
+func (*R409) createPropertyRes()            {}
+func (*R409) createReportRes()              {}
+func (*R409) createRoundRes()               {}
+func (*R409) createServiceRes()             {}
+func (*R409) createTeamRes()                {}
+func (*R409) deleteCheckRes()               {}
+func (*R409) deleteCompetitionRes()         {}
+func (*R409) deleteHostRes()                {}
+func (*R409) deleteHostServiceRes()         {}
+func (*R409) deletePropertyRes()            {}
+func (*R409) deleteReportRes()              {}
+func (*R409) deleteRoundRes()               {}
+func (*R409) deleteServiceRes()             {}
+func (*R409) deleteTeamRes()                {}
+func (*R409) listCheckRes()                 {}
+func (*R409) listCompetitionReportsRes()    {}
+func (*R409) listCompetitionRes()           {}
+func (*R409) listCompetitionRoundsRes()     {}
+func (*R409) listCompetitionServicesRes()   {}
+func (*R409) listCompetitionTeamsRes()      {}
+func (*R409) listHostHostservicesRes()      {}
+func (*R409) listHostRes()                  {}
+func (*R409) listHostServiceChecksRes()     {}
+func (*R409) listHostServicePropertiesRes() {}
+func (*R409) listHostServiceRes()           {}
+func (*R409) listPropertyRes()              {}
+func (*R409) listReportRes()                {}
+func (*R409) listRoundChecksRes()           {}
+func (*R409) listRoundRes()                 {}
+func (*R409) listServiceRes()               {}
+func (*R409) listTeamChecksRes()            {}
+func (*R409) listTeamHostsRes()             {}
+func (*R409) listTeamHostservicesRes()      {}
+func (*R409) listTeamPropertiesRes()        {}
+func (*R409) listTeamRes()                  {}
+func (*R409) readCheckHostserviceRes()      {}
+func (*R409) readCheckRes()                 {}
+func (*R409) readCheckRoundsRes()           {}
+func (*R409) readCheckTeamRes()             {}
+func (*R409) readCompetitionRes()           {}
+func (*R409) readHostRes()                  {}
+func (*R409) readHostServiceHostRes()       {}
+func (*R409) readHostServiceRes()           {}
+func (*R409) readHostServiceTeamRes()       {}
+func (*R409) readHostTeamRes()              {}
+func (*R409) readPropertyHostserviceRes()   {}
+func (*R409) readPropertyRes()              {}
+func (*R409) readPropertyTeamRes()          {}
+func (*R409) readReportCompetitionRes()     {}
+func (*R409) readReportRes()                {}
+func (*R409) readRoundCompetitionRes()      {}
+func (*R409) readRoundRes()                 {}
+func (*R409) readServiceCompetitionRes()    {}
+func (*R409) readServiceRes()               {}
+func (*R409) readTeamCompetitionRes()       {}
+func (*R409) readTeamRes()                  {}
+func (*R409) updateCheckRes()               {}
+func (*R409) updateCompetitionRes()         {}
+func (*R409) updateHostRes()                {}
+func (*R409) updateHostServiceRes()         {}
+func (*R409) updatePropertyRes()            {}
+func (*R409) updateReportRes()              {}
+func (*R409) updateRoundRes()               {}
+func (*R409) updateServiceRes()             {}
+func (*R409) updateTeamRes()                {}
 
 type R500 struct {
 	Code   int    `json:"code"`
@@ -4987,89 +5021,187 @@ func (s *R500) SetErrors(val jx.Raw) {
 	s.Errors = val
 }
 
-func (*R500) createCheckRes()              {}
-func (*R500) createCompetitionRes()        {}
-func (*R500) createHostGroupRes()          {}
-func (*R500) createHostRes()               {}
-func (*R500) createPropertyRes()           {}
-func (*R500) createReportRes()             {}
-func (*R500) createRoundRes()              {}
-func (*R500) createServiceRes()            {}
-func (*R500) createTeamRes()               {}
-func (*R500) createUserRes()               {}
-func (*R500) deleteCheckRes()              {}
-func (*R500) deleteCompetitionRes()        {}
-func (*R500) deleteHostGroupRes()          {}
-func (*R500) deleteHostRes()               {}
-func (*R500) deletePropertyRes()           {}
-func (*R500) deleteReportRes()             {}
-func (*R500) deleteRoundRes()              {}
-func (*R500) deleteServiceRes()            {}
-func (*R500) deleteTeamRes()               {}
-func (*R500) deleteUserRes()               {}
-func (*R500) listCheckRes()                {}
-func (*R500) listCompetitionRes()          {}
-func (*R500) listCompetitionTeamsRes()     {}
-func (*R500) listCompetitionUsersRes()     {}
-func (*R500) listHostGroupHostsRes()       {}
-func (*R500) listHostGroupRes()            {}
-func (*R500) listHostRes()                 {}
-func (*R500) listHostServicesRes()         {}
-func (*R500) listPropertyRes()             {}
-func (*R500) listReportRes()               {}
-func (*R500) listRoundChecksRes()          {}
-func (*R500) listRoundRes()                {}
-func (*R500) listServiceChecksRes()        {}
-func (*R500) listServicePropertiesRes()    {}
-func (*R500) listServiceRes()              {}
-func (*R500) listTeamHostsRes()            {}
-func (*R500) listTeamRes()                 {}
-func (*R500) listTeamUsersRes()            {}
-func (*R500) listUserCompetitionsRes()     {}
-func (*R500) listUserRes()                 {}
-func (*R500) listUserTeamsRes()            {}
-func (*R500) readCheckCompetitionRes()     {}
-func (*R500) readCheckRes()                {}
-func (*R500) readCheckRoundsRes()          {}
-func (*R500) readCheckServicesRes()        {}
-func (*R500) readCompetitionRes()          {}
-func (*R500) readHostCompetitionRes()      {}
-func (*R500) readHostGroupCompetitionRes() {}
-func (*R500) readHostGroupRes()            {}
-func (*R500) readHostGroupTeamRes()        {}
-func (*R500) readHostHostGroupRes()        {}
-func (*R500) readHostRes()                 {}
-func (*R500) readHostTeamRes()             {}
-func (*R500) readPropertyCompetitionRes()  {}
-func (*R500) readPropertyRes()             {}
-func (*R500) readPropertyServicesRes()     {}
-func (*R500) readPropertyTeamRes()         {}
-func (*R500) readReportRes()               {}
-func (*R500) readRoundCompetitionRes()     {}
-func (*R500) readRoundRes()                {}
-func (*R500) readServiceCompetitionRes()   {}
-func (*R500) readServiceHostsRes()         {}
-func (*R500) readServiceRes()              {}
-func (*R500) readServiceTeamRes()          {}
-func (*R500) readTeamCompetitionRes()      {}
-func (*R500) readTeamRes()                 {}
-func (*R500) readUserRes()                 {}
-func (*R500) updateCheckRes()              {}
-func (*R500) updateCompetitionRes()        {}
-func (*R500) updateHostGroupRes()          {}
-func (*R500) updateHostRes()               {}
-func (*R500) updatePropertyRes()           {}
-func (*R500) updateReportRes()             {}
-func (*R500) updateRoundRes()              {}
-func (*R500) updateServiceRes()            {}
-func (*R500) updateTeamRes()               {}
-func (*R500) updateUserRes()               {}
+func (*R500) createCheckRes()               {}
+func (*R500) createCompetitionRes()         {}
+func (*R500) createHostRes()                {}
+func (*R500) createHostServiceRes()         {}
+func (*R500) createPropertyRes()            {}
+func (*R500) createReportRes()              {}
+func (*R500) createRoundRes()               {}
+func (*R500) createServiceRes()             {}
+func (*R500) createTeamRes()                {}
+func (*R500) deleteCheckRes()               {}
+func (*R500) deleteCompetitionRes()         {}
+func (*R500) deleteHostRes()                {}
+func (*R500) deleteHostServiceRes()         {}
+func (*R500) deletePropertyRes()            {}
+func (*R500) deleteReportRes()              {}
+func (*R500) deleteRoundRes()               {}
+func (*R500) deleteServiceRes()             {}
+func (*R500) deleteTeamRes()                {}
+func (*R500) listCheckRes()                 {}
+func (*R500) listCompetitionReportsRes()    {}
+func (*R500) listCompetitionRes()           {}
+func (*R500) listCompetitionRoundsRes()     {}
+func (*R500) listCompetitionServicesRes()   {}
+func (*R500) listCompetitionTeamsRes()      {}
+func (*R500) listHostHostservicesRes()      {}
+func (*R500) listHostRes()                  {}
+func (*R500) listHostServiceChecksRes()     {}
+func (*R500) listHostServicePropertiesRes() {}
+func (*R500) listHostServiceRes()           {}
+func (*R500) listPropertyRes()              {}
+func (*R500) listReportRes()                {}
+func (*R500) listRoundChecksRes()           {}
+func (*R500) listRoundRes()                 {}
+func (*R500) listServiceRes()               {}
+func (*R500) listTeamChecksRes()            {}
+func (*R500) listTeamHostsRes()             {}
+func (*R500) listTeamHostservicesRes()      {}
+func (*R500) listTeamPropertiesRes()        {}
+func (*R500) listTeamRes()                  {}
+func (*R500) readCheckHostserviceRes()      {}
+func (*R500) readCheckRes()                 {}
+func (*R500) readCheckRoundsRes()           {}
+func (*R500) readCheckTeamRes()             {}
+func (*R500) readCompetitionRes()           {}
+func (*R500) readHostRes()                  {}
+func (*R500) readHostServiceHostRes()       {}
+func (*R500) readHostServiceRes()           {}
+func (*R500) readHostServiceTeamRes()       {}
+func (*R500) readHostTeamRes()              {}
+func (*R500) readPropertyHostserviceRes()   {}
+func (*R500) readPropertyRes()              {}
+func (*R500) readPropertyTeamRes()          {}
+func (*R500) readReportCompetitionRes()     {}
+func (*R500) readReportRes()                {}
+func (*R500) readRoundCompetitionRes()      {}
+func (*R500) readRoundRes()                 {}
+func (*R500) readServiceCompetitionRes()    {}
+func (*R500) readServiceRes()               {}
+func (*R500) readTeamCompetitionRes()       {}
+func (*R500) readTeamRes()                  {}
+func (*R500) updateCheckRes()               {}
+func (*R500) updateCompetitionRes()         {}
+func (*R500) updateHostRes()                {}
+func (*R500) updateHostServiceRes()         {}
+func (*R500) updatePropertyRes()            {}
+func (*R500) updateReportRes()              {}
+func (*R500) updateRoundRes()               {}
+func (*R500) updateServiceRes()             {}
+func (*R500) updateTeamRes()                {}
+
+// Ref: #/components/schemas/Report_CompetitionRead
+type ReportCompetitionRead struct {
+	ID               string      `json:"id"`
+	Hidden           OptBool     `json:"hidden"`
+	Pause            OptBool     `json:"pause"`
+	Name             string      `json:"name"`
+	DisplayName      string      `json:"display_name"`
+	ViewableToPublic OptBool     `json:"viewable_to_public"`
+	ToBeStartedAt    OptDateTime `json:"to_be_started_at"`
+	StartedAt        OptDateTime `json:"started_at"`
+	FinishedAt       OptDateTime `json:"finished_at"`
+}
+
+// GetID returns the value of ID.
+func (s *ReportCompetitionRead) GetID() string {
+	return s.ID
+}
+
+// GetHidden returns the value of Hidden.
+func (s *ReportCompetitionRead) GetHidden() OptBool {
+	return s.Hidden
+}
+
+// GetPause returns the value of Pause.
+func (s *ReportCompetitionRead) GetPause() OptBool {
+	return s.Pause
+}
+
+// GetName returns the value of Name.
+func (s *ReportCompetitionRead) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *ReportCompetitionRead) GetDisplayName() string {
+	return s.DisplayName
+}
+
+// GetViewableToPublic returns the value of ViewableToPublic.
+func (s *ReportCompetitionRead) GetViewableToPublic() OptBool {
+	return s.ViewableToPublic
+}
+
+// GetToBeStartedAt returns the value of ToBeStartedAt.
+func (s *ReportCompetitionRead) GetToBeStartedAt() OptDateTime {
+	return s.ToBeStartedAt
+}
+
+// GetStartedAt returns the value of StartedAt.
+func (s *ReportCompetitionRead) GetStartedAt() OptDateTime {
+	return s.StartedAt
+}
+
+// GetFinishedAt returns the value of FinishedAt.
+func (s *ReportCompetitionRead) GetFinishedAt() OptDateTime {
+	return s.FinishedAt
+}
+
+// SetID sets the value of ID.
+func (s *ReportCompetitionRead) SetID(val string) {
+	s.ID = val
+}
+
+// SetHidden sets the value of Hidden.
+func (s *ReportCompetitionRead) SetHidden(val OptBool) {
+	s.Hidden = val
+}
+
+// SetPause sets the value of Pause.
+func (s *ReportCompetitionRead) SetPause(val OptBool) {
+	s.Pause = val
+}
+
+// SetName sets the value of Name.
+func (s *ReportCompetitionRead) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *ReportCompetitionRead) SetDisplayName(val string) {
+	s.DisplayName = val
+}
+
+// SetViewableToPublic sets the value of ViewableToPublic.
+func (s *ReportCompetitionRead) SetViewableToPublic(val OptBool) {
+	s.ViewableToPublic = val
+}
+
+// SetToBeStartedAt sets the value of ToBeStartedAt.
+func (s *ReportCompetitionRead) SetToBeStartedAt(val OptDateTime) {
+	s.ToBeStartedAt = val
+}
+
+// SetStartedAt sets the value of StartedAt.
+func (s *ReportCompetitionRead) SetStartedAt(val OptDateTime) {
+	s.StartedAt = val
+}
+
+// SetFinishedAt sets the value of FinishedAt.
+func (s *ReportCompetitionRead) SetFinishedAt(val OptDateTime) {
+	s.FinishedAt = val
+}
+
+func (*ReportCompetitionRead) readReportCompetitionRes() {}
 
 // Ref: #/components/schemas/ReportCreate
 type ReportCreate struct {
-	ID    int    `json:"id"`
-	Log   string `json:"log"`
-	Error string `json:"error"`
+	ID            int    `json:"id"`
+	Log           string `json:"log"`
+	Error         string `json:"error"`
+	CompetitionID string `json:"competition_id"`
 }
 
 // GetID returns the value of ID.
@@ -5087,6 +5219,11 @@ func (s *ReportCreate) GetError() string {
 	return s.Error
 }
 
+// GetCompetitionID returns the value of CompetitionID.
+func (s *ReportCreate) GetCompetitionID() string {
+	return s.CompetitionID
+}
+
 // SetID sets the value of ID.
 func (s *ReportCreate) SetID(val int) {
 	s.ID = val
@@ -5102,13 +5239,19 @@ func (s *ReportCreate) SetError(val string) {
 	s.Error = val
 }
 
+// SetCompetitionID sets the value of CompetitionID.
+func (s *ReportCreate) SetCompetitionID(val string) {
+	s.CompetitionID = val
+}
+
 func (*ReportCreate) createReportRes() {}
 
 // Ref: #/components/schemas/ReportList
 type ReportList struct {
-	ID    int    `json:"id"`
-	Log   string `json:"log"`
-	Error string `json:"error"`
+	ID            int    `json:"id"`
+	Log           string `json:"log"`
+	Error         string `json:"error"`
+	CompetitionID string `json:"competition_id"`
 }
 
 // GetID returns the value of ID.
@@ -5126,6 +5269,11 @@ func (s *ReportList) GetError() string {
 	return s.Error
 }
 
+// GetCompetitionID returns the value of CompetitionID.
+func (s *ReportList) GetCompetitionID() string {
+	return s.CompetitionID
+}
+
 // SetID sets the value of ID.
 func (s *ReportList) SetID(val int) {
 	s.ID = val
@@ -5141,11 +5289,17 @@ func (s *ReportList) SetError(val string) {
 	s.Error = val
 }
 
+// SetCompetitionID sets the value of CompetitionID.
+func (s *ReportList) SetCompetitionID(val string) {
+	s.CompetitionID = val
+}
+
 // Ref: #/components/schemas/ReportRead
 type ReportRead struct {
-	ID    int    `json:"id"`
-	Log   string `json:"log"`
-	Error string `json:"error"`
+	ID            int    `json:"id"`
+	Log           string `json:"log"`
+	Error         string `json:"error"`
+	CompetitionID string `json:"competition_id"`
 }
 
 // GetID returns the value of ID.
@@ -5163,6 +5317,11 @@ func (s *ReportRead) GetError() string {
 	return s.Error
 }
 
+// GetCompetitionID returns the value of CompetitionID.
+func (s *ReportRead) GetCompetitionID() string {
+	return s.CompetitionID
+}
+
 // SetID sets the value of ID.
 func (s *ReportRead) SetID(val int) {
 	s.ID = val
@@ -5178,13 +5337,19 @@ func (s *ReportRead) SetError(val string) {
 	s.Error = val
 }
 
+// SetCompetitionID sets the value of CompetitionID.
+func (s *ReportRead) SetCompetitionID(val string) {
+	s.CompetitionID = val
+}
+
 func (*ReportRead) readReportRes() {}
 
 // Ref: #/components/schemas/ReportUpdate
 type ReportUpdate struct {
-	ID    int    `json:"id"`
-	Log   string `json:"log"`
-	Error string `json:"error"`
+	ID            int    `json:"id"`
+	Log           string `json:"log"`
+	Error         string `json:"error"`
+	CompetitionID string `json:"competition_id"`
 }
 
 // GetID returns the value of ID.
@@ -5202,6 +5367,11 @@ func (s *ReportUpdate) GetError() string {
 	return s.Error
 }
 
+// GetCompetitionID returns the value of CompetitionID.
+func (s *ReportUpdate) GetCompetitionID() string {
+	return s.CompetitionID
+}
+
 // SetID sets the value of ID.
 func (s *ReportUpdate) SetID(val int) {
 	s.ID = val
@@ -5217,6 +5387,11 @@ func (s *ReportUpdate) SetError(val string) {
 	s.Error = val
 }
 
+// SetCompetitionID sets the value of CompetitionID.
+func (s *ReportUpdate) SetCompetitionID(val string) {
+	s.CompetitionID = val
+}
+
 func (*ReportUpdate) updateReportRes() {}
 
 // Ref: #/components/schemas/Round_ChecksList
@@ -5224,10 +5399,12 @@ type RoundChecksList struct {
 	ID            string  `json:"id"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
 	Log           string  `json:"log"`
 	Error         string  `json:"error"`
 	Passed        bool    `json:"passed"`
+	RoundID       string  `json:"round_id"`
+	HostServiceID string  `json:"host_service_id"`
+	TeamID        string  `json:"team_id"`
 }
 
 // GetID returns the value of ID.
@@ -5245,11 +5422,6 @@ func (s *RoundChecksList) GetHidden() OptBool {
 	return s.Hidden
 }
 
-// GetCompetitionID returns the value of CompetitionID.
-func (s *RoundChecksList) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
 // GetLog returns the value of Log.
 func (s *RoundChecksList) GetLog() string {
 	return s.Log
@@ -5263,6 +5435,21 @@ func (s *RoundChecksList) GetError() string {
 // GetPassed returns the value of Passed.
 func (s *RoundChecksList) GetPassed() bool {
 	return s.Passed
+}
+
+// GetRoundID returns the value of RoundID.
+func (s *RoundChecksList) GetRoundID() string {
+	return s.RoundID
+}
+
+// GetHostServiceID returns the value of HostServiceID.
+func (s *RoundChecksList) GetHostServiceID() string {
+	return s.HostServiceID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *RoundChecksList) GetTeamID() string {
+	return s.TeamID
 }
 
 // SetID sets the value of ID.
@@ -5280,11 +5467,6 @@ func (s *RoundChecksList) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
-// SetCompetitionID sets the value of CompetitionID.
-func (s *RoundChecksList) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
 // SetLog sets the value of Log.
 func (s *RoundChecksList) SetLog(val string) {
 	s.Log = val
@@ -5298,6 +5480,21 @@ func (s *RoundChecksList) SetError(val string) {
 // SetPassed sets the value of Passed.
 func (s *RoundChecksList) SetPassed(val bool) {
 	s.Passed = val
+}
+
+// SetRoundID sets the value of RoundID.
+func (s *RoundChecksList) SetRoundID(val string) {
+	s.RoundID = val
+}
+
+// SetHostServiceID sets the value of HostServiceID.
+func (s *RoundChecksList) SetHostServiceID(val string) {
+	s.HostServiceID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *RoundChecksList) SetTeamID(val string) {
+	s.TeamID = val
 }
 
 // Ref: #/components/schemas/Round_CompetitionRead
@@ -5408,22 +5605,17 @@ func (*RoundCompetitionRead) readRoundCompetitionRes() {}
 // Ref: #/components/schemas/RoundCreate
 type RoundCreate struct {
 	ID            string    `json:"id"`
-	CompetitionID string    `json:"competition_id"`
 	RoundNumber   int       `json:"round_number"`
 	Note          string    `json:"note"`
 	Err           string    `json:"err"`
 	StartedAt     time.Time `json:"started_at"`
 	FinishedAt    time.Time `json:"finished_at"`
+	CompetitionID string    `json:"competition_id"`
 }
 
 // GetID returns the value of ID.
 func (s *RoundCreate) GetID() string {
 	return s.ID
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *RoundCreate) GetCompetitionID() string {
-	return s.CompetitionID
 }
 
 // GetRoundNumber returns the value of RoundNumber.
@@ -5451,14 +5643,14 @@ func (s *RoundCreate) GetFinishedAt() time.Time {
 	return s.FinishedAt
 }
 
+// GetCompetitionID returns the value of CompetitionID.
+func (s *RoundCreate) GetCompetitionID() string {
+	return s.CompetitionID
+}
+
 // SetID sets the value of ID.
 func (s *RoundCreate) SetID(val string) {
 	s.ID = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *RoundCreate) SetCompetitionID(val string) {
-	s.CompetitionID = val
 }
 
 // SetRoundNumber sets the value of RoundNumber.
@@ -5486,27 +5678,27 @@ func (s *RoundCreate) SetFinishedAt(val time.Time) {
 	s.FinishedAt = val
 }
 
+// SetCompetitionID sets the value of CompetitionID.
+func (s *RoundCreate) SetCompetitionID(val string) {
+	s.CompetitionID = val
+}
+
 func (*RoundCreate) createRoundRes() {}
 
 // Ref: #/components/schemas/RoundList
 type RoundList struct {
 	ID            string    `json:"id"`
-	CompetitionID string    `json:"competition_id"`
 	RoundNumber   int       `json:"round_number"`
 	Note          string    `json:"note"`
 	Err           string    `json:"err"`
 	StartedAt     time.Time `json:"started_at"`
 	FinishedAt    time.Time `json:"finished_at"`
+	CompetitionID string    `json:"competition_id"`
 }
 
 // GetID returns the value of ID.
 func (s *RoundList) GetID() string {
 	return s.ID
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *RoundList) GetCompetitionID() string {
-	return s.CompetitionID
 }
 
 // GetRoundNumber returns the value of RoundNumber.
@@ -5534,14 +5726,14 @@ func (s *RoundList) GetFinishedAt() time.Time {
 	return s.FinishedAt
 }
 
+// GetCompetitionID returns the value of CompetitionID.
+func (s *RoundList) GetCompetitionID() string {
+	return s.CompetitionID
+}
+
 // SetID sets the value of ID.
 func (s *RoundList) SetID(val string) {
 	s.ID = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *RoundList) SetCompetitionID(val string) {
-	s.CompetitionID = val
 }
 
 // SetRoundNumber sets the value of RoundNumber.
@@ -5569,25 +5761,25 @@ func (s *RoundList) SetFinishedAt(val time.Time) {
 	s.FinishedAt = val
 }
 
+// SetCompetitionID sets the value of CompetitionID.
+func (s *RoundList) SetCompetitionID(val string) {
+	s.CompetitionID = val
+}
+
 // Ref: #/components/schemas/RoundRead
 type RoundRead struct {
 	ID            string    `json:"id"`
-	CompetitionID string    `json:"competition_id"`
 	RoundNumber   int       `json:"round_number"`
 	Note          string    `json:"note"`
 	Err           string    `json:"err"`
 	StartedAt     time.Time `json:"started_at"`
 	FinishedAt    time.Time `json:"finished_at"`
+	CompetitionID string    `json:"competition_id"`
 }
 
 // GetID returns the value of ID.
 func (s *RoundRead) GetID() string {
 	return s.ID
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *RoundRead) GetCompetitionID() string {
-	return s.CompetitionID
 }
 
 // GetRoundNumber returns the value of RoundNumber.
@@ -5615,14 +5807,14 @@ func (s *RoundRead) GetFinishedAt() time.Time {
 	return s.FinishedAt
 }
 
+// GetCompetitionID returns the value of CompetitionID.
+func (s *RoundRead) GetCompetitionID() string {
+	return s.CompetitionID
+}
+
 // SetID sets the value of ID.
 func (s *RoundRead) SetID(val string) {
 	s.ID = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *RoundRead) SetCompetitionID(val string) {
-	s.CompetitionID = val
 }
 
 // SetRoundNumber sets the value of RoundNumber.
@@ -5650,27 +5842,27 @@ func (s *RoundRead) SetFinishedAt(val time.Time) {
 	s.FinishedAt = val
 }
 
+// SetCompetitionID sets the value of CompetitionID.
+func (s *RoundRead) SetCompetitionID(val string) {
+	s.CompetitionID = val
+}
+
 func (*RoundRead) readRoundRes() {}
 
 // Ref: #/components/schemas/RoundUpdate
 type RoundUpdate struct {
 	ID            string    `json:"id"`
-	CompetitionID string    `json:"competition_id"`
 	RoundNumber   int       `json:"round_number"`
 	Note          string    `json:"note"`
 	Err           string    `json:"err"`
 	StartedAt     time.Time `json:"started_at"`
 	FinishedAt    time.Time `json:"finished_at"`
+	CompetitionID string    `json:"competition_id"`
 }
 
 // GetID returns the value of ID.
 func (s *RoundUpdate) GetID() string {
 	return s.ID
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *RoundUpdate) GetCompetitionID() string {
-	return s.CompetitionID
 }
 
 // GetRoundNumber returns the value of RoundNumber.
@@ -5698,14 +5890,14 @@ func (s *RoundUpdate) GetFinishedAt() time.Time {
 	return s.FinishedAt
 }
 
+// GetCompetitionID returns the value of CompetitionID.
+func (s *RoundUpdate) GetCompetitionID() string {
+	return s.CompetitionID
+}
+
 // SetID sets the value of ID.
 func (s *RoundUpdate) SetID(val string) {
 	s.ID = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *RoundUpdate) SetCompetitionID(val string) {
-	s.CompetitionID = val
 }
 
 // SetRoundNumber sets the value of RoundNumber.
@@ -5733,88 +5925,12 @@ func (s *RoundUpdate) SetFinishedAt(val time.Time) {
 	s.FinishedAt = val
 }
 
-func (*RoundUpdate) updateRoundRes() {}
-
-// Ref: #/components/schemas/Service_ChecksList
-type ServiceChecksList struct {
-	ID            string  `json:"id"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
-	Log           string  `json:"log"`
-	Error         string  `json:"error"`
-	Passed        bool    `json:"passed"`
-}
-
-// GetID returns the value of ID.
-func (s *ServiceChecksList) GetID() string {
-	return s.ID
-}
-
-// GetPause returns the value of Pause.
-func (s *ServiceChecksList) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetHidden returns the value of Hidden.
-func (s *ServiceChecksList) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *ServiceChecksList) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetLog returns the value of Log.
-func (s *ServiceChecksList) GetLog() string {
-	return s.Log
-}
-
-// GetError returns the value of Error.
-func (s *ServiceChecksList) GetError() string {
-	return s.Error
-}
-
-// GetPassed returns the value of Passed.
-func (s *ServiceChecksList) GetPassed() bool {
-	return s.Passed
-}
-
-// SetID sets the value of ID.
-func (s *ServiceChecksList) SetID(val string) {
-	s.ID = val
-}
-
-// SetPause sets the value of Pause.
-func (s *ServiceChecksList) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *ServiceChecksList) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
 // SetCompetitionID sets the value of CompetitionID.
-func (s *ServiceChecksList) SetCompetitionID(val string) {
+func (s *RoundUpdate) SetCompetitionID(val string) {
 	s.CompetitionID = val
 }
 
-// SetLog sets the value of Log.
-func (s *ServiceChecksList) SetLog(val string) {
-	s.Log = val
-}
-
-// SetError sets the value of Error.
-func (s *ServiceChecksList) SetError(val string) {
-	s.Error = val
-}
-
-// SetPassed sets the value of Passed.
-func (s *ServiceChecksList) SetPassed(val bool) {
-	s.Passed = val
-}
+func (*RoundUpdate) updateRoundRes() {}
 
 // Ref: #/components/schemas/Service_CompetitionRead
 type ServiceCompetitionRead struct {
@@ -5924,21 +6040,26 @@ func (*ServiceCompetitionRead) readServiceCompetitionRes() {}
 // Ref: #/components/schemas/ServiceCreate
 type ServiceCreate struct {
 	ID            string  `json:"id"`
+	Name          string  `json:"name"`
+	DisplayName   string  `json:"display_name"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
 	CompetitionID string  `json:"competition_id"`
-	TeamID        string  `json:"team_id"`
-	Name          string  `json:"name"`
-	DisplayName   string  `json:"display_name"`
-	Weight        int     `json:"weight"`
-	PointBoost    int     `json:"point_boost"`
-	RoundUnits    int     `json:"round_units"`
-	RoundDelay    int     `json:"round_delay"`
 }
 
 // GetID returns the value of ID.
 func (s *ServiceCreate) GetID() string {
 	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *ServiceCreate) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *ServiceCreate) GetDisplayName() string {
+	return s.DisplayName
 }
 
 // GetPause returns the value of Pause.
@@ -5956,44 +6077,19 @@ func (s *ServiceCreate) GetCompetitionID() string {
 	return s.CompetitionID
 }
 
-// GetTeamID returns the value of TeamID.
-func (s *ServiceCreate) GetTeamID() string {
-	return s.TeamID
-}
-
-// GetName returns the value of Name.
-func (s *ServiceCreate) GetName() string {
-	return s.Name
-}
-
-// GetDisplayName returns the value of DisplayName.
-func (s *ServiceCreate) GetDisplayName() string {
-	return s.DisplayName
-}
-
-// GetWeight returns the value of Weight.
-func (s *ServiceCreate) GetWeight() int {
-	return s.Weight
-}
-
-// GetPointBoost returns the value of PointBoost.
-func (s *ServiceCreate) GetPointBoost() int {
-	return s.PointBoost
-}
-
-// GetRoundUnits returns the value of RoundUnits.
-func (s *ServiceCreate) GetRoundUnits() int {
-	return s.RoundUnits
-}
-
-// GetRoundDelay returns the value of RoundDelay.
-func (s *ServiceCreate) GetRoundDelay() int {
-	return s.RoundDelay
-}
-
 // SetID sets the value of ID.
 func (s *ServiceCreate) SetID(val string) {
 	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *ServiceCreate) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *ServiceCreate) SetDisplayName(val string) {
+	s.DisplayName = val
 }
 
 // SetPause sets the value of Pause.
@@ -6011,155 +6107,31 @@ func (s *ServiceCreate) SetCompetitionID(val string) {
 	s.CompetitionID = val
 }
 
-// SetTeamID sets the value of TeamID.
-func (s *ServiceCreate) SetTeamID(val string) {
-	s.TeamID = val
-}
-
-// SetName sets the value of Name.
-func (s *ServiceCreate) SetName(val string) {
-	s.Name = val
-}
-
-// SetDisplayName sets the value of DisplayName.
-func (s *ServiceCreate) SetDisplayName(val string) {
-	s.DisplayName = val
-}
-
-// SetWeight sets the value of Weight.
-func (s *ServiceCreate) SetWeight(val int) {
-	s.Weight = val
-}
-
-// SetPointBoost sets the value of PointBoost.
-func (s *ServiceCreate) SetPointBoost(val int) {
-	s.PointBoost = val
-}
-
-// SetRoundUnits sets the value of RoundUnits.
-func (s *ServiceCreate) SetRoundUnits(val int) {
-	s.RoundUnits = val
-}
-
-// SetRoundDelay sets the value of RoundDelay.
-func (s *ServiceCreate) SetRoundDelay(val int) {
-	s.RoundDelay = val
-}
-
 func (*ServiceCreate) createServiceRes() {}
-
-// Ref: #/components/schemas/Service_HostsRead
-type ServiceHostsRead struct {
-	ID               string  `json:"id"`
-	Pause            OptBool `json:"pause"`
-	Hidden           OptBool `json:"hidden"`
-	CompetitionID    string  `json:"competition_id"`
-	TeamID           string  `json:"team_id"`
-	Address          string  `json:"address"`
-	AddressListRange string  `json:"address_list_range"`
-	Editable         bool    `json:"editable"`
-}
-
-// GetID returns the value of ID.
-func (s *ServiceHostsRead) GetID() string {
-	return s.ID
-}
-
-// GetPause returns the value of Pause.
-func (s *ServiceHostsRead) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetHidden returns the value of Hidden.
-func (s *ServiceHostsRead) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *ServiceHostsRead) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *ServiceHostsRead) GetTeamID() string {
-	return s.TeamID
-}
-
-// GetAddress returns the value of Address.
-func (s *ServiceHostsRead) GetAddress() string {
-	return s.Address
-}
-
-// GetAddressListRange returns the value of AddressListRange.
-func (s *ServiceHostsRead) GetAddressListRange() string {
-	return s.AddressListRange
-}
-
-// GetEditable returns the value of Editable.
-func (s *ServiceHostsRead) GetEditable() bool {
-	return s.Editable
-}
-
-// SetID sets the value of ID.
-func (s *ServiceHostsRead) SetID(val string) {
-	s.ID = val
-}
-
-// SetPause sets the value of Pause.
-func (s *ServiceHostsRead) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *ServiceHostsRead) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *ServiceHostsRead) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *ServiceHostsRead) SetTeamID(val string) {
-	s.TeamID = val
-}
-
-// SetAddress sets the value of Address.
-func (s *ServiceHostsRead) SetAddress(val string) {
-	s.Address = val
-}
-
-// SetAddressListRange sets the value of AddressListRange.
-func (s *ServiceHostsRead) SetAddressListRange(val string) {
-	s.AddressListRange = val
-}
-
-// SetEditable sets the value of Editable.
-func (s *ServiceHostsRead) SetEditable(val bool) {
-	s.Editable = val
-}
-
-func (*ServiceHostsRead) readServiceHostsRes() {}
 
 // Ref: #/components/schemas/ServiceList
 type ServiceList struct {
 	ID            string  `json:"id"`
+	Name          string  `json:"name"`
+	DisplayName   string  `json:"display_name"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
 	CompetitionID string  `json:"competition_id"`
-	TeamID        string  `json:"team_id"`
-	Name          string  `json:"name"`
-	DisplayName   string  `json:"display_name"`
-	Weight        int     `json:"weight"`
-	PointBoost    int     `json:"point_boost"`
-	RoundUnits    int     `json:"round_units"`
-	RoundDelay    int     `json:"round_delay"`
 }
 
 // GetID returns the value of ID.
 func (s *ServiceList) GetID() string {
 	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *ServiceList) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *ServiceList) GetDisplayName() string {
+	return s.DisplayName
 }
 
 // GetPause returns the value of Pause.
@@ -6177,44 +6149,19 @@ func (s *ServiceList) GetCompetitionID() string {
 	return s.CompetitionID
 }
 
-// GetTeamID returns the value of TeamID.
-func (s *ServiceList) GetTeamID() string {
-	return s.TeamID
-}
-
-// GetName returns the value of Name.
-func (s *ServiceList) GetName() string {
-	return s.Name
-}
-
-// GetDisplayName returns the value of DisplayName.
-func (s *ServiceList) GetDisplayName() string {
-	return s.DisplayName
-}
-
-// GetWeight returns the value of Weight.
-func (s *ServiceList) GetWeight() int {
-	return s.Weight
-}
-
-// GetPointBoost returns the value of PointBoost.
-func (s *ServiceList) GetPointBoost() int {
-	return s.PointBoost
-}
-
-// GetRoundUnits returns the value of RoundUnits.
-func (s *ServiceList) GetRoundUnits() int {
-	return s.RoundUnits
-}
-
-// GetRoundDelay returns the value of RoundDelay.
-func (s *ServiceList) GetRoundDelay() int {
-	return s.RoundDelay
-}
-
 // SetID sets the value of ID.
 func (s *ServiceList) SetID(val string) {
 	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *ServiceList) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *ServiceList) SetDisplayName(val string) {
+	s.DisplayName = val
 }
 
 // SetPause sets the value of Pause.
@@ -6232,168 +6179,29 @@ func (s *ServiceList) SetCompetitionID(val string) {
 	s.CompetitionID = val
 }
 
-// SetTeamID sets the value of TeamID.
-func (s *ServiceList) SetTeamID(val string) {
-	s.TeamID = val
-}
-
-// SetName sets the value of Name.
-func (s *ServiceList) SetName(val string) {
-	s.Name = val
-}
-
-// SetDisplayName sets the value of DisplayName.
-func (s *ServiceList) SetDisplayName(val string) {
-	s.DisplayName = val
-}
-
-// SetWeight sets the value of Weight.
-func (s *ServiceList) SetWeight(val int) {
-	s.Weight = val
-}
-
-// SetPointBoost sets the value of PointBoost.
-func (s *ServiceList) SetPointBoost(val int) {
-	s.PointBoost = val
-}
-
-// SetRoundUnits sets the value of RoundUnits.
-func (s *ServiceList) SetRoundUnits(val int) {
-	s.RoundUnits = val
-}
-
-// SetRoundDelay sets the value of RoundDelay.
-func (s *ServiceList) SetRoundDelay(val int) {
-	s.RoundDelay = val
-}
-
-// Ref: #/components/schemas/Service_PropertiesList
-type ServicePropertiesList struct {
-	ID            string                      `json:"id"`
-	CompetitionID string                      `json:"competition_id"`
-	TeamID        string                      `json:"team_id"`
-	Key           string                      `json:"key"`
-	Value         string                      `json:"value"`
-	Status        ServicePropertiesListStatus `json:"status"`
-}
-
-// GetID returns the value of ID.
-func (s *ServicePropertiesList) GetID() string {
-	return s.ID
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *ServicePropertiesList) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *ServicePropertiesList) GetTeamID() string {
-	return s.TeamID
-}
-
-// GetKey returns the value of Key.
-func (s *ServicePropertiesList) GetKey() string {
-	return s.Key
-}
-
-// GetValue returns the value of Value.
-func (s *ServicePropertiesList) GetValue() string {
-	return s.Value
-}
-
-// GetStatus returns the value of Status.
-func (s *ServicePropertiesList) GetStatus() ServicePropertiesListStatus {
-	return s.Status
-}
-
-// SetID sets the value of ID.
-func (s *ServicePropertiesList) SetID(val string) {
-	s.ID = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *ServicePropertiesList) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *ServicePropertiesList) SetTeamID(val string) {
-	s.TeamID = val
-}
-
-// SetKey sets the value of Key.
-func (s *ServicePropertiesList) SetKey(val string) {
-	s.Key = val
-}
-
-// SetValue sets the value of Value.
-func (s *ServicePropertiesList) SetValue(val string) {
-	s.Value = val
-}
-
-// SetStatus sets the value of Status.
-func (s *ServicePropertiesList) SetStatus(val ServicePropertiesListStatus) {
-	s.Status = val
-}
-
-type ServicePropertiesListStatus string
-
-const (
-	ServicePropertiesListStatusView ServicePropertiesListStatus = "view"
-	ServicePropertiesListStatusEdit ServicePropertiesListStatus = "edit"
-	ServicePropertiesListStatusHide ServicePropertiesListStatus = "hide"
-)
-
-// MarshalText implements encoding.TextMarshaler.
-func (s ServicePropertiesListStatus) MarshalText() ([]byte, error) {
-	switch s {
-	case ServicePropertiesListStatusView:
-		return []byte(s), nil
-	case ServicePropertiesListStatusEdit:
-		return []byte(s), nil
-	case ServicePropertiesListStatusHide:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *ServicePropertiesListStatus) UnmarshalText(data []byte) error {
-	switch ServicePropertiesListStatus(data) {
-	case ServicePropertiesListStatusView:
-		*s = ServicePropertiesListStatusView
-		return nil
-	case ServicePropertiesListStatusEdit:
-		*s = ServicePropertiesListStatusEdit
-		return nil
-	case ServicePropertiesListStatusHide:
-		*s = ServicePropertiesListStatusHide
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
-}
-
 // Ref: #/components/schemas/ServiceRead
 type ServiceRead struct {
 	ID            string  `json:"id"`
+	Name          string  `json:"name"`
+	DisplayName   string  `json:"display_name"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
 	CompetitionID string  `json:"competition_id"`
-	TeamID        string  `json:"team_id"`
-	Name          string  `json:"name"`
-	DisplayName   string  `json:"display_name"`
-	Weight        int     `json:"weight"`
-	PointBoost    int     `json:"point_boost"`
-	RoundUnits    int     `json:"round_units"`
-	RoundDelay    int     `json:"round_delay"`
 }
 
 // GetID returns the value of ID.
 func (s *ServiceRead) GetID() string {
 	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *ServiceRead) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *ServiceRead) GetDisplayName() string {
+	return s.DisplayName
 }
 
 // GetPause returns the value of Pause.
@@ -6411,44 +6219,19 @@ func (s *ServiceRead) GetCompetitionID() string {
 	return s.CompetitionID
 }
 
-// GetTeamID returns the value of TeamID.
-func (s *ServiceRead) GetTeamID() string {
-	return s.TeamID
-}
-
-// GetName returns the value of Name.
-func (s *ServiceRead) GetName() string {
-	return s.Name
-}
-
-// GetDisplayName returns the value of DisplayName.
-func (s *ServiceRead) GetDisplayName() string {
-	return s.DisplayName
-}
-
-// GetWeight returns the value of Weight.
-func (s *ServiceRead) GetWeight() int {
-	return s.Weight
-}
-
-// GetPointBoost returns the value of PointBoost.
-func (s *ServiceRead) GetPointBoost() int {
-	return s.PointBoost
-}
-
-// GetRoundUnits returns the value of RoundUnits.
-func (s *ServiceRead) GetRoundUnits() int {
-	return s.RoundUnits
-}
-
-// GetRoundDelay returns the value of RoundDelay.
-func (s *ServiceRead) GetRoundDelay() int {
-	return s.RoundDelay
-}
-
 // SetID sets the value of ID.
 func (s *ServiceRead) SetID(val string) {
 	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *ServiceRead) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *ServiceRead) SetDisplayName(val string) {
+	s.DisplayName = val
 }
 
 // SetPause sets the value of Pause.
@@ -6466,133 +6249,31 @@ func (s *ServiceRead) SetCompetitionID(val string) {
 	s.CompetitionID = val
 }
 
-// SetTeamID sets the value of TeamID.
-func (s *ServiceRead) SetTeamID(val string) {
-	s.TeamID = val
-}
-
-// SetName sets the value of Name.
-func (s *ServiceRead) SetName(val string) {
-	s.Name = val
-}
-
-// SetDisplayName sets the value of DisplayName.
-func (s *ServiceRead) SetDisplayName(val string) {
-	s.DisplayName = val
-}
-
-// SetWeight sets the value of Weight.
-func (s *ServiceRead) SetWeight(val int) {
-	s.Weight = val
-}
-
-// SetPointBoost sets the value of PointBoost.
-func (s *ServiceRead) SetPointBoost(val int) {
-	s.PointBoost = val
-}
-
-// SetRoundUnits sets the value of RoundUnits.
-func (s *ServiceRead) SetRoundUnits(val int) {
-	s.RoundUnits = val
-}
-
-// SetRoundDelay sets the value of RoundDelay.
-func (s *ServiceRead) SetRoundDelay(val int) {
-	s.RoundDelay = val
-}
-
 func (*ServiceRead) readServiceRes() {}
-
-// Ref: #/components/schemas/Service_TeamRead
-type ServiceTeamRead struct {
-	ID            string  `json:"id"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
-	Name          string  `json:"name"`
-	Index         OptInt  `json:"index"`
-}
-
-// GetID returns the value of ID.
-func (s *ServiceTeamRead) GetID() string {
-	return s.ID
-}
-
-// GetPause returns the value of Pause.
-func (s *ServiceTeamRead) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetHidden returns the value of Hidden.
-func (s *ServiceTeamRead) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *ServiceTeamRead) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetName returns the value of Name.
-func (s *ServiceTeamRead) GetName() string {
-	return s.Name
-}
-
-// GetIndex returns the value of Index.
-func (s *ServiceTeamRead) GetIndex() OptInt {
-	return s.Index
-}
-
-// SetID sets the value of ID.
-func (s *ServiceTeamRead) SetID(val string) {
-	s.ID = val
-}
-
-// SetPause sets the value of Pause.
-func (s *ServiceTeamRead) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *ServiceTeamRead) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *ServiceTeamRead) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetName sets the value of Name.
-func (s *ServiceTeamRead) SetName(val string) {
-	s.Name = val
-}
-
-// SetIndex sets the value of Index.
-func (s *ServiceTeamRead) SetIndex(val OptInt) {
-	s.Index = val
-}
-
-func (*ServiceTeamRead) readServiceTeamRes() {}
 
 // Ref: #/components/schemas/ServiceUpdate
 type ServiceUpdate struct {
 	ID            string  `json:"id"`
+	Name          string  `json:"name"`
+	DisplayName   string  `json:"display_name"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
 	CompetitionID string  `json:"competition_id"`
-	TeamID        string  `json:"team_id"`
-	Name          string  `json:"name"`
-	DisplayName   string  `json:"display_name"`
-	Weight        int     `json:"weight"`
-	PointBoost    int     `json:"point_boost"`
-	RoundUnits    int     `json:"round_units"`
-	RoundDelay    int     `json:"round_delay"`
 }
 
 // GetID returns the value of ID.
 func (s *ServiceUpdate) GetID() string {
 	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *ServiceUpdate) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *ServiceUpdate) GetDisplayName() string {
+	return s.DisplayName
 }
 
 // GetPause returns the value of Pause.
@@ -6610,44 +6291,19 @@ func (s *ServiceUpdate) GetCompetitionID() string {
 	return s.CompetitionID
 }
 
-// GetTeamID returns the value of TeamID.
-func (s *ServiceUpdate) GetTeamID() string {
-	return s.TeamID
-}
-
-// GetName returns the value of Name.
-func (s *ServiceUpdate) GetName() string {
-	return s.Name
-}
-
-// GetDisplayName returns the value of DisplayName.
-func (s *ServiceUpdate) GetDisplayName() string {
-	return s.DisplayName
-}
-
-// GetWeight returns the value of Weight.
-func (s *ServiceUpdate) GetWeight() int {
-	return s.Weight
-}
-
-// GetPointBoost returns the value of PointBoost.
-func (s *ServiceUpdate) GetPointBoost() int {
-	return s.PointBoost
-}
-
-// GetRoundUnits returns the value of RoundUnits.
-func (s *ServiceUpdate) GetRoundUnits() int {
-	return s.RoundUnits
-}
-
-// GetRoundDelay returns the value of RoundDelay.
-func (s *ServiceUpdate) GetRoundDelay() int {
-	return s.RoundDelay
-}
-
 // SetID sets the value of ID.
 func (s *ServiceUpdate) SetID(val string) {
 	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *ServiceUpdate) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *ServiceUpdate) SetDisplayName(val string) {
+	s.DisplayName = val
 }
 
 // SetPause sets the value of Pause.
@@ -6665,42 +6321,110 @@ func (s *ServiceUpdate) SetCompetitionID(val string) {
 	s.CompetitionID = val
 }
 
+func (*ServiceUpdate) updateServiceRes() {}
+
+// Ref: #/components/schemas/Team_ChecksList
+type TeamChecksList struct {
+	ID            string  `json:"id"`
+	Pause         OptBool `json:"pause"`
+	Hidden        OptBool `json:"hidden"`
+	Log           string  `json:"log"`
+	Error         string  `json:"error"`
+	Passed        bool    `json:"passed"`
+	RoundID       string  `json:"round_id"`
+	HostServiceID string  `json:"host_service_id"`
+	TeamID        string  `json:"team_id"`
+}
+
+// GetID returns the value of ID.
+func (s *TeamChecksList) GetID() string {
+	return s.ID
+}
+
+// GetPause returns the value of Pause.
+func (s *TeamChecksList) GetPause() OptBool {
+	return s.Pause
+}
+
+// GetHidden returns the value of Hidden.
+func (s *TeamChecksList) GetHidden() OptBool {
+	return s.Hidden
+}
+
+// GetLog returns the value of Log.
+func (s *TeamChecksList) GetLog() string {
+	return s.Log
+}
+
+// GetError returns the value of Error.
+func (s *TeamChecksList) GetError() string {
+	return s.Error
+}
+
+// GetPassed returns the value of Passed.
+func (s *TeamChecksList) GetPassed() bool {
+	return s.Passed
+}
+
+// GetRoundID returns the value of RoundID.
+func (s *TeamChecksList) GetRoundID() string {
+	return s.RoundID
+}
+
+// GetHostServiceID returns the value of HostServiceID.
+func (s *TeamChecksList) GetHostServiceID() string {
+	return s.HostServiceID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *TeamChecksList) GetTeamID() string {
+	return s.TeamID
+}
+
+// SetID sets the value of ID.
+func (s *TeamChecksList) SetID(val string) {
+	s.ID = val
+}
+
+// SetPause sets the value of Pause.
+func (s *TeamChecksList) SetPause(val OptBool) {
+	s.Pause = val
+}
+
+// SetHidden sets the value of Hidden.
+func (s *TeamChecksList) SetHidden(val OptBool) {
+	s.Hidden = val
+}
+
+// SetLog sets the value of Log.
+func (s *TeamChecksList) SetLog(val string) {
+	s.Log = val
+}
+
+// SetError sets the value of Error.
+func (s *TeamChecksList) SetError(val string) {
+	s.Error = val
+}
+
+// SetPassed sets the value of Passed.
+func (s *TeamChecksList) SetPassed(val bool) {
+	s.Passed = val
+}
+
+// SetRoundID sets the value of RoundID.
+func (s *TeamChecksList) SetRoundID(val string) {
+	s.RoundID = val
+}
+
+// SetHostServiceID sets the value of HostServiceID.
+func (s *TeamChecksList) SetHostServiceID(val string) {
+	s.HostServiceID = val
+}
+
 // SetTeamID sets the value of TeamID.
-func (s *ServiceUpdate) SetTeamID(val string) {
+func (s *TeamChecksList) SetTeamID(val string) {
 	s.TeamID = val
 }
-
-// SetName sets the value of Name.
-func (s *ServiceUpdate) SetName(val string) {
-	s.Name = val
-}
-
-// SetDisplayName sets the value of DisplayName.
-func (s *ServiceUpdate) SetDisplayName(val string) {
-	s.DisplayName = val
-}
-
-// SetWeight sets the value of Weight.
-func (s *ServiceUpdate) SetWeight(val int) {
-	s.Weight = val
-}
-
-// SetPointBoost sets the value of PointBoost.
-func (s *ServiceUpdate) SetPointBoost(val int) {
-	s.PointBoost = val
-}
-
-// SetRoundUnits sets the value of RoundUnits.
-func (s *ServiceUpdate) SetRoundUnits(val int) {
-	s.RoundUnits = val
-}
-
-// SetRoundDelay sets the value of RoundDelay.
-func (s *ServiceUpdate) SetRoundDelay(val int) {
-	s.RoundDelay = val
-}
-
-func (*ServiceUpdate) updateServiceRes() {}
 
 // Ref: #/components/schemas/Team_CompetitionRead
 type TeamCompetitionRead struct {
@@ -6810,16 +6534,27 @@ func (*TeamCompetitionRead) readTeamCompetitionRes() {}
 // Ref: #/components/schemas/TeamCreate
 type TeamCreate struct {
 	ID            string  `json:"id"`
+	Name          string  `json:"name"`
+	DisplayName   string  `json:"display_name"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
+	Number        int     `json:"number"`
 	CompetitionID string  `json:"competition_id"`
-	Name          string  `json:"name"`
-	Index         OptInt  `json:"index"`
 }
 
 // GetID returns the value of ID.
 func (s *TeamCreate) GetID() string {
 	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *TeamCreate) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *TeamCreate) GetDisplayName() string {
+	return s.DisplayName
 }
 
 // GetPause returns the value of Pause.
@@ -6832,24 +6567,29 @@ func (s *TeamCreate) GetHidden() OptBool {
 	return s.Hidden
 }
 
+// GetNumber returns the value of Number.
+func (s *TeamCreate) GetNumber() int {
+	return s.Number
+}
+
 // GetCompetitionID returns the value of CompetitionID.
 func (s *TeamCreate) GetCompetitionID() string {
 	return s.CompetitionID
 }
 
-// GetName returns the value of Name.
-func (s *TeamCreate) GetName() string {
-	return s.Name
-}
-
-// GetIndex returns the value of Index.
-func (s *TeamCreate) GetIndex() OptInt {
-	return s.Index
-}
-
 // SetID sets the value of ID.
 func (s *TeamCreate) SetID(val string) {
 	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *TeamCreate) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *TeamCreate) SetDisplayName(val string) {
+	s.DisplayName = val
 }
 
 // SetPause sets the value of Pause.
@@ -6862,33 +6602,25 @@ func (s *TeamCreate) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
+// SetNumber sets the value of Number.
+func (s *TeamCreate) SetNumber(val int) {
+	s.Number = val
+}
+
 // SetCompetitionID sets the value of CompetitionID.
 func (s *TeamCreate) SetCompetitionID(val string) {
 	s.CompetitionID = val
-}
-
-// SetName sets the value of Name.
-func (s *TeamCreate) SetName(val string) {
-	s.Name = val
-}
-
-// SetIndex sets the value of Index.
-func (s *TeamCreate) SetIndex(val OptInt) {
-	s.Index = val
 }
 
 func (*TeamCreate) createTeamRes() {}
 
 // Ref: #/components/schemas/Team_HostsList
 type TeamHostsList struct {
-	ID               string  `json:"id"`
-	Pause            OptBool `json:"pause"`
-	Hidden           OptBool `json:"hidden"`
-	CompetitionID    string  `json:"competition_id"`
-	TeamID           string  `json:"team_id"`
-	Address          string  `json:"address"`
-	AddressListRange string  `json:"address_list_range"`
-	Editable         bool    `json:"editable"`
+	ID      string  `json:"id"`
+	Pause   OptBool `json:"pause"`
+	Hidden  OptBool `json:"hidden"`
+	Address string  `json:"address"`
+	TeamID  string  `json:"team_id"`
 }
 
 // GetID returns the value of ID.
@@ -6906,29 +6638,14 @@ func (s *TeamHostsList) GetHidden() OptBool {
 	return s.Hidden
 }
 
-// GetCompetitionID returns the value of CompetitionID.
-func (s *TeamHostsList) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *TeamHostsList) GetTeamID() string {
-	return s.TeamID
-}
-
 // GetAddress returns the value of Address.
 func (s *TeamHostsList) GetAddress() string {
 	return s.Address
 }
 
-// GetAddressListRange returns the value of AddressListRange.
-func (s *TeamHostsList) GetAddressListRange() string {
-	return s.AddressListRange
-}
-
-// GetEditable returns the value of Editable.
-func (s *TeamHostsList) GetEditable() bool {
-	return s.Editable
+// GetTeamID returns the value of TeamID.
+func (s *TeamHostsList) GetTeamID() string {
+	return s.TeamID
 }
 
 // SetID sets the value of ID.
@@ -6946,9 +6663,9 @@ func (s *TeamHostsList) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
-// SetCompetitionID sets the value of CompetitionID.
-func (s *TeamHostsList) SetCompetitionID(val string) {
-	s.CompetitionID = val
+// SetAddress sets the value of Address.
+func (s *TeamHostsList) SetAddress(val string) {
+	s.Address = val
 }
 
 // SetTeamID sets the value of TeamID.
@@ -6956,34 +6673,155 @@ func (s *TeamHostsList) SetTeamID(val string) {
 	s.TeamID = val
 }
 
-// SetAddress sets the value of Address.
-func (s *TeamHostsList) SetAddress(val string) {
-	s.Address = val
+// Ref: #/components/schemas/Team_HostservicesList
+type TeamHostservicesList struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	DisplayName string  `json:"display_name"`
+	Pause       OptBool `json:"pause"`
+	Hidden      OptBool `json:"hidden"`
+	Weight      int     `json:"weight"`
+	PointBoost  int     `json:"point_boost"`
+	RoundUnits  int     `json:"round_units"`
+	RoundDelay  int     `json:"round_delay"`
+	HostID      string  `json:"host_id"`
+	TeamID      string  `json:"team_id"`
 }
 
-// SetAddressListRange sets the value of AddressListRange.
-func (s *TeamHostsList) SetAddressListRange(val string) {
-	s.AddressListRange = val
+// GetID returns the value of ID.
+func (s *TeamHostservicesList) GetID() string {
+	return s.ID
 }
 
-// SetEditable sets the value of Editable.
-func (s *TeamHostsList) SetEditable(val bool) {
-	s.Editable = val
+// GetName returns the value of Name.
+func (s *TeamHostservicesList) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *TeamHostservicesList) GetDisplayName() string {
+	return s.DisplayName
+}
+
+// GetPause returns the value of Pause.
+func (s *TeamHostservicesList) GetPause() OptBool {
+	return s.Pause
+}
+
+// GetHidden returns the value of Hidden.
+func (s *TeamHostservicesList) GetHidden() OptBool {
+	return s.Hidden
+}
+
+// GetWeight returns the value of Weight.
+func (s *TeamHostservicesList) GetWeight() int {
+	return s.Weight
+}
+
+// GetPointBoost returns the value of PointBoost.
+func (s *TeamHostservicesList) GetPointBoost() int {
+	return s.PointBoost
+}
+
+// GetRoundUnits returns the value of RoundUnits.
+func (s *TeamHostservicesList) GetRoundUnits() int {
+	return s.RoundUnits
+}
+
+// GetRoundDelay returns the value of RoundDelay.
+func (s *TeamHostservicesList) GetRoundDelay() int {
+	return s.RoundDelay
+}
+
+// GetHostID returns the value of HostID.
+func (s *TeamHostservicesList) GetHostID() string {
+	return s.HostID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *TeamHostservicesList) GetTeamID() string {
+	return s.TeamID
+}
+
+// SetID sets the value of ID.
+func (s *TeamHostservicesList) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *TeamHostservicesList) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *TeamHostservicesList) SetDisplayName(val string) {
+	s.DisplayName = val
+}
+
+// SetPause sets the value of Pause.
+func (s *TeamHostservicesList) SetPause(val OptBool) {
+	s.Pause = val
+}
+
+// SetHidden sets the value of Hidden.
+func (s *TeamHostservicesList) SetHidden(val OptBool) {
+	s.Hidden = val
+}
+
+// SetWeight sets the value of Weight.
+func (s *TeamHostservicesList) SetWeight(val int) {
+	s.Weight = val
+}
+
+// SetPointBoost sets the value of PointBoost.
+func (s *TeamHostservicesList) SetPointBoost(val int) {
+	s.PointBoost = val
+}
+
+// SetRoundUnits sets the value of RoundUnits.
+func (s *TeamHostservicesList) SetRoundUnits(val int) {
+	s.RoundUnits = val
+}
+
+// SetRoundDelay sets the value of RoundDelay.
+func (s *TeamHostservicesList) SetRoundDelay(val int) {
+	s.RoundDelay = val
+}
+
+// SetHostID sets the value of HostID.
+func (s *TeamHostservicesList) SetHostID(val string) {
+	s.HostID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *TeamHostservicesList) SetTeamID(val string) {
+	s.TeamID = val
 }
 
 // Ref: #/components/schemas/TeamList
 type TeamList struct {
 	ID            string  `json:"id"`
+	Name          string  `json:"name"`
+	DisplayName   string  `json:"display_name"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
+	Number        int     `json:"number"`
 	CompetitionID string  `json:"competition_id"`
-	Name          string  `json:"name"`
-	Index         OptInt  `json:"index"`
 }
 
 // GetID returns the value of ID.
 func (s *TeamList) GetID() string {
 	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *TeamList) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *TeamList) GetDisplayName() string {
+	return s.DisplayName
 }
 
 // GetPause returns the value of Pause.
@@ -6996,24 +6834,29 @@ func (s *TeamList) GetHidden() OptBool {
 	return s.Hidden
 }
 
+// GetNumber returns the value of Number.
+func (s *TeamList) GetNumber() int {
+	return s.Number
+}
+
 // GetCompetitionID returns the value of CompetitionID.
 func (s *TeamList) GetCompetitionID() string {
 	return s.CompetitionID
 }
 
-// GetName returns the value of Name.
-func (s *TeamList) GetName() string {
-	return s.Name
-}
-
-// GetIndex returns the value of Index.
-func (s *TeamList) GetIndex() OptInt {
-	return s.Index
-}
-
 // SetID sets the value of ID.
 func (s *TeamList) SetID(val string) {
 	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *TeamList) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *TeamList) SetDisplayName(val string) {
+	s.DisplayName = val
 }
 
 // SetPause sets the value of Pause.
@@ -7026,34 +6869,149 @@ func (s *TeamList) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
+// SetNumber sets the value of Number.
+func (s *TeamList) SetNumber(val int) {
+	s.Number = val
+}
+
 // SetCompetitionID sets the value of CompetitionID.
 func (s *TeamList) SetCompetitionID(val string) {
 	s.CompetitionID = val
 }
 
-// SetName sets the value of Name.
-func (s *TeamList) SetName(val string) {
-	s.Name = val
+// Ref: #/components/schemas/Team_PropertiesList
+type TeamPropertiesList struct {
+	ID            string                   `json:"id"`
+	Key           string                   `json:"key"`
+	Value         string                   `json:"value"`
+	Status        TeamPropertiesListStatus `json:"status"`
+	HostServiceID string                   `json:"host_service_id"`
+	TeamID        string                   `json:"team_id"`
 }
 
-// SetIndex sets the value of Index.
-func (s *TeamList) SetIndex(val OptInt) {
-	s.Index = val
+// GetID returns the value of ID.
+func (s *TeamPropertiesList) GetID() string {
+	return s.ID
+}
+
+// GetKey returns the value of Key.
+func (s *TeamPropertiesList) GetKey() string {
+	return s.Key
+}
+
+// GetValue returns the value of Value.
+func (s *TeamPropertiesList) GetValue() string {
+	return s.Value
+}
+
+// GetStatus returns the value of Status.
+func (s *TeamPropertiesList) GetStatus() TeamPropertiesListStatus {
+	return s.Status
+}
+
+// GetHostServiceID returns the value of HostServiceID.
+func (s *TeamPropertiesList) GetHostServiceID() string {
+	return s.HostServiceID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *TeamPropertiesList) GetTeamID() string {
+	return s.TeamID
+}
+
+// SetID sets the value of ID.
+func (s *TeamPropertiesList) SetID(val string) {
+	s.ID = val
+}
+
+// SetKey sets the value of Key.
+func (s *TeamPropertiesList) SetKey(val string) {
+	s.Key = val
+}
+
+// SetValue sets the value of Value.
+func (s *TeamPropertiesList) SetValue(val string) {
+	s.Value = val
+}
+
+// SetStatus sets the value of Status.
+func (s *TeamPropertiesList) SetStatus(val TeamPropertiesListStatus) {
+	s.Status = val
+}
+
+// SetHostServiceID sets the value of HostServiceID.
+func (s *TeamPropertiesList) SetHostServiceID(val string) {
+	s.HostServiceID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *TeamPropertiesList) SetTeamID(val string) {
+	s.TeamID = val
+}
+
+type TeamPropertiesListStatus string
+
+const (
+	TeamPropertiesListStatusView TeamPropertiesListStatus = "view"
+	TeamPropertiesListStatusEdit TeamPropertiesListStatus = "edit"
+	TeamPropertiesListStatusHide TeamPropertiesListStatus = "hide"
+)
+
+// MarshalText implements encoding.TextMarshaler.
+func (s TeamPropertiesListStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case TeamPropertiesListStatusView:
+		return []byte(s), nil
+	case TeamPropertiesListStatusEdit:
+		return []byte(s), nil
+	case TeamPropertiesListStatusHide:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *TeamPropertiesListStatus) UnmarshalText(data []byte) error {
+	switch TeamPropertiesListStatus(data) {
+	case TeamPropertiesListStatusView:
+		*s = TeamPropertiesListStatusView
+		return nil
+	case TeamPropertiesListStatusEdit:
+		*s = TeamPropertiesListStatusEdit
+		return nil
+	case TeamPropertiesListStatusHide:
+		*s = TeamPropertiesListStatusHide
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Ref: #/components/schemas/TeamRead
 type TeamRead struct {
 	ID            string  `json:"id"`
+	Name          string  `json:"name"`
+	DisplayName   string  `json:"display_name"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
+	Number        int     `json:"number"`
 	CompetitionID string  `json:"competition_id"`
-	Name          string  `json:"name"`
-	Index         OptInt  `json:"index"`
 }
 
 // GetID returns the value of ID.
 func (s *TeamRead) GetID() string {
 	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *TeamRead) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *TeamRead) GetDisplayName() string {
+	return s.DisplayName
 }
 
 // GetPause returns the value of Pause.
@@ -7066,24 +7024,29 @@ func (s *TeamRead) GetHidden() OptBool {
 	return s.Hidden
 }
 
+// GetNumber returns the value of Number.
+func (s *TeamRead) GetNumber() int {
+	return s.Number
+}
+
 // GetCompetitionID returns the value of CompetitionID.
 func (s *TeamRead) GetCompetitionID() string {
 	return s.CompetitionID
 }
 
-// GetName returns the value of Name.
-func (s *TeamRead) GetName() string {
-	return s.Name
-}
-
-// GetIndex returns the value of Index.
-func (s *TeamRead) GetIndex() OptInt {
-	return s.Index
-}
-
 // SetID sets the value of ID.
 func (s *TeamRead) SetID(val string) {
 	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *TeamRead) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *TeamRead) SetDisplayName(val string) {
+	s.DisplayName = val
 }
 
 // SetPause sets the value of Pause.
@@ -7096,19 +7059,14 @@ func (s *TeamRead) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
+// SetNumber sets the value of Number.
+func (s *TeamRead) SetNumber(val int) {
+	s.Number = val
+}
+
 // SetCompetitionID sets the value of CompetitionID.
 func (s *TeamRead) SetCompetitionID(val string) {
 	s.CompetitionID = val
-}
-
-// SetName sets the value of Name.
-func (s *TeamRead) SetName(val string) {
-	s.Name = val
-}
-
-// SetIndex sets the value of Index.
-func (s *TeamRead) SetIndex(val OptInt) {
-	s.Index = val
 }
 
 func (*TeamRead) readTeamRes() {}
@@ -7116,16 +7074,27 @@ func (*TeamRead) readTeamRes() {}
 // Ref: #/components/schemas/TeamUpdate
 type TeamUpdate struct {
 	ID            string  `json:"id"`
+	Name          string  `json:"name"`
+	DisplayName   string  `json:"display_name"`
 	Pause         OptBool `json:"pause"`
 	Hidden        OptBool `json:"hidden"`
+	Number        int     `json:"number"`
 	CompetitionID string  `json:"competition_id"`
-	Name          string  `json:"name"`
-	Index         OptInt  `json:"index"`
 }
 
 // GetID returns the value of ID.
 func (s *TeamUpdate) GetID() string {
 	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *TeamUpdate) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *TeamUpdate) GetDisplayName() string {
+	return s.DisplayName
 }
 
 // GetPause returns the value of Pause.
@@ -7138,24 +7107,29 @@ func (s *TeamUpdate) GetHidden() OptBool {
 	return s.Hidden
 }
 
+// GetNumber returns the value of Number.
+func (s *TeamUpdate) GetNumber() int {
+	return s.Number
+}
+
 // GetCompetitionID returns the value of CompetitionID.
 func (s *TeamUpdate) GetCompetitionID() string {
 	return s.CompetitionID
 }
 
-// GetName returns the value of Name.
-func (s *TeamUpdate) GetName() string {
-	return s.Name
-}
-
-// GetIndex returns the value of Index.
-func (s *TeamUpdate) GetIndex() OptInt {
-	return s.Index
-}
-
 // SetID sets the value of ID.
 func (s *TeamUpdate) SetID(val string) {
 	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *TeamUpdate) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *TeamUpdate) SetDisplayName(val string) {
+	s.DisplayName = val
 }
 
 // SetPause sets the value of Pause.
@@ -7168,91 +7142,29 @@ func (s *TeamUpdate) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
+// SetNumber sets the value of Number.
+func (s *TeamUpdate) SetNumber(val int) {
+	s.Number = val
+}
+
 // SetCompetitionID sets the value of CompetitionID.
 func (s *TeamUpdate) SetCompetitionID(val string) {
 	s.CompetitionID = val
 }
 
-// SetName sets the value of Name.
-func (s *TeamUpdate) SetName(val string) {
-	s.Name = val
-}
-
-// SetIndex sets the value of Index.
-func (s *TeamUpdate) SetIndex(val OptInt) {
-	s.Index = val
-}
-
 func (*TeamUpdate) updateTeamRes() {}
 
-// Ref: #/components/schemas/Team_UsersList
-type TeamUsersList struct {
-	ID         string      `json:"id"`
-	CreateTime OptDateTime `json:"create_time"`
-	UpdateTime OptDateTime `json:"update_time"`
-	Username   string      `json:"username"`
-	OryID      uuid.UUID   `json:"ory_id"`
-}
-
-// GetID returns the value of ID.
-func (s *TeamUsersList) GetID() string {
-	return s.ID
-}
-
-// GetCreateTime returns the value of CreateTime.
-func (s *TeamUsersList) GetCreateTime() OptDateTime {
-	return s.CreateTime
-}
-
-// GetUpdateTime returns the value of UpdateTime.
-func (s *TeamUsersList) GetUpdateTime() OptDateTime {
-	return s.UpdateTime
-}
-
-// GetUsername returns the value of Username.
-func (s *TeamUsersList) GetUsername() string {
-	return s.Username
-}
-
-// GetOryID returns the value of OryID.
-func (s *TeamUsersList) GetOryID() uuid.UUID {
-	return s.OryID
-}
-
-// SetID sets the value of ID.
-func (s *TeamUsersList) SetID(val string) {
-	s.ID = val
-}
-
-// SetCreateTime sets the value of CreateTime.
-func (s *TeamUsersList) SetCreateTime(val OptDateTime) {
-	s.CreateTime = val
-}
-
-// SetUpdateTime sets the value of UpdateTime.
-func (s *TeamUsersList) SetUpdateTime(val OptDateTime) {
-	s.UpdateTime = val
-}
-
-// SetUsername sets the value of Username.
-func (s *TeamUsersList) SetUsername(val string) {
-	s.Username = val
-}
-
-// SetOryID sets the value of OryID.
-func (s *TeamUsersList) SetOryID(val uuid.UUID) {
-	s.OryID = val
-}
-
 type UpdateCheckReq struct {
-	Pause       OptBool   `json:"pause"`
-	Hidden      OptBool   `json:"hidden"`
-	Log         OptString `json:"log"`
-	Error       OptString `json:"error"`
-	Passed      OptBool   `json:"passed"`
-	Competition OptString `json:"competition"`
-	Rounds      OptString `json:"rounds"`
-	Services    OptString `json:"services"`
+	Pause         OptBool   `json:"pause"`
+	Hidden        OptBool   `json:"hidden"`
+	Log           OptString `json:"log"`
+	Error         OptString `json:"error"`
+	Passed        OptBool   `json:"passed"`
+	RoundID       OptString `json:"round_id"`
+	HostServiceID OptString `json:"host_service_id"`
+	Rounds        OptString `json:"rounds"`
+	Hostservice   OptString `json:"hostservice"`
+	Team          OptString `json:"team"`
 }
 
 // GetPause returns the value of Pause.
@@ -7280,9 +7192,14 @@ func (s *UpdateCheckReq) GetPassed() OptBool {
 	return s.Passed
 }
 
-// GetCompetition returns the value of Competition.
-func (s *UpdateCheckReq) GetCompetition() OptString {
-	return s.Competition
+// GetRoundID returns the value of RoundID.
+func (s *UpdateCheckReq) GetRoundID() OptString {
+	return s.RoundID
+}
+
+// GetHostServiceID returns the value of HostServiceID.
+func (s *UpdateCheckReq) GetHostServiceID() OptString {
+	return s.HostServiceID
 }
 
 // GetRounds returns the value of Rounds.
@@ -7290,9 +7207,14 @@ func (s *UpdateCheckReq) GetRounds() OptString {
 	return s.Rounds
 }
 
-// GetServices returns the value of Services.
-func (s *UpdateCheckReq) GetServices() OptString {
-	return s.Services
+// GetHostservice returns the value of Hostservice.
+func (s *UpdateCheckReq) GetHostservice() OptString {
+	return s.Hostservice
+}
+
+// GetTeam returns the value of Team.
+func (s *UpdateCheckReq) GetTeam() OptString {
+	return s.Team
 }
 
 // SetPause sets the value of Pause.
@@ -7320,9 +7242,14 @@ func (s *UpdateCheckReq) SetPassed(val OptBool) {
 	s.Passed = val
 }
 
-// SetCompetition sets the value of Competition.
-func (s *UpdateCheckReq) SetCompetition(val OptString) {
-	s.Competition = val
+// SetRoundID sets the value of RoundID.
+func (s *UpdateCheckReq) SetRoundID(val OptString) {
+	s.RoundID = val
+}
+
+// SetHostServiceID sets the value of HostServiceID.
+func (s *UpdateCheckReq) SetHostServiceID(val OptString) {
+	s.HostServiceID = val
 }
 
 // SetRounds sets the value of Rounds.
@@ -7330,9 +7257,14 @@ func (s *UpdateCheckReq) SetRounds(val OptString) {
 	s.Rounds = val
 }
 
-// SetServices sets the value of Services.
-func (s *UpdateCheckReq) SetServices(val OptString) {
-	s.Services = val
+// SetHostservice sets the value of Hostservice.
+func (s *UpdateCheckReq) SetHostservice(val OptString) {
+	s.Hostservice = val
+}
+
+// SetTeam sets the value of Team.
+func (s *UpdateCheckReq) SetTeam(val OptString) {
+	s.Team = val
 }
 
 type UpdateCompetitionReq struct {
@@ -7345,7 +7277,9 @@ type UpdateCompetitionReq struct {
 	StartedAt        OptDateTime `json:"started_at"`
 	FinishedAt       OptDateTime `json:"finished_at"`
 	Teams            []string    `json:"teams"`
-	Users            []string    `json:"users"`
+	Services         []string    `json:"services"`
+	Reports          []int       `json:"reports"`
+	Rounds           []string    `json:"rounds"`
 }
 
 // GetHidden returns the value of Hidden.
@@ -7393,9 +7327,19 @@ func (s *UpdateCompetitionReq) GetTeams() []string {
 	return s.Teams
 }
 
-// GetUsers returns the value of Users.
-func (s *UpdateCompetitionReq) GetUsers() []string {
-	return s.Users
+// GetServices returns the value of Services.
+func (s *UpdateCompetitionReq) GetServices() []string {
+	return s.Services
+}
+
+// GetReports returns the value of Reports.
+func (s *UpdateCompetitionReq) GetReports() []int {
+	return s.Reports
+}
+
+// GetRounds returns the value of Rounds.
+func (s *UpdateCompetitionReq) GetRounds() []string {
+	return s.Rounds
 }
 
 // SetHidden sets the value of Hidden.
@@ -7443,102 +7387,27 @@ func (s *UpdateCompetitionReq) SetTeams(val []string) {
 	s.Teams = val
 }
 
-// SetUsers sets the value of Users.
-func (s *UpdateCompetitionReq) SetUsers(val []string) {
-	s.Users = val
+// SetServices sets the value of Services.
+func (s *UpdateCompetitionReq) SetServices(val []string) {
+	s.Services = val
 }
 
-type UpdateHostGroupReq struct {
-	Pause       OptBool   `json:"pause"`
-	Hidden      OptBool   `json:"hidden"`
-	TeamID      OptString `json:"team_id"`
-	Name        OptString `json:"name"`
-	Competition OptString `json:"competition"`
-	Team        OptString `json:"team"`
-	Hosts       []string  `json:"hosts"`
+// SetReports sets the value of Reports.
+func (s *UpdateCompetitionReq) SetReports(val []int) {
+	s.Reports = val
 }
 
-// GetPause returns the value of Pause.
-func (s *UpdateHostGroupReq) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetHidden returns the value of Hidden.
-func (s *UpdateHostGroupReq) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *UpdateHostGroupReq) GetTeamID() OptString {
-	return s.TeamID
-}
-
-// GetName returns the value of Name.
-func (s *UpdateHostGroupReq) GetName() OptString {
-	return s.Name
-}
-
-// GetCompetition returns the value of Competition.
-func (s *UpdateHostGroupReq) GetCompetition() OptString {
-	return s.Competition
-}
-
-// GetTeam returns the value of Team.
-func (s *UpdateHostGroupReq) GetTeam() OptString {
-	return s.Team
-}
-
-// GetHosts returns the value of Hosts.
-func (s *UpdateHostGroupReq) GetHosts() []string {
-	return s.Hosts
-}
-
-// SetPause sets the value of Pause.
-func (s *UpdateHostGroupReq) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *UpdateHostGroupReq) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *UpdateHostGroupReq) SetTeamID(val OptString) {
-	s.TeamID = val
-}
-
-// SetName sets the value of Name.
-func (s *UpdateHostGroupReq) SetName(val OptString) {
-	s.Name = val
-}
-
-// SetCompetition sets the value of Competition.
-func (s *UpdateHostGroupReq) SetCompetition(val OptString) {
-	s.Competition = val
-}
-
-// SetTeam sets the value of Team.
-func (s *UpdateHostGroupReq) SetTeam(val OptString) {
-	s.Team = val
-}
-
-// SetHosts sets the value of Hosts.
-func (s *UpdateHostGroupReq) SetHosts(val []string) {
-	s.Hosts = val
+// SetRounds sets the value of Rounds.
+func (s *UpdateCompetitionReq) SetRounds(val []string) {
+	s.Rounds = val
 }
 
 type UpdateHostReq struct {
-	Pause            OptBool   `json:"pause"`
-	Hidden           OptBool   `json:"hidden"`
-	TeamID           OptString `json:"team_id"`
-	Address          OptString `json:"address"`
-	AddressListRange OptString `json:"address_list_range"`
-	Editable         OptBool   `json:"editable"`
-	Competition      OptString `json:"competition"`
-	Team             OptString `json:"team"`
-	Services         []string  `json:"services"`
-	HostGroup        OptString `json:"host_group"`
+	Pause        OptBool   `json:"pause"`
+	Hidden       OptBool   `json:"hidden"`
+	Address      OptString `json:"address"`
+	Hostservices []string  `json:"hostservices"`
+	Team         OptString `json:"team"`
 }
 
 // GetPause returns the value of Pause.
@@ -7551,44 +7420,19 @@ func (s *UpdateHostReq) GetHidden() OptBool {
 	return s.Hidden
 }
 
-// GetTeamID returns the value of TeamID.
-func (s *UpdateHostReq) GetTeamID() OptString {
-	return s.TeamID
-}
-
 // GetAddress returns the value of Address.
 func (s *UpdateHostReq) GetAddress() OptString {
 	return s.Address
 }
 
-// GetAddressListRange returns the value of AddressListRange.
-func (s *UpdateHostReq) GetAddressListRange() OptString {
-	return s.AddressListRange
-}
-
-// GetEditable returns the value of Editable.
-func (s *UpdateHostReq) GetEditable() OptBool {
-	return s.Editable
-}
-
-// GetCompetition returns the value of Competition.
-func (s *UpdateHostReq) GetCompetition() OptString {
-	return s.Competition
+// GetHostservices returns the value of Hostservices.
+func (s *UpdateHostReq) GetHostservices() []string {
+	return s.Hostservices
 }
 
 // GetTeam returns the value of Team.
 func (s *UpdateHostReq) GetTeam() OptString {
 	return s.Team
-}
-
-// GetServices returns the value of Services.
-func (s *UpdateHostReq) GetServices() []string {
-	return s.Services
-}
-
-// GetHostGroup returns the value of HostGroup.
-func (s *UpdateHostReq) GetHostGroup() OptString {
-	return s.HostGroup
 }
 
 // SetPause sets the value of Pause.
@@ -7601,29 +7445,14 @@ func (s *UpdateHostReq) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
-// SetTeamID sets the value of TeamID.
-func (s *UpdateHostReq) SetTeamID(val OptString) {
-	s.TeamID = val
-}
-
 // SetAddress sets the value of Address.
 func (s *UpdateHostReq) SetAddress(val OptString) {
 	s.Address = val
 }
 
-// SetAddressListRange sets the value of AddressListRange.
-func (s *UpdateHostReq) SetAddressListRange(val OptString) {
-	s.AddressListRange = val
-}
-
-// SetEditable sets the value of Editable.
-func (s *UpdateHostReq) SetEditable(val OptBool) {
-	s.Editable = val
-}
-
-// SetCompetition sets the value of Competition.
-func (s *UpdateHostReq) SetCompetition(val OptString) {
-	s.Competition = val
+// SetHostservices sets the value of Hostservices.
+func (s *UpdateHostReq) SetHostservices(val []string) {
+	s.Hostservices = val
 }
 
 // SetTeam sets the value of Team.
@@ -7631,29 +7460,159 @@ func (s *UpdateHostReq) SetTeam(val OptString) {
 	s.Team = val
 }
 
-// SetServices sets the value of Services.
-func (s *UpdateHostReq) SetServices(val []string) {
-	s.Services = val
+type UpdateHostServiceReq struct {
+	Name        OptString `json:"name"`
+	DisplayName OptString `json:"display_name"`
+	Pause       OptBool   `json:"pause"`
+	Hidden      OptBool   `json:"hidden"`
+	Weight      OptInt    `json:"weight"`
+	PointBoost  OptInt    `json:"point_boost"`
+	RoundUnits  OptInt    `json:"round_units"`
+	RoundDelay  OptInt    `json:"round_delay"`
+	HostID      OptString `json:"host_id"`
+	Host        OptString `json:"host"`
+	Checks      []string  `json:"checks"`
+	Properties  []string  `json:"properties"`
+	Team        OptString `json:"team"`
 }
 
-// SetHostGroup sets the value of HostGroup.
-func (s *UpdateHostReq) SetHostGroup(val OptString) {
-	s.HostGroup = val
+// GetName returns the value of Name.
+func (s *UpdateHostServiceReq) GetName() OptString {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *UpdateHostServiceReq) GetDisplayName() OptString {
+	return s.DisplayName
+}
+
+// GetPause returns the value of Pause.
+func (s *UpdateHostServiceReq) GetPause() OptBool {
+	return s.Pause
+}
+
+// GetHidden returns the value of Hidden.
+func (s *UpdateHostServiceReq) GetHidden() OptBool {
+	return s.Hidden
+}
+
+// GetWeight returns the value of Weight.
+func (s *UpdateHostServiceReq) GetWeight() OptInt {
+	return s.Weight
+}
+
+// GetPointBoost returns the value of PointBoost.
+func (s *UpdateHostServiceReq) GetPointBoost() OptInt {
+	return s.PointBoost
+}
+
+// GetRoundUnits returns the value of RoundUnits.
+func (s *UpdateHostServiceReq) GetRoundUnits() OptInt {
+	return s.RoundUnits
+}
+
+// GetRoundDelay returns the value of RoundDelay.
+func (s *UpdateHostServiceReq) GetRoundDelay() OptInt {
+	return s.RoundDelay
+}
+
+// GetHostID returns the value of HostID.
+func (s *UpdateHostServiceReq) GetHostID() OptString {
+	return s.HostID
+}
+
+// GetHost returns the value of Host.
+func (s *UpdateHostServiceReq) GetHost() OptString {
+	return s.Host
+}
+
+// GetChecks returns the value of Checks.
+func (s *UpdateHostServiceReq) GetChecks() []string {
+	return s.Checks
+}
+
+// GetProperties returns the value of Properties.
+func (s *UpdateHostServiceReq) GetProperties() []string {
+	return s.Properties
+}
+
+// GetTeam returns the value of Team.
+func (s *UpdateHostServiceReq) GetTeam() OptString {
+	return s.Team
+}
+
+// SetName sets the value of Name.
+func (s *UpdateHostServiceReq) SetName(val OptString) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *UpdateHostServiceReq) SetDisplayName(val OptString) {
+	s.DisplayName = val
+}
+
+// SetPause sets the value of Pause.
+func (s *UpdateHostServiceReq) SetPause(val OptBool) {
+	s.Pause = val
+}
+
+// SetHidden sets the value of Hidden.
+func (s *UpdateHostServiceReq) SetHidden(val OptBool) {
+	s.Hidden = val
+}
+
+// SetWeight sets the value of Weight.
+func (s *UpdateHostServiceReq) SetWeight(val OptInt) {
+	s.Weight = val
+}
+
+// SetPointBoost sets the value of PointBoost.
+func (s *UpdateHostServiceReq) SetPointBoost(val OptInt) {
+	s.PointBoost = val
+}
+
+// SetRoundUnits sets the value of RoundUnits.
+func (s *UpdateHostServiceReq) SetRoundUnits(val OptInt) {
+	s.RoundUnits = val
+}
+
+// SetRoundDelay sets the value of RoundDelay.
+func (s *UpdateHostServiceReq) SetRoundDelay(val OptInt) {
+	s.RoundDelay = val
+}
+
+// SetHostID sets the value of HostID.
+func (s *UpdateHostServiceReq) SetHostID(val OptString) {
+	s.HostID = val
+}
+
+// SetHost sets the value of Host.
+func (s *UpdateHostServiceReq) SetHost(val OptString) {
+	s.Host = val
+}
+
+// SetChecks sets the value of Checks.
+func (s *UpdateHostServiceReq) SetChecks(val []string) {
+	s.Checks = val
+}
+
+// SetProperties sets the value of Properties.
+func (s *UpdateHostServiceReq) SetProperties(val []string) {
+	s.Properties = val
+}
+
+// SetTeam sets the value of Team.
+func (s *UpdateHostServiceReq) SetTeam(val OptString) {
+	s.Team = val
 }
 
 type UpdatePropertyReq struct {
-	TeamID      OptString                  `json:"team_id"`
-	Key         OptString                  `json:"key"`
-	Value       OptString                  `json:"value"`
-	Status      OptUpdatePropertyReqStatus `json:"status"`
-	Competition OptString                  `json:"competition"`
-	Team        OptString                  `json:"team"`
-	Services    OptString                  `json:"services"`
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *UpdatePropertyReq) GetTeamID() OptString {
-	return s.TeamID
+	Key           OptString                  `json:"key"`
+	Value         OptString                  `json:"value"`
+	Status        OptUpdatePropertyReqStatus `json:"status"`
+	HostServiceID OptString                  `json:"host_service_id"`
+	Hostservice   OptString                  `json:"hostservice"`
+	Team          OptString                  `json:"team"`
 }
 
 // GetKey returns the value of Key.
@@ -7671,24 +7630,19 @@ func (s *UpdatePropertyReq) GetStatus() OptUpdatePropertyReqStatus {
 	return s.Status
 }
 
-// GetCompetition returns the value of Competition.
-func (s *UpdatePropertyReq) GetCompetition() OptString {
-	return s.Competition
+// GetHostServiceID returns the value of HostServiceID.
+func (s *UpdatePropertyReq) GetHostServiceID() OptString {
+	return s.HostServiceID
+}
+
+// GetHostservice returns the value of Hostservice.
+func (s *UpdatePropertyReq) GetHostservice() OptString {
+	return s.Hostservice
 }
 
 // GetTeam returns the value of Team.
 func (s *UpdatePropertyReq) GetTeam() OptString {
 	return s.Team
-}
-
-// GetServices returns the value of Services.
-func (s *UpdatePropertyReq) GetServices() OptString {
-	return s.Services
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *UpdatePropertyReq) SetTeamID(val OptString) {
-	s.TeamID = val
 }
 
 // SetKey sets the value of Key.
@@ -7706,19 +7660,19 @@ func (s *UpdatePropertyReq) SetStatus(val OptUpdatePropertyReqStatus) {
 	s.Status = val
 }
 
-// SetCompetition sets the value of Competition.
-func (s *UpdatePropertyReq) SetCompetition(val OptString) {
-	s.Competition = val
+// SetHostServiceID sets the value of HostServiceID.
+func (s *UpdatePropertyReq) SetHostServiceID(val OptString) {
+	s.HostServiceID = val
+}
+
+// SetHostservice sets the value of Hostservice.
+func (s *UpdatePropertyReq) SetHostservice(val OptString) {
+	s.Hostservice = val
 }
 
 // SetTeam sets the value of Team.
 func (s *UpdatePropertyReq) SetTeam(val OptString) {
 	s.Team = val
-}
-
-// SetServices sets the value of Services.
-func (s *UpdatePropertyReq) SetServices(val OptString) {
-	s.Services = val
 }
 
 type UpdatePropertyReqStatus string
@@ -7761,8 +7715,9 @@ func (s *UpdatePropertyReqStatus) UnmarshalText(data []byte) error {
 }
 
 type UpdateReportReq struct {
-	Log   OptString `json:"log"`
-	Error OptString `json:"error"`
+	Log         OptString `json:"log"`
+	Error       OptString `json:"error"`
+	Competition OptString `json:"competition"`
 }
 
 // GetLog returns the value of Log.
@@ -7775,6 +7730,11 @@ func (s *UpdateReportReq) GetError() OptString {
 	return s.Error
 }
 
+// GetCompetition returns the value of Competition.
+func (s *UpdateReportReq) GetCompetition() OptString {
+	return s.Competition
+}
+
 // SetLog sets the value of Log.
 func (s *UpdateReportReq) SetLog(val OptString) {
 	s.Log = val
@@ -7785,14 +7745,19 @@ func (s *UpdateReportReq) SetError(val OptString) {
 	s.Error = val
 }
 
+// SetCompetition sets the value of Competition.
+func (s *UpdateReportReq) SetCompetition(val OptString) {
+	s.Competition = val
+}
+
 type UpdateRoundReq struct {
 	RoundNumber OptInt      `json:"round_number"`
 	Note        OptString   `json:"note"`
 	Err         OptString   `json:"err"`
 	StartedAt   OptDateTime `json:"started_at"`
 	FinishedAt  OptDateTime `json:"finished_at"`
-	Competition OptString   `json:"competition"`
 	Checks      []string    `json:"checks"`
+	Competition OptString   `json:"competition"`
 }
 
 // GetRoundNumber returns the value of RoundNumber.
@@ -7820,14 +7785,14 @@ func (s *UpdateRoundReq) GetFinishedAt() OptDateTime {
 	return s.FinishedAt
 }
 
-// GetCompetition returns the value of Competition.
-func (s *UpdateRoundReq) GetCompetition() OptString {
-	return s.Competition
-}
-
 // GetChecks returns the value of Checks.
 func (s *UpdateRoundReq) GetChecks() []string {
 	return s.Checks
+}
+
+// GetCompetition returns the value of Competition.
+func (s *UpdateRoundReq) GetCompetition() OptString {
+	return s.Competition
 }
 
 // SetRoundNumber sets the value of RoundNumber.
@@ -7855,46 +7820,22 @@ func (s *UpdateRoundReq) SetFinishedAt(val OptDateTime) {
 	s.FinishedAt = val
 }
 
-// SetCompetition sets the value of Competition.
-func (s *UpdateRoundReq) SetCompetition(val OptString) {
-	s.Competition = val
-}
-
 // SetChecks sets the value of Checks.
 func (s *UpdateRoundReq) SetChecks(val []string) {
 	s.Checks = val
 }
 
+// SetCompetition sets the value of Competition.
+func (s *UpdateRoundReq) SetCompetition(val OptString) {
+	s.Competition = val
+}
+
 type UpdateServiceReq struct {
-	Pause       OptBool   `json:"pause"`
-	Hidden      OptBool   `json:"hidden"`
-	TeamID      OptString `json:"team_id"`
 	Name        OptString `json:"name"`
 	DisplayName OptString `json:"display_name"`
-	Weight      OptInt    `json:"weight"`
-	PointBoost  OptInt    `json:"point_boost"`
-	RoundUnits  OptInt    `json:"round_units"`
-	RoundDelay  OptInt    `json:"round_delay"`
+	Pause       OptBool   `json:"pause"`
+	Hidden      OptBool   `json:"hidden"`
 	Competition OptString `json:"competition"`
-	Team        OptString `json:"team"`
-	Hosts       OptString `json:"hosts"`
-	Checks      []string  `json:"checks"`
-	Properties  []string  `json:"properties"`
-}
-
-// GetPause returns the value of Pause.
-func (s *UpdateServiceReq) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetHidden returns the value of Hidden.
-func (s *UpdateServiceReq) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetTeamID returns the value of TeamID.
-func (s *UpdateServiceReq) GetTeamID() OptString {
-	return s.TeamID
 }
 
 // GetName returns the value of Name.
@@ -7907,64 +7848,19 @@ func (s *UpdateServiceReq) GetDisplayName() OptString {
 	return s.DisplayName
 }
 
-// GetWeight returns the value of Weight.
-func (s *UpdateServiceReq) GetWeight() OptInt {
-	return s.Weight
+// GetPause returns the value of Pause.
+func (s *UpdateServiceReq) GetPause() OptBool {
+	return s.Pause
 }
 
-// GetPointBoost returns the value of PointBoost.
-func (s *UpdateServiceReq) GetPointBoost() OptInt {
-	return s.PointBoost
-}
-
-// GetRoundUnits returns the value of RoundUnits.
-func (s *UpdateServiceReq) GetRoundUnits() OptInt {
-	return s.RoundUnits
-}
-
-// GetRoundDelay returns the value of RoundDelay.
-func (s *UpdateServiceReq) GetRoundDelay() OptInt {
-	return s.RoundDelay
+// GetHidden returns the value of Hidden.
+func (s *UpdateServiceReq) GetHidden() OptBool {
+	return s.Hidden
 }
 
 // GetCompetition returns the value of Competition.
 func (s *UpdateServiceReq) GetCompetition() OptString {
 	return s.Competition
-}
-
-// GetTeam returns the value of Team.
-func (s *UpdateServiceReq) GetTeam() OptString {
-	return s.Team
-}
-
-// GetHosts returns the value of Hosts.
-func (s *UpdateServiceReq) GetHosts() OptString {
-	return s.Hosts
-}
-
-// GetChecks returns the value of Checks.
-func (s *UpdateServiceReq) GetChecks() []string {
-	return s.Checks
-}
-
-// GetProperties returns the value of Properties.
-func (s *UpdateServiceReq) GetProperties() []string {
-	return s.Properties
-}
-
-// SetPause sets the value of Pause.
-func (s *UpdateServiceReq) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *UpdateServiceReq) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetTeamID sets the value of TeamID.
-func (s *UpdateServiceReq) SetTeamID(val OptString) {
-	s.TeamID = val
 }
 
 // SetName sets the value of Name.
@@ -7977,24 +7873,14 @@ func (s *UpdateServiceReq) SetDisplayName(val OptString) {
 	s.DisplayName = val
 }
 
-// SetWeight sets the value of Weight.
-func (s *UpdateServiceReq) SetWeight(val OptInt) {
-	s.Weight = val
+// SetPause sets the value of Pause.
+func (s *UpdateServiceReq) SetPause(val OptBool) {
+	s.Pause = val
 }
 
-// SetPointBoost sets the value of PointBoost.
-func (s *UpdateServiceReq) SetPointBoost(val OptInt) {
-	s.PointBoost = val
-}
-
-// SetRoundUnits sets the value of RoundUnits.
-func (s *UpdateServiceReq) SetRoundUnits(val OptInt) {
-	s.RoundUnits = val
-}
-
-// SetRoundDelay sets the value of RoundDelay.
-func (s *UpdateServiceReq) SetRoundDelay(val OptInt) {
-	s.RoundDelay = val
+// SetHidden sets the value of Hidden.
+func (s *UpdateServiceReq) SetHidden(val OptBool) {
+	s.Hidden = val
 }
 
 // SetCompetition sets the value of Competition.
@@ -8002,34 +7888,27 @@ func (s *UpdateServiceReq) SetCompetition(val OptString) {
 	s.Competition = val
 }
 
-// SetTeam sets the value of Team.
-func (s *UpdateServiceReq) SetTeam(val OptString) {
-	s.Team = val
-}
-
-// SetHosts sets the value of Hosts.
-func (s *UpdateServiceReq) SetHosts(val OptString) {
-	s.Hosts = val
-}
-
-// SetChecks sets the value of Checks.
-func (s *UpdateServiceReq) SetChecks(val []string) {
-	s.Checks = val
-}
-
-// SetProperties sets the value of Properties.
-func (s *UpdateServiceReq) SetProperties(val []string) {
-	s.Properties = val
-}
-
 type UpdateTeamReq struct {
-	Pause       OptBool   `json:"pause"`
-	Hidden      OptBool   `json:"hidden"`
-	Name        OptString `json:"name"`
-	Index       OptInt    `json:"index"`
-	Competition OptString `json:"competition"`
-	Users       []string  `json:"users"`
-	Hosts       []string  `json:"hosts"`
+	Name         OptString `json:"name"`
+	DisplayName  OptString `json:"display_name"`
+	Pause        OptBool   `json:"pause"`
+	Hidden       OptBool   `json:"hidden"`
+	Number       OptInt    `json:"number"`
+	Hosts        []string  `json:"hosts"`
+	Hostservices []string  `json:"hostservices"`
+	Checks       []string  `json:"checks"`
+	Properties   []string  `json:"properties"`
+	Competition  OptString `json:"competition"`
+}
+
+// GetName returns the value of Name.
+func (s *UpdateTeamReq) GetName() OptString {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *UpdateTeamReq) GetDisplayName() OptString {
+	return s.DisplayName
 }
 
 // GetPause returns the value of Pause.
@@ -8042,14 +7921,29 @@ func (s *UpdateTeamReq) GetHidden() OptBool {
 	return s.Hidden
 }
 
-// GetName returns the value of Name.
-func (s *UpdateTeamReq) GetName() OptString {
-	return s.Name
+// GetNumber returns the value of Number.
+func (s *UpdateTeamReq) GetNumber() OptInt {
+	return s.Number
 }
 
-// GetIndex returns the value of Index.
-func (s *UpdateTeamReq) GetIndex() OptInt {
-	return s.Index
+// GetHosts returns the value of Hosts.
+func (s *UpdateTeamReq) GetHosts() []string {
+	return s.Hosts
+}
+
+// GetHostservices returns the value of Hostservices.
+func (s *UpdateTeamReq) GetHostservices() []string {
+	return s.Hostservices
+}
+
+// GetChecks returns the value of Checks.
+func (s *UpdateTeamReq) GetChecks() []string {
+	return s.Checks
+}
+
+// GetProperties returns the value of Properties.
+func (s *UpdateTeamReq) GetProperties() []string {
+	return s.Properties
 }
 
 // GetCompetition returns the value of Competition.
@@ -8057,14 +7951,14 @@ func (s *UpdateTeamReq) GetCompetition() OptString {
 	return s.Competition
 }
 
-// GetUsers returns the value of Users.
-func (s *UpdateTeamReq) GetUsers() []string {
-	return s.Users
+// SetName sets the value of Name.
+func (s *UpdateTeamReq) SetName(val OptString) {
+	s.Name = val
 }
 
-// GetHosts returns the value of Hosts.
-func (s *UpdateTeamReq) GetHosts() []string {
-	return s.Hosts
+// SetDisplayName sets the value of DisplayName.
+func (s *UpdateTeamReq) SetDisplayName(val OptString) {
+	s.DisplayName = val
 }
 
 // SetPause sets the value of Pause.
@@ -8077,24 +7971,9 @@ func (s *UpdateTeamReq) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
-// SetName sets the value of Name.
-func (s *UpdateTeamReq) SetName(val OptString) {
-	s.Name = val
-}
-
-// SetIndex sets the value of Index.
-func (s *UpdateTeamReq) SetIndex(val OptInt) {
-	s.Index = val
-}
-
-// SetCompetition sets the value of Competition.
-func (s *UpdateTeamReq) SetCompetition(val OptString) {
-	s.Competition = val
-}
-
-// SetUsers sets the value of Users.
-func (s *UpdateTeamReq) SetUsers(val []string) {
-	s.Users = val
+// SetNumber sets the value of Number.
+func (s *UpdateTeamReq) SetNumber(val OptInt) {
+	s.Number = val
 }
 
 // SetHosts sets the value of Hosts.
@@ -8102,464 +7981,22 @@ func (s *UpdateTeamReq) SetHosts(val []string) {
 	s.Hosts = val
 }
 
-type UpdateUserReq struct {
-	UpdateTime   OptDateTime `json:"update_time"`
-	Username     OptString   `json:"username"`
-	Teams        []string    `json:"teams"`
-	Competitions []string    `json:"competitions"`
+// SetHostservices sets the value of Hostservices.
+func (s *UpdateTeamReq) SetHostservices(val []string) {
+	s.Hostservices = val
 }
 
-// GetUpdateTime returns the value of UpdateTime.
-func (s *UpdateUserReq) GetUpdateTime() OptDateTime {
-	return s.UpdateTime
+// SetChecks sets the value of Checks.
+func (s *UpdateTeamReq) SetChecks(val []string) {
+	s.Checks = val
 }
 
-// GetUsername returns the value of Username.
-func (s *UpdateUserReq) GetUsername() OptString {
-	return s.Username
+// SetProperties sets the value of Properties.
+func (s *UpdateTeamReq) SetProperties(val []string) {
+	s.Properties = val
 }
 
-// GetTeams returns the value of Teams.
-func (s *UpdateUserReq) GetTeams() []string {
-	return s.Teams
+// SetCompetition sets the value of Competition.
+func (s *UpdateTeamReq) SetCompetition(val OptString) {
+	s.Competition = val
 }
-
-// GetCompetitions returns the value of Competitions.
-func (s *UpdateUserReq) GetCompetitions() []string {
-	return s.Competitions
-}
-
-// SetUpdateTime sets the value of UpdateTime.
-func (s *UpdateUserReq) SetUpdateTime(val OptDateTime) {
-	s.UpdateTime = val
-}
-
-// SetUsername sets the value of Username.
-func (s *UpdateUserReq) SetUsername(val OptString) {
-	s.Username = val
-}
-
-// SetTeams sets the value of Teams.
-func (s *UpdateUserReq) SetTeams(val []string) {
-	s.Teams = val
-}
-
-// SetCompetitions sets the value of Competitions.
-func (s *UpdateUserReq) SetCompetitions(val []string) {
-	s.Competitions = val
-}
-
-// Ref: #/components/schemas/User_CompetitionsList
-type UserCompetitionsList struct {
-	ID               string      `json:"id"`
-	Hidden           OptBool     `json:"hidden"`
-	Pause            OptBool     `json:"pause"`
-	Name             string      `json:"name"`
-	DisplayName      string      `json:"display_name"`
-	ViewableToPublic OptBool     `json:"viewable_to_public"`
-	ToBeStartedAt    OptDateTime `json:"to_be_started_at"`
-	StartedAt        OptDateTime `json:"started_at"`
-	FinishedAt       OptDateTime `json:"finished_at"`
-}
-
-// GetID returns the value of ID.
-func (s *UserCompetitionsList) GetID() string {
-	return s.ID
-}
-
-// GetHidden returns the value of Hidden.
-func (s *UserCompetitionsList) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetPause returns the value of Pause.
-func (s *UserCompetitionsList) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetName returns the value of Name.
-func (s *UserCompetitionsList) GetName() string {
-	return s.Name
-}
-
-// GetDisplayName returns the value of DisplayName.
-func (s *UserCompetitionsList) GetDisplayName() string {
-	return s.DisplayName
-}
-
-// GetViewableToPublic returns the value of ViewableToPublic.
-func (s *UserCompetitionsList) GetViewableToPublic() OptBool {
-	return s.ViewableToPublic
-}
-
-// GetToBeStartedAt returns the value of ToBeStartedAt.
-func (s *UserCompetitionsList) GetToBeStartedAt() OptDateTime {
-	return s.ToBeStartedAt
-}
-
-// GetStartedAt returns the value of StartedAt.
-func (s *UserCompetitionsList) GetStartedAt() OptDateTime {
-	return s.StartedAt
-}
-
-// GetFinishedAt returns the value of FinishedAt.
-func (s *UserCompetitionsList) GetFinishedAt() OptDateTime {
-	return s.FinishedAt
-}
-
-// SetID sets the value of ID.
-func (s *UserCompetitionsList) SetID(val string) {
-	s.ID = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *UserCompetitionsList) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetPause sets the value of Pause.
-func (s *UserCompetitionsList) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetName sets the value of Name.
-func (s *UserCompetitionsList) SetName(val string) {
-	s.Name = val
-}
-
-// SetDisplayName sets the value of DisplayName.
-func (s *UserCompetitionsList) SetDisplayName(val string) {
-	s.DisplayName = val
-}
-
-// SetViewableToPublic sets the value of ViewableToPublic.
-func (s *UserCompetitionsList) SetViewableToPublic(val OptBool) {
-	s.ViewableToPublic = val
-}
-
-// SetToBeStartedAt sets the value of ToBeStartedAt.
-func (s *UserCompetitionsList) SetToBeStartedAt(val OptDateTime) {
-	s.ToBeStartedAt = val
-}
-
-// SetStartedAt sets the value of StartedAt.
-func (s *UserCompetitionsList) SetStartedAt(val OptDateTime) {
-	s.StartedAt = val
-}
-
-// SetFinishedAt sets the value of FinishedAt.
-func (s *UserCompetitionsList) SetFinishedAt(val OptDateTime) {
-	s.FinishedAt = val
-}
-
-// Ref: #/components/schemas/UserCreate
-type UserCreate struct {
-	ID         string      `json:"id"`
-	CreateTime OptDateTime `json:"create_time"`
-	UpdateTime OptDateTime `json:"update_time"`
-	Username   string      `json:"username"`
-	OryID      uuid.UUID   `json:"ory_id"`
-}
-
-// GetID returns the value of ID.
-func (s *UserCreate) GetID() string {
-	return s.ID
-}
-
-// GetCreateTime returns the value of CreateTime.
-func (s *UserCreate) GetCreateTime() OptDateTime {
-	return s.CreateTime
-}
-
-// GetUpdateTime returns the value of UpdateTime.
-func (s *UserCreate) GetUpdateTime() OptDateTime {
-	return s.UpdateTime
-}
-
-// GetUsername returns the value of Username.
-func (s *UserCreate) GetUsername() string {
-	return s.Username
-}
-
-// GetOryID returns the value of OryID.
-func (s *UserCreate) GetOryID() uuid.UUID {
-	return s.OryID
-}
-
-// SetID sets the value of ID.
-func (s *UserCreate) SetID(val string) {
-	s.ID = val
-}
-
-// SetCreateTime sets the value of CreateTime.
-func (s *UserCreate) SetCreateTime(val OptDateTime) {
-	s.CreateTime = val
-}
-
-// SetUpdateTime sets the value of UpdateTime.
-func (s *UserCreate) SetUpdateTime(val OptDateTime) {
-	s.UpdateTime = val
-}
-
-// SetUsername sets the value of Username.
-func (s *UserCreate) SetUsername(val string) {
-	s.Username = val
-}
-
-// SetOryID sets the value of OryID.
-func (s *UserCreate) SetOryID(val uuid.UUID) {
-	s.OryID = val
-}
-
-func (*UserCreate) createUserRes() {}
-
-// Ref: #/components/schemas/UserList
-type UserList struct {
-	ID         string      `json:"id"`
-	CreateTime OptDateTime `json:"create_time"`
-	UpdateTime OptDateTime `json:"update_time"`
-	Username   string      `json:"username"`
-	OryID      uuid.UUID   `json:"ory_id"`
-}
-
-// GetID returns the value of ID.
-func (s *UserList) GetID() string {
-	return s.ID
-}
-
-// GetCreateTime returns the value of CreateTime.
-func (s *UserList) GetCreateTime() OptDateTime {
-	return s.CreateTime
-}
-
-// GetUpdateTime returns the value of UpdateTime.
-func (s *UserList) GetUpdateTime() OptDateTime {
-	return s.UpdateTime
-}
-
-// GetUsername returns the value of Username.
-func (s *UserList) GetUsername() string {
-	return s.Username
-}
-
-// GetOryID returns the value of OryID.
-func (s *UserList) GetOryID() uuid.UUID {
-	return s.OryID
-}
-
-// SetID sets the value of ID.
-func (s *UserList) SetID(val string) {
-	s.ID = val
-}
-
-// SetCreateTime sets the value of CreateTime.
-func (s *UserList) SetCreateTime(val OptDateTime) {
-	s.CreateTime = val
-}
-
-// SetUpdateTime sets the value of UpdateTime.
-func (s *UserList) SetUpdateTime(val OptDateTime) {
-	s.UpdateTime = val
-}
-
-// SetUsername sets the value of Username.
-func (s *UserList) SetUsername(val string) {
-	s.Username = val
-}
-
-// SetOryID sets the value of OryID.
-func (s *UserList) SetOryID(val uuid.UUID) {
-	s.OryID = val
-}
-
-// Ref: #/components/schemas/UserRead
-type UserRead struct {
-	ID         string      `json:"id"`
-	CreateTime OptDateTime `json:"create_time"`
-	UpdateTime OptDateTime `json:"update_time"`
-	Username   string      `json:"username"`
-	OryID      uuid.UUID   `json:"ory_id"`
-}
-
-// GetID returns the value of ID.
-func (s *UserRead) GetID() string {
-	return s.ID
-}
-
-// GetCreateTime returns the value of CreateTime.
-func (s *UserRead) GetCreateTime() OptDateTime {
-	return s.CreateTime
-}
-
-// GetUpdateTime returns the value of UpdateTime.
-func (s *UserRead) GetUpdateTime() OptDateTime {
-	return s.UpdateTime
-}
-
-// GetUsername returns the value of Username.
-func (s *UserRead) GetUsername() string {
-	return s.Username
-}
-
-// GetOryID returns the value of OryID.
-func (s *UserRead) GetOryID() uuid.UUID {
-	return s.OryID
-}
-
-// SetID sets the value of ID.
-func (s *UserRead) SetID(val string) {
-	s.ID = val
-}
-
-// SetCreateTime sets the value of CreateTime.
-func (s *UserRead) SetCreateTime(val OptDateTime) {
-	s.CreateTime = val
-}
-
-// SetUpdateTime sets the value of UpdateTime.
-func (s *UserRead) SetUpdateTime(val OptDateTime) {
-	s.UpdateTime = val
-}
-
-// SetUsername sets the value of Username.
-func (s *UserRead) SetUsername(val string) {
-	s.Username = val
-}
-
-// SetOryID sets the value of OryID.
-func (s *UserRead) SetOryID(val uuid.UUID) {
-	s.OryID = val
-}
-
-func (*UserRead) readUserRes() {}
-
-// Ref: #/components/schemas/User_TeamsList
-type UserTeamsList struct {
-	ID            string  `json:"id"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
-	Name          string  `json:"name"`
-	Index         OptInt  `json:"index"`
-}
-
-// GetID returns the value of ID.
-func (s *UserTeamsList) GetID() string {
-	return s.ID
-}
-
-// GetPause returns the value of Pause.
-func (s *UserTeamsList) GetPause() OptBool {
-	return s.Pause
-}
-
-// GetHidden returns the value of Hidden.
-func (s *UserTeamsList) GetHidden() OptBool {
-	return s.Hidden
-}
-
-// GetCompetitionID returns the value of CompetitionID.
-func (s *UserTeamsList) GetCompetitionID() string {
-	return s.CompetitionID
-}
-
-// GetName returns the value of Name.
-func (s *UserTeamsList) GetName() string {
-	return s.Name
-}
-
-// GetIndex returns the value of Index.
-func (s *UserTeamsList) GetIndex() OptInt {
-	return s.Index
-}
-
-// SetID sets the value of ID.
-func (s *UserTeamsList) SetID(val string) {
-	s.ID = val
-}
-
-// SetPause sets the value of Pause.
-func (s *UserTeamsList) SetPause(val OptBool) {
-	s.Pause = val
-}
-
-// SetHidden sets the value of Hidden.
-func (s *UserTeamsList) SetHidden(val OptBool) {
-	s.Hidden = val
-}
-
-// SetCompetitionID sets the value of CompetitionID.
-func (s *UserTeamsList) SetCompetitionID(val string) {
-	s.CompetitionID = val
-}
-
-// SetName sets the value of Name.
-func (s *UserTeamsList) SetName(val string) {
-	s.Name = val
-}
-
-// SetIndex sets the value of Index.
-func (s *UserTeamsList) SetIndex(val OptInt) {
-	s.Index = val
-}
-
-// Ref: #/components/schemas/UserUpdate
-type UserUpdate struct {
-	ID         string      `json:"id"`
-	CreateTime OptDateTime `json:"create_time"`
-	UpdateTime OptDateTime `json:"update_time"`
-	Username   string      `json:"username"`
-	OryID      uuid.UUID   `json:"ory_id"`
-}
-
-// GetID returns the value of ID.
-func (s *UserUpdate) GetID() string {
-	return s.ID
-}
-
-// GetCreateTime returns the value of CreateTime.
-func (s *UserUpdate) GetCreateTime() OptDateTime {
-	return s.CreateTime
-}
-
-// GetUpdateTime returns the value of UpdateTime.
-func (s *UserUpdate) GetUpdateTime() OptDateTime {
-	return s.UpdateTime
-}
-
-// GetUsername returns the value of Username.
-func (s *UserUpdate) GetUsername() string {
-	return s.Username
-}
-
-// GetOryID returns the value of OryID.
-func (s *UserUpdate) GetOryID() uuid.UUID {
-	return s.OryID
-}
-
-// SetID sets the value of ID.
-func (s *UserUpdate) SetID(val string) {
-	s.ID = val
-}
-
-// SetCreateTime sets the value of CreateTime.
-func (s *UserUpdate) SetCreateTime(val OptDateTime) {
-	s.CreateTime = val
-}
-
-// SetUpdateTime sets the value of UpdateTime.
-func (s *UserUpdate) SetUpdateTime(val OptDateTime) {
-	s.UpdateTime = val
-}
-
-// SetUsername sets the value of Username.
-func (s *UserUpdate) SetUsername(val string) {
-	s.Username = val
-}
-
-// SetOryID sets the value of OryID.
-func (s *UserUpdate) SetOryID(val uuid.UUID) {
-	s.OryID = val
-}
-
-func (*UserUpdate) updateUserRes() {}

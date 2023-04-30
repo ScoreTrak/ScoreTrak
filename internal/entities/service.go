@@ -9,9 +9,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
 )
 
 // Service is the model entity for the Service schema.
@@ -19,48 +17,29 @@ type Service struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
+	// DisplayName holds the value of the "display_name" field.
+	DisplayName string `json:"display_name,omitempty"`
 	// Pause holds the value of the "pause" field.
 	Pause bool `json:"pause,omitempty"`
 	// Hidden holds the value of the "hidden" field.
 	Hidden bool `json:"hidden,omitempty"`
 	// CompetitionID holds the value of the "competition_id" field.
 	CompetitionID string `json:"competition_id,omitempty"`
-	// TeamID holds the value of the "team_id" field.
-	TeamID string `json:"team_id,omitempty"`
-	// Name holds the value of the "name" field.
-	Name string `json:"name,omitempty"`
-	// DisplayName holds the value of the "display_name" field.
-	DisplayName string `json:"display_name,omitempty"`
-	// Weight holds the value of the "weight" field.
-	Weight int `json:"weight,omitempty"`
-	// PointBoost holds the value of the "point_boost" field.
-	PointBoost int `json:"point_boost,omitempty"`
-	// RoundUnits holds the value of the "round_units" field.
-	RoundUnits int `json:"round_units,omitempty"`
-	// RoundDelay holds the value of the "round_delay" field.
-	RoundDelay int `json:"round_delay,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ServiceQuery when eager-loading is set.
-	Edges         ServiceEdges `json:"edges"`
-	host_services *string
-	selectValues  sql.SelectValues
+	Edges        ServiceEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // ServiceEdges holds the relations/edges for other nodes in the graph.
 type ServiceEdges struct {
 	// Competition holds the value of the competition edge.
 	Competition *Competition `json:"competition,omitempty"`
-	// Team holds the value of the team edge.
-	Team *Team `json:"team,omitempty"`
-	// Hosts holds the value of the hosts edge.
-	Hosts *Host `json:"hosts,omitempty"`
-	// Checks holds the value of the checks edge.
-	Checks []*Check `json:"checks,omitempty"`
-	// Properties holds the value of the properties edge.
-	Properties []*Property `json:"properties,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [1]bool
 }
 
 // CompetitionOrErr returns the Competition value or an error if the edge
@@ -76,50 +55,6 @@ func (e ServiceEdges) CompetitionOrErr() (*Competition, error) {
 	return nil, &NotLoadedError{edge: "competition"}
 }
 
-// TeamOrErr returns the Team value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e ServiceEdges) TeamOrErr() (*Team, error) {
-	if e.loadedTypes[1] {
-		if e.Team == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: team.Label}
-		}
-		return e.Team, nil
-	}
-	return nil, &NotLoadedError{edge: "team"}
-}
-
-// HostsOrErr returns the Hosts value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e ServiceEdges) HostsOrErr() (*Host, error) {
-	if e.loadedTypes[2] {
-		if e.Hosts == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: host.Label}
-		}
-		return e.Hosts, nil
-	}
-	return nil, &NotLoadedError{edge: "hosts"}
-}
-
-// ChecksOrErr returns the Checks value or an error if the edge
-// was not loaded in eager-loading.
-func (e ServiceEdges) ChecksOrErr() ([]*Check, error) {
-	if e.loadedTypes[3] {
-		return e.Checks, nil
-	}
-	return nil, &NotLoadedError{edge: "checks"}
-}
-
-// PropertiesOrErr returns the Properties value or an error if the edge
-// was not loaded in eager-loading.
-func (e ServiceEdges) PropertiesOrErr() ([]*Property, error) {
-	if e.loadedTypes[4] {
-		return e.Properties, nil
-	}
-	return nil, &NotLoadedError{edge: "properties"}
-}
-
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Service) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -127,11 +62,7 @@ func (*Service) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case service.FieldPause, service.FieldHidden:
 			values[i] = new(sql.NullBool)
-		case service.FieldWeight, service.FieldPointBoost, service.FieldRoundUnits, service.FieldRoundDelay:
-			values[i] = new(sql.NullInt64)
-		case service.FieldID, service.FieldCompetitionID, service.FieldTeamID, service.FieldName, service.FieldDisplayName:
-			values[i] = new(sql.NullString)
-		case service.ForeignKeys[0]: // host_services
+		case service.FieldID, service.FieldName, service.FieldDisplayName, service.FieldCompetitionID:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -154,6 +85,18 @@ func (s *Service) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.ID = value.String
 			}
+		case service.FieldName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field name", values[i])
+			} else if value.Valid {
+				s.Name = value.String
+			}
+		case service.FieldDisplayName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field display_name", values[i])
+			} else if value.Valid {
+				s.DisplayName = value.String
+			}
 		case service.FieldPause:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field pause", values[i])
@@ -172,55 +115,6 @@ func (s *Service) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.CompetitionID = value.String
 			}
-		case service.FieldTeamID:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field team_id", values[i])
-			} else if value.Valid {
-				s.TeamID = value.String
-			}
-		case service.FieldName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field name", values[i])
-			} else if value.Valid {
-				s.Name = value.String
-			}
-		case service.FieldDisplayName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field display_name", values[i])
-			} else if value.Valid {
-				s.DisplayName = value.String
-			}
-		case service.FieldWeight:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field weight", values[i])
-			} else if value.Valid {
-				s.Weight = int(value.Int64)
-			}
-		case service.FieldPointBoost:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field point_boost", values[i])
-			} else if value.Valid {
-				s.PointBoost = int(value.Int64)
-			}
-		case service.FieldRoundUnits:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field round_units", values[i])
-			} else if value.Valid {
-				s.RoundUnits = int(value.Int64)
-			}
-		case service.FieldRoundDelay:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field round_delay", values[i])
-			} else if value.Valid {
-				s.RoundDelay = int(value.Int64)
-			}
-		case service.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field host_services", values[i])
-			} else if value.Valid {
-				s.host_services = new(string)
-				*s.host_services = value.String
-			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
 		}
@@ -237,26 +131,6 @@ func (s *Service) Value(name string) (ent.Value, error) {
 // QueryCompetition queries the "competition" edge of the Service entity.
 func (s *Service) QueryCompetition() *CompetitionQuery {
 	return NewServiceClient(s.config).QueryCompetition(s)
-}
-
-// QueryTeam queries the "team" edge of the Service entity.
-func (s *Service) QueryTeam() *TeamQuery {
-	return NewServiceClient(s.config).QueryTeam(s)
-}
-
-// QueryHosts queries the "hosts" edge of the Service entity.
-func (s *Service) QueryHosts() *HostQuery {
-	return NewServiceClient(s.config).QueryHosts(s)
-}
-
-// QueryChecks queries the "checks" edge of the Service entity.
-func (s *Service) QueryChecks() *CheckQuery {
-	return NewServiceClient(s.config).QueryChecks(s)
-}
-
-// QueryProperties queries the "properties" edge of the Service entity.
-func (s *Service) QueryProperties() *PropertyQuery {
-	return NewServiceClient(s.config).QueryProperties(s)
 }
 
 // Update returns a builder for updating this Service.
@@ -282,6 +156,12 @@ func (s *Service) String() string {
 	var builder strings.Builder
 	builder.WriteString("Service(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", s.ID))
+	builder.WriteString("name=")
+	builder.WriteString(s.Name)
+	builder.WriteString(", ")
+	builder.WriteString("display_name=")
+	builder.WriteString(s.DisplayName)
+	builder.WriteString(", ")
 	builder.WriteString("pause=")
 	builder.WriteString(fmt.Sprintf("%v", s.Pause))
 	builder.WriteString(", ")
@@ -290,27 +170,6 @@ func (s *Service) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("competition_id=")
 	builder.WriteString(s.CompetitionID)
-	builder.WriteString(", ")
-	builder.WriteString("team_id=")
-	builder.WriteString(s.TeamID)
-	builder.WriteString(", ")
-	builder.WriteString("name=")
-	builder.WriteString(s.Name)
-	builder.WriteString(", ")
-	builder.WriteString("display_name=")
-	builder.WriteString(s.DisplayName)
-	builder.WriteString(", ")
-	builder.WriteString("weight=")
-	builder.WriteString(fmt.Sprintf("%v", s.Weight))
-	builder.WriteString(", ")
-	builder.WriteString("point_boost=")
-	builder.WriteString(fmt.Sprintf("%v", s.PointBoost))
-	builder.WriteString(", ")
-	builder.WriteString("round_units=")
-	builder.WriteString(fmt.Sprintf("%v", s.RoundUnits))
-	builder.WriteString(", ")
-	builder.WriteString("round_delay=")
-	builder.WriteString(fmt.Sprintf("%v", s.RoundDelay))
 	builder.WriteByte(')')
 	return builder.String()
 }

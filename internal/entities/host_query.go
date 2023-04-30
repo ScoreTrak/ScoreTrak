@@ -11,26 +11,21 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostgroup"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
 )
 
 // HostQuery is the builder for querying Host entities.
 type HostQuery struct {
 	config
-	ctx             *QueryContext
-	order           []host.Order
-	inters          []Interceptor
-	predicates      []predicate.Host
-	withCompetition *CompetitionQuery
-	withTeam        *TeamQuery
-	withServices    *ServiceQuery
-	withHostGroup   *HostGroupQuery
-	withFKs         bool
+	ctx              *QueryContext
+	order            []host.Order
+	inters           []Interceptor
+	predicates       []predicate.Host
+	withHostservices *HostServiceQuery
+	withTeam         *TeamQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -67,9 +62,9 @@ func (hq *HostQuery) Order(o ...host.Order) *HostQuery {
 	return hq
 }
 
-// QueryCompetition chains the current query on the "competition" edge.
-func (hq *HostQuery) QueryCompetition() *CompetitionQuery {
-	query := (&CompetitionClient{config: hq.config}).Query()
+// QueryHostservices chains the current query on the "hostservices" edge.
+func (hq *HostQuery) QueryHostservices() *HostServiceQuery {
+	query := (&HostServiceClient{config: hq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := hq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -80,8 +75,8 @@ func (hq *HostQuery) QueryCompetition() *CompetitionQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(host.Table, host.FieldID, selector),
-			sqlgraph.To(competition.Table, competition.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, host.CompetitionTable, host.CompetitionColumn),
+			sqlgraph.To(hostservice.Table, hostservice.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, host.HostservicesTable, host.HostservicesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(hq.driver.Dialect(), step)
 		return fromU, nil
@@ -103,51 +98,7 @@ func (hq *HostQuery) QueryTeam() *TeamQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(host.Table, host.FieldID, selector),
 			sqlgraph.To(team.Table, team.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, host.TeamTable, host.TeamColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(hq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryServices chains the current query on the "services" edge.
-func (hq *HostQuery) QueryServices() *ServiceQuery {
-	query := (&ServiceClient{config: hq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := hq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := hq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(host.Table, host.FieldID, selector),
-			sqlgraph.To(service.Table, service.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, host.ServicesTable, host.ServicesColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(hq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryHostGroup chains the current query on the "host_group" edge.
-func (hq *HostQuery) QueryHostGroup() *HostGroupQuery {
-	query := (&HostGroupClient{config: hq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := hq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := hq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(host.Table, host.FieldID, selector),
-			sqlgraph.To(hostgroup.Table, hostgroup.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, host.HostGroupTable, host.HostGroupColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, host.TeamTable, host.TeamColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(hq.driver.Dialect(), step)
 		return fromU, nil
@@ -342,29 +293,27 @@ func (hq *HostQuery) Clone() *HostQuery {
 		return nil
 	}
 	return &HostQuery{
-		config:          hq.config,
-		ctx:             hq.ctx.Clone(),
-		order:           append([]host.Order{}, hq.order...),
-		inters:          append([]Interceptor{}, hq.inters...),
-		predicates:      append([]predicate.Host{}, hq.predicates...),
-		withCompetition: hq.withCompetition.Clone(),
-		withTeam:        hq.withTeam.Clone(),
-		withServices:    hq.withServices.Clone(),
-		withHostGroup:   hq.withHostGroup.Clone(),
+		config:           hq.config,
+		ctx:              hq.ctx.Clone(),
+		order:            append([]host.Order{}, hq.order...),
+		inters:           append([]Interceptor{}, hq.inters...),
+		predicates:       append([]predicate.Host{}, hq.predicates...),
+		withHostservices: hq.withHostservices.Clone(),
+		withTeam:         hq.withTeam.Clone(),
 		// clone intermediate query.
 		sql:  hq.sql.Clone(),
 		path: hq.path,
 	}
 }
 
-// WithCompetition tells the query-builder to eager-load the nodes that are connected to
-// the "competition" edge. The optional arguments are used to configure the query builder of the edge.
-func (hq *HostQuery) WithCompetition(opts ...func(*CompetitionQuery)) *HostQuery {
-	query := (&CompetitionClient{config: hq.config}).Query()
+// WithHostservices tells the query-builder to eager-load the nodes that are connected to
+// the "hostservices" edge. The optional arguments are used to configure the query builder of the edge.
+func (hq *HostQuery) WithHostservices(opts ...func(*HostServiceQuery)) *HostQuery {
+	query := (&HostServiceClient{config: hq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	hq.withCompetition = query
+	hq.withHostservices = query
 	return hq
 }
 
@@ -376,28 +325,6 @@ func (hq *HostQuery) WithTeam(opts ...func(*TeamQuery)) *HostQuery {
 		opt(query)
 	}
 	hq.withTeam = query
-	return hq
-}
-
-// WithServices tells the query-builder to eager-load the nodes that are connected to
-// the "services" edge. The optional arguments are used to configure the query builder of the edge.
-func (hq *HostQuery) WithServices(opts ...func(*ServiceQuery)) *HostQuery {
-	query := (&ServiceClient{config: hq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	hq.withServices = query
-	return hq
-}
-
-// WithHostGroup tells the query-builder to eager-load the nodes that are connected to
-// the "host_group" edge. The optional arguments are used to configure the query builder of the edge.
-func (hq *HostQuery) WithHostGroup(opts ...func(*HostGroupQuery)) *HostQuery {
-	query := (&HostGroupClient{config: hq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	hq.withHostGroup = query
 	return hq
 }
 
@@ -478,21 +405,12 @@ func (hq *HostQuery) prepareQuery(ctx context.Context) error {
 func (hq *HostQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Host, error) {
 	var (
 		nodes       = []*Host{}
-		withFKs     = hq.withFKs
 		_spec       = hq.querySpec()
-		loadedTypes = [4]bool{
-			hq.withCompetition != nil,
+		loadedTypes = [2]bool{
+			hq.withHostservices != nil,
 			hq.withTeam != nil,
-			hq.withServices != nil,
-			hq.withHostGroup != nil,
 		}
 	)
-	if hq.withHostGroup != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, host.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Host).scanValues(nil, columns)
 	}
@@ -511,9 +429,10 @@ func (hq *HostQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Host, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := hq.withCompetition; query != nil {
-		if err := hq.loadCompetition(ctx, query, nodes, nil,
-			func(n *Host, e *Competition) { n.Edges.Competition = e }); err != nil {
+	if query := hq.withHostservices; query != nil {
+		if err := hq.loadHostservices(ctx, query, nodes,
+			func(n *Host) { n.Edges.Hostservices = []*HostService{} },
+			func(n *Host, e *HostService) { n.Edges.Hostservices = append(n.Edges.Hostservices, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -523,48 +442,33 @@ func (hq *HostQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Host, e
 			return nil, err
 		}
 	}
-	if query := hq.withServices; query != nil {
-		if err := hq.loadServices(ctx, query, nodes,
-			func(n *Host) { n.Edges.Services = []*Service{} },
-			func(n *Host, e *Service) { n.Edges.Services = append(n.Edges.Services, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := hq.withHostGroup; query != nil {
-		if err := hq.loadHostGroup(ctx, query, nodes, nil,
-			func(n *Host, e *HostGroup) { n.Edges.HostGroup = e }); err != nil {
-			return nil, err
-		}
-	}
 	return nodes, nil
 }
 
-func (hq *HostQuery) loadCompetition(ctx context.Context, query *CompetitionQuery, nodes []*Host, init func(*Host), assign func(*Host, *Competition)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*Host)
+func (hq *HostQuery) loadHostservices(ctx context.Context, query *HostServiceQuery, nodes []*Host, init func(*Host), assign func(*Host, *HostService)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Host)
 	for i := range nodes {
-		fk := nodes[i].CompetitionID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
 		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(competition.IDIn(ids...))
+	query.Where(predicate.HostService(func(s *sql.Selector) {
+		s.Where(sql.InValues(host.HostservicesColumn, fks...))
+	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		fk := n.HostID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "competition_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "host_id" returned %v for node %v`, fk, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
+		assign(node, n)
 	}
 	return nil
 }
@@ -597,69 +501,6 @@ func (hq *HostQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*Ho
 	}
 	return nil
 }
-func (hq *HostQuery) loadServices(ctx context.Context, query *ServiceQuery, nodes []*Host, init func(*Host), assign func(*Host, *Service)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*Host)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.Service(func(s *sql.Selector) {
-		s.Where(sql.InValues(host.ServicesColumn, fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.host_services
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "host_services" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "host_services" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (hq *HostQuery) loadHostGroup(ctx context.Context, query *HostGroupQuery, nodes []*Host, init func(*Host), assign func(*Host, *HostGroup)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*Host)
-	for i := range nodes {
-		if nodes[i].host_group_hosts == nil {
-			continue
-		}
-		fk := *nodes[i].host_group_hosts
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(hostgroup.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "host_group_hosts" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 
 func (hq *HostQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := hq.querySpec()
@@ -685,9 +526,6 @@ func (hq *HostQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != host.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
-		}
-		if hq.withCompetition != nil {
-			_spec.Node.AddColumnOnce(host.FieldCompetitionID)
 		}
 		if hq.withTeam != nil {
 			_spec.Node.AddColumnOnce(host.FieldTeamID)

@@ -1,6 +1,0 @@
-db:
-  use: "sqlite"
-  host: "localhost"
-  port: "26257"
-  username: "root"
-  database: "scoretrak.db"

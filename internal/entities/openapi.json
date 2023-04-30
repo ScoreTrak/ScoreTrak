@@ -30,8 +30,8 @@
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
-              "maximum": 255,
-              "minimum": 1
+              "maximum": 100,
+              "minimum": 10
             }
           }
         ],
@@ -83,9 +83,6 @@
                   "hidden": {
                     "type": "boolean"
                   },
-                  "competition_id": {
-                    "type": "string"
-                  },
                   "log": {
                     "type": "string"
                   },
@@ -95,24 +92,35 @@
                   "passed": {
                     "type": "boolean"
                   },
-                  "competition": {
+                  "round_id": {
+                    "type": "string"
+                  },
+                  "host_service_id": {
+                    "type": "string"
+                  },
+                  "team_id": {
                     "type": "string"
                   },
                   "rounds": {
                     "type": "string"
                   },
-                  "services": {
+                  "hostservice": {
+                    "type": "string"
+                  },
+                  "team": {
                     "type": "string"
                   }
                 },
                 "required": [
-                  "competition_id",
                   "log",
                   "error",
                   "passed",
-                  "competition",
+                  "round_id",
+                  "host_service_id",
+                  "team_id",
                   "rounds",
-                  "services"
+                  "hostservice",
+                  "team"
                 ]
               }
             }
@@ -262,13 +270,19 @@
                   "passed": {
                     "type": "boolean"
                   },
-                  "competition": {
+                  "round_id": {
+                    "type": "string"
+                  },
+                  "host_service_id": {
                     "type": "string"
                   },
                   "rounds": {
                     "type": "string"
                   },
-                  "services": {
+                  "hostservice": {
+                    "type": "string"
+                  },
+                  "team": {
                     "type": "string"
                   }
                 }
@@ -303,14 +317,14 @@
         }
       }
     },
-    "/checks/{id}/competition": {
+    "/checks/{id}/hostservice": {
       "get": {
         "tags": [
           "Check"
         ],
-        "summary": "Find the attached Competition",
-        "description": "Find the attached Competition of the Check with the given ID",
-        "operationId": "readCheckCompetition",
+        "summary": "Find the attached HostService",
+        "description": "Find the attached HostService of the Check with the given ID",
+        "operationId": "readCheckHostservice",
         "parameters": [
           {
             "name": "id",
@@ -324,11 +338,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Competition attached to Check with requested ID was found",
+            "description": "HostService attached to Check with requested ID was found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Check_CompetitionRead"
+                  "$ref": "#/components/schemas/Check_HostserviceRead"
                 }
               }
             }
@@ -393,14 +407,14 @@
         }
       }
     },
-    "/checks/{id}/services": {
+    "/checks/{id}/team": {
       "get": {
         "tags": [
           "Check"
         ],
-        "summary": "Find the attached Service",
-        "description": "Find the attached Service of the Check with the given ID",
-        "operationId": "readCheckServices",
+        "summary": "Find the attached Team",
+        "description": "Find the attached Team of the Check with the given ID",
+        "operationId": "readCheckTeam",
         "parameters": [
           {
             "name": "id",
@@ -414,11 +428,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Service attached to Check with requested ID was found",
+            "description": "Team attached to Check with requested ID was found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Check_ServicesRead"
+                  "$ref": "#/components/schemas/Check_TeamRead"
                 }
               }
             }
@@ -462,8 +476,8 @@
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
-              "maximum": 255,
-              "minimum": 1
+              "maximum": 100,
+              "minimum": 10
             }
           }
         ],
@@ -542,7 +556,19 @@
                       "type": "string"
                     }
                   },
-                  "users": {
+                  "services": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "reports": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "rounds": {
                     "type": "array",
                     "items": {
                       "type": "string"
@@ -719,7 +745,19 @@
                       "type": "string"
                     }
                   },
-                  "users": {
+                  "services": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "reports": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  },
+                  "rounds": {
                     "type": "array",
                     "items": {
                       "type": "string"
@@ -738,6 +776,198 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CompetitionUpdate"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/competitions/{id}/reports": {
+      "get": {
+        "tags": [
+          "Competition"
+        ],
+        "summary": "List attached Reports",
+        "description": "List attached Reports.",
+        "operationId": "listCompetitionReports",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the Competition",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "what page to render",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "itemsPerPage",
+            "in": "query",
+            "description": "item count to render per page",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "result Competitions list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Competition_ReportsList"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/competitions/{id}/rounds": {
+      "get": {
+        "tags": [
+          "Competition"
+        ],
+        "summary": "List attached Rounds",
+        "description": "List attached Rounds.",
+        "operationId": "listCompetitionRounds",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the Competition",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "what page to render",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "itemsPerPage",
+            "in": "query",
+            "description": "item count to render per page",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "result Competitions list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Competition_RoundsList"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/competitions/{id}/services": {
+      "get": {
+        "tags": [
+          "Competition"
+        ],
+        "summary": "List attached Services",
+        "description": "List attached Services.",
+        "operationId": "listCompetitionServices",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the Competition",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "what page to render",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "itemsPerPage",
+            "in": "query",
+            "description": "item count to render per page",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "result Competitions list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Competition_ServicesList"
+                  }
                 }
               }
             }
@@ -821,78 +1051,14 @@
         }
       }
     },
-    "/competitions/{id}/users": {
+    "/host-services": {
       "get": {
         "tags": [
-          "Competition"
+          "HostService"
         ],
-        "summary": "List attached Users",
-        "description": "List attached Users.",
-        "operationId": "listCompetitionUsers",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the Competition",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "description": "what page to render",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "itemsPerPage",
-            "in": "query",
-            "description": "item count to render per page",
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "result Competitions list",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Competition_UsersList"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      }
-    },
-    "/host-groups": {
-      "get": {
-        "tags": [
-          "HostGroup"
-        ],
-        "summary": "List HostGroups",
-        "description": "List HostGroups.",
-        "operationId": "listHostGroup",
+        "summary": "List HostServices",
+        "description": "List HostServices.",
+        "operationId": "listHostService",
         "parameters": [
           {
             "name": "page",
@@ -909,20 +1075,20 @@
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
-              "maximum": 255,
-              "minimum": 1
+              "maximum": 100,
+              "minimum": 10
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "result HostGroup list",
+            "description": "result HostService list",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/HostGroupList"
+                    "$ref": "#/components/schemas/HostServiceList"
                   }
                 }
               }
@@ -944,51 +1110,77 @@
       },
       "post": {
         "tags": [
-          "HostGroup"
+          "HostService"
         ],
-        "summary": "Create a new HostGroup",
-        "description": "Creates a new HostGroup and persists it to storage.",
-        "operationId": "createHostGroup",
+        "summary": "Create a new HostService",
+        "description": "Creates a new HostService and persists it to storage.",
+        "operationId": "createHostService",
         "requestBody": {
-          "description": "HostGroup to create",
+          "description": "HostService to create",
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
                 "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "display_name": {
+                    "type": "string"
+                  },
                   "pause": {
                     "type": "boolean"
                   },
                   "hidden": {
                     "type": "boolean"
                   },
-                  "competition_id": {
+                  "weight": {
+                    "type": "integer"
+                  },
+                  "point_boost": {
+                    "type": "integer"
+                  },
+                  "round_units": {
+                    "type": "integer"
+                  },
+                  "round_delay": {
+                    "type": "integer"
+                  },
+                  "host_id": {
                     "type": "string"
                   },
                   "team_id": {
                     "type": "string"
                   },
-                  "name": {
+                  "host": {
                     "type": "string"
                   },
-                  "competition": {
-                    "type": "string"
-                  },
-                  "team": {
-                    "type": "string"
-                  },
-                  "hosts": {
+                  "checks": {
                     "type": "array",
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "properties": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "team": {
+                    "type": "string"
                   }
                 },
                 "required": [
-                  "competition_id",
-                  "team_id",
                   "name",
-                  "competition",
+                  "display_name",
+                  "weight",
+                  "point_boost",
+                  "round_units",
+                  "round_delay",
+                  "host_id",
+                  "team_id",
+                  "host",
                   "team"
                 ]
               }
@@ -998,11 +1190,11 @@
         },
         "responses": {
           "200": {
-            "description": "HostGroup created",
+            "description": "HostService created",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HostGroupCreate"
+                  "$ref": "#/components/schemas/HostServiceCreate"
                 }
               }
             }
@@ -1019,19 +1211,19 @@
         }
       }
     },
-    "/host-groups/{id}": {
+    "/host-services/{id}": {
       "get": {
         "tags": [
-          "HostGroup"
+          "HostService"
         ],
-        "summary": "Find a HostGroup by ID",
-        "description": "Finds the HostGroup with the requested ID and returns it.",
-        "operationId": "readHostGroup",
+        "summary": "Find a HostService by ID",
+        "description": "Finds the HostService with the requested ID and returns it.",
+        "operationId": "readHostService",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "ID of the HostGroup",
+            "description": "ID of the HostService",
             "required": true,
             "schema": {
               "type": "string"
@@ -1040,11 +1232,11 @@
         ],
         "responses": {
           "200": {
-            "description": "HostGroup with requested ID was found",
+            "description": "HostService with requested ID was found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HostGroupRead"
+                  "$ref": "#/components/schemas/HostServiceRead"
                 }
               }
             }
@@ -1065,16 +1257,16 @@
       },
       "delete": {
         "tags": [
-          "HostGroup"
+          "HostService"
         ],
-        "summary": "Deletes a HostGroup by ID",
-        "description": "Deletes the HostGroup with the requested ID.",
-        "operationId": "deleteHostGroup",
+        "summary": "Deletes a HostService by ID",
+        "description": "Deletes the HostService with the requested ID.",
+        "operationId": "deleteHostService",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "ID of the HostGroup",
+            "description": "ID of the HostService",
             "required": true,
             "schema": {
               "type": "string"
@@ -1083,7 +1275,7 @@
         ],
         "responses": {
           "204": {
-            "description": "HostGroup with requested ID was deleted"
+            "description": "HostService with requested ID was deleted"
           },
           "400": {
             "$ref": "#/components/responses/400"
@@ -1101,16 +1293,16 @@
       },
       "patch": {
         "tags": [
-          "HostGroup"
+          "HostService"
         ],
-        "summary": "Updates a HostGroup",
-        "description": "Updates a HostGroup and persists changes to storage.",
-        "operationId": "updateHostGroup",
+        "summary": "Updates a HostService",
+        "description": "Updates a HostService and persists changes to storage.",
+        "operationId": "updateHostService",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "ID of the HostGroup",
+            "description": "ID of the HostService",
             "required": true,
             "schema": {
               "type": "string"
@@ -1118,35 +1310,56 @@
           }
         ],
         "requestBody": {
-          "description": "HostGroup properties to update",
+          "description": "HostService properties to update",
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
                 "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "display_name": {
+                    "type": "string"
+                  },
                   "pause": {
                     "type": "boolean"
                   },
                   "hidden": {
                     "type": "boolean"
                   },
-                  "team_id": {
+                  "weight": {
+                    "type": "integer"
+                  },
+                  "point_boost": {
+                    "type": "integer"
+                  },
+                  "round_units": {
+                    "type": "integer"
+                  },
+                  "round_delay": {
+                    "type": "integer"
+                  },
+                  "host_id": {
                     "type": "string"
                   },
-                  "name": {
+                  "host": {
                     "type": "string"
                   },
-                  "competition": {
-                    "type": "string"
-                  },
-                  "team": {
-                    "type": "string"
-                  },
-                  "hosts": {
+                  "checks": {
                     "type": "array",
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "properties": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "team": {
+                    "type": "string"
                   }
                 }
               }
@@ -1156,11 +1369,11 @@
         },
         "responses": {
           "200": {
-            "description": "HostGroup updated",
+            "description": "HostService updated",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HostGroupUpdate"
+                  "$ref": "#/components/schemas/HostServiceUpdate"
                 }
               }
             }
@@ -1180,64 +1393,19 @@
         }
       }
     },
-    "/host-groups/{id}/competition": {
+    "/host-services/{id}/checks": {
       "get": {
         "tags": [
-          "HostGroup"
+          "HostService"
         ],
-        "summary": "Find the attached Competition",
-        "description": "Find the attached Competition of the HostGroup with the given ID",
-        "operationId": "readHostGroupCompetition",
+        "summary": "List attached Checks",
+        "description": "List attached Checks.",
+        "operationId": "listHostServiceChecks",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "ID of the HostGroup",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Competition attached to HostGroup with requested ID was found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HostGroup_CompetitionRead"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      }
-    },
-    "/host-groups/{id}/hosts": {
-      "get": {
-        "tags": [
-          "HostGroup"
-        ],
-        "summary": "List attached Hosts",
-        "description": "List attached Hosts.",
-        "operationId": "listHostGroupHosts",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the HostGroup",
+            "description": "ID of the HostService",
             "required": true,
             "schema": {
               "type": "string"
@@ -1262,13 +1430,13 @@
         ],
         "responses": {
           "200": {
-            "description": "result HostGroups list",
+            "description": "result HostServices list",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/HostGroup_HostsList"
+                    "$ref": "#/components/schemas/HostService_ChecksList"
                   }
                 }
               }
@@ -1289,19 +1457,19 @@
         }
       }
     },
-    "/host-groups/{id}/team": {
+    "/host-services/{id}/host": {
       "get": {
         "tags": [
-          "HostGroup"
+          "HostService"
         ],
-        "summary": "Find the attached Team",
-        "description": "Find the attached Team of the HostGroup with the given ID",
-        "operationId": "readHostGroupTeam",
+        "summary": "Find the attached Host",
+        "description": "Find the attached Host of the HostService with the given ID",
+        "operationId": "readHostServiceHost",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "ID of the HostGroup",
+            "description": "ID of the HostService",
             "required": true,
             "schema": {
               "type": "string"
@@ -1310,11 +1478,120 @@
         ],
         "responses": {
           "200": {
-            "description": "Team attached to HostGroup with requested ID was found",
+            "description": "Host attached to HostService with requested ID was found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HostGroup_TeamRead"
+                  "$ref": "#/components/schemas/HostService_HostRead"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/host-services/{id}/properties": {
+      "get": {
+        "tags": [
+          "HostService"
+        ],
+        "summary": "List attached Properties",
+        "description": "List attached Properties.",
+        "operationId": "listHostServiceProperties",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the HostService",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "what page to render",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "itemsPerPage",
+            "in": "query",
+            "description": "item count to render per page",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "result HostServices list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HostService_PropertiesList"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/host-services/{id}/team": {
+      "get": {
+        "tags": [
+          "HostService"
+        ],
+        "summary": "Find the attached Team",
+        "description": "Find the attached Team of the HostService with the given ID",
+        "operationId": "readHostServiceTeam",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the HostService",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Team attached to HostService with requested ID was found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HostService_TeamRead"
                 }
               }
             }
@@ -1358,8 +1635,8 @@
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
-              "maximum": 255,
-              "minimum": 1
+              "maximum": 100,
+              "minimum": 10
             }
           }
         ],
@@ -1411,46 +1688,26 @@
                   "hidden": {
                     "type": "boolean"
                   },
-                  "competition_id": {
+                  "address": {
                     "type": "string"
                   },
                   "team_id": {
                     "type": "string"
                   },
-                  "address": {
-                    "type": "string"
-                  },
-                  "address_list_range": {
-                    "type": "string"
-                  },
-                  "editable": {
-                    "type": "boolean"
-                  },
-                  "competition": {
-                    "type": "string"
-                  },
-                  "team": {
-                    "type": "string"
-                  },
-                  "services": {
+                  "hostservices": {
                     "type": "array",
                     "items": {
                       "type": "string"
                     }
                   },
-                  "host_group": {
+                  "team": {
                     "type": "string"
                   }
                 },
                 "required": [
-                  "competition_id",
-                  "team_id",
                   "address",
-                  "address_list_range",
-                  "editable",
-                  "competition",
-                  "team",
-                  "host_group"
+                  "team_id",
+                  "team"
                 ]
               }
             }
@@ -1591,31 +1848,16 @@
                   "hidden": {
                     "type": "boolean"
                   },
-                  "team_id": {
-                    "type": "string"
-                  },
                   "address": {
                     "type": "string"
                   },
-                  "address_list_range": {
-                    "type": "string"
-                  },
-                  "editable": {
-                    "type": "boolean"
-                  },
-                  "competition": {
-                    "type": "string"
-                  },
-                  "team": {
-                    "type": "string"
-                  },
-                  "services": {
+                  "hostservices": {
                     "type": "array",
                     "items": {
                       "type": "string"
                     }
                   },
-                  "host_group": {
+                  "team": {
                     "type": "string"
                   }
                 }
@@ -1650,104 +1892,14 @@
         }
       }
     },
-    "/hosts/{id}/competition": {
+    "/hosts/{id}/hostservices": {
       "get": {
         "tags": [
           "Host"
         ],
-        "summary": "Find the attached Competition",
-        "description": "Find the attached Competition of the Host with the given ID",
-        "operationId": "readHostCompetition",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the Host",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Competition attached to Host with requested ID was found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Host_CompetitionRead"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      }
-    },
-    "/hosts/{id}/host-group": {
-      "get": {
-        "tags": [
-          "Host"
-        ],
-        "summary": "Find the attached HostGroup",
-        "description": "Find the attached HostGroup of the Host with the given ID",
-        "operationId": "readHostHostGroup",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the Host",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "HostGroup attached to Host with requested ID was found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Host_HostGroupRead"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      }
-    },
-    "/hosts/{id}/services": {
-      "get": {
-        "tags": [
-          "Host"
-        ],
-        "summary": "List attached Services",
-        "description": "List attached Services.",
-        "operationId": "listHostServices",
+        "summary": "List attached Hostservices",
+        "description": "List attached Hostservices.",
+        "operationId": "listHostHostservices",
         "parameters": [
           {
             "name": "id",
@@ -1783,7 +1935,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Host_ServicesList"
+                    "$ref": "#/components/schemas/Host_HostservicesList"
                   }
                 }
               }
@@ -1873,8 +2025,8 @@
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
-              "maximum": 255,
-              "minimum": 1
+              "maximum": 100,
+              "minimum": 10
             }
           }
         ],
@@ -1920,12 +2072,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "competition_id": {
-                    "type": "string"
-                  },
-                  "team_id": {
-                    "type": "string"
-                  },
                   "key": {
                     "type": "string"
                   },
@@ -1941,25 +2087,27 @@
                     ],
                     "default": "view"
                   },
-                  "competition": {
+                  "host_service_id": {
+                    "type": "string"
+                  },
+                  "team_id": {
+                    "type": "string"
+                  },
+                  "hostservice": {
                     "type": "string"
                   },
                   "team": {
                     "type": "string"
-                  },
-                  "services": {
-                    "type": "string"
                   }
                 },
                 "required": [
-                  "competition_id",
-                  "team_id",
                   "key",
                   "value",
                   "status",
-                  "competition",
-                  "team",
-                  "services"
+                  "host_service_id",
+                  "team_id",
+                  "hostservice",
+                  "team"
                 ]
               }
             }
@@ -2094,9 +2242,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "team_id": {
-                    "type": "string"
-                  },
                   "key": {
                     "type": "string"
                   },
@@ -2112,13 +2257,13 @@
                     ],
                     "default": "view"
                   },
-                  "competition": {
+                  "host_service_id": {
+                    "type": "string"
+                  },
+                  "hostservice": {
                     "type": "string"
                   },
                   "team": {
-                    "type": "string"
-                  },
-                  "services": {
                     "type": "string"
                   }
                 }
@@ -2153,14 +2298,14 @@
         }
       }
     },
-    "/properties/{id}/competition": {
+    "/properties/{id}/hostservice": {
       "get": {
         "tags": [
           "Property"
         ],
-        "summary": "Find the attached Competition",
-        "description": "Find the attached Competition of the Property with the given ID",
-        "operationId": "readPropertyCompetition",
+        "summary": "Find the attached HostService",
+        "description": "Find the attached HostService of the Property with the given ID",
+        "operationId": "readPropertyHostservice",
         "parameters": [
           {
             "name": "id",
@@ -2174,56 +2319,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Competition attached to Property with requested ID was found",
+            "description": "HostService attached to Property with requested ID was found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Property_CompetitionRead"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      }
-    },
-    "/properties/{id}/services": {
-      "get": {
-        "tags": [
-          "Property"
-        ],
-        "summary": "Find the attached Service",
-        "description": "Find the attached Service of the Property with the given ID",
-        "operationId": "readPropertyServices",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the Property",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Service attached to Property with requested ID was found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Property_ServicesRead"
+                  "$ref": "#/components/schemas/Property_HostserviceRead"
                 }
               }
             }
@@ -2312,8 +2412,8 @@
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
-              "maximum": 255,
-              "minimum": 1
+              "maximum": 100,
+              "minimum": 10
             }
           }
         ],
@@ -2364,11 +2464,19 @@
                   },
                   "error": {
                     "type": "string"
+                  },
+                  "competition_id": {
+                    "type": "string"
+                  },
+                  "competition": {
+                    "type": "string"
                   }
                 },
                 "required": [
                   "log",
-                  "error"
+                  "error",
+                  "competition_id",
+                  "competition"
                 ]
               }
             }
@@ -2508,6 +2616,9 @@
                   },
                   "error": {
                     "type": "string"
+                  },
+                  "competition": {
+                    "type": "string"
                   }
                 }
               }
@@ -2522,6 +2633,51 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ReportUpdate"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/reports/{id}/competition": {
+      "get": {
+        "tags": [
+          "Report"
+        ],
+        "summary": "Find the attached Competition",
+        "description": "Find the attached Competition of the Report with the given ID",
+        "operationId": "readReportCompetition",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the Report",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Competition attached to Report with requested ID was found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Report_CompetitionRead"
                 }
               }
             }
@@ -2565,8 +2721,8 @@
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
-              "maximum": 255,
-              "minimum": 1
+              "maximum": 100,
+              "minimum": 10
             }
           }
         ],
@@ -2612,9 +2768,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "competition_id": {
-                    "type": "string"
-                  },
                   "round_number": {
                     "type": "integer"
                   },
@@ -2632,7 +2785,7 @@
                     "type": "string",
                     "format": "date-time"
                   },
-                  "competition": {
+                  "competition_id": {
                     "type": "string"
                   },
                   "checks": {
@@ -2640,15 +2793,18 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "competition": {
+                    "type": "string"
                   }
                 },
                 "required": [
-                  "competition_id",
                   "round_number",
                   "note",
                   "err",
                   "started_at",
                   "finished_at",
+                  "competition_id",
                   "competition"
                 ]
               }
@@ -2801,14 +2957,14 @@
                     "type": "string",
                     "format": "date-time"
                   },
-                  "competition": {
-                    "type": "string"
-                  },
                   "checks": {
                     "type": "array",
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "competition": {
+                    "type": "string"
                   }
                 }
               }
@@ -2975,8 +3131,8 @@
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
-              "maximum": 255,
-              "minimum": 1
+              "maximum": 100,
+              "minimum": 10
             }
           }
         ],
@@ -3022,6 +3178,12 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "display_name": {
+                    "type": "string"
+                  },
                   "pause": {
                     "type": "boolean"
                   },
@@ -3031,60 +3193,15 @@
                   "competition_id": {
                     "type": "string"
                   },
-                  "team_id": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "display_name": {
-                    "type": "string"
-                  },
-                  "weight": {
-                    "type": "integer"
-                  },
-                  "point_boost": {
-                    "type": "integer"
-                  },
-                  "round_units": {
-                    "type": "integer"
-                  },
-                  "round_delay": {
-                    "type": "integer"
-                  },
                   "competition": {
                     "type": "string"
-                  },
-                  "team": {
-                    "type": "string"
-                  },
-                  "hosts": {
-                    "type": "string"
-                  },
-                  "checks": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "properties": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
                   }
                 },
                 "required": [
-                  "competition_id",
-                  "team_id",
                   "name",
                   "display_name",
-                  "weight",
-                  "point_boost",
-                  "round_units",
-                  "round_delay",
-                  "competition",
-                  "team"
+                  "competition_id",
+                  "competition"
                 ]
               }
             }
@@ -3219,53 +3336,20 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "pause": {
-                    "type": "boolean"
-                  },
-                  "hidden": {
-                    "type": "boolean"
-                  },
-                  "team_id": {
-                    "type": "string"
-                  },
                   "name": {
                     "type": "string"
                   },
                   "display_name": {
                     "type": "string"
                   },
-                  "weight": {
-                    "type": "integer"
+                  "pause": {
+                    "type": "boolean"
                   },
-                  "point_boost": {
-                    "type": "integer"
-                  },
-                  "round_units": {
-                    "type": "integer"
-                  },
-                  "round_delay": {
-                    "type": "integer"
+                  "hidden": {
+                    "type": "boolean"
                   },
                   "competition": {
                     "type": "string"
-                  },
-                  "team": {
-                    "type": "string"
-                  },
-                  "hosts": {
-                    "type": "string"
-                  },
-                  "checks": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "properties": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
                   }
                 }
               }
@@ -3280,70 +3364,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ServiceUpdate"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      }
-    },
-    "/services/{id}/checks": {
-      "get": {
-        "tags": [
-          "Service"
-        ],
-        "summary": "List attached Checks",
-        "description": "List attached Checks.",
-        "operationId": "listServiceChecks",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the Service",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "description": "what page to render",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "itemsPerPage",
-            "in": "query",
-            "description": "item count to render per page",
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "result Services list",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Service_ChecksList"
-                  }
                 }
               }
             }
@@ -3408,160 +3428,6 @@
         }
       }
     },
-    "/services/{id}/hosts": {
-      "get": {
-        "tags": [
-          "Service"
-        ],
-        "summary": "Find the attached Host",
-        "description": "Find the attached Host of the Service with the given ID",
-        "operationId": "readServiceHosts",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the Service",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Host attached to Service with requested ID was found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Service_HostsRead"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      }
-    },
-    "/services/{id}/properties": {
-      "get": {
-        "tags": [
-          "Service"
-        ],
-        "summary": "List attached Properties",
-        "description": "List attached Properties.",
-        "operationId": "listServiceProperties",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the Service",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "description": "what page to render",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "itemsPerPage",
-            "in": "query",
-            "description": "item count to render per page",
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "result Services list",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Service_PropertiesList"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      }
-    },
-    "/services/{id}/team": {
-      "get": {
-        "tags": [
-          "Service"
-        ],
-        "summary": "Find the attached Team",
-        "description": "Find the attached Team of the Service with the given ID",
-        "operationId": "readServiceTeam",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the Service",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Team attached to Service with requested ID was found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Service_TeamRead"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      }
-    },
     "/teams": {
       "get": {
         "tags": [
@@ -3586,8 +3452,8 @@
             "description": "item count to render per page",
             "schema": {
               "type": "integer",
-              "maximum": 255,
-              "minimum": 1
+              "maximum": 100,
+              "minimum": 10
             }
           }
         ],
@@ -3633,40 +3499,57 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "display_name": {
+                    "type": "string"
+                  },
                   "pause": {
                     "type": "boolean"
                   },
                   "hidden": {
                     "type": "boolean"
                   },
-                  "competition_id": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "index": {
+                  "number": {
                     "type": "integer"
                   },
-                  "competition": {
+                  "competition_id": {
                     "type": "string"
-                  },
-                  "users": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
                   },
                   "hosts": {
                     "type": "array",
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "hostservices": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "checks": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "properties": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "competition": {
+                    "type": "string"
                   }
                 },
                 "required": [
-                  "competition_id",
                   "name",
+                  "display_name",
+                  "number",
+                  "competition_id",
                   "competition"
                 ]
               }
@@ -3802,32 +3685,47 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "display_name": {
+                    "type": "string"
+                  },
                   "pause": {
                     "type": "boolean"
                   },
                   "hidden": {
                     "type": "boolean"
                   },
-                  "name": {
-                    "type": "string"
-                  },
-                  "index": {
+                  "number": {
                     "type": "integer"
-                  },
-                  "competition": {
-                    "type": "string"
-                  },
-                  "users": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
                   },
                   "hosts": {
                     "type": "array",
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "hostservices": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "checks": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "properties": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "competition": {
+                    "type": "string"
                   }
                 }
               }
@@ -3842,6 +3740,70 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TeamUpdate"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/teams/{id}/checks": {
+      "get": {
+        "tags": [
+          "Team"
+        ],
+        "summary": "List attached Checks",
+        "description": "List attached Checks.",
+        "operationId": "listTeamChecks",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the Team",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "what page to render",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "itemsPerPage",
+            "in": "query",
+            "description": "item count to render per page",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "result Teams list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Team_ChecksList"
+                  }
                 }
               }
             }
@@ -3970,14 +3932,14 @@
         }
       }
     },
-    "/teams/{id}/users": {
+    "/teams/{id}/hostservices": {
       "get": {
         "tags": [
           "Team"
         ],
-        "summary": "List attached Users",
-        "description": "List attached Users.",
-        "operationId": "listTeamUsers",
+        "summary": "List attached Hostservices",
+        "description": "List attached Hostservices.",
+        "operationId": "listTeamHostservices",
         "parameters": [
           {
             "name": "id",
@@ -4013,7 +3975,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Team_UsersList"
+                    "$ref": "#/components/schemas/Team_HostservicesList"
                   }
                 }
               }
@@ -4034,306 +3996,19 @@
         }
       }
     },
-    "/users": {
+    "/teams/{id}/properties": {
       "get": {
         "tags": [
-          "User"
+          "Team"
         ],
-        "summary": "List Users",
-        "description": "List Users.",
-        "operationId": "listUser",
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "description": "what page to render",
-            "schema": {
-              "type": "integer",
-              "minimum": 1
-            }
-          },
-          {
-            "name": "itemsPerPage",
-            "in": "query",
-            "description": "item count to render per page",
-            "schema": {
-              "type": "integer",
-              "maximum": 255,
-              "minimum": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "result User list",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserList"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "User"
-        ],
-        "summary": "Create a new User",
-        "description": "Creates a new User and persists it to storage.",
-        "operationId": "createUser",
-        "requestBody": {
-          "description": "User to create",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "create_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "username": {
-                    "type": "string"
-                  },
-                  "ory_id": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "teams": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "competitions": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "required": [
-                  "username",
-                  "ory_id"
-                ]
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "User created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserCreate"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      }
-    },
-    "/users/{id}": {
-      "get": {
-        "tags": [
-          "User"
-        ],
-        "summary": "Find a User by ID",
-        "description": "Finds the User with the requested ID and returns it.",
-        "operationId": "readUser",
+        "summary": "List attached Properties",
+        "description": "List attached Properties.",
+        "operationId": "listTeamProperties",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "ID of the User",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User with requested ID was found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserRead"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "User"
-        ],
-        "summary": "Deletes a User by ID",
-        "description": "Deletes the User with the requested ID.",
-        "operationId": "deleteUser",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the User",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "User with requested ID was deleted"
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "User"
-        ],
-        "summary": "Updates a User",
-        "description": "Updates a User and persists changes to storage.",
-        "operationId": "updateUser",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the User",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "description": "User properties to update",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "update_time": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "username": {
-                    "type": "string"
-                  },
-                  "teams": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "competitions": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "User updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserUpdate"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      }
-    },
-    "/users/{id}/competitions": {
-      "get": {
-        "tags": [
-          "User"
-        ],
-        "summary": "List attached Competitions",
-        "description": "List attached Competitions.",
-        "operationId": "listUserCompetitions",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the User",
+            "description": "ID of the Team",
             "required": true,
             "schema": {
               "type": "string"
@@ -4358,77 +4033,13 @@
         ],
         "responses": {
           "200": {
-            "description": "result Users list",
+            "description": "result Teams list",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/User_CompetitionsList"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/400"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "409": {
-            "$ref": "#/components/responses/409"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          }
-        }
-      }
-    },
-    "/users/{id}/teams": {
-      "get": {
-        "tags": [
-          "User"
-        ],
-        "summary": "List attached Teams",
-        "description": "List attached Teams.",
-        "operationId": "listUserTeams",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of the User",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "description": "what page to render",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "itemsPerPage",
-            "in": "query",
-            "description": "item count to render per page",
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "result Users list",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/User_TeamsList"
+                    "$ref": "#/components/schemas/Team_PropertiesList"
                   }
                 }
               }
@@ -4464,9 +4075,6 @@
           "hidden": {
             "type": "boolean"
           },
-          "competition_id": {
-            "type": "string"
-          },
           "log": {
             "type": "string"
           },
@@ -4476,25 +4084,36 @@
           "passed": {
             "type": "boolean"
           },
-          "competition": {
-            "$ref": "#/components/schemas/Competition"
+          "round_id": {
+            "type": "string"
+          },
+          "host_service_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
           },
           "rounds": {
             "$ref": "#/components/schemas/Round"
           },
-          "services": {
-            "$ref": "#/components/schemas/Service"
+          "hostservice": {
+            "$ref": "#/components/schemas/HostService"
+          },
+          "team": {
+            "$ref": "#/components/schemas/Team"
           }
         },
         "required": [
           "id",
-          "competition_id",
           "log",
           "error",
           "passed",
-          "competition",
+          "round_id",
+          "host_service_id",
+          "team_id",
           "rounds",
-          "services"
+          "hostservice",
+          "team"
         ]
       },
       "CheckCreate": {
@@ -4509,9 +4128,6 @@
           "hidden": {
             "type": "boolean"
           },
-          "competition_id": {
-            "type": "string"
-          },
           "log": {
             "type": "string"
           },
@@ -4520,14 +4136,25 @@
           },
           "passed": {
             "type": "boolean"
+          },
+          "round_id": {
+            "type": "string"
+          },
+          "host_service_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
           "log",
           "error",
-          "passed"
+          "passed",
+          "round_id",
+          "host_service_id",
+          "team_id"
         ]
       },
       "CheckList": {
@@ -4542,9 +4169,6 @@
           "hidden": {
             "type": "boolean"
           },
-          "competition_id": {
-            "type": "string"
-          },
           "log": {
             "type": "string"
           },
@@ -4553,14 +4177,25 @@
           },
           "passed": {
             "type": "boolean"
+          },
+          "round_id": {
+            "type": "string"
+          },
+          "host_service_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
           "log",
           "error",
-          "passed"
+          "passed",
+          "round_id",
+          "host_service_id",
+          "team_id"
         ]
       },
       "CheckRead": {
@@ -4575,9 +4210,6 @@
           "hidden": {
             "type": "boolean"
           },
-          "competition_id": {
-            "type": "string"
-          },
           "log": {
             "type": "string"
           },
@@ -4586,14 +4218,25 @@
           },
           "passed": {
             "type": "boolean"
+          },
+          "round_id": {
+            "type": "string"
+          },
+          "host_service_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
           "log",
           "error",
-          "passed"
+          "passed",
+          "round_id",
+          "host_service_id",
+          "team_id"
         ]
       },
       "CheckUpdate": {
@@ -4608,9 +4251,6 @@
           "hidden": {
             "type": "boolean"
           },
-          "competition_id": {
-            "type": "string"
-          },
           "log": {
             "type": "string"
           },
@@ -4619,27 +4259,32 @@
           },
           "passed": {
             "type": "boolean"
+          },
+          "round_id": {
+            "type": "string"
+          },
+          "host_service_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
           "log",
           "error",
-          "passed"
+          "passed",
+          "round_id",
+          "host_service_id",
+          "team_id"
         ]
       },
-      "Check_CompetitionRead": {
+      "Check_HostserviceRead": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "pause": {
-            "type": "boolean"
           },
           "name": {
             "type": "string"
@@ -4647,35 +4292,47 @@
           "display_name": {
             "type": "string"
           },
-          "viewable_to_public": {
+          "pause": {
             "type": "boolean"
           },
-          "to_be_started_at": {
-            "type": "string",
-            "format": "date-time"
+          "hidden": {
+            "type": "boolean"
           },
-          "started_at": {
-            "type": "string",
-            "format": "date-time"
+          "weight": {
+            "type": "integer"
           },
-          "finished_at": {
-            "type": "string",
-            "format": "date-time"
+          "point_boost": {
+            "type": "integer"
+          },
+          "round_units": {
+            "type": "integer"
+          },
+          "round_delay": {
+            "type": "integer"
+          },
+          "host_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
           "name",
-          "display_name"
+          "display_name",
+          "weight",
+          "point_boost",
+          "round_units",
+          "round_delay",
+          "host_id",
+          "team_id"
         ]
       },
       "Check_RoundsRead": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
-          },
-          "competition_id": {
             "type": "string"
           },
           "round_number": {
@@ -4694,34 +4351,25 @@
           "finished_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "competition_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
           "round_number",
           "note",
           "err",
           "started_at",
-          "finished_at"
+          "finished_at",
+          "competition_id"
         ]
       },
-      "Check_ServicesRead": {
+      "Check_TeamRead": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
-          },
-          "pause": {
-            "type": "boolean"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
             "type": "string"
           },
           "name": {
@@ -4730,29 +4378,25 @@
           "display_name": {
             "type": "string"
           },
-          "weight": {
+          "pause": {
+            "type": "boolean"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "number": {
             "type": "integer"
           },
-          "point_boost": {
-            "type": "integer"
-          },
-          "round_units": {
-            "type": "integer"
-          },
-          "round_delay": {
-            "type": "integer"
+          "competition_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "team_id",
           "name",
           "display_name",
-          "weight",
-          "point_boost",
-          "round_units",
-          "round_delay"
+          "number",
+          "competition_id"
         ]
       },
       "Competition": {
@@ -4794,10 +4438,22 @@
               "$ref": "#/components/schemas/Team"
             }
           },
-          "users": {
+          "services": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/User"
+              "$ref": "#/components/schemas/Service"
+            }
+          },
+          "reports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Report"
+            }
+          },
+          "rounds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Round"
             }
           }
         },
@@ -4967,10 +4623,76 @@
           "display_name"
         ]
       },
-      "Competition_TeamsList": {
+      "Competition_ReportsList": {
         "type": "object",
         "properties": {
           "id": {
+            "type": "integer"
+          },
+          "log": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "competition_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "log",
+          "error",
+          "competition_id"
+        ]
+      },
+      "Competition_RoundsList": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "round_number": {
+            "type": "integer"
+          },
+          "note": {
+            "type": "string"
+          },
+          "err": {
+            "type": "string"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "competition_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "round_number",
+          "note",
+          "err",
+          "started_at",
+          "finished_at",
+          "competition_id"
+        ]
+      },
+      "Competition_ServicesList": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
             "type": "string"
           },
           "pause": {
@@ -4981,46 +4703,46 @@
           },
           "competition_id": {
             "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "index": {
-            "type": "integer"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "name"
+          "name",
+          "display_name",
+          "competition_id"
         ]
       },
-      "Competition_UsersList": {
+      "Competition_TeamsList": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
           },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "username": {
+          "name": {
             "type": "string"
           },
-          "ory_id": {
-            "type": "string",
-            "format": "uuid"
+          "display_name": {
+            "type": "string"
+          },
+          "pause": {
+            "type": "boolean"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "number": {
+            "type": "integer"
+          },
+          "competition_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "username",
-          "ory_id"
+          "name",
+          "display_name",
+          "number",
+          "competition_id"
         ]
       },
       "Host": {
@@ -5035,47 +4757,27 @@
           "hidden": {
             "type": "boolean"
           },
-          "competition_id": {
+          "address": {
             "type": "string"
           },
           "team_id": {
             "type": "string"
           },
-          "address": {
-            "type": "string"
-          },
-          "address_list_range": {
-            "type": "string"
-          },
-          "editable": {
-            "type": "boolean"
-          },
-          "competition": {
-            "$ref": "#/components/schemas/Competition"
+          "hostservices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HostService"
+            }
           },
           "team": {
             "$ref": "#/components/schemas/Team"
-          },
-          "services": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Service"
-            }
-          },
-          "host_group": {
-            "$ref": "#/components/schemas/HostGroup"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "team_id",
           "address",
-          "address_list_range",
-          "editable",
-          "competition",
-          "team",
-          "host_group"
+          "team_id",
+          "team"
         ]
       },
       "HostCreate": {
@@ -5090,293 +4792,17 @@
           "hidden": {
             "type": "boolean"
           },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
           "address": {
             "type": "string"
           },
-          "address_list_range": {
+          "team_id": {
             "type": "string"
-          },
-          "editable": {
-            "type": "boolean"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "team_id",
           "address",
-          "address_list_range",
-          "editable"
-        ]
-      },
-      "HostGroup": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "pause": {
-            "type": "boolean"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "competition": {
-            "$ref": "#/components/schemas/Competition"
-          },
-          "team": {
-            "$ref": "#/components/schemas/Team"
-          },
-          "hosts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Host"
-            }
-          }
-        },
-        "required": [
-          "id",
-          "competition_id",
-          "team_id",
-          "name",
-          "competition",
-          "team"
-        ]
-      },
-      "HostGroupCreate": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "pause": {
-            "type": "boolean"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "competition_id",
-          "team_id",
-          "name"
-        ]
-      },
-      "HostGroupList": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "pause": {
-            "type": "boolean"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "competition_id",
-          "team_id",
-          "name"
-        ]
-      },
-      "HostGroupRead": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "pause": {
-            "type": "boolean"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "competition_id",
-          "team_id",
-          "name"
-        ]
-      },
-      "HostGroupUpdate": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "pause": {
-            "type": "boolean"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "competition_id",
-          "team_id",
-          "name"
-        ]
-      },
-      "HostGroup_CompetitionRead": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "pause": {
-            "type": "boolean"
-          },
-          "name": {
-            "type": "string"
-          },
-          "display_name": {
-            "type": "string"
-          },
-          "viewable_to_public": {
-            "type": "boolean"
-          },
-          "to_be_started_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "started_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "finished_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "display_name"
-        ]
-      },
-      "HostGroup_HostsList": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "pause": {
-            "type": "boolean"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
-          "address": {
-            "type": "string"
-          },
-          "address_list_range": {
-            "type": "string"
-          },
-          "editable": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "id",
-          "competition_id",
-          "team_id",
-          "address",
-          "address_list_range",
-          "editable"
-        ]
-      },
-      "HostGroup_TeamRead": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "pause": {
-            "type": "boolean"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "competition_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "index": {
-            "type": "integer"
-          }
-        },
-        "required": [
-          "id",
-          "competition_id",
-          "name"
+          "team_id"
         ]
       },
       "HostList": {
@@ -5391,29 +4817,17 @@
           "hidden": {
             "type": "boolean"
           },
-          "competition_id": {
+          "address": {
             "type": "string"
           },
           "team_id": {
             "type": "string"
-          },
-          "address": {
-            "type": "string"
-          },
-          "address_list_range": {
-            "type": "string"
-          },
-          "editable": {
-            "type": "boolean"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "team_id",
           "address",
-          "address_list_range",
-          "editable"
+          "team_id"
         ]
       },
       "HostRead": {
@@ -5428,29 +4842,418 @@
           "hidden": {
             "type": "boolean"
           },
-          "competition_id": {
+          "address": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "address",
+          "team_id"
+        ]
+      },
+      "HostService": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "pause": {
+            "type": "boolean"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "weight": {
+            "type": "integer"
+          },
+          "point_boost": {
+            "type": "integer"
+          },
+          "round_units": {
+            "type": "integer"
+          },
+          "round_delay": {
+            "type": "integer"
+          },
+          "host_id": {
             "type": "string"
           },
           "team_id": {
             "type": "string"
           },
-          "address": {
-            "type": "string"
+          "host": {
+            "$ref": "#/components/schemas/Host"
           },
-          "address_list_range": {
-            "type": "string"
+          "checks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Check"
+            }
           },
-          "editable": {
-            "type": "boolean"
+          "properties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Property"
+            }
+          },
+          "team": {
+            "$ref": "#/components/schemas/Team"
           }
         },
         "required": [
           "id",
-          "competition_id",
+          "name",
+          "display_name",
+          "weight",
+          "point_boost",
+          "round_units",
+          "round_delay",
+          "host_id",
           "team_id",
+          "host",
+          "team"
+        ]
+      },
+      "HostServiceCreate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "pause": {
+            "type": "boolean"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "weight": {
+            "type": "integer"
+          },
+          "point_boost": {
+            "type": "integer"
+          },
+          "round_units": {
+            "type": "integer"
+          },
+          "round_delay": {
+            "type": "integer"
+          },
+          "host_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "display_name",
+          "weight",
+          "point_boost",
+          "round_units",
+          "round_delay",
+          "host_id",
+          "team_id"
+        ]
+      },
+      "HostServiceList": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "pause": {
+            "type": "boolean"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "weight": {
+            "type": "integer"
+          },
+          "point_boost": {
+            "type": "integer"
+          },
+          "round_units": {
+            "type": "integer"
+          },
+          "round_delay": {
+            "type": "integer"
+          },
+          "host_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "display_name",
+          "weight",
+          "point_boost",
+          "round_units",
+          "round_delay",
+          "host_id",
+          "team_id"
+        ]
+      },
+      "HostServiceRead": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "pause": {
+            "type": "boolean"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "weight": {
+            "type": "integer"
+          },
+          "point_boost": {
+            "type": "integer"
+          },
+          "round_units": {
+            "type": "integer"
+          },
+          "round_delay": {
+            "type": "integer"
+          },
+          "host_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "display_name",
+          "weight",
+          "point_boost",
+          "round_units",
+          "round_delay",
+          "host_id",
+          "team_id"
+        ]
+      },
+      "HostServiceUpdate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "pause": {
+            "type": "boolean"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "weight": {
+            "type": "integer"
+          },
+          "point_boost": {
+            "type": "integer"
+          },
+          "round_units": {
+            "type": "integer"
+          },
+          "round_delay": {
+            "type": "integer"
+          },
+          "host_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "display_name",
+          "weight",
+          "point_boost",
+          "round_units",
+          "round_delay",
+          "host_id",
+          "team_id"
+        ]
+      },
+      "HostService_ChecksList": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pause": {
+            "type": "boolean"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "log": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "round_id": {
+            "type": "string"
+          },
+          "host_service_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "log",
+          "error",
+          "passed",
+          "round_id",
+          "host_service_id",
+          "team_id"
+        ]
+      },
+      "HostService_HostRead": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pause": {
+            "type": "boolean"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "address": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
           "address",
-          "address_list_range",
-          "editable"
+          "team_id"
+        ]
+      },
+      "HostService_PropertiesList": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "view",
+              "edit",
+              "hide"
+            ],
+            "default": "view"
+          },
+          "host_service_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "value",
+          "status",
+          "host_service_id",
+          "team_id"
+        ]
+      },
+      "HostService_TeamRead": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "pause": {
+            "type": "boolean"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "number": {
+            "type": "integer"
+          },
+          "competition_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "display_name",
+          "number",
+          "competition_id"
         ]
       },
       "HostUpdate": {
@@ -5465,42 +5268,24 @@
           "hidden": {
             "type": "boolean"
           },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
           "address": {
             "type": "string"
           },
-          "address_list_range": {
+          "team_id": {
             "type": "string"
-          },
-          "editable": {
-            "type": "boolean"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "team_id",
           "address",
-          "address_list_range",
-          "editable"
+          "team_id"
         ]
       },
-      "Host_CompetitionRead": {
+      "Host_HostservicesList": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "pause": {
-            "type": "boolean"
           },
           "name": {
             "type": "string"
@@ -5508,80 +5293,11 @@
           "display_name": {
             "type": "string"
           },
-          "viewable_to_public": {
-            "type": "boolean"
-          },
-          "to_be_started_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "started_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "finished_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "display_name"
-        ]
-      },
-      "Host_HostGroupRead": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
           "pause": {
             "type": "boolean"
           },
           "hidden": {
             "type": "boolean"
-          },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "competition_id",
-          "team_id",
-          "name"
-        ]
-      },
-      "Host_ServicesList": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "pause": {
-            "type": "boolean"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "display_name": {
-            "type": "string"
           },
           "weight": {
             "type": "integer"
@@ -5594,18 +5310,24 @@
           },
           "round_delay": {
             "type": "integer"
+          },
+          "host_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "team_id",
           "name",
           "display_name",
           "weight",
           "point_boost",
           "round_units",
-          "round_delay"
+          "round_delay",
+          "host_id",
+          "team_id"
         ]
       },
       "Host_TeamRead": {
@@ -5614,26 +5336,31 @@
           "id": {
             "type": "string"
           },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
           "pause": {
             "type": "boolean"
           },
           "hidden": {
             "type": "boolean"
           },
+          "number": {
+            "type": "integer"
+          },
           "competition_id": {
             "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "index": {
-            "type": "integer"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "name"
+          "name",
+          "display_name",
+          "number",
+          "competition_id"
         ]
       },
       "Property": {
@@ -5642,12 +5369,6 @@
           "id": {
             "type": "string"
           },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
           "key": {
             "type": "string"
           },
@@ -5663,26 +5384,28 @@
             ],
             "default": "view"
           },
-          "competition": {
-            "$ref": "#/components/schemas/Competition"
+          "host_service_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
+          },
+          "hostservice": {
+            "$ref": "#/components/schemas/HostService"
           },
           "team": {
             "$ref": "#/components/schemas/Team"
-          },
-          "services": {
-            "$ref": "#/components/schemas/Service"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "team_id",
           "key",
           "value",
           "status",
-          "competition",
-          "team",
-          "services"
+          "host_service_id",
+          "team_id",
+          "hostservice",
+          "team"
         ]
       },
       "PropertyCreate": {
@@ -5691,12 +5414,6 @@
           "id": {
             "type": "string"
           },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
           "key": {
             "type": "string"
           },
@@ -5711,15 +5428,21 @@
               "hide"
             ],
             "default": "view"
+          },
+          "host_service_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "team_id",
           "key",
           "value",
-          "status"
+          "status",
+          "host_service_id",
+          "team_id"
         ]
       },
       "PropertyList": {
@@ -5728,12 +5451,6 @@
           "id": {
             "type": "string"
           },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
           "key": {
             "type": "string"
           },
@@ -5748,15 +5465,21 @@
               "hide"
             ],
             "default": "view"
+          },
+          "host_service_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "team_id",
           "key",
           "value",
-          "status"
+          "status",
+          "host_service_id",
+          "team_id"
         ]
       },
       "PropertyRead": {
@@ -5765,12 +5488,6 @@
           "id": {
             "type": "string"
           },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
           "key": {
             "type": "string"
           },
@@ -5785,15 +5502,21 @@
               "hide"
             ],
             "default": "view"
+          },
+          "host_service_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "team_id",
           "key",
           "value",
-          "status"
+          "status",
+          "host_service_id",
+          "team_id"
         ]
       },
       "PropertyUpdate": {
@@ -5802,12 +5525,6 @@
           "id": {
             "type": "string"
           },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
           "key": {
             "type": "string"
           },
@@ -5822,80 +5539,40 @@
               "hide"
             ],
             "default": "view"
-          }
-        },
-        "required": [
-          "id",
-          "competition_id",
-          "team_id",
-          "key",
-          "value",
-          "status"
-        ]
-      },
-      "Property_CompetitionRead": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
           },
-          "hidden": {
-            "type": "boolean"
-          },
-          "pause": {
-            "type": "boolean"
-          },
-          "name": {
-            "type": "string"
-          },
-          "display_name": {
-            "type": "string"
-          },
-          "viewable_to_public": {
-            "type": "boolean"
-          },
-          "to_be_started_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "started_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "finished_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "display_name"
-        ]
-      },
-      "Property_ServicesRead": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "pause": {
-            "type": "boolean"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "competition_id": {
+          "host_service_id": {
             "type": "string"
           },
           "team_id": {
             "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "value",
+          "status",
+          "host_service_id",
+          "team_id"
+        ]
+      },
+      "Property_HostserviceRead": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
           },
           "name": {
             "type": "string"
           },
           "display_name": {
             "type": "string"
+          },
+          "pause": {
+            "type": "boolean"
+          },
+          "hidden": {
+            "type": "boolean"
           },
           "weight": {
             "type": "integer"
@@ -5908,18 +5585,24 @@
           },
           "round_delay": {
             "type": "integer"
+          },
+          "host_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "team_id",
           "name",
           "display_name",
           "weight",
           "point_boost",
           "round_units",
-          "round_delay"
+          "round_delay",
+          "host_id",
+          "team_id"
         ]
       },
       "Property_TeamRead": {
@@ -5928,26 +5611,31 @@
           "id": {
             "type": "string"
           },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
           "pause": {
             "type": "boolean"
           },
           "hidden": {
             "type": "boolean"
           },
+          "number": {
+            "type": "integer"
+          },
           "competition_id": {
             "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "index": {
-            "type": "integer"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "name"
+          "name",
+          "display_name",
+          "number",
+          "competition_id"
         ]
       },
       "Report": {
@@ -5961,12 +5649,20 @@
           },
           "error": {
             "type": "string"
+          },
+          "competition_id": {
+            "type": "string"
+          },
+          "competition": {
+            "$ref": "#/components/schemas/Competition"
           }
         },
         "required": [
           "id",
           "log",
-          "error"
+          "error",
+          "competition_id",
+          "competition"
         ]
       },
       "ReportCreate": {
@@ -5980,12 +5676,16 @@
           },
           "error": {
             "type": "string"
+          },
+          "competition_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
           "log",
-          "error"
+          "error",
+          "competition_id"
         ]
       },
       "ReportList": {
@@ -5999,12 +5699,16 @@
           },
           "error": {
             "type": "string"
+          },
+          "competition_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
           "log",
-          "error"
+          "error",
+          "competition_id"
         ]
       },
       "ReportRead": {
@@ -6018,12 +5722,16 @@
           },
           "error": {
             "type": "string"
+          },
+          "competition_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
           "log",
-          "error"
+          "error",
+          "competition_id"
         ]
       },
       "ReportUpdate": {
@@ -6037,21 +5745,62 @@
           },
           "error": {
             "type": "string"
+          },
+          "competition_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
           "log",
-          "error"
+          "error",
+          "competition_id"
+        ]
+      },
+      "Report_CompetitionRead": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "pause": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "viewable_to_public": {
+            "type": "boolean"
+          },
+          "to_be_started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finished_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "display_name"
         ]
       },
       "Round": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "string"
-          },
-          "competition_id": {
             "type": "string"
           },
           "round_number": {
@@ -6071,24 +5820,27 @@
             "type": "string",
             "format": "date-time"
           },
-          "competition": {
-            "$ref": "#/components/schemas/Competition"
+          "competition_id": {
+            "type": "string"
           },
           "checks": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Check"
             }
+          },
+          "competition": {
+            "$ref": "#/components/schemas/Competition"
           }
         },
         "required": [
           "id",
-          "competition_id",
           "round_number",
           "note",
           "err",
           "started_at",
           "finished_at",
+          "competition_id",
           "competition"
         ]
       },
@@ -6098,9 +5850,6 @@
           "id": {
             "type": "string"
           },
-          "competition_id": {
-            "type": "string"
-          },
           "round_number": {
             "type": "integer"
           },
@@ -6117,16 +5866,19 @@
           "finished_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "competition_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
           "round_number",
           "note",
           "err",
           "started_at",
-          "finished_at"
+          "finished_at",
+          "competition_id"
         ]
       },
       "RoundList": {
@@ -6135,9 +5887,6 @@
           "id": {
             "type": "string"
           },
-          "competition_id": {
-            "type": "string"
-          },
           "round_number": {
             "type": "integer"
           },
@@ -6154,16 +5903,19 @@
           "finished_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "competition_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
           "round_number",
           "note",
           "err",
           "started_at",
-          "finished_at"
+          "finished_at",
+          "competition_id"
         ]
       },
       "RoundRead": {
@@ -6172,9 +5924,6 @@
           "id": {
             "type": "string"
           },
-          "competition_id": {
-            "type": "string"
-          },
           "round_number": {
             "type": "integer"
           },
@@ -6191,16 +5940,19 @@
           "finished_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "competition_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
           "round_number",
           "note",
           "err",
           "started_at",
-          "finished_at"
+          "finished_at",
+          "competition_id"
         ]
       },
       "RoundUpdate": {
@@ -6209,9 +5961,6 @@
           "id": {
             "type": "string"
           },
-          "competition_id": {
-            "type": "string"
-          },
           "round_number": {
             "type": "integer"
           },
@@ -6228,16 +5977,19 @@
           "finished_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "competition_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
           "round_number",
           "note",
           "err",
           "started_at",
-          "finished_at"
+          "finished_at",
+          "competition_id"
         ]
       },
       "Round_ChecksList": {
@@ -6252,9 +6004,6 @@
           "hidden": {
             "type": "boolean"
           },
-          "competition_id": {
-            "type": "string"
-          },
           "log": {
             "type": "string"
           },
@@ -6263,14 +6012,25 @@
           },
           "passed": {
             "type": "boolean"
+          },
+          "round_id": {
+            "type": "string"
+          },
+          "host_service_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
           "log",
           "error",
-          "passed"
+          "passed",
+          "round_id",
+          "host_service_id",
+          "team_id"
         ]
       },
       "Round_CompetitionRead": {
@@ -6319,6 +6079,12 @@
           "id": {
             "type": "string"
           },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
           "pause": {
             "type": "boolean"
           },
@@ -6328,61 +6094,16 @@
           "competition_id": {
             "type": "string"
           },
-          "team_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "display_name": {
-            "type": "string"
-          },
-          "weight": {
-            "type": "integer"
-          },
-          "point_boost": {
-            "type": "integer"
-          },
-          "round_units": {
-            "type": "integer"
-          },
-          "round_delay": {
-            "type": "integer"
-          },
           "competition": {
             "$ref": "#/components/schemas/Competition"
-          },
-          "team": {
-            "$ref": "#/components/schemas/Team"
-          },
-          "hosts": {
-            "$ref": "#/components/schemas/Host"
-          },
-          "checks": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Check"
-            }
-          },
-          "properties": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Property"
-            }
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "team_id",
           "name",
           "display_name",
-          "weight",
-          "point_boost",
-          "round_units",
-          "round_delay",
-          "competition",
-          "team"
+          "competition_id",
+          "competition"
         ]
       },
       "ServiceCreate": {
@@ -6391,6 +6112,12 @@
           "id": {
             "type": "string"
           },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
           "pause": {
             "type": "boolean"
           },
@@ -6399,39 +6126,13 @@
           },
           "competition_id": {
             "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "display_name": {
-            "type": "string"
-          },
-          "weight": {
-            "type": "integer"
-          },
-          "point_boost": {
-            "type": "integer"
-          },
-          "round_units": {
-            "type": "integer"
-          },
-          "round_delay": {
-            "type": "integer"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "team_id",
           "name",
           "display_name",
-          "weight",
-          "point_boost",
-          "round_units",
-          "round_delay"
+          "competition_id"
         ]
       },
       "ServiceList": {
@@ -6440,6 +6141,12 @@
           "id": {
             "type": "string"
           },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
           "pause": {
             "type": "boolean"
           },
@@ -6448,39 +6155,13 @@
           },
           "competition_id": {
             "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "display_name": {
-            "type": "string"
-          },
-          "weight": {
-            "type": "integer"
-          },
-          "point_boost": {
-            "type": "integer"
-          },
-          "round_units": {
-            "type": "integer"
-          },
-          "round_delay": {
-            "type": "integer"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "team_id",
           "name",
           "display_name",
-          "weight",
-          "point_boost",
-          "round_units",
-          "round_delay"
+          "competition_id"
         ]
       },
       "ServiceRead": {
@@ -6489,6 +6170,12 @@
           "id": {
             "type": "string"
           },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
           "pause": {
             "type": "boolean"
           },
@@ -6497,39 +6184,13 @@
           },
           "competition_id": {
             "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "display_name": {
-            "type": "string"
-          },
-          "weight": {
-            "type": "integer"
-          },
-          "point_boost": {
-            "type": "integer"
-          },
-          "round_units": {
-            "type": "integer"
-          },
-          "round_delay": {
-            "type": "integer"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "team_id",
           "name",
           "display_name",
-          "weight",
-          "point_boost",
-          "round_units",
-          "round_delay"
+          "competition_id"
         ]
       },
       "ServiceUpdate": {
@@ -6538,55 +6199,12 @@
           "id": {
             "type": "string"
           },
-          "pause": {
-            "type": "boolean"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
           "name": {
             "type": "string"
           },
           "display_name": {
             "type": "string"
           },
-          "weight": {
-            "type": "integer"
-          },
-          "point_boost": {
-            "type": "integer"
-          },
-          "round_units": {
-            "type": "integer"
-          },
-          "round_delay": {
-            "type": "integer"
-          }
-        },
-        "required": [
-          "id",
-          "competition_id",
-          "team_id",
-          "name",
-          "display_name",
-          "weight",
-          "point_boost",
-          "round_units",
-          "round_delay"
-        ]
-      },
-      "Service_ChecksList": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
           "pause": {
             "type": "boolean"
           },
@@ -6595,23 +6213,13 @@
           },
           "competition_id": {
             "type": "string"
-          },
-          "log": {
-            "type": "string"
-          },
-          "error": {
-            "type": "string"
-          },
-          "passed": {
-            "type": "boolean"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "log",
-          "error",
-          "passed"
+          "name",
+          "display_name",
+          "competition_id"
         ]
       },
       "Service_CompetitionRead": {
@@ -6654,149 +6262,64 @@
           "display_name"
         ]
       },
-      "Service_HostsRead": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "pause": {
-            "type": "boolean"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
-          "address": {
-            "type": "string"
-          },
-          "address_list_range": {
-            "type": "string"
-          },
-          "editable": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "id",
-          "competition_id",
-          "team_id",
-          "address",
-          "address_list_range",
-          "editable"
-        ]
-      },
-      "Service_PropertiesList": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "competition_id": {
-            "type": "string"
-          },
-          "team_id": {
-            "type": "string"
-          },
-          "key": {
-            "type": "string"
-          },
-          "value": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "view",
-              "edit",
-              "hide"
-            ],
-            "default": "view"
-          }
-        },
-        "required": [
-          "id",
-          "competition_id",
-          "team_id",
-          "key",
-          "value",
-          "status"
-        ]
-      },
-      "Service_TeamRead": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "pause": {
-            "type": "boolean"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "competition_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "index": {
-            "type": "integer"
-          }
-        },
-        "required": [
-          "id",
-          "competition_id",
-          "name"
-        ]
-      },
       "Team": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
           },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
           "pause": {
             "type": "boolean"
           },
           "hidden": {
             "type": "boolean"
           },
-          "competition_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "index": {
+          "number": {
             "type": "integer"
           },
-          "competition": {
-            "$ref": "#/components/schemas/Competition"
-          },
-          "users": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/User"
-            }
+          "competition_id": {
+            "type": "string"
           },
           "hosts": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/Host"
             }
+          },
+          "hostservices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HostService"
+            }
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Check"
+            }
+          },
+          "properties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Property"
+            }
+          },
+          "competition": {
+            "$ref": "#/components/schemas/Competition"
           }
         },
         "required": [
           "id",
-          "competition_id",
           "name",
+          "display_name",
+          "number",
+          "competition_id",
           "competition"
         ]
       },
@@ -6806,26 +6329,31 @@
           "id": {
             "type": "string"
           },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
           "pause": {
             "type": "boolean"
           },
           "hidden": {
             "type": "boolean"
           },
+          "number": {
+            "type": "integer"
+          },
           "competition_id": {
             "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "index": {
-            "type": "integer"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "name"
+          "name",
+          "display_name",
+          "number",
+          "competition_id"
         ]
       },
       "TeamList": {
@@ -6834,26 +6362,31 @@
           "id": {
             "type": "string"
           },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
           "pause": {
             "type": "boolean"
           },
           "hidden": {
             "type": "boolean"
           },
+          "number": {
+            "type": "integer"
+          },
           "competition_id": {
             "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "index": {
-            "type": "integer"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "name"
+          "name",
+          "display_name",
+          "number",
+          "competition_id"
         ]
       },
       "TeamRead": {
@@ -6862,29 +6395,67 @@
           "id": {
             "type": "string"
           },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
           "pause": {
             "type": "boolean"
           },
           "hidden": {
             "type": "boolean"
           },
+          "number": {
+            "type": "integer"
+          },
           "competition_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "display_name",
+          "number",
+          "competition_id"
+        ]
+      },
+      "TeamUpdate": {
+        "type": "object",
+        "properties": {
+          "id": {
             "type": "string"
           },
           "name": {
             "type": "string"
           },
-          "index": {
+          "display_name": {
+            "type": "string"
+          },
+          "pause": {
+            "type": "boolean"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "number": {
             "type": "integer"
+          },
+          "competition_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "name"
+          "name",
+          "display_name",
+          "number",
+          "competition_id"
         ]
       },
-      "TeamUpdate": {
+      "Team_ChecksList": {
         "type": "object",
         "properties": {
           "id": {
@@ -6896,20 +6467,33 @@
           "hidden": {
             "type": "boolean"
           },
-          "competition_id": {
+          "log": {
             "type": "string"
           },
-          "name": {
+          "error": {
             "type": "string"
           },
-          "index": {
-            "type": "integer"
+          "passed": {
+            "type": "boolean"
+          },
+          "round_id": {
+            "type": "string"
+          },
+          "host_service_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "name"
+          "log",
+          "error",
+          "passed",
+          "round_id",
+          "host_service_id",
+          "team_id"
         ]
       },
       "Team_CompetitionRead": {
@@ -6964,222 +6548,24 @@
           "hidden": {
             "type": "boolean"
           },
-          "competition_id": {
+          "address": {
             "type": "string"
           },
           "team_id": {
             "type": "string"
-          },
-          "address": {
-            "type": "string"
-          },
-          "address_list_range": {
-            "type": "string"
-          },
-          "editable": {
-            "type": "boolean"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "team_id",
           "address",
-          "address_list_range",
-          "editable"
+          "team_id"
         ]
       },
-      "Team_UsersList": {
+      "Team_HostservicesList": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "username": {
-            "type": "string"
-          },
-          "ory_id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "required": [
-          "id",
-          "username",
-          "ory_id"
-        ]
-      },
-      "User": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "username": {
-            "type": "string"
-          },
-          "ory_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "teams": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Team"
-            }
-          },
-          "competitions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Competition"
-            }
-          }
-        },
-        "required": [
-          "id",
-          "username",
-          "ory_id"
-        ]
-      },
-      "UserCreate": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "username": {
-            "type": "string"
-          },
-          "ory_id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "required": [
-          "id",
-          "username",
-          "ory_id"
-        ]
-      },
-      "UserList": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "username": {
-            "type": "string"
-          },
-          "ory_id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "required": [
-          "id",
-          "username",
-          "ory_id"
-        ]
-      },
-      "UserRead": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "username": {
-            "type": "string"
-          },
-          "ory_id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "required": [
-          "id",
-          "username",
-          "ory_id"
-        ]
-      },
-      "UserUpdate": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "create_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "update_time": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "username": {
-            "type": "string"
-          },
-          "ory_id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        },
-        "required": [
-          "id",
-          "username",
-          "ory_id"
-        ]
-      },
-      "User_CompetitionsList": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "hidden": {
-            "type": "boolean"
-          },
-          "pause": {
-            "type": "boolean"
           },
           "name": {
             "type": "string"
@@ -7187,54 +6573,78 @@
           "display_name": {
             "type": "string"
           },
-          "viewable_to_public": {
-            "type": "boolean"
-          },
-          "to_be_started_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "started_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "finished_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "display_name"
-        ]
-      },
-      "User_TeamsList": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
           "pause": {
             "type": "boolean"
           },
           "hidden": {
             "type": "boolean"
           },
-          "competition_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "index": {
+          "weight": {
             "type": "integer"
+          },
+          "point_boost": {
+            "type": "integer"
+          },
+          "round_units": {
+            "type": "integer"
+          },
+          "round_delay": {
+            "type": "integer"
+          },
+          "host_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
           }
         },
         "required": [
           "id",
-          "competition_id",
-          "name"
+          "name",
+          "display_name",
+          "weight",
+          "point_boost",
+          "round_units",
+          "round_delay",
+          "host_id",
+          "team_id"
+        ]
+      },
+      "Team_PropertiesList": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "view",
+              "edit",
+              "hide"
+            ],
+            "default": "view"
+          },
+          "host_service_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "value",
+          "status",
+          "host_service_id",
+          "team_id"
         ]
       }
     },

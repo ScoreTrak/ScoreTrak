@@ -9,12 +9,12 @@ type CreateCompetitionRes interface {
 	createCompetitionRes()
 }
 
-type CreateHostGroupRes interface {
-	createHostGroupRes()
-}
-
 type CreateHostRes interface {
 	createHostRes()
+}
+
+type CreateHostServiceRes interface {
+	createHostServiceRes()
 }
 
 type CreatePropertyRes interface {
@@ -37,10 +37,6 @@ type CreateTeamRes interface {
 	createTeamRes()
 }
 
-type CreateUserRes interface {
-	createUserRes()
-}
-
 type DeleteCheckRes interface {
 	deleteCheckRes()
 }
@@ -49,12 +45,12 @@ type DeleteCompetitionRes interface {
 	deleteCompetitionRes()
 }
 
-type DeleteHostGroupRes interface {
-	deleteHostGroupRes()
-}
-
 type DeleteHostRes interface {
 	deleteHostRes()
+}
+
+type DeleteHostServiceRes interface {
+	deleteHostServiceRes()
 }
 
 type DeletePropertyRes interface {
@@ -77,40 +73,48 @@ type DeleteTeamRes interface {
 	deleteTeamRes()
 }
 
-type DeleteUserRes interface {
-	deleteUserRes()
-}
-
 type ListCheckRes interface {
 	listCheckRes()
+}
+
+type ListCompetitionReportsRes interface {
+	listCompetitionReportsRes()
 }
 
 type ListCompetitionRes interface {
 	listCompetitionRes()
 }
 
+type ListCompetitionRoundsRes interface {
+	listCompetitionRoundsRes()
+}
+
+type ListCompetitionServicesRes interface {
+	listCompetitionServicesRes()
+}
+
 type ListCompetitionTeamsRes interface {
 	listCompetitionTeamsRes()
 }
 
-type ListCompetitionUsersRes interface {
-	listCompetitionUsersRes()
-}
-
-type ListHostGroupHostsRes interface {
-	listHostGroupHostsRes()
-}
-
-type ListHostGroupRes interface {
-	listHostGroupRes()
+type ListHostHostservicesRes interface {
+	listHostHostservicesRes()
 }
 
 type ListHostRes interface {
 	listHostRes()
 }
 
-type ListHostServicesRes interface {
-	listHostServicesRes()
+type ListHostServiceChecksRes interface {
+	listHostServiceChecksRes()
+}
+
+type ListHostServicePropertiesRes interface {
+	listHostServicePropertiesRes()
+}
+
+type ListHostServiceRes interface {
+	listHostServiceRes()
 }
 
 type ListPropertyRes interface {
@@ -129,44 +133,32 @@ type ListRoundRes interface {
 	listRoundRes()
 }
 
-type ListServiceChecksRes interface {
-	listServiceChecksRes()
-}
-
-type ListServicePropertiesRes interface {
-	listServicePropertiesRes()
-}
-
 type ListServiceRes interface {
 	listServiceRes()
+}
+
+type ListTeamChecksRes interface {
+	listTeamChecksRes()
 }
 
 type ListTeamHostsRes interface {
 	listTeamHostsRes()
 }
 
+type ListTeamHostservicesRes interface {
+	listTeamHostservicesRes()
+}
+
+type ListTeamPropertiesRes interface {
+	listTeamPropertiesRes()
+}
+
 type ListTeamRes interface {
 	listTeamRes()
 }
 
-type ListTeamUsersRes interface {
-	listTeamUsersRes()
-}
-
-type ListUserCompetitionsRes interface {
-	listUserCompetitionsRes()
-}
-
-type ListUserRes interface {
-	listUserRes()
-}
-
-type ListUserTeamsRes interface {
-	listUserTeamsRes()
-}
-
-type ReadCheckCompetitionRes interface {
-	readCheckCompetitionRes()
+type ReadCheckHostserviceRes interface {
+	readCheckHostserviceRes()
 }
 
 type ReadCheckRes interface {
@@ -177,56 +169,48 @@ type ReadCheckRoundsRes interface {
 	readCheckRoundsRes()
 }
 
-type ReadCheckServicesRes interface {
-	readCheckServicesRes()
+type ReadCheckTeamRes interface {
+	readCheckTeamRes()
 }
 
 type ReadCompetitionRes interface {
 	readCompetitionRes()
 }
 
-type ReadHostCompetitionRes interface {
-	readHostCompetitionRes()
-}
-
-type ReadHostGroupCompetitionRes interface {
-	readHostGroupCompetitionRes()
-}
-
-type ReadHostGroupRes interface {
-	readHostGroupRes()
-}
-
-type ReadHostGroupTeamRes interface {
-	readHostGroupTeamRes()
-}
-
-type ReadHostHostGroupRes interface {
-	readHostHostGroupRes()
-}
-
 type ReadHostRes interface {
 	readHostRes()
+}
+
+type ReadHostServiceHostRes interface {
+	readHostServiceHostRes()
+}
+
+type ReadHostServiceRes interface {
+	readHostServiceRes()
+}
+
+type ReadHostServiceTeamRes interface {
+	readHostServiceTeamRes()
 }
 
 type ReadHostTeamRes interface {
 	readHostTeamRes()
 }
 
-type ReadPropertyCompetitionRes interface {
-	readPropertyCompetitionRes()
+type ReadPropertyHostserviceRes interface {
+	readPropertyHostserviceRes()
 }
 
 type ReadPropertyRes interface {
 	readPropertyRes()
 }
 
-type ReadPropertyServicesRes interface {
-	readPropertyServicesRes()
-}
-
 type ReadPropertyTeamRes interface {
 	readPropertyTeamRes()
+}
+
+type ReadReportCompetitionRes interface {
+	readReportCompetitionRes()
 }
 
 type ReadReportRes interface {
@@ -245,16 +229,8 @@ type ReadServiceCompetitionRes interface {
 	readServiceCompetitionRes()
 }
 
-type ReadServiceHostsRes interface {
-	readServiceHostsRes()
-}
-
 type ReadServiceRes interface {
 	readServiceRes()
-}
-
-type ReadServiceTeamRes interface {
-	readServiceTeamRes()
 }
 
 type ReadTeamCompetitionRes interface {
@@ -265,10 +241,6 @@ type ReadTeamRes interface {
 	readTeamRes()
 }
 
-type ReadUserRes interface {
-	readUserRes()
-}
-
 type UpdateCheckRes interface {
 	updateCheckRes()
 }
@@ -277,12 +249,12 @@ type UpdateCompetitionRes interface {
 	updateCompetitionRes()
 }
 
-type UpdateHostGroupRes interface {
-	updateHostGroupRes()
-}
-
 type UpdateHostRes interface {
 	updateHostRes()
+}
+
+type UpdateHostServiceRes interface {
+	updateHostServiceRes()
 }
 
 type UpdatePropertyRes interface {
@@ -303,8 +275,4 @@ type UpdateServiceRes interface {
 
 type UpdateTeamRes interface {
 	updateTeamRes()
-}
-
-type UpdateUserRes interface {
-	updateUserRes()
 }

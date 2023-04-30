@@ -12,10 +12,12 @@ func NewCheckCreate(e *entities.Check) *CheckCreate {
 	ret.ID = e.ID
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
 	ret.Log = e.Log
 	ret.Error = e.Error
 	ret.Passed = e.Passed
+	ret.RoundID = e.RoundID
+	ret.HostServiceID = e.HostServiceID
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
@@ -45,10 +47,12 @@ func NewCheckList(e *entities.Check) *CheckList {
 	ret.ID = e.ID
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
 	ret.Log = e.Log
 	ret.Error = e.Error
 	ret.Passed = e.Passed
+	ret.RoundID = e.RoundID
+	ret.HostServiceID = e.HostServiceID
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
@@ -78,10 +82,12 @@ func NewCheckRead(e *entities.Check) *CheckRead {
 	ret.ID = e.ID
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
 	ret.Log = e.Log
 	ret.Error = e.Error
 	ret.Passed = e.Passed
+	ret.RoundID = e.RoundID
+	ret.HostServiceID = e.HostServiceID
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
@@ -111,10 +117,12 @@ func NewCheckUpdate(e *entities.Check) *CheckUpdate {
 	ret.ID = e.ID
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
 	ret.Log = e.Log
 	ret.Error = e.Error
 	ret.Passed = e.Passed
+	ret.RoundID = e.RoundID
+	ret.HostServiceID = e.HostServiceID
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
@@ -136,51 +144,41 @@ func (c *CheckUpdate) Elem() CheckUpdate {
 	return *c
 }
 
-func NewCheckCompetitionRead(e *entities.Competition) *CheckCompetitionRead {
+func NewCheckHostserviceRead(e *entities.HostService) *CheckHostserviceRead {
 	if e == nil {
 		return nil
 	}
-	var ret CheckCompetitionRead
+	var ret CheckHostserviceRead
 	ret.ID = e.ID
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.Pause = NewOptBool(e.Pause)
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.ViewableToPublic = OptBool{}
-	if e.ViewableToPublic != nil {
-		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
-	}
-	ret.ToBeStartedAt = OptDateTime{}
-	if e.ToBeStartedAt != nil {
-		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
-	}
-	ret.StartedAt = OptDateTime{}
-	if e.StartedAt != nil {
-		ret.StartedAt.SetTo(*e.StartedAt)
-	}
-	ret.FinishedAt = OptDateTime{}
-	if e.FinishedAt != nil {
-		ret.FinishedAt.SetTo(*e.FinishedAt)
-	}
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Weight = e.Weight
+	ret.PointBoost = e.PointBoost
+	ret.RoundUnits = e.RoundUnits
+	ret.RoundDelay = e.RoundDelay
+	ret.HostID = e.HostID
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
-func NewCheckCompetitionReads(es []*entities.Competition) []CheckCompetitionRead {
+func NewCheckHostserviceReads(es []*entities.HostService) []CheckHostserviceRead {
 	if len(es) == 0 {
 		return nil
 	}
-	r := make([]CheckCompetitionRead, len(es))
+	r := make([]CheckHostserviceRead, len(es))
 	for i, e := range es {
-		r[i] = NewCheckCompetitionRead(e).Elem()
+		r[i] = NewCheckHostserviceRead(e).Elem()
 	}
 	return r
 }
 
-func (c *CheckCompetitionRead) Elem() CheckCompetitionRead {
-	if c == nil {
-		return CheckCompetitionRead{}
+func (hs *CheckHostserviceRead) Elem() CheckHostserviceRead {
+	if hs == nil {
+		return CheckHostserviceRead{}
 	}
-	return *c
+	return *hs
 }
 
 func NewCheckRoundsRead(e *entities.Round) *CheckRoundsRead {
@@ -189,12 +187,12 @@ func NewCheckRoundsRead(e *entities.Round) *CheckRoundsRead {
 	}
 	var ret CheckRoundsRead
 	ret.ID = e.ID
-	ret.CompetitionID = e.CompetitionID
 	ret.RoundNumber = e.RoundNumber
 	ret.Note = e.Note
 	ret.Err = e.Err
 	ret.StartedAt = e.StartedAt
 	ret.FinishedAt = e.FinishedAt
+	ret.CompetitionID = e.CompetitionID
 	return &ret
 }
 
@@ -216,41 +214,37 @@ func (r *CheckRoundsRead) Elem() CheckRoundsRead {
 	return *r
 }
 
-func NewCheckServicesRead(e *entities.Service) *CheckServicesRead {
+func NewCheckTeamRead(e *entities.Team) *CheckTeamRead {
 	if e == nil {
 		return nil
 	}
-	var ret CheckServicesRead
+	var ret CheckTeamRead
 	ret.ID = e.ID
-	ret.Pause = NewOptBool(e.Pause)
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.Weight = e.Weight
-	ret.PointBoost = e.PointBoost
-	ret.RoundUnits = e.RoundUnits
-	ret.RoundDelay = e.RoundDelay
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Number = e.Number
+	ret.CompetitionID = e.CompetitionID
 	return &ret
 }
 
-func NewCheckServicesReads(es []*entities.Service) []CheckServicesRead {
+func NewCheckTeamReads(es []*entities.Team) []CheckTeamRead {
 	if len(es) == 0 {
 		return nil
 	}
-	r := make([]CheckServicesRead, len(es))
+	r := make([]CheckTeamRead, len(es))
 	for i, e := range es {
-		r[i] = NewCheckServicesRead(e).Elem()
+		r[i] = NewCheckTeamRead(e).Elem()
 	}
 	return r
 }
 
-func (s *CheckServicesRead) Elem() CheckServicesRead {
-	if s == nil {
-		return CheckServicesRead{}
+func (t *CheckTeamRead) Elem() CheckTeamRead {
+	if t == nil {
+		return CheckTeamRead{}
 	}
-	return *s
+	return *t
 }
 
 func NewCompetitionCreate(e *entities.Competition) *CompetitionCreate {
@@ -441,17 +435,113 @@ func (c *CompetitionUpdate) Elem() CompetitionUpdate {
 	return *c
 }
 
+func NewCompetitionReportsList(e *entities.Report) *CompetitionReportsList {
+	if e == nil {
+		return nil
+	}
+	var ret CompetitionReportsList
+	ret.ID = e.ID
+	ret.Log = e.Log
+	ret.Error = e.Error
+	ret.CompetitionID = e.CompetitionID
+	return &ret
+}
+
+func NewCompetitionReportsLists(es []*entities.Report) []CompetitionReportsList {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]CompetitionReportsList, len(es))
+	for i, e := range es {
+		r[i] = NewCompetitionReportsList(e).Elem()
+	}
+	return r
+}
+
+func (r *CompetitionReportsList) Elem() CompetitionReportsList {
+	if r == nil {
+		return CompetitionReportsList{}
+	}
+	return *r
+}
+
+func NewCompetitionRoundsList(e *entities.Round) *CompetitionRoundsList {
+	if e == nil {
+		return nil
+	}
+	var ret CompetitionRoundsList
+	ret.ID = e.ID
+	ret.RoundNumber = e.RoundNumber
+	ret.Note = e.Note
+	ret.Err = e.Err
+	ret.StartedAt = e.StartedAt
+	ret.FinishedAt = e.FinishedAt
+	ret.CompetitionID = e.CompetitionID
+	return &ret
+}
+
+func NewCompetitionRoundsLists(es []*entities.Round) []CompetitionRoundsList {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]CompetitionRoundsList, len(es))
+	for i, e := range es {
+		r[i] = NewCompetitionRoundsList(e).Elem()
+	}
+	return r
+}
+
+func (r *CompetitionRoundsList) Elem() CompetitionRoundsList {
+	if r == nil {
+		return CompetitionRoundsList{}
+	}
+	return *r
+}
+
+func NewCompetitionServicesList(e *entities.Service) *CompetitionServicesList {
+	if e == nil {
+		return nil
+	}
+	var ret CompetitionServicesList
+	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.CompetitionID = e.CompetitionID
+	return &ret
+}
+
+func NewCompetitionServicesLists(es []*entities.Service) []CompetitionServicesList {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]CompetitionServicesList, len(es))
+	for i, e := range es {
+		r[i] = NewCompetitionServicesList(e).Elem()
+	}
+	return r
+}
+
+func (s *CompetitionServicesList) Elem() CompetitionServicesList {
+	if s == nil {
+		return CompetitionServicesList{}
+	}
+	return *s
+}
+
 func NewCompetitionTeamsList(e *entities.Team) *CompetitionTeamsList {
 	if e == nil {
 		return nil
 	}
 	var ret CompetitionTeamsList
 	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Number = e.Number
 	ret.CompetitionID = e.CompetitionID
-	ret.Name = e.Name
-	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 
@@ -473,37 +563,6 @@ func (t *CompetitionTeamsList) Elem() CompetitionTeamsList {
 	return *t
 }
 
-func NewCompetitionUsersList(e *entities.User) *CompetitionUsersList {
-	if e == nil {
-		return nil
-	}
-	var ret CompetitionUsersList
-	ret.ID = e.ID
-	ret.CreateTime = NewOptDateTime(e.CreateTime)
-	ret.UpdateTime = NewOptDateTime(e.UpdateTime)
-	ret.Username = e.Username
-	ret.OryID = e.OryID
-	return &ret
-}
-
-func NewCompetitionUsersLists(es []*entities.User) []CompetitionUsersList {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]CompetitionUsersList, len(es))
-	for i, e := range es {
-		r[i] = NewCompetitionUsersList(e).Elem()
-	}
-	return r
-}
-
-func (u *CompetitionUsersList) Elem() CompetitionUsersList {
-	if u == nil {
-		return CompetitionUsersList{}
-	}
-	return *u
-}
-
 func NewHostCreate(e *entities.Host) *HostCreate {
 	if e == nil {
 		return nil
@@ -512,11 +571,8 @@ func NewHostCreate(e *entities.Host) *HostCreate {
 	ret.ID = e.ID
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
 	ret.Address = e.Address
-	ret.AddressListRange = e.AddressListRange
-	ret.Editable = e.Editable
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
@@ -538,247 +594,6 @@ func (h *HostCreate) Elem() HostCreate {
 	return *h
 }
 
-func NewHostGroupCreate(e *entities.HostGroup) *HostGroupCreate {
-	if e == nil {
-		return nil
-	}
-	var ret HostGroupCreate
-	ret.ID = e.ID
-	ret.Pause = NewOptBool(e.Pause)
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
-	ret.Name = e.Name
-	return &ret
-}
-
-func NewHostGroupCreates(es []*entities.HostGroup) []HostGroupCreate {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]HostGroupCreate, len(es))
-	for i, e := range es {
-		r[i] = NewHostGroupCreate(e).Elem()
-	}
-	return r
-}
-
-func (hg *HostGroupCreate) Elem() HostGroupCreate {
-	if hg == nil {
-		return HostGroupCreate{}
-	}
-	return *hg
-}
-
-func NewHostGroupList(e *entities.HostGroup) *HostGroupList {
-	if e == nil {
-		return nil
-	}
-	var ret HostGroupList
-	ret.ID = e.ID
-	ret.Pause = NewOptBool(e.Pause)
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
-	ret.Name = e.Name
-	return &ret
-}
-
-func NewHostGroupLists(es []*entities.HostGroup) []HostGroupList {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]HostGroupList, len(es))
-	for i, e := range es {
-		r[i] = NewHostGroupList(e).Elem()
-	}
-	return r
-}
-
-func (hg *HostGroupList) Elem() HostGroupList {
-	if hg == nil {
-		return HostGroupList{}
-	}
-	return *hg
-}
-
-func NewHostGroupRead(e *entities.HostGroup) *HostGroupRead {
-	if e == nil {
-		return nil
-	}
-	var ret HostGroupRead
-	ret.ID = e.ID
-	ret.Pause = NewOptBool(e.Pause)
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
-	ret.Name = e.Name
-	return &ret
-}
-
-func NewHostGroupReads(es []*entities.HostGroup) []HostGroupRead {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]HostGroupRead, len(es))
-	for i, e := range es {
-		r[i] = NewHostGroupRead(e).Elem()
-	}
-	return r
-}
-
-func (hg *HostGroupRead) Elem() HostGroupRead {
-	if hg == nil {
-		return HostGroupRead{}
-	}
-	return *hg
-}
-
-func NewHostGroupUpdate(e *entities.HostGroup) *HostGroupUpdate {
-	if e == nil {
-		return nil
-	}
-	var ret HostGroupUpdate
-	ret.ID = e.ID
-	ret.Pause = NewOptBool(e.Pause)
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
-	ret.Name = e.Name
-	return &ret
-}
-
-func NewHostGroupUpdates(es []*entities.HostGroup) []HostGroupUpdate {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]HostGroupUpdate, len(es))
-	for i, e := range es {
-		r[i] = NewHostGroupUpdate(e).Elem()
-	}
-	return r
-}
-
-func (hg *HostGroupUpdate) Elem() HostGroupUpdate {
-	if hg == nil {
-		return HostGroupUpdate{}
-	}
-	return *hg
-}
-
-func NewHostGroupCompetitionRead(e *entities.Competition) *HostGroupCompetitionRead {
-	if e == nil {
-		return nil
-	}
-	var ret HostGroupCompetitionRead
-	ret.ID = e.ID
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.Pause = NewOptBool(e.Pause)
-	ret.Name = e.Name
-	ret.DisplayName = e.DisplayName
-	ret.ViewableToPublic = OptBool{}
-	if e.ViewableToPublic != nil {
-		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
-	}
-	ret.ToBeStartedAt = OptDateTime{}
-	if e.ToBeStartedAt != nil {
-		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
-	}
-	ret.StartedAt = OptDateTime{}
-	if e.StartedAt != nil {
-		ret.StartedAt.SetTo(*e.StartedAt)
-	}
-	ret.FinishedAt = OptDateTime{}
-	if e.FinishedAt != nil {
-		ret.FinishedAt.SetTo(*e.FinishedAt)
-	}
-	return &ret
-}
-
-func NewHostGroupCompetitionReads(es []*entities.Competition) []HostGroupCompetitionRead {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]HostGroupCompetitionRead, len(es))
-	for i, e := range es {
-		r[i] = NewHostGroupCompetitionRead(e).Elem()
-	}
-	return r
-}
-
-func (c *HostGroupCompetitionRead) Elem() HostGroupCompetitionRead {
-	if c == nil {
-		return HostGroupCompetitionRead{}
-	}
-	return *c
-}
-
-func NewHostGroupHostsList(e *entities.Host) *HostGroupHostsList {
-	if e == nil {
-		return nil
-	}
-	var ret HostGroupHostsList
-	ret.ID = e.ID
-	ret.Pause = NewOptBool(e.Pause)
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
-	ret.Address = e.Address
-	ret.AddressListRange = e.AddressListRange
-	ret.Editable = e.Editable
-	return &ret
-}
-
-func NewHostGroupHostsLists(es []*entities.Host) []HostGroupHostsList {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]HostGroupHostsList, len(es))
-	for i, e := range es {
-		r[i] = NewHostGroupHostsList(e).Elem()
-	}
-	return r
-}
-
-func (h *HostGroupHostsList) Elem() HostGroupHostsList {
-	if h == nil {
-		return HostGroupHostsList{}
-	}
-	return *h
-}
-
-func NewHostGroupTeamRead(e *entities.Team) *HostGroupTeamRead {
-	if e == nil {
-		return nil
-	}
-	var ret HostGroupTeamRead
-	ret.ID = e.ID
-	ret.Pause = NewOptBool(e.Pause)
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.Name = e.Name
-	ret.Index = NewOptInt(e.Index)
-	return &ret
-}
-
-func NewHostGroupTeamReads(es []*entities.Team) []HostGroupTeamRead {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]HostGroupTeamRead, len(es))
-	for i, e := range es {
-		r[i] = NewHostGroupTeamRead(e).Elem()
-	}
-	return r
-}
-
-func (t *HostGroupTeamRead) Elem() HostGroupTeamRead {
-	if t == nil {
-		return HostGroupTeamRead{}
-	}
-	return *t
-}
-
 func NewHostList(e *entities.Host) *HostList {
 	if e == nil {
 		return nil
@@ -787,11 +602,8 @@ func NewHostList(e *entities.Host) *HostList {
 	ret.ID = e.ID
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
 	ret.Address = e.Address
-	ret.AddressListRange = e.AddressListRange
-	ret.Editable = e.Editable
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
@@ -821,11 +633,8 @@ func NewHostRead(e *entities.Host) *HostRead {
 	ret.ID = e.ID
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
 	ret.Address = e.Address
-	ret.AddressListRange = e.AddressListRange
-	ret.Editable = e.Editable
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
@@ -847,6 +656,285 @@ func (h *HostRead) Elem() HostRead {
 	return *h
 }
 
+func NewHostServiceCreate(e *entities.HostService) *HostServiceCreate {
+	if e == nil {
+		return nil
+	}
+	var ret HostServiceCreate
+	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Weight = e.Weight
+	ret.PointBoost = e.PointBoost
+	ret.RoundUnits = e.RoundUnits
+	ret.RoundDelay = e.RoundDelay
+	ret.HostID = e.HostID
+	ret.TeamID = e.TeamID
+	return &ret
+}
+
+func NewHostServiceCreates(es []*entities.HostService) []HostServiceCreate {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]HostServiceCreate, len(es))
+	for i, e := range es {
+		r[i] = NewHostServiceCreate(e).Elem()
+	}
+	return r
+}
+
+func (hs *HostServiceCreate) Elem() HostServiceCreate {
+	if hs == nil {
+		return HostServiceCreate{}
+	}
+	return *hs
+}
+
+func NewHostServiceList(e *entities.HostService) *HostServiceList {
+	if e == nil {
+		return nil
+	}
+	var ret HostServiceList
+	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Weight = e.Weight
+	ret.PointBoost = e.PointBoost
+	ret.RoundUnits = e.RoundUnits
+	ret.RoundDelay = e.RoundDelay
+	ret.HostID = e.HostID
+	ret.TeamID = e.TeamID
+	return &ret
+}
+
+func NewHostServiceLists(es []*entities.HostService) []HostServiceList {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]HostServiceList, len(es))
+	for i, e := range es {
+		r[i] = NewHostServiceList(e).Elem()
+	}
+	return r
+}
+
+func (hs *HostServiceList) Elem() HostServiceList {
+	if hs == nil {
+		return HostServiceList{}
+	}
+	return *hs
+}
+
+func NewHostServiceRead(e *entities.HostService) *HostServiceRead {
+	if e == nil {
+		return nil
+	}
+	var ret HostServiceRead
+	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Weight = e.Weight
+	ret.PointBoost = e.PointBoost
+	ret.RoundUnits = e.RoundUnits
+	ret.RoundDelay = e.RoundDelay
+	ret.HostID = e.HostID
+	ret.TeamID = e.TeamID
+	return &ret
+}
+
+func NewHostServiceReads(es []*entities.HostService) []HostServiceRead {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]HostServiceRead, len(es))
+	for i, e := range es {
+		r[i] = NewHostServiceRead(e).Elem()
+	}
+	return r
+}
+
+func (hs *HostServiceRead) Elem() HostServiceRead {
+	if hs == nil {
+		return HostServiceRead{}
+	}
+	return *hs
+}
+
+func NewHostServiceUpdate(e *entities.HostService) *HostServiceUpdate {
+	if e == nil {
+		return nil
+	}
+	var ret HostServiceUpdate
+	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Weight = e.Weight
+	ret.PointBoost = e.PointBoost
+	ret.RoundUnits = e.RoundUnits
+	ret.RoundDelay = e.RoundDelay
+	ret.HostID = e.HostID
+	ret.TeamID = e.TeamID
+	return &ret
+}
+
+func NewHostServiceUpdates(es []*entities.HostService) []HostServiceUpdate {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]HostServiceUpdate, len(es))
+	for i, e := range es {
+		r[i] = NewHostServiceUpdate(e).Elem()
+	}
+	return r
+}
+
+func (hs *HostServiceUpdate) Elem() HostServiceUpdate {
+	if hs == nil {
+		return HostServiceUpdate{}
+	}
+	return *hs
+}
+
+func NewHostServiceChecksList(e *entities.Check) *HostServiceChecksList {
+	if e == nil {
+		return nil
+	}
+	var ret HostServiceChecksList
+	ret.ID = e.ID
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Log = e.Log
+	ret.Error = e.Error
+	ret.Passed = e.Passed
+	ret.RoundID = e.RoundID
+	ret.HostServiceID = e.HostServiceID
+	ret.TeamID = e.TeamID
+	return &ret
+}
+
+func NewHostServiceChecksLists(es []*entities.Check) []HostServiceChecksList {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]HostServiceChecksList, len(es))
+	for i, e := range es {
+		r[i] = NewHostServiceChecksList(e).Elem()
+	}
+	return r
+}
+
+func (c *HostServiceChecksList) Elem() HostServiceChecksList {
+	if c == nil {
+		return HostServiceChecksList{}
+	}
+	return *c
+}
+
+func NewHostServiceHostRead(e *entities.Host) *HostServiceHostRead {
+	if e == nil {
+		return nil
+	}
+	var ret HostServiceHostRead
+	ret.ID = e.ID
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Address = e.Address
+	ret.TeamID = e.TeamID
+	return &ret
+}
+
+func NewHostServiceHostReads(es []*entities.Host) []HostServiceHostRead {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]HostServiceHostRead, len(es))
+	for i, e := range es {
+		r[i] = NewHostServiceHostRead(e).Elem()
+	}
+	return r
+}
+
+func (h *HostServiceHostRead) Elem() HostServiceHostRead {
+	if h == nil {
+		return HostServiceHostRead{}
+	}
+	return *h
+}
+
+func NewHostServicePropertiesList(e *entities.Property) *HostServicePropertiesList {
+	if e == nil {
+		return nil
+	}
+	var ret HostServicePropertiesList
+	ret.ID = e.ID
+	ret.Key = e.Key
+	ret.Value = e.Value
+	ret.Status = HostServicePropertiesListStatus(e.Status)
+	ret.HostServiceID = e.HostServiceID
+	ret.TeamID = e.TeamID
+	return &ret
+}
+
+func NewHostServicePropertiesLists(es []*entities.Property) []HostServicePropertiesList {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]HostServicePropertiesList, len(es))
+	for i, e := range es {
+		r[i] = NewHostServicePropertiesList(e).Elem()
+	}
+	return r
+}
+
+func (pr *HostServicePropertiesList) Elem() HostServicePropertiesList {
+	if pr == nil {
+		return HostServicePropertiesList{}
+	}
+	return *pr
+}
+
+func NewHostServiceTeamRead(e *entities.Team) *HostServiceTeamRead {
+	if e == nil {
+		return nil
+	}
+	var ret HostServiceTeamRead
+	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Number = e.Number
+	ret.CompetitionID = e.CompetitionID
+	return &ret
+}
+
+func NewHostServiceTeamReads(es []*entities.Team) []HostServiceTeamRead {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]HostServiceTeamRead, len(es))
+	for i, e := range es {
+		r[i] = NewHostServiceTeamRead(e).Elem()
+	}
+	return r
+}
+
+func (t *HostServiceTeamRead) Elem() HostServiceTeamRead {
+	if t == nil {
+		return HostServiceTeamRead{}
+	}
+	return *t
+}
+
 func NewHostUpdate(e *entities.Host) *HostUpdate {
 	if e == nil {
 		return nil
@@ -855,11 +943,8 @@ func NewHostUpdate(e *entities.Host) *HostUpdate {
 	ret.ID = e.ID
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
 	ret.Address = e.Address
-	ret.AddressListRange = e.AddressListRange
-	ret.Editable = e.Editable
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
@@ -881,120 +966,41 @@ func (h *HostUpdate) Elem() HostUpdate {
 	return *h
 }
 
-func NewHostCompetitionRead(e *entities.Competition) *HostCompetitionRead {
+func NewHostHostservicesList(e *entities.HostService) *HostHostservicesList {
 	if e == nil {
 		return nil
 	}
-	var ret HostCompetitionRead
+	var ret HostHostservicesList
 	ret.ID = e.ID
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.Pause = NewOptBool(e.Pause)
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.ViewableToPublic = OptBool{}
-	if e.ViewableToPublic != nil {
-		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
-	}
-	ret.ToBeStartedAt = OptDateTime{}
-	if e.ToBeStartedAt != nil {
-		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
-	}
-	ret.StartedAt = OptDateTime{}
-	if e.StartedAt != nil {
-		ret.StartedAt.SetTo(*e.StartedAt)
-	}
-	ret.FinishedAt = OptDateTime{}
-	if e.FinishedAt != nil {
-		ret.FinishedAt.SetTo(*e.FinishedAt)
-	}
-	return &ret
-}
-
-func NewHostCompetitionReads(es []*entities.Competition) []HostCompetitionRead {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]HostCompetitionRead, len(es))
-	for i, e := range es {
-		r[i] = NewHostCompetitionRead(e).Elem()
-	}
-	return r
-}
-
-func (c *HostCompetitionRead) Elem() HostCompetitionRead {
-	if c == nil {
-		return HostCompetitionRead{}
-	}
-	return *c
-}
-
-func NewHostHostGroupRead(e *entities.HostGroup) *HostHostGroupRead {
-	if e == nil {
-		return nil
-	}
-	var ret HostHostGroupRead
-	ret.ID = e.ID
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
-	ret.Name = e.Name
-	return &ret
-}
-
-func NewHostHostGroupReads(es []*entities.HostGroup) []HostHostGroupRead {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]HostHostGroupRead, len(es))
-	for i, e := range es {
-		r[i] = NewHostHostGroupRead(e).Elem()
-	}
-	return r
-}
-
-func (hg *HostHostGroupRead) Elem() HostHostGroupRead {
-	if hg == nil {
-		return HostHostGroupRead{}
-	}
-	return *hg
-}
-
-func NewHostServicesList(e *entities.Service) *HostServicesList {
-	if e == nil {
-		return nil
-	}
-	var ret HostServicesList
-	ret.ID = e.ID
-	ret.Pause = NewOptBool(e.Pause)
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
-	ret.Name = e.Name
-	ret.DisplayName = e.DisplayName
 	ret.Weight = e.Weight
 	ret.PointBoost = e.PointBoost
 	ret.RoundUnits = e.RoundUnits
 	ret.RoundDelay = e.RoundDelay
+	ret.HostID = e.HostID
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
-func NewHostServicesLists(es []*entities.Service) []HostServicesList {
+func NewHostHostservicesLists(es []*entities.HostService) []HostHostservicesList {
 	if len(es) == 0 {
 		return nil
 	}
-	r := make([]HostServicesList, len(es))
+	r := make([]HostHostservicesList, len(es))
 	for i, e := range es {
-		r[i] = NewHostServicesList(e).Elem()
+		r[i] = NewHostHostservicesList(e).Elem()
 	}
 	return r
 }
 
-func (s *HostServicesList) Elem() HostServicesList {
-	if s == nil {
-		return HostServicesList{}
+func (hs *HostHostservicesList) Elem() HostHostservicesList {
+	if hs == nil {
+		return HostHostservicesList{}
 	}
-	return *s
+	return *hs
 }
 
 func NewHostTeamRead(e *entities.Team) *HostTeamRead {
@@ -1003,11 +1009,12 @@ func NewHostTeamRead(e *entities.Team) *HostTeamRead {
 	}
 	var ret HostTeamRead
 	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Number = e.Number
 	ret.CompetitionID = e.CompetitionID
-	ret.Name = e.Name
-	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 
@@ -1035,11 +1042,11 @@ func NewPropertyCreate(e *entities.Property) *PropertyCreate {
 	}
 	var ret PropertyCreate
 	ret.ID = e.ID
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
 	ret.Key = e.Key
 	ret.Value = e.Value
 	ret.Status = PropertyCreateStatus(e.Status)
+	ret.HostServiceID = e.HostServiceID
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
@@ -1067,11 +1074,11 @@ func NewPropertyList(e *entities.Property) *PropertyList {
 	}
 	var ret PropertyList
 	ret.ID = e.ID
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
 	ret.Key = e.Key
 	ret.Value = e.Value
 	ret.Status = PropertyListStatus(e.Status)
+	ret.HostServiceID = e.HostServiceID
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
@@ -1099,11 +1106,11 @@ func NewPropertyRead(e *entities.Property) *PropertyRead {
 	}
 	var ret PropertyRead
 	ret.ID = e.ID
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
 	ret.Key = e.Key
 	ret.Value = e.Value
 	ret.Status = PropertyReadStatus(e.Status)
+	ret.HostServiceID = e.HostServiceID
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
@@ -1131,11 +1138,11 @@ func NewPropertyUpdate(e *entities.Property) *PropertyUpdate {
 	}
 	var ret PropertyUpdate
 	ret.ID = e.ID
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
 	ret.Key = e.Key
 	ret.Value = e.Value
 	ret.Status = PropertyUpdateStatus(e.Status)
+	ret.HostServiceID = e.HostServiceID
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
@@ -1157,88 +1164,41 @@ func (pr *PropertyUpdate) Elem() PropertyUpdate {
 	return *pr
 }
 
-func NewPropertyCompetitionRead(e *entities.Competition) *PropertyCompetitionRead {
+func NewPropertyHostserviceRead(e *entities.HostService) *PropertyHostserviceRead {
 	if e == nil {
 		return nil
 	}
-	var ret PropertyCompetitionRead
+	var ret PropertyHostserviceRead
 	ret.ID = e.ID
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.Pause = NewOptBool(e.Pause)
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.ViewableToPublic = OptBool{}
-	if e.ViewableToPublic != nil {
-		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
-	}
-	ret.ToBeStartedAt = OptDateTime{}
-	if e.ToBeStartedAt != nil {
-		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
-	}
-	ret.StartedAt = OptDateTime{}
-	if e.StartedAt != nil {
-		ret.StartedAt.SetTo(*e.StartedAt)
-	}
-	ret.FinishedAt = OptDateTime{}
-	if e.FinishedAt != nil {
-		ret.FinishedAt.SetTo(*e.FinishedAt)
-	}
-	return &ret
-}
-
-func NewPropertyCompetitionReads(es []*entities.Competition) []PropertyCompetitionRead {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]PropertyCompetitionRead, len(es))
-	for i, e := range es {
-		r[i] = NewPropertyCompetitionRead(e).Elem()
-	}
-	return r
-}
-
-func (c *PropertyCompetitionRead) Elem() PropertyCompetitionRead {
-	if c == nil {
-		return PropertyCompetitionRead{}
-	}
-	return *c
-}
-
-func NewPropertyServicesRead(e *entities.Service) *PropertyServicesRead {
-	if e == nil {
-		return nil
-	}
-	var ret PropertyServicesRead
-	ret.ID = e.ID
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
-	ret.Name = e.Name
-	ret.DisplayName = e.DisplayName
 	ret.Weight = e.Weight
 	ret.PointBoost = e.PointBoost
 	ret.RoundUnits = e.RoundUnits
 	ret.RoundDelay = e.RoundDelay
+	ret.HostID = e.HostID
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
-func NewPropertyServicesReads(es []*entities.Service) []PropertyServicesRead {
+func NewPropertyHostserviceReads(es []*entities.HostService) []PropertyHostserviceRead {
 	if len(es) == 0 {
 		return nil
 	}
-	r := make([]PropertyServicesRead, len(es))
+	r := make([]PropertyHostserviceRead, len(es))
 	for i, e := range es {
-		r[i] = NewPropertyServicesRead(e).Elem()
+		r[i] = NewPropertyHostserviceRead(e).Elem()
 	}
 	return r
 }
 
-func (s *PropertyServicesRead) Elem() PropertyServicesRead {
-	if s == nil {
-		return PropertyServicesRead{}
+func (hs *PropertyHostserviceRead) Elem() PropertyHostserviceRead {
+	if hs == nil {
+		return PropertyHostserviceRead{}
 	}
-	return *s
+	return *hs
 }
 
 func NewPropertyTeamRead(e *entities.Team) *PropertyTeamRead {
@@ -1247,11 +1207,12 @@ func NewPropertyTeamRead(e *entities.Team) *PropertyTeamRead {
 	}
 	var ret PropertyTeamRead
 	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Number = e.Number
 	ret.CompetitionID = e.CompetitionID
-	ret.Name = e.Name
-	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 
@@ -1281,6 +1242,7 @@ func NewReportCreate(e *entities.Report) *ReportCreate {
 	ret.ID = e.ID
 	ret.Log = e.Log
 	ret.Error = e.Error
+	ret.CompetitionID = e.CompetitionID
 	return &ret
 }
 
@@ -1310,6 +1272,7 @@ func NewReportList(e *entities.Report) *ReportList {
 	ret.ID = e.ID
 	ret.Log = e.Log
 	ret.Error = e.Error
+	ret.CompetitionID = e.CompetitionID
 	return &ret
 }
 
@@ -1339,6 +1302,7 @@ func NewReportRead(e *entities.Report) *ReportRead {
 	ret.ID = e.ID
 	ret.Log = e.Log
 	ret.Error = e.Error
+	ret.CompetitionID = e.CompetitionID
 	return &ret
 }
 
@@ -1368,6 +1332,7 @@ func NewReportUpdate(e *entities.Report) *ReportUpdate {
 	ret.ID = e.ID
 	ret.Log = e.Log
 	ret.Error = e.Error
+	ret.CompetitionID = e.CompetitionID
 	return &ret
 }
 
@@ -1389,18 +1354,65 @@ func (r *ReportUpdate) Elem() ReportUpdate {
 	return *r
 }
 
+func NewReportCompetitionRead(e *entities.Competition) *ReportCompetitionRead {
+	if e == nil {
+		return nil
+	}
+	var ret ReportCompetitionRead
+	ret.ID = e.ID
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
+	ret.ViewableToPublic = OptBool{}
+	if e.ViewableToPublic != nil {
+		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
+	}
+	ret.ToBeStartedAt = OptDateTime{}
+	if e.ToBeStartedAt != nil {
+		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
+	}
+	ret.StartedAt = OptDateTime{}
+	if e.StartedAt != nil {
+		ret.StartedAt.SetTo(*e.StartedAt)
+	}
+	ret.FinishedAt = OptDateTime{}
+	if e.FinishedAt != nil {
+		ret.FinishedAt.SetTo(*e.FinishedAt)
+	}
+	return &ret
+}
+
+func NewReportCompetitionReads(es []*entities.Competition) []ReportCompetitionRead {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]ReportCompetitionRead, len(es))
+	for i, e := range es {
+		r[i] = NewReportCompetitionRead(e).Elem()
+	}
+	return r
+}
+
+func (c *ReportCompetitionRead) Elem() ReportCompetitionRead {
+	if c == nil {
+		return ReportCompetitionRead{}
+	}
+	return *c
+}
+
 func NewRoundCreate(e *entities.Round) *RoundCreate {
 	if e == nil {
 		return nil
 	}
 	var ret RoundCreate
 	ret.ID = e.ID
-	ret.CompetitionID = e.CompetitionID
 	ret.RoundNumber = e.RoundNumber
 	ret.Note = e.Note
 	ret.Err = e.Err
 	ret.StartedAt = e.StartedAt
 	ret.FinishedAt = e.FinishedAt
+	ret.CompetitionID = e.CompetitionID
 	return &ret
 }
 
@@ -1428,12 +1440,12 @@ func NewRoundList(e *entities.Round) *RoundList {
 	}
 	var ret RoundList
 	ret.ID = e.ID
-	ret.CompetitionID = e.CompetitionID
 	ret.RoundNumber = e.RoundNumber
 	ret.Note = e.Note
 	ret.Err = e.Err
 	ret.StartedAt = e.StartedAt
 	ret.FinishedAt = e.FinishedAt
+	ret.CompetitionID = e.CompetitionID
 	return &ret
 }
 
@@ -1461,12 +1473,12 @@ func NewRoundRead(e *entities.Round) *RoundRead {
 	}
 	var ret RoundRead
 	ret.ID = e.ID
-	ret.CompetitionID = e.CompetitionID
 	ret.RoundNumber = e.RoundNumber
 	ret.Note = e.Note
 	ret.Err = e.Err
 	ret.StartedAt = e.StartedAt
 	ret.FinishedAt = e.FinishedAt
+	ret.CompetitionID = e.CompetitionID
 	return &ret
 }
 
@@ -1494,12 +1506,12 @@ func NewRoundUpdate(e *entities.Round) *RoundUpdate {
 	}
 	var ret RoundUpdate
 	ret.ID = e.ID
-	ret.CompetitionID = e.CompetitionID
 	ret.RoundNumber = e.RoundNumber
 	ret.Note = e.Note
 	ret.Err = e.Err
 	ret.StartedAt = e.StartedAt
 	ret.FinishedAt = e.FinishedAt
+	ret.CompetitionID = e.CompetitionID
 	return &ret
 }
 
@@ -1529,10 +1541,12 @@ func NewRoundChecksList(e *entities.Check) *RoundChecksList {
 	ret.ID = e.ID
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
 	ret.Log = e.Log
 	ret.Error = e.Error
 	ret.Passed = e.Passed
+	ret.RoundID = e.RoundID
+	ret.HostServiceID = e.HostServiceID
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
@@ -1607,16 +1621,11 @@ func NewServiceCreate(e *entities.Service) *ServiceCreate {
 	}
 	var ret ServiceCreate
 	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
-	ret.Name = e.Name
-	ret.DisplayName = e.DisplayName
-	ret.Weight = e.Weight
-	ret.PointBoost = e.PointBoost
-	ret.RoundUnits = e.RoundUnits
-	ret.RoundDelay = e.RoundDelay
 	return &ret
 }
 
@@ -1644,16 +1653,11 @@ func NewServiceList(e *entities.Service) *ServiceList {
 	}
 	var ret ServiceList
 	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
-	ret.Name = e.Name
-	ret.DisplayName = e.DisplayName
-	ret.Weight = e.Weight
-	ret.PointBoost = e.PointBoost
-	ret.RoundUnits = e.RoundUnits
-	ret.RoundDelay = e.RoundDelay
 	return &ret
 }
 
@@ -1681,16 +1685,11 @@ func NewServiceRead(e *entities.Service) *ServiceRead {
 	}
 	var ret ServiceRead
 	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
-	ret.Name = e.Name
-	ret.DisplayName = e.DisplayName
-	ret.Weight = e.Weight
-	ret.PointBoost = e.PointBoost
-	ret.RoundUnits = e.RoundUnits
-	ret.RoundDelay = e.RoundDelay
 	return &ret
 }
 
@@ -1718,16 +1717,11 @@ func NewServiceUpdate(e *entities.Service) *ServiceUpdate {
 	}
 	var ret ServiceUpdate
 	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
 	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
-	ret.Name = e.Name
-	ret.DisplayName = e.DisplayName
-	ret.Weight = e.Weight
-	ret.PointBoost = e.PointBoost
-	ret.RoundUnits = e.RoundUnits
-	ret.RoundDelay = e.RoundDelay
 	return &ret
 }
 
@@ -1747,39 +1741,6 @@ func (s *ServiceUpdate) Elem() ServiceUpdate {
 		return ServiceUpdate{}
 	}
 	return *s
-}
-
-func NewServiceChecksList(e *entities.Check) *ServiceChecksList {
-	if e == nil {
-		return nil
-	}
-	var ret ServiceChecksList
-	ret.ID = e.ID
-	ret.Pause = NewOptBool(e.Pause)
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.Log = e.Log
-	ret.Error = e.Error
-	ret.Passed = e.Passed
-	return &ret
-}
-
-func NewServiceChecksLists(es []*entities.Check) []ServiceChecksList {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]ServiceChecksList, len(es))
-	for i, e := range es {
-		r[i] = NewServiceChecksList(e).Elem()
-	}
-	return r
-}
-
-func (c *ServiceChecksList) Elem() ServiceChecksList {
-	if c == nil {
-		return ServiceChecksList{}
-	}
-	return *c
 }
 
 func NewServiceCompetitionRead(e *entities.Competition) *ServiceCompetitionRead {
@@ -1829,115 +1790,18 @@ func (c *ServiceCompetitionRead) Elem() ServiceCompetitionRead {
 	return *c
 }
 
-func NewServiceHostsRead(e *entities.Host) *ServiceHostsRead {
-	if e == nil {
-		return nil
-	}
-	var ret ServiceHostsRead
-	ret.ID = e.ID
-	ret.Pause = NewOptBool(e.Pause)
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
-	ret.Address = e.Address
-	ret.AddressListRange = e.AddressListRange
-	ret.Editable = e.Editable
-	return &ret
-}
-
-func NewServiceHostsReads(es []*entities.Host) []ServiceHostsRead {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]ServiceHostsRead, len(es))
-	for i, e := range es {
-		r[i] = NewServiceHostsRead(e).Elem()
-	}
-	return r
-}
-
-func (h *ServiceHostsRead) Elem() ServiceHostsRead {
-	if h == nil {
-		return ServiceHostsRead{}
-	}
-	return *h
-}
-
-func NewServicePropertiesList(e *entities.Property) *ServicePropertiesList {
-	if e == nil {
-		return nil
-	}
-	var ret ServicePropertiesList
-	ret.ID = e.ID
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
-	ret.Key = e.Key
-	ret.Value = e.Value
-	ret.Status = ServicePropertiesListStatus(e.Status)
-	return &ret
-}
-
-func NewServicePropertiesLists(es []*entities.Property) []ServicePropertiesList {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]ServicePropertiesList, len(es))
-	for i, e := range es {
-		r[i] = NewServicePropertiesList(e).Elem()
-	}
-	return r
-}
-
-func (pr *ServicePropertiesList) Elem() ServicePropertiesList {
-	if pr == nil {
-		return ServicePropertiesList{}
-	}
-	return *pr
-}
-
-func NewServiceTeamRead(e *entities.Team) *ServiceTeamRead {
-	if e == nil {
-		return nil
-	}
-	var ret ServiceTeamRead
-	ret.ID = e.ID
-	ret.Pause = NewOptBool(e.Pause)
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.Name = e.Name
-	ret.Index = NewOptInt(e.Index)
-	return &ret
-}
-
-func NewServiceTeamReads(es []*entities.Team) []ServiceTeamRead {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]ServiceTeamRead, len(es))
-	for i, e := range es {
-		r[i] = NewServiceTeamRead(e).Elem()
-	}
-	return r
-}
-
-func (t *ServiceTeamRead) Elem() ServiceTeamRead {
-	if t == nil {
-		return ServiceTeamRead{}
-	}
-	return *t
-}
-
 func NewTeamCreate(e *entities.Team) *TeamCreate {
 	if e == nil {
 		return nil
 	}
 	var ret TeamCreate
 	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Number = e.Number
 	ret.CompetitionID = e.CompetitionID
-	ret.Name = e.Name
-	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 
@@ -1965,11 +1829,12 @@ func NewTeamList(e *entities.Team) *TeamList {
 	}
 	var ret TeamList
 	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Number = e.Number
 	ret.CompetitionID = e.CompetitionID
-	ret.Name = e.Name
-	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 
@@ -1997,11 +1862,12 @@ func NewTeamRead(e *entities.Team) *TeamRead {
 	}
 	var ret TeamRead
 	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Number = e.Number
 	ret.CompetitionID = e.CompetitionID
-	ret.Name = e.Name
-	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 
@@ -2029,11 +1895,12 @@ func NewTeamUpdate(e *entities.Team) *TeamUpdate {
 	}
 	var ret TeamUpdate
 	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Number = e.Number
 	ret.CompetitionID = e.CompetitionID
-	ret.Name = e.Name
-	ret.Index = NewOptInt(e.Index)
 	return &ret
 }
 
@@ -2053,6 +1920,41 @@ func (t *TeamUpdate) Elem() TeamUpdate {
 		return TeamUpdate{}
 	}
 	return *t
+}
+
+func NewTeamChecksList(e *entities.Check) *TeamChecksList {
+	if e == nil {
+		return nil
+	}
+	var ret TeamChecksList
+	ret.ID = e.ID
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Log = e.Log
+	ret.Error = e.Error
+	ret.Passed = e.Passed
+	ret.RoundID = e.RoundID
+	ret.HostServiceID = e.HostServiceID
+	ret.TeamID = e.TeamID
+	return &ret
+}
+
+func NewTeamChecksLists(es []*entities.Check) []TeamChecksList {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]TeamChecksList, len(es))
+	for i, e := range es {
+		r[i] = NewTeamChecksList(e).Elem()
+	}
+	return r
+}
+
+func (c *TeamChecksList) Elem() TeamChecksList {
+	if c == nil {
+		return TeamChecksList{}
+	}
+	return *c
 }
 
 func NewTeamCompetitionRead(e *entities.Competition) *TeamCompetitionRead {
@@ -2110,11 +2012,8 @@ func NewTeamHostsList(e *entities.Host) *TeamHostsList {
 	ret.ID = e.ID
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.TeamID = e.TeamID
 	ret.Address = e.Address
-	ret.AddressListRange = e.AddressListRange
-	ret.Editable = e.Editable
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
@@ -2136,236 +2035,71 @@ func (h *TeamHostsList) Elem() TeamHostsList {
 	return *h
 }
 
-func NewTeamUsersList(e *entities.User) *TeamUsersList {
+func NewTeamHostservicesList(e *entities.HostService) *TeamHostservicesList {
 	if e == nil {
 		return nil
 	}
-	var ret TeamUsersList
+	var ret TeamHostservicesList
 	ret.ID = e.ID
-	ret.CreateTime = NewOptDateTime(e.CreateTime)
-	ret.UpdateTime = NewOptDateTime(e.UpdateTime)
-	ret.Username = e.Username
-	ret.OryID = e.OryID
-	return &ret
-}
-
-func NewTeamUsersLists(es []*entities.User) []TeamUsersList {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]TeamUsersList, len(es))
-	for i, e := range es {
-		r[i] = NewTeamUsersList(e).Elem()
-	}
-	return r
-}
-
-func (u *TeamUsersList) Elem() TeamUsersList {
-	if u == nil {
-		return TeamUsersList{}
-	}
-	return *u
-}
-
-func NewUserCreate(e *entities.User) *UserCreate {
-	if e == nil {
-		return nil
-	}
-	var ret UserCreate
-	ret.ID = e.ID
-	ret.CreateTime = NewOptDateTime(e.CreateTime)
-	ret.UpdateTime = NewOptDateTime(e.UpdateTime)
-	ret.Username = e.Username
-	ret.OryID = e.OryID
-	return &ret
-}
-
-func NewUserCreates(es []*entities.User) []UserCreate {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]UserCreate, len(es))
-	for i, e := range es {
-		r[i] = NewUserCreate(e).Elem()
-	}
-	return r
-}
-
-func (u *UserCreate) Elem() UserCreate {
-	if u == nil {
-		return UserCreate{}
-	}
-	return *u
-}
-
-func NewUserList(e *entities.User) *UserList {
-	if e == nil {
-		return nil
-	}
-	var ret UserList
-	ret.ID = e.ID
-	ret.CreateTime = NewOptDateTime(e.CreateTime)
-	ret.UpdateTime = NewOptDateTime(e.UpdateTime)
-	ret.Username = e.Username
-	ret.OryID = e.OryID
-	return &ret
-}
-
-func NewUserLists(es []*entities.User) []UserList {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]UserList, len(es))
-	for i, e := range es {
-		r[i] = NewUserList(e).Elem()
-	}
-	return r
-}
-
-func (u *UserList) Elem() UserList {
-	if u == nil {
-		return UserList{}
-	}
-	return *u
-}
-
-func NewUserRead(e *entities.User) *UserRead {
-	if e == nil {
-		return nil
-	}
-	var ret UserRead
-	ret.ID = e.ID
-	ret.CreateTime = NewOptDateTime(e.CreateTime)
-	ret.UpdateTime = NewOptDateTime(e.UpdateTime)
-	ret.Username = e.Username
-	ret.OryID = e.OryID
-	return &ret
-}
-
-func NewUserReads(es []*entities.User) []UserRead {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]UserRead, len(es))
-	for i, e := range es {
-		r[i] = NewUserRead(e).Elem()
-	}
-	return r
-}
-
-func (u *UserRead) Elem() UserRead {
-	if u == nil {
-		return UserRead{}
-	}
-	return *u
-}
-
-func NewUserUpdate(e *entities.User) *UserUpdate {
-	if e == nil {
-		return nil
-	}
-	var ret UserUpdate
-	ret.ID = e.ID
-	ret.CreateTime = NewOptDateTime(e.CreateTime)
-	ret.UpdateTime = NewOptDateTime(e.UpdateTime)
-	ret.Username = e.Username
-	ret.OryID = e.OryID
-	return &ret
-}
-
-func NewUserUpdates(es []*entities.User) []UserUpdate {
-	if len(es) == 0 {
-		return nil
-	}
-	r := make([]UserUpdate, len(es))
-	for i, e := range es {
-		r[i] = NewUserUpdate(e).Elem()
-	}
-	return r
-}
-
-func (u *UserUpdate) Elem() UserUpdate {
-	if u == nil {
-		return UserUpdate{}
-	}
-	return *u
-}
-
-func NewUserCompetitionsList(e *entities.Competition) *UserCompetitionsList {
-	if e == nil {
-		return nil
-	}
-	var ret UserCompetitionsList
-	ret.ID = e.ID
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.Pause = NewOptBool(e.Pause)
 	ret.Name = e.Name
 	ret.DisplayName = e.DisplayName
-	ret.ViewableToPublic = OptBool{}
-	if e.ViewableToPublic != nil {
-		ret.ViewableToPublic.SetTo(*e.ViewableToPublic)
-	}
-	ret.ToBeStartedAt = OptDateTime{}
-	if e.ToBeStartedAt != nil {
-		ret.ToBeStartedAt.SetTo(*e.ToBeStartedAt)
-	}
-	ret.StartedAt = OptDateTime{}
-	if e.StartedAt != nil {
-		ret.StartedAt.SetTo(*e.StartedAt)
-	}
-	ret.FinishedAt = OptDateTime{}
-	if e.FinishedAt != nil {
-		ret.FinishedAt.SetTo(*e.FinishedAt)
-	}
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Weight = e.Weight
+	ret.PointBoost = e.PointBoost
+	ret.RoundUnits = e.RoundUnits
+	ret.RoundDelay = e.RoundDelay
+	ret.HostID = e.HostID
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
-func NewUserCompetitionsLists(es []*entities.Competition) []UserCompetitionsList {
+func NewTeamHostservicesLists(es []*entities.HostService) []TeamHostservicesList {
 	if len(es) == 0 {
 		return nil
 	}
-	r := make([]UserCompetitionsList, len(es))
+	r := make([]TeamHostservicesList, len(es))
 	for i, e := range es {
-		r[i] = NewUserCompetitionsList(e).Elem()
+		r[i] = NewTeamHostservicesList(e).Elem()
 	}
 	return r
 }
 
-func (c *UserCompetitionsList) Elem() UserCompetitionsList {
-	if c == nil {
-		return UserCompetitionsList{}
+func (hs *TeamHostservicesList) Elem() TeamHostservicesList {
+	if hs == nil {
+		return TeamHostservicesList{}
 	}
-	return *c
+	return *hs
 }
 
-func NewUserTeamsList(e *entities.Team) *UserTeamsList {
+func NewTeamPropertiesList(e *entities.Property) *TeamPropertiesList {
 	if e == nil {
 		return nil
 	}
-	var ret UserTeamsList
+	var ret TeamPropertiesList
 	ret.ID = e.ID
-	ret.Pause = NewOptBool(e.Pause)
-	ret.Hidden = NewOptBool(e.Hidden)
-	ret.CompetitionID = e.CompetitionID
-	ret.Name = e.Name
-	ret.Index = NewOptInt(e.Index)
+	ret.Key = e.Key
+	ret.Value = e.Value
+	ret.Status = TeamPropertiesListStatus(e.Status)
+	ret.HostServiceID = e.HostServiceID
+	ret.TeamID = e.TeamID
 	return &ret
 }
 
-func NewUserTeamsLists(es []*entities.Team) []UserTeamsList {
+func NewTeamPropertiesLists(es []*entities.Property) []TeamPropertiesList {
 	if len(es) == 0 {
 		return nil
 	}
-	r := make([]UserTeamsList, len(es))
+	r := make([]TeamPropertiesList, len(es))
 	for i, e := range es {
-		r[i] = NewUserTeamsList(e).Elem()
+		r[i] = NewTeamPropertiesList(e).Elem()
 	}
 	return r
 }
 
-func (t *UserTeamsList) Elem() UserTeamsList {
-	if t == nil {
-		return UserTeamsList{}
+func (pr *TeamPropertiesList) Elem() TeamPropertiesList {
+	if pr == nil {
+		return TeamPropertiesList{}
 	}
-	return *t
+	return *pr
 }

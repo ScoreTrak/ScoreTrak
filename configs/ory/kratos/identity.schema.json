@@ -1,6 +1,6 @@
 {
   "$id": "https://schemas.ory.sh/presets/kratos/identity.username.schema.json",
-  "title": "Person",
+  "title": "Competitor",
   "type": "object",
   "properties": {
     "traits": {
@@ -16,10 +16,10 @@
                 "identifier": true
               },
               "webauthn": {
-                "identifier": true
+                "identifier": false
               },
               "totp": {
-                "account_name": true
+                "account_name": false
               }
             }
           }

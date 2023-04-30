@@ -7,14 +7,10 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect"
-	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostgroup"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
 )
 
@@ -23,7 +19,6 @@ type HostCreate struct {
 	config
 	mutation *HostMutation
 	hooks    []Hook
-	conflict []sql.ConflictOption
 }
 
 // SetPause sets the "pause" field.
@@ -54,33 +49,15 @@ func (hc *HostCreate) SetNillableHidden(b *bool) *HostCreate {
 	return hc
 }
 
-// SetCompetitionID sets the "competition_id" field.
-func (hc *HostCreate) SetCompetitionID(s string) *HostCreate {
-	hc.mutation.SetCompetitionID(s)
-	return hc
-}
-
-// SetTeamID sets the "team_id" field.
-func (hc *HostCreate) SetTeamID(s string) *HostCreate {
-	hc.mutation.SetTeamID(s)
-	return hc
-}
-
 // SetAddress sets the "address" field.
 func (hc *HostCreate) SetAddress(s string) *HostCreate {
 	hc.mutation.SetAddress(s)
 	return hc
 }
 
-// SetAddressListRange sets the "address_list_range" field.
-func (hc *HostCreate) SetAddressListRange(s string) *HostCreate {
-	hc.mutation.SetAddressListRange(s)
-	return hc
-}
-
-// SetEditable sets the "editable" field.
-func (hc *HostCreate) SetEditable(b bool) *HostCreate {
-	hc.mutation.SetEditable(b)
+// SetTeamID sets the "team_id" field.
+func (hc *HostCreate) SetTeamID(s string) *HostCreate {
+	hc.mutation.SetTeamID(s)
 	return hc
 }
 
@@ -98,40 +75,24 @@ func (hc *HostCreate) SetNillableID(s *string) *HostCreate {
 	return hc
 }
 
-// SetCompetition sets the "competition" edge to the Competition entity.
-func (hc *HostCreate) SetCompetition(c *Competition) *HostCreate {
-	return hc.SetCompetitionID(c.ID)
+// AddHostserviceIDs adds the "hostservices" edge to the HostService entity by IDs.
+func (hc *HostCreate) AddHostserviceIDs(ids ...string) *HostCreate {
+	hc.mutation.AddHostserviceIDs(ids...)
+	return hc
+}
+
+// AddHostservices adds the "hostservices" edges to the HostService entity.
+func (hc *HostCreate) AddHostservices(h ...*HostService) *HostCreate {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return hc.AddHostserviceIDs(ids...)
 }
 
 // SetTeam sets the "team" edge to the Team entity.
 func (hc *HostCreate) SetTeam(t *Team) *HostCreate {
 	return hc.SetTeamID(t.ID)
-}
-
-// AddServiceIDs adds the "services" edge to the Service entity by IDs.
-func (hc *HostCreate) AddServiceIDs(ids ...string) *HostCreate {
-	hc.mutation.AddServiceIDs(ids...)
-	return hc
-}
-
-// AddServices adds the "services" edges to the Service entity.
-func (hc *HostCreate) AddServices(s ...*Service) *HostCreate {
-	ids := make([]string, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
-	}
-	return hc.AddServiceIDs(ids...)
-}
-
-// SetHostGroupID sets the "host_group" edge to the HostGroup entity by ID.
-func (hc *HostCreate) SetHostGroupID(id string) *HostCreate {
-	hc.mutation.SetHostGroupID(id)
-	return hc
-}
-
-// SetHostGroup sets the "host_group" edge to the HostGroup entity.
-func (hc *HostCreate) SetHostGroup(h *HostGroup) *HostCreate {
-	return hc.SetHostGroupID(h.ID)
 }
 
 // Mutation returns the HostMutation object of the builder.
@@ -169,6 +130,10 @@ func (hc *HostCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (hc *HostCreate) defaults() {
+	if _, ok := hc.mutation.Hidden(); !ok {
+		v := host.DefaultHidden
+		hc.mutation.SetHidden(v)
+	}
 	if _, ok := hc.mutation.ID(); !ok {
 		v := host.DefaultID()
 		hc.mutation.SetID(v)
@@ -177,39 +142,19 @@ func (hc *HostCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (hc *HostCreate) check() error {
-	if _, ok := hc.mutation.CompetitionID(); !ok {
-		return &ValidationError{Name: "competition_id", err: errors.New(`entities: missing required field "Host.competition_id"`)}
-	}
-	if _, ok := hc.mutation.TeamID(); !ok {
-		return &ValidationError{Name: "team_id", err: errors.New(`entities: missing required field "Host.team_id"`)}
-	}
 	if _, ok := hc.mutation.Address(); !ok {
 		return &ValidationError{Name: "address", err: errors.New(`entities: missing required field "Host.address"`)}
 	}
-	if v, ok := hc.mutation.Address(); ok {
-		if err := host.AddressValidator(v); err != nil {
-			return &ValidationError{Name: "address", err: fmt.Errorf(`entities: validator failed for field "Host.address": %w`, err)}
-		}
-	}
-	if _, ok := hc.mutation.AddressListRange(); !ok {
-		return &ValidationError{Name: "address_list_range", err: errors.New(`entities: missing required field "Host.address_list_range"`)}
-	}
-	if _, ok := hc.mutation.Editable(); !ok {
-		return &ValidationError{Name: "editable", err: errors.New(`entities: missing required field "Host.editable"`)}
+	if _, ok := hc.mutation.TeamID(); !ok {
+		return &ValidationError{Name: "team_id", err: errors.New(`entities: missing required field "Host.team_id"`)}
 	}
 	if v, ok := hc.mutation.ID(); ok {
 		if err := host.IDValidator(v); err != nil {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`entities: validator failed for field "Host.id": %w`, err)}
 		}
 	}
-	if _, ok := hc.mutation.CompetitionID(); !ok {
-		return &ValidationError{Name: "competition", err: errors.New(`entities: missing required edge "Host.competition"`)}
-	}
 	if _, ok := hc.mutation.TeamID(); !ok {
 		return &ValidationError{Name: "team", err: errors.New(`entities: missing required edge "Host.team"`)}
-	}
-	if _, ok := hc.mutation.HostGroupID(); !ok {
-		return &ValidationError{Name: "host_group", err: errors.New(`entities: missing required edge "Host.host_group"`)}
 	}
 	return nil
 }
@@ -242,7 +187,6 @@ func (hc *HostCreate) createSpec() (*Host, *sqlgraph.CreateSpec) {
 		_node = &Host{config: hc.config}
 		_spec = sqlgraph.NewCreateSpec(host.Table, sqlgraph.NewFieldSpec(host.FieldID, field.TypeString))
 	)
-	_spec.OnConflict = hc.conflict
 	if id, ok := hc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -259,35 +203,26 @@ func (hc *HostCreate) createSpec() (*Host, *sqlgraph.CreateSpec) {
 		_spec.SetField(host.FieldAddress, field.TypeString, value)
 		_node.Address = value
 	}
-	if value, ok := hc.mutation.AddressListRange(); ok {
-		_spec.SetField(host.FieldAddressListRange, field.TypeString, value)
-		_node.AddressListRange = value
-	}
-	if value, ok := hc.mutation.Editable(); ok {
-		_spec.SetField(host.FieldEditable, field.TypeBool, value)
-		_node.Editable = value
-	}
-	if nodes := hc.mutation.CompetitionIDs(); len(nodes) > 0 {
+	if nodes := hc.mutation.HostservicesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   host.CompetitionTable,
-			Columns: []string{host.CompetitionColumn},
+			Table:   host.HostservicesTable,
+			Columns: []string{host.HostservicesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(competition.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.CompetitionID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := hc.mutation.TeamIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
+			Inverse: true,
 			Table:   host.TeamTable,
 			Columns: []string{host.TeamColumn},
 			Bidi:    false,
@@ -301,367 +236,13 @@ func (hc *HostCreate) createSpec() (*Host, *sqlgraph.CreateSpec) {
 		_node.TeamID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := hc.mutation.ServicesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   host.ServicesTable,
-			Columns: []string{host.ServicesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := hc.mutation.HostGroupIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   host.HostGroupTable,
-			Columns: []string{host.HostGroupColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hostgroup.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.host_group_hosts = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
 	return _node, _spec
-}
-
-// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
-// of the `INSERT` statement. For example:
-//
-//	client.Host.Create().
-//		SetPause(v).
-//		OnConflict(
-//			// Update the row with the new values
-//			// the was proposed for insertion.
-//			sql.ResolveWithNewValues(),
-//		).
-//		// Override some of the fields with custom
-//		// update values.
-//		Update(func(u *ent.HostUpsert) {
-//			SetPause(v+v).
-//		}).
-//		Exec(ctx)
-func (hc *HostCreate) OnConflict(opts ...sql.ConflictOption) *HostUpsertOne {
-	hc.conflict = opts
-	return &HostUpsertOne{
-		create: hc,
-	}
-}
-
-// OnConflictColumns calls `OnConflict` and configures the columns
-// as conflict target. Using this option is equivalent to using:
-//
-//	client.Host.Create().
-//		OnConflict(sql.ConflictColumns(columns...)).
-//		Exec(ctx)
-func (hc *HostCreate) OnConflictColumns(columns ...string) *HostUpsertOne {
-	hc.conflict = append(hc.conflict, sql.ConflictColumns(columns...))
-	return &HostUpsertOne{
-		create: hc,
-	}
-}
-
-type (
-	// HostUpsertOne is the builder for "upsert"-ing
-	//  one Host node.
-	HostUpsertOne struct {
-		create *HostCreate
-	}
-
-	// HostUpsert is the "OnConflict" setter.
-	HostUpsert struct {
-		*sql.UpdateSet
-	}
-)
-
-// SetPause sets the "pause" field.
-func (u *HostUpsert) SetPause(v bool) *HostUpsert {
-	u.Set(host.FieldPause, v)
-	return u
-}
-
-// UpdatePause sets the "pause" field to the value that was provided on create.
-func (u *HostUpsert) UpdatePause() *HostUpsert {
-	u.SetExcluded(host.FieldPause)
-	return u
-}
-
-// ClearPause clears the value of the "pause" field.
-func (u *HostUpsert) ClearPause() *HostUpsert {
-	u.SetNull(host.FieldPause)
-	return u
-}
-
-// SetHidden sets the "hidden" field.
-func (u *HostUpsert) SetHidden(v bool) *HostUpsert {
-	u.Set(host.FieldHidden, v)
-	return u
-}
-
-// UpdateHidden sets the "hidden" field to the value that was provided on create.
-func (u *HostUpsert) UpdateHidden() *HostUpsert {
-	u.SetExcluded(host.FieldHidden)
-	return u
-}
-
-// ClearHidden clears the value of the "hidden" field.
-func (u *HostUpsert) ClearHidden() *HostUpsert {
-	u.SetNull(host.FieldHidden)
-	return u
-}
-
-// SetTeamID sets the "team_id" field.
-func (u *HostUpsert) SetTeamID(v string) *HostUpsert {
-	u.Set(host.FieldTeamID, v)
-	return u
-}
-
-// UpdateTeamID sets the "team_id" field to the value that was provided on create.
-func (u *HostUpsert) UpdateTeamID() *HostUpsert {
-	u.SetExcluded(host.FieldTeamID)
-	return u
-}
-
-// SetAddress sets the "address" field.
-func (u *HostUpsert) SetAddress(v string) *HostUpsert {
-	u.Set(host.FieldAddress, v)
-	return u
-}
-
-// UpdateAddress sets the "address" field to the value that was provided on create.
-func (u *HostUpsert) UpdateAddress() *HostUpsert {
-	u.SetExcluded(host.FieldAddress)
-	return u
-}
-
-// SetAddressListRange sets the "address_list_range" field.
-func (u *HostUpsert) SetAddressListRange(v string) *HostUpsert {
-	u.Set(host.FieldAddressListRange, v)
-	return u
-}
-
-// UpdateAddressListRange sets the "address_list_range" field to the value that was provided on create.
-func (u *HostUpsert) UpdateAddressListRange() *HostUpsert {
-	u.SetExcluded(host.FieldAddressListRange)
-	return u
-}
-
-// SetEditable sets the "editable" field.
-func (u *HostUpsert) SetEditable(v bool) *HostUpsert {
-	u.Set(host.FieldEditable, v)
-	return u
-}
-
-// UpdateEditable sets the "editable" field to the value that was provided on create.
-func (u *HostUpsert) UpdateEditable() *HostUpsert {
-	u.SetExcluded(host.FieldEditable)
-	return u
-}
-
-// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
-// Using this option is equivalent to using:
-//
-//	client.Host.Create().
-//		OnConflict(
-//			sql.ResolveWithNewValues(),
-//			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(host.FieldID)
-//			}),
-//		).
-//		Exec(ctx)
-func (u *HostUpsertOne) UpdateNewValues() *HostUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
-		if _, exists := u.create.mutation.ID(); exists {
-			s.SetIgnore(host.FieldID)
-		}
-		if _, exists := u.create.mutation.CompetitionID(); exists {
-			s.SetIgnore(host.FieldCompetitionID)
-		}
-	}))
-	return u
-}
-
-// Ignore sets each column to itself in case of conflict.
-// Using this option is equivalent to using:
-//
-//	client.Host.Create().
-//	    OnConflict(sql.ResolveWithIgnore()).
-//	    Exec(ctx)
-func (u *HostUpsertOne) Ignore() *HostUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
-	return u
-}
-
-// DoNothing configures the conflict_action to `DO NOTHING`.
-// Supported only by SQLite and PostgreSQL.
-func (u *HostUpsertOne) DoNothing() *HostUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.DoNothing())
-	return u
-}
-
-// Update allows overriding fields `UPDATE` values. See the HostCreate.OnConflict
-// documentation for more info.
-func (u *HostUpsertOne) Update(set func(*HostUpsert)) *HostUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&HostUpsert{UpdateSet: update})
-	}))
-	return u
-}
-
-// SetPause sets the "pause" field.
-func (u *HostUpsertOne) SetPause(v bool) *HostUpsertOne {
-	return u.Update(func(s *HostUpsert) {
-		s.SetPause(v)
-	})
-}
-
-// UpdatePause sets the "pause" field to the value that was provided on create.
-func (u *HostUpsertOne) UpdatePause() *HostUpsertOne {
-	return u.Update(func(s *HostUpsert) {
-		s.UpdatePause()
-	})
-}
-
-// ClearPause clears the value of the "pause" field.
-func (u *HostUpsertOne) ClearPause() *HostUpsertOne {
-	return u.Update(func(s *HostUpsert) {
-		s.ClearPause()
-	})
-}
-
-// SetHidden sets the "hidden" field.
-func (u *HostUpsertOne) SetHidden(v bool) *HostUpsertOne {
-	return u.Update(func(s *HostUpsert) {
-		s.SetHidden(v)
-	})
-}
-
-// UpdateHidden sets the "hidden" field to the value that was provided on create.
-func (u *HostUpsertOne) UpdateHidden() *HostUpsertOne {
-	return u.Update(func(s *HostUpsert) {
-		s.UpdateHidden()
-	})
-}
-
-// ClearHidden clears the value of the "hidden" field.
-func (u *HostUpsertOne) ClearHidden() *HostUpsertOne {
-	return u.Update(func(s *HostUpsert) {
-		s.ClearHidden()
-	})
-}
-
-// SetTeamID sets the "team_id" field.
-func (u *HostUpsertOne) SetTeamID(v string) *HostUpsertOne {
-	return u.Update(func(s *HostUpsert) {
-		s.SetTeamID(v)
-	})
-}
-
-// UpdateTeamID sets the "team_id" field to the value that was provided on create.
-func (u *HostUpsertOne) UpdateTeamID() *HostUpsertOne {
-	return u.Update(func(s *HostUpsert) {
-		s.UpdateTeamID()
-	})
-}
-
-// SetAddress sets the "address" field.
-func (u *HostUpsertOne) SetAddress(v string) *HostUpsertOne {
-	return u.Update(func(s *HostUpsert) {
-		s.SetAddress(v)
-	})
-}
-
-// UpdateAddress sets the "address" field to the value that was provided on create.
-func (u *HostUpsertOne) UpdateAddress() *HostUpsertOne {
-	return u.Update(func(s *HostUpsert) {
-		s.UpdateAddress()
-	})
-}
-
-// SetAddressListRange sets the "address_list_range" field.
-func (u *HostUpsertOne) SetAddressListRange(v string) *HostUpsertOne {
-	return u.Update(func(s *HostUpsert) {
-		s.SetAddressListRange(v)
-	})
-}
-
-// UpdateAddressListRange sets the "address_list_range" field to the value that was provided on create.
-func (u *HostUpsertOne) UpdateAddressListRange() *HostUpsertOne {
-	return u.Update(func(s *HostUpsert) {
-		s.UpdateAddressListRange()
-	})
-}
-
-// SetEditable sets the "editable" field.
-func (u *HostUpsertOne) SetEditable(v bool) *HostUpsertOne {
-	return u.Update(func(s *HostUpsert) {
-		s.SetEditable(v)
-	})
-}
-
-// UpdateEditable sets the "editable" field to the value that was provided on create.
-func (u *HostUpsertOne) UpdateEditable() *HostUpsertOne {
-	return u.Update(func(s *HostUpsert) {
-		s.UpdateEditable()
-	})
-}
-
-// Exec executes the query.
-func (u *HostUpsertOne) Exec(ctx context.Context) error {
-	if len(u.create.conflict) == 0 {
-		return errors.New("entities: missing options for HostCreate.OnConflict")
-	}
-	return u.create.Exec(ctx)
-}
-
-// ExecX is like Exec, but panics if an error occurs.
-func (u *HostUpsertOne) ExecX(ctx context.Context) {
-	if err := u.create.Exec(ctx); err != nil {
-		panic(err)
-	}
-}
-
-// Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *HostUpsertOne) ID(ctx context.Context) (id string, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("entities: HostUpsertOne.ID is not supported by MySQL driver. Use HostUpsertOne.Exec instead")
-	}
-	node, err := u.create.Save(ctx)
-	if err != nil {
-		return id, err
-	}
-	return node.ID, nil
-}
-
-// IDX is like ID, but panics if an error occurs.
-func (u *HostUpsertOne) IDX(ctx context.Context) string {
-	id, err := u.ID(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return id
 }
 
 // HostCreateBulk is the builder for creating many Host entities in bulk.
 type HostCreateBulk struct {
 	config
 	builders []*HostCreate
-	conflict []sql.ConflictOption
 }
 
 // Save creates the Host entities in the database.
@@ -688,7 +269,6 @@ func (hcb *HostCreateBulk) Save(ctx context.Context) ([]*Host, error) {
 					_, err = mutators[i+1].Mutate(root, hcb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = hcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, hcb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -735,218 +315,6 @@ func (hcb *HostCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (hcb *HostCreateBulk) ExecX(ctx context.Context) {
 	if err := hcb.Exec(ctx); err != nil {
-		panic(err)
-	}
-}
-
-// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
-// of the `INSERT` statement. For example:
-//
-//	client.Host.CreateBulk(builders...).
-//		OnConflict(
-//			// Update the row with the new values
-//			// the was proposed for insertion.
-//			sql.ResolveWithNewValues(),
-//		).
-//		// Override some of the fields with custom
-//		// update values.
-//		Update(func(u *ent.HostUpsert) {
-//			SetPause(v+v).
-//		}).
-//		Exec(ctx)
-func (hcb *HostCreateBulk) OnConflict(opts ...sql.ConflictOption) *HostUpsertBulk {
-	hcb.conflict = opts
-	return &HostUpsertBulk{
-		create: hcb,
-	}
-}
-
-// OnConflictColumns calls `OnConflict` and configures the columns
-// as conflict target. Using this option is equivalent to using:
-//
-//	client.Host.Create().
-//		OnConflict(sql.ConflictColumns(columns...)).
-//		Exec(ctx)
-func (hcb *HostCreateBulk) OnConflictColumns(columns ...string) *HostUpsertBulk {
-	hcb.conflict = append(hcb.conflict, sql.ConflictColumns(columns...))
-	return &HostUpsertBulk{
-		create: hcb,
-	}
-}
-
-// HostUpsertBulk is the builder for "upsert"-ing
-// a bulk of Host nodes.
-type HostUpsertBulk struct {
-	create *HostCreateBulk
-}
-
-// UpdateNewValues updates the mutable fields using the new values that
-// were set on create. Using this option is equivalent to using:
-//
-//	client.Host.Create().
-//		OnConflict(
-//			sql.ResolveWithNewValues(),
-//			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(host.FieldID)
-//			}),
-//		).
-//		Exec(ctx)
-func (u *HostUpsertBulk) UpdateNewValues() *HostUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
-		for _, b := range u.create.builders {
-			if _, exists := b.mutation.ID(); exists {
-				s.SetIgnore(host.FieldID)
-			}
-			if _, exists := b.mutation.CompetitionID(); exists {
-				s.SetIgnore(host.FieldCompetitionID)
-			}
-		}
-	}))
-	return u
-}
-
-// Ignore sets each column to itself in case of conflict.
-// Using this option is equivalent to using:
-//
-//	client.Host.Create().
-//		OnConflict(sql.ResolveWithIgnore()).
-//		Exec(ctx)
-func (u *HostUpsertBulk) Ignore() *HostUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
-	return u
-}
-
-// DoNothing configures the conflict_action to `DO NOTHING`.
-// Supported only by SQLite and PostgreSQL.
-func (u *HostUpsertBulk) DoNothing() *HostUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.DoNothing())
-	return u
-}
-
-// Update allows overriding fields `UPDATE` values. See the HostCreateBulk.OnConflict
-// documentation for more info.
-func (u *HostUpsertBulk) Update(set func(*HostUpsert)) *HostUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&HostUpsert{UpdateSet: update})
-	}))
-	return u
-}
-
-// SetPause sets the "pause" field.
-func (u *HostUpsertBulk) SetPause(v bool) *HostUpsertBulk {
-	return u.Update(func(s *HostUpsert) {
-		s.SetPause(v)
-	})
-}
-
-// UpdatePause sets the "pause" field to the value that was provided on create.
-func (u *HostUpsertBulk) UpdatePause() *HostUpsertBulk {
-	return u.Update(func(s *HostUpsert) {
-		s.UpdatePause()
-	})
-}
-
-// ClearPause clears the value of the "pause" field.
-func (u *HostUpsertBulk) ClearPause() *HostUpsertBulk {
-	return u.Update(func(s *HostUpsert) {
-		s.ClearPause()
-	})
-}
-
-// SetHidden sets the "hidden" field.
-func (u *HostUpsertBulk) SetHidden(v bool) *HostUpsertBulk {
-	return u.Update(func(s *HostUpsert) {
-		s.SetHidden(v)
-	})
-}
-
-// UpdateHidden sets the "hidden" field to the value that was provided on create.
-func (u *HostUpsertBulk) UpdateHidden() *HostUpsertBulk {
-	return u.Update(func(s *HostUpsert) {
-		s.UpdateHidden()
-	})
-}
-
-// ClearHidden clears the value of the "hidden" field.
-func (u *HostUpsertBulk) ClearHidden() *HostUpsertBulk {
-	return u.Update(func(s *HostUpsert) {
-		s.ClearHidden()
-	})
-}
-
-// SetTeamID sets the "team_id" field.
-func (u *HostUpsertBulk) SetTeamID(v string) *HostUpsertBulk {
-	return u.Update(func(s *HostUpsert) {
-		s.SetTeamID(v)
-	})
-}
-
-// UpdateTeamID sets the "team_id" field to the value that was provided on create.
-func (u *HostUpsertBulk) UpdateTeamID() *HostUpsertBulk {
-	return u.Update(func(s *HostUpsert) {
-		s.UpdateTeamID()
-	})
-}
-
-// SetAddress sets the "address" field.
-func (u *HostUpsertBulk) SetAddress(v string) *HostUpsertBulk {
-	return u.Update(func(s *HostUpsert) {
-		s.SetAddress(v)
-	})
-}
-
-// UpdateAddress sets the "address" field to the value that was provided on create.
-func (u *HostUpsertBulk) UpdateAddress() *HostUpsertBulk {
-	return u.Update(func(s *HostUpsert) {
-		s.UpdateAddress()
-	})
-}
-
-// SetAddressListRange sets the "address_list_range" field.
-func (u *HostUpsertBulk) SetAddressListRange(v string) *HostUpsertBulk {
-	return u.Update(func(s *HostUpsert) {
-		s.SetAddressListRange(v)
-	})
-}
-
-// UpdateAddressListRange sets the "address_list_range" field to the value that was provided on create.
-func (u *HostUpsertBulk) UpdateAddressListRange() *HostUpsertBulk {
-	return u.Update(func(s *HostUpsert) {
-		s.UpdateAddressListRange()
-	})
-}
-
-// SetEditable sets the "editable" field.
-func (u *HostUpsertBulk) SetEditable(v bool) *HostUpsertBulk {
-	return u.Update(func(s *HostUpsert) {
-		s.SetEditable(v)
-	})
-}
-
-// UpdateEditable sets the "editable" field to the value that was provided on create.
-func (u *HostUpsertBulk) UpdateEditable() *HostUpsertBulk {
-	return u.Update(func(s *HostUpsert) {
-		s.UpdateEditable()
-	})
-}
-
-// Exec executes the query.
-func (u *HostUpsertBulk) Exec(ctx context.Context) error {
-	for i, b := range u.create.builders {
-		if len(b.conflict) != 0 {
-			return fmt.Errorf("entities: OnConflict was set for builder %d. Set it on the HostCreateBulk instead", i)
-		}
-	}
-	if len(u.create.conflict) == 0 {
-		return errors.New("entities: missing options for HostCreateBulk.OnConflict")
-	}
-	return u.create.Exec(ctx)
-}
-
-// ExecX is like Exec, but panics if an error occurs.
-func (u *HostUpsertBulk) ExecX(ctx context.Context) {
-	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

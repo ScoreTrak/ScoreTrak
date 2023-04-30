@@ -10,12 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/check"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/property"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
 )
 
 // ServiceUpdate is the builder for updating Service entities.
@@ -28,6 +24,18 @@ type ServiceUpdate struct {
 // Where appends a list predicates to the ServiceUpdate builder.
 func (su *ServiceUpdate) Where(ps ...predicate.Service) *ServiceUpdate {
 	su.mutation.Where(ps...)
+	return su
+}
+
+// SetName sets the "name" field.
+func (su *ServiceUpdate) SetName(s string) *ServiceUpdate {
+	su.mutation.SetName(s)
+	return su
+}
+
+// SetDisplayName sets the "display_name" field.
+func (su *ServiceUpdate) SetDisplayName(s string) *ServiceUpdate {
+	su.mutation.SetDisplayName(s)
 	return su
 }
 
@@ -71,187 +79,9 @@ func (su *ServiceUpdate) ClearHidden() *ServiceUpdate {
 	return su
 }
 
-// SetTeamID sets the "team_id" field.
-func (su *ServiceUpdate) SetTeamID(s string) *ServiceUpdate {
-	su.mutation.SetTeamID(s)
-	return su
-}
-
-// SetName sets the "name" field.
-func (su *ServiceUpdate) SetName(s string) *ServiceUpdate {
-	su.mutation.SetName(s)
-	return su
-}
-
-// SetDisplayName sets the "display_name" field.
-func (su *ServiceUpdate) SetDisplayName(s string) *ServiceUpdate {
-	su.mutation.SetDisplayName(s)
-	return su
-}
-
-// SetWeight sets the "weight" field.
-func (su *ServiceUpdate) SetWeight(i int) *ServiceUpdate {
-	su.mutation.ResetWeight()
-	su.mutation.SetWeight(i)
-	return su
-}
-
-// AddWeight adds i to the "weight" field.
-func (su *ServiceUpdate) AddWeight(i int) *ServiceUpdate {
-	su.mutation.AddWeight(i)
-	return su
-}
-
-// SetPointBoost sets the "point_boost" field.
-func (su *ServiceUpdate) SetPointBoost(i int) *ServiceUpdate {
-	su.mutation.ResetPointBoost()
-	su.mutation.SetPointBoost(i)
-	return su
-}
-
-// AddPointBoost adds i to the "point_boost" field.
-func (su *ServiceUpdate) AddPointBoost(i int) *ServiceUpdate {
-	su.mutation.AddPointBoost(i)
-	return su
-}
-
-// SetRoundUnits sets the "round_units" field.
-func (su *ServiceUpdate) SetRoundUnits(i int) *ServiceUpdate {
-	su.mutation.ResetRoundUnits()
-	su.mutation.SetRoundUnits(i)
-	return su
-}
-
-// AddRoundUnits adds i to the "round_units" field.
-func (su *ServiceUpdate) AddRoundUnits(i int) *ServiceUpdate {
-	su.mutation.AddRoundUnits(i)
-	return su
-}
-
-// SetRoundDelay sets the "round_delay" field.
-func (su *ServiceUpdate) SetRoundDelay(i int) *ServiceUpdate {
-	su.mutation.ResetRoundDelay()
-	su.mutation.SetRoundDelay(i)
-	return su
-}
-
-// AddRoundDelay adds i to the "round_delay" field.
-func (su *ServiceUpdate) AddRoundDelay(i int) *ServiceUpdate {
-	su.mutation.AddRoundDelay(i)
-	return su
-}
-
-// SetTeam sets the "team" edge to the Team entity.
-func (su *ServiceUpdate) SetTeam(t *Team) *ServiceUpdate {
-	return su.SetTeamID(t.ID)
-}
-
-// SetHostsID sets the "hosts" edge to the Host entity by ID.
-func (su *ServiceUpdate) SetHostsID(id string) *ServiceUpdate {
-	su.mutation.SetHostsID(id)
-	return su
-}
-
-// SetNillableHostsID sets the "hosts" edge to the Host entity by ID if the given value is not nil.
-func (su *ServiceUpdate) SetNillableHostsID(id *string) *ServiceUpdate {
-	if id != nil {
-		su = su.SetHostsID(*id)
-	}
-	return su
-}
-
-// SetHosts sets the "hosts" edge to the Host entity.
-func (su *ServiceUpdate) SetHosts(h *Host) *ServiceUpdate {
-	return su.SetHostsID(h.ID)
-}
-
-// AddCheckIDs adds the "checks" edge to the Check entity by IDs.
-func (su *ServiceUpdate) AddCheckIDs(ids ...string) *ServiceUpdate {
-	su.mutation.AddCheckIDs(ids...)
-	return su
-}
-
-// AddChecks adds the "checks" edges to the Check entity.
-func (su *ServiceUpdate) AddChecks(c ...*Check) *ServiceUpdate {
-	ids := make([]string, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return su.AddCheckIDs(ids...)
-}
-
-// AddPropertyIDs adds the "properties" edge to the Property entity by IDs.
-func (su *ServiceUpdate) AddPropertyIDs(ids ...string) *ServiceUpdate {
-	su.mutation.AddPropertyIDs(ids...)
-	return su
-}
-
-// AddProperties adds the "properties" edges to the Property entity.
-func (su *ServiceUpdate) AddProperties(p ...*Property) *ServiceUpdate {
-	ids := make([]string, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return su.AddPropertyIDs(ids...)
-}
-
 // Mutation returns the ServiceMutation object of the builder.
 func (su *ServiceUpdate) Mutation() *ServiceMutation {
 	return su.mutation
-}
-
-// ClearTeam clears the "team" edge to the Team entity.
-func (su *ServiceUpdate) ClearTeam() *ServiceUpdate {
-	su.mutation.ClearTeam()
-	return su
-}
-
-// ClearHosts clears the "hosts" edge to the Host entity.
-func (su *ServiceUpdate) ClearHosts() *ServiceUpdate {
-	su.mutation.ClearHosts()
-	return su
-}
-
-// ClearChecks clears all "checks" edges to the Check entity.
-func (su *ServiceUpdate) ClearChecks() *ServiceUpdate {
-	su.mutation.ClearChecks()
-	return su
-}
-
-// RemoveCheckIDs removes the "checks" edge to Check entities by IDs.
-func (su *ServiceUpdate) RemoveCheckIDs(ids ...string) *ServiceUpdate {
-	su.mutation.RemoveCheckIDs(ids...)
-	return su
-}
-
-// RemoveChecks removes "checks" edges to Check entities.
-func (su *ServiceUpdate) RemoveChecks(c ...*Check) *ServiceUpdate {
-	ids := make([]string, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return su.RemoveCheckIDs(ids...)
-}
-
-// ClearProperties clears all "properties" edges to the Property entity.
-func (su *ServiceUpdate) ClearProperties() *ServiceUpdate {
-	su.mutation.ClearProperties()
-	return su
-}
-
-// RemovePropertyIDs removes the "properties" edge to Property entities by IDs.
-func (su *ServiceUpdate) RemovePropertyIDs(ids ...string) *ServiceUpdate {
-	su.mutation.RemovePropertyIDs(ids...)
-	return su
-}
-
-// RemoveProperties removes "properties" edges to Property entities.
-func (su *ServiceUpdate) RemoveProperties(p ...*Property) *ServiceUpdate {
-	ids := make([]string, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return su.RemovePropertyIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -283,11 +113,18 @@ func (su *ServiceUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (su *ServiceUpdate) check() error {
+	if v, ok := su.mutation.Name(); ok {
+		if err := service.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`entities: validator failed for field "Service.name": %w`, err)}
+		}
+	}
+	if v, ok := su.mutation.DisplayName(); ok {
+		if err := service.DisplayNameValidator(v); err != nil {
+			return &ValidationError{Name: "display_name", err: fmt.Errorf(`entities: validator failed for field "Service.display_name": %w`, err)}
+		}
+	}
 	if _, ok := su.mutation.CompetitionID(); su.mutation.CompetitionCleared() && !ok {
 		return errors.New(`entities: clearing a required unique edge "Service.competition"`)
-	}
-	if _, ok := su.mutation.TeamID(); su.mutation.TeamCleared() && !ok {
-		return errors.New(`entities: clearing a required unique edge "Service.team"`)
 	}
 	return nil
 }
@@ -304,6 +141,12 @@ func (su *ServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := su.mutation.Name(); ok {
+		_spec.SetField(service.FieldName, field.TypeString, value)
+	}
+	if value, ok := su.mutation.DisplayName(); ok {
+		_spec.SetField(service.FieldDisplayName, field.TypeString, value)
+	}
 	if value, ok := su.mutation.Pause(); ok {
 		_spec.SetField(service.FieldPause, field.TypeBool, value)
 	}
@@ -315,184 +158,6 @@ func (su *ServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if su.mutation.HiddenCleared() {
 		_spec.ClearField(service.FieldHidden, field.TypeBool)
-	}
-	if value, ok := su.mutation.Name(); ok {
-		_spec.SetField(service.FieldName, field.TypeString, value)
-	}
-	if value, ok := su.mutation.DisplayName(); ok {
-		_spec.SetField(service.FieldDisplayName, field.TypeString, value)
-	}
-	if value, ok := su.mutation.Weight(); ok {
-		_spec.SetField(service.FieldWeight, field.TypeInt, value)
-	}
-	if value, ok := su.mutation.AddedWeight(); ok {
-		_spec.AddField(service.FieldWeight, field.TypeInt, value)
-	}
-	if value, ok := su.mutation.PointBoost(); ok {
-		_spec.SetField(service.FieldPointBoost, field.TypeInt, value)
-	}
-	if value, ok := su.mutation.AddedPointBoost(); ok {
-		_spec.AddField(service.FieldPointBoost, field.TypeInt, value)
-	}
-	if value, ok := su.mutation.RoundUnits(); ok {
-		_spec.SetField(service.FieldRoundUnits, field.TypeInt, value)
-	}
-	if value, ok := su.mutation.AddedRoundUnits(); ok {
-		_spec.AddField(service.FieldRoundUnits, field.TypeInt, value)
-	}
-	if value, ok := su.mutation.RoundDelay(); ok {
-		_spec.SetField(service.FieldRoundDelay, field.TypeInt, value)
-	}
-	if value, ok := su.mutation.AddedRoundDelay(); ok {
-		_spec.AddField(service.FieldRoundDelay, field.TypeInt, value)
-	}
-	if su.mutation.TeamCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   service.TeamTable,
-			Columns: []string{service.TeamColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := su.mutation.TeamIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   service.TeamTable,
-			Columns: []string{service.TeamColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if su.mutation.HostsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   service.HostsTable,
-			Columns: []string{service.HostsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := su.mutation.HostsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   service.HostsTable,
-			Columns: []string{service.HostsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if su.mutation.ChecksCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   service.ChecksTable,
-			Columns: []string{service.ChecksColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := su.mutation.RemovedChecksIDs(); len(nodes) > 0 && !su.mutation.ChecksCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   service.ChecksTable,
-			Columns: []string{service.ChecksColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := su.mutation.ChecksIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   service.ChecksTable,
-			Columns: []string{service.ChecksColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if su.mutation.PropertiesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   service.PropertiesTable,
-			Columns: []string{service.PropertiesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := su.mutation.RemovedPropertiesIDs(); len(nodes) > 0 && !su.mutation.PropertiesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   service.PropertiesTable,
-			Columns: []string{service.PropertiesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := su.mutation.PropertiesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   service.PropertiesTable,
-			Columns: []string{service.PropertiesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -512,6 +177,18 @@ type ServiceUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *ServiceMutation
+}
+
+// SetName sets the "name" field.
+func (suo *ServiceUpdateOne) SetName(s string) *ServiceUpdateOne {
+	suo.mutation.SetName(s)
+	return suo
+}
+
+// SetDisplayName sets the "display_name" field.
+func (suo *ServiceUpdateOne) SetDisplayName(s string) *ServiceUpdateOne {
+	suo.mutation.SetDisplayName(s)
+	return suo
 }
 
 // SetPause sets the "pause" field.
@@ -554,187 +231,9 @@ func (suo *ServiceUpdateOne) ClearHidden() *ServiceUpdateOne {
 	return suo
 }
 
-// SetTeamID sets the "team_id" field.
-func (suo *ServiceUpdateOne) SetTeamID(s string) *ServiceUpdateOne {
-	suo.mutation.SetTeamID(s)
-	return suo
-}
-
-// SetName sets the "name" field.
-func (suo *ServiceUpdateOne) SetName(s string) *ServiceUpdateOne {
-	suo.mutation.SetName(s)
-	return suo
-}
-
-// SetDisplayName sets the "display_name" field.
-func (suo *ServiceUpdateOne) SetDisplayName(s string) *ServiceUpdateOne {
-	suo.mutation.SetDisplayName(s)
-	return suo
-}
-
-// SetWeight sets the "weight" field.
-func (suo *ServiceUpdateOne) SetWeight(i int) *ServiceUpdateOne {
-	suo.mutation.ResetWeight()
-	suo.mutation.SetWeight(i)
-	return suo
-}
-
-// AddWeight adds i to the "weight" field.
-func (suo *ServiceUpdateOne) AddWeight(i int) *ServiceUpdateOne {
-	suo.mutation.AddWeight(i)
-	return suo
-}
-
-// SetPointBoost sets the "point_boost" field.
-func (suo *ServiceUpdateOne) SetPointBoost(i int) *ServiceUpdateOne {
-	suo.mutation.ResetPointBoost()
-	suo.mutation.SetPointBoost(i)
-	return suo
-}
-
-// AddPointBoost adds i to the "point_boost" field.
-func (suo *ServiceUpdateOne) AddPointBoost(i int) *ServiceUpdateOne {
-	suo.mutation.AddPointBoost(i)
-	return suo
-}
-
-// SetRoundUnits sets the "round_units" field.
-func (suo *ServiceUpdateOne) SetRoundUnits(i int) *ServiceUpdateOne {
-	suo.mutation.ResetRoundUnits()
-	suo.mutation.SetRoundUnits(i)
-	return suo
-}
-
-// AddRoundUnits adds i to the "round_units" field.
-func (suo *ServiceUpdateOne) AddRoundUnits(i int) *ServiceUpdateOne {
-	suo.mutation.AddRoundUnits(i)
-	return suo
-}
-
-// SetRoundDelay sets the "round_delay" field.
-func (suo *ServiceUpdateOne) SetRoundDelay(i int) *ServiceUpdateOne {
-	suo.mutation.ResetRoundDelay()
-	suo.mutation.SetRoundDelay(i)
-	return suo
-}
-
-// AddRoundDelay adds i to the "round_delay" field.
-func (suo *ServiceUpdateOne) AddRoundDelay(i int) *ServiceUpdateOne {
-	suo.mutation.AddRoundDelay(i)
-	return suo
-}
-
-// SetTeam sets the "team" edge to the Team entity.
-func (suo *ServiceUpdateOne) SetTeam(t *Team) *ServiceUpdateOne {
-	return suo.SetTeamID(t.ID)
-}
-
-// SetHostsID sets the "hosts" edge to the Host entity by ID.
-func (suo *ServiceUpdateOne) SetHostsID(id string) *ServiceUpdateOne {
-	suo.mutation.SetHostsID(id)
-	return suo
-}
-
-// SetNillableHostsID sets the "hosts" edge to the Host entity by ID if the given value is not nil.
-func (suo *ServiceUpdateOne) SetNillableHostsID(id *string) *ServiceUpdateOne {
-	if id != nil {
-		suo = suo.SetHostsID(*id)
-	}
-	return suo
-}
-
-// SetHosts sets the "hosts" edge to the Host entity.
-func (suo *ServiceUpdateOne) SetHosts(h *Host) *ServiceUpdateOne {
-	return suo.SetHostsID(h.ID)
-}
-
-// AddCheckIDs adds the "checks" edge to the Check entity by IDs.
-func (suo *ServiceUpdateOne) AddCheckIDs(ids ...string) *ServiceUpdateOne {
-	suo.mutation.AddCheckIDs(ids...)
-	return suo
-}
-
-// AddChecks adds the "checks" edges to the Check entity.
-func (suo *ServiceUpdateOne) AddChecks(c ...*Check) *ServiceUpdateOne {
-	ids := make([]string, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return suo.AddCheckIDs(ids...)
-}
-
-// AddPropertyIDs adds the "properties" edge to the Property entity by IDs.
-func (suo *ServiceUpdateOne) AddPropertyIDs(ids ...string) *ServiceUpdateOne {
-	suo.mutation.AddPropertyIDs(ids...)
-	return suo
-}
-
-// AddProperties adds the "properties" edges to the Property entity.
-func (suo *ServiceUpdateOne) AddProperties(p ...*Property) *ServiceUpdateOne {
-	ids := make([]string, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return suo.AddPropertyIDs(ids...)
-}
-
 // Mutation returns the ServiceMutation object of the builder.
 func (suo *ServiceUpdateOne) Mutation() *ServiceMutation {
 	return suo.mutation
-}
-
-// ClearTeam clears the "team" edge to the Team entity.
-func (suo *ServiceUpdateOne) ClearTeam() *ServiceUpdateOne {
-	suo.mutation.ClearTeam()
-	return suo
-}
-
-// ClearHosts clears the "hosts" edge to the Host entity.
-func (suo *ServiceUpdateOne) ClearHosts() *ServiceUpdateOne {
-	suo.mutation.ClearHosts()
-	return suo
-}
-
-// ClearChecks clears all "checks" edges to the Check entity.
-func (suo *ServiceUpdateOne) ClearChecks() *ServiceUpdateOne {
-	suo.mutation.ClearChecks()
-	return suo
-}
-
-// RemoveCheckIDs removes the "checks" edge to Check entities by IDs.
-func (suo *ServiceUpdateOne) RemoveCheckIDs(ids ...string) *ServiceUpdateOne {
-	suo.mutation.RemoveCheckIDs(ids...)
-	return suo
-}
-
-// RemoveChecks removes "checks" edges to Check entities.
-func (suo *ServiceUpdateOne) RemoveChecks(c ...*Check) *ServiceUpdateOne {
-	ids := make([]string, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
-	}
-	return suo.RemoveCheckIDs(ids...)
-}
-
-// ClearProperties clears all "properties" edges to the Property entity.
-func (suo *ServiceUpdateOne) ClearProperties() *ServiceUpdateOne {
-	suo.mutation.ClearProperties()
-	return suo
-}
-
-// RemovePropertyIDs removes the "properties" edge to Property entities by IDs.
-func (suo *ServiceUpdateOne) RemovePropertyIDs(ids ...string) *ServiceUpdateOne {
-	suo.mutation.RemovePropertyIDs(ids...)
-	return suo
-}
-
-// RemoveProperties removes "properties" edges to Property entities.
-func (suo *ServiceUpdateOne) RemoveProperties(p ...*Property) *ServiceUpdateOne {
-	ids := make([]string, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
-	}
-	return suo.RemovePropertyIDs(ids...)
 }
 
 // Where appends a list predicates to the ServiceUpdate builder.
@@ -779,11 +278,18 @@ func (suo *ServiceUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (suo *ServiceUpdateOne) check() error {
+	if v, ok := suo.mutation.Name(); ok {
+		if err := service.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`entities: validator failed for field "Service.name": %w`, err)}
+		}
+	}
+	if v, ok := suo.mutation.DisplayName(); ok {
+		if err := service.DisplayNameValidator(v); err != nil {
+			return &ValidationError{Name: "display_name", err: fmt.Errorf(`entities: validator failed for field "Service.display_name": %w`, err)}
+		}
+	}
 	if _, ok := suo.mutation.CompetitionID(); suo.mutation.CompetitionCleared() && !ok {
 		return errors.New(`entities: clearing a required unique edge "Service.competition"`)
-	}
-	if _, ok := suo.mutation.TeamID(); suo.mutation.TeamCleared() && !ok {
-		return errors.New(`entities: clearing a required unique edge "Service.team"`)
 	}
 	return nil
 }
@@ -817,6 +323,12 @@ func (suo *ServiceUpdateOne) sqlSave(ctx context.Context) (_node *Service, err e
 			}
 		}
 	}
+	if value, ok := suo.mutation.Name(); ok {
+		_spec.SetField(service.FieldName, field.TypeString, value)
+	}
+	if value, ok := suo.mutation.DisplayName(); ok {
+		_spec.SetField(service.FieldDisplayName, field.TypeString, value)
+	}
 	if value, ok := suo.mutation.Pause(); ok {
 		_spec.SetField(service.FieldPause, field.TypeBool, value)
 	}
@@ -828,184 +340,6 @@ func (suo *ServiceUpdateOne) sqlSave(ctx context.Context) (_node *Service, err e
 	}
 	if suo.mutation.HiddenCleared() {
 		_spec.ClearField(service.FieldHidden, field.TypeBool)
-	}
-	if value, ok := suo.mutation.Name(); ok {
-		_spec.SetField(service.FieldName, field.TypeString, value)
-	}
-	if value, ok := suo.mutation.DisplayName(); ok {
-		_spec.SetField(service.FieldDisplayName, field.TypeString, value)
-	}
-	if value, ok := suo.mutation.Weight(); ok {
-		_spec.SetField(service.FieldWeight, field.TypeInt, value)
-	}
-	if value, ok := suo.mutation.AddedWeight(); ok {
-		_spec.AddField(service.FieldWeight, field.TypeInt, value)
-	}
-	if value, ok := suo.mutation.PointBoost(); ok {
-		_spec.SetField(service.FieldPointBoost, field.TypeInt, value)
-	}
-	if value, ok := suo.mutation.AddedPointBoost(); ok {
-		_spec.AddField(service.FieldPointBoost, field.TypeInt, value)
-	}
-	if value, ok := suo.mutation.RoundUnits(); ok {
-		_spec.SetField(service.FieldRoundUnits, field.TypeInt, value)
-	}
-	if value, ok := suo.mutation.AddedRoundUnits(); ok {
-		_spec.AddField(service.FieldRoundUnits, field.TypeInt, value)
-	}
-	if value, ok := suo.mutation.RoundDelay(); ok {
-		_spec.SetField(service.FieldRoundDelay, field.TypeInt, value)
-	}
-	if value, ok := suo.mutation.AddedRoundDelay(); ok {
-		_spec.AddField(service.FieldRoundDelay, field.TypeInt, value)
-	}
-	if suo.mutation.TeamCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   service.TeamTable,
-			Columns: []string{service.TeamColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := suo.mutation.TeamIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   service.TeamTable,
-			Columns: []string{service.TeamColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if suo.mutation.HostsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   service.HostsTable,
-			Columns: []string{service.HostsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := suo.mutation.HostsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   service.HostsTable,
-			Columns: []string{service.HostsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if suo.mutation.ChecksCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   service.ChecksTable,
-			Columns: []string{service.ChecksColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := suo.mutation.RemovedChecksIDs(); len(nodes) > 0 && !suo.mutation.ChecksCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   service.ChecksTable,
-			Columns: []string{service.ChecksColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := suo.mutation.ChecksIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   service.ChecksTable,
-			Columns: []string{service.ChecksColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(check.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if suo.mutation.PropertiesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   service.PropertiesTable,
-			Columns: []string{service.PropertiesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := suo.mutation.RemovedPropertiesIDs(); len(nodes) > 0 && !suo.mutation.PropertiesCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   service.PropertiesTable,
-			Columns: []string{service.PropertiesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := suo.mutation.PropertiesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   service.PropertiesTable,
-			Columns: []string{service.PropertiesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Service{config: suo.config}
 	_spec.Assign = _node.assignValues

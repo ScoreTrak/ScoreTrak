@@ -15,8 +15,8 @@ type Competition func(*sql.Selector)
 // Host is the predicate function for host builders.
 type Host func(*sql.Selector)
 
-// HostGroup is the predicate function for hostgroup builders.
-type HostGroup func(*sql.Selector)
+// HostService is the predicate function for hostservice builders.
+type HostService func(*sql.Selector)
 
 // Property is the predicate function for property builders.
 type Property func(*sql.Selector)
@@ -32,6 +32,3 @@ type Service func(*sql.Selector)
 
 // Team is the predicate function for team builders.
 type Team func(*sql.Selector)
-
-// User is the predicate function for user builders.
-type User func(*sql.Selector)

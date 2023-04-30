@@ -63,16 +63,6 @@ func IDContainsFold(id string) predicate.Property {
 	return predicate.Property(sql.FieldContainsFold(FieldID, id))
 }
 
-// CompetitionID applies equality check predicate on the "competition_id" field. It's identical to CompetitionIDEQ.
-func CompetitionID(v string) predicate.Property {
-	return predicate.Property(sql.FieldEQ(FieldCompetitionID, v))
-}
-
-// TeamID applies equality check predicate on the "team_id" field. It's identical to TeamIDEQ.
-func TeamID(v string) predicate.Property {
-	return predicate.Property(sql.FieldEQ(FieldTeamID, v))
-}
-
 // Key applies equality check predicate on the "key" field. It's identical to KeyEQ.
 func Key(v string) predicate.Property {
 	return predicate.Property(sql.FieldEQ(FieldKey, v))
@@ -83,134 +73,14 @@ func Value(v string) predicate.Property {
 	return predicate.Property(sql.FieldEQ(FieldValue, v))
 }
 
-// CompetitionIDEQ applies the EQ predicate on the "competition_id" field.
-func CompetitionIDEQ(v string) predicate.Property {
-	return predicate.Property(sql.FieldEQ(FieldCompetitionID, v))
+// HostServiceID applies equality check predicate on the "host_service_id" field. It's identical to HostServiceIDEQ.
+func HostServiceID(v string) predicate.Property {
+	return predicate.Property(sql.FieldEQ(FieldHostServiceID, v))
 }
 
-// CompetitionIDNEQ applies the NEQ predicate on the "competition_id" field.
-func CompetitionIDNEQ(v string) predicate.Property {
-	return predicate.Property(sql.FieldNEQ(FieldCompetitionID, v))
-}
-
-// CompetitionIDIn applies the In predicate on the "competition_id" field.
-func CompetitionIDIn(vs ...string) predicate.Property {
-	return predicate.Property(sql.FieldIn(FieldCompetitionID, vs...))
-}
-
-// CompetitionIDNotIn applies the NotIn predicate on the "competition_id" field.
-func CompetitionIDNotIn(vs ...string) predicate.Property {
-	return predicate.Property(sql.FieldNotIn(FieldCompetitionID, vs...))
-}
-
-// CompetitionIDGT applies the GT predicate on the "competition_id" field.
-func CompetitionIDGT(v string) predicate.Property {
-	return predicate.Property(sql.FieldGT(FieldCompetitionID, v))
-}
-
-// CompetitionIDGTE applies the GTE predicate on the "competition_id" field.
-func CompetitionIDGTE(v string) predicate.Property {
-	return predicate.Property(sql.FieldGTE(FieldCompetitionID, v))
-}
-
-// CompetitionIDLT applies the LT predicate on the "competition_id" field.
-func CompetitionIDLT(v string) predicate.Property {
-	return predicate.Property(sql.FieldLT(FieldCompetitionID, v))
-}
-
-// CompetitionIDLTE applies the LTE predicate on the "competition_id" field.
-func CompetitionIDLTE(v string) predicate.Property {
-	return predicate.Property(sql.FieldLTE(FieldCompetitionID, v))
-}
-
-// CompetitionIDContains applies the Contains predicate on the "competition_id" field.
-func CompetitionIDContains(v string) predicate.Property {
-	return predicate.Property(sql.FieldContains(FieldCompetitionID, v))
-}
-
-// CompetitionIDHasPrefix applies the HasPrefix predicate on the "competition_id" field.
-func CompetitionIDHasPrefix(v string) predicate.Property {
-	return predicate.Property(sql.FieldHasPrefix(FieldCompetitionID, v))
-}
-
-// CompetitionIDHasSuffix applies the HasSuffix predicate on the "competition_id" field.
-func CompetitionIDHasSuffix(v string) predicate.Property {
-	return predicate.Property(sql.FieldHasSuffix(FieldCompetitionID, v))
-}
-
-// CompetitionIDEqualFold applies the EqualFold predicate on the "competition_id" field.
-func CompetitionIDEqualFold(v string) predicate.Property {
-	return predicate.Property(sql.FieldEqualFold(FieldCompetitionID, v))
-}
-
-// CompetitionIDContainsFold applies the ContainsFold predicate on the "competition_id" field.
-func CompetitionIDContainsFold(v string) predicate.Property {
-	return predicate.Property(sql.FieldContainsFold(FieldCompetitionID, v))
-}
-
-// TeamIDEQ applies the EQ predicate on the "team_id" field.
-func TeamIDEQ(v string) predicate.Property {
+// TeamID applies equality check predicate on the "team_id" field. It's identical to TeamIDEQ.
+func TeamID(v string) predicate.Property {
 	return predicate.Property(sql.FieldEQ(FieldTeamID, v))
-}
-
-// TeamIDNEQ applies the NEQ predicate on the "team_id" field.
-func TeamIDNEQ(v string) predicate.Property {
-	return predicate.Property(sql.FieldNEQ(FieldTeamID, v))
-}
-
-// TeamIDIn applies the In predicate on the "team_id" field.
-func TeamIDIn(vs ...string) predicate.Property {
-	return predicate.Property(sql.FieldIn(FieldTeamID, vs...))
-}
-
-// TeamIDNotIn applies the NotIn predicate on the "team_id" field.
-func TeamIDNotIn(vs ...string) predicate.Property {
-	return predicate.Property(sql.FieldNotIn(FieldTeamID, vs...))
-}
-
-// TeamIDGT applies the GT predicate on the "team_id" field.
-func TeamIDGT(v string) predicate.Property {
-	return predicate.Property(sql.FieldGT(FieldTeamID, v))
-}
-
-// TeamIDGTE applies the GTE predicate on the "team_id" field.
-func TeamIDGTE(v string) predicate.Property {
-	return predicate.Property(sql.FieldGTE(FieldTeamID, v))
-}
-
-// TeamIDLT applies the LT predicate on the "team_id" field.
-func TeamIDLT(v string) predicate.Property {
-	return predicate.Property(sql.FieldLT(FieldTeamID, v))
-}
-
-// TeamIDLTE applies the LTE predicate on the "team_id" field.
-func TeamIDLTE(v string) predicate.Property {
-	return predicate.Property(sql.FieldLTE(FieldTeamID, v))
-}
-
-// TeamIDContains applies the Contains predicate on the "team_id" field.
-func TeamIDContains(v string) predicate.Property {
-	return predicate.Property(sql.FieldContains(FieldTeamID, v))
-}
-
-// TeamIDHasPrefix applies the HasPrefix predicate on the "team_id" field.
-func TeamIDHasPrefix(v string) predicate.Property {
-	return predicate.Property(sql.FieldHasPrefix(FieldTeamID, v))
-}
-
-// TeamIDHasSuffix applies the HasSuffix predicate on the "team_id" field.
-func TeamIDHasSuffix(v string) predicate.Property {
-	return predicate.Property(sql.FieldHasSuffix(FieldTeamID, v))
-}
-
-// TeamIDEqualFold applies the EqualFold predicate on the "team_id" field.
-func TeamIDEqualFold(v string) predicate.Property {
-	return predicate.Property(sql.FieldEqualFold(FieldTeamID, v))
-}
-
-// TeamIDContainsFold applies the ContainsFold predicate on the "team_id" field.
-func TeamIDContainsFold(v string) predicate.Property {
-	return predicate.Property(sql.FieldContainsFold(FieldTeamID, v))
 }
 
 // KeyEQ applies the EQ predicate on the "key" field.
@@ -363,21 +233,151 @@ func StatusNotIn(vs ...Status) predicate.Property {
 	return predicate.Property(sql.FieldNotIn(FieldStatus, vs...))
 }
 
-// HasCompetition applies the HasEdge predicate on the "competition" edge.
-func HasCompetition() predicate.Property {
+// HostServiceIDEQ applies the EQ predicate on the "host_service_id" field.
+func HostServiceIDEQ(v string) predicate.Property {
+	return predicate.Property(sql.FieldEQ(FieldHostServiceID, v))
+}
+
+// HostServiceIDNEQ applies the NEQ predicate on the "host_service_id" field.
+func HostServiceIDNEQ(v string) predicate.Property {
+	return predicate.Property(sql.FieldNEQ(FieldHostServiceID, v))
+}
+
+// HostServiceIDIn applies the In predicate on the "host_service_id" field.
+func HostServiceIDIn(vs ...string) predicate.Property {
+	return predicate.Property(sql.FieldIn(FieldHostServiceID, vs...))
+}
+
+// HostServiceIDNotIn applies the NotIn predicate on the "host_service_id" field.
+func HostServiceIDNotIn(vs ...string) predicate.Property {
+	return predicate.Property(sql.FieldNotIn(FieldHostServiceID, vs...))
+}
+
+// HostServiceIDGT applies the GT predicate on the "host_service_id" field.
+func HostServiceIDGT(v string) predicate.Property {
+	return predicate.Property(sql.FieldGT(FieldHostServiceID, v))
+}
+
+// HostServiceIDGTE applies the GTE predicate on the "host_service_id" field.
+func HostServiceIDGTE(v string) predicate.Property {
+	return predicate.Property(sql.FieldGTE(FieldHostServiceID, v))
+}
+
+// HostServiceIDLT applies the LT predicate on the "host_service_id" field.
+func HostServiceIDLT(v string) predicate.Property {
+	return predicate.Property(sql.FieldLT(FieldHostServiceID, v))
+}
+
+// HostServiceIDLTE applies the LTE predicate on the "host_service_id" field.
+func HostServiceIDLTE(v string) predicate.Property {
+	return predicate.Property(sql.FieldLTE(FieldHostServiceID, v))
+}
+
+// HostServiceIDContains applies the Contains predicate on the "host_service_id" field.
+func HostServiceIDContains(v string) predicate.Property {
+	return predicate.Property(sql.FieldContains(FieldHostServiceID, v))
+}
+
+// HostServiceIDHasPrefix applies the HasPrefix predicate on the "host_service_id" field.
+func HostServiceIDHasPrefix(v string) predicate.Property {
+	return predicate.Property(sql.FieldHasPrefix(FieldHostServiceID, v))
+}
+
+// HostServiceIDHasSuffix applies the HasSuffix predicate on the "host_service_id" field.
+func HostServiceIDHasSuffix(v string) predicate.Property {
+	return predicate.Property(sql.FieldHasSuffix(FieldHostServiceID, v))
+}
+
+// HostServiceIDEqualFold applies the EqualFold predicate on the "host_service_id" field.
+func HostServiceIDEqualFold(v string) predicate.Property {
+	return predicate.Property(sql.FieldEqualFold(FieldHostServiceID, v))
+}
+
+// HostServiceIDContainsFold applies the ContainsFold predicate on the "host_service_id" field.
+func HostServiceIDContainsFold(v string) predicate.Property {
+	return predicate.Property(sql.FieldContainsFold(FieldHostServiceID, v))
+}
+
+// TeamIDEQ applies the EQ predicate on the "team_id" field.
+func TeamIDEQ(v string) predicate.Property {
+	return predicate.Property(sql.FieldEQ(FieldTeamID, v))
+}
+
+// TeamIDNEQ applies the NEQ predicate on the "team_id" field.
+func TeamIDNEQ(v string) predicate.Property {
+	return predicate.Property(sql.FieldNEQ(FieldTeamID, v))
+}
+
+// TeamIDIn applies the In predicate on the "team_id" field.
+func TeamIDIn(vs ...string) predicate.Property {
+	return predicate.Property(sql.FieldIn(FieldTeamID, vs...))
+}
+
+// TeamIDNotIn applies the NotIn predicate on the "team_id" field.
+func TeamIDNotIn(vs ...string) predicate.Property {
+	return predicate.Property(sql.FieldNotIn(FieldTeamID, vs...))
+}
+
+// TeamIDGT applies the GT predicate on the "team_id" field.
+func TeamIDGT(v string) predicate.Property {
+	return predicate.Property(sql.FieldGT(FieldTeamID, v))
+}
+
+// TeamIDGTE applies the GTE predicate on the "team_id" field.
+func TeamIDGTE(v string) predicate.Property {
+	return predicate.Property(sql.FieldGTE(FieldTeamID, v))
+}
+
+// TeamIDLT applies the LT predicate on the "team_id" field.
+func TeamIDLT(v string) predicate.Property {
+	return predicate.Property(sql.FieldLT(FieldTeamID, v))
+}
+
+// TeamIDLTE applies the LTE predicate on the "team_id" field.
+func TeamIDLTE(v string) predicate.Property {
+	return predicate.Property(sql.FieldLTE(FieldTeamID, v))
+}
+
+// TeamIDContains applies the Contains predicate on the "team_id" field.
+func TeamIDContains(v string) predicate.Property {
+	return predicate.Property(sql.FieldContains(FieldTeamID, v))
+}
+
+// TeamIDHasPrefix applies the HasPrefix predicate on the "team_id" field.
+func TeamIDHasPrefix(v string) predicate.Property {
+	return predicate.Property(sql.FieldHasPrefix(FieldTeamID, v))
+}
+
+// TeamIDHasSuffix applies the HasSuffix predicate on the "team_id" field.
+func TeamIDHasSuffix(v string) predicate.Property {
+	return predicate.Property(sql.FieldHasSuffix(FieldTeamID, v))
+}
+
+// TeamIDEqualFold applies the EqualFold predicate on the "team_id" field.
+func TeamIDEqualFold(v string) predicate.Property {
+	return predicate.Property(sql.FieldEqualFold(FieldTeamID, v))
+}
+
+// TeamIDContainsFold applies the ContainsFold predicate on the "team_id" field.
+func TeamIDContainsFold(v string) predicate.Property {
+	return predicate.Property(sql.FieldContainsFold(FieldTeamID, v))
+}
+
+// HasHostservice applies the HasEdge predicate on the "hostservice" edge.
+func HasHostservice() predicate.Property {
 	return predicate.Property(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, CompetitionTable, CompetitionColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, HostserviceTable, HostserviceColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasCompetitionWith applies the HasEdge predicate on the "competition" edge with a given conditions (other predicates).
-func HasCompetitionWith(preds ...predicate.Competition) predicate.Property {
+// HasHostserviceWith applies the HasEdge predicate on the "hostservice" edge with a given conditions (other predicates).
+func HasHostserviceWith(preds ...predicate.HostService) predicate.Property {
 	return predicate.Property(func(s *sql.Selector) {
-		step := newCompetitionStep()
+		step := newHostserviceStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -391,7 +391,7 @@ func HasTeam() predicate.Property {
 	return predicate.Property(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, TeamTable, TeamColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, TeamTable, TeamColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -401,29 +401,6 @@ func HasTeam() predicate.Property {
 func HasTeamWith(preds ...predicate.Team) predicate.Property {
 	return predicate.Property(func(s *sql.Selector) {
 		step := newTeamStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
-// HasServices applies the HasEdge predicate on the "services" edge.
-func HasServices() predicate.Property {
-	return predicate.Property(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, ServicesTable, ServicesColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasServicesWith applies the HasEdge predicate on the "services" edge with a given conditions (other predicates).
-func HasServicesWith(preds ...predicate.Service) predicate.Property {
-	return predicate.Property(func(s *sql.Selector) {
-		step := newServicesStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

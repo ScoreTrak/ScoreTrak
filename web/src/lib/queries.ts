@@ -1,5 +1,5 @@
-import {initialize } from "./scoretrak-queries";
-import {api} from "./api";
+import {initialize} from "./scoretrak-queries";
+import {scoretrakAxiosInstance} from "./api";
 
-
-export const scoretrak = initialize(api, {})
+// @ts-ignore
+export const scoretrak = initialize(scoretrakAxiosInstance, {})

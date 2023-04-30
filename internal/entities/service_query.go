@@ -4,20 +4,15 @@ package entities
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/check"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/property"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
 )
 
 // ServiceQuery is the builder for querying Service entities.
@@ -28,11 +23,6 @@ type ServiceQuery struct {
 	inters          []Interceptor
 	predicates      []predicate.Service
 	withCompetition *CompetitionQuery
-	withTeam        *TeamQuery
-	withHosts       *HostQuery
-	withChecks      *CheckQuery
-	withProperties  *PropertyQuery
-	withFKs         bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -83,95 +73,7 @@ func (sq *ServiceQuery) QueryCompetition() *CompetitionQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(service.Table, service.FieldID, selector),
 			sqlgraph.To(competition.Table, competition.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, service.CompetitionTable, service.CompetitionColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryTeam chains the current query on the "team" edge.
-func (sq *ServiceQuery) QueryTeam() *TeamQuery {
-	query := (&TeamClient{config: sq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := sq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := sq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(service.Table, service.FieldID, selector),
-			sqlgraph.To(team.Table, team.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, service.TeamTable, service.TeamColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryHosts chains the current query on the "hosts" edge.
-func (sq *ServiceQuery) QueryHosts() *HostQuery {
-	query := (&HostClient{config: sq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := sq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := sq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(service.Table, service.FieldID, selector),
-			sqlgraph.To(host.Table, host.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, service.HostsTable, service.HostsColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryChecks chains the current query on the "checks" edge.
-func (sq *ServiceQuery) QueryChecks() *CheckQuery {
-	query := (&CheckClient{config: sq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := sq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := sq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(service.Table, service.FieldID, selector),
-			sqlgraph.To(check.Table, check.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, service.ChecksTable, service.ChecksColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryProperties chains the current query on the "properties" edge.
-func (sq *ServiceQuery) QueryProperties() *PropertyQuery {
-	query := (&PropertyClient{config: sq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := sq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := sq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(service.Table, service.FieldID, selector),
-			sqlgraph.To(property.Table, property.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, service.PropertiesTable, service.PropertiesColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, service.CompetitionTable, service.CompetitionColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -372,10 +274,6 @@ func (sq *ServiceQuery) Clone() *ServiceQuery {
 		inters:          append([]Interceptor{}, sq.inters...),
 		predicates:      append([]predicate.Service{}, sq.predicates...),
 		withCompetition: sq.withCompetition.Clone(),
-		withTeam:        sq.withTeam.Clone(),
-		withHosts:       sq.withHosts.Clone(),
-		withChecks:      sq.withChecks.Clone(),
-		withProperties:  sq.withProperties.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
@@ -393,62 +291,18 @@ func (sq *ServiceQuery) WithCompetition(opts ...func(*CompetitionQuery)) *Servic
 	return sq
 }
 
-// WithTeam tells the query-builder to eager-load the nodes that are connected to
-// the "team" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *ServiceQuery) WithTeam(opts ...func(*TeamQuery)) *ServiceQuery {
-	query := (&TeamClient{config: sq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	sq.withTeam = query
-	return sq
-}
-
-// WithHosts tells the query-builder to eager-load the nodes that are connected to
-// the "hosts" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *ServiceQuery) WithHosts(opts ...func(*HostQuery)) *ServiceQuery {
-	query := (&HostClient{config: sq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	sq.withHosts = query
-	return sq
-}
-
-// WithChecks tells the query-builder to eager-load the nodes that are connected to
-// the "checks" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *ServiceQuery) WithChecks(opts ...func(*CheckQuery)) *ServiceQuery {
-	query := (&CheckClient{config: sq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	sq.withChecks = query
-	return sq
-}
-
-// WithProperties tells the query-builder to eager-load the nodes that are connected to
-// the "properties" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *ServiceQuery) WithProperties(opts ...func(*PropertyQuery)) *ServiceQuery {
-	query := (&PropertyClient{config: sq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	sq.withProperties = query
-	return sq
-}
-
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
 // Example:
 //
 //	var v []struct {
-//		Pause bool `json:"pause,omitempty"`
+//		Name string `json:"name,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Service.Query().
-//		GroupBy(service.FieldPause).
+//		GroupBy(service.FieldName).
 //		Aggregate(entities.Count()).
 //		Scan(ctx, &v)
 func (sq *ServiceQuery) GroupBy(field string, fields ...string) *ServiceGroupBy {
@@ -466,11 +320,11 @@ func (sq *ServiceQuery) GroupBy(field string, fields ...string) *ServiceGroupBy 
 // Example:
 //
 //	var v []struct {
-//		Pause bool `json:"pause,omitempty"`
+//		Name string `json:"name,omitempty"`
 //	}
 //
 //	client.Service.Query().
-//		Select(service.FieldPause).
+//		Select(service.FieldName).
 //		Scan(ctx, &v)
 func (sq *ServiceQuery) Select(fields ...string) *ServiceSelect {
 	sq.ctx.Fields = append(sq.ctx.Fields, fields...)
@@ -514,22 +368,11 @@ func (sq *ServiceQuery) prepareQuery(ctx context.Context) error {
 func (sq *ServiceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Service, error) {
 	var (
 		nodes       = []*Service{}
-		withFKs     = sq.withFKs
 		_spec       = sq.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [1]bool{
 			sq.withCompetition != nil,
-			sq.withTeam != nil,
-			sq.withHosts != nil,
-			sq.withChecks != nil,
-			sq.withProperties != nil,
 		}
 	)
-	if sq.withHosts != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, service.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Service).scanValues(nil, columns)
 	}
@@ -551,32 +394,6 @@ func (sq *ServiceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Serv
 	if query := sq.withCompetition; query != nil {
 		if err := sq.loadCompetition(ctx, query, nodes, nil,
 			func(n *Service, e *Competition) { n.Edges.Competition = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := sq.withTeam; query != nil {
-		if err := sq.loadTeam(ctx, query, nodes, nil,
-			func(n *Service, e *Team) { n.Edges.Team = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := sq.withHosts; query != nil {
-		if err := sq.loadHosts(ctx, query, nodes, nil,
-			func(n *Service, e *Host) { n.Edges.Hosts = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := sq.withChecks; query != nil {
-		if err := sq.loadChecks(ctx, query, nodes,
-			func(n *Service) { n.Edges.Checks = []*Check{} },
-			func(n *Service, e *Check) { n.Edges.Checks = append(n.Edges.Checks, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := sq.withProperties; query != nil {
-		if err := sq.loadProperties(ctx, query, nodes,
-			func(n *Service) { n.Edges.Properties = []*Property{} },
-			func(n *Service, e *Property) { n.Edges.Properties = append(n.Edges.Properties, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -612,129 +429,6 @@ func (sq *ServiceQuery) loadCompetition(ctx context.Context, query *CompetitionQ
 	}
 	return nil
 }
-func (sq *ServiceQuery) loadTeam(ctx context.Context, query *TeamQuery, nodes []*Service, init func(*Service), assign func(*Service, *Team)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*Service)
-	for i := range nodes {
-		fk := nodes[i].TeamID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(team.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "team_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (sq *ServiceQuery) loadHosts(ctx context.Context, query *HostQuery, nodes []*Service, init func(*Service), assign func(*Service, *Host)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*Service)
-	for i := range nodes {
-		if nodes[i].host_services == nil {
-			continue
-		}
-		fk := *nodes[i].host_services
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(host.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "host_services" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (sq *ServiceQuery) loadChecks(ctx context.Context, query *CheckQuery, nodes []*Service, init func(*Service), assign func(*Service, *Check)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*Service)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.Check(func(s *sql.Selector) {
-		s.Where(sql.InValues(service.ChecksColumn, fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.service_checks
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "service_checks" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "service_checks" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (sq *ServiceQuery) loadProperties(ctx context.Context, query *PropertyQuery, nodes []*Service, init func(*Service), assign func(*Service, *Property)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*Service)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.Property(func(s *sql.Selector) {
-		s.Where(sql.InValues(service.PropertiesColumn, fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.service_properties
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "service_properties" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "service_properties" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
 
 func (sq *ServiceQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := sq.querySpec()
@@ -763,9 +457,6 @@ func (sq *ServiceQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if sq.withCompetition != nil {
 			_spec.Node.AddColumnOnce(service.FieldCompetitionID)
-		}
-		if sq.withTeam != nil {
-			_spec.Node.AddColumnOnce(service.FieldTeamID)
 		}
 	}
 	if ps := sq.predicates; len(ps) > 0 {

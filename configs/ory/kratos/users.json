@@ -1,0 +1,48 @@
+[
+  {
+    "schema_id": "default",
+    "traits": {
+      "username": "scoretrak"
+    },
+    "state": "active",
+    "metadata_admin": {
+      "is_admin": true
+    },
+    "metadata_public": {
+      "competitions": [
+        "01GZ7MDMACFMZ176YXK1JFWZ92",
+        "01GZ7MDNKWK1CASYTYSZXWMQA4"
+      ]
+    },
+    "credentials": {
+      "password": {
+        "config": {
+          "password": "scoretrak"
+        }
+      }
+    }
+  },
+  {
+    "schema_id": "default",
+    "metadata_public": {
+      "competitions": [
+        "01GZ7MDMACFMZ176YXK1JFWZ92"
+      ],
+      "teams": [
+        "01GZ7MFPZ5N43STNFE9T4BB138",
+        "01GZ7MFQ8SSBVXFNDEE0Z4EQGH"
+      ]
+    },
+    "traits": {
+      "username": "compuser1"
+    },
+    "state": "active",
+    "credentials": {
+      "password": {
+        "config": {
+          "password": "scoretrak"
+        }
+      }
+    }
+  }
+]

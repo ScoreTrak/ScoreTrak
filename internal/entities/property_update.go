@@ -10,10 +10,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/property"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
 )
 
 // PropertyUpdate is the builder for updating Property entities.
@@ -26,12 +25,6 @@ type PropertyUpdate struct {
 // Where appends a list predicates to the PropertyUpdate builder.
 func (pu *PropertyUpdate) Where(ps ...predicate.Property) *PropertyUpdate {
 	pu.mutation.Where(ps...)
-	return pu
-}
-
-// SetTeamID sets the "team_id" field.
-func (pu *PropertyUpdate) SetTeamID(s string) *PropertyUpdate {
-	pu.mutation.SetTeamID(s)
 	return pu
 }
 
@@ -61,20 +54,21 @@ func (pu *PropertyUpdate) SetNillableStatus(pr *property.Status) *PropertyUpdate
 	return pu
 }
 
-// SetTeam sets the "team" edge to the Team entity.
-func (pu *PropertyUpdate) SetTeam(t *Team) *PropertyUpdate {
-	return pu.SetTeamID(t.ID)
-}
-
-// SetServicesID sets the "services" edge to the Service entity by ID.
-func (pu *PropertyUpdate) SetServicesID(id string) *PropertyUpdate {
-	pu.mutation.SetServicesID(id)
+// SetHostServiceID sets the "host_service_id" field.
+func (pu *PropertyUpdate) SetHostServiceID(s string) *PropertyUpdate {
+	pu.mutation.SetHostServiceID(s)
 	return pu
 }
 
-// SetServices sets the "services" edge to the Service entity.
-func (pu *PropertyUpdate) SetServices(s *Service) *PropertyUpdate {
-	return pu.SetServicesID(s.ID)
+// SetHostserviceID sets the "hostservice" edge to the HostService entity by ID.
+func (pu *PropertyUpdate) SetHostserviceID(id string) *PropertyUpdate {
+	pu.mutation.SetHostserviceID(id)
+	return pu
+}
+
+// SetHostservice sets the "hostservice" edge to the HostService entity.
+func (pu *PropertyUpdate) SetHostservice(h *HostService) *PropertyUpdate {
+	return pu.SetHostserviceID(h.ID)
 }
 
 // Mutation returns the PropertyMutation object of the builder.
@@ -82,15 +76,9 @@ func (pu *PropertyUpdate) Mutation() *PropertyMutation {
 	return pu.mutation
 }
 
-// ClearTeam clears the "team" edge to the Team entity.
-func (pu *PropertyUpdate) ClearTeam() *PropertyUpdate {
-	pu.mutation.ClearTeam()
-	return pu
-}
-
-// ClearServices clears the "services" edge to the Service entity.
-func (pu *PropertyUpdate) ClearServices() *PropertyUpdate {
-	pu.mutation.ClearServices()
+// ClearHostservice clears the "hostservice" edge to the HostService entity.
+func (pu *PropertyUpdate) ClearHostservice() *PropertyUpdate {
+	pu.mutation.ClearHostservice()
 	return pu
 }
 
@@ -128,14 +116,11 @@ func (pu *PropertyUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`entities: validator failed for field "Property.status": %w`, err)}
 		}
 	}
-	if _, ok := pu.mutation.CompetitionID(); pu.mutation.CompetitionCleared() && !ok {
-		return errors.New(`entities: clearing a required unique edge "Property.competition"`)
+	if _, ok := pu.mutation.HostserviceID(); pu.mutation.HostserviceCleared() && !ok {
+		return errors.New(`entities: clearing a required unique edge "Property.hostservice"`)
 	}
 	if _, ok := pu.mutation.TeamID(); pu.mutation.TeamCleared() && !ok {
 		return errors.New(`entities: clearing a required unique edge "Property.team"`)
-	}
-	if _, ok := pu.mutation.ServicesID(); pu.mutation.ServicesCleared() && !ok {
-		return errors.New(`entities: clearing a required unique edge "Property.services"`)
 	}
 	return nil
 }
@@ -161,57 +146,28 @@ func (pu *PropertyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.Status(); ok {
 		_spec.SetField(property.FieldStatus, field.TypeEnum, value)
 	}
-	if pu.mutation.TeamCleared() {
+	if pu.mutation.HostserviceCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   property.TeamTable,
-			Columns: []string{property.TeamColumn},
+			Inverse: true,
+			Table:   property.HostserviceTable,
+			Columns: []string{property.HostserviceColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := pu.mutation.TeamIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   property.TeamTable,
-			Columns: []string{property.TeamColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if pu.mutation.ServicesCleared() {
+	if nodes := pu.mutation.HostserviceIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   property.ServicesTable,
-			Columns: []string{property.ServicesColumn},
+			Table:   property.HostserviceTable,
+			Columns: []string{property.HostserviceColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := pu.mutation.ServicesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   property.ServicesTable,
-			Columns: []string{property.ServicesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -237,12 +193,6 @@ type PropertyUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *PropertyMutation
-}
-
-// SetTeamID sets the "team_id" field.
-func (puo *PropertyUpdateOne) SetTeamID(s string) *PropertyUpdateOne {
-	puo.mutation.SetTeamID(s)
-	return puo
 }
 
 // SetKey sets the "key" field.
@@ -271,20 +221,21 @@ func (puo *PropertyUpdateOne) SetNillableStatus(pr *property.Status) *PropertyUp
 	return puo
 }
 
-// SetTeam sets the "team" edge to the Team entity.
-func (puo *PropertyUpdateOne) SetTeam(t *Team) *PropertyUpdateOne {
-	return puo.SetTeamID(t.ID)
-}
-
-// SetServicesID sets the "services" edge to the Service entity by ID.
-func (puo *PropertyUpdateOne) SetServicesID(id string) *PropertyUpdateOne {
-	puo.mutation.SetServicesID(id)
+// SetHostServiceID sets the "host_service_id" field.
+func (puo *PropertyUpdateOne) SetHostServiceID(s string) *PropertyUpdateOne {
+	puo.mutation.SetHostServiceID(s)
 	return puo
 }
 
-// SetServices sets the "services" edge to the Service entity.
-func (puo *PropertyUpdateOne) SetServices(s *Service) *PropertyUpdateOne {
-	return puo.SetServicesID(s.ID)
+// SetHostserviceID sets the "hostservice" edge to the HostService entity by ID.
+func (puo *PropertyUpdateOne) SetHostserviceID(id string) *PropertyUpdateOne {
+	puo.mutation.SetHostserviceID(id)
+	return puo
+}
+
+// SetHostservice sets the "hostservice" edge to the HostService entity.
+func (puo *PropertyUpdateOne) SetHostservice(h *HostService) *PropertyUpdateOne {
+	return puo.SetHostserviceID(h.ID)
 }
 
 // Mutation returns the PropertyMutation object of the builder.
@@ -292,15 +243,9 @@ func (puo *PropertyUpdateOne) Mutation() *PropertyMutation {
 	return puo.mutation
 }
 
-// ClearTeam clears the "team" edge to the Team entity.
-func (puo *PropertyUpdateOne) ClearTeam() *PropertyUpdateOne {
-	puo.mutation.ClearTeam()
-	return puo
-}
-
-// ClearServices clears the "services" edge to the Service entity.
-func (puo *PropertyUpdateOne) ClearServices() *PropertyUpdateOne {
-	puo.mutation.ClearServices()
+// ClearHostservice clears the "hostservice" edge to the HostService entity.
+func (puo *PropertyUpdateOne) ClearHostservice() *PropertyUpdateOne {
+	puo.mutation.ClearHostservice()
 	return puo
 }
 
@@ -351,14 +296,11 @@ func (puo *PropertyUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`entities: validator failed for field "Property.status": %w`, err)}
 		}
 	}
-	if _, ok := puo.mutation.CompetitionID(); puo.mutation.CompetitionCleared() && !ok {
-		return errors.New(`entities: clearing a required unique edge "Property.competition"`)
+	if _, ok := puo.mutation.HostserviceID(); puo.mutation.HostserviceCleared() && !ok {
+		return errors.New(`entities: clearing a required unique edge "Property.hostservice"`)
 	}
 	if _, ok := puo.mutation.TeamID(); puo.mutation.TeamCleared() && !ok {
 		return errors.New(`entities: clearing a required unique edge "Property.team"`)
-	}
-	if _, ok := puo.mutation.ServicesID(); puo.mutation.ServicesCleared() && !ok {
-		return errors.New(`entities: clearing a required unique edge "Property.services"`)
 	}
 	return nil
 }
@@ -401,57 +343,28 @@ func (puo *PropertyUpdateOne) sqlSave(ctx context.Context) (_node *Property, err
 	if value, ok := puo.mutation.Status(); ok {
 		_spec.SetField(property.FieldStatus, field.TypeEnum, value)
 	}
-	if puo.mutation.TeamCleared() {
+	if puo.mutation.HostserviceCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   property.TeamTable,
-			Columns: []string{property.TeamColumn},
+			Inverse: true,
+			Table:   property.HostserviceTable,
+			Columns: []string{property.HostserviceColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := puo.mutation.TeamIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   property.TeamTable,
-			Columns: []string{property.TeamColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(team.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if puo.mutation.ServicesCleared() {
+	if nodes := puo.mutation.HostserviceIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   property.ServicesTable,
-			Columns: []string{property.ServicesColumn},
+			Table:   property.HostserviceTable,
+			Columns: []string{property.HostserviceColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := puo.mutation.ServicesIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   property.ServicesTable,
-			Columns: []string{property.ServicesColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

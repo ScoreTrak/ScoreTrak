@@ -12,8 +12,6 @@ const (
 	Label = "round"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldCompetitionID holds the string denoting the competition_id field in the database.
-	FieldCompetitionID = "competition_id"
 	// FieldRoundNumber holds the string denoting the round_number field in the database.
 	FieldRoundNumber = "round_number"
 	// FieldNote holds the string denoting the note field in the database.
@@ -24,19 +22,14 @@ const (
 	FieldStartedAt = "started_at"
 	// FieldFinishedAt holds the string denoting the finished_at field in the database.
 	FieldFinishedAt = "finished_at"
-	// EdgeCompetition holds the string denoting the competition edge name in mutations.
-	EdgeCompetition = "competition"
+	// FieldCompetitionID holds the string denoting the competition_id field in the database.
+	FieldCompetitionID = "competition_id"
 	// EdgeChecks holds the string denoting the checks edge name in mutations.
 	EdgeChecks = "checks"
+	// EdgeCompetition holds the string denoting the competition edge name in mutations.
+	EdgeCompetition = "competition"
 	// Table holds the table name of the round in the database.
 	Table = "rounds"
-	// CompetitionTable is the table that holds the competition relation/edge.
-	CompetitionTable = "rounds"
-	// CompetitionInverseTable is the table name for the Competition entity.
-	// It exists in this package in order to avoid circular dependency with the "competition" package.
-	CompetitionInverseTable = "competitions"
-	// CompetitionColumn is the table column denoting the competition relation/edge.
-	CompetitionColumn = "competition_id"
 	// ChecksTable is the table that holds the checks relation/edge.
 	ChecksTable = "checks"
 	// ChecksInverseTable is the table name for the Check entity.
@@ -44,17 +37,24 @@ const (
 	ChecksInverseTable = "checks"
 	// ChecksColumn is the table column denoting the checks relation/edge.
 	ChecksColumn = "round_checks"
+	// CompetitionTable is the table that holds the competition relation/edge.
+	CompetitionTable = "rounds"
+	// CompetitionInverseTable is the table name for the Competition entity.
+	// It exists in this package in order to avoid circular dependency with the "competition" package.
+	CompetitionInverseTable = "competitions"
+	// CompetitionColumn is the table column denoting the competition relation/edge.
+	CompetitionColumn = "competition_id"
 )
 
 // Columns holds all SQL columns for round fields.
 var Columns = []string{
 	FieldID,
-	FieldCompetitionID,
 	FieldRoundNumber,
 	FieldNote,
 	FieldErr,
 	FieldStartedAt,
 	FieldFinishedAt,
+	FieldCompetitionID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -82,11 +82,6 @@ func ByID(opts ...sql.OrderTermOption) Order {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByCompetitionID orders the results by the competition_id field.
-func ByCompetitionID(opts ...sql.OrderTermOption) Order {
-	return sql.OrderByField(FieldCompetitionID, opts...).ToFunc()
-}
-
 // ByRoundNumber orders the results by the round_number field.
 func ByRoundNumber(opts ...sql.OrderTermOption) Order {
 	return sql.OrderByField(FieldRoundNumber, opts...).ToFunc()
@@ -112,11 +107,9 @@ func ByFinishedAt(opts ...sql.OrderTermOption) Order {
 	return sql.OrderByField(FieldFinishedAt, opts...).ToFunc()
 }
 
-// ByCompetitionField orders the results by competition field.
-func ByCompetitionField(field string, opts ...sql.OrderTermOption) Order {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newCompetitionStep(), sql.OrderByField(field, opts...))
-	}
+// ByCompetitionID orders the results by the competition_id field.
+func ByCompetitionID(opts ...sql.OrderTermOption) Order {
+	return sql.OrderByField(FieldCompetitionID, opts...).ToFunc()
 }
 
 // ByChecksCount orders the results by checks count.
@@ -132,17 +125,24 @@ func ByChecks(term sql.OrderTerm, terms ...sql.OrderTerm) Order {
 		sqlgraph.OrderByNeighborTerms(s, newChecksStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
-func newCompetitionStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CompetitionInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, CompetitionTable, CompetitionColumn),
-	)
+
+// ByCompetitionField orders the results by competition field.
+func ByCompetitionField(field string, opts ...sql.OrderTermOption) Order {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCompetitionStep(), sql.OrderByField(field, opts...))
+	}
 }
 func newChecksStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(ChecksInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, ChecksTable, ChecksColumn),
+	)
+}
+func newCompetitionStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CompetitionInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, CompetitionTable, CompetitionColumn),
 	)
 }

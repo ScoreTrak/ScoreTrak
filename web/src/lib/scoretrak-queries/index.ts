@@ -1,106 +1,96 @@
 import type { AxiosInstance, AxiosRequestConfig } from "axios";
 import { useQuery, useMutation, useQueryClient, type QueryClient, type UseMutationOptions, type UseQueryOptions, type MutationFunction, type UseMutationResult, type UseQueryResult } from "@tanstack/react-query";
 export type Check = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
     log: string;
     error: string;
     passed: boolean;
-    competition: Competition;
+    round_id: string;
+    host_service_id: string;
+    team_id: string;
     rounds: Round;
-    services: Service;
+    hostservice: HostService;
+    team: Team;
 };
 export type CheckCreate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
     log: string;
     error: string;
     passed: boolean;
+    round_id: string;
+    host_service_id: string;
+    team_id: string;
 };
 export type CheckList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
     log: string;
     error: string;
     passed: boolean;
+    round_id: string;
+    host_service_id: string;
+    team_id: string;
 };
 export type CheckRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
     log: string;
     error: string;
     passed: boolean;
+    round_id: string;
+    host_service_id: string;
+    team_id: string;
 };
 export type CheckUpdate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
     log: string;
     error: string;
     passed: boolean;
+    round_id: string;
+    host_service_id: string;
+    team_id: string;
 };
-export type CheckCompetitionRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    hidden?: boolean;
-    pause?: boolean;
+export type CheckHostserviceRead = {
+    id: string;
     name: string;
     display_name: string;
-    viewable_to_public?: boolean;
-    to_be_started_at?: string;
-    started_at?: string;
-    finished_at?: string;
+    pause?: boolean;
+    hidden?: boolean;
+    weight: number;
+    point_boost: number;
+    round_units: number;
+    round_delay: number;
+    host_id: string;
+    team_id: string;
 };
 export type CheckRoundsRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    competition_id: number;
+    id: string;
     round_number: number;
     note: string;
     err: string;
     started_at: string;
     finished_at: string;
+    competition_id: string;
 };
-export type CheckServicesRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    pause?: boolean;
-    hidden?: boolean;
-    competition_id: number;
-    team_id: number;
+export type CheckTeamRead = {
+    id: string;
     name: string;
     display_name: string;
-    weight: number;
-    point_boost: number;
-    round_units: number;
-    round_delay: number;
+    pause?: boolean;
+    hidden?: boolean;
+    number: number;
+    competition_id: string;
 };
 export type Competition = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     hidden?: boolean;
     pause?: boolean;
     name: string;
@@ -110,12 +100,12 @@ export type Competition = {
     started_at?: string;
     finished_at?: string;
     teams?: Team[];
-    users?: User[];
+    services?: Service[];
+    reports?: Report[];
+    rounds?: Round[];
 };
 export type CompetitionCreate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     hidden?: boolean;
     pause?: boolean;
     name: string;
@@ -126,9 +116,7 @@ export type CompetitionCreate = {
     finished_at?: string;
 };
 export type CompetitionList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     hidden?: boolean;
     pause?: boolean;
     name: string;
@@ -139,9 +127,7 @@ export type CompetitionList = {
     finished_at?: string;
 };
 export type CompetitionRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     hidden?: boolean;
     pause?: boolean;
     name: string;
@@ -152,9 +138,7 @@ export type CompetitionRead = {
     finished_at?: string;
 };
 export type CompetitionUpdate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     hidden?: boolean;
     pause?: boolean;
     name: string;
@@ -163,411 +147,368 @@ export type CompetitionUpdate = {
     to_be_started_at?: string;
     started_at?: string;
     finished_at?: string;
+};
+export type CompetitionReportsList = {
+    id: number;
+    log: string;
+    error: string;
+    competition_id: string;
+};
+export type CompetitionRoundsList = {
+    id: string;
+    round_number: number;
+    note: string;
+    err: string;
+    started_at: string;
+    finished_at: string;
+    competition_id: string;
+};
+export type CompetitionServicesList = {
+    id: string;
+    name: string;
+    display_name: string;
+    pause?: boolean;
+    hidden?: boolean;
+    competition_id: string;
 };
 export type CompetitionTeamsList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
+    name: string;
+    display_name: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    name: string;
-    index?: number;
-};
-export type CompetitionUsersList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    username: string;
+    number: number;
+    competition_id: string;
 };
 export type Host = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    team_id: number;
     address: string;
-    address_list_range: string;
-    editable: boolean;
-    competition: Competition;
+    team_id: string;
+    hostservices?: HostService[];
     team: Team;
-    services?: Service[];
-    host_group: HostGroup;
 };
 export type HostCreate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    team_id: number;
     address: string;
-    address_list_range: string;
-    editable: boolean;
-};
-export type HostGroup = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    pause?: boolean;
-    hidden?: boolean;
-    competition_id: number;
-    team_id: number;
-    name: string;
-    competition: Competition;
-    team: Team;
-    hosts?: Host[];
-};
-export type HostGroupCreate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    pause?: boolean;
-    hidden?: boolean;
-    competition_id: number;
-    team_id: number;
-    name: string;
-};
-export type HostGroupList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    pause?: boolean;
-    hidden?: boolean;
-    competition_id: number;
-    team_id: number;
-    name: string;
-};
-export type HostGroupRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    pause?: boolean;
-    hidden?: boolean;
-    competition_id: number;
-    team_id: number;
-    name: string;
-};
-export type HostGroupUpdate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    pause?: boolean;
-    hidden?: boolean;
-    competition_id: number;
-    team_id: number;
-    name: string;
-};
-export type HostGroupCompetitionRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    hidden?: boolean;
-    pause?: boolean;
-    name: string;
-    display_name: string;
-    viewable_to_public?: boolean;
-    to_be_started_at?: string;
-    started_at?: string;
-    finished_at?: string;
-};
-export type HostGroupHostsList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    pause?: boolean;
-    hidden?: boolean;
-    competition_id: number;
-    team_id: number;
-    address: string;
-    address_list_range: string;
-    editable: boolean;
-};
-export type HostGroupTeamRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    pause?: boolean;
-    hidden?: boolean;
-    competition_id: number;
-    name: string;
-    index?: number;
+    team_id: string;
 };
 export type HostList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    team_id: number;
     address: string;
-    address_list_range: string;
-    editable: boolean;
+    team_id: string;
 };
 export type HostRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    team_id: number;
     address: string;
-    address_list_range: string;
-    editable: boolean;
+    team_id: string;
+};
+export type HostService = {
+    id: string;
+    name: string;
+    display_name: string;
+    pause?: boolean;
+    hidden?: boolean;
+    weight: number;
+    point_boost: number;
+    round_units: number;
+    round_delay: number;
+    host_id: string;
+    team_id: string;
+    host: Host;
+    checks?: Check[];
+    properties?: Property[];
+    team: Team;
+};
+export type HostServiceCreate = {
+    id: string;
+    name: string;
+    display_name: string;
+    pause?: boolean;
+    hidden?: boolean;
+    weight: number;
+    point_boost: number;
+    round_units: number;
+    round_delay: number;
+    host_id: string;
+    team_id: string;
+};
+export type HostServiceList = {
+    id: string;
+    name: string;
+    display_name: string;
+    pause?: boolean;
+    hidden?: boolean;
+    weight: number;
+    point_boost: number;
+    round_units: number;
+    round_delay: number;
+    host_id: string;
+    team_id: string;
+};
+export type HostServiceRead = {
+    id: string;
+    name: string;
+    display_name: string;
+    pause?: boolean;
+    hidden?: boolean;
+    weight: number;
+    point_boost: number;
+    round_units: number;
+    round_delay: number;
+    host_id: string;
+    team_id: string;
+};
+export type HostServiceUpdate = {
+    id: string;
+    name: string;
+    display_name: string;
+    pause?: boolean;
+    hidden?: boolean;
+    weight: number;
+    point_boost: number;
+    round_units: number;
+    round_delay: number;
+    host_id: string;
+    team_id: string;
+};
+export type HostServiceChecksList = {
+    id: string;
+    pause?: boolean;
+    hidden?: boolean;
+    log: string;
+    error: string;
+    passed: boolean;
+    round_id: string;
+    host_service_id: string;
+    team_id: string;
+};
+export type HostServiceHostRead = {
+    id: string;
+    pause?: boolean;
+    hidden?: boolean;
+    address: string;
+    team_id: string;
+};
+export type HostServicePropertiesList = {
+    id: string;
+    key: string;
+    value: string;
+    status: "view" | "edit" | "hide";
+    host_service_id: string;
+    team_id: string;
+};
+export type HostServiceTeamRead = {
+    id: string;
+    name: string;
+    display_name: string;
+    pause?: boolean;
+    hidden?: boolean;
+    number: number;
+    competition_id: string;
 };
 export type HostUpdate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    team_id: number;
     address: string;
-    address_list_range: string;
-    editable: boolean;
+    team_id: string;
 };
-export type HostCompetitionRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    hidden?: boolean;
-    pause?: boolean;
+export type HostHostservicesList = {
+    id: string;
     name: string;
     display_name: string;
-    viewable_to_public?: boolean;
-    to_be_started_at?: string;
-    started_at?: string;
-    finished_at?: string;
-};
-export type HostHostGroupRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    team_id: number;
-    name: string;
-};
-export type HostServicesList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    pause?: boolean;
-    hidden?: boolean;
-    competition_id: number;
-    team_id: number;
-    name: string;
-    display_name: string;
     weight: number;
     point_boost: number;
     round_units: number;
     round_delay: number;
+    host_id: string;
+    team_id: string;
 };
 export type HostTeamRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
+    name: string;
+    display_name: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    name: string;
-    index?: number;
+    number: number;
+    competition_id: string;
 };
 export type Property = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    competition_id: number;
-    team_id: number;
+    id: string;
     key: string;
     value: string;
     status: "view" | "edit" | "hide";
-    competition: Competition;
+    host_service_id: string;
+    team_id: string;
+    hostservice: HostService;
     team: Team;
-    services: Service;
 };
 export type PropertyCreate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    competition_id: number;
-    team_id: number;
+    id: string;
     key: string;
     value: string;
     status: "view" | "edit" | "hide";
+    host_service_id: string;
+    team_id: string;
 };
 export type PropertyList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    competition_id: number;
-    team_id: number;
+    id: string;
     key: string;
     value: string;
     status: "view" | "edit" | "hide";
+    host_service_id: string;
+    team_id: string;
 };
 export type PropertyRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    competition_id: number;
-    team_id: number;
+    id: string;
     key: string;
     value: string;
     status: "view" | "edit" | "hide";
+    host_service_id: string;
+    team_id: string;
 };
 export type PropertyUpdate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    competition_id: number;
-    team_id: number;
+    id: string;
     key: string;
     value: string;
     status: "view" | "edit" | "hide";
+    host_service_id: string;
+    team_id: string;
 };
-export type PropertyCompetitionRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    hidden?: boolean;
-    pause?: boolean;
+export type PropertyHostserviceRead = {
+    id: string;
     name: string;
     display_name: string;
-    viewable_to_public?: boolean;
-    to_be_started_at?: string;
-    started_at?: string;
-    finished_at?: string;
-};
-export type PropertyServicesRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    team_id: number;
-    name: string;
-    display_name: string;
     weight: number;
     point_boost: number;
     round_units: number;
     round_delay: number;
+    host_id: string;
+    team_id: string;
 };
 export type PropertyTeamRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
+    name: string;
+    display_name: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    name: string;
-    index?: number;
+    number: number;
+    competition_id: string;
 };
 export type Report = {
     id: number;
     log: string;
     error: string;
+    competition_id: string;
+    competition: Competition;
 };
 export type ReportCreate = {
     id: number;
     log: string;
     error: string;
+    competition_id: string;
 };
 export type ReportList = {
     id: number;
     log: string;
     error: string;
+    competition_id: string;
 };
 export type ReportRead = {
     id: number;
     log: string;
     error: string;
+    competition_id: string;
 };
 export type ReportUpdate = {
     id: number;
     log: string;
     error: string;
+    competition_id: string;
+};
+export type ReportCompetitionRead = {
+    id: string;
+    hidden?: boolean;
+    pause?: boolean;
+    name: string;
+    display_name: string;
+    viewable_to_public?: boolean;
+    to_be_started_at?: string;
+    started_at?: string;
+    finished_at?: string;
 };
 export type Round = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    competition_id: number;
+    id: string;
     round_number: number;
     note: string;
     err: string;
     started_at: string;
     finished_at: string;
-    competition: Competition;
+    competition_id: string;
     checks?: Check[];
+    competition: Competition;
 };
 export type RoundCreate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    competition_id: number;
+    id: string;
     round_number: number;
     note: string;
     err: string;
     started_at: string;
     finished_at: string;
+    competition_id: string;
 };
 export type RoundList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    competition_id: number;
+    id: string;
     round_number: number;
     note: string;
     err: string;
     started_at: string;
     finished_at: string;
+    competition_id: string;
 };
 export type RoundRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    competition_id: number;
+    id: string;
     round_number: number;
     note: string;
     err: string;
     started_at: string;
     finished_at: string;
+    competition_id: string;
 };
 export type RoundUpdate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    competition_id: number;
+    id: string;
     round_number: number;
     note: string;
     err: string;
     started_at: string;
     finished_at: string;
+    competition_id: string;
 };
 export type RoundChecksList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
     log: string;
     error: string;
     passed: boolean;
+    round_id: string;
+    host_service_id: string;
+    team_id: string;
 };
 export type RoundCompetitionRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     hidden?: boolean;
     pause?: boolean;
     name: string;
@@ -578,100 +519,48 @@ export type RoundCompetitionRead = {
     finished_at?: string;
 };
 export type Service = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    pause?: boolean;
-    hidden?: boolean;
-    competition_id: number;
-    team_id: number;
+    id: string;
     name: string;
     display_name: string;
-    weight: number;
-    point_boost: number;
-    round_units: number;
-    round_delay: number;
+    pause?: boolean;
+    hidden?: boolean;
+    competition_id: string;
     competition: Competition;
-    team: Team;
-    hosts?: Host;
-    checks?: Check[];
-    properties?: Property[];
 };
 export type ServiceCreate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    pause?: boolean;
-    hidden?: boolean;
-    competition_id: number;
-    team_id: number;
+    id: string;
     name: string;
     display_name: string;
-    weight: number;
-    point_boost: number;
-    round_units: number;
-    round_delay: number;
+    pause?: boolean;
+    hidden?: boolean;
+    competition_id: string;
 };
 export type ServiceList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    pause?: boolean;
-    hidden?: boolean;
-    competition_id: number;
-    team_id: number;
+    id: string;
     name: string;
     display_name: string;
-    weight: number;
-    point_boost: number;
-    round_units: number;
-    round_delay: number;
+    pause?: boolean;
+    hidden?: boolean;
+    competition_id: string;
 };
 export type ServiceRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    pause?: boolean;
-    hidden?: boolean;
-    competition_id: number;
-    team_id: number;
+    id: string;
     name: string;
     display_name: string;
-    weight: number;
-    point_boost: number;
-    round_units: number;
-    round_delay: number;
+    pause?: boolean;
+    hidden?: boolean;
+    competition_id: string;
 };
 export type ServiceUpdate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    pause?: boolean;
-    hidden?: boolean;
-    competition_id: number;
-    team_id: number;
+    id: string;
     name: string;
     display_name: string;
-    weight: number;
-    point_boost: number;
-    round_units: number;
-    round_delay: number;
-};
-export type ServiceChecksList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    log: string;
-    error: string;
-    passed: boolean;
+    competition_id: string;
 };
 export type ServiceCompetitionRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     hidden?: boolean;
     pause?: boolean;
     name: string;
@@ -681,95 +570,69 @@ export type ServiceCompetitionRead = {
     started_at?: string;
     finished_at?: string;
 };
-export type ServiceHostsRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    pause?: boolean;
-    hidden?: boolean;
-    competition_id: number;
-    team_id: number;
-    address: string;
-    address_list_range: string;
-    editable: boolean;
-};
-export type ServicePropertiesList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    competition_id: number;
-    team_id: number;
-    key: string;
-    value: string;
-    status: "view" | "edit" | "hide";
-};
-export type ServiceTeamRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    pause?: boolean;
-    hidden?: boolean;
-    competition_id: number;
-    name: string;
-    index?: number;
-};
 export type Team = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
+    name: string;
+    display_name: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    name: string;
-    index?: number;
-    competition: Competition;
-    users?: User[];
+    number: number;
+    competition_id: string;
     hosts?: Host[];
+    hostservices?: HostService[];
+    checks?: Check[];
+    properties?: Property[];
+    competition: Competition;
 };
 export type TeamCreate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
+    name: string;
+    display_name: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    name: string;
-    index?: number;
+    number: number;
+    competition_id: string;
 };
 export type TeamList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
+    name: string;
+    display_name: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    name: string;
-    index?: number;
+    number: number;
+    competition_id: string;
 };
 export type TeamRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
+    name: string;
+    display_name: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    name: string;
-    index?: number;
+    number: number;
+    competition_id: string;
 };
 export type TeamUpdate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
+    name: string;
+    display_name: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    name: string;
-    index?: number;
+    number: number;
+    competition_id: string;
+};
+export type TeamChecksList = {
+    id: string;
+    pause?: boolean;
+    hidden?: boolean;
+    log: string;
+    error: string;
+    passed: boolean;
+    round_id: string;
+    host_service_id: string;
+    team_id: string;
 };
 export type TeamCompetitionRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     hidden?: boolean;
     pause?: boolean;
     name: string;
@@ -780,77 +643,32 @@ export type TeamCompetitionRead = {
     finished_at?: string;
 };
 export type TeamHostsList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
+    id: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    team_id: number;
     address: string;
-    address_list_range: string;
-    editable: boolean;
+    team_id: string;
 };
-export type TeamUsersList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    username: string;
-};
-export type User = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    username: string;
-    teams?: Team[];
-    competitions?: Competition[];
-};
-export type UserCreate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    username: string;
-};
-export type UserList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    username: string;
-};
-export type UserRead = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    username: string;
-};
-export type UserUpdate = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    username: string;
-};
-export type UserCompetitionsList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
-    hidden?: boolean;
-    pause?: boolean;
+export type TeamHostservicesList = {
+    id: string;
     name: string;
     display_name: string;
-    viewable_to_public?: boolean;
-    to_be_started_at?: string;
-    started_at?: string;
-    finished_at?: string;
-};
-export type UserTeamsList = {
-    id: number;
-    create_time?: string;
-    update_time?: string;
     pause?: boolean;
     hidden?: boolean;
-    competition_id: number;
-    name: string;
-    index?: number;
+    weight: number;
+    point_boost: number;
+    round_units: number;
+    round_delay: number;
+    host_id: string;
+    team_id: string;
+};
+export type TeamPropertiesList = {
+    id: string;
+    key: string;
+    value: string;
+    status: "view" | "edit" | "hide";
+    host_service_id: string;
+    team_id: string;
 };
 export type AxiosConfig = {
     paramsSerializer?: AxiosRequestConfig["paramsSerializer"];
@@ -893,52 +711,47 @@ function nullIfUndefined<T>(value: T): NonNullable<T> | null {
 }
 export const queryKeys = {
     listCheck: (page?: number, itemsPerPage?: number) => ["listCheck", nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    readCheck: (id: number) => ["readCheck", id] as const,
-    readCheckCompetition: (id: number) => ["readCheckCompetition", id] as const,
-    readCheckRounds: (id: number) => ["readCheckRounds", id] as const,
-    readCheckServices: (id: number) => ["readCheckServices", id] as const,
+    readCheck: (id: string) => ["readCheck", id] as const,
+    readCheckHostservice: (id: string) => ["readCheckHostservice", id] as const,
+    readCheckRounds: (id: string) => ["readCheckRounds", id] as const,
+    readCheckTeam: (id: string) => ["readCheckTeam", id] as const,
     listCompetition: (page?: number, itemsPerPage?: number) => ["listCompetition", nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    readCompetition: (id: number) => ["readCompetition", id] as const,
-    listCompetitionTeams: (id: number, page?: number, itemsPerPage?: number) => ["listCompetitionTeams", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    listCompetitionUsers: (id: number, page?: number, itemsPerPage?: number) => ["listCompetitionUsers", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    listHostGroup: (page?: number, itemsPerPage?: number) => ["listHostGroup", nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    readHostGroup: (id: number) => ["readHostGroup", id] as const,
-    readHostGroupCompetition: (id: number) => ["readHostGroupCompetition", id] as const,
-    listHostGroupHosts: (id: number, page?: number, itemsPerPage?: number) => ["listHostGroupHosts", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    readHostGroupTeam: (id: number) => ["readHostGroupTeam", id] as const,
+    readCompetition: (id: string) => ["readCompetition", id] as const,
+    listCompetitionReports: (id: string, page?: number, itemsPerPage?: number) => ["listCompetitionReports", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
+    listCompetitionRounds: (id: string, page?: number, itemsPerPage?: number) => ["listCompetitionRounds", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
+    listCompetitionServices: (id: string, page?: number, itemsPerPage?: number) => ["listCompetitionServices", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
+    listCompetitionTeams: (id: string, page?: number, itemsPerPage?: number) => ["listCompetitionTeams", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
+    listHostService: (page?: number, itemsPerPage?: number) => ["listHostService", nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
+    readHostService: (id: string) => ["readHostService", id] as const,
+    listHostServiceChecks: (id: string, page?: number, itemsPerPage?: number) => ["listHostServiceChecks", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
+    readHostServiceHost: (id: string) => ["readHostServiceHost", id] as const,
+    listHostServiceProperties: (id: string, page?: number, itemsPerPage?: number) => ["listHostServiceProperties", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
+    readHostServiceTeam: (id: string) => ["readHostServiceTeam", id] as const,
     listHost: (page?: number, itemsPerPage?: number) => ["listHost", nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    readHost: (id: number) => ["readHost", id] as const,
-    readHostCompetition: (id: number) => ["readHostCompetition", id] as const,
-    readHostHostGroup: (id: number) => ["readHostHostGroup", id] as const,
-    listHostServices: (id: number, page?: number, itemsPerPage?: number) => ["listHostServices", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    readHostTeam: (id: number) => ["readHostTeam", id] as const,
+    readHost: (id: string) => ["readHost", id] as const,
+    listHostHostservices: (id: string, page?: number, itemsPerPage?: number) => ["listHostHostservices", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
+    readHostTeam: (id: string) => ["readHostTeam", id] as const,
     listProperty: (page?: number, itemsPerPage?: number) => ["listProperty", nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    readProperty: (id: number) => ["readProperty", id] as const,
-    readPropertyCompetition: (id: number) => ["readPropertyCompetition", id] as const,
-    readPropertyServices: (id: number) => ["readPropertyServices", id] as const,
-    readPropertyTeam: (id: number) => ["readPropertyTeam", id] as const,
+    readProperty: (id: string) => ["readProperty", id] as const,
+    readPropertyHostservice: (id: string) => ["readPropertyHostservice", id] as const,
+    readPropertyTeam: (id: string) => ["readPropertyTeam", id] as const,
     listReport: (page?: number, itemsPerPage?: number) => ["listReport", nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
     readReport: (id: number) => ["readReport", id] as const,
+    readReportCompetition: (id: number) => ["readReportCompetition", id] as const,
     listRound: (page?: number, itemsPerPage?: number) => ["listRound", nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    readRound: (id: number) => ["readRound", id] as const,
-    listRoundChecks: (id: number, page?: number, itemsPerPage?: number) => ["listRoundChecks", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    readRoundCompetition: (id: number) => ["readRoundCompetition", id] as const,
+    readRound: (id: string) => ["readRound", id] as const,
+    listRoundChecks: (id: string, page?: number, itemsPerPage?: number) => ["listRoundChecks", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
+    readRoundCompetition: (id: string) => ["readRoundCompetition", id] as const,
     listService: (page?: number, itemsPerPage?: number) => ["listService", nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    readService: (id: number) => ["readService", id] as const,
-    listServiceChecks: (id: number, page?: number, itemsPerPage?: number) => ["listServiceChecks", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    readServiceCompetition: (id: number) => ["readServiceCompetition", id] as const,
-    readServiceHosts: (id: number) => ["readServiceHosts", id] as const,
-    listServiceProperties: (id: number, page?: number, itemsPerPage?: number) => ["listServiceProperties", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    readServiceTeam: (id: number) => ["readServiceTeam", id] as const,
+    readService: (id: string) => ["readService", id] as const,
+    readServiceCompetition: (id: string) => ["readServiceCompetition", id] as const,
     listTeam: (page?: number, itemsPerPage?: number) => ["listTeam", nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    readTeam: (id: number) => ["readTeam", id] as const,
-    readTeamCompetition: (id: number) => ["readTeamCompetition", id] as const,
-    listTeamHosts: (id: number, page?: number, itemsPerPage?: number) => ["listTeamHosts", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    listTeamUsers: (id: number, page?: number, itemsPerPage?: number) => ["listTeamUsers", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    listUser: (page?: number, itemsPerPage?: number) => ["listUser", nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    readUser: (id: number) => ["readUser", id] as const,
-    listUserCompetitions: (id: number, page?: number, itemsPerPage?: number) => ["listUserCompetitions", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
-    listUserTeams: (id: number, page?: number, itemsPerPage?: number) => ["listUserTeams", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const
+    readTeam: (id: string) => ["readTeam", id] as const,
+    listTeamChecks: (id: string, page?: number, itemsPerPage?: number) => ["listTeamChecks", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
+    readTeamCompetition: (id: string) => ["readTeamCompetition", id] as const,
+    listTeamHosts: (id: string, page?: number, itemsPerPage?: number) => ["listTeamHosts", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
+    listTeamHostservices: (id: string, page?: number, itemsPerPage?: number) => ["listTeamHostservices", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
+    listTeamProperties: (id: string, page?: number, itemsPerPage?: number) => ["listTeamProperties", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const
 } as const;
 export type QueryKeys = typeof queryKeys;
 function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
@@ -953,56 +766,57 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         createCheck: (payload: {
-            create_time?: string;
-            update_time?: string;
             pause?: boolean;
             hidden?: boolean;
-            competition_id: number;
             log: string;
             error: string;
             passed: boolean;
-            competition: number;
-            rounds: number;
-            services: number;
+            round_id: string;
+            host_service_id: string;
+            team_id: string;
+            rounds: string;
+            hostservice: string;
+            team: string;
         }) => axios.request<CheckCreate>({
             method: "post",
             url: `/checks`,
             data: payload
         }).then(res => res.data),
-        readCheck: (id: number) => axios.request<CheckRead>({
+        readCheck: (id: string) => axios.request<CheckRead>({
             method: "get",
             url: `/checks/${id}`
         }).then(res => res.data),
-        deleteCheck: (id: number) => axios.request<unknown>({
+        deleteCheck: (id: string) => axios.request<unknown>({
             method: "delete",
             url: `/checks/${id}`
         }).then(res => res.data),
         updateCheck: (payload: {
-            update_time?: string;
             pause?: boolean;
             hidden?: boolean;
             log?: string;
             error?: string;
             passed?: boolean;
-            competition?: number;
-            rounds?: number;
-            services?: number;
-        }, id: number) => axios.request<CheckUpdate>({
+            round_id?: string;
+            host_service_id?: string;
+            rounds?: string;
+            hostservice?: string;
+            team?: string;
+        }, id: string) => axios.request<CheckUpdate>({
             method: "patch",
             url: `/checks/${id}`,
             data: payload
         }).then(res => res.data),
-        readCheckCompetition: (id: number) => axios.request<CheckCompetitionRead>({
+        readCheckHostservice: (id: string) => axios.request<CheckHostserviceRead>({
             method: "get",
-            url: `/checks/${id}/competition`
+            url: `/checks/${id}/hostservice`
         }).then(res => res.data),
-        readCheckRounds: (id: number) => axios.request<CheckRoundsRead>({
+        readCheckRounds: (id: string) => axios.request<CheckRoundsRead>({
             method: "get",
             url: `/checks/${id}/rounds`
         }).then(res => res.data),
-        readCheckServices: (id: number) => axios.request<CheckServicesRead>({
+        readCheckTeam: (id: string) => axios.request<CheckTeamRead>({
             method: "get",
-            url: `/checks/${id}/services`
+            url: `/checks/${id}/team`
         }).then(res => res.data),
         listCompetition: (page?: number, itemsPerPage?: number) => axios.request<CompetitionList[]>({
             method: "get",
@@ -1014,8 +828,6 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         createCompetition: (payload: {
-            create_time?: string;
-            update_time?: string;
             hidden?: boolean;
             pause?: boolean;
             name: string;
@@ -1024,23 +836,24 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             to_be_started_at?: string;
             started_at?: string;
             finished_at?: string;
-            teams?: number[];
-            users?: number[];
+            teams?: string[];
+            services?: string[];
+            reports?: number[];
+            rounds?: string[];
         }) => axios.request<CompetitionCreate>({
             method: "post",
             url: `/competitions`,
             data: payload
         }).then(res => res.data),
-        readCompetition: (id: number) => axios.request<CompetitionRead>({
+        readCompetition: (id: string) => axios.request<CompetitionRead>({
             method: "get",
             url: `/competitions/${id}`
         }).then(res => res.data),
-        deleteCompetition: (id: number) => axios.request<unknown>({
+        deleteCompetition: (id: string) => axios.request<unknown>({
             method: "delete",
             url: `/competitions/${id}`
         }).then(res => res.data),
         updateCompetition: (payload: {
-            update_time?: string;
             hidden?: boolean;
             pause?: boolean;
             name?: string;
@@ -1049,14 +862,43 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             to_be_started_at?: string;
             started_at?: string;
             finished_at?: string;
-            teams?: number[];
-            users?: number[];
-        }, id: number) => axios.request<CompetitionUpdate>({
+            teams?: string[];
+            services?: string[];
+            reports?: number[];
+            rounds?: string[];
+        }, id: string) => axios.request<CompetitionUpdate>({
             method: "patch",
             url: `/competitions/${id}`,
             data: payload
         }).then(res => res.data),
-        listCompetitionTeams: (id: number, page?: number, itemsPerPage?: number) => axios.request<CompetitionTeamsList[]>({
+        listCompetitionReports: (id: string, page?: number, itemsPerPage?: number) => axios.request<CompetitionReportsList[]>({
+            method: "get",
+            url: `/competitions/${id}/reports`,
+            params: {
+                ...(page !== undefined ? { page } : undefined),
+                ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
+            },
+            paramsSerializer: config?.paramsSerializer
+        }).then(res => res.data),
+        listCompetitionRounds: (id: string, page?: number, itemsPerPage?: number) => axios.request<CompetitionRoundsList[]>({
+            method: "get",
+            url: `/competitions/${id}/rounds`,
+            params: {
+                ...(page !== undefined ? { page } : undefined),
+                ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
+            },
+            paramsSerializer: config?.paramsSerializer
+        }).then(res => res.data),
+        listCompetitionServices: (id: string, page?: number, itemsPerPage?: number) => axios.request<CompetitionServicesList[]>({
+            method: "get",
+            url: `/competitions/${id}/services`,
+            params: {
+                ...(page !== undefined ? { page } : undefined),
+                ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
+            },
+            paramsSerializer: config?.paramsSerializer
+        }).then(res => res.data),
+        listCompetitionTeams: (id: string, page?: number, itemsPerPage?: number) => axios.request<CompetitionTeamsList[]>({
             method: "get",
             url: `/competitions/${id}/teams`,
             params: {
@@ -1065,78 +907,87 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             },
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
-        listCompetitionUsers: (id: number, page?: number, itemsPerPage?: number) => axios.request<CompetitionUsersList[]>({
+        listHostService: (page?: number, itemsPerPage?: number) => axios.request<HostServiceList[]>({
             method: "get",
-            url: `/competitions/${id}/users`,
+            url: `/host-services`,
             params: {
                 ...(page !== undefined ? { page } : undefined),
                 ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
             },
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
-        listHostGroup: (page?: number, itemsPerPage?: number) => axios.request<HostGroupList[]>({
-            method: "get",
-            url: `/host-groups`,
-            params: {
-                ...(page !== undefined ? { page } : undefined),
-                ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
-            },
-            paramsSerializer: config?.paramsSerializer
-        }).then(res => res.data),
-        createHostGroup: (payload: {
-            create_time?: string;
-            update_time?: string;
-            pause?: boolean;
-            hidden?: boolean;
-            competition_id: number;
-            team_id: number;
+        createHostService: (payload: {
             name: string;
-            competition: number;
-            team: number;
-            hosts?: number[];
-        }) => axios.request<HostGroupCreate>({
-            method: "post",
-            url: `/host-groups`,
-            data: payload
-        }).then(res => res.data),
-        readHostGroup: (id: number) => axios.request<HostGroupRead>({
-            method: "get",
-            url: `/host-groups/${id}`
-        }).then(res => res.data),
-        deleteHostGroup: (id: number) => axios.request<unknown>({
-            method: "delete",
-            url: `/host-groups/${id}`
-        }).then(res => res.data),
-        updateHostGroup: (payload: {
-            update_time?: string;
+            display_name: string;
             pause?: boolean;
             hidden?: boolean;
-            team_id?: number;
-            name?: string;
-            competition?: number;
-            team?: number;
-            hosts?: number[];
-        }, id: number) => axios.request<HostGroupUpdate>({
-            method: "patch",
-            url: `/host-groups/${id}`,
+            weight: number;
+            point_boost: number;
+            round_units: number;
+            round_delay: number;
+            host_id: string;
+            team_id: string;
+            host: string;
+            checks?: string[];
+            properties?: string[];
+            team: string;
+        }) => axios.request<HostServiceCreate>({
+            method: "post",
+            url: `/host-services`,
             data: payload
         }).then(res => res.data),
-        readHostGroupCompetition: (id: number) => axios.request<HostGroupCompetitionRead>({
+        readHostService: (id: string) => axios.request<HostServiceRead>({
             method: "get",
-            url: `/host-groups/${id}/competition`
+            url: `/host-services/${id}`
         }).then(res => res.data),
-        listHostGroupHosts: (id: number, page?: number, itemsPerPage?: number) => axios.request<HostGroupHostsList[]>({
+        deleteHostService: (id: string) => axios.request<unknown>({
+            method: "delete",
+            url: `/host-services/${id}`
+        }).then(res => res.data),
+        updateHostService: (payload: {
+            name?: string;
+            display_name?: string;
+            pause?: boolean;
+            hidden?: boolean;
+            weight?: number;
+            point_boost?: number;
+            round_units?: number;
+            round_delay?: number;
+            host_id?: string;
+            host?: string;
+            checks?: string[];
+            properties?: string[];
+            team?: string;
+        }, id: string) => axios.request<HostServiceUpdate>({
+            method: "patch",
+            url: `/host-services/${id}`,
+            data: payload
+        }).then(res => res.data),
+        listHostServiceChecks: (id: string, page?: number, itemsPerPage?: number) => axios.request<HostServiceChecksList[]>({
             method: "get",
-            url: `/host-groups/${id}/hosts`,
+            url: `/host-services/${id}/checks`,
             params: {
                 ...(page !== undefined ? { page } : undefined),
                 ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
             },
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
-        readHostGroupTeam: (id: number) => axios.request<HostGroupTeamRead>({
+        readHostServiceHost: (id: string) => axios.request<HostServiceHostRead>({
             method: "get",
-            url: `/host-groups/${id}/team`
+            url: `/host-services/${id}/host`
+        }).then(res => res.data),
+        listHostServiceProperties: (id: string, page?: number, itemsPerPage?: number) => axios.request<HostServicePropertiesList[]>({
+            method: "get",
+            url: `/host-services/${id}/properties`,
+            params: {
+                ...(page !== undefined ? { page } : undefined),
+                ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
+            },
+            paramsSerializer: config?.paramsSerializer
+        }).then(res => res.data),
+        readHostServiceTeam: (id: string) => axios.request<HostServiceTeamRead>({
+            method: "get",
+            url: `/host-services/${id}/team`
         }).then(res => res.data),
         listHost: (page?: number, itemsPerPage?: number) => axios.request<HostList[]>({
             method: "get",
@@ -1148,67 +999,46 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         createHost: (payload: {
-            create_time?: string;
-            update_time?: string;
             pause?: boolean;
             hidden?: boolean;
-            competition_id: number;
-            team_id: number;
             address: string;
-            address_list_range: string;
-            editable: boolean;
-            competition: number;
-            team: number;
-            services?: number[];
-            host_group: number;
+            team_id: string;
+            hostservices?: string[];
+            team: string;
         }) => axios.request<HostCreate>({
             method: "post",
             url: `/hosts`,
             data: payload
         }).then(res => res.data),
-        readHost: (id: number) => axios.request<HostRead>({
+        readHost: (id: string) => axios.request<HostRead>({
             method: "get",
             url: `/hosts/${id}`
         }).then(res => res.data),
-        deleteHost: (id: number) => axios.request<unknown>({
+        deleteHost: (id: string) => axios.request<unknown>({
             method: "delete",
             url: `/hosts/${id}`
         }).then(res => res.data),
         updateHost: (payload: {
-            update_time?: string;
             pause?: boolean;
             hidden?: boolean;
-            team_id?: number;
             address?: string;
-            address_list_range?: string;
-            editable?: boolean;
-            competition?: number;
-            team?: number;
-            services?: number[];
-            host_group?: number;
-        }, id: number) => axios.request<HostUpdate>({
+            hostservices?: string[];
+            team?: string;
+        }, id: string) => axios.request<HostUpdate>({
             method: "patch",
             url: `/hosts/${id}`,
             data: payload
         }).then(res => res.data),
-        readHostCompetition: (id: number) => axios.request<HostCompetitionRead>({
+        listHostHostservices: (id: string, page?: number, itemsPerPage?: number) => axios.request<HostHostservicesList[]>({
             method: "get",
-            url: `/hosts/${id}/competition`
-        }).then(res => res.data),
-        readHostHostGroup: (id: number) => axios.request<HostHostGroupRead>({
-            method: "get",
-            url: `/hosts/${id}/host-group`
-        }).then(res => res.data),
-        listHostServices: (id: number, page?: number, itemsPerPage?: number) => axios.request<HostServicesList[]>({
-            method: "get",
-            url: `/hosts/${id}/services`,
+            url: `/hosts/${id}/hostservices`,
             params: {
                 ...(page !== undefined ? { page } : undefined),
                 ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
             },
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
-        readHostTeam: (id: number) => axios.request<HostTeamRead>({
+        readHostTeam: (id: string) => axios.request<HostTeamRead>({
             method: "get",
             url: `/hosts/${id}/team`
         }).then(res => res.data),
@@ -1222,52 +1052,43 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         createProperty: (payload: {
-            create_time?: string;
-            update_time?: string;
-            competition_id: number;
-            team_id: number;
             key: string;
             value: string;
             status: "view" | "edit" | "hide";
-            competition: number;
-            team: number;
-            services: number;
+            host_service_id: string;
+            team_id: string;
+            hostservice: string;
+            team: string;
         }) => axios.request<PropertyCreate>({
             method: "post",
             url: `/properties`,
             data: payload
         }).then(res => res.data),
-        readProperty: (id: number) => axios.request<PropertyRead>({
+        readProperty: (id: string) => axios.request<PropertyRead>({
             method: "get",
             url: `/properties/${id}`
         }).then(res => res.data),
-        deleteProperty: (id: number) => axios.request<unknown>({
+        deleteProperty: (id: string) => axios.request<unknown>({
             method: "delete",
             url: `/properties/${id}`
         }).then(res => res.data),
         updateProperty: (payload: {
-            update_time?: string;
-            team_id?: number;
             key?: string;
             value?: string;
             status?: "view" | "edit" | "hide";
-            competition?: number;
-            team?: number;
-            services?: number;
-        }, id: number) => axios.request<PropertyUpdate>({
+            host_service_id?: string;
+            hostservice?: string;
+            team?: string;
+        }, id: string) => axios.request<PropertyUpdate>({
             method: "patch",
             url: `/properties/${id}`,
             data: payload
         }).then(res => res.data),
-        readPropertyCompetition: (id: number) => axios.request<PropertyCompetitionRead>({
+        readPropertyHostservice: (id: string) => axios.request<PropertyHostserviceRead>({
             method: "get",
-            url: `/properties/${id}/competition`
+            url: `/properties/${id}/hostservice`
         }).then(res => res.data),
-        readPropertyServices: (id: number) => axios.request<PropertyServicesRead>({
-            method: "get",
-            url: `/properties/${id}/services`
-        }).then(res => res.data),
-        readPropertyTeam: (id: number) => axios.request<PropertyTeamRead>({
+        readPropertyTeam: (id: string) => axios.request<PropertyTeamRead>({
             method: "get",
             url: `/properties/${id}/team`
         }).then(res => res.data),
@@ -1283,6 +1104,8 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
         createReport: (payload: {
             log: string;
             error: string;
+            competition_id: string;
+            competition: string;
         }) => axios.request<ReportCreate>({
             method: "post",
             url: `/reports`,
@@ -1299,10 +1122,15 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
         updateReport: (payload: {
             log?: string;
             error?: string;
+            competition?: string;
         }, id: number) => axios.request<ReportUpdate>({
             method: "patch",
             url: `/reports/${id}`,
             data: payload
+        }).then(res => res.data),
+        readReportCompetition: (id: number) => axios.request<ReportCompetitionRead>({
+            method: "get",
+            url: `/reports/${id}/competition`
         }).then(res => res.data),
         listRound: (page?: number, itemsPerPage?: number) => axios.request<RoundList[]>({
             method: "get",
@@ -1314,44 +1142,41 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         createRound: (payload: {
-            create_time?: string;
-            update_time?: string;
-            competition_id: number;
             round_number: number;
             note: string;
             err: string;
             started_at: string;
             finished_at: string;
-            competition: number;
-            checks?: number[];
+            competition_id: string;
+            checks?: string[];
+            competition: string;
         }) => axios.request<RoundCreate>({
             method: "post",
             url: `/rounds`,
             data: payload
         }).then(res => res.data),
-        readRound: (id: number) => axios.request<RoundRead>({
+        readRound: (id: string) => axios.request<RoundRead>({
             method: "get",
             url: `/rounds/${id}`
         }).then(res => res.data),
-        deleteRound: (id: number) => axios.request<unknown>({
+        deleteRound: (id: string) => axios.request<unknown>({
             method: "delete",
             url: `/rounds/${id}`
         }).then(res => res.data),
         updateRound: (payload: {
-            update_time?: string;
             round_number?: number;
             note?: string;
             err?: string;
             started_at?: string;
             finished_at?: string;
-            competition?: number;
-            checks?: number[];
-        }, id: number) => axios.request<RoundUpdate>({
+            checks?: string[];
+            competition?: string;
+        }, id: string) => axios.request<RoundUpdate>({
             method: "patch",
             url: `/rounds/${id}`,
             data: payload
         }).then(res => res.data),
-        listRoundChecks: (id: number, page?: number, itemsPerPage?: number) => axios.request<RoundChecksList[]>({
+        listRoundChecks: (id: string, page?: number, itemsPerPage?: number) => axios.request<RoundChecksList[]>({
             method: "get",
             url: `/rounds/${id}/checks`,
             params: {
@@ -1360,7 +1185,7 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             },
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
-        readRoundCompetition: (id: number) => axios.request<RoundCompetitionRead>({
+        readRoundCompetition: (id: string) => axios.request<RoundCompetitionRead>({
             method: "get",
             url: `/rounds/${id}/competition`
         }).then(res => res.data),
@@ -1374,86 +1199,39 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         createService: (payload: {
-            create_time?: string;
-            update_time?: string;
-            pause?: boolean;
-            hidden?: boolean;
-            competition_id: number;
-            team_id: number;
             name: string;
             display_name: string;
-            weight: number;
-            point_boost: number;
-            round_units: number;
-            round_delay: number;
-            competition: number;
-            team: number;
-            hosts?: number;
-            checks?: number[];
-            properties?: number[];
+            pause?: boolean;
+            hidden?: boolean;
+            competition_id: string;
+            competition: string;
         }) => axios.request<ServiceCreate>({
             method: "post",
             url: `/services`,
             data: payload
         }).then(res => res.data),
-        readService: (id: number) => axios.request<ServiceRead>({
+        readService: (id: string) => axios.request<ServiceRead>({
             method: "get",
             url: `/services/${id}`
         }).then(res => res.data),
-        deleteService: (id: number) => axios.request<unknown>({
+        deleteService: (id: string) => axios.request<unknown>({
             method: "delete",
             url: `/services/${id}`
         }).then(res => res.data),
         updateService: (payload: {
-            update_time?: string;
-            pause?: boolean;
-            hidden?: boolean;
-            team_id?: number;
             name?: string;
             display_name?: string;
-            weight?: number;
-            point_boost?: number;
-            round_units?: number;
-            round_delay?: number;
-            competition?: number;
-            team?: number;
-            hosts?: number;
-            checks?: number[];
-            properties?: number[];
-        }, id: number) => axios.request<ServiceUpdate>({
+            pause?: boolean;
+            hidden?: boolean;
+            competition?: string;
+        }, id: string) => axios.request<ServiceUpdate>({
             method: "patch",
             url: `/services/${id}`,
             data: payload
         }).then(res => res.data),
-        listServiceChecks: (id: number, page?: number, itemsPerPage?: number) => axios.request<ServiceChecksList[]>({
-            method: "get",
-            url: `/services/${id}/checks`,
-            params: {
-                ...(page !== undefined ? { page } : undefined),
-                ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
-            },
-            paramsSerializer: config?.paramsSerializer
-        }).then(res => res.data),
-        readServiceCompetition: (id: number) => axios.request<ServiceCompetitionRead>({
+        readServiceCompetition: (id: string) => axios.request<ServiceCompetitionRead>({
             method: "get",
             url: `/services/${id}/competition`
-        }).then(res => res.data),
-        readServiceHosts: (id: number) => axios.request<ServiceHostsRead>({
-            method: "get",
-            url: `/services/${id}/hosts`
-        }).then(res => res.data),
-        listServiceProperties: (id: number, page?: number, itemsPerPage?: number) => axios.request<ServicePropertiesList[]>({
-            method: "get",
-            url: `/services/${id}/properties`,
-            params: {
-                ...(page !== undefined ? { page } : undefined),
-                ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
-            },
-            paramsSerializer: config?.paramsSerializer
-        }).then(res => res.data),
-        readServiceTeam: (id: number) => axios.request<ServiceTeamRead>({
-            method: "get",
-            url: `/services/${id}/team`
         }).then(res => res.data),
         listTeam: (page?: number, itemsPerPage?: number) => axios.request<TeamList[]>({
             method: "get",
@@ -1465,48 +1243,60 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         createTeam: (payload: {
-            create_time?: string;
-            update_time?: string;
+            name: string;
+            display_name: string;
             pause?: boolean;
             hidden?: boolean;
-            competition_id: number;
-            name: string;
-            index?: number;
-            competition: number;
-            users?: number[];
-            hosts?: number[];
+            number: number;
+            competition_id: string;
+            hosts?: string[];
+            hostservices?: string[];
+            checks?: string[];
+            properties?: string[];
+            competition: string;
         }) => axios.request<TeamCreate>({
             method: "post",
             url: `/teams`,
             data: payload
         }).then(res => res.data),
-        readTeam: (id: number) => axios.request<TeamRead>({
+        readTeam: (id: string) => axios.request<TeamRead>({
             method: "get",
             url: `/teams/${id}`
         }).then(res => res.data),
-        deleteTeam: (id: number) => axios.request<unknown>({
+        deleteTeam: (id: string) => axios.request<unknown>({
             method: "delete",
             url: `/teams/${id}`
         }).then(res => res.data),
         updateTeam: (payload: {
-            update_time?: string;
+            name?: string;
+            display_name?: string;
             pause?: boolean;
             hidden?: boolean;
-            name?: string;
-            index?: number;
-            competition?: number;
-            users?: number[];
-            hosts?: number[];
-        }, id: number) => axios.request<TeamUpdate>({
+            number?: number;
+            hosts?: string[];
+            hostservices?: string[];
+            checks?: string[];
+            properties?: string[];
+            competition?: string;
+        }, id: string) => axios.request<TeamUpdate>({
             method: "patch",
             url: `/teams/${id}`,
             data: payload
         }).then(res => res.data),
-        readTeamCompetition: (id: number) => axios.request<TeamCompetitionRead>({
+        listTeamChecks: (id: string, page?: number, itemsPerPage?: number) => axios.request<TeamChecksList[]>({
+            method: "get",
+            url: `/teams/${id}/checks`,
+            params: {
+                ...(page !== undefined ? { page } : undefined),
+                ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
+            },
+            paramsSerializer: config?.paramsSerializer
+        }).then(res => res.data),
+        readTeamCompetition: (id: string) => axios.request<TeamCompetitionRead>({
             method: "get",
             url: `/teams/${id}/competition`
         }).then(res => res.data),
-        listTeamHosts: (id: number, page?: number, itemsPerPage?: number) => axios.request<TeamHostsList[]>({
+        listTeamHosts: (id: string, page?: number, itemsPerPage?: number) => axios.request<TeamHostsList[]>({
             method: "get",
             url: `/teams/${id}/hosts`,
             params: {
@@ -1515,65 +1305,18 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             },
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
-        listTeamUsers: (id: number, page?: number, itemsPerPage?: number) => axios.request<TeamUsersList[]>({
+        listTeamHostservices: (id: string, page?: number, itemsPerPage?: number) => axios.request<TeamHostservicesList[]>({
             method: "get",
-            url: `/teams/${id}/users`,
+            url: `/teams/${id}/hostservices`,
             params: {
                 ...(page !== undefined ? { page } : undefined),
                 ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
             },
             paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
-        listUser: (page?: number, itemsPerPage?: number) => axios.request<UserList[]>({
+        listTeamProperties: (id: string, page?: number, itemsPerPage?: number) => axios.request<TeamPropertiesList[]>({
             method: "get",
-            url: `/users`,
-            params: {
-                ...(page !== undefined ? { page } : undefined),
-                ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
-            },
-            paramsSerializer: config?.paramsSerializer
-        }).then(res => res.data),
-        createUser: (payload: {
-            create_time?: string;
-            update_time?: string;
-            username: string;
-            teams?: number[];
-            competitions?: number[];
-        }) => axios.request<UserCreate>({
-            method: "post",
-            url: `/users`,
-            data: payload
-        }).then(res => res.data),
-        readUser: (id: number) => axios.request<UserRead>({
-            method: "get",
-            url: `/users/${id}`
-        }).then(res => res.data),
-        deleteUser: (id: number) => axios.request<unknown>({
-            method: "delete",
-            url: `/users/${id}`
-        }).then(res => res.data),
-        updateUser: (payload: {
-            update_time?: string;
-            username?: string;
-            teams?: number[];
-            competitions?: number[];
-        }, id: number) => axios.request<UserUpdate>({
-            method: "patch",
-            url: `/users/${id}`,
-            data: payload
-        }).then(res => res.data),
-        listUserCompetitions: (id: number, page?: number, itemsPerPage?: number) => axios.request<UserCompetitionsList[]>({
-            method: "get",
-            url: `/users/${id}/competitions`,
-            params: {
-                ...(page !== undefined ? { page } : undefined),
-                ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
-            },
-            paramsSerializer: config?.paramsSerializer
-        }).then(res => res.data),
-        listUserTeams: (id: number, page?: number, itemsPerPage?: number) => axios.request<UserTeamsList[]>({
-            method: "get",
-            url: `/users/${id}/teams`,
+            url: `/teams/${id}/properties`,
             params: {
                 ...(page !== undefined ? { page } : undefined),
                 ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
@@ -1587,52 +1330,47 @@ export type Response<T extends keyof Requests> = Awaited<ReturnType<Requests[T]>
 function makeQueries(requests: Requests) {
     return {
         useListCheck: (page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listCheck">, unknown, Response<"listCheck">, ReturnType<QueryKeys["listCheck"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listCheck">, unknown> => useQuery({ queryKey: queryKeys.listCheck(page, itemsPerPage), queryFn: () => requests.listCheck(page, itemsPerPage), ...options }),
-        useReadCheck: (id: number, options?: Omit<UseQueryOptions<Response<"readCheck">, unknown, Response<"readCheck">, ReturnType<QueryKeys["readCheck"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readCheck">, unknown> => useQuery({ queryKey: queryKeys.readCheck(id), queryFn: () => requests.readCheck(id), ...options }),
-        useReadCheckCompetition: (id: number, options?: Omit<UseQueryOptions<Response<"readCheckCompetition">, unknown, Response<"readCheckCompetition">, ReturnType<QueryKeys["readCheckCompetition"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readCheckCompetition">, unknown> => useQuery({ queryKey: queryKeys.readCheckCompetition(id), queryFn: () => requests.readCheckCompetition(id), ...options }),
-        useReadCheckRounds: (id: number, options?: Omit<UseQueryOptions<Response<"readCheckRounds">, unknown, Response<"readCheckRounds">, ReturnType<QueryKeys["readCheckRounds"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readCheckRounds">, unknown> => useQuery({ queryKey: queryKeys.readCheckRounds(id), queryFn: () => requests.readCheckRounds(id), ...options }),
-        useReadCheckServices: (id: number, options?: Omit<UseQueryOptions<Response<"readCheckServices">, unknown, Response<"readCheckServices">, ReturnType<QueryKeys["readCheckServices"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readCheckServices">, unknown> => useQuery({ queryKey: queryKeys.readCheckServices(id), queryFn: () => requests.readCheckServices(id), ...options }),
+        useReadCheck: (id: string, options?: Omit<UseQueryOptions<Response<"readCheck">, unknown, Response<"readCheck">, ReturnType<QueryKeys["readCheck"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readCheck">, unknown> => useQuery({ queryKey: queryKeys.readCheck(id), queryFn: () => requests.readCheck(id), ...options }),
+        useReadCheckHostservice: (id: string, options?: Omit<UseQueryOptions<Response<"readCheckHostservice">, unknown, Response<"readCheckHostservice">, ReturnType<QueryKeys["readCheckHostservice"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readCheckHostservice">, unknown> => useQuery({ queryKey: queryKeys.readCheckHostservice(id), queryFn: () => requests.readCheckHostservice(id), ...options }),
+        useReadCheckRounds: (id: string, options?: Omit<UseQueryOptions<Response<"readCheckRounds">, unknown, Response<"readCheckRounds">, ReturnType<QueryKeys["readCheckRounds"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readCheckRounds">, unknown> => useQuery({ queryKey: queryKeys.readCheckRounds(id), queryFn: () => requests.readCheckRounds(id), ...options }),
+        useReadCheckTeam: (id: string, options?: Omit<UseQueryOptions<Response<"readCheckTeam">, unknown, Response<"readCheckTeam">, ReturnType<QueryKeys["readCheckTeam"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readCheckTeam">, unknown> => useQuery({ queryKey: queryKeys.readCheckTeam(id), queryFn: () => requests.readCheckTeam(id), ...options }),
         useListCompetition: (page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listCompetition">, unknown, Response<"listCompetition">, ReturnType<QueryKeys["listCompetition"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listCompetition">, unknown> => useQuery({ queryKey: queryKeys.listCompetition(page, itemsPerPage), queryFn: () => requests.listCompetition(page, itemsPerPage), ...options }),
-        useReadCompetition: (id: number, options?: Omit<UseQueryOptions<Response<"readCompetition">, unknown, Response<"readCompetition">, ReturnType<QueryKeys["readCompetition"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readCompetition">, unknown> => useQuery({ queryKey: queryKeys.readCompetition(id), queryFn: () => requests.readCompetition(id), ...options }),
-        useListCompetitionTeams: (id: number, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listCompetitionTeams">, unknown, Response<"listCompetitionTeams">, ReturnType<QueryKeys["listCompetitionTeams"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listCompetitionTeams">, unknown> => useQuery({ queryKey: queryKeys.listCompetitionTeams(id, page, itemsPerPage), queryFn: () => requests.listCompetitionTeams(id, page, itemsPerPage), ...options }),
-        useListCompetitionUsers: (id: number, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listCompetitionUsers">, unknown, Response<"listCompetitionUsers">, ReturnType<QueryKeys["listCompetitionUsers"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listCompetitionUsers">, unknown> => useQuery({ queryKey: queryKeys.listCompetitionUsers(id, page, itemsPerPage), queryFn: () => requests.listCompetitionUsers(id, page, itemsPerPage), ...options }),
-        useListHostGroup: (page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listHostGroup">, unknown, Response<"listHostGroup">, ReturnType<QueryKeys["listHostGroup"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listHostGroup">, unknown> => useQuery({ queryKey: queryKeys.listHostGroup(page, itemsPerPage), queryFn: () => requests.listHostGroup(page, itemsPerPage), ...options }),
-        useReadHostGroup: (id: number, options?: Omit<UseQueryOptions<Response<"readHostGroup">, unknown, Response<"readHostGroup">, ReturnType<QueryKeys["readHostGroup"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readHostGroup">, unknown> => useQuery({ queryKey: queryKeys.readHostGroup(id), queryFn: () => requests.readHostGroup(id), ...options }),
-        useReadHostGroupCompetition: (id: number, options?: Omit<UseQueryOptions<Response<"readHostGroupCompetition">, unknown, Response<"readHostGroupCompetition">, ReturnType<QueryKeys["readHostGroupCompetition"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readHostGroupCompetition">, unknown> => useQuery({ queryKey: queryKeys.readHostGroupCompetition(id), queryFn: () => requests.readHostGroupCompetition(id), ...options }),
-        useListHostGroupHosts: (id: number, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listHostGroupHosts">, unknown, Response<"listHostGroupHosts">, ReturnType<QueryKeys["listHostGroupHosts"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listHostGroupHosts">, unknown> => useQuery({ queryKey: queryKeys.listHostGroupHosts(id, page, itemsPerPage), queryFn: () => requests.listHostGroupHosts(id, page, itemsPerPage), ...options }),
-        useReadHostGroupTeam: (id: number, options?: Omit<UseQueryOptions<Response<"readHostGroupTeam">, unknown, Response<"readHostGroupTeam">, ReturnType<QueryKeys["readHostGroupTeam"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readHostGroupTeam">, unknown> => useQuery({ queryKey: queryKeys.readHostGroupTeam(id), queryFn: () => requests.readHostGroupTeam(id), ...options }),
+        useReadCompetition: (id: string, options?: Omit<UseQueryOptions<Response<"readCompetition">, unknown, Response<"readCompetition">, ReturnType<QueryKeys["readCompetition"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readCompetition">, unknown> => useQuery({ queryKey: queryKeys.readCompetition(id), queryFn: () => requests.readCompetition(id), ...options }),
+        useListCompetitionReports: (id: string, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listCompetitionReports">, unknown, Response<"listCompetitionReports">, ReturnType<QueryKeys["listCompetitionReports"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listCompetitionReports">, unknown> => useQuery({ queryKey: queryKeys.listCompetitionReports(id, page, itemsPerPage), queryFn: () => requests.listCompetitionReports(id, page, itemsPerPage), ...options }),
+        useListCompetitionRounds: (id: string, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listCompetitionRounds">, unknown, Response<"listCompetitionRounds">, ReturnType<QueryKeys["listCompetitionRounds"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listCompetitionRounds">, unknown> => useQuery({ queryKey: queryKeys.listCompetitionRounds(id, page, itemsPerPage), queryFn: () => requests.listCompetitionRounds(id, page, itemsPerPage), ...options }),
+        useListCompetitionServices: (id: string, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listCompetitionServices">, unknown, Response<"listCompetitionServices">, ReturnType<QueryKeys["listCompetitionServices"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listCompetitionServices">, unknown> => useQuery({ queryKey: queryKeys.listCompetitionServices(id, page, itemsPerPage), queryFn: () => requests.listCompetitionServices(id, page, itemsPerPage), ...options }),
+        useListCompetitionTeams: (id: string, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listCompetitionTeams">, unknown, Response<"listCompetitionTeams">, ReturnType<QueryKeys["listCompetitionTeams"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listCompetitionTeams">, unknown> => useQuery({ queryKey: queryKeys.listCompetitionTeams(id, page, itemsPerPage), queryFn: () => requests.listCompetitionTeams(id, page, itemsPerPage), ...options }),
+        useListHostService: (page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listHostService">, unknown, Response<"listHostService">, ReturnType<QueryKeys["listHostService"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listHostService">, unknown> => useQuery({ queryKey: queryKeys.listHostService(page, itemsPerPage), queryFn: () => requests.listHostService(page, itemsPerPage), ...options }),
+        useReadHostService: (id: string, options?: Omit<UseQueryOptions<Response<"readHostService">, unknown, Response<"readHostService">, ReturnType<QueryKeys["readHostService"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readHostService">, unknown> => useQuery({ queryKey: queryKeys.readHostService(id), queryFn: () => requests.readHostService(id), ...options }),
+        useListHostServiceChecks: (id: string, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listHostServiceChecks">, unknown, Response<"listHostServiceChecks">, ReturnType<QueryKeys["listHostServiceChecks"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listHostServiceChecks">, unknown> => useQuery({ queryKey: queryKeys.listHostServiceChecks(id, page, itemsPerPage), queryFn: () => requests.listHostServiceChecks(id, page, itemsPerPage), ...options }),
+        useReadHostServiceHost: (id: string, options?: Omit<UseQueryOptions<Response<"readHostServiceHost">, unknown, Response<"readHostServiceHost">, ReturnType<QueryKeys["readHostServiceHost"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readHostServiceHost">, unknown> => useQuery({ queryKey: queryKeys.readHostServiceHost(id), queryFn: () => requests.readHostServiceHost(id), ...options }),
+        useListHostServiceProperties: (id: string, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listHostServiceProperties">, unknown, Response<"listHostServiceProperties">, ReturnType<QueryKeys["listHostServiceProperties"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listHostServiceProperties">, unknown> => useQuery({ queryKey: queryKeys.listHostServiceProperties(id, page, itemsPerPage), queryFn: () => requests.listHostServiceProperties(id, page, itemsPerPage), ...options }),
+        useReadHostServiceTeam: (id: string, options?: Omit<UseQueryOptions<Response<"readHostServiceTeam">, unknown, Response<"readHostServiceTeam">, ReturnType<QueryKeys["readHostServiceTeam"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readHostServiceTeam">, unknown> => useQuery({ queryKey: queryKeys.readHostServiceTeam(id), queryFn: () => requests.readHostServiceTeam(id), ...options }),
         useListHost: (page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listHost">, unknown, Response<"listHost">, ReturnType<QueryKeys["listHost"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listHost">, unknown> => useQuery({ queryKey: queryKeys.listHost(page, itemsPerPage), queryFn: () => requests.listHost(page, itemsPerPage), ...options }),
-        useReadHost: (id: number, options?: Omit<UseQueryOptions<Response<"readHost">, unknown, Response<"readHost">, ReturnType<QueryKeys["readHost"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readHost">, unknown> => useQuery({ queryKey: queryKeys.readHost(id), queryFn: () => requests.readHost(id), ...options }),
-        useReadHostCompetition: (id: number, options?: Omit<UseQueryOptions<Response<"readHostCompetition">, unknown, Response<"readHostCompetition">, ReturnType<QueryKeys["readHostCompetition"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readHostCompetition">, unknown> => useQuery({ queryKey: queryKeys.readHostCompetition(id), queryFn: () => requests.readHostCompetition(id), ...options }),
-        useReadHostHostGroup: (id: number, options?: Omit<UseQueryOptions<Response<"readHostHostGroup">, unknown, Response<"readHostHostGroup">, ReturnType<QueryKeys["readHostHostGroup"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readHostHostGroup">, unknown> => useQuery({ queryKey: queryKeys.readHostHostGroup(id), queryFn: () => requests.readHostHostGroup(id), ...options }),
-        useListHostServices: (id: number, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listHostServices">, unknown, Response<"listHostServices">, ReturnType<QueryKeys["listHostServices"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listHostServices">, unknown> => useQuery({ queryKey: queryKeys.listHostServices(id, page, itemsPerPage), queryFn: () => requests.listHostServices(id, page, itemsPerPage), ...options }),
-        useReadHostTeam: (id: number, options?: Omit<UseQueryOptions<Response<"readHostTeam">, unknown, Response<"readHostTeam">, ReturnType<QueryKeys["readHostTeam"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readHostTeam">, unknown> => useQuery({ queryKey: queryKeys.readHostTeam(id), queryFn: () => requests.readHostTeam(id), ...options }),
+        useReadHost: (id: string, options?: Omit<UseQueryOptions<Response<"readHost">, unknown, Response<"readHost">, ReturnType<QueryKeys["readHost"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readHost">, unknown> => useQuery({ queryKey: queryKeys.readHost(id), queryFn: () => requests.readHost(id), ...options }),
+        useListHostHostservices: (id: string, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listHostHostservices">, unknown, Response<"listHostHostservices">, ReturnType<QueryKeys["listHostHostservices"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listHostHostservices">, unknown> => useQuery({ queryKey: queryKeys.listHostHostservices(id, page, itemsPerPage), queryFn: () => requests.listHostHostservices(id, page, itemsPerPage), ...options }),
+        useReadHostTeam: (id: string, options?: Omit<UseQueryOptions<Response<"readHostTeam">, unknown, Response<"readHostTeam">, ReturnType<QueryKeys["readHostTeam"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readHostTeam">, unknown> => useQuery({ queryKey: queryKeys.readHostTeam(id), queryFn: () => requests.readHostTeam(id), ...options }),
         useListProperty: (page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listProperty">, unknown, Response<"listProperty">, ReturnType<QueryKeys["listProperty"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listProperty">, unknown> => useQuery({ queryKey: queryKeys.listProperty(page, itemsPerPage), queryFn: () => requests.listProperty(page, itemsPerPage), ...options }),
-        useReadProperty: (id: number, options?: Omit<UseQueryOptions<Response<"readProperty">, unknown, Response<"readProperty">, ReturnType<QueryKeys["readProperty"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readProperty">, unknown> => useQuery({ queryKey: queryKeys.readProperty(id), queryFn: () => requests.readProperty(id), ...options }),
-        useReadPropertyCompetition: (id: number, options?: Omit<UseQueryOptions<Response<"readPropertyCompetition">, unknown, Response<"readPropertyCompetition">, ReturnType<QueryKeys["readPropertyCompetition"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readPropertyCompetition">, unknown> => useQuery({ queryKey: queryKeys.readPropertyCompetition(id), queryFn: () => requests.readPropertyCompetition(id), ...options }),
-        useReadPropertyServices: (id: number, options?: Omit<UseQueryOptions<Response<"readPropertyServices">, unknown, Response<"readPropertyServices">, ReturnType<QueryKeys["readPropertyServices"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readPropertyServices">, unknown> => useQuery({ queryKey: queryKeys.readPropertyServices(id), queryFn: () => requests.readPropertyServices(id), ...options }),
-        useReadPropertyTeam: (id: number, options?: Omit<UseQueryOptions<Response<"readPropertyTeam">, unknown, Response<"readPropertyTeam">, ReturnType<QueryKeys["readPropertyTeam"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readPropertyTeam">, unknown> => useQuery({ queryKey: queryKeys.readPropertyTeam(id), queryFn: () => requests.readPropertyTeam(id), ...options }),
+        useReadProperty: (id: string, options?: Omit<UseQueryOptions<Response<"readProperty">, unknown, Response<"readProperty">, ReturnType<QueryKeys["readProperty"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readProperty">, unknown> => useQuery({ queryKey: queryKeys.readProperty(id), queryFn: () => requests.readProperty(id), ...options }),
+        useReadPropertyHostservice: (id: string, options?: Omit<UseQueryOptions<Response<"readPropertyHostservice">, unknown, Response<"readPropertyHostservice">, ReturnType<QueryKeys["readPropertyHostservice"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readPropertyHostservice">, unknown> => useQuery({ queryKey: queryKeys.readPropertyHostservice(id), queryFn: () => requests.readPropertyHostservice(id), ...options }),
+        useReadPropertyTeam: (id: string, options?: Omit<UseQueryOptions<Response<"readPropertyTeam">, unknown, Response<"readPropertyTeam">, ReturnType<QueryKeys["readPropertyTeam"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readPropertyTeam">, unknown> => useQuery({ queryKey: queryKeys.readPropertyTeam(id), queryFn: () => requests.readPropertyTeam(id), ...options }),
         useListReport: (page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listReport">, unknown, Response<"listReport">, ReturnType<QueryKeys["listReport"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listReport">, unknown> => useQuery({ queryKey: queryKeys.listReport(page, itemsPerPage), queryFn: () => requests.listReport(page, itemsPerPage), ...options }),
         useReadReport: (id: number, options?: Omit<UseQueryOptions<Response<"readReport">, unknown, Response<"readReport">, ReturnType<QueryKeys["readReport"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readReport">, unknown> => useQuery({ queryKey: queryKeys.readReport(id), queryFn: () => requests.readReport(id), ...options }),
+        useReadReportCompetition: (id: number, options?: Omit<UseQueryOptions<Response<"readReportCompetition">, unknown, Response<"readReportCompetition">, ReturnType<QueryKeys["readReportCompetition"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readReportCompetition">, unknown> => useQuery({ queryKey: queryKeys.readReportCompetition(id), queryFn: () => requests.readReportCompetition(id), ...options }),
         useListRound: (page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listRound">, unknown, Response<"listRound">, ReturnType<QueryKeys["listRound"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listRound">, unknown> => useQuery({ queryKey: queryKeys.listRound(page, itemsPerPage), queryFn: () => requests.listRound(page, itemsPerPage), ...options }),
-        useReadRound: (id: number, options?: Omit<UseQueryOptions<Response<"readRound">, unknown, Response<"readRound">, ReturnType<QueryKeys["readRound"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readRound">, unknown> => useQuery({ queryKey: queryKeys.readRound(id), queryFn: () => requests.readRound(id), ...options }),
-        useListRoundChecks: (id: number, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listRoundChecks">, unknown, Response<"listRoundChecks">, ReturnType<QueryKeys["listRoundChecks"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listRoundChecks">, unknown> => useQuery({ queryKey: queryKeys.listRoundChecks(id, page, itemsPerPage), queryFn: () => requests.listRoundChecks(id, page, itemsPerPage), ...options }),
-        useReadRoundCompetition: (id: number, options?: Omit<UseQueryOptions<Response<"readRoundCompetition">, unknown, Response<"readRoundCompetition">, ReturnType<QueryKeys["readRoundCompetition"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readRoundCompetition">, unknown> => useQuery({ queryKey: queryKeys.readRoundCompetition(id), queryFn: () => requests.readRoundCompetition(id), ...options }),
+        useReadRound: (id: string, options?: Omit<UseQueryOptions<Response<"readRound">, unknown, Response<"readRound">, ReturnType<QueryKeys["readRound"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readRound">, unknown> => useQuery({ queryKey: queryKeys.readRound(id), queryFn: () => requests.readRound(id), ...options }),
+        useListRoundChecks: (id: string, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listRoundChecks">, unknown, Response<"listRoundChecks">, ReturnType<QueryKeys["listRoundChecks"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listRoundChecks">, unknown> => useQuery({ queryKey: queryKeys.listRoundChecks(id, page, itemsPerPage), queryFn: () => requests.listRoundChecks(id, page, itemsPerPage), ...options }),
+        useReadRoundCompetition: (id: string, options?: Omit<UseQueryOptions<Response<"readRoundCompetition">, unknown, Response<"readRoundCompetition">, ReturnType<QueryKeys["readRoundCompetition"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readRoundCompetition">, unknown> => useQuery({ queryKey: queryKeys.readRoundCompetition(id), queryFn: () => requests.readRoundCompetition(id), ...options }),
         useListService: (page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listService">, unknown, Response<"listService">, ReturnType<QueryKeys["listService"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listService">, unknown> => useQuery({ queryKey: queryKeys.listService(page, itemsPerPage), queryFn: () => requests.listService(page, itemsPerPage), ...options }),
-        useReadService: (id: number, options?: Omit<UseQueryOptions<Response<"readService">, unknown, Response<"readService">, ReturnType<QueryKeys["readService"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readService">, unknown> => useQuery({ queryKey: queryKeys.readService(id), queryFn: () => requests.readService(id), ...options }),
-        useListServiceChecks: (id: number, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listServiceChecks">, unknown, Response<"listServiceChecks">, ReturnType<QueryKeys["listServiceChecks"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listServiceChecks">, unknown> => useQuery({ queryKey: queryKeys.listServiceChecks(id, page, itemsPerPage), queryFn: () => requests.listServiceChecks(id, page, itemsPerPage), ...options }),
-        useReadServiceCompetition: (id: number, options?: Omit<UseQueryOptions<Response<"readServiceCompetition">, unknown, Response<"readServiceCompetition">, ReturnType<QueryKeys["readServiceCompetition"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readServiceCompetition">, unknown> => useQuery({ queryKey: queryKeys.readServiceCompetition(id), queryFn: () => requests.readServiceCompetition(id), ...options }),
-        useReadServiceHosts: (id: number, options?: Omit<UseQueryOptions<Response<"readServiceHosts">, unknown, Response<"readServiceHosts">, ReturnType<QueryKeys["readServiceHosts"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readServiceHosts">, unknown> => useQuery({ queryKey: queryKeys.readServiceHosts(id), queryFn: () => requests.readServiceHosts(id), ...options }),
-        useListServiceProperties: (id: number, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listServiceProperties">, unknown, Response<"listServiceProperties">, ReturnType<QueryKeys["listServiceProperties"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listServiceProperties">, unknown> => useQuery({ queryKey: queryKeys.listServiceProperties(id, page, itemsPerPage), queryFn: () => requests.listServiceProperties(id, page, itemsPerPage), ...options }),
-        useReadServiceTeam: (id: number, options?: Omit<UseQueryOptions<Response<"readServiceTeam">, unknown, Response<"readServiceTeam">, ReturnType<QueryKeys["readServiceTeam"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readServiceTeam">, unknown> => useQuery({ queryKey: queryKeys.readServiceTeam(id), queryFn: () => requests.readServiceTeam(id), ...options }),
+        useReadService: (id: string, options?: Omit<UseQueryOptions<Response<"readService">, unknown, Response<"readService">, ReturnType<QueryKeys["readService"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readService">, unknown> => useQuery({ queryKey: queryKeys.readService(id), queryFn: () => requests.readService(id), ...options }),
+        useReadServiceCompetition: (id: string, options?: Omit<UseQueryOptions<Response<"readServiceCompetition">, unknown, Response<"readServiceCompetition">, ReturnType<QueryKeys["readServiceCompetition"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readServiceCompetition">, unknown> => useQuery({ queryKey: queryKeys.readServiceCompetition(id), queryFn: () => requests.readServiceCompetition(id), ...options }),
         useListTeam: (page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listTeam">, unknown, Response<"listTeam">, ReturnType<QueryKeys["listTeam"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listTeam">, unknown> => useQuery({ queryKey: queryKeys.listTeam(page, itemsPerPage), queryFn: () => requests.listTeam(page, itemsPerPage), ...options }),
-        useReadTeam: (id: number, options?: Omit<UseQueryOptions<Response<"readTeam">, unknown, Response<"readTeam">, ReturnType<QueryKeys["readTeam"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readTeam">, unknown> => useQuery({ queryKey: queryKeys.readTeam(id), queryFn: () => requests.readTeam(id), ...options }),
-        useReadTeamCompetition: (id: number, options?: Omit<UseQueryOptions<Response<"readTeamCompetition">, unknown, Response<"readTeamCompetition">, ReturnType<QueryKeys["readTeamCompetition"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readTeamCompetition">, unknown> => useQuery({ queryKey: queryKeys.readTeamCompetition(id), queryFn: () => requests.readTeamCompetition(id), ...options }),
-        useListTeamHosts: (id: number, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listTeamHosts">, unknown, Response<"listTeamHosts">, ReturnType<QueryKeys["listTeamHosts"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listTeamHosts">, unknown> => useQuery({ queryKey: queryKeys.listTeamHosts(id, page, itemsPerPage), queryFn: () => requests.listTeamHosts(id, page, itemsPerPage), ...options }),
-        useListTeamUsers: (id: number, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listTeamUsers">, unknown, Response<"listTeamUsers">, ReturnType<QueryKeys["listTeamUsers"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listTeamUsers">, unknown> => useQuery({ queryKey: queryKeys.listTeamUsers(id, page, itemsPerPage), queryFn: () => requests.listTeamUsers(id, page, itemsPerPage), ...options }),
-        useListUser: (page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listUser">, unknown, Response<"listUser">, ReturnType<QueryKeys["listUser"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listUser">, unknown> => useQuery({ queryKey: queryKeys.listUser(page, itemsPerPage), queryFn: () => requests.listUser(page, itemsPerPage), ...options }),
-        useReadUser: (id: number, options?: Omit<UseQueryOptions<Response<"readUser">, unknown, Response<"readUser">, ReturnType<QueryKeys["readUser"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readUser">, unknown> => useQuery({ queryKey: queryKeys.readUser(id), queryFn: () => requests.readUser(id), ...options }),
-        useListUserCompetitions: (id: number, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listUserCompetitions">, unknown, Response<"listUserCompetitions">, ReturnType<QueryKeys["listUserCompetitions"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listUserCompetitions">, unknown> => useQuery({ queryKey: queryKeys.listUserCompetitions(id, page, itemsPerPage), queryFn: () => requests.listUserCompetitions(id, page, itemsPerPage), ...options }),
-        useListUserTeams: (id: number, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listUserTeams">, unknown, Response<"listUserTeams">, ReturnType<QueryKeys["listUserTeams"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listUserTeams">, unknown> => useQuery({ queryKey: queryKeys.listUserTeams(id, page, itemsPerPage), queryFn: () => requests.listUserTeams(id, page, itemsPerPage), ...options })
+        useReadTeam: (id: string, options?: Omit<UseQueryOptions<Response<"readTeam">, unknown, Response<"readTeam">, ReturnType<QueryKeys["readTeam"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readTeam">, unknown> => useQuery({ queryKey: queryKeys.readTeam(id), queryFn: () => requests.readTeam(id), ...options }),
+        useListTeamChecks: (id: string, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listTeamChecks">, unknown, Response<"listTeamChecks">, ReturnType<QueryKeys["listTeamChecks"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listTeamChecks">, unknown> => useQuery({ queryKey: queryKeys.listTeamChecks(id, page, itemsPerPage), queryFn: () => requests.listTeamChecks(id, page, itemsPerPage), ...options }),
+        useReadTeamCompetition: (id: string, options?: Omit<UseQueryOptions<Response<"readTeamCompetition">, unknown, Response<"readTeamCompetition">, ReturnType<QueryKeys["readTeamCompetition"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readTeamCompetition">, unknown> => useQuery({ queryKey: queryKeys.readTeamCompetition(id), queryFn: () => requests.readTeamCompetition(id), ...options }),
+        useListTeamHosts: (id: string, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listTeamHosts">, unknown, Response<"listTeamHosts">, ReturnType<QueryKeys["listTeamHosts"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listTeamHosts">, unknown> => useQuery({ queryKey: queryKeys.listTeamHosts(id, page, itemsPerPage), queryFn: () => requests.listTeamHosts(id, page, itemsPerPage), ...options }),
+        useListTeamHostservices: (id: string, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listTeamHostservices">, unknown, Response<"listTeamHostservices">, ReturnType<QueryKeys["listTeamHostservices"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listTeamHostservices">, unknown> => useQuery({ queryKey: queryKeys.listTeamHostservices(id, page, itemsPerPage), queryFn: () => requests.listTeamHostservices(id, page, itemsPerPage), ...options }),
+        useListTeamProperties: (id: string, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listTeamProperties">, unknown, Response<"listTeamProperties">, ReturnType<QueryKeys["listTeamProperties"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listTeamProperties">, unknown> => useQuery({ queryKey: queryKeys.listTeamProperties(id, page, itemsPerPage), queryFn: () => requests.listTeamProperties(id, page, itemsPerPage), ...options })
     } as const;
 }
 type MutationConfigs = {
@@ -1642,9 +1380,9 @@ type MutationConfigs = {
     useCreateCompetition?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"createCompetition">, unknown, Parameters<Requests["createCompetition"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
     useUpdateCompetition?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"updateCompetition">, unknown, Parameters<Requests["updateCompetition"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
     useDeleteCompetition?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"deleteCompetition">, unknown, unknown, unknown>, "onSuccess" | "onSettled" | "onError">;
-    useCreateHostGroup?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"createHostGroup">, unknown, Parameters<Requests["createHostGroup"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
-    useUpdateHostGroup?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"updateHostGroup">, unknown, Parameters<Requests["updateHostGroup"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
-    useDeleteHostGroup?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"deleteHostGroup">, unknown, unknown, unknown>, "onSuccess" | "onSettled" | "onError">;
+    useCreateHostService?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"createHostService">, unknown, Parameters<Requests["createHostService"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
+    useUpdateHostService?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"updateHostService">, unknown, Parameters<Requests["updateHostService"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
+    useDeleteHostService?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"deleteHostService">, unknown, unknown, unknown>, "onSuccess" | "onSettled" | "onError">;
     useCreateHost?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"createHost">, unknown, Parameters<Requests["createHost"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
     useUpdateHost?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"updateHost">, unknown, Parameters<Requests["updateHost"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
     useDeleteHost?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"deleteHost">, unknown, unknown, unknown>, "onSuccess" | "onSettled" | "onError">;
@@ -1663,41 +1401,35 @@ type MutationConfigs = {
     useCreateTeam?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"createTeam">, unknown, Parameters<Requests["createTeam"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
     useUpdateTeam?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"updateTeam">, unknown, Parameters<Requests["updateTeam"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
     useDeleteTeam?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"deleteTeam">, unknown, unknown, unknown>, "onSuccess" | "onSettled" | "onError">;
-    useCreateUser?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"createUser">, unknown, Parameters<Requests["createUser"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
-    useUpdateUser?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"updateUser">, unknown, Parameters<Requests["updateUser"]>[0], unknown>, "onSuccess" | "onSettled" | "onError">;
-    useDeleteUser?: (queryClient: QueryClient) => Pick<UseMutationOptions<Response<"deleteUser">, unknown, unknown, unknown>, "onSuccess" | "onSettled" | "onError">;
 };
 function makeMutations(requests: Requests, config?: Config["mutations"]) {
     return {
         useCreateCheck: (options?: Omit<UseMutationOptions<Response<"createCheck">, unknown, Parameters<Requests["createCheck"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"createCheck">, unknown, Parameters<Requests["createCheck"]>[0]>(payload => requests.createCheck(payload), config?.useCreateCheck, options),
-        useUpdateCheck: (id: number, options?: Omit<UseMutationOptions<Response<"updateCheck">, unknown, Parameters<Requests["updateCheck"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateCheck">, unknown, Parameters<Requests["updateCheck"]>[0]>(payload => requests.updateCheck(payload, id), config?.useUpdateCheck, options),
-        useDeleteCheck: (id: number, options?: Omit<UseMutationOptions<Response<"deleteCheck">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteCheck">, unknown, unknown>(() => requests.deleteCheck(id), config?.useDeleteCheck, options),
+        useUpdateCheck: (id: string, options?: Omit<UseMutationOptions<Response<"updateCheck">, unknown, Parameters<Requests["updateCheck"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateCheck">, unknown, Parameters<Requests["updateCheck"]>[0]>(payload => requests.updateCheck(payload, id), config?.useUpdateCheck, options),
+        useDeleteCheck: (id: string, options?: Omit<UseMutationOptions<Response<"deleteCheck">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteCheck">, unknown, unknown>(() => requests.deleteCheck(id), config?.useDeleteCheck, options),
         useCreateCompetition: (options?: Omit<UseMutationOptions<Response<"createCompetition">, unknown, Parameters<Requests["createCompetition"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"createCompetition">, unknown, Parameters<Requests["createCompetition"]>[0]>(payload => requests.createCompetition(payload), config?.useCreateCompetition, options),
-        useUpdateCompetition: (id: number, options?: Omit<UseMutationOptions<Response<"updateCompetition">, unknown, Parameters<Requests["updateCompetition"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateCompetition">, unknown, Parameters<Requests["updateCompetition"]>[0]>(payload => requests.updateCompetition(payload, id), config?.useUpdateCompetition, options),
-        useDeleteCompetition: (id: number, options?: Omit<UseMutationOptions<Response<"deleteCompetition">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteCompetition">, unknown, unknown>(() => requests.deleteCompetition(id), config?.useDeleteCompetition, options),
-        useCreateHostGroup: (options?: Omit<UseMutationOptions<Response<"createHostGroup">, unknown, Parameters<Requests["createHostGroup"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"createHostGroup">, unknown, Parameters<Requests["createHostGroup"]>[0]>(payload => requests.createHostGroup(payload), config?.useCreateHostGroup, options),
-        useUpdateHostGroup: (id: number, options?: Omit<UseMutationOptions<Response<"updateHostGroup">, unknown, Parameters<Requests["updateHostGroup"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateHostGroup">, unknown, Parameters<Requests["updateHostGroup"]>[0]>(payload => requests.updateHostGroup(payload, id), config?.useUpdateHostGroup, options),
-        useDeleteHostGroup: (id: number, options?: Omit<UseMutationOptions<Response<"deleteHostGroup">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteHostGroup">, unknown, unknown>(() => requests.deleteHostGroup(id), config?.useDeleteHostGroup, options),
+        useUpdateCompetition: (id: string, options?: Omit<UseMutationOptions<Response<"updateCompetition">, unknown, Parameters<Requests["updateCompetition"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateCompetition">, unknown, Parameters<Requests["updateCompetition"]>[0]>(payload => requests.updateCompetition(payload, id), config?.useUpdateCompetition, options),
+        useDeleteCompetition: (id: string, options?: Omit<UseMutationOptions<Response<"deleteCompetition">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteCompetition">, unknown, unknown>(() => requests.deleteCompetition(id), config?.useDeleteCompetition, options),
+        useCreateHostService: (options?: Omit<UseMutationOptions<Response<"createHostService">, unknown, Parameters<Requests["createHostService"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"createHostService">, unknown, Parameters<Requests["createHostService"]>[0]>(payload => requests.createHostService(payload), config?.useCreateHostService, options),
+        useUpdateHostService: (id: string, options?: Omit<UseMutationOptions<Response<"updateHostService">, unknown, Parameters<Requests["updateHostService"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateHostService">, unknown, Parameters<Requests["updateHostService"]>[0]>(payload => requests.updateHostService(payload, id), config?.useUpdateHostService, options),
+        useDeleteHostService: (id: string, options?: Omit<UseMutationOptions<Response<"deleteHostService">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteHostService">, unknown, unknown>(() => requests.deleteHostService(id), config?.useDeleteHostService, options),
         useCreateHost: (options?: Omit<UseMutationOptions<Response<"createHost">, unknown, Parameters<Requests["createHost"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"createHost">, unknown, Parameters<Requests["createHost"]>[0]>(payload => requests.createHost(payload), config?.useCreateHost, options),
-        useUpdateHost: (id: number, options?: Omit<UseMutationOptions<Response<"updateHost">, unknown, Parameters<Requests["updateHost"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateHost">, unknown, Parameters<Requests["updateHost"]>[0]>(payload => requests.updateHost(payload, id), config?.useUpdateHost, options),
-        useDeleteHost: (id: number, options?: Omit<UseMutationOptions<Response<"deleteHost">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteHost">, unknown, unknown>(() => requests.deleteHost(id), config?.useDeleteHost, options),
+        useUpdateHost: (id: string, options?: Omit<UseMutationOptions<Response<"updateHost">, unknown, Parameters<Requests["updateHost"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateHost">, unknown, Parameters<Requests["updateHost"]>[0]>(payload => requests.updateHost(payload, id), config?.useUpdateHost, options),
+        useDeleteHost: (id: string, options?: Omit<UseMutationOptions<Response<"deleteHost">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteHost">, unknown, unknown>(() => requests.deleteHost(id), config?.useDeleteHost, options),
         useCreateProperty: (options?: Omit<UseMutationOptions<Response<"createProperty">, unknown, Parameters<Requests["createProperty"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"createProperty">, unknown, Parameters<Requests["createProperty"]>[0]>(payload => requests.createProperty(payload), config?.useCreateProperty, options),
-        useUpdateProperty: (id: number, options?: Omit<UseMutationOptions<Response<"updateProperty">, unknown, Parameters<Requests["updateProperty"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateProperty">, unknown, Parameters<Requests["updateProperty"]>[0]>(payload => requests.updateProperty(payload, id), config?.useUpdateProperty, options),
-        useDeleteProperty: (id: number, options?: Omit<UseMutationOptions<Response<"deleteProperty">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteProperty">, unknown, unknown>(() => requests.deleteProperty(id), config?.useDeleteProperty, options),
+        useUpdateProperty: (id: string, options?: Omit<UseMutationOptions<Response<"updateProperty">, unknown, Parameters<Requests["updateProperty"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateProperty">, unknown, Parameters<Requests["updateProperty"]>[0]>(payload => requests.updateProperty(payload, id), config?.useUpdateProperty, options),
+        useDeleteProperty: (id: string, options?: Omit<UseMutationOptions<Response<"deleteProperty">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteProperty">, unknown, unknown>(() => requests.deleteProperty(id), config?.useDeleteProperty, options),
         useCreateReport: (options?: Omit<UseMutationOptions<Response<"createReport">, unknown, Parameters<Requests["createReport"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"createReport">, unknown, Parameters<Requests["createReport"]>[0]>(payload => requests.createReport(payload), config?.useCreateReport, options),
         useUpdateReport: (id: number, options?: Omit<UseMutationOptions<Response<"updateReport">, unknown, Parameters<Requests["updateReport"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateReport">, unknown, Parameters<Requests["updateReport"]>[0]>(payload => requests.updateReport(payload, id), config?.useUpdateReport, options),
         useDeleteReport: (id: number, options?: Omit<UseMutationOptions<Response<"deleteReport">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteReport">, unknown, unknown>(() => requests.deleteReport(id), config?.useDeleteReport, options),
         useCreateRound: (options?: Omit<UseMutationOptions<Response<"createRound">, unknown, Parameters<Requests["createRound"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"createRound">, unknown, Parameters<Requests["createRound"]>[0]>(payload => requests.createRound(payload), config?.useCreateRound, options),
-        useUpdateRound: (id: number, options?: Omit<UseMutationOptions<Response<"updateRound">, unknown, Parameters<Requests["updateRound"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateRound">, unknown, Parameters<Requests["updateRound"]>[0]>(payload => requests.updateRound(payload, id), config?.useUpdateRound, options),
-        useDeleteRound: (id: number, options?: Omit<UseMutationOptions<Response<"deleteRound">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteRound">, unknown, unknown>(() => requests.deleteRound(id), config?.useDeleteRound, options),
+        useUpdateRound: (id: string, options?: Omit<UseMutationOptions<Response<"updateRound">, unknown, Parameters<Requests["updateRound"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateRound">, unknown, Parameters<Requests["updateRound"]>[0]>(payload => requests.updateRound(payload, id), config?.useUpdateRound, options),
+        useDeleteRound: (id: string, options?: Omit<UseMutationOptions<Response<"deleteRound">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteRound">, unknown, unknown>(() => requests.deleteRound(id), config?.useDeleteRound, options),
         useCreateService: (options?: Omit<UseMutationOptions<Response<"createService">, unknown, Parameters<Requests["createService"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"createService">, unknown, Parameters<Requests["createService"]>[0]>(payload => requests.createService(payload), config?.useCreateService, options),
-        useUpdateService: (id: number, options?: Omit<UseMutationOptions<Response<"updateService">, unknown, Parameters<Requests["updateService"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateService">, unknown, Parameters<Requests["updateService"]>[0]>(payload => requests.updateService(payload, id), config?.useUpdateService, options),
-        useDeleteService: (id: number, options?: Omit<UseMutationOptions<Response<"deleteService">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteService">, unknown, unknown>(() => requests.deleteService(id), config?.useDeleteService, options),
+        useUpdateService: (id: string, options?: Omit<UseMutationOptions<Response<"updateService">, unknown, Parameters<Requests["updateService"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateService">, unknown, Parameters<Requests["updateService"]>[0]>(payload => requests.updateService(payload, id), config?.useUpdateService, options),
+        useDeleteService: (id: string, options?: Omit<UseMutationOptions<Response<"deleteService">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteService">, unknown, unknown>(() => requests.deleteService(id), config?.useDeleteService, options),
         useCreateTeam: (options?: Omit<UseMutationOptions<Response<"createTeam">, unknown, Parameters<Requests["createTeam"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"createTeam">, unknown, Parameters<Requests["createTeam"]>[0]>(payload => requests.createTeam(payload), config?.useCreateTeam, options),
-        useUpdateTeam: (id: number, options?: Omit<UseMutationOptions<Response<"updateTeam">, unknown, Parameters<Requests["updateTeam"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateTeam">, unknown, Parameters<Requests["updateTeam"]>[0]>(payload => requests.updateTeam(payload, id), config?.useUpdateTeam, options),
-        useDeleteTeam: (id: number, options?: Omit<UseMutationOptions<Response<"deleteTeam">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteTeam">, unknown, unknown>(() => requests.deleteTeam(id), config?.useDeleteTeam, options),
-        useCreateUser: (options?: Omit<UseMutationOptions<Response<"createUser">, unknown, Parameters<Requests["createUser"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"createUser">, unknown, Parameters<Requests["createUser"]>[0]>(payload => requests.createUser(payload), config?.useCreateUser, options),
-        useUpdateUser: (id: number, options?: Omit<UseMutationOptions<Response<"updateUser">, unknown, Parameters<Requests["updateUser"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateUser">, unknown, Parameters<Requests["updateUser"]>[0]>(payload => requests.updateUser(payload, id), config?.useUpdateUser, options),
-        useDeleteUser: (id: number, options?: Omit<UseMutationOptions<Response<"deleteUser">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteUser">, unknown, unknown>(() => requests.deleteUser(id), config?.useDeleteUser, options)
+        useUpdateTeam: (id: string, options?: Omit<UseMutationOptions<Response<"updateTeam">, unknown, Parameters<Requests["updateTeam"]>[0], unknown>, "mutationFn">) => useRapiniMutation<Response<"updateTeam">, unknown, Parameters<Requests["updateTeam"]>[0]>(payload => requests.updateTeam(payload, id), config?.useUpdateTeam, options),
+        useDeleteTeam: (id: string, options?: Omit<UseMutationOptions<Response<"deleteTeam">, unknown, unknown, unknown>, "mutationFn">) => useRapiniMutation<Response<"deleteTeam">, unknown, unknown>(() => requests.deleteTeam(id), config?.useDeleteTeam, options)
     } as const;
 }

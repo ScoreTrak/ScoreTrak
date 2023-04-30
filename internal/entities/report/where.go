@@ -4,6 +4,7 @@ package report
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
 )
 
@@ -60,6 +61,11 @@ func Log(v string) predicate.Report {
 // Error applies equality check predicate on the "error" field. It's identical to ErrorEQ.
 func Error(v string) predicate.Report {
 	return predicate.Report(sql.FieldEQ(FieldError, v))
+}
+
+// CompetitionID applies equality check predicate on the "competition_id" field. It's identical to CompetitionIDEQ.
+func CompetitionID(v string) predicate.Report {
+	return predicate.Report(sql.FieldEQ(FieldCompetitionID, v))
 }
 
 // LogEQ applies the EQ predicate on the "log" field.
@@ -190,6 +196,94 @@ func ErrorEqualFold(v string) predicate.Report {
 // ErrorContainsFold applies the ContainsFold predicate on the "error" field.
 func ErrorContainsFold(v string) predicate.Report {
 	return predicate.Report(sql.FieldContainsFold(FieldError, v))
+}
+
+// CompetitionIDEQ applies the EQ predicate on the "competition_id" field.
+func CompetitionIDEQ(v string) predicate.Report {
+	return predicate.Report(sql.FieldEQ(FieldCompetitionID, v))
+}
+
+// CompetitionIDNEQ applies the NEQ predicate on the "competition_id" field.
+func CompetitionIDNEQ(v string) predicate.Report {
+	return predicate.Report(sql.FieldNEQ(FieldCompetitionID, v))
+}
+
+// CompetitionIDIn applies the In predicate on the "competition_id" field.
+func CompetitionIDIn(vs ...string) predicate.Report {
+	return predicate.Report(sql.FieldIn(FieldCompetitionID, vs...))
+}
+
+// CompetitionIDNotIn applies the NotIn predicate on the "competition_id" field.
+func CompetitionIDNotIn(vs ...string) predicate.Report {
+	return predicate.Report(sql.FieldNotIn(FieldCompetitionID, vs...))
+}
+
+// CompetitionIDGT applies the GT predicate on the "competition_id" field.
+func CompetitionIDGT(v string) predicate.Report {
+	return predicate.Report(sql.FieldGT(FieldCompetitionID, v))
+}
+
+// CompetitionIDGTE applies the GTE predicate on the "competition_id" field.
+func CompetitionIDGTE(v string) predicate.Report {
+	return predicate.Report(sql.FieldGTE(FieldCompetitionID, v))
+}
+
+// CompetitionIDLT applies the LT predicate on the "competition_id" field.
+func CompetitionIDLT(v string) predicate.Report {
+	return predicate.Report(sql.FieldLT(FieldCompetitionID, v))
+}
+
+// CompetitionIDLTE applies the LTE predicate on the "competition_id" field.
+func CompetitionIDLTE(v string) predicate.Report {
+	return predicate.Report(sql.FieldLTE(FieldCompetitionID, v))
+}
+
+// CompetitionIDContains applies the Contains predicate on the "competition_id" field.
+func CompetitionIDContains(v string) predicate.Report {
+	return predicate.Report(sql.FieldContains(FieldCompetitionID, v))
+}
+
+// CompetitionIDHasPrefix applies the HasPrefix predicate on the "competition_id" field.
+func CompetitionIDHasPrefix(v string) predicate.Report {
+	return predicate.Report(sql.FieldHasPrefix(FieldCompetitionID, v))
+}
+
+// CompetitionIDHasSuffix applies the HasSuffix predicate on the "competition_id" field.
+func CompetitionIDHasSuffix(v string) predicate.Report {
+	return predicate.Report(sql.FieldHasSuffix(FieldCompetitionID, v))
+}
+
+// CompetitionIDEqualFold applies the EqualFold predicate on the "competition_id" field.
+func CompetitionIDEqualFold(v string) predicate.Report {
+	return predicate.Report(sql.FieldEqualFold(FieldCompetitionID, v))
+}
+
+// CompetitionIDContainsFold applies the ContainsFold predicate on the "competition_id" field.
+func CompetitionIDContainsFold(v string) predicate.Report {
+	return predicate.Report(sql.FieldContainsFold(FieldCompetitionID, v))
+}
+
+// HasCompetition applies the HasEdge predicate on the "competition" edge.
+func HasCompetition() predicate.Report {
+	return predicate.Report(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, CompetitionTable, CompetitionColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCompetitionWith applies the HasEdge predicate on the "competition" edge with a given conditions (other predicates).
+func HasCompetitionWith(preds ...predicate.Competition) predicate.Report {
+	return predicate.Report(func(s *sql.Selector) {
+		step := newCompetitionStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

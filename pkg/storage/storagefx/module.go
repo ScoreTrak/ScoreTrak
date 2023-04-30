@@ -2,6 +2,7 @@ package storagefx
 
 import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage"
+	"github.com/ScoreTrak/ScoreTrak/pkg/storage/seed"
 	"go.uber.org/fx"
 )
 
@@ -11,6 +12,6 @@ var Module = fx.Options(
 	),
 	fx.Invoke(
 		storage.AutoMigrate,
-	// 	util.CheckDBTimeSync,
+		seed.DevSeed,
 	),
 )
