@@ -7,7 +7,10 @@ import (
 
 var Module = fx.Options(
 	// OTEL Resource
-	fx.Provide(telemetry.NewResource),
+	fx.Provide(
+		telemetry.NewInstance,
+		telemetry.NewResource,
+	),
 
 	// Logging
 	fx.Provide(telemetry.NewLogger),

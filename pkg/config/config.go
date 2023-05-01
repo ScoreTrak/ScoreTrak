@@ -25,15 +25,15 @@ type Config struct {
 	}
 
 	// This value ideally shouldn't be larger than few seconds
-	DatabaseMaxTimeDriftSeconds uint `default:"2"`
-
-	// How frequently to pull dynamic configs
-	DynamicConfigPullSeconds uint `default:"5"`
+	//DatabaseMaxTimeDriftSeconds uint `default:"2"`
 
 	Queue struct {
-		Use   string `default:"none"`
-		Pool  int    `default:5`
-		Kafka struct {
+		Use      string `default:"ring"`
+		Pool     int    `default:5`
+		RabbitMq struct {
+			Addr         string
+			ExchangeName string
+			ExchangeType string
 		}
 		NSQ struct {
 			Worker struct {
@@ -54,6 +54,12 @@ type Config struct {
 			NSQLookupd                   []string `default:"[\"\"]"` // "[\"nsqlookupd:4160\"]"
 			ConsumerNSQDPool             []string `default:"[\"\"]"` // "[\"nsqd:4150\"]"
 		}
+	}
+
+	Scheduler struct {
+		RoundDuration int `default:5`
+		//// How frequently to pull dynamic configs
+		//DynamicConfigPullSeconds uint `default:"5"`
 	}
 
 	//Platform struct {
@@ -86,10 +92,6 @@ type Config struct {
 	Prod bool `default:"false"`
 
 	Auth struct {
-		JWT struct {
-			Secret           string `default:"changeme"`
-			TimeoutInSeconds uint64 `default:"86400"`
-		}
 		Ory struct {
 			SelfHosted  bool
 			Slug        string

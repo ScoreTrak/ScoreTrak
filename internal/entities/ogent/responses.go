@@ -158,6 +158,7 @@ func NewCheckHostserviceRead(e *entities.HostService) *CheckHostserviceRead {
 	ret.PointBoost = e.PointBoost
 	ret.RoundUnits = e.RoundUnits
 	ret.RoundDelay = e.RoundDelay
+	ret.ServiceID = e.ServiceID
 	ret.HostID = e.HostID
 	ret.TeamID = e.TeamID
 	return &ret
@@ -508,6 +509,7 @@ func NewCompetitionServicesList(e *entities.Service) *CompetitionServicesList {
 	ret.DisplayName = e.DisplayName
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Type = CompetitionServicesListType(e.Type)
 	ret.CompetitionID = e.CompetitionID
 	return &ret
 }
@@ -670,6 +672,7 @@ func NewHostServiceCreate(e *entities.HostService) *HostServiceCreate {
 	ret.PointBoost = e.PointBoost
 	ret.RoundUnits = e.RoundUnits
 	ret.RoundDelay = e.RoundDelay
+	ret.ServiceID = e.ServiceID
 	ret.HostID = e.HostID
 	ret.TeamID = e.TeamID
 	return &ret
@@ -707,6 +710,7 @@ func NewHostServiceList(e *entities.HostService) *HostServiceList {
 	ret.PointBoost = e.PointBoost
 	ret.RoundUnits = e.RoundUnits
 	ret.RoundDelay = e.RoundDelay
+	ret.ServiceID = e.ServiceID
 	ret.HostID = e.HostID
 	ret.TeamID = e.TeamID
 	return &ret
@@ -744,6 +748,7 @@ func NewHostServiceRead(e *entities.HostService) *HostServiceRead {
 	ret.PointBoost = e.PointBoost
 	ret.RoundUnits = e.RoundUnits
 	ret.RoundDelay = e.RoundDelay
+	ret.ServiceID = e.ServiceID
 	ret.HostID = e.HostID
 	ret.TeamID = e.TeamID
 	return &ret
@@ -781,6 +786,7 @@ func NewHostServiceUpdate(e *entities.HostService) *HostServiceUpdate {
 	ret.PointBoost = e.PointBoost
 	ret.RoundUnits = e.RoundUnits
 	ret.RoundDelay = e.RoundDelay
+	ret.ServiceID = e.ServiceID
 	ret.HostID = e.HostID
 	ret.TeamID = e.TeamID
 	return &ret
@@ -902,6 +908,39 @@ func (pr *HostServicePropertiesList) Elem() HostServicePropertiesList {
 	return *pr
 }
 
+func NewHostServiceServiceRead(e *entities.Service) *HostServiceServiceRead {
+	if e == nil {
+		return nil
+	}
+	var ret HostServiceServiceRead
+	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Type = HostServiceServiceReadType(e.Type)
+	ret.CompetitionID = e.CompetitionID
+	return &ret
+}
+
+func NewHostServiceServiceReads(es []*entities.Service) []HostServiceServiceRead {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]HostServiceServiceRead, len(es))
+	for i, e := range es {
+		r[i] = NewHostServiceServiceRead(e).Elem()
+	}
+	return r
+}
+
+func (s *HostServiceServiceRead) Elem() HostServiceServiceRead {
+	if s == nil {
+		return HostServiceServiceRead{}
+	}
+	return *s
+}
+
 func NewHostServiceTeamRead(e *entities.Team) *HostServiceTeamRead {
 	if e == nil {
 		return nil
@@ -980,6 +1019,7 @@ func NewHostHostservicesList(e *entities.HostService) *HostHostservicesList {
 	ret.PointBoost = e.PointBoost
 	ret.RoundUnits = e.RoundUnits
 	ret.RoundDelay = e.RoundDelay
+	ret.ServiceID = e.ServiceID
 	ret.HostID = e.HostID
 	ret.TeamID = e.TeamID
 	return &ret
@@ -1178,6 +1218,7 @@ func NewPropertyHostserviceRead(e *entities.HostService) *PropertyHostserviceRea
 	ret.PointBoost = e.PointBoost
 	ret.RoundUnits = e.RoundUnits
 	ret.RoundDelay = e.RoundDelay
+	ret.ServiceID = e.ServiceID
 	ret.HostID = e.HostID
 	ret.TeamID = e.TeamID
 	return &ret
@@ -1625,6 +1666,7 @@ func NewServiceCreate(e *entities.Service) *ServiceCreate {
 	ret.DisplayName = e.DisplayName
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Type = ServiceCreateType(e.Type)
 	ret.CompetitionID = e.CompetitionID
 	return &ret
 }
@@ -1657,6 +1699,7 @@ func NewServiceList(e *entities.Service) *ServiceList {
 	ret.DisplayName = e.DisplayName
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Type = ServiceListType(e.Type)
 	ret.CompetitionID = e.CompetitionID
 	return &ret
 }
@@ -1689,6 +1732,7 @@ func NewServiceRead(e *entities.Service) *ServiceRead {
 	ret.DisplayName = e.DisplayName
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Type = ServiceReadType(e.Type)
 	ret.CompetitionID = e.CompetitionID
 	return &ret
 }
@@ -1721,6 +1765,7 @@ func NewServiceUpdate(e *entities.Service) *ServiceUpdate {
 	ret.DisplayName = e.DisplayName
 	ret.Pause = NewOptBool(e.Pause)
 	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Type = ServiceUpdateType(e.Type)
 	ret.CompetitionID = e.CompetitionID
 	return &ret
 }
@@ -1788,6 +1833,44 @@ func (c *ServiceCompetitionRead) Elem() ServiceCompetitionRead {
 		return ServiceCompetitionRead{}
 	}
 	return *c
+}
+
+func NewServiceHostservicesList(e *entities.HostService) *ServiceHostservicesList {
+	if e == nil {
+		return nil
+	}
+	var ret ServiceHostservicesList
+	ret.ID = e.ID
+	ret.Name = e.Name
+	ret.DisplayName = e.DisplayName
+	ret.Pause = NewOptBool(e.Pause)
+	ret.Hidden = NewOptBool(e.Hidden)
+	ret.Weight = e.Weight
+	ret.PointBoost = e.PointBoost
+	ret.RoundUnits = e.RoundUnits
+	ret.RoundDelay = e.RoundDelay
+	ret.ServiceID = e.ServiceID
+	ret.HostID = e.HostID
+	ret.TeamID = e.TeamID
+	return &ret
+}
+
+func NewServiceHostservicesLists(es []*entities.HostService) []ServiceHostservicesList {
+	if len(es) == 0 {
+		return nil
+	}
+	r := make([]ServiceHostservicesList, len(es))
+	for i, e := range es {
+		r[i] = NewServiceHostservicesList(e).Elem()
+	}
+	return r
+}
+
+func (hs *ServiceHostservicesList) Elem() ServiceHostservicesList {
+	if hs == nil {
+		return ServiceHostservicesList{}
+	}
+	return *hs
 }
 
 func NewTeamCreate(e *entities.Team) *TeamCreate {
@@ -2049,6 +2132,7 @@ func NewTeamHostservicesList(e *entities.HostService) *TeamHostservicesList {
 	ret.PointBoost = e.PointBoost
 	ret.RoundUnits = e.RoundUnits
 	ret.RoundDelay = e.RoundDelay
+	ret.ServiceID = e.ServiceID
 	ret.HostID = e.HostID
 	ret.TeamID = e.TeamID
 	return &ret

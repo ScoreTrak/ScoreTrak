@@ -28,27 +28,24 @@ const (
 	FieldRoundUnits = "round_units"
 	// FieldRoundDelay holds the string denoting the round_delay field in the database.
 	FieldRoundDelay = "round_delay"
+	// FieldServiceID holds the string denoting the service_id field in the database.
+	FieldServiceID = "service_id"
 	// FieldHostID holds the string denoting the host_id field in the database.
 	FieldHostID = "host_id"
 	// FieldTeamID holds the string denoting the team_id field in the database.
 	FieldTeamID = "team_id"
-	// EdgeHost holds the string denoting the host edge name in mutations.
-	EdgeHost = "host"
 	// EdgeChecks holds the string denoting the checks edge name in mutations.
 	EdgeChecks = "checks"
 	// EdgeProperties holds the string denoting the properties edge name in mutations.
 	EdgeProperties = "properties"
+	// EdgeService holds the string denoting the service edge name in mutations.
+	EdgeService = "service"
+	// EdgeHost holds the string denoting the host edge name in mutations.
+	EdgeHost = "host"
 	// EdgeTeam holds the string denoting the team edge name in mutations.
 	EdgeTeam = "team"
 	// Table holds the table name of the hostservice in the database.
 	Table = "host_services"
-	// HostTable is the table that holds the host relation/edge.
-	HostTable = "host_services"
-	// HostInverseTable is the table name for the Host entity.
-	// It exists in this package in order to avoid circular dependency with the "host" package.
-	HostInverseTable = "hosts"
-	// HostColumn is the table column denoting the host relation/edge.
-	HostColumn = "host_id"
 	// ChecksTable is the table that holds the checks relation/edge.
 	ChecksTable = "checks"
 	// ChecksInverseTable is the table name for the Check entity.
@@ -63,6 +60,20 @@ const (
 	PropertiesInverseTable = "properties"
 	// PropertiesColumn is the table column denoting the properties relation/edge.
 	PropertiesColumn = "host_service_id"
+	// ServiceTable is the table that holds the service relation/edge.
+	ServiceTable = "host_services"
+	// ServiceInverseTable is the table name for the Service entity.
+	// It exists in this package in order to avoid circular dependency with the "service" package.
+	ServiceInverseTable = "services"
+	// ServiceColumn is the table column denoting the service relation/edge.
+	ServiceColumn = "service_id"
+	// HostTable is the table that holds the host relation/edge.
+	HostTable = "host_services"
+	// HostInverseTable is the table name for the Host entity.
+	// It exists in this package in order to avoid circular dependency with the "host" package.
+	HostInverseTable = "hosts"
+	// HostColumn is the table column denoting the host relation/edge.
+	HostColumn = "host_id"
 	// TeamTable is the table that holds the team relation/edge.
 	TeamTable = "host_services"
 	// TeamInverseTable is the table name for the Team entity.
@@ -83,6 +94,7 @@ var Columns = []string{
 	FieldPointBoost,
 	FieldRoundUnits,
 	FieldRoundDelay,
+	FieldServiceID,
 	FieldHostID,
 	FieldTeamID,
 }
@@ -166,6 +178,11 @@ func ByRoundDelay(opts ...sql.OrderTermOption) Order {
 	return sql.OrderByField(FieldRoundDelay, opts...).ToFunc()
 }
 
+// ByServiceID orders the results by the service_id field.
+func ByServiceID(opts ...sql.OrderTermOption) Order {
+	return sql.OrderByField(FieldServiceID, opts...).ToFunc()
+}
+
 // ByHostID orders the results by the host_id field.
 func ByHostID(opts ...sql.OrderTermOption) Order {
 	return sql.OrderByField(FieldHostID, opts...).ToFunc()
@@ -174,13 +191,6 @@ func ByHostID(opts ...sql.OrderTermOption) Order {
 // ByTeamID orders the results by the team_id field.
 func ByTeamID(opts ...sql.OrderTermOption) Order {
 	return sql.OrderByField(FieldTeamID, opts...).ToFunc()
-}
-
-// ByHostField orders the results by host field.
-func ByHostField(field string, opts ...sql.OrderTermOption) Order {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newHostStep(), sql.OrderByField(field, opts...))
-	}
 }
 
 // ByChecksCount orders the results by checks count.
@@ -211,18 +221,25 @@ func ByProperties(term sql.OrderTerm, terms ...sql.OrderTerm) Order {
 	}
 }
 
+// ByServiceField orders the results by service field.
+func ByServiceField(field string, opts ...sql.OrderTermOption) Order {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newServiceStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByHostField orders the results by host field.
+func ByHostField(field string, opts ...sql.OrderTermOption) Order {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newHostStep(), sql.OrderByField(field, opts...))
+	}
+}
+
 // ByTeamField orders the results by team field.
 func ByTeamField(field string, opts ...sql.OrderTermOption) Order {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newTeamStep(), sql.OrderByField(field, opts...))
 	}
-}
-func newHostStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(HostInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, HostTable, HostColumn),
-	)
 }
 func newChecksStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
@@ -236,6 +253,20 @@ func newPropertiesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(PropertiesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, PropertiesTable, PropertiesColumn),
+	)
+}
+func newServiceStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ServiceInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ServiceTable, ServiceColumn),
+	)
+}
+func newHostStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(HostInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, HostTable, HostColumn),
 	)
 }
 func newTeamStep() *sqlgraph.Step {

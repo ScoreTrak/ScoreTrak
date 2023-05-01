@@ -18,6 +18,7 @@ func (Check) Fields() []ent.Field {
 		field.String("error"),
 		field.Bool("passed"),
 		field.String("round_id").Immutable(),
+		field.String("service_id").Immutable(),
 		field.String("host_service_id").Immutable(),
 		field.String("team_id").Immutable(),
 		//field.String("competition_id").Immutable(),
@@ -27,7 +28,8 @@ func (Check) Fields() []ent.Field {
 // Edges of the Check.
 func (Check) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("rounds", Round.Type).Field("round_id").Unique().Required().Immutable(),
+		edge.From("round", Round.Type).Ref("checks").Field("round_id").Unique().Required().Immutable(),
+		edge.From("service", HostService.Type).Ref("checks").Field("service_id").Unique().Required().Immutable(),
 		edge.From("hostservice", HostService.Type).Ref("checks").Field("host_service_id").Unique().Required().Immutable(),
 		edge.From("team", Team.Type).Ref("checks").Field("team_id").Unique().Required().Immutable(),
 		//edge.From("competition", Competition.Type).Ref("checks").Field("competition_id").Unique().Required().Immutable(),

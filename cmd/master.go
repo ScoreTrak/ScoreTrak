@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth/authfx"
+	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queuefx"
 	"log"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/config/configfx"
@@ -32,15 +33,16 @@ var masterCmd = &cobra.Command{
 			// Add auth components
 			authfx.Module,
 
+			// Create server
+			serverfx.Module,
+
 			// Create queueing components
+			queuefx.Module,
 			// fx.Provide(queue.NewMasterStreamPubSub),
 			// fx.Provide(queue.NewWorkerQueue),
 
 			// Create platform module. Responsible for creating works in docker, docker swarm, and kubernetes
 			// fx.Provide(platform.NewPlatform),
-
-			// Create server
-			serverfx.Module,
 
 			// Create scheduler
 			// schedulerfx.Module,

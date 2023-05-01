@@ -580,6 +580,15 @@ func (c *Client) sendCreateService(ctx context.Context, request *CreateServiceRe
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("createService"),
 	}
+	// Validate request before sending.
+	if err := func() error {
+		if err := request.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return res, errors.Wrap(err, "validate")
+	}
 
 	// Run stopwatch.
 	startTime := time.Now()
@@ -3261,6 +3270,127 @@ func (c *Client) sendListService(ctx context.Context, params ListServiceParams) 
 	return result, nil
 }
 
+// ListServiceHostservices invokes listServiceHostservices operation.
+//
+// List attached Hostservices.
+//
+// GET /services/{id}/hostservices
+func (c *Client) ListServiceHostservices(ctx context.Context, params ListServiceHostservicesParams) (ListServiceHostservicesRes, error) {
+	res, err := c.sendListServiceHostservices(ctx, params)
+	_ = res
+	return res, err
+}
+
+func (c *Client) sendListServiceHostservices(ctx context.Context, params ListServiceHostservicesParams) (res ListServiceHostservicesRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("listServiceHostservices"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, otelAttrs...)
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, "ListServiceHostservices",
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, otelAttrs...)
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	u.Path += "/services/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		u.Path += e.Result()
+	}
+	u.Path += "/hostservices"
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "page" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "page",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Page.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "itemsPerPage" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "itemsPerPage",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.ItemsPerPage.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeListServiceHostservicesResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // ListTeam invokes listTeam operation.
 //
 // List Teams.
@@ -4504,6 +4634,89 @@ func (c *Client) sendReadHostServiceHost(ctx context.Context, params ReadHostSer
 
 	stage = "DecodeResponse"
 	result, err := decodeReadHostServiceHostResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// ReadHostServiceService invokes readHostServiceService operation.
+//
+// Find the attached Service of the HostService with the given ID.
+//
+// GET /host-services/{id}/service
+func (c *Client) ReadHostServiceService(ctx context.Context, params ReadHostServiceServiceParams) (ReadHostServiceServiceRes, error) {
+	res, err := c.sendReadHostServiceService(ctx, params)
+	_ = res
+	return res, err
+}
+
+func (c *Client) sendReadHostServiceService(ctx context.Context, params ReadHostServiceServiceParams) (res ReadHostServiceServiceRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("readHostServiceService"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, elapsedDuration.Microseconds(), otelAttrs...)
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, otelAttrs...)
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, "ReadHostServiceService",
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, otelAttrs...)
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	u.Path += "/host-services/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		u.Path += e.Result()
+	}
+	u.Path += "/service"
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u, nil)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeReadHostServiceServiceResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -6203,6 +6416,15 @@ func (c *Client) UpdateService(ctx context.Context, request *UpdateServiceReq, p
 func (c *Client) sendUpdateService(ctx context.Context, request *UpdateServiceReq, params UpdateServiceParams) (res UpdateServiceRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("updateService"),
+	}
+	// Validate request before sending.
+	if err := func() error {
+		if err := request.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return res, errors.Wrap(err, "validate")
 	}
 
 	// Run stopwatch.

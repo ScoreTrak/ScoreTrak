@@ -1,9 +1,78 @@
 package scheduler
 
-import "github.com/ScoreTrak/ScoreTrak/internal/entities"
+import (
+	"context"
+	"fmt"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/ScoreTrak/ScoreTrak/pkg/queue/job"
+	"github.com/golang-queue/queue"
+	"github.com/robfig/cron/v3"
+	"go.uber.org/fx"
+	"log"
+)
 
 type Scheduler struct {
-	entitiesClient entities.Client
+	cron.Job
+	Spec           string
+	entitiesClient *entities.Client
+	q              *queue.Queue
+}
+
+func NewScheduler(cfg *config.Config, ec *entities.Client, q *queue.Queue) *Scheduler {
+	return &Scheduler{
+		Spec:           fmt.Sprintf("@every %ds", cfg.Scheduler.RoundDuration),
+		entitiesClient: ec,
+		q:              q,
+	}
+}
+
+func RegisterScheduler(lc fx.Lifecycle, crn *cron.Cron, schdlr *Scheduler) {
+	entryId, _ := crn.AddJob(schdlr.Spec, schdlr)
+
+	lc.Append(fx.Hook{
+		OnStart: nil,
+		OnStop: func(ctx context.Context) error {
+			log.Println("removing scheduler job")
+			crn.Remove(entryId)
+			return nil
+		},
+	})
+}
+
+func (s *Scheduler) Run() {
+	ctx := context.Background()
+	hs := s.entitiesClient.Competition.Query().Where(competition.HiddenNEQ(true)).QueryServices().Where(service.HiddenNEQ(true)).QueryHostservices().Where(hostservice.HiddenNEQ(true)).AllX(ctx)
+	log.Printf("%v", hs)
+	err := s.q.Queue(&job.PingJob{Message: "ping"})
+	if err != nil {
+		log.Printf("error: %v", err)
+	}
+	// Send all checks
+	// Create a set of go routines to send queue jobs for each competition
+	// You will know how many checks were sent to be scored
+	// Send a query to count how many checks have been submitted to db. check if that matches your local count
+	// if it does. turn the validated flag on for the checks and run the report func to generate a report
+	// how do I handle the failure of it?
+	// Maybe have a scheduled cron job to set the next time this function should run?
+	// Set the competition as paused
+
+	// Or customize the send function in queue/nsq/queue to use teh queue library and listening for
+	// message receive in a custom worker that is using the golang-queue library rather than nsq
+	// This would solve the problem, actually. Maybe put it here. Have an input for the receive_check (customize the name
+	// of the channel by competition id and filter round id by the check that is coming in and only accept
+	// checks for the current round) worker
+
+	// Organize the queue library by file related to a queue name and role potentially
+	// queue/receive_checks.go would have a job struct, a struct with a run func for the worker, a new worker instance, a new queue instance
+	// This queueing part will be interesting, hahaha. Need a lot of metrics here now don't we!!
+}
+
+func (s *Scheduler) getHostServicesToScore() {
+
 }
 
 // import (

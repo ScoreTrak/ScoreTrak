@@ -3229,6 +3229,173 @@ func decodeListServiceParams(args [0]string, r *http.Request) (params ListServic
 	return params, nil
 }
 
+// ListServiceHostservicesParams is parameters of listServiceHostservices operation.
+type ListServiceHostservicesParams struct {
+	// ID of the Service.
+	ID string
+	// What page to render.
+	Page OptInt
+	// Item count to render per page.
+	ItemsPerPage OptInt
+}
+
+func unpackListServiceHostservicesParams(packed middleware.Parameters) (params ListServiceHostservicesParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "page",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Page = v.(OptInt)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "itemsPerPage",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.ItemsPerPage = v.(OptInt)
+		}
+	}
+	return params
+}
+
+func decodeListServiceHostservicesParams(args [1]string, r *http.Request) (params ListServiceHostservicesParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode path: id.
+	if err := func() error {
+		param, err := url.PathUnescape(args[0])
+		if err != nil {
+			return errors.Wrap(err, "unescape path")
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: page.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "page",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotPageVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotPageVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Page.SetTo(paramsDotPageVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "page",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: itemsPerPage.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "itemsPerPage",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotItemsPerPageVal int
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotItemsPerPageVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.ItemsPerPage.SetTo(paramsDotItemsPerPageVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "itemsPerPage",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // ListTeamParams is parameters of listTeam operation.
 type ListTeamParams struct {
 	// What page to render.
@@ -4514,6 +4681,68 @@ func unpackReadHostServiceHostParams(packed middleware.Parameters) (params ReadH
 }
 
 func decodeReadHostServiceHostParams(args [1]string, r *http.Request) (params ReadHostServiceHostParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param, err := url.PathUnescape(args[0])
+		if err != nil {
+			return errors.Wrap(err, "unescape path")
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// ReadHostServiceServiceParams is parameters of readHostServiceService operation.
+type ReadHostServiceServiceParams struct {
+	// ID of the HostService.
+	ID string
+}
+
+func unpackReadHostServiceServiceParams(packed middleware.Parameters) (params ReadHostServiceServiceParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeReadHostServiceServiceParams(args [1]string, r *http.Request) (params ReadHostServiceServiceParams, _ error) {
 	// Decode path: id.
 	if err := func() error {
 		param, err := url.PathUnescape(args[0])

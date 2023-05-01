@@ -125,6 +125,7 @@ type CheckHostserviceRead struct {
 	PointBoost  int     `json:"point_boost"`
 	RoundUnits  int     `json:"round_units"`
 	RoundDelay  int     `json:"round_delay"`
+	ServiceID   string  `json:"service_id"`
 	HostID      string  `json:"host_id"`
 	TeamID      string  `json:"team_id"`
 }
@@ -172,6 +173,11 @@ func (s *CheckHostserviceRead) GetRoundUnits() int {
 // GetRoundDelay returns the value of RoundDelay.
 func (s *CheckHostserviceRead) GetRoundDelay() int {
 	return s.RoundDelay
+}
+
+// GetServiceID returns the value of ServiceID.
+func (s *CheckHostserviceRead) GetServiceID() string {
+	return s.ServiceID
 }
 
 // GetHostID returns the value of HostID.
@@ -227,6 +233,11 @@ func (s *CheckHostserviceRead) SetRoundUnits(val int) {
 // SetRoundDelay sets the value of RoundDelay.
 func (s *CheckHostserviceRead) SetRoundDelay(val int) {
 	s.RoundDelay = val
+}
+
+// SetServiceID sets the value of ServiceID.
+func (s *CheckHostserviceRead) SetServiceID(val string) {
+	s.ServiceID = val
 }
 
 // SetHostID sets the value of HostID.
@@ -1164,12 +1175,13 @@ func (s *CompetitionRoundsList) SetCompetitionID(val string) {
 
 // Ref: #/components/schemas/Competition_ServicesList
 type CompetitionServicesList struct {
-	ID            string  `json:"id"`
-	Name          string  `json:"name"`
-	DisplayName   string  `json:"display_name"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
+	ID            string                      `json:"id"`
+	Name          string                      `json:"name"`
+	DisplayName   string                      `json:"display_name"`
+	Pause         OptBool                     `json:"pause"`
+	Hidden        OptBool                     `json:"hidden"`
+	Type          CompetitionServicesListType `json:"type"`
+	CompetitionID string                      `json:"competition_id"`
 }
 
 // GetID returns the value of ID.
@@ -1195,6 +1207,11 @@ func (s *CompetitionServicesList) GetPause() OptBool {
 // GetHidden returns the value of Hidden.
 func (s *CompetitionServicesList) GetHidden() OptBool {
 	return s.Hidden
+}
+
+// GetType returns the value of Type.
+func (s *CompetitionServicesList) GetType() CompetitionServicesListType {
+	return s.Type
 }
 
 // GetCompetitionID returns the value of CompetitionID.
@@ -1227,9 +1244,101 @@ func (s *CompetitionServicesList) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
+// SetType sets the value of Type.
+func (s *CompetitionServicesList) SetType(val CompetitionServicesListType) {
+	s.Type = val
+}
+
 // SetCompetitionID sets the value of CompetitionID.
 func (s *CompetitionServicesList) SetCompetitionID(val string) {
 	s.CompetitionID = val
+}
+
+type CompetitionServicesListType string
+
+const (
+	CompetitionServicesListTypeFtp    CompetitionServicesListType = "ftp"
+	CompetitionServicesListTypeSSH    CompetitionServicesListType = "ssh"
+	CompetitionServicesListTypeWinrm  CompetitionServicesListType = "winrm"
+	CompetitionServicesListTypePing   CompetitionServicesListType = "ping"
+	CompetitionServicesListTypeHTTP   CompetitionServicesListType = "http"
+	CompetitionServicesListTypeLdap   CompetitionServicesListType = "ldap"
+	CompetitionServicesListTypeDNS    CompetitionServicesListType = "dns"
+	CompetitionServicesListTypeSmb    CompetitionServicesListType = "smb"
+	CompetitionServicesListTypeImap   CompetitionServicesListType = "imap"
+	CompetitionServicesListTypeSQL    CompetitionServicesListType = "sql"
+	CompetitionServicesListTypeCaldav CompetitionServicesListType = "caldav"
+)
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CompetitionServicesListType) MarshalText() ([]byte, error) {
+	switch s {
+	case CompetitionServicesListTypeFtp:
+		return []byte(s), nil
+	case CompetitionServicesListTypeSSH:
+		return []byte(s), nil
+	case CompetitionServicesListTypeWinrm:
+		return []byte(s), nil
+	case CompetitionServicesListTypePing:
+		return []byte(s), nil
+	case CompetitionServicesListTypeHTTP:
+		return []byte(s), nil
+	case CompetitionServicesListTypeLdap:
+		return []byte(s), nil
+	case CompetitionServicesListTypeDNS:
+		return []byte(s), nil
+	case CompetitionServicesListTypeSmb:
+		return []byte(s), nil
+	case CompetitionServicesListTypeImap:
+		return []byte(s), nil
+	case CompetitionServicesListTypeSQL:
+		return []byte(s), nil
+	case CompetitionServicesListTypeCaldav:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CompetitionServicesListType) UnmarshalText(data []byte) error {
+	switch CompetitionServicesListType(data) {
+	case CompetitionServicesListTypeFtp:
+		*s = CompetitionServicesListTypeFtp
+		return nil
+	case CompetitionServicesListTypeSSH:
+		*s = CompetitionServicesListTypeSSH
+		return nil
+	case CompetitionServicesListTypeWinrm:
+		*s = CompetitionServicesListTypeWinrm
+		return nil
+	case CompetitionServicesListTypePing:
+		*s = CompetitionServicesListTypePing
+		return nil
+	case CompetitionServicesListTypeHTTP:
+		*s = CompetitionServicesListTypeHTTP
+		return nil
+	case CompetitionServicesListTypeLdap:
+		*s = CompetitionServicesListTypeLdap
+		return nil
+	case CompetitionServicesListTypeDNS:
+		*s = CompetitionServicesListTypeDNS
+		return nil
+	case CompetitionServicesListTypeSmb:
+		*s = CompetitionServicesListTypeSmb
+		return nil
+	case CompetitionServicesListTypeImap:
+		*s = CompetitionServicesListTypeImap
+		return nil
+	case CompetitionServicesListTypeSQL:
+		*s = CompetitionServicesListTypeSQL
+		return nil
+	case CompetitionServicesListTypeCaldav:
+		*s = CompetitionServicesListTypeCaldav
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Ref: #/components/schemas/Competition_TeamsList
@@ -1755,11 +1864,13 @@ type CreateHostServiceReq struct {
 	PointBoost  int      `json:"point_boost"`
 	RoundUnits  int      `json:"round_units"`
 	RoundDelay  int      `json:"round_delay"`
+	ServiceID   string   `json:"service_id"`
 	HostID      string   `json:"host_id"`
 	TeamID      string   `json:"team_id"`
-	Host        string   `json:"host"`
 	Checks      []string `json:"checks"`
 	Properties  []string `json:"properties"`
+	Service     string   `json:"service"`
+	Host        string   `json:"host"`
 	Team        string   `json:"team"`
 }
 
@@ -1803,6 +1914,11 @@ func (s *CreateHostServiceReq) GetRoundDelay() int {
 	return s.RoundDelay
 }
 
+// GetServiceID returns the value of ServiceID.
+func (s *CreateHostServiceReq) GetServiceID() string {
+	return s.ServiceID
+}
+
 // GetHostID returns the value of HostID.
 func (s *CreateHostServiceReq) GetHostID() string {
 	return s.HostID
@@ -1813,11 +1929,6 @@ func (s *CreateHostServiceReq) GetTeamID() string {
 	return s.TeamID
 }
 
-// GetHost returns the value of Host.
-func (s *CreateHostServiceReq) GetHost() string {
-	return s.Host
-}
-
 // GetChecks returns the value of Checks.
 func (s *CreateHostServiceReq) GetChecks() []string {
 	return s.Checks
@@ -1826,6 +1937,16 @@ func (s *CreateHostServiceReq) GetChecks() []string {
 // GetProperties returns the value of Properties.
 func (s *CreateHostServiceReq) GetProperties() []string {
 	return s.Properties
+}
+
+// GetService returns the value of Service.
+func (s *CreateHostServiceReq) GetService() string {
+	return s.Service
+}
+
+// GetHost returns the value of Host.
+func (s *CreateHostServiceReq) GetHost() string {
+	return s.Host
 }
 
 // GetTeam returns the value of Team.
@@ -1873,6 +1994,11 @@ func (s *CreateHostServiceReq) SetRoundDelay(val int) {
 	s.RoundDelay = val
 }
 
+// SetServiceID sets the value of ServiceID.
+func (s *CreateHostServiceReq) SetServiceID(val string) {
+	s.ServiceID = val
+}
+
 // SetHostID sets the value of HostID.
 func (s *CreateHostServiceReq) SetHostID(val string) {
 	s.HostID = val
@@ -1883,11 +2009,6 @@ func (s *CreateHostServiceReq) SetTeamID(val string) {
 	s.TeamID = val
 }
 
-// SetHost sets the value of Host.
-func (s *CreateHostServiceReq) SetHost(val string) {
-	s.Host = val
-}
-
 // SetChecks sets the value of Checks.
 func (s *CreateHostServiceReq) SetChecks(val []string) {
 	s.Checks = val
@@ -1896,6 +2017,16 @@ func (s *CreateHostServiceReq) SetChecks(val []string) {
 // SetProperties sets the value of Properties.
 func (s *CreateHostServiceReq) SetProperties(val []string) {
 	s.Properties = val
+}
+
+// SetService sets the value of Service.
+func (s *CreateHostServiceReq) SetService(val string) {
+	s.Service = val
+}
+
+// SetHost sets the value of Host.
+func (s *CreateHostServiceReq) SetHost(val string) {
+	s.Host = val
 }
 
 // SetTeam sets the value of Team.
@@ -2161,12 +2292,14 @@ func (s *CreateRoundReq) SetCompetition(val string) {
 }
 
 type CreateServiceReq struct {
-	Name          string  `json:"name"`
-	DisplayName   string  `json:"display_name"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
-	Competition   string  `json:"competition"`
+	Name          string               `json:"name"`
+	DisplayName   string               `json:"display_name"`
+	Pause         OptBool              `json:"pause"`
+	Hidden        OptBool              `json:"hidden"`
+	Type          CreateServiceReqType `json:"type"`
+	CompetitionID string               `json:"competition_id"`
+	Hostservices  []string             `json:"hostservices"`
+	Competition   string               `json:"competition"`
 }
 
 // GetName returns the value of Name.
@@ -2189,9 +2322,19 @@ func (s *CreateServiceReq) GetHidden() OptBool {
 	return s.Hidden
 }
 
+// GetType returns the value of Type.
+func (s *CreateServiceReq) GetType() CreateServiceReqType {
+	return s.Type
+}
+
 // GetCompetitionID returns the value of CompetitionID.
 func (s *CreateServiceReq) GetCompetitionID() string {
 	return s.CompetitionID
+}
+
+// GetHostservices returns the value of Hostservices.
+func (s *CreateServiceReq) GetHostservices() []string {
+	return s.Hostservices
 }
 
 // GetCompetition returns the value of Competition.
@@ -2219,14 +2362,111 @@ func (s *CreateServiceReq) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
+// SetType sets the value of Type.
+func (s *CreateServiceReq) SetType(val CreateServiceReqType) {
+	s.Type = val
+}
+
 // SetCompetitionID sets the value of CompetitionID.
 func (s *CreateServiceReq) SetCompetitionID(val string) {
 	s.CompetitionID = val
 }
 
+// SetHostservices sets the value of Hostservices.
+func (s *CreateServiceReq) SetHostservices(val []string) {
+	s.Hostservices = val
+}
+
 // SetCompetition sets the value of Competition.
 func (s *CreateServiceReq) SetCompetition(val string) {
 	s.Competition = val
+}
+
+type CreateServiceReqType string
+
+const (
+	CreateServiceReqTypeFtp    CreateServiceReqType = "ftp"
+	CreateServiceReqTypeSSH    CreateServiceReqType = "ssh"
+	CreateServiceReqTypeWinrm  CreateServiceReqType = "winrm"
+	CreateServiceReqTypePing   CreateServiceReqType = "ping"
+	CreateServiceReqTypeHTTP   CreateServiceReqType = "http"
+	CreateServiceReqTypeLdap   CreateServiceReqType = "ldap"
+	CreateServiceReqTypeDNS    CreateServiceReqType = "dns"
+	CreateServiceReqTypeSmb    CreateServiceReqType = "smb"
+	CreateServiceReqTypeImap   CreateServiceReqType = "imap"
+	CreateServiceReqTypeSQL    CreateServiceReqType = "sql"
+	CreateServiceReqTypeCaldav CreateServiceReqType = "caldav"
+)
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CreateServiceReqType) MarshalText() ([]byte, error) {
+	switch s {
+	case CreateServiceReqTypeFtp:
+		return []byte(s), nil
+	case CreateServiceReqTypeSSH:
+		return []byte(s), nil
+	case CreateServiceReqTypeWinrm:
+		return []byte(s), nil
+	case CreateServiceReqTypePing:
+		return []byte(s), nil
+	case CreateServiceReqTypeHTTP:
+		return []byte(s), nil
+	case CreateServiceReqTypeLdap:
+		return []byte(s), nil
+	case CreateServiceReqTypeDNS:
+		return []byte(s), nil
+	case CreateServiceReqTypeSmb:
+		return []byte(s), nil
+	case CreateServiceReqTypeImap:
+		return []byte(s), nil
+	case CreateServiceReqTypeSQL:
+		return []byte(s), nil
+	case CreateServiceReqTypeCaldav:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CreateServiceReqType) UnmarshalText(data []byte) error {
+	switch CreateServiceReqType(data) {
+	case CreateServiceReqTypeFtp:
+		*s = CreateServiceReqTypeFtp
+		return nil
+	case CreateServiceReqTypeSSH:
+		*s = CreateServiceReqTypeSSH
+		return nil
+	case CreateServiceReqTypeWinrm:
+		*s = CreateServiceReqTypeWinrm
+		return nil
+	case CreateServiceReqTypePing:
+		*s = CreateServiceReqTypePing
+		return nil
+	case CreateServiceReqTypeHTTP:
+		*s = CreateServiceReqTypeHTTP
+		return nil
+	case CreateServiceReqTypeLdap:
+		*s = CreateServiceReqTypeLdap
+		return nil
+	case CreateServiceReqTypeDNS:
+		*s = CreateServiceReqTypeDNS
+		return nil
+	case CreateServiceReqTypeSmb:
+		*s = CreateServiceReqTypeSmb
+		return nil
+	case CreateServiceReqTypeImap:
+		*s = CreateServiceReqTypeImap
+		return nil
+	case CreateServiceReqTypeSQL:
+		*s = CreateServiceReqTypeSQL
+		return nil
+	case CreateServiceReqTypeCaldav:
+		*s = CreateServiceReqTypeCaldav
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 type CreateTeamReq struct {
@@ -2470,6 +2710,7 @@ type HostHostservicesList struct {
 	PointBoost  int     `json:"point_boost"`
 	RoundUnits  int     `json:"round_units"`
 	RoundDelay  int     `json:"round_delay"`
+	ServiceID   string  `json:"service_id"`
 	HostID      string  `json:"host_id"`
 	TeamID      string  `json:"team_id"`
 }
@@ -2517,6 +2758,11 @@ func (s *HostHostservicesList) GetRoundUnits() int {
 // GetRoundDelay returns the value of RoundDelay.
 func (s *HostHostservicesList) GetRoundDelay() int {
 	return s.RoundDelay
+}
+
+// GetServiceID returns the value of ServiceID.
+func (s *HostHostservicesList) GetServiceID() string {
+	return s.ServiceID
 }
 
 // GetHostID returns the value of HostID.
@@ -2572,6 +2818,11 @@ func (s *HostHostservicesList) SetRoundUnits(val int) {
 // SetRoundDelay sets the value of RoundDelay.
 func (s *HostHostservicesList) SetRoundDelay(val int) {
 	s.RoundDelay = val
+}
+
+// SetServiceID sets the value of ServiceID.
+func (s *HostHostservicesList) SetServiceID(val string) {
+	s.ServiceID = val
 }
 
 // SetHostID sets the value of HostID.
@@ -2818,6 +3069,7 @@ type HostServiceCreate struct {
 	PointBoost  int     `json:"point_boost"`
 	RoundUnits  int     `json:"round_units"`
 	RoundDelay  int     `json:"round_delay"`
+	ServiceID   string  `json:"service_id"`
 	HostID      string  `json:"host_id"`
 	TeamID      string  `json:"team_id"`
 }
@@ -2865,6 +3117,11 @@ func (s *HostServiceCreate) GetRoundUnits() int {
 // GetRoundDelay returns the value of RoundDelay.
 func (s *HostServiceCreate) GetRoundDelay() int {
 	return s.RoundDelay
+}
+
+// GetServiceID returns the value of ServiceID.
+func (s *HostServiceCreate) GetServiceID() string {
+	return s.ServiceID
 }
 
 // GetHostID returns the value of HostID.
@@ -2920,6 +3177,11 @@ func (s *HostServiceCreate) SetRoundUnits(val int) {
 // SetRoundDelay sets the value of RoundDelay.
 func (s *HostServiceCreate) SetRoundDelay(val int) {
 	s.RoundDelay = val
+}
+
+// SetServiceID sets the value of ServiceID.
+func (s *HostServiceCreate) SetServiceID(val string) {
+	s.ServiceID = val
 }
 
 // SetHostID sets the value of HostID.
@@ -3006,6 +3268,7 @@ type HostServiceList struct {
 	PointBoost  int     `json:"point_boost"`
 	RoundUnits  int     `json:"round_units"`
 	RoundDelay  int     `json:"round_delay"`
+	ServiceID   string  `json:"service_id"`
 	HostID      string  `json:"host_id"`
 	TeamID      string  `json:"team_id"`
 }
@@ -3053,6 +3316,11 @@ func (s *HostServiceList) GetRoundUnits() int {
 // GetRoundDelay returns the value of RoundDelay.
 func (s *HostServiceList) GetRoundDelay() int {
 	return s.RoundDelay
+}
+
+// GetServiceID returns the value of ServiceID.
+func (s *HostServiceList) GetServiceID() string {
+	return s.ServiceID
 }
 
 // GetHostID returns the value of HostID.
@@ -3108,6 +3376,11 @@ func (s *HostServiceList) SetRoundUnits(val int) {
 // SetRoundDelay sets the value of RoundDelay.
 func (s *HostServiceList) SetRoundDelay(val int) {
 	s.RoundDelay = val
+}
+
+// SetServiceID sets the value of ServiceID.
+func (s *HostServiceList) SetServiceID(val string) {
+	s.ServiceID = val
 }
 
 // SetHostID sets the value of HostID.
@@ -3240,6 +3513,7 @@ type HostServiceRead struct {
 	PointBoost  int     `json:"point_boost"`
 	RoundUnits  int     `json:"round_units"`
 	RoundDelay  int     `json:"round_delay"`
+	ServiceID   string  `json:"service_id"`
 	HostID      string  `json:"host_id"`
 	TeamID      string  `json:"team_id"`
 }
@@ -3287,6 +3561,11 @@ func (s *HostServiceRead) GetRoundUnits() int {
 // GetRoundDelay returns the value of RoundDelay.
 func (s *HostServiceRead) GetRoundDelay() int {
 	return s.RoundDelay
+}
+
+// GetServiceID returns the value of ServiceID.
+func (s *HostServiceRead) GetServiceID() string {
+	return s.ServiceID
 }
 
 // GetHostID returns the value of HostID.
@@ -3344,6 +3623,11 @@ func (s *HostServiceRead) SetRoundDelay(val int) {
 	s.RoundDelay = val
 }
 
+// SetServiceID sets the value of ServiceID.
+func (s *HostServiceRead) SetServiceID(val string) {
+	s.ServiceID = val
+}
+
 // SetHostID sets the value of HostID.
 func (s *HostServiceRead) SetHostID(val string) {
 	s.HostID = val
@@ -3355,6 +3639,176 @@ func (s *HostServiceRead) SetTeamID(val string) {
 }
 
 func (*HostServiceRead) readHostServiceRes() {}
+
+// Ref: #/components/schemas/HostService_ServiceRead
+type HostServiceServiceRead struct {
+	ID            string                     `json:"id"`
+	Name          string                     `json:"name"`
+	DisplayName   string                     `json:"display_name"`
+	Pause         OptBool                    `json:"pause"`
+	Hidden        OptBool                    `json:"hidden"`
+	Type          HostServiceServiceReadType `json:"type"`
+	CompetitionID string                     `json:"competition_id"`
+}
+
+// GetID returns the value of ID.
+func (s *HostServiceServiceRead) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *HostServiceServiceRead) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *HostServiceServiceRead) GetDisplayName() string {
+	return s.DisplayName
+}
+
+// GetPause returns the value of Pause.
+func (s *HostServiceServiceRead) GetPause() OptBool {
+	return s.Pause
+}
+
+// GetHidden returns the value of Hidden.
+func (s *HostServiceServiceRead) GetHidden() OptBool {
+	return s.Hidden
+}
+
+// GetType returns the value of Type.
+func (s *HostServiceServiceRead) GetType() HostServiceServiceReadType {
+	return s.Type
+}
+
+// GetCompetitionID returns the value of CompetitionID.
+func (s *HostServiceServiceRead) GetCompetitionID() string {
+	return s.CompetitionID
+}
+
+// SetID sets the value of ID.
+func (s *HostServiceServiceRead) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *HostServiceServiceRead) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *HostServiceServiceRead) SetDisplayName(val string) {
+	s.DisplayName = val
+}
+
+// SetPause sets the value of Pause.
+func (s *HostServiceServiceRead) SetPause(val OptBool) {
+	s.Pause = val
+}
+
+// SetHidden sets the value of Hidden.
+func (s *HostServiceServiceRead) SetHidden(val OptBool) {
+	s.Hidden = val
+}
+
+// SetType sets the value of Type.
+func (s *HostServiceServiceRead) SetType(val HostServiceServiceReadType) {
+	s.Type = val
+}
+
+// SetCompetitionID sets the value of CompetitionID.
+func (s *HostServiceServiceRead) SetCompetitionID(val string) {
+	s.CompetitionID = val
+}
+
+func (*HostServiceServiceRead) readHostServiceServiceRes() {}
+
+type HostServiceServiceReadType string
+
+const (
+	HostServiceServiceReadTypeFtp    HostServiceServiceReadType = "ftp"
+	HostServiceServiceReadTypeSSH    HostServiceServiceReadType = "ssh"
+	HostServiceServiceReadTypeWinrm  HostServiceServiceReadType = "winrm"
+	HostServiceServiceReadTypePing   HostServiceServiceReadType = "ping"
+	HostServiceServiceReadTypeHTTP   HostServiceServiceReadType = "http"
+	HostServiceServiceReadTypeLdap   HostServiceServiceReadType = "ldap"
+	HostServiceServiceReadTypeDNS    HostServiceServiceReadType = "dns"
+	HostServiceServiceReadTypeSmb    HostServiceServiceReadType = "smb"
+	HostServiceServiceReadTypeImap   HostServiceServiceReadType = "imap"
+	HostServiceServiceReadTypeSQL    HostServiceServiceReadType = "sql"
+	HostServiceServiceReadTypeCaldav HostServiceServiceReadType = "caldav"
+)
+
+// MarshalText implements encoding.TextMarshaler.
+func (s HostServiceServiceReadType) MarshalText() ([]byte, error) {
+	switch s {
+	case HostServiceServiceReadTypeFtp:
+		return []byte(s), nil
+	case HostServiceServiceReadTypeSSH:
+		return []byte(s), nil
+	case HostServiceServiceReadTypeWinrm:
+		return []byte(s), nil
+	case HostServiceServiceReadTypePing:
+		return []byte(s), nil
+	case HostServiceServiceReadTypeHTTP:
+		return []byte(s), nil
+	case HostServiceServiceReadTypeLdap:
+		return []byte(s), nil
+	case HostServiceServiceReadTypeDNS:
+		return []byte(s), nil
+	case HostServiceServiceReadTypeSmb:
+		return []byte(s), nil
+	case HostServiceServiceReadTypeImap:
+		return []byte(s), nil
+	case HostServiceServiceReadTypeSQL:
+		return []byte(s), nil
+	case HostServiceServiceReadTypeCaldav:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *HostServiceServiceReadType) UnmarshalText(data []byte) error {
+	switch HostServiceServiceReadType(data) {
+	case HostServiceServiceReadTypeFtp:
+		*s = HostServiceServiceReadTypeFtp
+		return nil
+	case HostServiceServiceReadTypeSSH:
+		*s = HostServiceServiceReadTypeSSH
+		return nil
+	case HostServiceServiceReadTypeWinrm:
+		*s = HostServiceServiceReadTypeWinrm
+		return nil
+	case HostServiceServiceReadTypePing:
+		*s = HostServiceServiceReadTypePing
+		return nil
+	case HostServiceServiceReadTypeHTTP:
+		*s = HostServiceServiceReadTypeHTTP
+		return nil
+	case HostServiceServiceReadTypeLdap:
+		*s = HostServiceServiceReadTypeLdap
+		return nil
+	case HostServiceServiceReadTypeDNS:
+		*s = HostServiceServiceReadTypeDNS
+		return nil
+	case HostServiceServiceReadTypeSmb:
+		*s = HostServiceServiceReadTypeSmb
+		return nil
+	case HostServiceServiceReadTypeImap:
+		*s = HostServiceServiceReadTypeImap
+		return nil
+	case HostServiceServiceReadTypeSQL:
+		*s = HostServiceServiceReadTypeSQL
+		return nil
+	case HostServiceServiceReadTypeCaldav:
+		*s = HostServiceServiceReadTypeCaldav
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
 
 // Ref: #/components/schemas/HostService_TeamRead
 type HostServiceTeamRead struct {
@@ -3450,6 +3904,7 @@ type HostServiceUpdate struct {
 	PointBoost  int     `json:"point_boost"`
 	RoundUnits  int     `json:"round_units"`
 	RoundDelay  int     `json:"round_delay"`
+	ServiceID   string  `json:"service_id"`
 	HostID      string  `json:"host_id"`
 	TeamID      string  `json:"team_id"`
 }
@@ -3497,6 +3952,11 @@ func (s *HostServiceUpdate) GetRoundUnits() int {
 // GetRoundDelay returns the value of RoundDelay.
 func (s *HostServiceUpdate) GetRoundDelay() int {
 	return s.RoundDelay
+}
+
+// GetServiceID returns the value of ServiceID.
+func (s *HostServiceUpdate) GetServiceID() string {
+	return s.ServiceID
 }
 
 // GetHostID returns the value of HostID.
@@ -3552,6 +4012,11 @@ func (s *HostServiceUpdate) SetRoundUnits(val int) {
 // SetRoundDelay sets the value of RoundDelay.
 func (s *HostServiceUpdate) SetRoundDelay(val int) {
 	s.RoundDelay = val
+}
+
+// SetServiceID sets the value of ServiceID.
+func (s *HostServiceUpdate) SetServiceID(val string) {
+	s.ServiceID = val
 }
 
 // SetHostID sets the value of HostID.
@@ -3769,6 +4234,10 @@ func (*ListRoundChecksOKApplicationJSON) listRoundChecksRes() {}
 type ListRoundOKApplicationJSON []RoundList
 
 func (*ListRoundOKApplicationJSON) listRoundRes() {}
+
+type ListServiceHostservicesOKApplicationJSON []ServiceHostservicesList
+
+func (*ListServiceHostservicesOKApplicationJSON) listServiceHostservicesRes() {}
 
 type ListServiceOKApplicationJSON []ServiceList
 
@@ -4024,6 +4493,52 @@ func (o OptUpdatePropertyReqStatus) Or(d UpdatePropertyReqStatus) UpdateProperty
 	return d
 }
 
+// NewOptUpdateServiceReqType returns new OptUpdateServiceReqType with value set to v.
+func NewOptUpdateServiceReqType(v UpdateServiceReqType) OptUpdateServiceReqType {
+	return OptUpdateServiceReqType{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUpdateServiceReqType is optional UpdateServiceReqType.
+type OptUpdateServiceReqType struct {
+	Value UpdateServiceReqType
+	Set   bool
+}
+
+// IsSet returns true if OptUpdateServiceReqType was set.
+func (o OptUpdateServiceReqType) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUpdateServiceReqType) Reset() {
+	var v UpdateServiceReqType
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUpdateServiceReqType) SetTo(v UpdateServiceReqType) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUpdateServiceReqType) Get() (v UpdateServiceReqType, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUpdateServiceReqType) Or(d UpdateServiceReqType) UpdateServiceReqType {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // Ref: #/components/schemas/PropertyCreate
 type PropertyCreate struct {
 	ID            string               `json:"id"`
@@ -4146,6 +4661,7 @@ type PropertyHostserviceRead struct {
 	PointBoost  int     `json:"point_boost"`
 	RoundUnits  int     `json:"round_units"`
 	RoundDelay  int     `json:"round_delay"`
+	ServiceID   string  `json:"service_id"`
 	HostID      string  `json:"host_id"`
 	TeamID      string  `json:"team_id"`
 }
@@ -4193,6 +4709,11 @@ func (s *PropertyHostserviceRead) GetRoundUnits() int {
 // GetRoundDelay returns the value of RoundDelay.
 func (s *PropertyHostserviceRead) GetRoundDelay() int {
 	return s.RoundDelay
+}
+
+// GetServiceID returns the value of ServiceID.
+func (s *PropertyHostserviceRead) GetServiceID() string {
+	return s.ServiceID
 }
 
 // GetHostID returns the value of HostID.
@@ -4248,6 +4769,11 @@ func (s *PropertyHostserviceRead) SetRoundUnits(val int) {
 // SetRoundDelay sets the value of RoundDelay.
 func (s *PropertyHostserviceRead) SetRoundDelay(val int) {
 	s.RoundDelay = val
+}
+
+// SetServiceID sets the value of ServiceID.
+func (s *PropertyHostserviceRead) SetServiceID(val string) {
+	s.ServiceID = val
 }
 
 // SetHostID sets the value of HostID.
@@ -4745,6 +5271,7 @@ func (*R400) listPropertyRes()              {}
 func (*R400) listReportRes()                {}
 func (*R400) listRoundChecksRes()           {}
 func (*R400) listRoundRes()                 {}
+func (*R400) listServiceHostservicesRes()   {}
 func (*R400) listServiceRes()               {}
 func (*R400) listTeamChecksRes()            {}
 func (*R400) listTeamHostsRes()             {}
@@ -4759,6 +5286,7 @@ func (*R400) readCompetitionRes()           {}
 func (*R400) readHostRes()                  {}
 func (*R400) readHostServiceHostRes()       {}
 func (*R400) readHostServiceRes()           {}
+func (*R400) readHostServiceServiceRes()    {}
 func (*R400) readHostServiceTeamRes()       {}
 func (*R400) readHostTeamRes()              {}
 func (*R400) readPropertyHostserviceRes()   {}
@@ -4842,6 +5370,7 @@ func (*R404) listPropertyRes()              {}
 func (*R404) listReportRes()                {}
 func (*R404) listRoundChecksRes()           {}
 func (*R404) listRoundRes()                 {}
+func (*R404) listServiceHostservicesRes()   {}
 func (*R404) listServiceRes()               {}
 func (*R404) listTeamChecksRes()            {}
 func (*R404) listTeamHostsRes()             {}
@@ -4856,6 +5385,7 @@ func (*R404) readCompetitionRes()           {}
 func (*R404) readHostRes()                  {}
 func (*R404) readHostServiceHostRes()       {}
 func (*R404) readHostServiceRes()           {}
+func (*R404) readHostServiceServiceRes()    {}
 func (*R404) readHostServiceTeamRes()       {}
 func (*R404) readHostTeamRes()              {}
 func (*R404) readPropertyHostserviceRes()   {}
@@ -4948,6 +5478,7 @@ func (*R409) listPropertyRes()              {}
 func (*R409) listReportRes()                {}
 func (*R409) listRoundChecksRes()           {}
 func (*R409) listRoundRes()                 {}
+func (*R409) listServiceHostservicesRes()   {}
 func (*R409) listServiceRes()               {}
 func (*R409) listTeamChecksRes()            {}
 func (*R409) listTeamHostsRes()             {}
@@ -4962,6 +5493,7 @@ func (*R409) readCompetitionRes()           {}
 func (*R409) readHostRes()                  {}
 func (*R409) readHostServiceHostRes()       {}
 func (*R409) readHostServiceRes()           {}
+func (*R409) readHostServiceServiceRes()    {}
 func (*R409) readHostServiceTeamRes()       {}
 func (*R409) readHostTeamRes()              {}
 func (*R409) readPropertyHostserviceRes()   {}
@@ -5054,6 +5586,7 @@ func (*R500) listPropertyRes()              {}
 func (*R500) listReportRes()                {}
 func (*R500) listRoundChecksRes()           {}
 func (*R500) listRoundRes()                 {}
+func (*R500) listServiceHostservicesRes()   {}
 func (*R500) listServiceRes()               {}
 func (*R500) listTeamChecksRes()            {}
 func (*R500) listTeamHostsRes()             {}
@@ -5068,6 +5601,7 @@ func (*R500) readCompetitionRes()           {}
 func (*R500) readHostRes()                  {}
 func (*R500) readHostServiceHostRes()       {}
 func (*R500) readHostServiceRes()           {}
+func (*R500) readHostServiceServiceRes()    {}
 func (*R500) readHostServiceTeamRes()       {}
 func (*R500) readHostTeamRes()              {}
 func (*R500) readPropertyHostserviceRes()   {}
@@ -6039,12 +6573,13 @@ func (*ServiceCompetitionRead) readServiceCompetitionRes() {}
 
 // Ref: #/components/schemas/ServiceCreate
 type ServiceCreate struct {
-	ID            string  `json:"id"`
-	Name          string  `json:"name"`
-	DisplayName   string  `json:"display_name"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	DisplayName   string            `json:"display_name"`
+	Pause         OptBool           `json:"pause"`
+	Hidden        OptBool           `json:"hidden"`
+	Type          ServiceCreateType `json:"type"`
+	CompetitionID string            `json:"competition_id"`
 }
 
 // GetID returns the value of ID.
@@ -6070,6 +6605,11 @@ func (s *ServiceCreate) GetPause() OptBool {
 // GetHidden returns the value of Hidden.
 func (s *ServiceCreate) GetHidden() OptBool {
 	return s.Hidden
+}
+
+// GetType returns the value of Type.
+func (s *ServiceCreate) GetType() ServiceCreateType {
+	return s.Type
 }
 
 // GetCompetitionID returns the value of CompetitionID.
@@ -6102,6 +6642,11 @@ func (s *ServiceCreate) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
+// SetType sets the value of Type.
+func (s *ServiceCreate) SetType(val ServiceCreateType) {
+	s.Type = val
+}
+
 // SetCompetitionID sets the value of CompetitionID.
 func (s *ServiceCreate) SetCompetitionID(val string) {
 	s.CompetitionID = val
@@ -6109,14 +6654,238 @@ func (s *ServiceCreate) SetCompetitionID(val string) {
 
 func (*ServiceCreate) createServiceRes() {}
 
+type ServiceCreateType string
+
+const (
+	ServiceCreateTypeFtp    ServiceCreateType = "ftp"
+	ServiceCreateTypeSSH    ServiceCreateType = "ssh"
+	ServiceCreateTypeWinrm  ServiceCreateType = "winrm"
+	ServiceCreateTypePing   ServiceCreateType = "ping"
+	ServiceCreateTypeHTTP   ServiceCreateType = "http"
+	ServiceCreateTypeLdap   ServiceCreateType = "ldap"
+	ServiceCreateTypeDNS    ServiceCreateType = "dns"
+	ServiceCreateTypeSmb    ServiceCreateType = "smb"
+	ServiceCreateTypeImap   ServiceCreateType = "imap"
+	ServiceCreateTypeSQL    ServiceCreateType = "sql"
+	ServiceCreateTypeCaldav ServiceCreateType = "caldav"
+)
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ServiceCreateType) MarshalText() ([]byte, error) {
+	switch s {
+	case ServiceCreateTypeFtp:
+		return []byte(s), nil
+	case ServiceCreateTypeSSH:
+		return []byte(s), nil
+	case ServiceCreateTypeWinrm:
+		return []byte(s), nil
+	case ServiceCreateTypePing:
+		return []byte(s), nil
+	case ServiceCreateTypeHTTP:
+		return []byte(s), nil
+	case ServiceCreateTypeLdap:
+		return []byte(s), nil
+	case ServiceCreateTypeDNS:
+		return []byte(s), nil
+	case ServiceCreateTypeSmb:
+		return []byte(s), nil
+	case ServiceCreateTypeImap:
+		return []byte(s), nil
+	case ServiceCreateTypeSQL:
+		return []byte(s), nil
+	case ServiceCreateTypeCaldav:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ServiceCreateType) UnmarshalText(data []byte) error {
+	switch ServiceCreateType(data) {
+	case ServiceCreateTypeFtp:
+		*s = ServiceCreateTypeFtp
+		return nil
+	case ServiceCreateTypeSSH:
+		*s = ServiceCreateTypeSSH
+		return nil
+	case ServiceCreateTypeWinrm:
+		*s = ServiceCreateTypeWinrm
+		return nil
+	case ServiceCreateTypePing:
+		*s = ServiceCreateTypePing
+		return nil
+	case ServiceCreateTypeHTTP:
+		*s = ServiceCreateTypeHTTP
+		return nil
+	case ServiceCreateTypeLdap:
+		*s = ServiceCreateTypeLdap
+		return nil
+	case ServiceCreateTypeDNS:
+		*s = ServiceCreateTypeDNS
+		return nil
+	case ServiceCreateTypeSmb:
+		*s = ServiceCreateTypeSmb
+		return nil
+	case ServiceCreateTypeImap:
+		*s = ServiceCreateTypeImap
+		return nil
+	case ServiceCreateTypeSQL:
+		*s = ServiceCreateTypeSQL
+		return nil
+	case ServiceCreateTypeCaldav:
+		*s = ServiceCreateTypeCaldav
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/Service_HostservicesList
+type ServiceHostservicesList struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	DisplayName string  `json:"display_name"`
+	Pause       OptBool `json:"pause"`
+	Hidden      OptBool `json:"hidden"`
+	Weight      int     `json:"weight"`
+	PointBoost  int     `json:"point_boost"`
+	RoundUnits  int     `json:"round_units"`
+	RoundDelay  int     `json:"round_delay"`
+	ServiceID   string  `json:"service_id"`
+	HostID      string  `json:"host_id"`
+	TeamID      string  `json:"team_id"`
+}
+
+// GetID returns the value of ID.
+func (s *ServiceHostservicesList) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *ServiceHostservicesList) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *ServiceHostservicesList) GetDisplayName() string {
+	return s.DisplayName
+}
+
+// GetPause returns the value of Pause.
+func (s *ServiceHostservicesList) GetPause() OptBool {
+	return s.Pause
+}
+
+// GetHidden returns the value of Hidden.
+func (s *ServiceHostservicesList) GetHidden() OptBool {
+	return s.Hidden
+}
+
+// GetWeight returns the value of Weight.
+func (s *ServiceHostservicesList) GetWeight() int {
+	return s.Weight
+}
+
+// GetPointBoost returns the value of PointBoost.
+func (s *ServiceHostservicesList) GetPointBoost() int {
+	return s.PointBoost
+}
+
+// GetRoundUnits returns the value of RoundUnits.
+func (s *ServiceHostservicesList) GetRoundUnits() int {
+	return s.RoundUnits
+}
+
+// GetRoundDelay returns the value of RoundDelay.
+func (s *ServiceHostservicesList) GetRoundDelay() int {
+	return s.RoundDelay
+}
+
+// GetServiceID returns the value of ServiceID.
+func (s *ServiceHostservicesList) GetServiceID() string {
+	return s.ServiceID
+}
+
+// GetHostID returns the value of HostID.
+func (s *ServiceHostservicesList) GetHostID() string {
+	return s.HostID
+}
+
+// GetTeamID returns the value of TeamID.
+func (s *ServiceHostservicesList) GetTeamID() string {
+	return s.TeamID
+}
+
+// SetID sets the value of ID.
+func (s *ServiceHostservicesList) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *ServiceHostservicesList) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *ServiceHostservicesList) SetDisplayName(val string) {
+	s.DisplayName = val
+}
+
+// SetPause sets the value of Pause.
+func (s *ServiceHostservicesList) SetPause(val OptBool) {
+	s.Pause = val
+}
+
+// SetHidden sets the value of Hidden.
+func (s *ServiceHostservicesList) SetHidden(val OptBool) {
+	s.Hidden = val
+}
+
+// SetWeight sets the value of Weight.
+func (s *ServiceHostservicesList) SetWeight(val int) {
+	s.Weight = val
+}
+
+// SetPointBoost sets the value of PointBoost.
+func (s *ServiceHostservicesList) SetPointBoost(val int) {
+	s.PointBoost = val
+}
+
+// SetRoundUnits sets the value of RoundUnits.
+func (s *ServiceHostservicesList) SetRoundUnits(val int) {
+	s.RoundUnits = val
+}
+
+// SetRoundDelay sets the value of RoundDelay.
+func (s *ServiceHostservicesList) SetRoundDelay(val int) {
+	s.RoundDelay = val
+}
+
+// SetServiceID sets the value of ServiceID.
+func (s *ServiceHostservicesList) SetServiceID(val string) {
+	s.ServiceID = val
+}
+
+// SetHostID sets the value of HostID.
+func (s *ServiceHostservicesList) SetHostID(val string) {
+	s.HostID = val
+}
+
+// SetTeamID sets the value of TeamID.
+func (s *ServiceHostservicesList) SetTeamID(val string) {
+	s.TeamID = val
+}
+
 // Ref: #/components/schemas/ServiceList
 type ServiceList struct {
-	ID            string  `json:"id"`
-	Name          string  `json:"name"`
-	DisplayName   string  `json:"display_name"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
+	ID            string          `json:"id"`
+	Name          string          `json:"name"`
+	DisplayName   string          `json:"display_name"`
+	Pause         OptBool         `json:"pause"`
+	Hidden        OptBool         `json:"hidden"`
+	Type          ServiceListType `json:"type"`
+	CompetitionID string          `json:"competition_id"`
 }
 
 // GetID returns the value of ID.
@@ -6142,6 +6911,11 @@ func (s *ServiceList) GetPause() OptBool {
 // GetHidden returns the value of Hidden.
 func (s *ServiceList) GetHidden() OptBool {
 	return s.Hidden
+}
+
+// GetType returns the value of Type.
+func (s *ServiceList) GetType() ServiceListType {
+	return s.Type
 }
 
 // GetCompetitionID returns the value of CompetitionID.
@@ -6174,19 +6948,112 @@ func (s *ServiceList) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
+// SetType sets the value of Type.
+func (s *ServiceList) SetType(val ServiceListType) {
+	s.Type = val
+}
+
 // SetCompetitionID sets the value of CompetitionID.
 func (s *ServiceList) SetCompetitionID(val string) {
 	s.CompetitionID = val
 }
 
+type ServiceListType string
+
+const (
+	ServiceListTypeFtp    ServiceListType = "ftp"
+	ServiceListTypeSSH    ServiceListType = "ssh"
+	ServiceListTypeWinrm  ServiceListType = "winrm"
+	ServiceListTypePing   ServiceListType = "ping"
+	ServiceListTypeHTTP   ServiceListType = "http"
+	ServiceListTypeLdap   ServiceListType = "ldap"
+	ServiceListTypeDNS    ServiceListType = "dns"
+	ServiceListTypeSmb    ServiceListType = "smb"
+	ServiceListTypeImap   ServiceListType = "imap"
+	ServiceListTypeSQL    ServiceListType = "sql"
+	ServiceListTypeCaldav ServiceListType = "caldav"
+)
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ServiceListType) MarshalText() ([]byte, error) {
+	switch s {
+	case ServiceListTypeFtp:
+		return []byte(s), nil
+	case ServiceListTypeSSH:
+		return []byte(s), nil
+	case ServiceListTypeWinrm:
+		return []byte(s), nil
+	case ServiceListTypePing:
+		return []byte(s), nil
+	case ServiceListTypeHTTP:
+		return []byte(s), nil
+	case ServiceListTypeLdap:
+		return []byte(s), nil
+	case ServiceListTypeDNS:
+		return []byte(s), nil
+	case ServiceListTypeSmb:
+		return []byte(s), nil
+	case ServiceListTypeImap:
+		return []byte(s), nil
+	case ServiceListTypeSQL:
+		return []byte(s), nil
+	case ServiceListTypeCaldav:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ServiceListType) UnmarshalText(data []byte) error {
+	switch ServiceListType(data) {
+	case ServiceListTypeFtp:
+		*s = ServiceListTypeFtp
+		return nil
+	case ServiceListTypeSSH:
+		*s = ServiceListTypeSSH
+		return nil
+	case ServiceListTypeWinrm:
+		*s = ServiceListTypeWinrm
+		return nil
+	case ServiceListTypePing:
+		*s = ServiceListTypePing
+		return nil
+	case ServiceListTypeHTTP:
+		*s = ServiceListTypeHTTP
+		return nil
+	case ServiceListTypeLdap:
+		*s = ServiceListTypeLdap
+		return nil
+	case ServiceListTypeDNS:
+		*s = ServiceListTypeDNS
+		return nil
+	case ServiceListTypeSmb:
+		*s = ServiceListTypeSmb
+		return nil
+	case ServiceListTypeImap:
+		*s = ServiceListTypeImap
+		return nil
+	case ServiceListTypeSQL:
+		*s = ServiceListTypeSQL
+		return nil
+	case ServiceListTypeCaldav:
+		*s = ServiceListTypeCaldav
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 // Ref: #/components/schemas/ServiceRead
 type ServiceRead struct {
-	ID            string  `json:"id"`
-	Name          string  `json:"name"`
-	DisplayName   string  `json:"display_name"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
+	ID            string          `json:"id"`
+	Name          string          `json:"name"`
+	DisplayName   string          `json:"display_name"`
+	Pause         OptBool         `json:"pause"`
+	Hidden        OptBool         `json:"hidden"`
+	Type          ServiceReadType `json:"type"`
+	CompetitionID string          `json:"competition_id"`
 }
 
 // GetID returns the value of ID.
@@ -6212,6 +7079,11 @@ func (s *ServiceRead) GetPause() OptBool {
 // GetHidden returns the value of Hidden.
 func (s *ServiceRead) GetHidden() OptBool {
 	return s.Hidden
+}
+
+// GetType returns the value of Type.
+func (s *ServiceRead) GetType() ServiceReadType {
+	return s.Type
 }
 
 // GetCompetitionID returns the value of CompetitionID.
@@ -6244,6 +7116,11 @@ func (s *ServiceRead) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
+// SetType sets the value of Type.
+func (s *ServiceRead) SetType(val ServiceReadType) {
+	s.Type = val
+}
+
 // SetCompetitionID sets the value of CompetitionID.
 func (s *ServiceRead) SetCompetitionID(val string) {
 	s.CompetitionID = val
@@ -6251,14 +7128,102 @@ func (s *ServiceRead) SetCompetitionID(val string) {
 
 func (*ServiceRead) readServiceRes() {}
 
+type ServiceReadType string
+
+const (
+	ServiceReadTypeFtp    ServiceReadType = "ftp"
+	ServiceReadTypeSSH    ServiceReadType = "ssh"
+	ServiceReadTypeWinrm  ServiceReadType = "winrm"
+	ServiceReadTypePing   ServiceReadType = "ping"
+	ServiceReadTypeHTTP   ServiceReadType = "http"
+	ServiceReadTypeLdap   ServiceReadType = "ldap"
+	ServiceReadTypeDNS    ServiceReadType = "dns"
+	ServiceReadTypeSmb    ServiceReadType = "smb"
+	ServiceReadTypeImap   ServiceReadType = "imap"
+	ServiceReadTypeSQL    ServiceReadType = "sql"
+	ServiceReadTypeCaldav ServiceReadType = "caldav"
+)
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ServiceReadType) MarshalText() ([]byte, error) {
+	switch s {
+	case ServiceReadTypeFtp:
+		return []byte(s), nil
+	case ServiceReadTypeSSH:
+		return []byte(s), nil
+	case ServiceReadTypeWinrm:
+		return []byte(s), nil
+	case ServiceReadTypePing:
+		return []byte(s), nil
+	case ServiceReadTypeHTTP:
+		return []byte(s), nil
+	case ServiceReadTypeLdap:
+		return []byte(s), nil
+	case ServiceReadTypeDNS:
+		return []byte(s), nil
+	case ServiceReadTypeSmb:
+		return []byte(s), nil
+	case ServiceReadTypeImap:
+		return []byte(s), nil
+	case ServiceReadTypeSQL:
+		return []byte(s), nil
+	case ServiceReadTypeCaldav:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ServiceReadType) UnmarshalText(data []byte) error {
+	switch ServiceReadType(data) {
+	case ServiceReadTypeFtp:
+		*s = ServiceReadTypeFtp
+		return nil
+	case ServiceReadTypeSSH:
+		*s = ServiceReadTypeSSH
+		return nil
+	case ServiceReadTypeWinrm:
+		*s = ServiceReadTypeWinrm
+		return nil
+	case ServiceReadTypePing:
+		*s = ServiceReadTypePing
+		return nil
+	case ServiceReadTypeHTTP:
+		*s = ServiceReadTypeHTTP
+		return nil
+	case ServiceReadTypeLdap:
+		*s = ServiceReadTypeLdap
+		return nil
+	case ServiceReadTypeDNS:
+		*s = ServiceReadTypeDNS
+		return nil
+	case ServiceReadTypeSmb:
+		*s = ServiceReadTypeSmb
+		return nil
+	case ServiceReadTypeImap:
+		*s = ServiceReadTypeImap
+		return nil
+	case ServiceReadTypeSQL:
+		*s = ServiceReadTypeSQL
+		return nil
+	case ServiceReadTypeCaldav:
+		*s = ServiceReadTypeCaldav
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 // Ref: #/components/schemas/ServiceUpdate
 type ServiceUpdate struct {
-	ID            string  `json:"id"`
-	Name          string  `json:"name"`
-	DisplayName   string  `json:"display_name"`
-	Pause         OptBool `json:"pause"`
-	Hidden        OptBool `json:"hidden"`
-	CompetitionID string  `json:"competition_id"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name"`
+	DisplayName   string            `json:"display_name"`
+	Pause         OptBool           `json:"pause"`
+	Hidden        OptBool           `json:"hidden"`
+	Type          ServiceUpdateType `json:"type"`
+	CompetitionID string            `json:"competition_id"`
 }
 
 // GetID returns the value of ID.
@@ -6284,6 +7249,11 @@ func (s *ServiceUpdate) GetPause() OptBool {
 // GetHidden returns the value of Hidden.
 func (s *ServiceUpdate) GetHidden() OptBool {
 	return s.Hidden
+}
+
+// GetType returns the value of Type.
+func (s *ServiceUpdate) GetType() ServiceUpdateType {
+	return s.Type
 }
 
 // GetCompetitionID returns the value of CompetitionID.
@@ -6316,12 +7286,104 @@ func (s *ServiceUpdate) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
+// SetType sets the value of Type.
+func (s *ServiceUpdate) SetType(val ServiceUpdateType) {
+	s.Type = val
+}
+
 // SetCompetitionID sets the value of CompetitionID.
 func (s *ServiceUpdate) SetCompetitionID(val string) {
 	s.CompetitionID = val
 }
 
 func (*ServiceUpdate) updateServiceRes() {}
+
+type ServiceUpdateType string
+
+const (
+	ServiceUpdateTypeFtp    ServiceUpdateType = "ftp"
+	ServiceUpdateTypeSSH    ServiceUpdateType = "ssh"
+	ServiceUpdateTypeWinrm  ServiceUpdateType = "winrm"
+	ServiceUpdateTypePing   ServiceUpdateType = "ping"
+	ServiceUpdateTypeHTTP   ServiceUpdateType = "http"
+	ServiceUpdateTypeLdap   ServiceUpdateType = "ldap"
+	ServiceUpdateTypeDNS    ServiceUpdateType = "dns"
+	ServiceUpdateTypeSmb    ServiceUpdateType = "smb"
+	ServiceUpdateTypeImap   ServiceUpdateType = "imap"
+	ServiceUpdateTypeSQL    ServiceUpdateType = "sql"
+	ServiceUpdateTypeCaldav ServiceUpdateType = "caldav"
+)
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ServiceUpdateType) MarshalText() ([]byte, error) {
+	switch s {
+	case ServiceUpdateTypeFtp:
+		return []byte(s), nil
+	case ServiceUpdateTypeSSH:
+		return []byte(s), nil
+	case ServiceUpdateTypeWinrm:
+		return []byte(s), nil
+	case ServiceUpdateTypePing:
+		return []byte(s), nil
+	case ServiceUpdateTypeHTTP:
+		return []byte(s), nil
+	case ServiceUpdateTypeLdap:
+		return []byte(s), nil
+	case ServiceUpdateTypeDNS:
+		return []byte(s), nil
+	case ServiceUpdateTypeSmb:
+		return []byte(s), nil
+	case ServiceUpdateTypeImap:
+		return []byte(s), nil
+	case ServiceUpdateTypeSQL:
+		return []byte(s), nil
+	case ServiceUpdateTypeCaldav:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ServiceUpdateType) UnmarshalText(data []byte) error {
+	switch ServiceUpdateType(data) {
+	case ServiceUpdateTypeFtp:
+		*s = ServiceUpdateTypeFtp
+		return nil
+	case ServiceUpdateTypeSSH:
+		*s = ServiceUpdateTypeSSH
+		return nil
+	case ServiceUpdateTypeWinrm:
+		*s = ServiceUpdateTypeWinrm
+		return nil
+	case ServiceUpdateTypePing:
+		*s = ServiceUpdateTypePing
+		return nil
+	case ServiceUpdateTypeHTTP:
+		*s = ServiceUpdateTypeHTTP
+		return nil
+	case ServiceUpdateTypeLdap:
+		*s = ServiceUpdateTypeLdap
+		return nil
+	case ServiceUpdateTypeDNS:
+		*s = ServiceUpdateTypeDNS
+		return nil
+	case ServiceUpdateTypeSmb:
+		*s = ServiceUpdateTypeSmb
+		return nil
+	case ServiceUpdateTypeImap:
+		*s = ServiceUpdateTypeImap
+		return nil
+	case ServiceUpdateTypeSQL:
+		*s = ServiceUpdateTypeSQL
+		return nil
+	case ServiceUpdateTypeCaldav:
+		*s = ServiceUpdateTypeCaldav
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
 
 // Ref: #/components/schemas/Team_ChecksList
 type TeamChecksList struct {
@@ -6684,6 +7746,7 @@ type TeamHostservicesList struct {
 	PointBoost  int     `json:"point_boost"`
 	RoundUnits  int     `json:"round_units"`
 	RoundDelay  int     `json:"round_delay"`
+	ServiceID   string  `json:"service_id"`
 	HostID      string  `json:"host_id"`
 	TeamID      string  `json:"team_id"`
 }
@@ -6731,6 +7794,11 @@ func (s *TeamHostservicesList) GetRoundUnits() int {
 // GetRoundDelay returns the value of RoundDelay.
 func (s *TeamHostservicesList) GetRoundDelay() int {
 	return s.RoundDelay
+}
+
+// GetServiceID returns the value of ServiceID.
+func (s *TeamHostservicesList) GetServiceID() string {
+	return s.ServiceID
 }
 
 // GetHostID returns the value of HostID.
@@ -6786,6 +7854,11 @@ func (s *TeamHostservicesList) SetRoundUnits(val int) {
 // SetRoundDelay sets the value of RoundDelay.
 func (s *TeamHostservicesList) SetRoundDelay(val int) {
 	s.RoundDelay = val
+}
+
+// SetServiceID sets the value of ServiceID.
+func (s *TeamHostservicesList) SetServiceID(val string) {
+	s.ServiceID = val
 }
 
 // SetHostID sets the value of HostID.
@@ -7155,16 +8228,14 @@ func (s *TeamUpdate) SetCompetitionID(val string) {
 func (*TeamUpdate) updateTeamRes() {}
 
 type UpdateCheckReq struct {
-	Pause         OptBool   `json:"pause"`
-	Hidden        OptBool   `json:"hidden"`
-	Log           OptString `json:"log"`
-	Error         OptString `json:"error"`
-	Passed        OptBool   `json:"passed"`
-	RoundID       OptString `json:"round_id"`
-	HostServiceID OptString `json:"host_service_id"`
-	Rounds        OptString `json:"rounds"`
-	Hostservice   OptString `json:"hostservice"`
-	Team          OptString `json:"team"`
+	Pause       OptBool   `json:"pause"`
+	Hidden      OptBool   `json:"hidden"`
+	Log         OptString `json:"log"`
+	Error       OptString `json:"error"`
+	Passed      OptBool   `json:"passed"`
+	Rounds      OptString `json:"rounds"`
+	Hostservice OptString `json:"hostservice"`
+	Team        OptString `json:"team"`
 }
 
 // GetPause returns the value of Pause.
@@ -7190,16 +8261,6 @@ func (s *UpdateCheckReq) GetError() OptString {
 // GetPassed returns the value of Passed.
 func (s *UpdateCheckReq) GetPassed() OptBool {
 	return s.Passed
-}
-
-// GetRoundID returns the value of RoundID.
-func (s *UpdateCheckReq) GetRoundID() OptString {
-	return s.RoundID
-}
-
-// GetHostServiceID returns the value of HostServiceID.
-func (s *UpdateCheckReq) GetHostServiceID() OptString {
-	return s.HostServiceID
 }
 
 // GetRounds returns the value of Rounds.
@@ -7240,16 +8301,6 @@ func (s *UpdateCheckReq) SetError(val OptString) {
 // SetPassed sets the value of Passed.
 func (s *UpdateCheckReq) SetPassed(val OptBool) {
 	s.Passed = val
-}
-
-// SetRoundID sets the value of RoundID.
-func (s *UpdateCheckReq) SetRoundID(val OptString) {
-	s.RoundID = val
-}
-
-// SetHostServiceID sets the value of HostServiceID.
-func (s *UpdateCheckReq) SetHostServiceID(val OptString) {
-	s.HostServiceID = val
 }
 
 // SetRounds sets the value of Rounds.
@@ -7469,10 +8520,11 @@ type UpdateHostServiceReq struct {
 	PointBoost  OptInt    `json:"point_boost"`
 	RoundUnits  OptInt    `json:"round_units"`
 	RoundDelay  OptInt    `json:"round_delay"`
-	HostID      OptString `json:"host_id"`
-	Host        OptString `json:"host"`
+	ServiceID   OptString `json:"service_id"`
 	Checks      []string  `json:"checks"`
 	Properties  []string  `json:"properties"`
+	Service     OptString `json:"service"`
+	Host        OptString `json:"host"`
 	Team        OptString `json:"team"`
 }
 
@@ -7516,14 +8568,9 @@ func (s *UpdateHostServiceReq) GetRoundDelay() OptInt {
 	return s.RoundDelay
 }
 
-// GetHostID returns the value of HostID.
-func (s *UpdateHostServiceReq) GetHostID() OptString {
-	return s.HostID
-}
-
-// GetHost returns the value of Host.
-func (s *UpdateHostServiceReq) GetHost() OptString {
-	return s.Host
+// GetServiceID returns the value of ServiceID.
+func (s *UpdateHostServiceReq) GetServiceID() OptString {
+	return s.ServiceID
 }
 
 // GetChecks returns the value of Checks.
@@ -7534,6 +8581,16 @@ func (s *UpdateHostServiceReq) GetChecks() []string {
 // GetProperties returns the value of Properties.
 func (s *UpdateHostServiceReq) GetProperties() []string {
 	return s.Properties
+}
+
+// GetService returns the value of Service.
+func (s *UpdateHostServiceReq) GetService() OptString {
+	return s.Service
+}
+
+// GetHost returns the value of Host.
+func (s *UpdateHostServiceReq) GetHost() OptString {
+	return s.Host
 }
 
 // GetTeam returns the value of Team.
@@ -7581,14 +8638,9 @@ func (s *UpdateHostServiceReq) SetRoundDelay(val OptInt) {
 	s.RoundDelay = val
 }
 
-// SetHostID sets the value of HostID.
-func (s *UpdateHostServiceReq) SetHostID(val OptString) {
-	s.HostID = val
-}
-
-// SetHost sets the value of Host.
-func (s *UpdateHostServiceReq) SetHost(val OptString) {
-	s.Host = val
+// SetServiceID sets the value of ServiceID.
+func (s *UpdateHostServiceReq) SetServiceID(val OptString) {
+	s.ServiceID = val
 }
 
 // SetChecks sets the value of Checks.
@@ -7599,6 +8651,16 @@ func (s *UpdateHostServiceReq) SetChecks(val []string) {
 // SetProperties sets the value of Properties.
 func (s *UpdateHostServiceReq) SetProperties(val []string) {
 	s.Properties = val
+}
+
+// SetService sets the value of Service.
+func (s *UpdateHostServiceReq) SetService(val OptString) {
+	s.Service = val
+}
+
+// SetHost sets the value of Host.
+func (s *UpdateHostServiceReq) SetHost(val OptString) {
+	s.Host = val
 }
 
 // SetTeam sets the value of Team.
@@ -7831,11 +8893,13 @@ func (s *UpdateRoundReq) SetCompetition(val OptString) {
 }
 
 type UpdateServiceReq struct {
-	Name        OptString `json:"name"`
-	DisplayName OptString `json:"display_name"`
-	Pause       OptBool   `json:"pause"`
-	Hidden      OptBool   `json:"hidden"`
-	Competition OptString `json:"competition"`
+	Name         OptString               `json:"name"`
+	DisplayName  OptString               `json:"display_name"`
+	Pause        OptBool                 `json:"pause"`
+	Hidden       OptBool                 `json:"hidden"`
+	Type         OptUpdateServiceReqType `json:"type"`
+	Hostservices []string                `json:"hostservices"`
+	Competition  OptString               `json:"competition"`
 }
 
 // GetName returns the value of Name.
@@ -7856,6 +8920,16 @@ func (s *UpdateServiceReq) GetPause() OptBool {
 // GetHidden returns the value of Hidden.
 func (s *UpdateServiceReq) GetHidden() OptBool {
 	return s.Hidden
+}
+
+// GetType returns the value of Type.
+func (s *UpdateServiceReq) GetType() OptUpdateServiceReqType {
+	return s.Type
+}
+
+// GetHostservices returns the value of Hostservices.
+func (s *UpdateServiceReq) GetHostservices() []string {
+	return s.Hostservices
 }
 
 // GetCompetition returns the value of Competition.
@@ -7883,9 +8957,106 @@ func (s *UpdateServiceReq) SetHidden(val OptBool) {
 	s.Hidden = val
 }
 
+// SetType sets the value of Type.
+func (s *UpdateServiceReq) SetType(val OptUpdateServiceReqType) {
+	s.Type = val
+}
+
+// SetHostservices sets the value of Hostservices.
+func (s *UpdateServiceReq) SetHostservices(val []string) {
+	s.Hostservices = val
+}
+
 // SetCompetition sets the value of Competition.
 func (s *UpdateServiceReq) SetCompetition(val OptString) {
 	s.Competition = val
+}
+
+type UpdateServiceReqType string
+
+const (
+	UpdateServiceReqTypeFtp    UpdateServiceReqType = "ftp"
+	UpdateServiceReqTypeSSH    UpdateServiceReqType = "ssh"
+	UpdateServiceReqTypeWinrm  UpdateServiceReqType = "winrm"
+	UpdateServiceReqTypePing   UpdateServiceReqType = "ping"
+	UpdateServiceReqTypeHTTP   UpdateServiceReqType = "http"
+	UpdateServiceReqTypeLdap   UpdateServiceReqType = "ldap"
+	UpdateServiceReqTypeDNS    UpdateServiceReqType = "dns"
+	UpdateServiceReqTypeSmb    UpdateServiceReqType = "smb"
+	UpdateServiceReqTypeImap   UpdateServiceReqType = "imap"
+	UpdateServiceReqTypeSQL    UpdateServiceReqType = "sql"
+	UpdateServiceReqTypeCaldav UpdateServiceReqType = "caldav"
+)
+
+// MarshalText implements encoding.TextMarshaler.
+func (s UpdateServiceReqType) MarshalText() ([]byte, error) {
+	switch s {
+	case UpdateServiceReqTypeFtp:
+		return []byte(s), nil
+	case UpdateServiceReqTypeSSH:
+		return []byte(s), nil
+	case UpdateServiceReqTypeWinrm:
+		return []byte(s), nil
+	case UpdateServiceReqTypePing:
+		return []byte(s), nil
+	case UpdateServiceReqTypeHTTP:
+		return []byte(s), nil
+	case UpdateServiceReqTypeLdap:
+		return []byte(s), nil
+	case UpdateServiceReqTypeDNS:
+		return []byte(s), nil
+	case UpdateServiceReqTypeSmb:
+		return []byte(s), nil
+	case UpdateServiceReqTypeImap:
+		return []byte(s), nil
+	case UpdateServiceReqTypeSQL:
+		return []byte(s), nil
+	case UpdateServiceReqTypeCaldav:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *UpdateServiceReqType) UnmarshalText(data []byte) error {
+	switch UpdateServiceReqType(data) {
+	case UpdateServiceReqTypeFtp:
+		*s = UpdateServiceReqTypeFtp
+		return nil
+	case UpdateServiceReqTypeSSH:
+		*s = UpdateServiceReqTypeSSH
+		return nil
+	case UpdateServiceReqTypeWinrm:
+		*s = UpdateServiceReqTypeWinrm
+		return nil
+	case UpdateServiceReqTypePing:
+		*s = UpdateServiceReqTypePing
+		return nil
+	case UpdateServiceReqTypeHTTP:
+		*s = UpdateServiceReqTypeHTTP
+		return nil
+	case UpdateServiceReqTypeLdap:
+		*s = UpdateServiceReqTypeLdap
+		return nil
+	case UpdateServiceReqTypeDNS:
+		*s = UpdateServiceReqTypeDNS
+		return nil
+	case UpdateServiceReqTypeSmb:
+		*s = UpdateServiceReqTypeSmb
+		return nil
+	case UpdateServiceReqTypeImap:
+		*s = UpdateServiceReqTypeImap
+		return nil
+	case UpdateServiceReqTypeSQL:
+		*s = UpdateServiceReqTypeSQL
+		return nil
+	case UpdateServiceReqTypeCaldav:
+		*s = UpdateServiceReqTypeCaldav
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 type UpdateTeamReq struct {

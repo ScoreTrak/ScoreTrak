@@ -498,6 +498,26 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 									return
 								}
+							case 's': // Prefix: "service"
+								if l := len("service"); len(elem) >= l && elem[0:l] == "service" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleReadHostServiceServiceRequest([1]string{
+											args[0],
+										}, w, r)
+									default:
+										s.notAllowed(w, r, "GET")
+									}
+
+									return
+								}
 							case 't': // Prefix: "team"
 								if l := len("team"); len(elem) >= l && elem[0:l] == "team" {
 									elem = elem[l:]
@@ -1003,25 +1023,57 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/competition"
-						if l := len("/competition"); len(elem) >= l && elem[0:l] == "/competition" {
+					case '/': // Prefix: "/"
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							// Leaf node.
-							switch r.Method {
-							case "GET":
-								s.handleReadServiceCompetitionRequest([1]string{
-									args[0],
-								}, w, r)
-							default:
-								s.notAllowed(w, r, "GET")
+							break
+						}
+						switch elem[0] {
+						case 'c': // Prefix: "competition"
+							if l := len("competition"); len(elem) >= l && elem[0:l] == "competition" {
+								elem = elem[l:]
+							} else {
+								break
 							}
 
-							return
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "GET":
+									s.handleReadServiceCompetitionRequest([1]string{
+										args[0],
+									}, w, r)
+								default:
+									s.notAllowed(w, r, "GET")
+								}
+
+								return
+							}
+						case 'h': // Prefix: "hostservices"
+							if l := len("hostservices"); len(elem) >= l && elem[0:l] == "hostservices" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "GET":
+									s.handleListServiceHostservicesRequest([1]string{
+										args[0],
+									}, w, r)
+								default:
+									s.notAllowed(w, r, "GET")
+								}
+
+								return
+							}
 						}
 					}
 				}
@@ -1790,6 +1842,27 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										return
 									}
 								}
+							case 's': // Prefix: "service"
+								if l := len("service"); len(elem) >= l && elem[0:l] == "service" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									switch method {
+									case "GET":
+										// Leaf: ReadHostServiceService
+										r.name = "ReadHostServiceService"
+										r.operationID = "readHostServiceService"
+										r.pathPattern = "/host-services/{id}/service"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
 							case 't': // Prefix: "team"
 								if l := len("team"); len(elem) >= l && elem[0:l] == "team" {
 									elem = elem[l:]
@@ -2378,25 +2451,58 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						}
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/competition"
-						if l := len("/competition"); len(elem) >= l && elem[0:l] == "/competition" {
+					case '/': // Prefix: "/"
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							switch method {
-							case "GET":
-								// Leaf: ReadServiceCompetition
-								r.name = "ReadServiceCompetition"
-								r.operationID = "readServiceCompetition"
-								r.pathPattern = "/services/{id}/competition"
-								r.args = args
-								r.count = 1
-								return r, true
-							default:
-								return
+							break
+						}
+						switch elem[0] {
+						case 'c': // Prefix: "competition"
+							if l := len("competition"); len(elem) >= l && elem[0:l] == "competition" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								switch method {
+								case "GET":
+									// Leaf: ReadServiceCompetition
+									r.name = "ReadServiceCompetition"
+									r.operationID = "readServiceCompetition"
+									r.pathPattern = "/services/{id}/competition"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+						case 'h': // Prefix: "hostservices"
+							if l := len("hostservices"); len(elem) >= l && elem[0:l] == "hostservices" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								switch method {
+								case "GET":
+									// Leaf: ListServiceHostservices
+									r.name = "ListServiceHostservices"
+									r.operationID = "listServiceHostservices"
+									r.pathPattern = "/services/{id}/hostservices"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
 							}
 						}
 					}

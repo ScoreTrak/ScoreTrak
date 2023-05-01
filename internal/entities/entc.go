@@ -19,33 +19,33 @@ func main() {
 			SetTitle("ScoreTrak API").
 			SetVersion("0.1.0").
 			SetDescription("ScoreTrak API"),
-		).
-		AddParameter("competition",
-			ogen.NewParameter().
-				InHeader().
-				SetName("X-Scoretrak-Competition-ID").
-				SetSchema(ogen.String()).
-				SetDescription("Competition ID"),
-		).
-		AddParameter("team",
-			ogen.NewParameter().
-				InHeader().
-				SetName("X-Scoretrak-Team-ID").
-				SetSchema(ogen.String()).
-				SetDescription("Team ID"),
-		).
-		AddParameter("ory",
-			ogen.NewParameter().
-				InCookie().
-				SetName("ory_kratos_session").
-				SetSchema(ogen.String()).
-				SetDescription("Ory Kratos Auth Token"),
 		)
+	//AddParameter("competition",
+	//	ogen.NewParameter().
+	//		InHeader().
+	//		SetName("X-Scoretrak-Competition-ID").
+	//		SetSchema(ogen.String()).
+	//		SetDescription("Competition ID"),
+	//).
+	//AddParameter("team",
+	//	ogen.NewParameter().
+	//		InHeader().
+	//		SetName("X-Scoretrak-Team-ID").
+	//		SetSchema(ogen.String()).
+	//		SetDescription("Team ID"),
+	//).
+	//AddParameter("ory",
+	//	ogen.NewParameter().
+	//		InCookie().
+	//		SetName("ory_kratos_session").
+	//		SetSchema(ogen.String()).
+	//		SetDescription("Ory Kratos Auth Token"),
+	//)
 	oas, err := entoas.NewExtension(
 		entoas.Spec(spec),
 		entoas.MinItemsPerPage(10),
 		entoas.MaxItemsPerPage(100),
-		entoas.Mutations(),
+		//entoas.Mutations(),
 	)
 	if err != nil {
 		log.Fatalf("creating entoas extension: %v", err)

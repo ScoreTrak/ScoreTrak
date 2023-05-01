@@ -319,6 +319,15 @@ func (UnimplementedHandler) ListService(ctx context.Context, params ListServiceP
 	return r, ht.ErrNotImplemented
 }
 
+// ListServiceHostservices implements listServiceHostservices operation.
+//
+// List attached Hostservices.
+//
+// GET /services/{id}/hostservices
+func (UnimplementedHandler) ListServiceHostservices(ctx context.Context, params ListServiceHostservicesParams) (r ListServiceHostservicesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ListTeam implements listTeam operation.
 //
 // List Teams.
@@ -433,6 +442,15 @@ func (UnimplementedHandler) ReadHostService(ctx context.Context, params ReadHost
 //
 // GET /host-services/{id}/host
 func (UnimplementedHandler) ReadHostServiceHost(ctx context.Context, params ReadHostServiceHostParams) (r ReadHostServiceHostRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ReadHostServiceService implements readHostServiceService operation.
+//
+// Find the attached Service of the HostService with the given ID.
+//
+// GET /host-services/{id}/service
+func (UnimplementedHandler) ReadHostServiceService(ctx context.Context, params ReadHostServiceServiceParams) (r ReadHostServiceServiceRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

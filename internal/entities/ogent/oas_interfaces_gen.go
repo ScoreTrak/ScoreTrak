@@ -133,6 +133,10 @@ type ListRoundRes interface {
 	listRoundRes()
 }
 
+type ListServiceHostservicesRes interface {
+	listServiceHostservicesRes()
+}
+
 type ListServiceRes interface {
 	listServiceRes()
 }
@@ -187,6 +191,10 @@ type ReadHostServiceHostRes interface {
 
 type ReadHostServiceRes interface {
 	readHostServiceRes()
+}
+
+type ReadHostServiceServiceRes interface {
+	readHostServiceServiceRes()
 }
 
 type ReadHostServiceTeamRes interface {

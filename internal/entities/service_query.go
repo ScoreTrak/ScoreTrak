@@ -4,6 +4,7 @@ package entities
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -11,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 )
@@ -18,11 +20,12 @@ import (
 // ServiceQuery is the builder for querying Service entities.
 type ServiceQuery struct {
 	config
-	ctx             *QueryContext
-	order           []service.Order
-	inters          []Interceptor
-	predicates      []predicate.Service
-	withCompetition *CompetitionQuery
+	ctx              *QueryContext
+	order            []service.Order
+	inters           []Interceptor
+	predicates       []predicate.Service
+	withHostservices *HostServiceQuery
+	withCompetition  *CompetitionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -57,6 +60,28 @@ func (sq *ServiceQuery) Unique(unique bool) *ServiceQuery {
 func (sq *ServiceQuery) Order(o ...service.Order) *ServiceQuery {
 	sq.order = append(sq.order, o...)
 	return sq
+}
+
+// QueryHostservices chains the current query on the "hostservices" edge.
+func (sq *ServiceQuery) QueryHostservices() *HostServiceQuery {
+	query := (&HostServiceClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(service.Table, service.FieldID, selector),
+			sqlgraph.To(hostservice.Table, hostservice.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, service.HostservicesTable, service.HostservicesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // QueryCompetition chains the current query on the "competition" edge.
@@ -268,16 +293,28 @@ func (sq *ServiceQuery) Clone() *ServiceQuery {
 		return nil
 	}
 	return &ServiceQuery{
-		config:          sq.config,
-		ctx:             sq.ctx.Clone(),
-		order:           append([]service.Order{}, sq.order...),
-		inters:          append([]Interceptor{}, sq.inters...),
-		predicates:      append([]predicate.Service{}, sq.predicates...),
-		withCompetition: sq.withCompetition.Clone(),
+		config:           sq.config,
+		ctx:              sq.ctx.Clone(),
+		order:            append([]service.Order{}, sq.order...),
+		inters:           append([]Interceptor{}, sq.inters...),
+		predicates:       append([]predicate.Service{}, sq.predicates...),
+		withHostservices: sq.withHostservices.Clone(),
+		withCompetition:  sq.withCompetition.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
 	}
+}
+
+// WithHostservices tells the query-builder to eager-load the nodes that are connected to
+// the "hostservices" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *ServiceQuery) WithHostservices(opts ...func(*HostServiceQuery)) *ServiceQuery {
+	query := (&HostServiceClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withHostservices = query
+	return sq
 }
 
 // WithCompetition tells the query-builder to eager-load the nodes that are connected to
@@ -369,7 +406,8 @@ func (sq *ServiceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Serv
 	var (
 		nodes       = []*Service{}
 		_spec       = sq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
+			sq.withHostservices != nil,
 			sq.withCompetition != nil,
 		}
 	)
@@ -391,6 +429,13 @@ func (sq *ServiceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Serv
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := sq.withHostservices; query != nil {
+		if err := sq.loadHostservices(ctx, query, nodes,
+			func(n *Service) { n.Edges.Hostservices = []*HostService{} },
+			func(n *Service, e *HostService) { n.Edges.Hostservices = append(n.Edges.Hostservices, e) }); err != nil {
+			return nil, err
+		}
+	}
 	if query := sq.withCompetition; query != nil {
 		if err := sq.loadCompetition(ctx, query, nodes, nil,
 			func(n *Service, e *Competition) { n.Edges.Competition = e }); err != nil {
@@ -400,6 +445,33 @@ func (sq *ServiceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Serv
 	return nodes, nil
 }
 
+func (sq *ServiceQuery) loadHostservices(ctx context.Context, query *HostServiceQuery, nodes []*Service, init func(*Service), assign func(*Service, *HostService)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Service)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.Where(predicate.HostService(func(s *sql.Selector) {
+		s.Where(sql.InValues(service.HostservicesColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.ServiceID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "service_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 func (sq *ServiceQuery) loadCompetition(ctx context.Context, query *CompetitionQuery, nodes []*Service, init func(*Service), assign func(*Service, *Competition)) error {
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*Service)

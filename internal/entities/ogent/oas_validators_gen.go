@@ -10,6 +10,52 @@ import (
 	"github.com/ogen-go/ogen/validate"
 )
 
+func (s *CompetitionServicesList) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Type.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "type",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+func (s CompetitionServicesListType) Validate() error {
+	switch s {
+	case "ftp":
+		return nil
+	case "ssh":
+		return nil
+	case "winrm":
+		return nil
+	case "ping":
+		return nil
+	case "http":
+		return nil
+	case "ldap":
+		return nil
+	case "dns":
+		return nil
+	case "smb":
+		return nil
+	case "imap":
+		return nil
+	case "sql":
+		return nil
+	case "caldav":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
 func (s *CreatePropertyReq) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
@@ -35,6 +81,52 @@ func (s CreatePropertyReqStatus) Validate() error {
 	case "edit":
 		return nil
 	case "hide":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+func (s *CreateServiceReq) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Type.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "type",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+func (s CreateServiceReqType) Validate() error {
+	switch s {
+	case "ftp":
+		return nil
+	case "ssh":
+		return nil
+	case "winrm":
+		return nil
+	case "ping":
+		return nil
+	case "http":
+		return nil
+	case "ldap":
+		return nil
+	case "dns":
+		return nil
+	case "smb":
+		return nil
+	case "imap":
+		return nil
+	case "sql":
+		return nil
+	case "caldav":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
@@ -70,6 +162,52 @@ func (s HostServicePropertiesListStatus) Validate() error {
 		return errors.Errorf("invalid value: %v", s)
 	}
 }
+func (s *HostServiceServiceRead) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Type.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "type",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+func (s HostServiceServiceReadType) Validate() error {
+	switch s {
+	case "ftp":
+		return nil
+	case "ssh":
+		return nil
+	case "winrm":
+		return nil
+	case "ping":
+		return nil
+	case "http":
+		return nil
+	case "ldap":
+		return nil
+	case "dns":
+		return nil
+	case "smb":
+		return nil
+	case "imap":
+		return nil
+	case "sql":
+		return nil
+	case "caldav":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
 func (s ListCheckOKApplicationJSON) Validate() error {
 	if s == nil {
 		return errors.New("nil is invalid value")
@@ -97,6 +235,23 @@ func (s ListCompetitionRoundsOKApplicationJSON) Validate() error {
 func (s ListCompetitionServicesOKApplicationJSON) Validate() error {
 	if s == nil {
 		return errors.New("nil is invalid value")
+	}
+	var failures []validate.FieldError
+	for i, elem := range s {
+		if err := func() error {
+			if err := elem.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			failures = append(failures, validate.FieldError{
+				Name:  fmt.Sprintf("[%d]", i),
+				Error: err,
+			})
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 	return nil
 }
@@ -194,9 +349,32 @@ func (s ListRoundOKApplicationJSON) Validate() error {
 	}
 	return nil
 }
+func (s ListServiceHostservicesOKApplicationJSON) Validate() error {
+	if s == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
 func (s ListServiceOKApplicationJSON) Validate() error {
 	if s == nil {
 		return errors.New("nil is invalid value")
+	}
+	var failures []validate.FieldError
+	for i, elem := range s {
+		if err := func() error {
+			if err := elem.Validate(); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			failures = append(failures, validate.FieldError{
+				Name:  fmt.Sprintf("[%d]", i),
+				Error: err,
+			})
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 	return nil
 }
@@ -368,6 +546,190 @@ func (s PropertyUpdateStatus) Validate() error {
 		return errors.Errorf("invalid value: %v", s)
 	}
 }
+func (s *ServiceCreate) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Type.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "type",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+func (s ServiceCreateType) Validate() error {
+	switch s {
+	case "ftp":
+		return nil
+	case "ssh":
+		return nil
+	case "winrm":
+		return nil
+	case "ping":
+		return nil
+	case "http":
+		return nil
+	case "ldap":
+		return nil
+	case "dns":
+		return nil
+	case "smb":
+		return nil
+	case "imap":
+		return nil
+	case "sql":
+		return nil
+	case "caldav":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+func (s *ServiceList) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Type.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "type",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+func (s ServiceListType) Validate() error {
+	switch s {
+	case "ftp":
+		return nil
+	case "ssh":
+		return nil
+	case "winrm":
+		return nil
+	case "ping":
+		return nil
+	case "http":
+		return nil
+	case "ldap":
+		return nil
+	case "dns":
+		return nil
+	case "smb":
+		return nil
+	case "imap":
+		return nil
+	case "sql":
+		return nil
+	case "caldav":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+func (s *ServiceRead) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Type.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "type",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+func (s ServiceReadType) Validate() error {
+	switch s {
+	case "ftp":
+		return nil
+	case "ssh":
+		return nil
+	case "winrm":
+		return nil
+	case "ping":
+		return nil
+	case "http":
+		return nil
+	case "ldap":
+		return nil
+	case "dns":
+		return nil
+	case "smb":
+		return nil
+	case "imap":
+		return nil
+	case "sql":
+		return nil
+	case "caldav":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+func (s *ServiceUpdate) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Type.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "type",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+func (s ServiceUpdateType) Validate() error {
+	switch s {
+	case "ftp":
+		return nil
+	case "ssh":
+		return nil
+	case "winrm":
+		return nil
+	case "ping":
+		return nil
+	case "http":
+		return nil
+	case "ldap":
+		return nil
+	case "dns":
+		return nil
+	case "smb":
+		return nil
+	case "imap":
+		return nil
+	case "sql":
+		return nil
+	case "caldav":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
 func (s *TeamPropertiesList) Validate() error {
 	var failures []validate.FieldError
 	if err := func() error {
@@ -430,6 +792,59 @@ func (s UpdatePropertyReqStatus) Validate() error {
 	case "edit":
 		return nil
 	case "hide":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+func (s *UpdateServiceReq) Validate() error {
+	var failures []validate.FieldError
+	if err := func() error {
+		if s.Type.Set {
+			if err := func() error {
+				if err := s.Type.Value.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "type",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+func (s UpdateServiceReqType) Validate() error {
+	switch s {
+	case "ftp":
+		return nil
+	case "ssh":
+		return nil
+	case "winrm":
+		return nil
+	case "ping":
+		return nil
+	case "http":
+		return nil
+	case "ldap":
+		return nil
+	case "dns":
+		return nil
+	case "smb":
+		return nil
+	case "imap":
+		return nil
+	case "sql":
+		return nil
+	case "caldav":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)

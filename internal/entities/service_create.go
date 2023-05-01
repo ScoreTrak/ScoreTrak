@@ -10,7 +10,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec/resolver"
 )
 
 // ServiceCreate is the builder for creating a Service entity.
@@ -60,6 +62,12 @@ func (sc *ServiceCreate) SetNillableHidden(b *bool) *ServiceCreate {
 	return sc
 }
 
+// SetType sets the "type" field.
+func (sc *ServiceCreate) SetType(r resolver.Service) *ServiceCreate {
+	sc.mutation.SetType(r)
+	return sc
+}
+
 // SetCompetitionID sets the "competition_id" field.
 func (sc *ServiceCreate) SetCompetitionID(s string) *ServiceCreate {
 	sc.mutation.SetCompetitionID(s)
@@ -78,6 +86,21 @@ func (sc *ServiceCreate) SetNillableID(s *string) *ServiceCreate {
 		sc.SetID(*s)
 	}
 	return sc
+}
+
+// AddHostserviceIDs adds the "hostservices" edge to the HostService entity by IDs.
+func (sc *ServiceCreate) AddHostserviceIDs(ids ...string) *ServiceCreate {
+	sc.mutation.AddHostserviceIDs(ids...)
+	return sc
+}
+
+// AddHostservices adds the "hostservices" edges to the HostService entity.
+func (sc *ServiceCreate) AddHostservices(h ...*HostService) *ServiceCreate {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return sc.AddHostserviceIDs(ids...)
 }
 
 // SetCompetition sets the "competition" edge to the Competition entity.
@@ -148,6 +171,14 @@ func (sc *ServiceCreate) check() error {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`entities: validator failed for field "Service.display_name": %w`, err)}
 		}
 	}
+	if _, ok := sc.mutation.GetType(); !ok {
+		return &ValidationError{Name: "type", err: errors.New(`entities: missing required field "Service.type"`)}
+	}
+	if v, ok := sc.mutation.GetType(); ok {
+		if err := service.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`entities: validator failed for field "Service.type": %w`, err)}
+		}
+	}
 	if _, ok := sc.mutation.CompetitionID(); !ok {
 		return &ValidationError{Name: "competition_id", err: errors.New(`entities: missing required field "Service.competition_id"`)}
 	}
@@ -209,6 +240,26 @@ func (sc *ServiceCreate) createSpec() (*Service, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.Hidden(); ok {
 		_spec.SetField(service.FieldHidden, field.TypeBool, value)
 		_node.Hidden = value
+	}
+	if value, ok := sc.mutation.GetType(); ok {
+		_spec.SetField(service.FieldType, field.TypeEnum, value)
+		_node.Type = value
+	}
+	if nodes := sc.mutation.HostservicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   service.HostservicesTable,
+			Columns: []string{service.HostservicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := sc.mutation.CompetitionIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -13,6 +13,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/property"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
 )
 
@@ -119,6 +120,12 @@ func (hsc *HostServiceCreate) SetNillableRoundDelay(i *int) *HostServiceCreate {
 	return hsc
 }
 
+// SetServiceID sets the "service_id" field.
+func (hsc *HostServiceCreate) SetServiceID(s string) *HostServiceCreate {
+	hsc.mutation.SetServiceID(s)
+	return hsc
+}
+
 // SetHostID sets the "host_id" field.
 func (hsc *HostServiceCreate) SetHostID(s string) *HostServiceCreate {
 	hsc.mutation.SetHostID(s)
@@ -143,11 +150,6 @@ func (hsc *HostServiceCreate) SetNillableID(s *string) *HostServiceCreate {
 		hsc.SetID(*s)
 	}
 	return hsc
-}
-
-// SetHost sets the "host" edge to the Host entity.
-func (hsc *HostServiceCreate) SetHost(h *Host) *HostServiceCreate {
-	return hsc.SetHostID(h.ID)
 }
 
 // AddCheckIDs adds the "checks" edge to the Check entity by IDs.
@@ -178,6 +180,16 @@ func (hsc *HostServiceCreate) AddProperties(p ...*Property) *HostServiceCreate {
 		ids[i] = p[i].ID
 	}
 	return hsc.AddPropertyIDs(ids...)
+}
+
+// SetService sets the "service" edge to the Service entity.
+func (hsc *HostServiceCreate) SetService(s *Service) *HostServiceCreate {
+	return hsc.SetServiceID(s.ID)
+}
+
+// SetHost sets the "host" edge to the Host entity.
+func (hsc *HostServiceCreate) SetHost(h *Host) *HostServiceCreate {
+	return hsc.SetHostID(h.ID)
 }
 
 // SetTeam sets the "team" edge to the Team entity.
@@ -276,6 +288,9 @@ func (hsc *HostServiceCreate) check() error {
 	if _, ok := hsc.mutation.RoundDelay(); !ok {
 		return &ValidationError{Name: "round_delay", err: errors.New(`entities: missing required field "HostService.round_delay"`)}
 	}
+	if _, ok := hsc.mutation.ServiceID(); !ok {
+		return &ValidationError{Name: "service_id", err: errors.New(`entities: missing required field "HostService.service_id"`)}
+	}
 	if _, ok := hsc.mutation.HostID(); !ok {
 		return &ValidationError{Name: "host_id", err: errors.New(`entities: missing required field "HostService.host_id"`)}
 	}
@@ -286,6 +301,9 @@ func (hsc *HostServiceCreate) check() error {
 		if err := hostservice.IDValidator(v); err != nil {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`entities: validator failed for field "HostService.id": %w`, err)}
 		}
+	}
+	if _, ok := hsc.mutation.ServiceID(); !ok {
+		return &ValidationError{Name: "service", err: errors.New(`entities: missing required edge "HostService.service"`)}
 	}
 	if _, ok := hsc.mutation.HostID(); !ok {
 		return &ValidationError{Name: "host", err: errors.New(`entities: missing required edge "HostService.host"`)}
@@ -360,23 +378,6 @@ func (hsc *HostServiceCreate) createSpec() (*HostService, *sqlgraph.CreateSpec) 
 		_spec.SetField(hostservice.FieldRoundDelay, field.TypeInt, value)
 		_node.RoundDelay = value
 	}
-	if nodes := hsc.mutation.HostIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   hostservice.HostTable,
-			Columns: []string{hostservice.HostColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.HostID = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
 	if nodes := hsc.mutation.ChecksIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -407,6 +408,40 @@ func (hsc *HostServiceCreate) createSpec() (*HostService, *sqlgraph.CreateSpec) 
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := hsc.mutation.ServiceIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   hostservice.ServiceTable,
+			Columns: []string{hostservice.ServiceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.ServiceID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := hsc.mutation.HostIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   hostservice.HostTable,
+			Columns: []string{hostservice.HostColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.HostID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := hsc.mutation.TeamIDs(); len(nodes) > 0 {

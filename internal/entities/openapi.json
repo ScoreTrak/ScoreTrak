@@ -270,12 +270,6 @@
                   "passed": {
                     "type": "boolean"
                   },
-                  "round_id": {
-                    "type": "string"
-                  },
-                  "host_service_id": {
-                    "type": "string"
-                  },
                   "rounds": {
                     "type": "string"
                   },
@@ -1146,13 +1140,13 @@
                   "round_delay": {
                     "type": "integer"
                   },
+                  "service_id": {
+                    "type": "string"
+                  },
                   "host_id": {
                     "type": "string"
                   },
                   "team_id": {
-                    "type": "string"
-                  },
-                  "host": {
                     "type": "string"
                   },
                   "checks": {
@@ -1167,6 +1161,12 @@
                       "type": "string"
                     }
                   },
+                  "service": {
+                    "type": "string"
+                  },
+                  "host": {
+                    "type": "string"
+                  },
                   "team": {
                     "type": "string"
                   }
@@ -1178,8 +1178,10 @@
                   "point_boost",
                   "round_units",
                   "round_delay",
+                  "service_id",
                   "host_id",
                   "team_id",
+                  "service",
                   "host",
                   "team"
                 ]
@@ -1340,10 +1342,7 @@
                   "round_delay": {
                     "type": "integer"
                   },
-                  "host_id": {
-                    "type": "string"
-                  },
-                  "host": {
+                  "service_id": {
                     "type": "string"
                   },
                   "checks": {
@@ -1357,6 +1356,12 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "service": {
+                    "type": "string"
+                  },
+                  "host": {
+                    "type": "string"
                   },
                   "team": {
                     "type": "string"
@@ -1547,6 +1552,51 @@
                   "items": {
                     "$ref": "#/components/schemas/HostService_PropertiesList"
                   }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/host-services/{id}/service": {
+      "get": {
+        "tags": [
+          "HostService"
+        ],
+        "summary": "Find the attached Service",
+        "description": "Find the attached Service of the HostService with the given ID",
+        "operationId": "readHostServiceService",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the HostService",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Service attached to HostService with requested ID was found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HostService_ServiceRead"
                 }
               }
             }
@@ -3190,8 +3240,30 @@
                   "hidden": {
                     "type": "boolean"
                   },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "ftp",
+                      "ssh",
+                      "winrm",
+                      "ping",
+                      "http",
+                      "ldap",
+                      "dns",
+                      "smb",
+                      "imap",
+                      "sql",
+                      "caldav"
+                    ]
+                  },
                   "competition_id": {
                     "type": "string"
+                  },
+                  "hostservices": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
                   },
                   "competition": {
                     "type": "string"
@@ -3200,6 +3272,7 @@
                 "required": [
                   "name",
                   "display_name",
+                  "type",
                   "competition_id",
                   "competition"
                 ]
@@ -3348,6 +3421,28 @@
                   "hidden": {
                     "type": "boolean"
                   },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "ftp",
+                      "ssh",
+                      "winrm",
+                      "ping",
+                      "http",
+                      "ldap",
+                      "dns",
+                      "smb",
+                      "imap",
+                      "sql",
+                      "caldav"
+                    ]
+                  },
+                  "hostservices": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
                   "competition": {
                     "type": "string"
                   }
@@ -3409,6 +3504,70 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Service_CompetitionRead"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "409": {
+            "$ref": "#/components/responses/409"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          }
+        }
+      }
+    },
+    "/services/{id}/hostservices": {
+      "get": {
+        "tags": [
+          "Service"
+        ],
+        "summary": "List attached Hostservices",
+        "description": "List attached Hostservices.",
+        "operationId": "listServiceHostservices",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the Service",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "what page to render",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "itemsPerPage",
+            "in": "query",
+            "description": "item count to render per page",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "result Services list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Service_HostservicesList"
+                  }
                 }
               }
             }
@@ -4310,6 +4469,9 @@
           "round_delay": {
             "type": "integer"
           },
+          "service_id": {
+            "type": "string"
+          },
           "host_id": {
             "type": "string"
           },
@@ -4325,6 +4487,7 @@
           "point_boost",
           "round_units",
           "round_delay",
+          "service_id",
           "host_id",
           "team_id"
         ]
@@ -4701,6 +4864,22 @@
           "hidden": {
             "type": "boolean"
           },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ftp",
+              "ssh",
+              "winrm",
+              "ping",
+              "http",
+              "ldap",
+              "dns",
+              "smb",
+              "imap",
+              "sql",
+              "caldav"
+            ]
+          },
           "competition_id": {
             "type": "string"
           }
@@ -4709,6 +4888,7 @@
           "id",
           "name",
           "display_name",
+          "type",
           "competition_id"
         ]
       },
@@ -4885,14 +5065,14 @@
           "round_delay": {
             "type": "integer"
           },
+          "service_id": {
+            "type": "string"
+          },
           "host_id": {
             "type": "string"
           },
           "team_id": {
             "type": "string"
-          },
-          "host": {
-            "$ref": "#/components/schemas/Host"
           },
           "checks": {
             "type": "array",
@@ -4906,6 +5086,12 @@
               "$ref": "#/components/schemas/Property"
             }
           },
+          "service": {
+            "$ref": "#/components/schemas/Service"
+          },
+          "host": {
+            "$ref": "#/components/schemas/Host"
+          },
           "team": {
             "$ref": "#/components/schemas/Team"
           }
@@ -4918,8 +5104,10 @@
           "point_boost",
           "round_units",
           "round_delay",
+          "service_id",
           "host_id",
           "team_id",
+          "service",
           "host",
           "team"
         ]
@@ -4954,6 +5142,9 @@
           "round_delay": {
             "type": "integer"
           },
+          "service_id": {
+            "type": "string"
+          },
           "host_id": {
             "type": "string"
           },
@@ -4969,6 +5160,7 @@
           "point_boost",
           "round_units",
           "round_delay",
+          "service_id",
           "host_id",
           "team_id"
         ]
@@ -5003,6 +5195,9 @@
           "round_delay": {
             "type": "integer"
           },
+          "service_id": {
+            "type": "string"
+          },
           "host_id": {
             "type": "string"
           },
@@ -5018,6 +5213,7 @@
           "point_boost",
           "round_units",
           "round_delay",
+          "service_id",
           "host_id",
           "team_id"
         ]
@@ -5052,6 +5248,9 @@
           "round_delay": {
             "type": "integer"
           },
+          "service_id": {
+            "type": "string"
+          },
           "host_id": {
             "type": "string"
           },
@@ -5067,6 +5266,7 @@
           "point_boost",
           "round_units",
           "round_delay",
+          "service_id",
           "host_id",
           "team_id"
         ]
@@ -5101,6 +5301,9 @@
           "round_delay": {
             "type": "integer"
           },
+          "service_id": {
+            "type": "string"
+          },
           "host_id": {
             "type": "string"
           },
@@ -5116,6 +5319,7 @@
           "point_boost",
           "round_units",
           "round_delay",
+          "service_id",
           "host_id",
           "team_id"
         ]
@@ -5223,6 +5427,52 @@
           "team_id"
         ]
       },
+      "HostService_ServiceRead": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "pause": {
+            "type": "boolean"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ftp",
+              "ssh",
+              "winrm",
+              "ping",
+              "http",
+              "ldap",
+              "dns",
+              "smb",
+              "imap",
+              "sql",
+              "caldav"
+            ]
+          },
+          "competition_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "display_name",
+          "type",
+          "competition_id"
+        ]
+      },
       "HostService_TeamRead": {
         "type": "object",
         "properties": {
@@ -5311,6 +5561,9 @@
           "round_delay": {
             "type": "integer"
           },
+          "service_id": {
+            "type": "string"
+          },
           "host_id": {
             "type": "string"
           },
@@ -5326,6 +5579,7 @@
           "point_boost",
           "round_units",
           "round_delay",
+          "service_id",
           "host_id",
           "team_id"
         ]
@@ -5586,6 +5840,9 @@
           "round_delay": {
             "type": "integer"
           },
+          "service_id": {
+            "type": "string"
+          },
           "host_id": {
             "type": "string"
           },
@@ -5601,6 +5858,7 @@
           "point_boost",
           "round_units",
           "round_delay",
+          "service_id",
           "host_id",
           "team_id"
         ]
@@ -6091,8 +6349,30 @@
           "hidden": {
             "type": "boolean"
           },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ftp",
+              "ssh",
+              "winrm",
+              "ping",
+              "http",
+              "ldap",
+              "dns",
+              "smb",
+              "imap",
+              "sql",
+              "caldav"
+            ]
+          },
           "competition_id": {
             "type": "string"
+          },
+          "hostservices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HostService"
+            }
           },
           "competition": {
             "$ref": "#/components/schemas/Competition"
@@ -6102,6 +6382,7 @@
           "id",
           "name",
           "display_name",
+          "type",
           "competition_id",
           "competition"
         ]
@@ -6124,6 +6405,22 @@
           "hidden": {
             "type": "boolean"
           },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ftp",
+              "ssh",
+              "winrm",
+              "ping",
+              "http",
+              "ldap",
+              "dns",
+              "smb",
+              "imap",
+              "sql",
+              "caldav"
+            ]
+          },
           "competition_id": {
             "type": "string"
           }
@@ -6132,6 +6429,7 @@
           "id",
           "name",
           "display_name",
+          "type",
           "competition_id"
         ]
       },
@@ -6153,6 +6451,22 @@
           "hidden": {
             "type": "boolean"
           },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ftp",
+              "ssh",
+              "winrm",
+              "ping",
+              "http",
+              "ldap",
+              "dns",
+              "smb",
+              "imap",
+              "sql",
+              "caldav"
+            ]
+          },
           "competition_id": {
             "type": "string"
           }
@@ -6161,6 +6475,7 @@
           "id",
           "name",
           "display_name",
+          "type",
           "competition_id"
         ]
       },
@@ -6182,6 +6497,22 @@
           "hidden": {
             "type": "boolean"
           },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ftp",
+              "ssh",
+              "winrm",
+              "ping",
+              "http",
+              "ldap",
+              "dns",
+              "smb",
+              "imap",
+              "sql",
+              "caldav"
+            ]
+          },
           "competition_id": {
             "type": "string"
           }
@@ -6190,6 +6521,7 @@
           "id",
           "name",
           "display_name",
+          "type",
           "competition_id"
         ]
       },
@@ -6211,6 +6543,22 @@
           "hidden": {
             "type": "boolean"
           },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ftp",
+              "ssh",
+              "winrm",
+              "ping",
+              "http",
+              "ldap",
+              "dns",
+              "smb",
+              "imap",
+              "sql",
+              "caldav"
+            ]
+          },
           "competition_id": {
             "type": "string"
           }
@@ -6219,6 +6567,7 @@
           "id",
           "name",
           "display_name",
+          "type",
           "competition_id"
         ]
       },
@@ -6260,6 +6609,59 @@
           "id",
           "name",
           "display_name"
+        ]
+      },
+      "Service_HostservicesList": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "display_name": {
+            "type": "string"
+          },
+          "pause": {
+            "type": "boolean"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "weight": {
+            "type": "integer"
+          },
+          "point_boost": {
+            "type": "integer"
+          },
+          "round_units": {
+            "type": "integer"
+          },
+          "round_delay": {
+            "type": "integer"
+          },
+          "service_id": {
+            "type": "string"
+          },
+          "host_id": {
+            "type": "string"
+          },
+          "team_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "display_name",
+          "weight",
+          "point_boost",
+          "round_units",
+          "round_delay",
+          "service_id",
+          "host_id",
+          "team_id"
         ]
       },
       "Team": {
@@ -6591,6 +6993,9 @@
           "round_delay": {
             "type": "integer"
           },
+          "service_id": {
+            "type": "string"
+          },
           "host_id": {
             "type": "string"
           },
@@ -6606,6 +7011,7 @@
           "point_boost",
           "round_units",
           "round_delay",
+          "service_id",
           "host_id",
           "team_id"
         ]

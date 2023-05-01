@@ -105,6 +105,7 @@ var (
 		{Name: "round_units", Type: field.TypeInt, Default: 1},
 		{Name: "round_delay", Type: field.TypeInt, Default: 1},
 		{Name: "host_id", Type: field.TypeString},
+		{Name: "service_id", Type: field.TypeString},
 		{Name: "team_id", Type: field.TypeString},
 	}
 	// HostServicesTable holds the schema information for the "host_services" table.
@@ -120,8 +121,14 @@ var (
 				OnDelete:   schema.NoAction,
 			},
 			{
-				Symbol:     "host_services_teams_hostservices",
+				Symbol:     "host_services_services_hostservices",
 				Columns:    []*schema.Column{HostServicesColumns[10]},
+				RefColumns: []*schema.Column{ServicesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "host_services_teams_hostservices",
+				Columns:    []*schema.Column{HostServicesColumns[11]},
 				RefColumns: []*schema.Column{TeamsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -208,6 +215,7 @@ var (
 		{Name: "display_name", Type: field.TypeString, Size: 64},
 		{Name: "pause", Type: field.TypeBool, Nullable: true},
 		{Name: "hidden", Type: field.TypeBool, Nullable: true, Default: false},
+		{Name: "type", Type: field.TypeEnum, Enums: []string{"ftp", "ssh", "winrm", "ping", "http", "ldap", "dns", "smb", "imap", "sql", "caldav"}},
 		{Name: "competition_id", Type: field.TypeString},
 	}
 	// ServicesTable holds the schema information for the "services" table.
@@ -218,7 +226,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "services_competitions_services",
-				Columns:    []*schema.Column{ServicesColumns[5]},
+				Columns:    []*schema.Column{ServicesColumns[6]},
 				RefColumns: []*schema.Column{CompetitionsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -269,7 +277,8 @@ func init() {
 	ChecksTable.ForeignKeys[3].RefTable = TeamsTable
 	HostsTable.ForeignKeys[0].RefTable = TeamsTable
 	HostServicesTable.ForeignKeys[0].RefTable = HostsTable
-	HostServicesTable.ForeignKeys[1].RefTable = TeamsTable
+	HostServicesTable.ForeignKeys[1].RefTable = ServicesTable
+	HostServicesTable.ForeignKeys[2].RefTable = TeamsTable
 	PropertiesTable.ForeignKeys[0].RefTable = HostServicesTable
 	PropertiesTable.ForeignKeys[1].RefTable = TeamsTable
 	ReportsTable.ForeignKeys[0].RefTable = CompetitionsTable

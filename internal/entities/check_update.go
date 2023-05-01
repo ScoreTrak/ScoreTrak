@@ -11,9 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/check"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/round"
 )
 
 // CheckUpdate is the builder for updating Check entities.
@@ -87,55 +85,9 @@ func (cu *CheckUpdate) SetPassed(b bool) *CheckUpdate {
 	return cu
 }
 
-// SetRoundID sets the "round_id" field.
-func (cu *CheckUpdate) SetRoundID(s string) *CheckUpdate {
-	cu.mutation.SetRoundID(s)
-	return cu
-}
-
-// SetHostServiceID sets the "host_service_id" field.
-func (cu *CheckUpdate) SetHostServiceID(s string) *CheckUpdate {
-	cu.mutation.SetHostServiceID(s)
-	return cu
-}
-
-// SetRoundsID sets the "rounds" edge to the Round entity by ID.
-func (cu *CheckUpdate) SetRoundsID(id string) *CheckUpdate {
-	cu.mutation.SetRoundsID(id)
-	return cu
-}
-
-// SetRounds sets the "rounds" edge to the Round entity.
-func (cu *CheckUpdate) SetRounds(r *Round) *CheckUpdate {
-	return cu.SetRoundsID(r.ID)
-}
-
-// SetHostserviceID sets the "hostservice" edge to the HostService entity by ID.
-func (cu *CheckUpdate) SetHostserviceID(id string) *CheckUpdate {
-	cu.mutation.SetHostserviceID(id)
-	return cu
-}
-
-// SetHostservice sets the "hostservice" edge to the HostService entity.
-func (cu *CheckUpdate) SetHostservice(h *HostService) *CheckUpdate {
-	return cu.SetHostserviceID(h.ID)
-}
-
 // Mutation returns the CheckMutation object of the builder.
 func (cu *CheckUpdate) Mutation() *CheckMutation {
 	return cu.mutation
-}
-
-// ClearRounds clears the "rounds" edge to the Round entity.
-func (cu *CheckUpdate) ClearRounds() *CheckUpdate {
-	cu.mutation.ClearRounds()
-	return cu
-}
-
-// ClearHostservice clears the "hostservice" edge to the HostService entity.
-func (cu *CheckUpdate) ClearHostservice() *CheckUpdate {
-	cu.mutation.ClearHostservice()
-	return cu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -211,64 +163,6 @@ func (cu *CheckUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := cu.mutation.Passed(); ok {
 		_spec.SetField(check.FieldPassed, field.TypeBool, value)
-	}
-	if cu.mutation.RoundsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   check.RoundsTable,
-			Columns: []string{check.RoundsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cu.mutation.RoundsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   check.RoundsTable,
-			Columns: []string{check.RoundsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if cu.mutation.HostserviceCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   check.HostserviceTable,
-			Columns: []string{check.HostserviceColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cu.mutation.HostserviceIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   check.HostserviceTable,
-			Columns: []string{check.HostserviceColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, cu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -348,55 +242,9 @@ func (cuo *CheckUpdateOne) SetPassed(b bool) *CheckUpdateOne {
 	return cuo
 }
 
-// SetRoundID sets the "round_id" field.
-func (cuo *CheckUpdateOne) SetRoundID(s string) *CheckUpdateOne {
-	cuo.mutation.SetRoundID(s)
-	return cuo
-}
-
-// SetHostServiceID sets the "host_service_id" field.
-func (cuo *CheckUpdateOne) SetHostServiceID(s string) *CheckUpdateOne {
-	cuo.mutation.SetHostServiceID(s)
-	return cuo
-}
-
-// SetRoundsID sets the "rounds" edge to the Round entity by ID.
-func (cuo *CheckUpdateOne) SetRoundsID(id string) *CheckUpdateOne {
-	cuo.mutation.SetRoundsID(id)
-	return cuo
-}
-
-// SetRounds sets the "rounds" edge to the Round entity.
-func (cuo *CheckUpdateOne) SetRounds(r *Round) *CheckUpdateOne {
-	return cuo.SetRoundsID(r.ID)
-}
-
-// SetHostserviceID sets the "hostservice" edge to the HostService entity by ID.
-func (cuo *CheckUpdateOne) SetHostserviceID(id string) *CheckUpdateOne {
-	cuo.mutation.SetHostserviceID(id)
-	return cuo
-}
-
-// SetHostservice sets the "hostservice" edge to the HostService entity.
-func (cuo *CheckUpdateOne) SetHostservice(h *HostService) *CheckUpdateOne {
-	return cuo.SetHostserviceID(h.ID)
-}
-
 // Mutation returns the CheckMutation object of the builder.
 func (cuo *CheckUpdateOne) Mutation() *CheckMutation {
 	return cuo.mutation
-}
-
-// ClearRounds clears the "rounds" edge to the Round entity.
-func (cuo *CheckUpdateOne) ClearRounds() *CheckUpdateOne {
-	cuo.mutation.ClearRounds()
-	return cuo
-}
-
-// ClearHostservice clears the "hostservice" edge to the HostService entity.
-func (cuo *CheckUpdateOne) ClearHostservice() *CheckUpdateOne {
-	cuo.mutation.ClearHostservice()
-	return cuo
 }
 
 // Where appends a list predicates to the CheckUpdate builder.
@@ -502,64 +350,6 @@ func (cuo *CheckUpdateOne) sqlSave(ctx context.Context) (_node *Check, err error
 	}
 	if value, ok := cuo.mutation.Passed(); ok {
 		_spec.SetField(check.FieldPassed, field.TypeBool, value)
-	}
-	if cuo.mutation.RoundsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   check.RoundsTable,
-			Columns: []string{check.RoundsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cuo.mutation.RoundsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: false,
-			Table:   check.RoundsTable,
-			Columns: []string{check.RoundsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(round.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if cuo.mutation.HostserviceCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   check.HostserviceTable,
-			Columns: []string{check.HostserviceColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := cuo.mutation.HostserviceIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   check.HostserviceTable,
-			Columns: []string{check.HostserviceColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Check{config: cuo.config}
 	_spec.Assign = _node.assignValues

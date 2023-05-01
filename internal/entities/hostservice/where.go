@@ -103,6 +103,11 @@ func RoundDelay(v int) predicate.HostService {
 	return predicate.HostService(sql.FieldEQ(FieldRoundDelay, v))
 }
 
+// ServiceID applies equality check predicate on the "service_id" field. It's identical to ServiceIDEQ.
+func ServiceID(v string) predicate.HostService {
+	return predicate.HostService(sql.FieldEQ(FieldServiceID, v))
+}
+
 // HostID applies equality check predicate on the "host_id" field. It's identical to HostIDEQ.
 func HostID(v string) predicate.HostService {
 	return predicate.HostService(sql.FieldEQ(FieldHostID, v))
@@ -443,6 +448,71 @@ func RoundDelayLTE(v int) predicate.HostService {
 	return predicate.HostService(sql.FieldLTE(FieldRoundDelay, v))
 }
 
+// ServiceIDEQ applies the EQ predicate on the "service_id" field.
+func ServiceIDEQ(v string) predicate.HostService {
+	return predicate.HostService(sql.FieldEQ(FieldServiceID, v))
+}
+
+// ServiceIDNEQ applies the NEQ predicate on the "service_id" field.
+func ServiceIDNEQ(v string) predicate.HostService {
+	return predicate.HostService(sql.FieldNEQ(FieldServiceID, v))
+}
+
+// ServiceIDIn applies the In predicate on the "service_id" field.
+func ServiceIDIn(vs ...string) predicate.HostService {
+	return predicate.HostService(sql.FieldIn(FieldServiceID, vs...))
+}
+
+// ServiceIDNotIn applies the NotIn predicate on the "service_id" field.
+func ServiceIDNotIn(vs ...string) predicate.HostService {
+	return predicate.HostService(sql.FieldNotIn(FieldServiceID, vs...))
+}
+
+// ServiceIDGT applies the GT predicate on the "service_id" field.
+func ServiceIDGT(v string) predicate.HostService {
+	return predicate.HostService(sql.FieldGT(FieldServiceID, v))
+}
+
+// ServiceIDGTE applies the GTE predicate on the "service_id" field.
+func ServiceIDGTE(v string) predicate.HostService {
+	return predicate.HostService(sql.FieldGTE(FieldServiceID, v))
+}
+
+// ServiceIDLT applies the LT predicate on the "service_id" field.
+func ServiceIDLT(v string) predicate.HostService {
+	return predicate.HostService(sql.FieldLT(FieldServiceID, v))
+}
+
+// ServiceIDLTE applies the LTE predicate on the "service_id" field.
+func ServiceIDLTE(v string) predicate.HostService {
+	return predicate.HostService(sql.FieldLTE(FieldServiceID, v))
+}
+
+// ServiceIDContains applies the Contains predicate on the "service_id" field.
+func ServiceIDContains(v string) predicate.HostService {
+	return predicate.HostService(sql.FieldContains(FieldServiceID, v))
+}
+
+// ServiceIDHasPrefix applies the HasPrefix predicate on the "service_id" field.
+func ServiceIDHasPrefix(v string) predicate.HostService {
+	return predicate.HostService(sql.FieldHasPrefix(FieldServiceID, v))
+}
+
+// ServiceIDHasSuffix applies the HasSuffix predicate on the "service_id" field.
+func ServiceIDHasSuffix(v string) predicate.HostService {
+	return predicate.HostService(sql.FieldHasSuffix(FieldServiceID, v))
+}
+
+// ServiceIDEqualFold applies the EqualFold predicate on the "service_id" field.
+func ServiceIDEqualFold(v string) predicate.HostService {
+	return predicate.HostService(sql.FieldEqualFold(FieldServiceID, v))
+}
+
+// ServiceIDContainsFold applies the ContainsFold predicate on the "service_id" field.
+func ServiceIDContainsFold(v string) predicate.HostService {
+	return predicate.HostService(sql.FieldContainsFold(FieldServiceID, v))
+}
+
 // HostIDEQ applies the EQ predicate on the "host_id" field.
 func HostIDEQ(v string) predicate.HostService {
 	return predicate.HostService(sql.FieldEQ(FieldHostID, v))
@@ -573,29 +643,6 @@ func TeamIDContainsFold(v string) predicate.HostService {
 	return predicate.HostService(sql.FieldContainsFold(FieldTeamID, v))
 }
 
-// HasHost applies the HasEdge predicate on the "host" edge.
-func HasHost() predicate.HostService {
-	return predicate.HostService(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, HostTable, HostColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasHostWith applies the HasEdge predicate on the "host" edge with a given conditions (other predicates).
-func HasHostWith(preds ...predicate.Host) predicate.HostService {
-	return predicate.HostService(func(s *sql.Selector) {
-		step := newHostStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasChecks applies the HasEdge predicate on the "checks" edge.
 func HasChecks() predicate.HostService {
 	return predicate.HostService(func(s *sql.Selector) {
@@ -634,6 +681,52 @@ func HasProperties() predicate.HostService {
 func HasPropertiesWith(preds ...predicate.Property) predicate.HostService {
 	return predicate.HostService(func(s *sql.Selector) {
 		step := newPropertiesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasService applies the HasEdge predicate on the "service" edge.
+func HasService() predicate.HostService {
+	return predicate.HostService(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ServiceTable, ServiceColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasServiceWith applies the HasEdge predicate on the "service" edge with a given conditions (other predicates).
+func HasServiceWith(preds ...predicate.Service) predicate.HostService {
+	return predicate.HostService(func(s *sql.Selector) {
+		step := newServiceStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasHost applies the HasEdge predicate on the "host" edge.
+func HasHost() predicate.HostService {
+	return predicate.HostService(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, HostTable, HostColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasHostWith applies the HasEdge predicate on the "host" edge with a given conditions (other predicates).
+func HasHostWith(preds ...predicate.Host) predicate.HostService {
+	return predicate.HostService(func(s *sql.Selector) {
+		step := newHostStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

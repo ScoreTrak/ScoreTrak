@@ -16,6 +16,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/round"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec/resolver"
 	"github.com/go-faster/jx"
 )
 
@@ -130,19 +131,7 @@ func (h *OgentHandler) UpdateCheck(ctx context.Context, req *UpdateCheckReq, par
 	if v, ok := req.Passed.Get(); ok {
 		b.SetPassed(v)
 	}
-	if v, ok := req.RoundID.Get(); ok {
-		b.SetRoundID(v)
-	}
-	if v, ok := req.HostServiceID.Get(); ok {
-		b.SetHostServiceID(v)
-	}
 	// Add all edges.
-	if v, ok := req.Rounds.Get(); ok {
-		b.SetRoundsID(v)
-	}
-	if v, ok := req.Hostservice.Get(); ok {
-		b.SetHostserviceID(v)
-	}
 	// Persist to storage.
 	e, err := b.Save(ctx)
 	if err != nil {
@@ -941,12 +930,14 @@ func (h *OgentHandler) CreateHostService(ctx context.Context, req *CreateHostSer
 	b.SetPointBoost(req.PointBoost)
 	b.SetRoundUnits(req.RoundUnits)
 	b.SetRoundDelay(req.RoundDelay)
+	b.SetServiceID(req.ServiceID)
 	b.SetHostID(req.HostID)
 	b.SetTeamID(req.TeamID)
 	// Add all edges.
-	b.SetHostID(req.Host)
 	b.AddCheckIDs(req.Checks...)
 	b.AddPropertyIDs(req.Properties...)
+	b.SetServiceID(req.Service)
+	b.SetHostID(req.Host)
 	b.SetTeamID(req.Team)
 	// Persist to storage.
 	e, err := b.Save(ctx)
@@ -1033,18 +1024,18 @@ func (h *OgentHandler) UpdateHostService(ctx context.Context, req *UpdateHostSer
 	if v, ok := req.RoundDelay.Get(); ok {
 		b.SetRoundDelay(v)
 	}
-	if v, ok := req.HostID.Get(); ok {
-		b.SetHostID(v)
+	if v, ok := req.ServiceID.Get(); ok {
+		b.SetServiceID(v)
 	}
 	// Add all edges.
-	if v, ok := req.Host.Get(); ok {
-		b.SetHostID(v)
-	}
 	if req.Checks != nil {
 		b.ClearChecks().AddCheckIDs(req.Checks...)
 	}
 	if req.Properties != nil {
 		b.ClearProperties().AddPropertyIDs(req.Properties...)
+	}
+	if v, ok := req.Service.Get(); ok {
+		b.SetServiceID(v)
 	}
 	// Persist to storage.
 	e, err := b.Save(ctx)
@@ -1140,32 +1131,6 @@ func (h *OgentHandler) ListHostService(ctx context.Context, params ListHostServi
 	return (*ListHostServiceOKApplicationJSON)(&r), nil
 }
 
-// ReadHostServiceHost handles GET /host-services/{id}/host requests.
-func (h *OgentHandler) ReadHostServiceHost(ctx context.Context, params ReadHostServiceHostParams) (ReadHostServiceHostRes, error) {
-	q := h.client.HostService.Query().Where(hostservice.IDEQ(params.ID)).QueryHost()
-	e, err := q.Only(ctx)
-	if err != nil {
-		switch {
-		case entities.IsNotFound(err):
-			return &R404{
-				Code:   http.StatusNotFound,
-				Status: http.StatusText(http.StatusNotFound),
-				Errors: rawError(err),
-			}, nil
-		case entities.IsNotSingular(err):
-			return &R409{
-				Code:   http.StatusConflict,
-				Status: http.StatusText(http.StatusConflict),
-				Errors: rawError(err),
-			}, nil
-		default:
-			// Let the server handle the error.
-			return nil, err
-		}
-	}
-	return NewHostServiceHostRead(e), nil
-}
-
 // ListHostServiceChecks handles GET /host-services/{id}/checks requests.
 func (h *OgentHandler) ListHostServiceChecks(ctx context.Context, params ListHostServiceChecksParams) (ListHostServiceChecksRes, error) {
 	q := h.client.HostService.Query().Where(hostservice.IDEQ(params.ID)).QueryChecks()
@@ -1236,6 +1201,58 @@ func (h *OgentHandler) ListHostServiceProperties(ctx context.Context, params Lis
 	}
 	r := NewHostServicePropertiesLists(es)
 	return (*ListHostServicePropertiesOKApplicationJSON)(&r), nil
+}
+
+// ReadHostServiceService handles GET /host-services/{id}/service requests.
+func (h *OgentHandler) ReadHostServiceService(ctx context.Context, params ReadHostServiceServiceParams) (ReadHostServiceServiceRes, error) {
+	q := h.client.HostService.Query().Where(hostservice.IDEQ(params.ID)).QueryService()
+	e, err := q.Only(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return NewHostServiceServiceRead(e), nil
+}
+
+// ReadHostServiceHost handles GET /host-services/{id}/host requests.
+func (h *OgentHandler) ReadHostServiceHost(ctx context.Context, params ReadHostServiceHostParams) (ReadHostServiceHostRes, error) {
+	q := h.client.HostService.Query().Where(hostservice.IDEQ(params.ID)).QueryHost()
+	e, err := q.Only(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	return NewHostServiceHostRead(e), nil
 }
 
 // ReadHostServiceTeam handles GET /host-services/{id}/team requests.
@@ -1957,8 +1974,10 @@ func (h *OgentHandler) CreateService(ctx context.Context, req *CreateServiceReq)
 	if v, ok := req.Hidden.Get(); ok {
 		b.SetHidden(v)
 	}
+	b.SetType(resolver.Service(req.Type))
 	b.SetCompetitionID(req.CompetitionID)
 	// Add all edges.
+	b.AddHostserviceIDs(req.Hostservices...)
 	b.SetCompetitionID(req.Competition)
 	// Persist to storage.
 	e, err := b.Save(ctx)
@@ -2033,7 +2052,13 @@ func (h *OgentHandler) UpdateService(ctx context.Context, req *UpdateServiceReq,
 	if v, ok := req.Hidden.Get(); ok {
 		b.SetHidden(v)
 	}
+	if v, ok := req.Type.Get(); ok {
+		b.SetType(resolver.Service(v))
+	}
 	// Add all edges.
+	if req.Hostservices != nil {
+		b.ClearHostservices().AddHostserviceIDs(req.Hostservices...)
+	}
 	// Persist to storage.
 	e, err := b.Save(ctx)
 	if err != nil {
@@ -2126,6 +2151,42 @@ func (h *OgentHandler) ListService(ctx context.Context, params ListServiceParams
 	}
 	r := NewServiceLists(es)
 	return (*ListServiceOKApplicationJSON)(&r), nil
+}
+
+// ListServiceHostservices handles GET /services/{id}/hostservices requests.
+func (h *OgentHandler) ListServiceHostservices(ctx context.Context, params ListServiceHostservicesParams) (ListServiceHostservicesRes, error) {
+	q := h.client.Service.Query().Where(service.IDEQ(params.ID)).QueryHostservices()
+	page := 1
+	if v, ok := params.Page.Get(); ok {
+		page = v
+	}
+	itemsPerPage := 30
+	if v, ok := params.ItemsPerPage.Get(); ok {
+		itemsPerPage = v
+	}
+	q.Limit(itemsPerPage).Offset((page - 1) * itemsPerPage)
+	es, err := q.All(ctx)
+	if err != nil {
+		switch {
+		case entities.IsNotFound(err):
+			return &R404{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+				Errors: rawError(err),
+			}, nil
+		case entities.IsNotSingular(err):
+			return &R409{
+				Code:   http.StatusConflict,
+				Status: http.StatusText(http.StatusConflict),
+				Errors: rawError(err),
+			}, nil
+		default:
+			// Let the server handle the error.
+			return nil, err
+		}
+	}
+	r := NewServiceHostservicesLists(es)
+	return (*ListServiceHostservicesOKApplicationJSON)(&r), nil
 }
 
 // ReadServiceCompetition handles GET /services/{id}/competition requests.

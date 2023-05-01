@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec/resolver"
 )
 
 // ID filters vertices based on their ID field.
@@ -258,6 +259,36 @@ func HiddenNotNil() predicate.Service {
 	return predicate.Service(sql.FieldNotNull(FieldHidden))
 }
 
+// TypeEQ applies the EQ predicate on the "type" field.
+func TypeEQ(v resolver.Service) predicate.Service {
+	vc := v
+	return predicate.Service(sql.FieldEQ(FieldType, vc))
+}
+
+// TypeNEQ applies the NEQ predicate on the "type" field.
+func TypeNEQ(v resolver.Service) predicate.Service {
+	vc := v
+	return predicate.Service(sql.FieldNEQ(FieldType, vc))
+}
+
+// TypeIn applies the In predicate on the "type" field.
+func TypeIn(vs ...resolver.Service) predicate.Service {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Service(sql.FieldIn(FieldType, v...))
+}
+
+// TypeNotIn applies the NotIn predicate on the "type" field.
+func TypeNotIn(vs ...resolver.Service) predicate.Service {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Service(sql.FieldNotIn(FieldType, v...))
+}
+
 // CompetitionIDEQ applies the EQ predicate on the "competition_id" field.
 func CompetitionIDEQ(v string) predicate.Service {
 	return predicate.Service(sql.FieldEQ(FieldCompetitionID, v))
@@ -321,6 +352,29 @@ func CompetitionIDEqualFold(v string) predicate.Service {
 // CompetitionIDContainsFold applies the ContainsFold predicate on the "competition_id" field.
 func CompetitionIDContainsFold(v string) predicate.Service {
 	return predicate.Service(sql.FieldContainsFold(FieldCompetitionID, v))
+}
+
+// HasHostservices applies the HasEdge predicate on the "hostservices" edge.
+func HasHostservices() predicate.Service {
+	return predicate.Service(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, HostservicesTable, HostservicesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasHostservicesWith applies the HasEdge predicate on the "hostservices" edge with a given conditions (other predicates).
+func HasHostservicesWith(preds ...predicate.HostService) predicate.Service {
+	return predicate.Service(func(s *sql.Selector) {
+		step := newHostservicesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // HasCompetition applies the HasEdge predicate on the "competition" edge.

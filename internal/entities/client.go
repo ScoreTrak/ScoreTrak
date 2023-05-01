@@ -853,22 +853,6 @@ func (c *HostServiceClient) GetX(ctx context.Context, id string) *HostService {
 	return obj
 }
 
-// QueryHost queries the host edge of a HostService.
-func (c *HostServiceClient) QueryHost(hs *HostService) *HostQuery {
-	query := (&HostClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := hs.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(hostservice.Table, hostservice.FieldID, id),
-			sqlgraph.To(host.Table, host.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, hostservice.HostTable, hostservice.HostColumn),
-		)
-		fromV = sqlgraph.Neighbors(hs.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryChecks queries the checks edge of a HostService.
 func (c *HostServiceClient) QueryChecks(hs *HostService) *CheckQuery {
 	query := (&CheckClient{config: c.config}).Query()
@@ -894,6 +878,38 @@ func (c *HostServiceClient) QueryProperties(hs *HostService) *PropertyQuery {
 			sqlgraph.From(hostservice.Table, hostservice.FieldID, id),
 			sqlgraph.To(property.Table, property.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, hostservice.PropertiesTable, hostservice.PropertiesColumn),
+		)
+		fromV = sqlgraph.Neighbors(hs.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryService queries the service edge of a HostService.
+func (c *HostServiceClient) QueryService(hs *HostService) *ServiceQuery {
+	query := (&ServiceClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := hs.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(hostservice.Table, hostservice.FieldID, id),
+			sqlgraph.To(service.Table, service.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, hostservice.ServiceTable, hostservice.ServiceColumn),
+		)
+		fromV = sqlgraph.Neighbors(hs.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryHost queries the host edge of a HostService.
+func (c *HostServiceClient) QueryHost(hs *HostService) *HostQuery {
+	query := (&HostClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := hs.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(hostservice.Table, hostservice.FieldID, id),
+			sqlgraph.To(host.Table, host.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, hostservice.HostTable, hostservice.HostColumn),
 		)
 		fromV = sqlgraph.Neighbors(hs.driver.Dialect(), step)
 		return fromV, nil
@@ -1467,6 +1483,22 @@ func (c *ServiceClient) GetX(ctx context.Context, id string) *Service {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryHostservices queries the hostservices edge of a Service.
+func (c *ServiceClient) QueryHostservices(s *Service) *HostServiceQuery {
+	query := (&HostServiceClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := s.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(service.Table, service.FieldID, id),
+			sqlgraph.To(hostservice.Table, hostservice.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, service.HostservicesTable, service.HostservicesColumn),
+		)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // QueryCompetition queries the competition edge of a Service.

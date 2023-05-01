@@ -312,6 +312,11 @@ func (s *CheckHostserviceRead) encodeFields(e *jx.Encoder) {
 	}
 	{
 
+		e.FieldStart("service_id")
+		e.Str(s.ServiceID)
+	}
+	{
+
 		e.FieldStart("host_id")
 		e.Str(s.HostID)
 	}
@@ -322,7 +327,7 @@ func (s *CheckHostserviceRead) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCheckHostserviceRead = [11]string{
+var jsonFieldsNameOfCheckHostserviceRead = [12]string{
 	0:  "id",
 	1:  "name",
 	2:  "display_name",
@@ -332,8 +337,9 @@ var jsonFieldsNameOfCheckHostserviceRead = [11]string{
 	6:  "point_boost",
 	7:  "round_units",
 	8:  "round_delay",
-	9:  "host_id",
-	10: "team_id",
+	9:  "service_id",
+	10: "host_id",
+	11: "team_id",
 }
 
 // Decode decodes CheckHostserviceRead from json.
@@ -449,8 +455,20 @@ func (s *CheckHostserviceRead) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"round_delay\"")
 			}
-		case "host_id":
+		case "service_id":
 			requiredBitSet[1] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.ServiceID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"service_id\"")
+			}
+		case "host_id":
+			requiredBitSet[1] |= 1 << 2
 			if err := func() error {
 				v, err := d.Str()
 				s.HostID = string(v)
@@ -462,7 +480,7 @@ func (s *CheckHostserviceRead) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"host_id\"")
 			}
 		case "team_id":
-			requiredBitSet[1] |= 1 << 2
+			requiredBitSet[1] |= 1 << 3
 			if err := func() error {
 				v, err := d.Str()
 				s.TeamID = string(v)
@@ -484,7 +502,7 @@ func (s *CheckHostserviceRead) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11100111,
-		0b00000111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -2760,18 +2778,24 @@ func (s *CompetitionServicesList) encodeFields(e *jx.Encoder) {
 	}
 	{
 
+		e.FieldStart("type")
+		s.Type.Encode(e)
+	}
+	{
+
 		e.FieldStart("competition_id")
 		e.Str(s.CompetitionID)
 	}
 }
 
-var jsonFieldsNameOfCompetitionServicesList = [6]string{
+var jsonFieldsNameOfCompetitionServicesList = [7]string{
 	0: "id",
 	1: "name",
 	2: "display_name",
 	3: "pause",
 	4: "hidden",
-	5: "competition_id",
+	5: "type",
+	6: "competition_id",
 }
 
 // Decode decodes CompetitionServicesList from json.
@@ -2839,8 +2863,18 @@ func (s *CompetitionServicesList) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"hidden\"")
 			}
-		case "competition_id":
+		case "type":
 			requiredBitSet[0] |= 1 << 5
+			if err := func() error {
+				if err := s.Type.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"type\"")
+			}
+		case "competition_id":
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				v, err := d.Str()
 				s.CompetitionID = string(v)
@@ -2861,7 +2895,7 @@ func (s *CompetitionServicesList) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00100111,
+		0b01100111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -2903,6 +2937,64 @@ func (s *CompetitionServicesList) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *CompetitionServicesList) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CompetitionServicesListType as json.
+func (s CompetitionServicesListType) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes CompetitionServicesListType from json.
+func (s *CompetitionServicesListType) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CompetitionServicesListType to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch CompetitionServicesListType(v) {
+	case CompetitionServicesListTypeFtp:
+		*s = CompetitionServicesListTypeFtp
+	case CompetitionServicesListTypeSSH:
+		*s = CompetitionServicesListTypeSSH
+	case CompetitionServicesListTypeWinrm:
+		*s = CompetitionServicesListTypeWinrm
+	case CompetitionServicesListTypePing:
+		*s = CompetitionServicesListTypePing
+	case CompetitionServicesListTypeHTTP:
+		*s = CompetitionServicesListTypeHTTP
+	case CompetitionServicesListTypeLdap:
+		*s = CompetitionServicesListTypeLdap
+	case CompetitionServicesListTypeDNS:
+		*s = CompetitionServicesListTypeDNS
+	case CompetitionServicesListTypeSmb:
+		*s = CompetitionServicesListTypeSmb
+	case CompetitionServicesListTypeImap:
+		*s = CompetitionServicesListTypeImap
+	case CompetitionServicesListTypeSQL:
+		*s = CompetitionServicesListTypeSQL
+	case CompetitionServicesListTypeCaldav:
+		*s = CompetitionServicesListTypeCaldav
+	default:
+		*s = CompetitionServicesListType(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s CompetitionServicesListType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CompetitionServicesListType) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -4210,6 +4302,11 @@ func (s *CreateHostServiceReq) encodeFields(e *jx.Encoder) {
 	}
 	{
 
+		e.FieldStart("service_id")
+		e.Str(s.ServiceID)
+	}
+	{
+
 		e.FieldStart("host_id")
 		e.Str(s.HostID)
 	}
@@ -4217,11 +4314,6 @@ func (s *CreateHostServiceReq) encodeFields(e *jx.Encoder) {
 
 		e.FieldStart("team_id")
 		e.Str(s.TeamID)
-	}
-	{
-
-		e.FieldStart("host")
-		e.Str(s.Host)
 	}
 	{
 		if s.Checks != nil {
@@ -4245,12 +4337,22 @@ func (s *CreateHostServiceReq) encodeFields(e *jx.Encoder) {
 	}
 	{
 
+		e.FieldStart("service")
+		e.Str(s.Service)
+	}
+	{
+
+		e.FieldStart("host")
+		e.Str(s.Host)
+	}
+	{
+
 		e.FieldStart("team")
 		e.Str(s.Team)
 	}
 }
 
-var jsonFieldsNameOfCreateHostServiceReq = [14]string{
+var jsonFieldsNameOfCreateHostServiceReq = [16]string{
 	0:  "name",
 	1:  "display_name",
 	2:  "pause",
@@ -4259,12 +4361,14 @@ var jsonFieldsNameOfCreateHostServiceReq = [14]string{
 	5:  "point_boost",
 	6:  "round_units",
 	7:  "round_delay",
-	8:  "host_id",
-	9:  "team_id",
-	10: "host",
+	8:  "service_id",
+	9:  "host_id",
+	10: "team_id",
 	11: "checks",
 	12: "properties",
-	13: "team",
+	13: "service",
+	14: "host",
+	15: "team",
 }
 
 // Decode decodes CreateHostServiceReq from json.
@@ -4368,8 +4472,20 @@ func (s *CreateHostServiceReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"round_delay\"")
 			}
-		case "host_id":
+		case "service_id":
 			requiredBitSet[1] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.ServiceID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"service_id\"")
+			}
+		case "host_id":
+			requiredBitSet[1] |= 1 << 1
 			if err := func() error {
 				v, err := d.Str()
 				s.HostID = string(v)
@@ -4381,7 +4497,7 @@ func (s *CreateHostServiceReq) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"host_id\"")
 			}
 		case "team_id":
-			requiredBitSet[1] |= 1 << 1
+			requiredBitSet[1] |= 1 << 2
 			if err := func() error {
 				v, err := d.Str()
 				s.TeamID = string(v)
@@ -4391,18 +4507,6 @@ func (s *CreateHostServiceReq) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"team_id\"")
-			}
-		case "host":
-			requiredBitSet[1] |= 1 << 2
-			if err := func() error {
-				v, err := d.Str()
-				s.Host = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"host\"")
 			}
 		case "checks":
 			if err := func() error {
@@ -4442,8 +4546,32 @@ func (s *CreateHostServiceReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"properties\"")
 			}
-		case "team":
+		case "service":
 			requiredBitSet[1] |= 1 << 5
+			if err := func() error {
+				v, err := d.Str()
+				s.Service = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"service\"")
+			}
+		case "host":
+			requiredBitSet[1] |= 1 << 6
+			if err := func() error {
+				v, err := d.Str()
+				s.Host = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"host\"")
+			}
+		case "team":
+			requiredBitSet[1] |= 1 << 7
 			if err := func() error {
 				v, err := d.Str()
 				s.Team = string(v)
@@ -4465,7 +4593,7 @@ func (s *CreateHostServiceReq) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11110011,
-		0b00100111,
+		0b11100111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -5176,8 +5304,23 @@ func (s *CreateServiceReq) encodeFields(e *jx.Encoder) {
 	}
 	{
 
+		e.FieldStart("type")
+		s.Type.Encode(e)
+	}
+	{
+
 		e.FieldStart("competition_id")
 		e.Str(s.CompetitionID)
+	}
+	{
+		if s.Hostservices != nil {
+			e.FieldStart("hostservices")
+			e.ArrStart()
+			for _, elem := range s.Hostservices {
+				e.Str(elem)
+			}
+			e.ArrEnd()
+		}
 	}
 	{
 
@@ -5186,13 +5329,15 @@ func (s *CreateServiceReq) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCreateServiceReq = [6]string{
+var jsonFieldsNameOfCreateServiceReq = [8]string{
 	0: "name",
 	1: "display_name",
 	2: "pause",
 	3: "hidden",
-	4: "competition_id",
-	5: "competition",
+	4: "type",
+	5: "competition_id",
+	6: "hostservices",
+	7: "competition",
 }
 
 // Decode decodes CreateServiceReq from json.
@@ -5248,8 +5393,18 @@ func (s *CreateServiceReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"hidden\"")
 			}
-		case "competition_id":
+		case "type":
 			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
+				if err := s.Type.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"type\"")
+			}
+		case "competition_id":
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				v, err := d.Str()
 				s.CompetitionID = string(v)
@@ -5260,8 +5415,27 @@ func (s *CreateServiceReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"competition_id\"")
 			}
+		case "hostservices":
+			if err := func() error {
+				s.Hostservices = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.Hostservices = append(s.Hostservices, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"hostservices\"")
+			}
 		case "competition":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := d.Str()
 				s.Competition = string(v)
@@ -5282,7 +5456,7 @@ func (s *CreateServiceReq) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00110011,
+		0b10110011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -5324,6 +5498,64 @@ func (s *CreateServiceReq) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *CreateServiceReq) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateServiceReqType as json.
+func (s CreateServiceReqType) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes CreateServiceReqType from json.
+func (s *CreateServiceReqType) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateServiceReqType to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch CreateServiceReqType(v) {
+	case CreateServiceReqTypeFtp:
+		*s = CreateServiceReqTypeFtp
+	case CreateServiceReqTypeSSH:
+		*s = CreateServiceReqTypeSSH
+	case CreateServiceReqTypeWinrm:
+		*s = CreateServiceReqTypeWinrm
+	case CreateServiceReqTypePing:
+		*s = CreateServiceReqTypePing
+	case CreateServiceReqTypeHTTP:
+		*s = CreateServiceReqTypeHTTP
+	case CreateServiceReqTypeLdap:
+		*s = CreateServiceReqTypeLdap
+	case CreateServiceReqTypeDNS:
+		*s = CreateServiceReqTypeDNS
+	case CreateServiceReqTypeSmb:
+		*s = CreateServiceReqTypeSmb
+	case CreateServiceReqTypeImap:
+		*s = CreateServiceReqTypeImap
+	case CreateServiceReqTypeSQL:
+		*s = CreateServiceReqTypeSQL
+	case CreateServiceReqTypeCaldav:
+		*s = CreateServiceReqTypeCaldav
+	default:
+		*s = CreateServiceReqType(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s CreateServiceReqType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateServiceReqType) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -5877,6 +6109,11 @@ func (s *HostHostservicesList) encodeFields(e *jx.Encoder) {
 	}
 	{
 
+		e.FieldStart("service_id")
+		e.Str(s.ServiceID)
+	}
+	{
+
 		e.FieldStart("host_id")
 		e.Str(s.HostID)
 	}
@@ -5887,7 +6124,7 @@ func (s *HostHostservicesList) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfHostHostservicesList = [11]string{
+var jsonFieldsNameOfHostHostservicesList = [12]string{
 	0:  "id",
 	1:  "name",
 	2:  "display_name",
@@ -5897,8 +6134,9 @@ var jsonFieldsNameOfHostHostservicesList = [11]string{
 	6:  "point_boost",
 	7:  "round_units",
 	8:  "round_delay",
-	9:  "host_id",
-	10: "team_id",
+	9:  "service_id",
+	10: "host_id",
+	11: "team_id",
 }
 
 // Decode decodes HostHostservicesList from json.
@@ -6014,8 +6252,20 @@ func (s *HostHostservicesList) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"round_delay\"")
 			}
-		case "host_id":
+		case "service_id":
 			requiredBitSet[1] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.ServiceID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"service_id\"")
+			}
+		case "host_id":
+			requiredBitSet[1] |= 1 << 2
 			if err := func() error {
 				v, err := d.Str()
 				s.HostID = string(v)
@@ -6027,7 +6277,7 @@ func (s *HostHostservicesList) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"host_id\"")
 			}
 		case "team_id":
-			requiredBitSet[1] |= 1 << 2
+			requiredBitSet[1] |= 1 << 3
 			if err := func() error {
 				v, err := d.Str()
 				s.TeamID = string(v)
@@ -6049,7 +6299,7 @@ func (s *HostHostservicesList) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11100111,
-		0b00000111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -6727,6 +6977,11 @@ func (s *HostServiceCreate) encodeFields(e *jx.Encoder) {
 	}
 	{
 
+		e.FieldStart("service_id")
+		e.Str(s.ServiceID)
+	}
+	{
+
 		e.FieldStart("host_id")
 		e.Str(s.HostID)
 	}
@@ -6737,7 +6992,7 @@ func (s *HostServiceCreate) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfHostServiceCreate = [11]string{
+var jsonFieldsNameOfHostServiceCreate = [12]string{
 	0:  "id",
 	1:  "name",
 	2:  "display_name",
@@ -6747,8 +7002,9 @@ var jsonFieldsNameOfHostServiceCreate = [11]string{
 	6:  "point_boost",
 	7:  "round_units",
 	8:  "round_delay",
-	9:  "host_id",
-	10: "team_id",
+	9:  "service_id",
+	10: "host_id",
+	11: "team_id",
 }
 
 // Decode decodes HostServiceCreate from json.
@@ -6864,8 +7120,20 @@ func (s *HostServiceCreate) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"round_delay\"")
 			}
-		case "host_id":
+		case "service_id":
 			requiredBitSet[1] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.ServiceID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"service_id\"")
+			}
+		case "host_id":
+			requiredBitSet[1] |= 1 << 2
 			if err := func() error {
 				v, err := d.Str()
 				s.HostID = string(v)
@@ -6877,7 +7145,7 @@ func (s *HostServiceCreate) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"host_id\"")
 			}
 		case "team_id":
-			requiredBitSet[1] |= 1 << 2
+			requiredBitSet[1] |= 1 << 3
 			if err := func() error {
 				v, err := d.Str()
 				s.TeamID = string(v)
@@ -6899,7 +7167,7 @@ func (s *HostServiceCreate) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11100111,
-		0b00000111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -7170,6 +7438,11 @@ func (s *HostServiceList) encodeFields(e *jx.Encoder) {
 	}
 	{
 
+		e.FieldStart("service_id")
+		e.Str(s.ServiceID)
+	}
+	{
+
 		e.FieldStart("host_id")
 		e.Str(s.HostID)
 	}
@@ -7180,7 +7453,7 @@ func (s *HostServiceList) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfHostServiceList = [11]string{
+var jsonFieldsNameOfHostServiceList = [12]string{
 	0:  "id",
 	1:  "name",
 	2:  "display_name",
@@ -7190,8 +7463,9 @@ var jsonFieldsNameOfHostServiceList = [11]string{
 	6:  "point_boost",
 	7:  "round_units",
 	8:  "round_delay",
-	9:  "host_id",
-	10: "team_id",
+	9:  "service_id",
+	10: "host_id",
+	11: "team_id",
 }
 
 // Decode decodes HostServiceList from json.
@@ -7307,8 +7581,20 @@ func (s *HostServiceList) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"round_delay\"")
 			}
-		case "host_id":
+		case "service_id":
 			requiredBitSet[1] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.ServiceID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"service_id\"")
+			}
+		case "host_id":
+			requiredBitSet[1] |= 1 << 2
 			if err := func() error {
 				v, err := d.Str()
 				s.HostID = string(v)
@@ -7320,7 +7606,7 @@ func (s *HostServiceList) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"host_id\"")
 			}
 		case "team_id":
-			requiredBitSet[1] |= 1 << 2
+			requiredBitSet[1] |= 1 << 3
 			if err := func() error {
 				v, err := d.Str()
 				s.TeamID = string(v)
@@ -7342,7 +7628,7 @@ func (s *HostServiceList) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11100111,
-		0b00000111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -7674,6 +7960,11 @@ func (s *HostServiceRead) encodeFields(e *jx.Encoder) {
 	}
 	{
 
+		e.FieldStart("service_id")
+		e.Str(s.ServiceID)
+	}
+	{
+
 		e.FieldStart("host_id")
 		e.Str(s.HostID)
 	}
@@ -7684,7 +7975,7 @@ func (s *HostServiceRead) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfHostServiceRead = [11]string{
+var jsonFieldsNameOfHostServiceRead = [12]string{
 	0:  "id",
 	1:  "name",
 	2:  "display_name",
@@ -7694,8 +7985,9 @@ var jsonFieldsNameOfHostServiceRead = [11]string{
 	6:  "point_boost",
 	7:  "round_units",
 	8:  "round_delay",
-	9:  "host_id",
-	10: "team_id",
+	9:  "service_id",
+	10: "host_id",
+	11: "team_id",
 }
 
 // Decode decodes HostServiceRead from json.
@@ -7811,8 +8103,20 @@ func (s *HostServiceRead) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"round_delay\"")
 			}
-		case "host_id":
+		case "service_id":
 			requiredBitSet[1] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.ServiceID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"service_id\"")
+			}
+		case "host_id":
+			requiredBitSet[1] |= 1 << 2
 			if err := func() error {
 				v, err := d.Str()
 				s.HostID = string(v)
@@ -7824,7 +8128,7 @@ func (s *HostServiceRead) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"host_id\"")
 			}
 		case "team_id":
-			requiredBitSet[1] |= 1 << 2
+			requiredBitSet[1] |= 1 << 3
 			if err := func() error {
 				v, err := d.Str()
 				s.TeamID = string(v)
@@ -7846,7 +8150,7 @@ func (s *HostServiceRead) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11100111,
-		0b00000111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -7888,6 +8192,265 @@ func (s *HostServiceRead) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *HostServiceRead) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *HostServiceServiceRead) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *HostServiceServiceRead) encodeFields(e *jx.Encoder) {
+	{
+
+		e.FieldStart("id")
+		e.Str(s.ID)
+	}
+	{
+
+		e.FieldStart("name")
+		e.Str(s.Name)
+	}
+	{
+
+		e.FieldStart("display_name")
+		e.Str(s.DisplayName)
+	}
+	{
+		if s.Pause.Set {
+			e.FieldStart("pause")
+			s.Pause.Encode(e)
+		}
+	}
+	{
+		if s.Hidden.Set {
+			e.FieldStart("hidden")
+			s.Hidden.Encode(e)
+		}
+	}
+	{
+
+		e.FieldStart("type")
+		s.Type.Encode(e)
+	}
+	{
+
+		e.FieldStart("competition_id")
+		e.Str(s.CompetitionID)
+	}
+}
+
+var jsonFieldsNameOfHostServiceServiceRead = [7]string{
+	0: "id",
+	1: "name",
+	2: "display_name",
+	3: "pause",
+	4: "hidden",
+	5: "type",
+	6: "competition_id",
+}
+
+// Decode decodes HostServiceServiceRead from json.
+func (s *HostServiceServiceRead) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode HostServiceServiceRead to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.ID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "name":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.Name = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name\"")
+			}
+		case "display_name":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Str()
+				s.DisplayName = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"display_name\"")
+			}
+		case "pause":
+			if err := func() error {
+				s.Pause.Reset()
+				if err := s.Pause.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"pause\"")
+			}
+		case "hidden":
+			if err := func() error {
+				s.Hidden.Reset()
+				if err := s.Hidden.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"hidden\"")
+			}
+		case "type":
+			requiredBitSet[0] |= 1 << 5
+			if err := func() error {
+				if err := s.Type.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"type\"")
+			}
+		case "competition_id":
+			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				v, err := d.Str()
+				s.CompetitionID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"competition_id\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode HostServiceServiceRead")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b01100111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfHostServiceServiceRead) {
+					name = jsonFieldsNameOfHostServiceServiceRead[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *HostServiceServiceRead) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *HostServiceServiceRead) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes HostServiceServiceReadType as json.
+func (s HostServiceServiceReadType) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes HostServiceServiceReadType from json.
+func (s *HostServiceServiceReadType) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode HostServiceServiceReadType to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch HostServiceServiceReadType(v) {
+	case HostServiceServiceReadTypeFtp:
+		*s = HostServiceServiceReadTypeFtp
+	case HostServiceServiceReadTypeSSH:
+		*s = HostServiceServiceReadTypeSSH
+	case HostServiceServiceReadTypeWinrm:
+		*s = HostServiceServiceReadTypeWinrm
+	case HostServiceServiceReadTypePing:
+		*s = HostServiceServiceReadTypePing
+	case HostServiceServiceReadTypeHTTP:
+		*s = HostServiceServiceReadTypeHTTP
+	case HostServiceServiceReadTypeLdap:
+		*s = HostServiceServiceReadTypeLdap
+	case HostServiceServiceReadTypeDNS:
+		*s = HostServiceServiceReadTypeDNS
+	case HostServiceServiceReadTypeSmb:
+		*s = HostServiceServiceReadTypeSmb
+	case HostServiceServiceReadTypeImap:
+		*s = HostServiceServiceReadTypeImap
+	case HostServiceServiceReadTypeSQL:
+		*s = HostServiceServiceReadTypeSQL
+	case HostServiceServiceReadTypeCaldav:
+		*s = HostServiceServiceReadTypeCaldav
+	default:
+		*s = HostServiceServiceReadType(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s HostServiceServiceReadType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *HostServiceServiceReadType) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -8153,6 +8716,11 @@ func (s *HostServiceUpdate) encodeFields(e *jx.Encoder) {
 	}
 	{
 
+		e.FieldStart("service_id")
+		e.Str(s.ServiceID)
+	}
+	{
+
 		e.FieldStart("host_id")
 		e.Str(s.HostID)
 	}
@@ -8163,7 +8731,7 @@ func (s *HostServiceUpdate) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfHostServiceUpdate = [11]string{
+var jsonFieldsNameOfHostServiceUpdate = [12]string{
 	0:  "id",
 	1:  "name",
 	2:  "display_name",
@@ -8173,8 +8741,9 @@ var jsonFieldsNameOfHostServiceUpdate = [11]string{
 	6:  "point_boost",
 	7:  "round_units",
 	8:  "round_delay",
-	9:  "host_id",
-	10: "team_id",
+	9:  "service_id",
+	10: "host_id",
+	11: "team_id",
 }
 
 // Decode decodes HostServiceUpdate from json.
@@ -8290,8 +8859,20 @@ func (s *HostServiceUpdate) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"round_delay\"")
 			}
-		case "host_id":
+		case "service_id":
 			requiredBitSet[1] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.ServiceID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"service_id\"")
+			}
+		case "host_id":
+			requiredBitSet[1] |= 1 << 2
 			if err := func() error {
 				v, err := d.Str()
 				s.HostID = string(v)
@@ -8303,7 +8884,7 @@ func (s *HostServiceUpdate) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"host_id\"")
 			}
 		case "team_id":
-			requiredBitSet[1] |= 1 << 2
+			requiredBitSet[1] |= 1 << 3
 			if err := func() error {
 				v, err := d.Str()
 				s.TeamID = string(v)
@@ -8325,7 +8906,7 @@ func (s *HostServiceUpdate) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11100111,
-		0b00000111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -9491,6 +10072,56 @@ func (s *ListRoundOKApplicationJSON) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes ListServiceHostservicesOKApplicationJSON as json.
+func (s ListServiceHostservicesOKApplicationJSON) Encode(e *jx.Encoder) {
+	unwrapped := []ServiceHostservicesList(s)
+
+	e.ArrStart()
+	for _, elem := range unwrapped {
+		elem.Encode(e)
+	}
+	e.ArrEnd()
+}
+
+// Decode decodes ListServiceHostservicesOKApplicationJSON from json.
+func (s *ListServiceHostservicesOKApplicationJSON) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ListServiceHostservicesOKApplicationJSON to nil")
+	}
+	var unwrapped []ServiceHostservicesList
+	if err := func() error {
+		unwrapped = make([]ServiceHostservicesList, 0)
+		if err := d.Arr(func(d *jx.Decoder) error {
+			var elem ServiceHostservicesList
+			if err := elem.Decode(d); err != nil {
+				return err
+			}
+			unwrapped = append(unwrapped, elem)
+			return nil
+		}); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = ListServiceHostservicesOKApplicationJSON(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s ListServiceHostservicesOKApplicationJSON) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ListServiceHostservicesOKApplicationJSON) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes ListServiceOKApplicationJSON as json.
 func (s ListServiceOKApplicationJSON) Encode(e *jx.Encoder) {
 	unwrapped := []ServiceList(s)
@@ -9964,6 +10595,39 @@ func (s *OptUpdatePropertyReqStatus) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes UpdateServiceReqType as json.
+func (o OptUpdateServiceReqType) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes UpdateServiceReqType from json.
+func (o *OptUpdateServiceReqType) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptUpdateServiceReqType to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptUpdateServiceReqType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptUpdateServiceReqType) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode implements json.Marshaler.
 func (s *PropertyCreate) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -10250,6 +10914,11 @@ func (s *PropertyHostserviceRead) encodeFields(e *jx.Encoder) {
 	}
 	{
 
+		e.FieldStart("service_id")
+		e.Str(s.ServiceID)
+	}
+	{
+
 		e.FieldStart("host_id")
 		e.Str(s.HostID)
 	}
@@ -10260,7 +10929,7 @@ func (s *PropertyHostserviceRead) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfPropertyHostserviceRead = [11]string{
+var jsonFieldsNameOfPropertyHostserviceRead = [12]string{
 	0:  "id",
 	1:  "name",
 	2:  "display_name",
@@ -10270,8 +10939,9 @@ var jsonFieldsNameOfPropertyHostserviceRead = [11]string{
 	6:  "point_boost",
 	7:  "round_units",
 	8:  "round_delay",
-	9:  "host_id",
-	10: "team_id",
+	9:  "service_id",
+	10: "host_id",
+	11: "team_id",
 }
 
 // Decode decodes PropertyHostserviceRead from json.
@@ -10387,8 +11057,20 @@ func (s *PropertyHostserviceRead) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"round_delay\"")
 			}
-		case "host_id":
+		case "service_id":
 			requiredBitSet[1] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.ServiceID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"service_id\"")
+			}
+		case "host_id":
+			requiredBitSet[1] |= 1 << 2
 			if err := func() error {
 				v, err := d.Str()
 				s.HostID = string(v)
@@ -10400,7 +11082,7 @@ func (s *PropertyHostserviceRead) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"host_id\"")
 			}
 		case "team_id":
-			requiredBitSet[1] |= 1 << 2
+			requiredBitSet[1] |= 1 << 3
 			if err := func() error {
 				v, err := d.Str()
 				s.TeamID = string(v)
@@ -10422,7 +11104,7 @@ func (s *PropertyHostserviceRead) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11100111,
-		0b00000111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -14301,18 +14983,24 @@ func (s *ServiceCreate) encodeFields(e *jx.Encoder) {
 	}
 	{
 
+		e.FieldStart("type")
+		s.Type.Encode(e)
+	}
+	{
+
 		e.FieldStart("competition_id")
 		e.Str(s.CompetitionID)
 	}
 }
 
-var jsonFieldsNameOfServiceCreate = [6]string{
+var jsonFieldsNameOfServiceCreate = [7]string{
 	0: "id",
 	1: "name",
 	2: "display_name",
 	3: "pause",
 	4: "hidden",
-	5: "competition_id",
+	5: "type",
+	6: "competition_id",
 }
 
 // Decode decodes ServiceCreate from json.
@@ -14380,8 +15068,18 @@ func (s *ServiceCreate) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"hidden\"")
 			}
-		case "competition_id":
+		case "type":
 			requiredBitSet[0] |= 1 << 5
+			if err := func() error {
+				if err := s.Type.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"type\"")
+			}
+		case "competition_id":
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				v, err := d.Str()
 				s.CompetitionID = string(v)
@@ -14402,7 +15100,7 @@ func (s *ServiceCreate) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00100111,
+		0b01100111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -14448,6 +15146,358 @@ func (s *ServiceCreate) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes ServiceCreateType as json.
+func (s ServiceCreateType) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes ServiceCreateType from json.
+func (s *ServiceCreateType) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ServiceCreateType to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch ServiceCreateType(v) {
+	case ServiceCreateTypeFtp:
+		*s = ServiceCreateTypeFtp
+	case ServiceCreateTypeSSH:
+		*s = ServiceCreateTypeSSH
+	case ServiceCreateTypeWinrm:
+		*s = ServiceCreateTypeWinrm
+	case ServiceCreateTypePing:
+		*s = ServiceCreateTypePing
+	case ServiceCreateTypeHTTP:
+		*s = ServiceCreateTypeHTTP
+	case ServiceCreateTypeLdap:
+		*s = ServiceCreateTypeLdap
+	case ServiceCreateTypeDNS:
+		*s = ServiceCreateTypeDNS
+	case ServiceCreateTypeSmb:
+		*s = ServiceCreateTypeSmb
+	case ServiceCreateTypeImap:
+		*s = ServiceCreateTypeImap
+	case ServiceCreateTypeSQL:
+		*s = ServiceCreateTypeSQL
+	case ServiceCreateTypeCaldav:
+		*s = ServiceCreateTypeCaldav
+	default:
+		*s = ServiceCreateType(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s ServiceCreateType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ServiceCreateType) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *ServiceHostservicesList) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *ServiceHostservicesList) encodeFields(e *jx.Encoder) {
+	{
+
+		e.FieldStart("id")
+		e.Str(s.ID)
+	}
+	{
+
+		e.FieldStart("name")
+		e.Str(s.Name)
+	}
+	{
+
+		e.FieldStart("display_name")
+		e.Str(s.DisplayName)
+	}
+	{
+		if s.Pause.Set {
+			e.FieldStart("pause")
+			s.Pause.Encode(e)
+		}
+	}
+	{
+		if s.Hidden.Set {
+			e.FieldStart("hidden")
+			s.Hidden.Encode(e)
+		}
+	}
+	{
+
+		e.FieldStart("weight")
+		e.Int(s.Weight)
+	}
+	{
+
+		e.FieldStart("point_boost")
+		e.Int(s.PointBoost)
+	}
+	{
+
+		e.FieldStart("round_units")
+		e.Int(s.RoundUnits)
+	}
+	{
+
+		e.FieldStart("round_delay")
+		e.Int(s.RoundDelay)
+	}
+	{
+
+		e.FieldStart("service_id")
+		e.Str(s.ServiceID)
+	}
+	{
+
+		e.FieldStart("host_id")
+		e.Str(s.HostID)
+	}
+	{
+
+		e.FieldStart("team_id")
+		e.Str(s.TeamID)
+	}
+}
+
+var jsonFieldsNameOfServiceHostservicesList = [12]string{
+	0:  "id",
+	1:  "name",
+	2:  "display_name",
+	3:  "pause",
+	4:  "hidden",
+	5:  "weight",
+	6:  "point_boost",
+	7:  "round_units",
+	8:  "round_delay",
+	9:  "service_id",
+	10: "host_id",
+	11: "team_id",
+}
+
+// Decode decodes ServiceHostservicesList from json.
+func (s *ServiceHostservicesList) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ServiceHostservicesList to nil")
+	}
+	var requiredBitSet [2]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.ID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "name":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.Name = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name\"")
+			}
+		case "display_name":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Str()
+				s.DisplayName = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"display_name\"")
+			}
+		case "pause":
+			if err := func() error {
+				s.Pause.Reset()
+				if err := s.Pause.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"pause\"")
+			}
+		case "hidden":
+			if err := func() error {
+				s.Hidden.Reset()
+				if err := s.Hidden.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"hidden\"")
+			}
+		case "weight":
+			requiredBitSet[0] |= 1 << 5
+			if err := func() error {
+				v, err := d.Int()
+				s.Weight = int(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"weight\"")
+			}
+		case "point_boost":
+			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				v, err := d.Int()
+				s.PointBoost = int(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"point_boost\"")
+			}
+		case "round_units":
+			requiredBitSet[0] |= 1 << 7
+			if err := func() error {
+				v, err := d.Int()
+				s.RoundUnits = int(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"round_units\"")
+			}
+		case "round_delay":
+			requiredBitSet[1] |= 1 << 0
+			if err := func() error {
+				v, err := d.Int()
+				s.RoundDelay = int(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"round_delay\"")
+			}
+		case "service_id":
+			requiredBitSet[1] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.ServiceID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"service_id\"")
+			}
+		case "host_id":
+			requiredBitSet[1] |= 1 << 2
+			if err := func() error {
+				v, err := d.Str()
+				s.HostID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"host_id\"")
+			}
+		case "team_id":
+			requiredBitSet[1] |= 1 << 3
+			if err := func() error {
+				v, err := d.Str()
+				s.TeamID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"team_id\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode ServiceHostservicesList")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [2]uint8{
+		0b11100111,
+		0b00001111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfServiceHostservicesList) {
+					name = jsonFieldsNameOfServiceHostservicesList[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *ServiceHostservicesList) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ServiceHostservicesList) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode implements json.Marshaler.
 func (s *ServiceList) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -14486,18 +15536,24 @@ func (s *ServiceList) encodeFields(e *jx.Encoder) {
 	}
 	{
 
+		e.FieldStart("type")
+		s.Type.Encode(e)
+	}
+	{
+
 		e.FieldStart("competition_id")
 		e.Str(s.CompetitionID)
 	}
 }
 
-var jsonFieldsNameOfServiceList = [6]string{
+var jsonFieldsNameOfServiceList = [7]string{
 	0: "id",
 	1: "name",
 	2: "display_name",
 	3: "pause",
 	4: "hidden",
-	5: "competition_id",
+	5: "type",
+	6: "competition_id",
 }
 
 // Decode decodes ServiceList from json.
@@ -14565,8 +15621,18 @@ func (s *ServiceList) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"hidden\"")
 			}
-		case "competition_id":
+		case "type":
 			requiredBitSet[0] |= 1 << 5
+			if err := func() error {
+				if err := s.Type.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"type\"")
+			}
+		case "competition_id":
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				v, err := d.Str()
 				s.CompetitionID = string(v)
@@ -14587,7 +15653,7 @@ func (s *ServiceList) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00100111,
+		0b01100111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -14633,6 +15699,64 @@ func (s *ServiceList) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes ServiceListType as json.
+func (s ServiceListType) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes ServiceListType from json.
+func (s *ServiceListType) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ServiceListType to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch ServiceListType(v) {
+	case ServiceListTypeFtp:
+		*s = ServiceListTypeFtp
+	case ServiceListTypeSSH:
+		*s = ServiceListTypeSSH
+	case ServiceListTypeWinrm:
+		*s = ServiceListTypeWinrm
+	case ServiceListTypePing:
+		*s = ServiceListTypePing
+	case ServiceListTypeHTTP:
+		*s = ServiceListTypeHTTP
+	case ServiceListTypeLdap:
+		*s = ServiceListTypeLdap
+	case ServiceListTypeDNS:
+		*s = ServiceListTypeDNS
+	case ServiceListTypeSmb:
+		*s = ServiceListTypeSmb
+	case ServiceListTypeImap:
+		*s = ServiceListTypeImap
+	case ServiceListTypeSQL:
+		*s = ServiceListTypeSQL
+	case ServiceListTypeCaldav:
+		*s = ServiceListTypeCaldav
+	default:
+		*s = ServiceListType(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s ServiceListType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ServiceListType) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode implements json.Marshaler.
 func (s *ServiceRead) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -14671,18 +15795,24 @@ func (s *ServiceRead) encodeFields(e *jx.Encoder) {
 	}
 	{
 
+		e.FieldStart("type")
+		s.Type.Encode(e)
+	}
+	{
+
 		e.FieldStart("competition_id")
 		e.Str(s.CompetitionID)
 	}
 }
 
-var jsonFieldsNameOfServiceRead = [6]string{
+var jsonFieldsNameOfServiceRead = [7]string{
 	0: "id",
 	1: "name",
 	2: "display_name",
 	3: "pause",
 	4: "hidden",
-	5: "competition_id",
+	5: "type",
+	6: "competition_id",
 }
 
 // Decode decodes ServiceRead from json.
@@ -14750,8 +15880,18 @@ func (s *ServiceRead) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"hidden\"")
 			}
-		case "competition_id":
+		case "type":
 			requiredBitSet[0] |= 1 << 5
+			if err := func() error {
+				if err := s.Type.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"type\"")
+			}
+		case "competition_id":
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				v, err := d.Str()
 				s.CompetitionID = string(v)
@@ -14772,7 +15912,7 @@ func (s *ServiceRead) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00100111,
+		0b01100111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -14818,6 +15958,64 @@ func (s *ServiceRead) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes ServiceReadType as json.
+func (s ServiceReadType) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes ServiceReadType from json.
+func (s *ServiceReadType) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ServiceReadType to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch ServiceReadType(v) {
+	case ServiceReadTypeFtp:
+		*s = ServiceReadTypeFtp
+	case ServiceReadTypeSSH:
+		*s = ServiceReadTypeSSH
+	case ServiceReadTypeWinrm:
+		*s = ServiceReadTypeWinrm
+	case ServiceReadTypePing:
+		*s = ServiceReadTypePing
+	case ServiceReadTypeHTTP:
+		*s = ServiceReadTypeHTTP
+	case ServiceReadTypeLdap:
+		*s = ServiceReadTypeLdap
+	case ServiceReadTypeDNS:
+		*s = ServiceReadTypeDNS
+	case ServiceReadTypeSmb:
+		*s = ServiceReadTypeSmb
+	case ServiceReadTypeImap:
+		*s = ServiceReadTypeImap
+	case ServiceReadTypeSQL:
+		*s = ServiceReadTypeSQL
+	case ServiceReadTypeCaldav:
+		*s = ServiceReadTypeCaldav
+	default:
+		*s = ServiceReadType(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s ServiceReadType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ServiceReadType) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode implements json.Marshaler.
 func (s *ServiceUpdate) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -14856,18 +16054,24 @@ func (s *ServiceUpdate) encodeFields(e *jx.Encoder) {
 	}
 	{
 
+		e.FieldStart("type")
+		s.Type.Encode(e)
+	}
+	{
+
 		e.FieldStart("competition_id")
 		e.Str(s.CompetitionID)
 	}
 }
 
-var jsonFieldsNameOfServiceUpdate = [6]string{
+var jsonFieldsNameOfServiceUpdate = [7]string{
 	0: "id",
 	1: "name",
 	2: "display_name",
 	3: "pause",
 	4: "hidden",
-	5: "competition_id",
+	5: "type",
+	6: "competition_id",
 }
 
 // Decode decodes ServiceUpdate from json.
@@ -14935,8 +16139,18 @@ func (s *ServiceUpdate) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"hidden\"")
 			}
-		case "competition_id":
+		case "type":
 			requiredBitSet[0] |= 1 << 5
+			if err := func() error {
+				if err := s.Type.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"type\"")
+			}
+		case "competition_id":
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				v, err := d.Str()
 				s.CompetitionID = string(v)
@@ -14957,7 +16171,7 @@ func (s *ServiceUpdate) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00100111,
+		0b01100111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -14999,6 +16213,64 @@ func (s *ServiceUpdate) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *ServiceUpdate) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes ServiceUpdateType as json.
+func (s ServiceUpdateType) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes ServiceUpdateType from json.
+func (s *ServiceUpdateType) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ServiceUpdateType to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch ServiceUpdateType(v) {
+	case ServiceUpdateTypeFtp:
+		*s = ServiceUpdateTypeFtp
+	case ServiceUpdateTypeSSH:
+		*s = ServiceUpdateTypeSSH
+	case ServiceUpdateTypeWinrm:
+		*s = ServiceUpdateTypeWinrm
+	case ServiceUpdateTypePing:
+		*s = ServiceUpdateTypePing
+	case ServiceUpdateTypeHTTP:
+		*s = ServiceUpdateTypeHTTP
+	case ServiceUpdateTypeLdap:
+		*s = ServiceUpdateTypeLdap
+	case ServiceUpdateTypeDNS:
+		*s = ServiceUpdateTypeDNS
+	case ServiceUpdateTypeSmb:
+		*s = ServiceUpdateTypeSmb
+	case ServiceUpdateTypeImap:
+		*s = ServiceUpdateTypeImap
+	case ServiceUpdateTypeSQL:
+		*s = ServiceUpdateTypeSQL
+	case ServiceUpdateTypeCaldav:
+		*s = ServiceUpdateTypeCaldav
+	default:
+		*s = ServiceUpdateType(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s ServiceUpdateType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ServiceUpdateType) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -15907,6 +17179,11 @@ func (s *TeamHostservicesList) encodeFields(e *jx.Encoder) {
 	}
 	{
 
+		e.FieldStart("service_id")
+		e.Str(s.ServiceID)
+	}
+	{
+
 		e.FieldStart("host_id")
 		e.Str(s.HostID)
 	}
@@ -15917,7 +17194,7 @@ func (s *TeamHostservicesList) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfTeamHostservicesList = [11]string{
+var jsonFieldsNameOfTeamHostservicesList = [12]string{
 	0:  "id",
 	1:  "name",
 	2:  "display_name",
@@ -15927,8 +17204,9 @@ var jsonFieldsNameOfTeamHostservicesList = [11]string{
 	6:  "point_boost",
 	7:  "round_units",
 	8:  "round_delay",
-	9:  "host_id",
-	10: "team_id",
+	9:  "service_id",
+	10: "host_id",
+	11: "team_id",
 }
 
 // Decode decodes TeamHostservicesList from json.
@@ -16044,8 +17322,20 @@ func (s *TeamHostservicesList) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"round_delay\"")
 			}
-		case "host_id":
+		case "service_id":
 			requiredBitSet[1] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.ServiceID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"service_id\"")
+			}
+		case "host_id":
+			requiredBitSet[1] |= 1 << 2
 			if err := func() error {
 				v, err := d.Str()
 				s.HostID = string(v)
@@ -16057,7 +17347,7 @@ func (s *TeamHostservicesList) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"host_id\"")
 			}
 		case "team_id":
-			requiredBitSet[1] |= 1 << 2
+			requiredBitSet[1] |= 1 << 3
 			if err := func() error {
 				v, err := d.Str()
 				s.TeamID = string(v)
@@ -16079,7 +17369,7 @@ func (s *TeamHostservicesList) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11100111,
-		0b00000111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -17002,18 +18292,6 @@ func (s *UpdateCheckReq) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.RoundID.Set {
-			e.FieldStart("round_id")
-			s.RoundID.Encode(e)
-		}
-	}
-	{
-		if s.HostServiceID.Set {
-			e.FieldStart("host_service_id")
-			s.HostServiceID.Encode(e)
-		}
-	}
-	{
 		if s.Rounds.Set {
 			e.FieldStart("rounds")
 			s.Rounds.Encode(e)
@@ -17033,17 +18311,15 @@ func (s *UpdateCheckReq) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfUpdateCheckReq = [10]string{
+var jsonFieldsNameOfUpdateCheckReq = [8]string{
 	0: "pause",
 	1: "hidden",
 	2: "log",
 	3: "error",
 	4: "passed",
-	5: "round_id",
-	6: "host_service_id",
-	7: "rounds",
-	8: "hostservice",
-	9: "team",
+	5: "rounds",
+	6: "hostservice",
+	7: "team",
 }
 
 // Decode decodes UpdateCheckReq from json.
@@ -17103,26 +18379,6 @@ func (s *UpdateCheckReq) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"passed\"")
-			}
-		case "round_id":
-			if err := func() error {
-				s.RoundID.Reset()
-				if err := s.RoundID.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"round_id\"")
-			}
-		case "host_service_id":
-			if err := func() error {
-				s.HostServiceID.Reset()
-				if err := s.HostServiceID.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"host_service_id\"")
 			}
 		case "rounds":
 			if err := func() error {
@@ -17682,15 +18938,9 @@ func (s *UpdateHostServiceReq) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.HostID.Set {
-			e.FieldStart("host_id")
-			s.HostID.Encode(e)
-		}
-	}
-	{
-		if s.Host.Set {
-			e.FieldStart("host")
-			s.Host.Encode(e)
+		if s.ServiceID.Set {
+			e.FieldStart("service_id")
+			s.ServiceID.Encode(e)
 		}
 	}
 	{
@@ -17714,6 +18964,18 @@ func (s *UpdateHostServiceReq) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.Service.Set {
+			e.FieldStart("service")
+			s.Service.Encode(e)
+		}
+	}
+	{
+		if s.Host.Set {
+			e.FieldStart("host")
+			s.Host.Encode(e)
+		}
+	}
+	{
 		if s.Team.Set {
 			e.FieldStart("team")
 			s.Team.Encode(e)
@@ -17721,7 +18983,7 @@ func (s *UpdateHostServiceReq) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfUpdateHostServiceReq = [13]string{
+var jsonFieldsNameOfUpdateHostServiceReq = [14]string{
 	0:  "name",
 	1:  "display_name",
 	2:  "pause",
@@ -17730,11 +18992,12 @@ var jsonFieldsNameOfUpdateHostServiceReq = [13]string{
 	5:  "point_boost",
 	6:  "round_units",
 	7:  "round_delay",
-	8:  "host_id",
-	9:  "host",
-	10: "checks",
-	11: "properties",
-	12: "team",
+	8:  "service_id",
+	9:  "checks",
+	10: "properties",
+	11: "service",
+	12: "host",
+	13: "team",
 }
 
 // Decode decodes UpdateHostServiceReq from json.
@@ -17825,25 +19088,15 @@ func (s *UpdateHostServiceReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"round_delay\"")
 			}
-		case "host_id":
+		case "service_id":
 			if err := func() error {
-				s.HostID.Reset()
-				if err := s.HostID.Decode(d); err != nil {
+				s.ServiceID.Reset()
+				if err := s.ServiceID.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"host_id\"")
-			}
-		case "host":
-			if err := func() error {
-				s.Host.Reset()
-				if err := s.Host.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"host\"")
+				return errors.Wrap(err, "decode field \"service_id\"")
 			}
 		case "checks":
 			if err := func() error {
@@ -17882,6 +19135,26 @@ func (s *UpdateHostServiceReq) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"properties\"")
+			}
+		case "service":
+			if err := func() error {
+				s.Service.Reset()
+				if err := s.Service.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"service\"")
+			}
+		case "host":
+			if err := func() error {
+				s.Host.Reset()
+				if err := s.Host.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"host\"")
 			}
 		case "team":
 			if err := func() error {
@@ -18417,6 +19690,22 @@ func (s *UpdateServiceReq) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.Type.Set {
+			e.FieldStart("type")
+			s.Type.Encode(e)
+		}
+	}
+	{
+		if s.Hostservices != nil {
+			e.FieldStart("hostservices")
+			e.ArrStart()
+			for _, elem := range s.Hostservices {
+				e.Str(elem)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
 		if s.Competition.Set {
 			e.FieldStart("competition")
 			s.Competition.Encode(e)
@@ -18424,12 +19713,14 @@ func (s *UpdateServiceReq) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfUpdateServiceReq = [5]string{
+var jsonFieldsNameOfUpdateServiceReq = [7]string{
 	0: "name",
 	1: "display_name",
 	2: "pause",
 	3: "hidden",
-	4: "competition",
+	4: "type",
+	5: "hostservices",
+	6: "competition",
 }
 
 // Decode decodes UpdateServiceReq from json.
@@ -18480,6 +19771,35 @@ func (s *UpdateServiceReq) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"hidden\"")
 			}
+		case "type":
+			if err := func() error {
+				s.Type.Reset()
+				if err := s.Type.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"type\"")
+			}
+		case "hostservices":
+			if err := func() error {
+				s.Hostservices = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.Hostservices = append(s.Hostservices, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"hostservices\"")
+			}
 		case "competition":
 			if err := func() error {
 				s.Competition.Reset()
@@ -18510,6 +19830,64 @@ func (s *UpdateServiceReq) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *UpdateServiceReq) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes UpdateServiceReqType as json.
+func (s UpdateServiceReqType) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes UpdateServiceReqType from json.
+func (s *UpdateServiceReqType) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateServiceReqType to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch UpdateServiceReqType(v) {
+	case UpdateServiceReqTypeFtp:
+		*s = UpdateServiceReqTypeFtp
+	case UpdateServiceReqTypeSSH:
+		*s = UpdateServiceReqTypeSSH
+	case UpdateServiceReqTypeWinrm:
+		*s = UpdateServiceReqTypeWinrm
+	case UpdateServiceReqTypePing:
+		*s = UpdateServiceReqTypePing
+	case UpdateServiceReqTypeHTTP:
+		*s = UpdateServiceReqTypeHTTP
+	case UpdateServiceReqTypeLdap:
+		*s = UpdateServiceReqTypeLdap
+	case UpdateServiceReqTypeDNS:
+		*s = UpdateServiceReqTypeDNS
+	case UpdateServiceReqTypeSmb:
+		*s = UpdateServiceReqTypeSmb
+	case UpdateServiceReqTypeImap:
+		*s = UpdateServiceReqTypeImap
+	case UpdateServiceReqTypeSQL:
+		*s = UpdateServiceReqTypeSQL
+	case UpdateServiceReqTypeCaldav:
+		*s = UpdateServiceReqTypeCaldav
+	default:
+		*s = UpdateServiceReqType(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s UpdateServiceReqType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateServiceReqType) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

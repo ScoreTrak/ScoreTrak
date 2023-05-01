@@ -212,6 +212,12 @@ type Handler interface {
 	//
 	// GET /services
 	ListService(ctx context.Context, params ListServiceParams) (ListServiceRes, error)
+	// ListServiceHostservices implements listServiceHostservices operation.
+	//
+	// List attached Hostservices.
+	//
+	// GET /services/{id}/hostservices
+	ListServiceHostservices(ctx context.Context, params ListServiceHostservicesParams) (ListServiceHostservicesRes, error)
 	// ListTeam implements listTeam operation.
 	//
 	// List Teams.
@@ -290,6 +296,12 @@ type Handler interface {
 	//
 	// GET /host-services/{id}/host
 	ReadHostServiceHost(ctx context.Context, params ReadHostServiceHostParams) (ReadHostServiceHostRes, error)
+	// ReadHostServiceService implements readHostServiceService operation.
+	//
+	// Find the attached Service of the HostService with the given ID.
+	//
+	// GET /host-services/{id}/service
+	ReadHostServiceService(ctx context.Context, params ReadHostServiceServiceParams) (ReadHostServiceServiceRes, error)
 	// ReadHostServiceTeam implements readHostServiceTeam operation.
 	//
 	// Find the attached Team of the HostService with the given ID.

@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
 )
 
@@ -34,6 +35,8 @@ type HostService struct {
 	RoundUnits int `json:"round_units,omitempty"`
 	// RoundDelay holds the value of the "round_delay" field.
 	RoundDelay int `json:"round_delay,omitempty"`
+	// ServiceID holds the value of the "service_id" field.
+	ServiceID string `json:"service_id,omitempty"`
 	// HostID holds the value of the "host_id" field.
 	HostID string `json:"host_id,omitempty"`
 	// TeamID holds the value of the "team_id" field.
@@ -46,23 +49,56 @@ type HostService struct {
 
 // HostServiceEdges holds the relations/edges for other nodes in the graph.
 type HostServiceEdges struct {
-	// Host holds the value of the host edge.
-	Host *Host `json:"host,omitempty"`
 	// Checks holds the value of the checks edge.
 	Checks []*Check `json:"checks,omitempty"`
 	// Properties holds the value of the properties edge.
 	Properties []*Property `json:"properties,omitempty"`
+	// Service holds the value of the service edge.
+	Service *Service `json:"service,omitempty"`
+	// Host holds the value of the host edge.
+	Host *Host `json:"host,omitempty"`
 	// Team holds the value of the team edge.
 	Team *Team `json:"team,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [5]bool
+}
+
+// ChecksOrErr returns the Checks value or an error if the edge
+// was not loaded in eager-loading.
+func (e HostServiceEdges) ChecksOrErr() ([]*Check, error) {
+	if e.loadedTypes[0] {
+		return e.Checks, nil
+	}
+	return nil, &NotLoadedError{edge: "checks"}
+}
+
+// PropertiesOrErr returns the Properties value or an error if the edge
+// was not loaded in eager-loading.
+func (e HostServiceEdges) PropertiesOrErr() ([]*Property, error) {
+	if e.loadedTypes[1] {
+		return e.Properties, nil
+	}
+	return nil, &NotLoadedError{edge: "properties"}
+}
+
+// ServiceOrErr returns the Service value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e HostServiceEdges) ServiceOrErr() (*Service, error) {
+	if e.loadedTypes[2] {
+		if e.Service == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: service.Label}
+		}
+		return e.Service, nil
+	}
+	return nil, &NotLoadedError{edge: "service"}
 }
 
 // HostOrErr returns the Host value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e HostServiceEdges) HostOrErr() (*Host, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[3] {
 		if e.Host == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: host.Label}
@@ -72,28 +108,10 @@ func (e HostServiceEdges) HostOrErr() (*Host, error) {
 	return nil, &NotLoadedError{edge: "host"}
 }
 
-// ChecksOrErr returns the Checks value or an error if the edge
-// was not loaded in eager-loading.
-func (e HostServiceEdges) ChecksOrErr() ([]*Check, error) {
-	if e.loadedTypes[1] {
-		return e.Checks, nil
-	}
-	return nil, &NotLoadedError{edge: "checks"}
-}
-
-// PropertiesOrErr returns the Properties value or an error if the edge
-// was not loaded in eager-loading.
-func (e HostServiceEdges) PropertiesOrErr() ([]*Property, error) {
-	if e.loadedTypes[2] {
-		return e.Properties, nil
-	}
-	return nil, &NotLoadedError{edge: "properties"}
-}
-
 // TeamOrErr returns the Team value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e HostServiceEdges) TeamOrErr() (*Team, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[4] {
 		if e.Team == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: team.Label}
@@ -112,7 +130,7 @@ func (*HostService) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case hostservice.FieldWeight, hostservice.FieldPointBoost, hostservice.FieldRoundUnits, hostservice.FieldRoundDelay:
 			values[i] = new(sql.NullInt64)
-		case hostservice.FieldID, hostservice.FieldName, hostservice.FieldDisplayName, hostservice.FieldHostID, hostservice.FieldTeamID:
+		case hostservice.FieldID, hostservice.FieldName, hostservice.FieldDisplayName, hostservice.FieldServiceID, hostservice.FieldHostID, hostservice.FieldTeamID:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -183,6 +201,12 @@ func (hs *HostService) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				hs.RoundDelay = int(value.Int64)
 			}
+		case hostservice.FieldServiceID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field service_id", values[i])
+			} else if value.Valid {
+				hs.ServiceID = value.String
+			}
 		case hostservice.FieldHostID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field host_id", values[i])
@@ -208,11 +232,6 @@ func (hs *HostService) Value(name string) (ent.Value, error) {
 	return hs.selectValues.Get(name)
 }
 
-// QueryHost queries the "host" edge of the HostService entity.
-func (hs *HostService) QueryHost() *HostQuery {
-	return NewHostServiceClient(hs.config).QueryHost(hs)
-}
-
 // QueryChecks queries the "checks" edge of the HostService entity.
 func (hs *HostService) QueryChecks() *CheckQuery {
 	return NewHostServiceClient(hs.config).QueryChecks(hs)
@@ -221,6 +240,16 @@ func (hs *HostService) QueryChecks() *CheckQuery {
 // QueryProperties queries the "properties" edge of the HostService entity.
 func (hs *HostService) QueryProperties() *PropertyQuery {
 	return NewHostServiceClient(hs.config).QueryProperties(hs)
+}
+
+// QueryService queries the "service" edge of the HostService entity.
+func (hs *HostService) QueryService() *ServiceQuery {
+	return NewHostServiceClient(hs.config).QueryService(hs)
+}
+
+// QueryHost queries the "host" edge of the HostService entity.
+func (hs *HostService) QueryHost() *HostQuery {
+	return NewHostServiceClient(hs.config).QueryHost(hs)
 }
 
 // QueryTeam queries the "team" edge of the HostService entity.
@@ -274,6 +303,9 @@ func (hs *HostService) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("round_delay=")
 	builder.WriteString(fmt.Sprintf("%v", hs.RoundDelay))
+	builder.WriteString(", ")
+	builder.WriteString("service_id=")
+	builder.WriteString(hs.ServiceID)
 	builder.WriteString(", ")
 	builder.WriteString("host_id=")
 	builder.WriteString(hs.HostID)

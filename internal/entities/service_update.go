@@ -10,8 +10,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec/resolver"
 )
 
 // ServiceUpdate is the builder for updating Service entities.
@@ -79,9 +81,51 @@ func (su *ServiceUpdate) ClearHidden() *ServiceUpdate {
 	return su
 }
 
+// SetType sets the "type" field.
+func (su *ServiceUpdate) SetType(r resolver.Service) *ServiceUpdate {
+	su.mutation.SetType(r)
+	return su
+}
+
+// AddHostserviceIDs adds the "hostservices" edge to the HostService entity by IDs.
+func (su *ServiceUpdate) AddHostserviceIDs(ids ...string) *ServiceUpdate {
+	su.mutation.AddHostserviceIDs(ids...)
+	return su
+}
+
+// AddHostservices adds the "hostservices" edges to the HostService entity.
+func (su *ServiceUpdate) AddHostservices(h ...*HostService) *ServiceUpdate {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return su.AddHostserviceIDs(ids...)
+}
+
 // Mutation returns the ServiceMutation object of the builder.
 func (su *ServiceUpdate) Mutation() *ServiceMutation {
 	return su.mutation
+}
+
+// ClearHostservices clears all "hostservices" edges to the HostService entity.
+func (su *ServiceUpdate) ClearHostservices() *ServiceUpdate {
+	su.mutation.ClearHostservices()
+	return su
+}
+
+// RemoveHostserviceIDs removes the "hostservices" edge to HostService entities by IDs.
+func (su *ServiceUpdate) RemoveHostserviceIDs(ids ...string) *ServiceUpdate {
+	su.mutation.RemoveHostserviceIDs(ids...)
+	return su
+}
+
+// RemoveHostservices removes "hostservices" edges to HostService entities.
+func (su *ServiceUpdate) RemoveHostservices(h ...*HostService) *ServiceUpdate {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return su.RemoveHostserviceIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -123,6 +167,11 @@ func (su *ServiceUpdate) check() error {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`entities: validator failed for field "Service.display_name": %w`, err)}
 		}
 	}
+	if v, ok := su.mutation.GetType(); ok {
+		if err := service.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`entities: validator failed for field "Service.type": %w`, err)}
+		}
+	}
 	if _, ok := su.mutation.CompetitionID(); su.mutation.CompetitionCleared() && !ok {
 		return errors.New(`entities: clearing a required unique edge "Service.competition"`)
 	}
@@ -158,6 +207,54 @@ func (su *ServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if su.mutation.HiddenCleared() {
 		_spec.ClearField(service.FieldHidden, field.TypeBool)
+	}
+	if value, ok := su.mutation.GetType(); ok {
+		_spec.SetField(service.FieldType, field.TypeEnum, value)
+	}
+	if su.mutation.HostservicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   service.HostservicesTable,
+			Columns: []string{service.HostservicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.RemovedHostservicesIDs(); len(nodes) > 0 && !su.mutation.HostservicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   service.HostservicesTable,
+			Columns: []string{service.HostservicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.HostservicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   service.HostservicesTable,
+			Columns: []string{service.HostservicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -231,9 +328,51 @@ func (suo *ServiceUpdateOne) ClearHidden() *ServiceUpdateOne {
 	return suo
 }
 
+// SetType sets the "type" field.
+func (suo *ServiceUpdateOne) SetType(r resolver.Service) *ServiceUpdateOne {
+	suo.mutation.SetType(r)
+	return suo
+}
+
+// AddHostserviceIDs adds the "hostservices" edge to the HostService entity by IDs.
+func (suo *ServiceUpdateOne) AddHostserviceIDs(ids ...string) *ServiceUpdateOne {
+	suo.mutation.AddHostserviceIDs(ids...)
+	return suo
+}
+
+// AddHostservices adds the "hostservices" edges to the HostService entity.
+func (suo *ServiceUpdateOne) AddHostservices(h ...*HostService) *ServiceUpdateOne {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return suo.AddHostserviceIDs(ids...)
+}
+
 // Mutation returns the ServiceMutation object of the builder.
 func (suo *ServiceUpdateOne) Mutation() *ServiceMutation {
 	return suo.mutation
+}
+
+// ClearHostservices clears all "hostservices" edges to the HostService entity.
+func (suo *ServiceUpdateOne) ClearHostservices() *ServiceUpdateOne {
+	suo.mutation.ClearHostservices()
+	return suo
+}
+
+// RemoveHostserviceIDs removes the "hostservices" edge to HostService entities by IDs.
+func (suo *ServiceUpdateOne) RemoveHostserviceIDs(ids ...string) *ServiceUpdateOne {
+	suo.mutation.RemoveHostserviceIDs(ids...)
+	return suo
+}
+
+// RemoveHostservices removes "hostservices" edges to HostService entities.
+func (suo *ServiceUpdateOne) RemoveHostservices(h ...*HostService) *ServiceUpdateOne {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return suo.RemoveHostserviceIDs(ids...)
 }
 
 // Where appends a list predicates to the ServiceUpdate builder.
@@ -288,6 +427,11 @@ func (suo *ServiceUpdateOne) check() error {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`entities: validator failed for field "Service.display_name": %w`, err)}
 		}
 	}
+	if v, ok := suo.mutation.GetType(); ok {
+		if err := service.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`entities: validator failed for field "Service.type": %w`, err)}
+		}
+	}
 	if _, ok := suo.mutation.CompetitionID(); suo.mutation.CompetitionCleared() && !ok {
 		return errors.New(`entities: clearing a required unique edge "Service.competition"`)
 	}
@@ -340,6 +484,54 @@ func (suo *ServiceUpdateOne) sqlSave(ctx context.Context) (_node *Service, err e
 	}
 	if suo.mutation.HiddenCleared() {
 		_spec.ClearField(service.FieldHidden, field.TypeBool)
+	}
+	if value, ok := suo.mutation.GetType(); ok {
+		_spec.SetField(service.FieldType, field.TypeEnum, value)
+	}
+	if suo.mutation.HostservicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   service.HostservicesTable,
+			Columns: []string{service.HostservicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.RemovedHostservicesIDs(); len(nodes) > 0 && !suo.mutation.HostservicesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   service.HostservicesTable,
+			Columns: []string{service.HostservicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.HostservicesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   service.HostservicesTable,
+			Columns: []string{service.HostservicesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(hostservice.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Service{config: suo.config}
 	_spec.Assign = _node.assignValues

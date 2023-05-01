@@ -11,10 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/check"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities/host"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/property"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 )
 
 // HostServiceUpdate is the builder for updating HostService entities.
@@ -166,15 +166,10 @@ func (hsu *HostServiceUpdate) AddRoundDelay(i int) *HostServiceUpdate {
 	return hsu
 }
 
-// SetHostID sets the "host_id" field.
-func (hsu *HostServiceUpdate) SetHostID(s string) *HostServiceUpdate {
-	hsu.mutation.SetHostID(s)
+// SetServiceID sets the "service_id" field.
+func (hsu *HostServiceUpdate) SetServiceID(s string) *HostServiceUpdate {
+	hsu.mutation.SetServiceID(s)
 	return hsu
-}
-
-// SetHost sets the "host" edge to the Host entity.
-func (hsu *HostServiceUpdate) SetHost(h *Host) *HostServiceUpdate {
-	return hsu.SetHostID(h.ID)
 }
 
 // AddCheckIDs adds the "checks" edge to the Check entity by IDs.
@@ -207,15 +202,14 @@ func (hsu *HostServiceUpdate) AddProperties(p ...*Property) *HostServiceUpdate {
 	return hsu.AddPropertyIDs(ids...)
 }
 
+// SetService sets the "service" edge to the Service entity.
+func (hsu *HostServiceUpdate) SetService(s *Service) *HostServiceUpdate {
+	return hsu.SetServiceID(s.ID)
+}
+
 // Mutation returns the HostServiceMutation object of the builder.
 func (hsu *HostServiceUpdate) Mutation() *HostServiceMutation {
 	return hsu.mutation
-}
-
-// ClearHost clears the "host" edge to the Host entity.
-func (hsu *HostServiceUpdate) ClearHost() *HostServiceUpdate {
-	hsu.mutation.ClearHost()
-	return hsu
 }
 
 // ClearChecks clears all "checks" edges to the Check entity.
@@ -260,6 +254,12 @@ func (hsu *HostServiceUpdate) RemoveProperties(p ...*Property) *HostServiceUpdat
 	return hsu.RemovePropertyIDs(ids...)
 }
 
+// ClearService clears the "service" edge to the Service entity.
+func (hsu *HostServiceUpdate) ClearService() *HostServiceUpdate {
+	hsu.mutation.ClearService()
+	return hsu
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (hsu *HostServiceUpdate) Save(ctx context.Context) (int, error) {
 	return withHooks[int, HostServiceMutation](ctx, hsu.sqlSave, hsu.mutation, hsu.hooks)
@@ -298,6 +298,9 @@ func (hsu *HostServiceUpdate) check() error {
 		if err := hostservice.DisplayNameValidator(v); err != nil {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`entities: validator failed for field "HostService.display_name": %w`, err)}
 		}
+	}
+	if _, ok := hsu.mutation.ServiceID(); hsu.mutation.ServiceCleared() && !ok {
+		return errors.New(`entities: clearing a required unique edge "HostService.service"`)
 	}
 	if _, ok := hsu.mutation.HostID(); hsu.mutation.HostCleared() && !ok {
 		return errors.New(`entities: clearing a required unique edge "HostService.host"`)
@@ -361,35 +364,6 @@ func (hsu *HostServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := hsu.mutation.AddedRoundDelay(); ok {
 		_spec.AddField(hostservice.FieldRoundDelay, field.TypeInt, value)
-	}
-	if hsu.mutation.HostCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   hostservice.HostTable,
-			Columns: []string{hostservice.HostColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := hsu.mutation.HostIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   hostservice.HostTable,
-			Columns: []string{hostservice.HostColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if hsu.mutation.ChecksCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -474,6 +448,35 @@ func (hsu *HostServiceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if hsu.mutation.ServiceCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   hostservice.ServiceTable,
+			Columns: []string{hostservice.ServiceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := hsu.mutation.ServiceIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   hostservice.ServiceTable,
+			Columns: []string{hostservice.ServiceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -637,15 +640,10 @@ func (hsuo *HostServiceUpdateOne) AddRoundDelay(i int) *HostServiceUpdateOne {
 	return hsuo
 }
 
-// SetHostID sets the "host_id" field.
-func (hsuo *HostServiceUpdateOne) SetHostID(s string) *HostServiceUpdateOne {
-	hsuo.mutation.SetHostID(s)
+// SetServiceID sets the "service_id" field.
+func (hsuo *HostServiceUpdateOne) SetServiceID(s string) *HostServiceUpdateOne {
+	hsuo.mutation.SetServiceID(s)
 	return hsuo
-}
-
-// SetHost sets the "host" edge to the Host entity.
-func (hsuo *HostServiceUpdateOne) SetHost(h *Host) *HostServiceUpdateOne {
-	return hsuo.SetHostID(h.ID)
 }
 
 // AddCheckIDs adds the "checks" edge to the Check entity by IDs.
@@ -678,15 +676,14 @@ func (hsuo *HostServiceUpdateOne) AddProperties(p ...*Property) *HostServiceUpda
 	return hsuo.AddPropertyIDs(ids...)
 }
 
+// SetService sets the "service" edge to the Service entity.
+func (hsuo *HostServiceUpdateOne) SetService(s *Service) *HostServiceUpdateOne {
+	return hsuo.SetServiceID(s.ID)
+}
+
 // Mutation returns the HostServiceMutation object of the builder.
 func (hsuo *HostServiceUpdateOne) Mutation() *HostServiceMutation {
 	return hsuo.mutation
-}
-
-// ClearHost clears the "host" edge to the Host entity.
-func (hsuo *HostServiceUpdateOne) ClearHost() *HostServiceUpdateOne {
-	hsuo.mutation.ClearHost()
-	return hsuo
 }
 
 // ClearChecks clears all "checks" edges to the Check entity.
@@ -729,6 +726,12 @@ func (hsuo *HostServiceUpdateOne) RemoveProperties(p ...*Property) *HostServiceU
 		ids[i] = p[i].ID
 	}
 	return hsuo.RemovePropertyIDs(ids...)
+}
+
+// ClearService clears the "service" edge to the Service entity.
+func (hsuo *HostServiceUpdateOne) ClearService() *HostServiceUpdateOne {
+	hsuo.mutation.ClearService()
+	return hsuo
 }
 
 // Where appends a list predicates to the HostServiceUpdate builder.
@@ -782,6 +785,9 @@ func (hsuo *HostServiceUpdateOne) check() error {
 		if err := hostservice.DisplayNameValidator(v); err != nil {
 			return &ValidationError{Name: "display_name", err: fmt.Errorf(`entities: validator failed for field "HostService.display_name": %w`, err)}
 		}
+	}
+	if _, ok := hsuo.mutation.ServiceID(); hsuo.mutation.ServiceCleared() && !ok {
+		return errors.New(`entities: clearing a required unique edge "HostService.service"`)
 	}
 	if _, ok := hsuo.mutation.HostID(); hsuo.mutation.HostCleared() && !ok {
 		return errors.New(`entities: clearing a required unique edge "HostService.host"`)
@@ -862,35 +868,6 @@ func (hsuo *HostServiceUpdateOne) sqlSave(ctx context.Context) (_node *HostServi
 	}
 	if value, ok := hsuo.mutation.AddedRoundDelay(); ok {
 		_spec.AddField(hostservice.FieldRoundDelay, field.TypeInt, value)
-	}
-	if hsuo.mutation.HostCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   hostservice.HostTable,
-			Columns: []string{hostservice.HostColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := hsuo.mutation.HostIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   hostservice.HostTable,
-			Columns: []string{hostservice.HostColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(host.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if hsuo.mutation.ChecksCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -975,6 +952,35 @@ func (hsuo *HostServiceUpdateOne) sqlSave(ctx context.Context) (_node *HostServi
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(property.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if hsuo.mutation.ServiceCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   hostservice.ServiceTable,
+			Columns: []string{hostservice.ServiceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := hsuo.mutation.ServiceIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   hostservice.ServiceTable,
+			Columns: []string{hostservice.ServiceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(service.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

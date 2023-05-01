@@ -6,6 +6,8 @@ package cmd
 import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth/authfx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config/configfx"
+	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queuefx"
+	"github.com/ScoreTrak/ScoreTrak/pkg/scheduler/schedulerfx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/server/serverfx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/storagefx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/telemetry/telemetryfx"
@@ -42,8 +44,11 @@ var serveCmd = &cobra.Command{
 			// Create server
 			serverfx.Module,
 
+			// Create queue
+			queuefx.Module,
+
 			// Create scheduler
-			// schedulerfx.Module,
+			schedulerfx.Module,
 		)
 
 		app.Run()

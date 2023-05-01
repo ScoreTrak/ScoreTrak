@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/competition"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
+	"github.com/ScoreTrak/ScoreTrak/pkg/exec/resolver"
 )
 
 // Service is the model entity for the Service schema.
@@ -25,6 +26,8 @@ type Service struct {
 	Pause bool `json:"pause,omitempty"`
 	// Hidden holds the value of the "hidden" field.
 	Hidden bool `json:"hidden,omitempty"`
+	// Type holds the value of the "type" field.
+	Type resolver.Service `json:"type,omitempty"`
 	// CompetitionID holds the value of the "competition_id" field.
 	CompetitionID string `json:"competition_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -35,17 +38,28 @@ type Service struct {
 
 // ServiceEdges holds the relations/edges for other nodes in the graph.
 type ServiceEdges struct {
+	// Hostservices holds the value of the hostservices edge.
+	Hostservices []*HostService `json:"hostservices,omitempty"`
 	// Competition holds the value of the competition edge.
 	Competition *Competition `json:"competition,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
+}
+
+// HostservicesOrErr returns the Hostservices value or an error if the edge
+// was not loaded in eager-loading.
+func (e ServiceEdges) HostservicesOrErr() ([]*HostService, error) {
+	if e.loadedTypes[0] {
+		return e.Hostservices, nil
+	}
+	return nil, &NotLoadedError{edge: "hostservices"}
 }
 
 // CompetitionOrErr returns the Competition value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e ServiceEdges) CompetitionOrErr() (*Competition, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		if e.Competition == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: competition.Label}
@@ -62,7 +76,7 @@ func (*Service) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case service.FieldPause, service.FieldHidden:
 			values[i] = new(sql.NullBool)
-		case service.FieldID, service.FieldName, service.FieldDisplayName, service.FieldCompetitionID:
+		case service.FieldID, service.FieldName, service.FieldDisplayName, service.FieldType, service.FieldCompetitionID:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -109,6 +123,12 @@ func (s *Service) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.Hidden = value.Bool
 			}
+		case service.FieldType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field type", values[i])
+			} else if value.Valid {
+				s.Type = resolver.Service(value.String)
+			}
 		case service.FieldCompetitionID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field competition_id", values[i])
@@ -126,6 +146,11 @@ func (s *Service) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (s *Service) Value(name string) (ent.Value, error) {
 	return s.selectValues.Get(name)
+}
+
+// QueryHostservices queries the "hostservices" edge of the Service entity.
+func (s *Service) QueryHostservices() *HostServiceQuery {
+	return NewServiceClient(s.config).QueryHostservices(s)
 }
 
 // QueryCompetition queries the "competition" edge of the Service entity.
@@ -167,6 +192,9 @@ func (s *Service) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("hidden=")
 	builder.WriteString(fmt.Sprintf("%v", s.Hidden))
+	builder.WriteString(", ")
+	builder.WriteString("type=")
+	builder.WriteString(fmt.Sprintf("%v", s.Type))
 	builder.WriteString(", ")
 	builder.WriteString("competition_id=")
 	builder.WriteString(s.CompetitionID)

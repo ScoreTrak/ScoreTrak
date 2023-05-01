@@ -68,6 +68,7 @@ export type CheckHostserviceRead = {
     point_boost: number;
     round_units: number;
     round_delay: number;
+    service_id: string;
     host_id: string;
     team_id: string;
 };
@@ -169,6 +170,7 @@ export type CompetitionServicesList = {
     display_name: string;
     pause?: boolean;
     hidden?: boolean;
+    type: "ftp" | "ssh" | "winrm" | "ping" | "http" | "ldap" | "dns" | "smb" | "imap" | "sql" | "caldav";
     competition_id: string;
 };
 export type CompetitionTeamsList = {
@@ -220,11 +222,13 @@ export type HostService = {
     point_boost: number;
     round_units: number;
     round_delay: number;
+    service_id: string;
     host_id: string;
     team_id: string;
-    host: Host;
     checks?: Check[];
     properties?: Property[];
+    service: Service;
+    host: Host;
     team: Team;
 };
 export type HostServiceCreate = {
@@ -237,6 +241,7 @@ export type HostServiceCreate = {
     point_boost: number;
     round_units: number;
     round_delay: number;
+    service_id: string;
     host_id: string;
     team_id: string;
 };
@@ -250,6 +255,7 @@ export type HostServiceList = {
     point_boost: number;
     round_units: number;
     round_delay: number;
+    service_id: string;
     host_id: string;
     team_id: string;
 };
@@ -263,6 +269,7 @@ export type HostServiceRead = {
     point_boost: number;
     round_units: number;
     round_delay: number;
+    service_id: string;
     host_id: string;
     team_id: string;
 };
@@ -276,6 +283,7 @@ export type HostServiceUpdate = {
     point_boost: number;
     round_units: number;
     round_delay: number;
+    service_id: string;
     host_id: string;
     team_id: string;
 };
@@ -305,6 +313,15 @@ export type HostServicePropertiesList = {
     host_service_id: string;
     team_id: string;
 };
+export type HostServiceServiceRead = {
+    id: string;
+    name: string;
+    display_name: string;
+    pause?: boolean;
+    hidden?: boolean;
+    type: "ftp" | "ssh" | "winrm" | "ping" | "http" | "ldap" | "dns" | "smb" | "imap" | "sql" | "caldav";
+    competition_id: string;
+};
 export type HostServiceTeamRead = {
     id: string;
     name: string;
@@ -331,6 +348,7 @@ export type HostHostservicesList = {
     point_boost: number;
     round_units: number;
     round_delay: number;
+    service_id: string;
     host_id: string;
     team_id: string;
 };
@@ -395,6 +413,7 @@ export type PropertyHostserviceRead = {
     point_boost: number;
     round_units: number;
     round_delay: number;
+    service_id: string;
     host_id: string;
     team_id: string;
 };
@@ -524,7 +543,9 @@ export type Service = {
     display_name: string;
     pause?: boolean;
     hidden?: boolean;
+    type: "ftp" | "ssh" | "winrm" | "ping" | "http" | "ldap" | "dns" | "smb" | "imap" | "sql" | "caldav";
     competition_id: string;
+    hostservices?: HostService[];
     competition: Competition;
 };
 export type ServiceCreate = {
@@ -533,6 +554,7 @@ export type ServiceCreate = {
     display_name: string;
     pause?: boolean;
     hidden?: boolean;
+    type: "ftp" | "ssh" | "winrm" | "ping" | "http" | "ldap" | "dns" | "smb" | "imap" | "sql" | "caldav";
     competition_id: string;
 };
 export type ServiceList = {
@@ -541,6 +563,7 @@ export type ServiceList = {
     display_name: string;
     pause?: boolean;
     hidden?: boolean;
+    type: "ftp" | "ssh" | "winrm" | "ping" | "http" | "ldap" | "dns" | "smb" | "imap" | "sql" | "caldav";
     competition_id: string;
 };
 export type ServiceRead = {
@@ -549,6 +572,7 @@ export type ServiceRead = {
     display_name: string;
     pause?: boolean;
     hidden?: boolean;
+    type: "ftp" | "ssh" | "winrm" | "ping" | "http" | "ldap" | "dns" | "smb" | "imap" | "sql" | "caldav";
     competition_id: string;
 };
 export type ServiceUpdate = {
@@ -557,6 +581,7 @@ export type ServiceUpdate = {
     display_name: string;
     pause?: boolean;
     hidden?: boolean;
+    type: "ftp" | "ssh" | "winrm" | "ping" | "http" | "ldap" | "dns" | "smb" | "imap" | "sql" | "caldav";
     competition_id: string;
 };
 export type ServiceCompetitionRead = {
@@ -569,6 +594,20 @@ export type ServiceCompetitionRead = {
     to_be_started_at?: string;
     started_at?: string;
     finished_at?: string;
+};
+export type ServiceHostservicesList = {
+    id: string;
+    name: string;
+    display_name: string;
+    pause?: boolean;
+    hidden?: boolean;
+    weight: number;
+    point_boost: number;
+    round_units: number;
+    round_delay: number;
+    service_id: string;
+    host_id: string;
+    team_id: string;
 };
 export type Team = {
     id: string;
@@ -659,6 +698,7 @@ export type TeamHostservicesList = {
     point_boost: number;
     round_units: number;
     round_delay: number;
+    service_id: string;
     host_id: string;
     team_id: string;
 };
@@ -726,6 +766,7 @@ export const queryKeys = {
     listHostServiceChecks: (id: string, page?: number, itemsPerPage?: number) => ["listHostServiceChecks", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
     readHostServiceHost: (id: string) => ["readHostServiceHost", id] as const,
     listHostServiceProperties: (id: string, page?: number, itemsPerPage?: number) => ["listHostServiceProperties", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
+    readHostServiceService: (id: string) => ["readHostServiceService", id] as const,
     readHostServiceTeam: (id: string) => ["readHostServiceTeam", id] as const,
     listHost: (page?: number, itemsPerPage?: number) => ["listHost", nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
     readHost: (id: string) => ["readHost", id] as const,
@@ -745,6 +786,7 @@ export const queryKeys = {
     listService: (page?: number, itemsPerPage?: number) => ["listService", nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
     readService: (id: string) => ["readService", id] as const,
     readServiceCompetition: (id: string) => ["readServiceCompetition", id] as const,
+    listServiceHostservices: (id: string, page?: number, itemsPerPage?: number) => ["listServiceHostservices", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
     listTeam: (page?: number, itemsPerPage?: number) => ["listTeam", nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
     readTeam: (id: string) => ["readTeam", id] as const,
     listTeamChecks: (id: string, page?: number, itemsPerPage?: number) => ["listTeamChecks", id, nullIfUndefined(page), nullIfUndefined(itemsPerPage)] as const,
@@ -796,8 +838,6 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             log?: string;
             error?: string;
             passed?: boolean;
-            round_id?: string;
-            host_service_id?: string;
             rounds?: string;
             hostservice?: string;
             team?: string;
@@ -925,11 +965,13 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             point_boost: number;
             round_units: number;
             round_delay: number;
+            service_id: string;
             host_id: string;
             team_id: string;
-            host: string;
             checks?: string[];
             properties?: string[];
+            service: string;
+            host: string;
             team: string;
         }) => axios.request<HostServiceCreate>({
             method: "post",
@@ -953,10 +995,11 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             point_boost?: number;
             round_units?: number;
             round_delay?: number;
-            host_id?: string;
-            host?: string;
+            service_id?: string;
             checks?: string[];
             properties?: string[];
+            service?: string;
+            host?: string;
             team?: string;
         }, id: string) => axios.request<HostServiceUpdate>({
             method: "patch",
@@ -984,6 +1027,10 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
                 ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
             },
             paramsSerializer: config?.paramsSerializer
+        }).then(res => res.data),
+        readHostServiceService: (id: string) => axios.request<HostServiceServiceRead>({
+            method: "get",
+            url: `/host-services/${id}/service`
         }).then(res => res.data),
         readHostServiceTeam: (id: string) => axios.request<HostServiceTeamRead>({
             method: "get",
@@ -1203,7 +1250,9 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             display_name: string;
             pause?: boolean;
             hidden?: boolean;
+            type: "ftp" | "ssh" | "winrm" | "ping" | "http" | "ldap" | "dns" | "smb" | "imap" | "sql" | "caldav";
             competition_id: string;
+            hostservices?: string[];
             competition: string;
         }) => axios.request<ServiceCreate>({
             method: "post",
@@ -1223,6 +1272,8 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
             display_name?: string;
             pause?: boolean;
             hidden?: boolean;
+            type?: "ftp" | "ssh" | "winrm" | "ping" | "http" | "ldap" | "dns" | "smb" | "imap" | "sql" | "caldav";
+            hostservices?: string[];
             competition?: string;
         }, id: string) => axios.request<ServiceUpdate>({
             method: "patch",
@@ -1232,6 +1283,15 @@ function makeRequests(axios: AxiosInstance, config?: AxiosConfig) {
         readServiceCompetition: (id: string) => axios.request<ServiceCompetitionRead>({
             method: "get",
             url: `/services/${id}/competition`
+        }).then(res => res.data),
+        listServiceHostservices: (id: string, page?: number, itemsPerPage?: number) => axios.request<ServiceHostservicesList[]>({
+            method: "get",
+            url: `/services/${id}/hostservices`,
+            params: {
+                ...(page !== undefined ? { page } : undefined),
+                ...(itemsPerPage !== undefined ? { itemsPerPage } : undefined)
+            },
+            paramsSerializer: config?.paramsSerializer
         }).then(res => res.data),
         listTeam: (page?: number, itemsPerPage?: number) => axios.request<TeamList[]>({
             method: "get",
@@ -1345,6 +1405,7 @@ function makeQueries(requests: Requests) {
         useListHostServiceChecks: (id: string, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listHostServiceChecks">, unknown, Response<"listHostServiceChecks">, ReturnType<QueryKeys["listHostServiceChecks"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listHostServiceChecks">, unknown> => useQuery({ queryKey: queryKeys.listHostServiceChecks(id, page, itemsPerPage), queryFn: () => requests.listHostServiceChecks(id, page, itemsPerPage), ...options }),
         useReadHostServiceHost: (id: string, options?: Omit<UseQueryOptions<Response<"readHostServiceHost">, unknown, Response<"readHostServiceHost">, ReturnType<QueryKeys["readHostServiceHost"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readHostServiceHost">, unknown> => useQuery({ queryKey: queryKeys.readHostServiceHost(id), queryFn: () => requests.readHostServiceHost(id), ...options }),
         useListHostServiceProperties: (id: string, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listHostServiceProperties">, unknown, Response<"listHostServiceProperties">, ReturnType<QueryKeys["listHostServiceProperties"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listHostServiceProperties">, unknown> => useQuery({ queryKey: queryKeys.listHostServiceProperties(id, page, itemsPerPage), queryFn: () => requests.listHostServiceProperties(id, page, itemsPerPage), ...options }),
+        useReadHostServiceService: (id: string, options?: Omit<UseQueryOptions<Response<"readHostServiceService">, unknown, Response<"readHostServiceService">, ReturnType<QueryKeys["readHostServiceService"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readHostServiceService">, unknown> => useQuery({ queryKey: queryKeys.readHostServiceService(id), queryFn: () => requests.readHostServiceService(id), ...options }),
         useReadHostServiceTeam: (id: string, options?: Omit<UseQueryOptions<Response<"readHostServiceTeam">, unknown, Response<"readHostServiceTeam">, ReturnType<QueryKeys["readHostServiceTeam"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readHostServiceTeam">, unknown> => useQuery({ queryKey: queryKeys.readHostServiceTeam(id), queryFn: () => requests.readHostServiceTeam(id), ...options }),
         useListHost: (page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listHost">, unknown, Response<"listHost">, ReturnType<QueryKeys["listHost"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listHost">, unknown> => useQuery({ queryKey: queryKeys.listHost(page, itemsPerPage), queryFn: () => requests.listHost(page, itemsPerPage), ...options }),
         useReadHost: (id: string, options?: Omit<UseQueryOptions<Response<"readHost">, unknown, Response<"readHost">, ReturnType<QueryKeys["readHost"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readHost">, unknown> => useQuery({ queryKey: queryKeys.readHost(id), queryFn: () => requests.readHost(id), ...options }),
@@ -1364,6 +1425,7 @@ function makeQueries(requests: Requests) {
         useListService: (page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listService">, unknown, Response<"listService">, ReturnType<QueryKeys["listService"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listService">, unknown> => useQuery({ queryKey: queryKeys.listService(page, itemsPerPage), queryFn: () => requests.listService(page, itemsPerPage), ...options }),
         useReadService: (id: string, options?: Omit<UseQueryOptions<Response<"readService">, unknown, Response<"readService">, ReturnType<QueryKeys["readService"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readService">, unknown> => useQuery({ queryKey: queryKeys.readService(id), queryFn: () => requests.readService(id), ...options }),
         useReadServiceCompetition: (id: string, options?: Omit<UseQueryOptions<Response<"readServiceCompetition">, unknown, Response<"readServiceCompetition">, ReturnType<QueryKeys["readServiceCompetition"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readServiceCompetition">, unknown> => useQuery({ queryKey: queryKeys.readServiceCompetition(id), queryFn: () => requests.readServiceCompetition(id), ...options }),
+        useListServiceHostservices: (id: string, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listServiceHostservices">, unknown, Response<"listServiceHostservices">, ReturnType<QueryKeys["listServiceHostservices"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listServiceHostservices">, unknown> => useQuery({ queryKey: queryKeys.listServiceHostservices(id, page, itemsPerPage), queryFn: () => requests.listServiceHostservices(id, page, itemsPerPage), ...options }),
         useListTeam: (page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listTeam">, unknown, Response<"listTeam">, ReturnType<QueryKeys["listTeam"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listTeam">, unknown> => useQuery({ queryKey: queryKeys.listTeam(page, itemsPerPage), queryFn: () => requests.listTeam(page, itemsPerPage), ...options }),
         useReadTeam: (id: string, options?: Omit<UseQueryOptions<Response<"readTeam">, unknown, Response<"readTeam">, ReturnType<QueryKeys["readTeam"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"readTeam">, unknown> => useQuery({ queryKey: queryKeys.readTeam(id), queryFn: () => requests.readTeam(id), ...options }),
         useListTeamChecks: (id: string, page?: number, itemsPerPage?: number, options?: Omit<UseQueryOptions<Response<"listTeamChecks">, unknown, Response<"listTeamChecks">, ReturnType<QueryKeys["listTeamChecks"]>>, "queryKey" | "queryFn">): UseQueryResult<Response<"listTeamChecks">, unknown> => useQuery({ queryKey: queryKeys.listTeamChecks(id, page, itemsPerPage), queryFn: () => requests.listTeamChecks(id, page, itemsPerPage), ...options }),

@@ -68,9 +68,13 @@ func NewWorkerQueue(c config.Config) (WorkerQueue, error) {
 	}
 }
 
-func NewQueue(lc fx.Lifecycle, c *config.Config, queueOptions ...queue.Option) *queue.Queue {
-	q := queue.NewPool(c.Queue.Pool, queueOptions...)
+func NewQueue(queueOptions ...queue.Option) *queue.Queue {
+	q := queue.NewPool(5, queueOptions...)
 
+	return q
+}
+
+func StartQueue(lc fx.Lifecycle, q *queue.Queue) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			go q.Start()
@@ -82,5 +86,4 @@ func NewQueue(lc fx.Lifecycle, c *config.Config, queueOptions ...queue.Option) *
 		},
 	})
 
-	return q
 }

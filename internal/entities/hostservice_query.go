@@ -16,6 +16,7 @@ import (
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/hostservice"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/predicate"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/property"
+	"github.com/ScoreTrak/ScoreTrak/internal/entities/service"
 	"github.com/ScoreTrak/ScoreTrak/internal/entities/team"
 )
 
@@ -26,9 +27,10 @@ type HostServiceQuery struct {
 	order          []hostservice.Order
 	inters         []Interceptor
 	predicates     []predicate.HostService
-	withHost       *HostQuery
 	withChecks     *CheckQuery
 	withProperties *PropertyQuery
+	withService    *ServiceQuery
+	withHost       *HostQuery
 	withTeam       *TeamQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -64,28 +66,6 @@ func (hsq *HostServiceQuery) Unique(unique bool) *HostServiceQuery {
 func (hsq *HostServiceQuery) Order(o ...hostservice.Order) *HostServiceQuery {
 	hsq.order = append(hsq.order, o...)
 	return hsq
-}
-
-// QueryHost chains the current query on the "host" edge.
-func (hsq *HostServiceQuery) QueryHost() *HostQuery {
-	query := (&HostClient{config: hsq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := hsq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := hsq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(hostservice.Table, hostservice.FieldID, selector),
-			sqlgraph.To(host.Table, host.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, hostservice.HostTable, hostservice.HostColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(hsq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // QueryChecks chains the current query on the "checks" edge.
@@ -125,6 +105,50 @@ func (hsq *HostServiceQuery) QueryProperties() *PropertyQuery {
 			sqlgraph.From(hostservice.Table, hostservice.FieldID, selector),
 			sqlgraph.To(property.Table, property.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, hostservice.PropertiesTable, hostservice.PropertiesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(hsq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryService chains the current query on the "service" edge.
+func (hsq *HostServiceQuery) QueryService() *ServiceQuery {
+	query := (&ServiceClient{config: hsq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := hsq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := hsq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(hostservice.Table, hostservice.FieldID, selector),
+			sqlgraph.To(service.Table, service.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, hostservice.ServiceTable, hostservice.ServiceColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(hsq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryHost chains the current query on the "host" edge.
+func (hsq *HostServiceQuery) QueryHost() *HostQuery {
+	query := (&HostClient{config: hsq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := hsq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := hsq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(hostservice.Table, hostservice.FieldID, selector),
+			sqlgraph.To(host.Table, host.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, hostservice.HostTable, hostservice.HostColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(hsq.driver.Dialect(), step)
 		return fromU, nil
@@ -346,25 +370,15 @@ func (hsq *HostServiceQuery) Clone() *HostServiceQuery {
 		order:          append([]hostservice.Order{}, hsq.order...),
 		inters:         append([]Interceptor{}, hsq.inters...),
 		predicates:     append([]predicate.HostService{}, hsq.predicates...),
-		withHost:       hsq.withHost.Clone(),
 		withChecks:     hsq.withChecks.Clone(),
 		withProperties: hsq.withProperties.Clone(),
+		withService:    hsq.withService.Clone(),
+		withHost:       hsq.withHost.Clone(),
 		withTeam:       hsq.withTeam.Clone(),
 		// clone intermediate query.
 		sql:  hsq.sql.Clone(),
 		path: hsq.path,
 	}
-}
-
-// WithHost tells the query-builder to eager-load the nodes that are connected to
-// the "host" edge. The optional arguments are used to configure the query builder of the edge.
-func (hsq *HostServiceQuery) WithHost(opts ...func(*HostQuery)) *HostServiceQuery {
-	query := (&HostClient{config: hsq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	hsq.withHost = query
-	return hsq
 }
 
 // WithChecks tells the query-builder to eager-load the nodes that are connected to
@@ -386,6 +400,28 @@ func (hsq *HostServiceQuery) WithProperties(opts ...func(*PropertyQuery)) *HostS
 		opt(query)
 	}
 	hsq.withProperties = query
+	return hsq
+}
+
+// WithService tells the query-builder to eager-load the nodes that are connected to
+// the "service" edge. The optional arguments are used to configure the query builder of the edge.
+func (hsq *HostServiceQuery) WithService(opts ...func(*ServiceQuery)) *HostServiceQuery {
+	query := (&ServiceClient{config: hsq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	hsq.withService = query
+	return hsq
+}
+
+// WithHost tells the query-builder to eager-load the nodes that are connected to
+// the "host" edge. The optional arguments are used to configure the query builder of the edge.
+func (hsq *HostServiceQuery) WithHost(opts ...func(*HostQuery)) *HostServiceQuery {
+	query := (&HostClient{config: hsq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	hsq.withHost = query
 	return hsq
 }
 
@@ -478,10 +514,11 @@ func (hsq *HostServiceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	var (
 		nodes       = []*HostService{}
 		_spec       = hsq.querySpec()
-		loadedTypes = [4]bool{
-			hsq.withHost != nil,
+		loadedTypes = [5]bool{
 			hsq.withChecks != nil,
 			hsq.withProperties != nil,
+			hsq.withService != nil,
+			hsq.withHost != nil,
 			hsq.withTeam != nil,
 		}
 	)
@@ -503,12 +540,6 @@ func (hsq *HostServiceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := hsq.withHost; query != nil {
-		if err := hsq.loadHost(ctx, query, nodes, nil,
-			func(n *HostService, e *Host) { n.Edges.Host = e }); err != nil {
-			return nil, err
-		}
-	}
 	if query := hsq.withChecks; query != nil {
 		if err := hsq.loadChecks(ctx, query, nodes,
 			func(n *HostService) { n.Edges.Checks = []*Check{} },
@@ -523,6 +554,18 @@ func (hsq *HostServiceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 			return nil, err
 		}
 	}
+	if query := hsq.withService; query != nil {
+		if err := hsq.loadService(ctx, query, nodes, nil,
+			func(n *HostService, e *Service) { n.Edges.Service = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := hsq.withHost; query != nil {
+		if err := hsq.loadHost(ctx, query, nodes, nil,
+			func(n *HostService, e *Host) { n.Edges.Host = e }); err != nil {
+			return nil, err
+		}
+	}
 	if query := hsq.withTeam; query != nil {
 		if err := hsq.loadTeam(ctx, query, nodes, nil,
 			func(n *HostService, e *Team) { n.Edges.Team = e }); err != nil {
@@ -532,35 +575,6 @@ func (hsq *HostServiceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	return nodes, nil
 }
 
-func (hsq *HostServiceQuery) loadHost(ctx context.Context, query *HostQuery, nodes []*HostService, init func(*HostService), assign func(*HostService, *Host)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*HostService)
-	for i := range nodes {
-		fk := nodes[i].HostID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(host.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "host_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 func (hsq *HostServiceQuery) loadChecks(ctx context.Context, query *CheckQuery, nodes []*HostService, init func(*HostService), assign func(*HostService, *Check)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[string]*HostService)
@@ -613,6 +627,64 @@ func (hsq *HostServiceQuery) loadProperties(ctx context.Context, query *Property
 			return fmt.Errorf(`unexpected foreign-key "host_service_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
+	}
+	return nil
+}
+func (hsq *HostServiceQuery) loadService(ctx context.Context, query *ServiceQuery, nodes []*HostService, init func(*HostService), assign func(*HostService, *Service)) error {
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*HostService)
+	for i := range nodes {
+		fk := nodes[i].ServiceID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(service.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "service_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (hsq *HostServiceQuery) loadHost(ctx context.Context, query *HostQuery, nodes []*HostService, init func(*HostService), assign func(*HostService, *Host)) error {
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*HostService)
+	for i := range nodes {
+		fk := nodes[i].HostID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(host.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "host_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
 	}
 	return nil
 }
@@ -670,6 +742,9 @@ func (hsq *HostServiceQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != hostservice.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if hsq.withService != nil {
+			_spec.Node.AddColumnOnce(hostservice.FieldServiceID)
 		}
 		if hsq.withHost != nil {
 			_spec.Node.AddColumnOnce(hostservice.FieldHostID)
