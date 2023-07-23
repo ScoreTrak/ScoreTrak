@@ -2,7 +2,6 @@ package config
 
 import (
 	"github.com/creasty/defaults"
-	"github.com/rs/cors"
 	"github.com/spf13/viper"
 )
 
@@ -12,84 +11,65 @@ type Config struct {
 	DB struct {
 		Use string `default:"sqlite3"`
 		DSN string `default:"file:ent?mode=memory&cache=shared&_fk=1"`
-		//Migrate bool   `default:"false"`
-		//Seed    bool   `default:"false"`
-		// Cockroach struct {
-		// 	ConfigureZones    bool `default:"true"`
-		// 	DefaultZoneConfig struct {
-		// TODO automate this outside of scoretrak
-		// 		GcTtlseconds                    uint64 `default:"600"`
-		// 		BackpressureRangeSizeMultiplier uint64 `default:"0"`
-		// 	}
-		// }
 	}
 
-	// This value ideally shouldn't be larger than few seconds
-	//DatabaseMaxTimeDriftSeconds uint `default:"2"`
-
 	Queue struct {
-		Use      string `default:"ring"`
-		Pool     int    `default:5`
-		RabbitMq struct {
-			Addr         string
-			ExchangeName string
-			ExchangeType string
+		Use       string `default:"gochannel"`
+		Pool      int    `default:"5"`
+		GoChannel struct {
 		}
-		NSQ struct {
-			Worker struct {
-				NSQD        string `default:""`
-				MaxInFlight int    `default:"200"` // This should be more than min(NumberOfChecks, #NSQD Nodes)
-				Topic       string `default:"default"`
-				Channel     string `default:""`
+		NATS struct {
+			Url              string `default:"nats://localhost:4222"`
+			SubscriberCount  int    `default:"1"`
+			QueueGroupPrefix string `default:"scorer"`
+			Jetstream        struct {
+				Disabled      bool `default:"false"`
+				AutoProvision bool `default:"true"`
 			}
-			ProducerNSQD                 string   `default:"nsqd:4150"`
-			IgnoreAllScoresIfWorkerFails bool     `default:"true"`
-			Topic                        string   `default:"default"`
-			MaxInFlight                  int      `default:"200"` // This should be more than min(NumberOfChecks, #NSQD Nodes)
-			AuthSecret                   string   `default:""`
-			ClientRootCA                 string   `default:""`
-			ClientSSLKey                 string   `default:""`
-			ClientSSLCert                string   `default:""`
-			ConcurrentHandlers           int      `default:"200"`
-			NSQLookupd                   []string `default:"[\"\"]"` // "[\"nsqlookupd:4160\"]"
-			ConsumerNSQDPool             []string `default:"[\"\"]"` // "[\"nsqd:4150\"]"
 		}
 	}
 
 	Scheduler struct {
-		RoundDuration int `default:5`
-		//// How frequently to pull dynamic configs
-		//DynamicConfigPullSeconds uint `default:"5"`
+		Enabled bool `default:"true"`
+		Jobs    struct {
+			RoundStarter struct {
+				CronSpec string `default:"0 * * * * *"`
+				Timeout  int    `default:"55"`
+			}
+			RoundFinisher struct {
+				CronSpec string `default:"5 * * * * *"`
+				Timeout  int    `default:"15"`
+			}
+		}
 	}
 
-	//Platform struct {
-	//	Use    string `default:"none"`
-	//	Docker struct {
-	//		Name    string `default:"scoretrak"`
-	//		Host    string `default:"unix:///var/run/docker.sock"`
-	//		Network string `default:"default"`
-	//	}
-	//	Kubernetes struct {
-	//		Namespace string `default:"default"`
-	//	}
-	//}
-
-	PubSubConfig struct {
-		ReportForceRefreshSeconds uint   `default:"60"`
-		ChannelPrefix             string `default:"master"`
+	Scorer struct {
+		Enabled        bool `default:"true"`
+		ScoringTimeout int  `default:"30"`
 	}
 
 	Server struct {
+		Enabled bool   `default:"true"`
 		Address string `default:"127.0.0.1"`
 		Port    string `default:"3000"`
 		TLS     struct {
 			CertFile string
 			KeyFile  string
 		}
-		Cors cors.Options
+		Cors struct {
+			Enabled              bool `default:"false"`
+			AllowedOrigins       []string
+			AllowedMethods       []string
+			AllowedHeaders       []string
+			ExposedHeaders       []string
+			MaxAge               int
+			AllowCredentials     bool
+			AllowPrivateNetwork  bool
+			OptionsPassthrough   bool
+			OptionsSuccessStatus int
+			Debug                bool
+		}
 	}
-
-	Prod bool `default:"false"`
 
 	Auth struct {
 		Ory struct {
@@ -100,7 +80,7 @@ type Config struct {
 		}
 	}
 
-	Debug bool `default:"false"`
+	Dev bool `default:"true"` // Is in Dev mode
 }
 
 const (
@@ -119,11 +99,4 @@ func NewScoreTrakConfig() (*Config, error) {
 	}
 
 	return c, nil
-}
-
-func NewCorsConfig(c *Config) *cors.Cors {
-	crsCfg := c.Server.Cors
-	crsCfg.Debug = c.Debug
-	crs := cors.New(crsCfg)
-	return crs
 }

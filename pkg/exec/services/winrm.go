@@ -49,12 +49,12 @@ func (w *Winrm) Execute(e exec.Exec) (passed bool, logOutput string, err error) 
 		return false, "", fmt.Errorf("unable to convert port number to integer: %w", err)
 	}
 
-	err = tcpPortDial(net.JoinHostPort(e.Host, w.Port), time.Until(e.Deadline())/3)
+	err = tcpPortDial(net.JoinHostPort(e.HostAddress, w.Port), time.Until(e.Deadline())/3)
 	if err != nil {
 		return false, "", err
 	}
 
-	endpoint := winrm.NewEndpoint(e.Host, i, isHTTPS, true, nil, nil, nil, time.Until(e.Deadline()))
+	endpoint := winrm.NewEndpoint(e.HostAddress, i, isHTTPS, true, nil, nil, nil, time.Until(e.Deadline()))
 	params := winrm.DefaultParameters
 	params.Dial = (&net.Dialer{
 		Timeout: time.Until(e.Deadline()),
@@ -81,7 +81,7 @@ func (w *Winrm) Execute(e exec.Exec) (passed bool, logOutput string, err error) 
 
 var ErrNonZeroReturn = errors.New("process returned a non-zero code")
 
-// endpoint := winrm.NewEndpoint(e.Host, i, isHttps, true, nil, nil, nil, time.Until(e.Deadline()))
+// endpoint := winrm.NewEndpoint(e.HostAddress, i, isHttps, true, nil, nil, nil, time.Until(e.Deadline()))
 // // params := winrm.NewParameters(strconv.Itoa(int(time.Until(e.Deadline()).Seconds()))+"S", "en-US", 153600)
 // client, err := winrm.NewClient(endpoint, w.Username, w.Password)
 // if err != nil {

@@ -33,7 +33,7 @@ func (h *HTTP) Validate() error {
 var ErrInvalidResponseCodeReceived = errors.New("invalid response code received")
 
 func (h *HTTP) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
-	baseURL := ConstructURI(h.Port, h.Subdomain, e.Host, h.Path, h.Scheme)
+	baseURL := ConstructURI(h.Port, h.Subdomain, e.HostAddress, h.Path, h.Scheme)
 	req, err := http.NewRequest("GET", baseURL.String(), nil)
 	if err != nil {
 		return false, "", fmt.Errorf("unable to craft the request: %w", err)

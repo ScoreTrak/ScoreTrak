@@ -39,12 +39,12 @@ func (i *IMAP) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 		if i.Port == "" {
 			i.Port = "993"
 		}
-		c, err = client.DialWithDialerTLS(&net.Dialer{Deadline: e.Deadline()}, e.Host+":"+i.Port, &tls.Config{InsecureSkipVerify: true}) //nolint:gosec
+		c, err = client.DialWithDialerTLS(&net.Dialer{Deadline: e.Deadline()}, e.HostAddress+":"+i.Port, &tls.Config{InsecureSkipVerify: true}) //nolint:gosec
 	} else {
 		if i.Port == "" {
 			i.Port = "143"
 		}
-		c, err = client.DialWithDialer(&net.Dialer{Deadline: e.Deadline()}, e.Host+":"+i.Port)
+		c, err = client.DialWithDialer(&net.Dialer{Deadline: e.Deadline()}, e.HostAddress+":"+i.Port)
 	}
 	if err != nil {
 		return false, "", fmt.Errorf("unable to dial the remote server: %w", err)

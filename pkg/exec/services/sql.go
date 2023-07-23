@@ -69,15 +69,15 @@ func (w *SQL) setupDB(e exec.Exec) (*gorm.DB, error) {
 		if w.Port == "" {
 			w.Port = "3306"
 		}
-		err = tcpPortDial(net.JoinHostPort(e.Host, w.Port), time.Until(e.Deadline())/3)
+		err = tcpPortDial(net.JoinHostPort(e.HostAddress, w.Port), time.Until(e.Deadline())/3)
 		if err != nil {
 			return nil, err
 		}
 		var dsn string
 		if w.DBName != "" {
-			dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", w.Username, w.Password, e.Host, w.Port, w.DBName)
+			dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", w.Username, w.Password, e.HostAddress, w.Port, w.DBName)
 		} else {
-			dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)", w.Username, w.Password, e.Host, w.Port)
+			dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)", w.Username, w.Password, e.HostAddress, w.Port)
 		}
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 		if err != nil {
@@ -89,21 +89,21 @@ func (w *SQL) setupDB(e exec.Exec) (*gorm.DB, error) {
 		if w.Port == "" {
 			w.Port = "5432"
 		}
-		err = tcpPortDial(net.JoinHostPort(e.Host, w.Port), time.Until(e.Deadline())/3)
+		err = tcpPortDial(net.JoinHostPort(e.HostAddress, w.Port), time.Until(e.Deadline())/3)
 		if err != nil {
 			return nil, err
 		}
 		var dsn string
 		if w.DBName != "" {
 			dsn = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-				e.Host,
+				e.HostAddress,
 				w.Port,
 				w.Username,
 				w.Password,
 				w.DBName)
 		} else {
 			dsn = fmt.Sprintf("host=%s port=%s user=%s password=%s sslmode=disable",
-				e.Host,
+				e.HostAddress,
 				w.Port,
 				w.Username,
 				w.Password)

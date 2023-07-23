@@ -3,8 +3,8 @@ package storage
 import (
 	"context"
 
-	"github.com/ScoreTrak/ScoreTrak/internal/entities"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/ScoreTrak/ScoreTrak/pkg/entities"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
@@ -20,6 +20,7 @@ func NewDB(c *config.Config) (*entities.Client, error) {
 	return client, nil
 }
 
+// AutoMigrate create schemas in the configured database
 func AutoMigrate(dbClient *entities.Client) error {
 	if err := dbClient.Schema.Create(context.Background()); err != nil {
 		return err

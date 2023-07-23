@@ -52,7 +52,7 @@ func (s *SMB) Validate() error {
 
 func (s *SMB) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 	dial := net.Dialer{}
-	conn, err := dial.DialContext(e.Context, s.TransportProtocol, e.Host+":"+s.Port)
+	conn, err := dial.DialContext(e.Context, s.TransportProtocol, e.HostAddress+":"+s.Port)
 	if err != nil {
 		return false, "", fmt.Errorf("unable to dial the host: %w", err)
 	}
@@ -80,7 +80,7 @@ func (s *SMB) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 		}
 	}(c)
 
-	fs, err := c.Mount(`\\` + e.Host + `\` + s.Share)
+	fs, err := c.Mount(`\\` + e.HostAddress + `\` + s.Share)
 	if err != nil {
 		return false, "", fmt.Errorf("unable to mount the share: %w", err)
 	}

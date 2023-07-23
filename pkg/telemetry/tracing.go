@@ -6,8 +6,6 @@ import (
 	"go.opentelemetry.io/otel/sdk/trace"
 )
 
-var ServiceName = "scoretrak"
-
 func NewTracerProvider(exp *otlptrace.Exporter, resource *resource.Resource) *trace.TracerProvider {
 	tp := trace.NewTracerProvider(
 		trace.WithSampler(trace.AlwaysSample()),

@@ -44,7 +44,7 @@ func (l *LDAP) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 		if l.Port == "" {
 			l.Port = "636"
 		}
-		c, err := tls.DialWithDialer(&net.Dialer{Deadline: e.Deadline()}, l.TransportProtocol, e.Host+":"+l.Port, &tls.Config{InsecureSkipVerify: true}) //nolint:gosec //https://github.com/golang/go/issues/39489
+		c, err := tls.DialWithDialer(&net.Dialer{Deadline: e.Deadline()}, l.TransportProtocol, e.HostAddress+":"+l.Port, &tls.Config{InsecureSkipVerify: true}) //nolint:gosec //https://github.com/golang/go/issues/39489
 		if err != nil {
 			return false, "", fmt.Errorf("unable to dial remote ldap server: %w", err)
 		}
@@ -54,7 +54,7 @@ func (l *LDAP) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 		if l.Port == "" {
 			l.Port = "389"
 		}
-		c, err := net.DialTimeout(l.TransportProtocol, e.Host+":"+l.Port, time.Until(e.Deadline()))
+		c, err := net.DialTimeout(l.TransportProtocol, e.HostAddress+":"+l.Port, time.Until(e.Deadline()))
 		if err != nil {
 			return false, "", fmt.Errorf("unable to dial remote ldap server: %w", err)
 		}

@@ -8,12 +8,20 @@ import (
 var Module = fx.Options(
 	// OTEL Resource
 	fx.Provide(
-		telemetry.NewInstance,
 		telemetry.NewResource,
 	),
 
 	// Logging
-	fx.Provide(telemetry.NewLogger),
+	fx.Provide(
+		telemetry.NewLogger,
+	),
+
+	// Custom Loggers
+	fx.Provide(
+		telemetry.NewWatermillLogger,
+		telemetry.NewCronLogger,
+	),
+	fx.WithLogger(telemetry.NewFxEventLogger),
 
 	// Tracing
 	fx.Provide(
@@ -24,9 +32,9 @@ var Module = fx.Options(
 
 	// Metrics
 	fx.Provide(
-		telemetry.NewMeterProvider,
-		//telemetry.NewOtlpMetricGrpcExporter,
-		//telemetry.NewOtlpMetricHttpExporter,
-		telemetry.NewPrometheusExporter,
+	//telemetry.NewMeterProvider,
+	//telemetry.NewOtlpMetricGrpcExporter,
+	//telemetry.NewOtlpMetricHttpExporter,
+	//telemetry.NewPrometheusExporter,
 	),
 )

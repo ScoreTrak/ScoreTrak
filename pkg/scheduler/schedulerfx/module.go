@@ -2,18 +2,21 @@ package schedulerfx
 
 import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/scheduler"
+	"github.com/ScoreTrak/ScoreTrak/pkg/scheduler/job"
 	"go.uber.org/fx"
 )
 
 var Module = fx.Options(
-	// fx.Provide(scheduler.NewRunner),
-	// fx.Invoke(scheduler.InitRunner),
 	fx.Provide(
 		scheduler.NewCron,
-		scheduler.NewScheduler,
 	),
 	fx.Invoke(
 		scheduler.StartCron,
-		scheduler.RegisterScheduler,
+	),
+	fx.Provide(
+		job.NewRoundStarterJob,
+	),
+	fx.Invoke(
+		job.RegisterRoundStarterJob,
 	),
 )

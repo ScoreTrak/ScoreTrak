@@ -41,7 +41,7 @@ func (p *Ping) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 	var remoteAddr *net.IPAddr
 	var pinger *ping.Pinger
 	if ContainsString(ipv4opt, p.Protocol) {
-		r, err := net.ResolveIPAddr("ip4", e.Host)
+		r, err := net.ResolveIPAddr("ip4", e.HostAddress)
 		if err != nil {
 			return false, "", fmt.Errorf("unable to resolve remote address: %w", err)
 		}
@@ -52,7 +52,7 @@ func (p *Ping) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 		}
 		pinger = p
 	} else {
-		r, err := net.ResolveIPAddr("ip6", e.Host)
+		r, err := net.ResolveIPAddr("ip6", e.HostAddress)
 		if err != nil {
 			return false, "", fmt.Errorf("unable to resolve remote address: %w", err)
 		}
@@ -75,7 +75,7 @@ func (p *Ping) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 
 // Below Code has some very nasty errors that are in the underlying library(For instance: https://github.com/sparrc/go-ping/pull/80). Until they are fixed, we will use https://github.com/digineo/go-ping
 // func (p *Ping) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
-//	pinger, err := ping.NewPinger(e.Host)
+//	pinger, err := ping.NewPinger(e.HostAddress)
 //	if err != nil {
 //		return false, "Unable to initialize new pinger", err
 //	}

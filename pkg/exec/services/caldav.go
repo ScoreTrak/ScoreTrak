@@ -30,7 +30,7 @@ func (h *CalDav) Validate() error {
 
 func (h *CalDav) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 	authClient := webdav.HTTPClientWithBasicAuth(&http.Client{Timeout: time.Until(e.Deadline())}, h.Username, h.Password)
-	baseURL := ConstructURI(h.Port, h.Subdomain, e.Host, h.Path, h.Scheme)
+	baseURL := ConstructURI(h.Port, h.Subdomain, e.HostAddress, h.Path, h.Scheme)
 	client, err := webdav.NewClient(authClient, baseURL.String())
 	if err != nil {
 		return false, "", fmt.Errorf("unable to create client :%w", err)

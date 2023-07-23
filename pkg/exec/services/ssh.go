@@ -40,7 +40,7 @@ func (s *SSH) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
 		Timeout: time.Until(e.Deadline()),
 	}
 	sshConfig.HostKeyCallback = ssh.InsecureIgnoreHostKey() //nolint:gosec
-	client, err := ssh.Dial("tcp", e.Host+":"+s.Port, sshConfig)
+	client, err := ssh.Dial("tcp", e.HostAddress+":"+s.Port, sshConfig)
 	if err != nil {
 		return false, "", fmt.Errorf("unable to dial the remote host. Make sure the host is up, and credentials are correct: %w", err)
 	}

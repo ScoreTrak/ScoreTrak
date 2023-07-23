@@ -3,9 +3,9 @@ package services
 import (
 	"errors"
 	"fmt"
+	"github.com/bogdanovich/dns_resolver"
 
 	"github.com/ScoreTrak/ScoreTrak/pkg/exec"
-	"github.com/bogdanovich/dns_resolver"
 )
 
 type DNS struct {
@@ -28,7 +28,7 @@ func (p *DNS) Validate() error {
 }
 
 func (p *DNS) Execute(e exec.Exec) (passed bool, logOutput string, err error) {
-	resolver := dns_resolver.New([]string{e.Host})
+	resolver := dns_resolver.New([]string{e.HostAddress})
 	resolver.RetryTimes = 1
 	ip, err := resolver.LookupHost(p.Lookup)
 	if err != nil {

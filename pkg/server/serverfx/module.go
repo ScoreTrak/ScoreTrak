@@ -1,19 +1,19 @@
 package serverfx
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/server/middleware/middlewarefx"
-	"net/http"
-
 	"github.com/ScoreTrak/ScoreTrak/pkg/server"
+	"github.com/ScoreTrak/ScoreTrak/pkg/server/middleware"
 	"go.uber.org/fx"
 )
 
 var Module = fx.Options(
-	middlewarefx.Module,
 	fx.Provide(
+		middleware.NewCorsConfig,
+		middleware.NewCorsMiddleware,
+		middleware.NewUserMiddleware,
 		server.NewHandler,
-		server.NewEntityServer,
+		server.NewOgentServer,
 		server.NewServer,
 	),
-	fx.Invoke(func(*http.Server) {}),
+	fx.Invoke(server.StartServer),
 )

@@ -8,6 +8,5 @@ import (
 var Module = fx.Options(
 	fx.Provide(
 		config.NewScoreTrakConfig,
-		config.NewCorsConfig,
 	),
 )

@@ -16,13 +16,13 @@ type Executable interface {
 }
 
 type Exec struct {
-	Context    context.Context
-	Host       string
-	executable Executable
+	Context     context.Context
+	HostAddress string
+	executable  Executable
 }
 
-func NewExec(ctx context.Context, host string, e Executable) *Exec {
-	return &Exec{Context: ctx, Host: host, executable: e}
+func NewExec(ctx context.Context, hostAddress string, e Executable) *Exec {
+	return &Exec{Context: ctx, HostAddress: hostAddress, executable: e}
 }
 
 var ErrCheckDeadlineExceeded = errors.New("unable to start the check: deadline passed to a check wasn't set, or was negative. This is most likely a misconfiguration(round_duration too small)")

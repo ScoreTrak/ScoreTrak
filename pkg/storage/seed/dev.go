@@ -2,74 +2,75 @@ package seed
 
 import (
 	"context"
-	"github.com/ScoreTrak/ScoreTrak/internal/entities"
+	"fmt"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/exec/resolver"
-	client "github.com/ory/kratos-client-go"
+	"github.com/ScoreTrak/ScoreTrak/pkg/entities"
+	"github.com/ScoreTrak/ScoreTrak/pkg/scorer/scorerservice"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
+	"time"
 )
 
-func DevSeed(cfg *config.Config, entitiesClient *entities.Client, authClient *client.APIClient) {
+func DevSeed(cfg *config.Config, entitiesClient *entities.Client, logger *otelzap.SugaredLogger) {
 	ctx := context.Background()
 
-	//flow, _, err := authClient.FrontendApi.CreateNativeLoginFlow(ctx).Aal("aal1").Execute()
-	//if err != nil {
-	//	panic(err)
-	//}
-	//ulfwpm := client.NewUpdateLoginFlowWithPasswordMethod("scoretrak", "password", "scoretrak")
-	//login, _, err := authClient.FrontendApi.UpdateLoginFlow(ctx).Flow(flow.Id).UpdateLoginFlowBody(
-	//	client.UpdateLoginFlowWithPasswordMethodAsUpdateLoginFlowBody(ulfwpm)).Execute()
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//i, _, _ := authClient.IdentityApi.GetIdentity(ctx, login.Session.Identity.Id).Execute()
-	//ctx = user.NewContext(ctx, i)
-
-	if !cfg.Prod {
-		compIds := []string{
-			"01GZ7MDMACFMZ176YXK1JFWZ92",
-			"01GZ7MDNKWK1CASYTYSZXWMQA4",
+	if cfg.Dev {
+		ids := []string{
+			"00000000000000000000000000",
+			"11111111111111111111111111",
+			"22222222222222222222222222",
+			"33333333333333333333333333",
+			"44444444444444444444444444",
+			"55555555555555555555555555",
+			"66666666666666666666666666",
 		}
 
-		comps := entitiesClient.Competition.CreateBulk(
-			entitiesClient.Competition.Create().SetID(compIds[0]).SetName("main").SetDisplayName("Main"),
-			entitiesClient.Competition.Create().SetID(compIds[1]).SetName("test").SetDisplayName("Test"),
-		).SaveX(ctx)
+		//comp := entitiesClient.Competition.Create().SetName("lockdown").SetDisplayName("Lockdown").SetPause(true).SetStartedAt(time.Now()).SetFinishedAt(time.Now().Add(10 * time.Minute)).SaveX(ctx)
+		_ = entitiesClient.Competition.Create().SetName("lockdown").SetDisplayName("Lockdown").SetStartedAt(time.Now()).SetFinishedAt(time.Now().Add(40 * time.Minute)).SaveX(ctx)
 
-		teamIds := []string{
-			"01GZ7MFPZ5N43STNFE9T4BB138",
-			"01GZ7MFQ8SSBVXFNDEE0Z4EQGH",
-			"01GZ7MFQMG0B0GADP1CPW5VK49",
-			"01GZ7MYPB5K9A5KPQ6AXYJVS5Y",
-			"01GZ7MFRAGH4X81WMKVYR9XE5P",
-			"01GZ7MFRN2MNTPSW4BZ0DP78DJ",
-		}
+		//roles := entitiesClient.Role.CreateBulk(
+		//	entitiesClient.Role.Create().SetID(ids[0]).SetName("competitor"),
+		//	entitiesClient.Role.Create().SetID(ids[1]).SetName("spectator"),
+		//	entitiesClient.Role.Create().SetID(ids[2]).SetName("staff"),
+		//).SaveX(ctx)
+		//
+		//entitiesClient.RolePermission.CreateBulk(
+		//	entitiesClient.RolePermission.Create().SetRole(roles[0]).SetPermission(permission.PERMISSION_COMPETITION_READ),
+		//	entitiesClient.RolePermission.Create().SetRole(roles[0]).SetPermission(permission.PERMISSION_TEAM_READ),
+		//	entitiesClient.RolePermission.Create().SetRole(roles[0]).SetPermission(permission.PERMISSION_HOST_READ),
+		//	entitiesClient.RolePermission.Create().SetRole(roles[0]).SetPermission(permission.PERMISSION_CHECK_READ),
+		//	entitiesClient.RolePermission.Create().SetRole(roles[0]).SetPermission(permission.PERMISSION_HOST_SERVICE_READ),
+		//	entitiesClient.RolePermission.Create().SetRole(roles[0]).SetPermission(permission.PERMISSION_CUMULATIVE_REPORT_READ),
+		//).SaveX(ctx)
 
 		teams := entitiesClient.Team.CreateBulk(
-			entitiesClient.Team.Create().SetName("mainteam1").SetID(teamIds[0]).SetDisplayName("Main Team 1").SetNumber(0).SetCompetition(comps[0]),
-			entitiesClient.Team.Create().SetName("mainteam2").SetID(teamIds[1]).SetDisplayName("Main Team 2").SetNumber(1).SetCompetition(comps[0]),
-			entitiesClient.Team.Create().SetName("mainteam3").SetID(teamIds[2]).SetDisplayName("Main Team 3").SetNumber(2).SetCompetition(comps[0]),
-			entitiesClient.Team.Create().SetName("testteam1").SetID(teamIds[3]).SetDisplayName("Test Team 1").SetNumber(0).SetCompetition(comps[1]),
-			entitiesClient.Team.Create().SetName("testteam2").SetID(teamIds[4]).SetDisplayName("Test Team 2").SetNumber(1).SetCompetition(comps[1]),
-			entitiesClient.Team.Create().SetName("testteam3").SetID(teamIds[5]).SetDisplayName("Test Team 3").SetNumber(2).SetCompetition(comps[1]),
+			entitiesClient.Team.Create().SetID(ids[0]).SetName("mainteam1").SetDisplayName("Main Team 1").SetNumber(0),
+			entitiesClient.Team.Create().SetID(ids[1]).SetName("mainteam2").SetDisplayName("Main Team 2").SetNumber(1),
+			entitiesClient.Team.Create().SetID(ids[2]).SetName("mainteam3").SetDisplayName("Main Team 3").SetNumber(2),
+			entitiesClient.Team.Create().SetID(ids[3]).SetName("mainteam4").SetDisplayName("Main Team 4").SetNumber(3),
+			entitiesClient.Team.Create().SetID(ids[4]).SetName("mainteam5").SetDisplayName("Main Team 5").SetNumber(4),
+			entitiesClient.Team.Create().SetID(ids[5]).SetName("mainteam6").SetDisplayName("Main Team 6").SetNumber(5),
+			entitiesClient.Team.Create().SetID(ids[6]).SetName("mainteam7").SetDisplayName("Main Team 7").SetNumber(6),
 		).SaveX(ctx)
 
 		services := entitiesClient.Service.CreateBulk(
-			entitiesClient.Service.Create().SetName("http").SetType(resolver.SERVICE_HTTP).SetDisplayName("LAMP Stack").SetCompetition(comps[0]),
-			entitiesClient.Service.Create().SetName("ssh").SetType(resolver.SERVICE_SSH).SetDisplayName("DB Stack").SetCompetition(comps[0]),
-			entitiesClient.Service.Create().SetName("dns").SetType(resolver.SERVICE_DNS).SetDisplayName("FTP Stack").SetCompetition(comps[0]),
-			entitiesClient.Service.Create().SetName("ftp").SetType(resolver.SERVICE_FTP).SetDisplayName("IMAP Stack").SetCompetition(comps[0]),
-			entitiesClient.Service.Create().SetName("http").SetType(resolver.SERVICE_HTTP).SetDisplayName("LAMP Stack").SetCompetition(comps[1]),
-			entitiesClient.Service.Create().SetName("ssh").SetType(resolver.SERVICE_SSH).SetDisplayName("DB Stack").SetCompetition(comps[1]),
-			entitiesClient.Service.Create().SetName("dns").SetType(resolver.SERVICE_DNS).SetDisplayName("FTP Stack").SetCompetition(comps[1]),
-			entitiesClient.Service.Create().SetName("ftp").SetType(resolver.SERVICE_FTP).SetDisplayName("IMAP Stack").SetCompetition(comps[1]),
+			//entitiesClient.Service.Create().SetName("http").SetType(scorer.SERVICE_HTTP).SetDisplayName("HTTP"),
+			//entitiesClient.Service.Create().SetName("ssh").SetType(scorer.SERVICE_SSH).SetDisplayName("SSH"),
+			entitiesClient.Service.Create().SetID(ids[0]).SetName("dns").SetType(scorerservice.SERVICE_DNS).SetRoundDelay(4).SetDisplayName("DNS"),
+			entitiesClient.Service.Create().SetID(ids[1]).SetName("ping").SetType(scorerservice.SERVICE_PING).SetDisplayName("PING"),
+			//entitiesClient.Service.Create().SetName("ftp").SetType(scorer.SERVICE_FTP).SetDisplayName("FTP"),
 		).SaveX(ctx)
 
-		for _, service := range services {
+		for _, serv := range services {
 			for _, team := range teams {
 				host := entitiesClient.Host.Create().SetAddress("1.1.1.1").SetTeam(team).SaveX(ctx)
-				hostservice := entitiesClient.HostService.Create().SetTeam(team).SetService(service).SetHost(host).SetName(service.Name).SetDisplayName(service.DisplayName).SaveX(ctx)
-				_ = entitiesClient.Property.Create().SetTeam(team).SetHostservice(hostservice).SetKey("a").SetValue("v").SaveX(ctx)
+				hostservice := entitiesClient.HostService.Create().SetName(fmt.Sprintf("%s_%s_%s", team.Name, host.Address, serv.Name)).SetDisplayName(fmt.Sprintf("%s %s %s", team.DisplayName, host.Address, serv.DisplayName)).SetTeam(team).SetService(serv).SetHost(host).SaveX(ctx)
+				if serv.Type == scorerservice.SERVICE_DNS {
+					_ = entitiesClient.Property.Create().SetHostservice(hostservice).SetKey("Lookup").SetValue("google.com").SaveX(ctx)
+					//_ = entitiesClient.Property.Create().SetHostservice(hostservice).SetKey("ExpectedOutput").SetValue("8.8.8.8").SaveX(ctx)
+				}
+				if serv.Type == scorerservice.SERVICE_PING {
+					_ = entitiesClient.Property.Create().SetHostservice(hostservice).SetKey("Protocol").SetValue("ipv4").SaveX(ctx)
+				}
 			}
 		}
 	}
