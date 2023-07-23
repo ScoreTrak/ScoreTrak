@@ -38,7 +38,7 @@ jobs:
       - name: Build container image
         uses: docker/build-push-action@v4
         with:
-          push: ${{ github.event_name == "release" }}
+          push: ${{ github.event_name == 'release' }}
           build-args: IMAGE_TAG=${{ env.IMAGE_TAG }}
           tags: |
             ghcr.io/${{ env.IMAGE_REPOSITORY }}:${{ github.sha }}
