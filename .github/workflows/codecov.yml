@@ -1,5 +1,11 @@
 name: Codecov
-on: [push]
+
+on:
+  push:
+    branches:
+      - master
+      - main
+
 jobs:
   codecov:
     runs-on: ${{ matrix.os }}
@@ -8,29 +14,22 @@ jobs:
         os: [ubuntu-latest]
     env:
       OS: ${{ matrix.os }}
+    services:
+      cockroachdb:
+        image: mysql:latest
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: scoretrak
+          MYSQL_USER: admin
+          MYSQL_PASSWORD: password
+          MYSQL_ALLOW_EMPTY_PASSWORD: password
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Golang
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          go-version: 1.19
-      - name: Download cockroachdb
-        run: |
-          curl https://binaries.cockroachdb.com/cockroach-v22.1.4.linux-amd64.tgz | tar -xzv
-          cp -i cockroach-v22.1.4.linux-amd64/cockroach /usr/local/bin/
-      - name: Start cockroachdb
-        run: |
-          cockroach start-single-node --insecure --background --listen-addr=localhost:26257
-      - name: Create database
-        run: |
-          cockroach sql --insecure -e "create database scoretrak;"
-      - name: Show databases
-        run: |
-          cockroach sql --insecure -e "show databases;"
+          go-version: 1.20
       - name: Generate coverage report
         run: |
           go test -race -covermode=atomic -coverprofile=coverage.out ./pkg/...
-#      - name: Upload coverage to Codecov
-#        uses: codecov/codecov-action@v3
-#        with:
-#          token: ${{ secrets.CODECOV_TOKEN }}
