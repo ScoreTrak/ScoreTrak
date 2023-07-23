@@ -15,7 +15,7 @@ serve:
     base_url: http://kratos.scoretrak.localhost:4434/
 
 selfservice:
-  default_browser_return_url: http://localhost:5173/
+  default_browser_return_url: http://localhost:5173
   allowed_return_urls:
     - http://localhost:5173
 
@@ -23,15 +23,13 @@ selfservice:
     password:
       enabled: true
     totp:
-      config:
-        issuer: Kratos
-      enabled: true
+      enabled: false
     lookup_secret:
-      enabled: true
+      enabled: false
     link:
-      enabled: true
+      enabled: false
     code:
-      enabled: true
+      enabled: false
 
   flows:
     error:
@@ -65,7 +63,7 @@ selfservice:
             - hook: session
 
 log:
-  level: debug
+  level: info
   format: text
   leak_sensitive_values: true
 

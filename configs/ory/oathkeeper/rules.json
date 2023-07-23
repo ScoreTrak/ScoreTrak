@@ -1,0 +1,130 @@
+[
+  {
+    "id": "competition:read",
+    "version": "v0.40.3",
+    "upstream": {
+      "url": "http://localhost:3001/"
+    },
+    "match": {
+      "url": "http://localhost:4455/competitions/<.*>",
+      "methods": ["GET"]
+    },
+    "authenticators": [{"handler": "anonymous"}],
+    "authorizer": {
+      "handler": "allow",
+      "config": {
+        "required_action": "read",
+        "required_resource": "competition:$1",
+        "subject": "{{ print .Subject }}"
+      }
+    },
+    "mutators": [{"handler": "header"}],
+    "errors": [{"handler": "json"}]
+  },
+  {
+    "id": "competition:update",
+    "version": "v0.40.3",
+    "upstream": {
+      "url": "http://localhost:3001/"
+    },
+    "match": {
+      "url": "http://localhost:4455/competitions/<.*>",
+      "methods": ["PATCH"]
+    },
+    "authenticators": [{"handler": "anonymous"}],
+    "authorizer": {"handler": "allow"},
+    "mutators": [{"handler": "header"}],
+    "errors": [{"handler": "json"}]
+  },
+  {
+    "id": "get-resources",
+
+    "version": "v0.40.3",
+    "upstream": {
+      "url": "http://localhost:3001/"
+    },
+    "match": {
+      "url": "http://localhost:4455/<teams|services|checks|hosts|host-services|properties|host-service-reports|reports|rounds|team-reports*>",
+      "methods": ["GET"]
+    },
+    "authenticators": [{"handler": "cookie_session"}],
+    "authorizer": {"handler": "allow"},
+    "mutators": [{"handler": "header"}],
+    "errors": [{"handler": "json"}]
+  },
+  {
+    "id": "get-nested-resource(s)",
+    "version": "v0.40.3",
+    "upstream": {
+      "url": "http://localhost:3001/"
+    },
+    "match": {
+      "url": "http://localhost:4455/<teams|services|hosts|checks|host-services|properties|host-service-reports|reports|round|team-reports*>/<.*>/<team|service|host|host-service|properties|host-service-reports|report|round|team-reports*>",
+      "methods": ["GET"]
+    },
+    "authenticators": [{"handler": "cookie_session"}],
+    "authorizer": {"handler": "allow"},
+    "mutators": [{"handler": "header"}],
+    "errors": [{"handler": "json"}]
+  },
+  {
+    "id": "create-resource",
+    "version": "v0.40.3",
+    "upstream": {
+      "url": "http://localhost:3001/"
+    },
+    "match": {
+      "url": "http://localhost:4455/<teams|services|hosts|checks|host-services|properties|host-service-reports|reports|round|team-reports*>",
+      "methods": ["POST"]
+    },
+    "authenticators": [{"handler": "cookie_session"}],
+    "authorizer": {"handler": "allow"},
+    "mutators": [{"handler": "header"}],
+    "errors": [{"handler": "json"}]
+  },
+  {
+    "id": "get-resource",
+    "version": "v0.40.3",
+    "upstream": {
+      "url": "http://localhost:3001/"
+    },
+    "match": {
+      "url": "http://localhost:4455/<teams|services|hosts|checks|host-services|properties|host-service-reports|reports|round|team-reports*>/<.*>",
+      "methods": ["GET"]
+    },
+    "authenticators": [{"handler": "cookie_session"}],
+    "authorizer": {"handler": "allow"},
+    "mutators": [{"handler": "header"}],
+    "errors": [{"handler": "json"}]
+  },
+  {
+    "id": "update-resource",
+    "version": "v0.40.3",
+    "upstream": {
+      "url": "http://localhost:3001/"
+    },
+    "match": {
+      "url": "http://localhost:4455/<teams|services|hosts|checks|host-services|properties|host-service-reports|reports|round|team-reports*>/<.*>",
+      "methods": ["PATCH"]
+    },
+    "authenticators": [{"handler": "cookie_session"}],
+    "authorizer": {"handler": "allow"},
+    "mutators": [{"handler": "header"}],
+    "errors": [{"handler": "json"}]
+  },
+  {
+    "id": "delete-resource",
+    "version": "v0.40.3",
+    "upstream": {
+      "url": "http://localhost:3001/"
+    },
+    "match": {
+      "url": "http://localhost:4455/<teams|services|hosts|checks|host-services|properties|host-service-reports|reports|round|team-reports*>/<.*>",
+      "methods": ["DELETE"]
+    },
+    "authenticators": [{"handler": "cookie_session"}],
+    "authorizer": {"handler": "allow"},
+    "mutators": [{"handler": "header"}],
+    "errors": [{"handler": "json"}]
+  }
+]

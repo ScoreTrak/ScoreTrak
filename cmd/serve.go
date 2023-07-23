@@ -1,17 +1,16 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
 	"github.com/ScoreTrak/ScoreTrak/pkg/auth/authfx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/config/configfx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/queue/queuefx"
+	"github.com/ScoreTrak/ScoreTrak/pkg/events/eventsfx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/scheduler/schedulerfx"
+	"github.com/ScoreTrak/ScoreTrak/pkg/scorer/scorerfx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/server/serverfx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/storage/storagefx"
 	"github.com/ScoreTrak/ScoreTrak/pkg/telemetry/telemetryfx"
 	"go.uber.org/fx"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -21,34 +20,29 @@ var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Start server",
 	Run: func(cmd *cobra.Command, args []string) {
+		log.Println("hello")
 		app := fx.New(
-			// Create configs
+			// Config
 			configfx.Module,
 
 			// Telemetry
 			telemetryfx.Module,
 
-			// Create database components
+			// Database components
 			storagefx.Module,
 
-			// Add auth components
+			// Auth components
 			authfx.Module,
 
-			// Create queueing components
-			// fx.Provide(queue.NewMasterStreamPubSub),
-			// fx.Provide(queue.NewWorkerQueue),
-
-			// Create platform module. Responsible for creating works in docker, docker swarm, and kubernetes
-			// fx.Provide(platform.NewPlatform),
-
-			// Create server
+			// Server
 			serverfx.Module,
 
-			// Create queue
-			queuefx.Module,
+			// Event components
+			eventsfx.Module,
+			scorerfx.Module, // TODO: REMOVE
 
-			// Create scheduler
-			schedulerfx.Module,
+			// Cron scheduler
+			schedulerfx.Module, // TODO: REMOVE
 		)
 
 		app.Run()

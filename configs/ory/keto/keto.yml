@@ -1,0 +1,30 @@
+dsn: memory
+
+namespaces:
+  - id: 0
+    name: competitions
+  - id: 1
+    name: teams
+  - id: 2
+    name: users
+  - id: 3
+    name: hosts
+  - id: 4
+    name: host-services
+  - id: 5
+    name: checks
+  - id: 6
+    name: rounds
+  - id: 7
+    name: properties
+  - id: 8
+    name: services
+  - id: 9
+    name: host-service-reports
+  - id: 10
+    name: api-tokens
+  - id: 11
+    name: team-reports
+
+log:
+  level: warn

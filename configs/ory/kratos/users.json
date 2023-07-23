@@ -6,13 +6,9 @@
     },
     "state": "active",
     "metadata_admin": {
-      "is_admin": true
     },
     "metadata_public": {
-      "competitions": [
-        "01GZ7MDMACFMZ176YXK1JFWZ92",
-        "01GZ7MDNKWK1CASYTYSZXWMQA4"
-      ]
+      "is_admin": true
     },
     "credentials": {
       "password": {
@@ -25,16 +21,45 @@
   {
     "schema_id": "default",
     "metadata_public": {
-      "competitions": [
-        "01GZ7MDMACFMZ176YXK1JFWZ92"
-      ],
       "teams": [
-        "01GZ7MFPZ5N43STNFE9T4BB138",
-        "01GZ7MFQ8SSBVXFNDEE0Z4EQGH"
-      ]
+        "00000000000000000000000000"
+      ],
+      "team_role_assignments": {
+        "00000000000000000000000000": {
+          "roles": [
+            "00000000000000000000000000"
+          ]
+        }
+      }
     },
     "traits": {
       "username": "compuser1"
+    },
+    "state": "active",
+    "credentials": {
+      "password": {
+        "config": {
+          "password": "scoretrak"
+        }
+      }
+    }
+  },
+  {
+    "schema_id": "default",
+    "metadata_public": {
+      "teams": [
+        "11111111111111111111111111"
+      ],
+      "team_role_assignments": {
+        "11111111111111111111111111": {
+          "roles": [
+            "00000000000000000000000000"
+          ]
+        }
+      }
+    },
+    "traits": {
+      "username": "compuser2"
     },
     "state": "active",
     "credentials": {

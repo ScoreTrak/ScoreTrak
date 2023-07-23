@@ -1,6 +1,17 @@
 
 server:
   cors:
-    allowedorigins: ["http://localhost:5173"]
+    enabled: false
+    allowedorigins: ["http://localhost:5173","http://localhost:4455","http://localhost:4456"]
     allowcredentials: true
 
+#db:
+#  dsn: "scoretrak.db?_fk=1"
+
+queue:
+#  use: "nats"
+  nats:
+    jetstream:
+#      disabled: true
+
+debug: true

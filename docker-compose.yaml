@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  nats-js:
+    image: nats:latest
+    command:
+      - nats-server
+      - -js
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+      - "6222:6222"
+
+  scoretrak-node-01:
+    build: .
+    ports:
+      - "3001:3001"
+    volumes:
+      - type: bind
+        source: ./configs/multi/node-01.config.yml
+        target: /etc/scoretrak/config.yml
+        read_only: true
+    depends_on:
+      - nats-js

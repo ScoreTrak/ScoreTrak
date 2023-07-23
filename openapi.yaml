@@ -1,0 +1,5555 @@
+openapi: 3.0.3
+info:
+  title: ScoreTrak API
+  description: ScoreTrak API
+  version: 3.0.3
+paths:
+  /api-tokens:
+    get:
+      tags:
+        - ApiToken
+      summary: List ApiTokens
+      description: List ApiTokens.
+      operationId: listApiToken
+      parameters:
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+            maximum: 255
+            minimum: 10
+      responses:
+        "200":
+          description: result ApiToken list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ApiTokenList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - ApiToken
+      summary: Create a new ApiToken
+      description: Creates a new ApiToken and persists it to storage.
+      operationId: createApiToken
+      requestBody:
+        description: ApiToken to create
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                create_time:
+                  type: string
+                  format: date-time
+                update_time:
+                  type: string
+                  format: date-time
+                token:
+                  type: string
+                role_id:
+                  type: string
+                expired_at:
+                  type: string
+                  format: date-time
+                user_id:
+                  type: string
+              required:
+                - token
+                - role_id
+                - expired_at
+                - user_id
+        required: true
+      responses:
+        "200":
+          description: ApiToken created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiTokenCreate'
+        "400":
+          $ref: '#/components/responses/400'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /api-tokens/{id}:
+    get:
+      tags:
+        - ApiToken
+      summary: Find a ApiToken by ID
+      description: Finds the ApiToken with the requested ID and returns it.
+      operationId: readApiToken
+      parameters:
+        - name: id
+          in: path
+          description: ID of the ApiToken
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ApiToken with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiTokenRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - ApiToken
+      summary: Deletes a ApiToken by ID
+      description: Deletes the ApiToken with the requested ID.
+      operationId: deleteApiToken
+      parameters:
+        - name: id
+          in: path
+          description: ID of the ApiToken
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: ApiToken with requested ID was deleted
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    patch:
+      tags:
+        - ApiToken
+      summary: Updates a ApiToken
+      description: Updates a ApiToken and persists changes to storage.
+      operationId: updateApiToken
+      parameters:
+        - name: id
+          in: path
+          description: ID of the ApiToken
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ApiToken properties to update
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                update_time:
+                  type: string
+                  format: date-time
+                token:
+                  type: string
+                expired_at:
+                  type: string
+                  format: date-time
+        required: true
+      responses:
+        "200":
+          description: ApiToken updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiTokenUpdate'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /checks:
+    get:
+      tags:
+        - Check
+      summary: List Checks
+      description: List Checks.
+      operationId: listCheck
+      parameters:
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+            maximum: 255
+            minimum: 10
+      responses:
+        "200":
+          description: result Check list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CheckList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Check
+      summary: Create a new Check
+      description: Creates a new Check and persists it to storage.
+      operationId: createCheck
+      requestBody:
+        description: Check to create
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                create_time:
+                  type: string
+                  format: date-time
+                update_time:
+                  type: string
+                  format: date-time
+                log:
+                  type: string
+                error:
+                  type: string
+                passed:
+                  type: boolean
+                round_id:
+                  type: string
+                host_service_id:
+                  type: string
+                round:
+                  type: string
+                hostservice:
+                  type: string
+              required:
+                - passed
+                - round_id
+                - host_service_id
+                - round
+                - hostservice
+        required: true
+      responses:
+        "200":
+          description: Check created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckCreate'
+        "400":
+          $ref: '#/components/responses/400'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /checks/{id}:
+    get:
+      tags:
+        - Check
+      summary: Find a Check by ID
+      description: Finds the Check with the requested ID and returns it.
+      operationId: readCheck
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Check
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Check with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - Check
+      summary: Deletes a Check by ID
+      description: Deletes the Check with the requested ID.
+      operationId: deleteCheck
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Check
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Check with requested ID was deleted
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    patch:
+      tags:
+        - Check
+      summary: Updates a Check
+      description: Updates a Check and persists changes to storage.
+      operationId: updateCheck
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Check
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Check properties to update
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                update_time:
+                  type: string
+                  format: date-time
+                log:
+                  type: string
+                error:
+                  type: string
+                passed:
+                  type: boolean
+                round:
+                  type: string
+                hostservice:
+                  type: string
+        required: true
+      responses:
+        "200":
+          description: Check updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckUpdate'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /checks/{id}/hostservice:
+    get:
+      tags:
+        - Check
+      summary: Find the attached HostService
+      description: Find the attached HostService of the Check with the given ID
+      operationId: readCheckHostservice
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Check
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: HostService attached to Check with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Check_HostserviceRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /checks/{id}/round:
+    get:
+      tags:
+        - Check
+      summary: Find the attached Round
+      description: Find the attached Round of the Check with the given ID
+      operationId: readCheckRound
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Check
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Round attached to Check with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Check_RoundRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /competitions:
+    post:
+      tags:
+        - Competition
+      summary: Create a new Competition
+      description: Creates a new Competition and persists it to storage.
+      operationId: createCompetition
+      requestBody:
+        description: Competition to create
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pause:
+                  type: boolean
+                create_time:
+                  type: string
+                  format: date-time
+                update_time:
+                  type: string
+                  format: date-time
+                name:
+                  type: string
+                display_name:
+                  type: string
+                round_duration:
+                  type: integer
+                current_round_id:
+                  type: string
+                viewable_to_public:
+                  type: boolean
+                ignore_incomplete_round_in_scoring:
+                  type: boolean
+                to_be_started_at:
+                  type: string
+                  format: date-time
+                started_at:
+                  type: string
+                  format: date-time
+                finished_at:
+                  type: string
+                  format: date-time
+              required:
+                - name
+                - display_name
+        required: true
+      responses:
+        "200":
+          description: Competition created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompetitionCreate'
+        "400":
+          $ref: '#/components/responses/400'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /competitions/{id}:
+    get:
+      tags:
+        - Competition
+      summary: Find a Competition by ID
+      description: Finds the Competition with the requested ID and returns it.
+      operationId: readCompetition
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Competition
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Competition with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompetitionRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    patch:
+      tags:
+        - Competition
+      summary: Updates a Competition
+      description: Updates a Competition and persists changes to storage.
+      operationId: updateCompetition
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Competition
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Competition properties to update
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pause:
+                  type: boolean
+                update_time:
+                  type: string
+                  format: date-time
+                name:
+                  type: string
+                display_name:
+                  type: string
+                round_duration:
+                  type: integer
+                current_round_id:
+                  type: string
+                viewable_to_public:
+                  type: boolean
+                ignore_incomplete_round_in_scoring:
+                  type: boolean
+                to_be_started_at:
+                  type: string
+                  format: date-time
+                started_at:
+                  type: string
+                  format: date-time
+                finished_at:
+                  type: string
+                  format: date-time
+        required: true
+      responses:
+        "200":
+          description: Competition updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompetitionUpdate'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /host-service-reports:
+    get:
+      tags:
+        - HostServiceReport
+      summary: List HostServiceReports
+      description: List HostServiceReports.
+      operationId: listHostServiceReport
+      parameters:
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+            maximum: 255
+            minimum: 10
+      responses:
+        "200":
+          description: result HostServiceReport list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HostServiceReportList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - HostServiceReport
+      summary: Create a new HostServiceReport
+      description: Creates a new HostServiceReport and persists it to storage.
+      operationId: createHostServiceReport
+      requestBody:
+        description: HostServiceReport to create
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                create_time:
+                  type: string
+                  format: date-time
+                update_time:
+                  type: string
+                  format: date-time
+                points:
+                  type: integer
+                passing:
+                  type: boolean
+                latest_check_time:
+                  type: string
+                  format: date-time
+                host_service_id:
+                  type: string
+                service_id:
+                  type: string
+                team_id:
+                  type: string
+                team_report_id:
+                  type: string
+                hostservice:
+                  type: string
+                service:
+                  type: string
+                team:
+                  type: string
+                teamreport:
+                  type: string
+              required:
+                - points
+                - passing
+                - latest_check_time
+                - host_service_id
+                - service_id
+                - team_id
+                - hostservice
+                - service
+                - team
+        required: true
+      responses:
+        "200":
+          description: HostServiceReport created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostServiceReportCreate'
+        "400":
+          $ref: '#/components/responses/400'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /host-service-reports/{id}:
+    get:
+      tags:
+        - HostServiceReport
+      summary: Find a HostServiceReport by ID
+      description: Finds the HostServiceReport with the requested ID and returns it.
+      operationId: readHostServiceReport
+      parameters:
+        - name: id
+          in: path
+          description: ID of the HostServiceReport
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: HostServiceReport with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostServiceReportRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - HostServiceReport
+      summary: Deletes a HostServiceReport by ID
+      description: Deletes the HostServiceReport with the requested ID.
+      operationId: deleteHostServiceReport
+      parameters:
+        - name: id
+          in: path
+          description: ID of the HostServiceReport
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: HostServiceReport with requested ID was deleted
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    patch:
+      tags:
+        - HostServiceReport
+      summary: Updates a HostServiceReport
+      description: Updates a HostServiceReport and persists changes to storage.
+      operationId: updateHostServiceReport
+      parameters:
+        - name: id
+          in: path
+          description: ID of the HostServiceReport
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: HostServiceReport properties to update
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                update_time:
+                  type: string
+                  format: date-time
+                points:
+                  type: integer
+                passing:
+                  type: boolean
+                latest_check_time:
+                  type: string
+                  format: date-time
+                hostservice:
+                  type: string
+                service:
+                  type: string
+                team:
+                  type: string
+                teamreport:
+                  type: string
+        required: true
+      responses:
+        "200":
+          description: HostServiceReport updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostServiceReportUpdate'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /host-service-reports/{id}/hostservice:
+    get:
+      tags:
+        - HostServiceReport
+      summary: Find the attached HostService
+      description: Find the attached HostService of the HostServiceReport with the given ID
+      operationId: readHostServiceReportHostservice
+      parameters:
+        - name: id
+          in: path
+          description: ID of the HostServiceReport
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: HostService attached to HostServiceReport with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostServiceReport_HostserviceRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /host-service-reports/{id}/service:
+    get:
+      tags:
+        - HostServiceReport
+      summary: Find the attached Service
+      description: Find the attached Service of the HostServiceReport with the given ID
+      operationId: readHostServiceReportService
+      parameters:
+        - name: id
+          in: path
+          description: ID of the HostServiceReport
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Service attached to HostServiceReport with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostServiceReport_ServiceRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /host-service-reports/{id}/team:
+    get:
+      tags:
+        - HostServiceReport
+      summary: Find the attached Team
+      description: Find the attached Team of the HostServiceReport with the given ID
+      operationId: readHostServiceReportTeam
+      parameters:
+        - name: id
+          in: path
+          description: ID of the HostServiceReport
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Team attached to HostServiceReport with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostServiceReport_TeamRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /host-service-reports/{id}/teamreport:
+    get:
+      tags:
+        - HostServiceReport
+      summary: Find the attached TeamReport
+      description: Find the attached TeamReport of the HostServiceReport with the given ID
+      operationId: readHostServiceReportTeamreport
+      parameters:
+        - name: id
+          in: path
+          description: ID of the HostServiceReport
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: TeamReport attached to HostServiceReport with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostServiceReport_TeamreportRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /host-services:
+    get:
+      tags:
+        - HostService
+      summary: List HostServices
+      description: List HostServices.
+      operationId: listHostService
+      parameters:
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+            maximum: 255
+            minimum: 10
+      responses:
+        "200":
+          description: result HostService list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HostServiceList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - HostService
+      summary: Create a new HostService
+      description: Creates a new HostService and persists it to storage.
+      operationId: createHostService
+      requestBody:
+        description: HostService to create
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                display_name:
+                  type: string
+                pause:
+                  type: boolean
+                hidden:
+                  type: boolean
+                create_time:
+                  type: string
+                  format: date-time
+                update_time:
+                  type: string
+                  format: date-time
+                service_id:
+                  type: string
+                host_id:
+                  type: string
+                team_id:
+                  type: string
+                checks:
+                  type: array
+                  items:
+                    type: string
+                properties:
+                  type: array
+                  items:
+                    type: string
+                hostservicereport:
+                  type: string
+                service:
+                  type: string
+                host:
+                  type: string
+                team:
+                  type: string
+              required:
+                - name
+                - display_name
+                - service_id
+                - host_id
+                - team_id
+                - service
+                - host
+                - team
+        required: true
+      responses:
+        "200":
+          description: HostService created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostServiceCreate'
+        "400":
+          $ref: '#/components/responses/400'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /host-services/{id}:
+    get:
+      tags:
+        - HostService
+      summary: Find a HostService by ID
+      description: Finds the HostService with the requested ID and returns it.
+      operationId: readHostService
+      parameters:
+        - name: id
+          in: path
+          description: ID of the HostService
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: HostService with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostServiceRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - HostService
+      summary: Deletes a HostService by ID
+      description: Deletes the HostService with the requested ID.
+      operationId: deleteHostService
+      parameters:
+        - name: id
+          in: path
+          description: ID of the HostService
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: HostService with requested ID was deleted
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    patch:
+      tags:
+        - HostService
+      summary: Updates a HostService
+      description: Updates a HostService and persists changes to storage.
+      operationId: updateHostService
+      parameters:
+        - name: id
+          in: path
+          description: ID of the HostService
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: HostService properties to update
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                display_name:
+                  type: string
+                pause:
+                  type: boolean
+                hidden:
+                  type: boolean
+                update_time:
+                  type: string
+                  format: date-time
+                checks:
+                  type: array
+                  items:
+                    type: string
+                properties:
+                  type: array
+                  items:
+                    type: string
+                hostservicereport:
+                  type: string
+                service:
+                  type: string
+                host:
+                  type: string
+                team:
+                  type: string
+        required: true
+      responses:
+        "200":
+          description: HostService updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostServiceUpdate'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /host-services/{id}/checks:
+    get:
+      tags:
+        - HostService
+      summary: List attached Checks
+      description: List attached Checks.
+      operationId: listHostServiceChecks
+      parameters:
+        - name: id
+          in: path
+          description: ID of the HostService
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: result HostServices list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HostService_ChecksList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /host-services/{id}/host:
+    get:
+      tags:
+        - HostService
+      summary: Find the attached Host
+      description: Find the attached Host of the HostService with the given ID
+      operationId: readHostServiceHost
+      parameters:
+        - name: id
+          in: path
+          description: ID of the HostService
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Host attached to HostService with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostService_HostRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /host-services/{id}/hostservicereport:
+    get:
+      tags:
+        - HostService
+      summary: Find the attached HostServiceReport
+      description: Find the attached HostServiceReport of the HostService with the given ID
+      operationId: readHostServiceHostservicereport
+      parameters:
+        - name: id
+          in: path
+          description: ID of the HostService
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: HostServiceReport attached to HostService with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostService_HostservicereportRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /host-services/{id}/properties:
+    get:
+      tags:
+        - HostService
+      summary: List attached Properties
+      description: List attached Properties.
+      operationId: listHostServiceProperties
+      parameters:
+        - name: id
+          in: path
+          description: ID of the HostService
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: result HostServices list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HostService_PropertiesList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /host-services/{id}/service:
+    get:
+      tags:
+        - HostService
+      summary: Find the attached Service
+      description: Find the attached Service of the HostService with the given ID
+      operationId: readHostServiceService
+      parameters:
+        - name: id
+          in: path
+          description: ID of the HostService
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Service attached to HostService with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostService_ServiceRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /host-services/{id}/team:
+    get:
+      tags:
+        - HostService
+      summary: Find the attached Team
+      description: Find the attached Team of the HostService with the given ID
+      operationId: readHostServiceTeam
+      parameters:
+        - name: id
+          in: path
+          description: ID of the HostService
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Team attached to HostService with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostService_TeamRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /hosts:
+    get:
+      tags:
+        - Host
+      summary: List Hosts
+      description: List Hosts.
+      operationId: listHost
+      parameters:
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+            maximum: 255
+            minimum: 10
+      responses:
+        "200":
+          description: result Host list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HostList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Host
+      summary: Create a new Host
+      description: Creates a new Host and persists it to storage.
+      operationId: createHost
+      requestBody:
+        description: Host to create
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pause:
+                  type: boolean
+                hidden:
+                  type: boolean
+                create_time:
+                  type: string
+                  format: date-time
+                update_time:
+                  type: string
+                  format: date-time
+                address:
+                  type: string
+                team_id:
+                  type: string
+                hostservices:
+                  type: array
+                  items:
+                    type: string
+                team:
+                  type: string
+              required:
+                - address
+                - team_id
+                - team
+        required: true
+      responses:
+        "200":
+          description: Host created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostCreate'
+        "400":
+          $ref: '#/components/responses/400'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /hosts/{id}:
+    get:
+      tags:
+        - Host
+      summary: Find a Host by ID
+      description: Finds the Host with the requested ID and returns it.
+      operationId: readHost
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Host
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Host with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - Host
+      summary: Deletes a Host by ID
+      description: Deletes the Host with the requested ID.
+      operationId: deleteHost
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Host
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Host with requested ID was deleted
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    patch:
+      tags:
+        - Host
+      summary: Updates a Host
+      description: Updates a Host and persists changes to storage.
+      operationId: updateHost
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Host
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Host properties to update
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pause:
+                  type: boolean
+                hidden:
+                  type: boolean
+                update_time:
+                  type: string
+                  format: date-time
+                address:
+                  type: string
+                team_id:
+                  type: string
+                hostservices:
+                  type: array
+                  items:
+                    type: string
+                team:
+                  type: string
+        required: true
+      responses:
+        "200":
+          description: Host updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostUpdate'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /hosts/{id}/hostservices:
+    get:
+      tags:
+        - Host
+      summary: List attached Hostservices
+      description: List attached Hostservices.
+      operationId: listHostHostservices
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Host
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: result Hosts list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Host_HostservicesList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /hosts/{id}/team:
+    get:
+      tags:
+        - Host
+      summary: Find the attached Team
+      description: Find the attached Team of the Host with the given ID
+      operationId: readHostTeam
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Host
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Team attached to Host with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Host_TeamRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /properties:
+    get:
+      tags:
+        - Property
+      summary: List Properties
+      description: List Properties.
+      operationId: listProperty
+      parameters:
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+            maximum: 255
+            minimum: 10
+      responses:
+        "200":
+          description: result Property list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PropertyList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Property
+      summary: Create a new Property
+      description: Creates a new Property and persists it to storage.
+      operationId: createProperty
+      requestBody:
+        description: Property to create
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                create_time:
+                  type: string
+                  format: date-time
+                update_time:
+                  type: string
+                  format: date-time
+                key:
+                  type: string
+                value:
+                  type: string
+                host_service_id:
+                  type: string
+                hostservice:
+                  type: string
+              required:
+                - key
+                - value
+                - host_service_id
+                - hostservice
+        required: true
+      responses:
+        "200":
+          description: Property created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyCreate'
+        "400":
+          $ref: '#/components/responses/400'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /properties/{id}:
+    get:
+      tags:
+        - Property
+      summary: Find a Property by ID
+      description: Finds the Property with the requested ID and returns it.
+      operationId: readProperty
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Property
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Property with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - Property
+      summary: Deletes a Property by ID
+      description: Deletes the Property with the requested ID.
+      operationId: deleteProperty
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Property
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Property with requested ID was deleted
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    patch:
+      tags:
+        - Property
+      summary: Updates a Property
+      description: Updates a Property and persists changes to storage.
+      operationId: updateProperty
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Property
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Property properties to update
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                update_time:
+                  type: string
+                  format: date-time
+                value:
+                  type: string
+                hostservice:
+                  type: string
+        required: true
+      responses:
+        "200":
+          description: Property updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyUpdate'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /properties/{id}/hostservice:
+    get:
+      tags:
+        - Property
+      summary: Find the attached HostService
+      description: Find the attached HostService of the Property with the given ID
+      operationId: readPropertyHostservice
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Property
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: HostService attached to Property with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property_HostserviceRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /rounds:
+    get:
+      tags:
+        - Round
+      summary: List Rounds
+      description: List Rounds.
+      operationId: listRound
+      parameters:
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+            maximum: 255
+            minimum: 10
+      responses:
+        "200":
+          description: result Round list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RoundList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Round
+      summary: Create a new Round
+      description: Creates a new Round and persists it to storage.
+      operationId: createRound
+      requestBody:
+        description: Round to create
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                create_time:
+                  type: string
+                  format: date-time
+                update_time:
+                  type: string
+                  format: date-time
+                round_number:
+                  type: integer
+                num_of_intended_checks:
+                  type: integer
+                status:
+                  type: string
+                  enum:
+                    - started
+                    - ongoing
+                    - finished
+                    - incomplete
+                  default: started
+                started_at:
+                  type: string
+                  format: date-time
+                finished_at:
+                  type: string
+                  format: date-time
+                checks:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - round_number
+                - status
+                - started_at
+        required: true
+      responses:
+        "200":
+          description: Round created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoundCreate'
+        "400":
+          $ref: '#/components/responses/400'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /rounds/latest:
+    get:
+      tags:
+        - Round
+      summary: Gets the latest round
+      description: Get latest completed round
+      operationId: readRoundLatest
+      responses:
+        "200":
+          description: Retrieved latest round
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoundRead'
+        "204":
+          description: No rounds
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /rounds/latest/checks:
+    get:
+      tags:
+        - Round
+      summary: List attached checks
+      description: List attached checks.
+      operationId: listRoundChecksLatest
+      responses:
+        "200":
+          description: result checks list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Round_ChecksList'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /rounds/{id}:
+    get:
+      tags:
+        - Round
+      summary: Find a Round by ID
+      description: Finds the Round with the requested ID and returns it.
+      operationId: readRound
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Round
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Round with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoundRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - Round
+      summary: Deletes a Round by ID
+      description: Deletes the Round with the requested ID.
+      operationId: deleteRound
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Round
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Round with requested ID was deleted
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    patch:
+      tags:
+        - Round
+      summary: Updates a Round
+      description: Updates a Round and persists changes to storage.
+      operationId: updateRound
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Round
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Round properties to update
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                update_time:
+                  type: string
+                  format: date-time
+                round_number:
+                  type: integer
+                num_of_intended_checks:
+                  type: integer
+                status:
+                  type: string
+                  enum:
+                    - started
+                    - ongoing
+                    - finished
+                    - incomplete
+                  default: started
+                started_at:
+                  type: string
+                  format: date-time
+                finished_at:
+                  type: string
+                  format: date-time
+                checks:
+                  type: array
+                  items:
+                    type: string
+        required: true
+      responses:
+        "200":
+          description: Round updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoundUpdate'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /rounds/{id}/checks:
+    get:
+      tags:
+        - Round
+      summary: List attached Checks
+      description: List attached Checks.
+      operationId: listRoundChecks
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Round
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: result Rounds list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Round_ChecksList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /services:
+    get:
+      tags:
+        - Service
+      summary: List Services
+      description: List Services.
+      operationId: listService
+      parameters:
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+            maximum: 255
+            minimum: 10
+      responses:
+        "200":
+          description: result Service list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Service
+      summary: Create a new Service
+      description: Creates a new Service and persists it to storage.
+      operationId: createService
+      requestBody:
+        description: Service to create
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                display_name:
+                  type: string
+                pause:
+                  type: boolean
+                hidden:
+                  type: boolean
+                create_time:
+                  type: string
+                  format: date-time
+                update_time:
+                  type: string
+                  format: date-time
+                type:
+                  type: string
+                  enum:
+                    - ftp
+                    - ssh
+                    - winrm
+                    - ping
+                    - http
+                    - ldap
+                    - dns
+                    - smb
+                    - imap
+                    - sql
+                    - caldav
+                weight:
+                  type: integer
+                point_boost:
+                  type: integer
+                round_frequency:
+                  type: integer
+                round_delay:
+                  type: integer
+                hostservices:
+                  type: array
+                  items:
+                    type: string
+                hostservicereports:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - name
+                - display_name
+                - type
+                - weight
+                - point_boost
+                - round_frequency
+                - round_delay
+        required: true
+      responses:
+        "200":
+          description: Service created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceCreate'
+        "400":
+          $ref: '#/components/responses/400'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /services/{id}:
+    get:
+      tags:
+        - Service
+      summary: Find a Service by ID
+      description: Finds the Service with the requested ID and returns it.
+      operationId: readService
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Service
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Service with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - Service
+      summary: Deletes a Service by ID
+      description: Deletes the Service with the requested ID.
+      operationId: deleteService
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Service
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Service with requested ID was deleted
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    patch:
+      tags:
+        - Service
+      summary: Updates a Service
+      description: Updates a Service and persists changes to storage.
+      operationId: updateService
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Service
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Service properties to update
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                display_name:
+                  type: string
+                pause:
+                  type: boolean
+                hidden:
+                  type: boolean
+                update_time:
+                  type: string
+                  format: date-time
+                type:
+                  type: string
+                  enum:
+                    - ftp
+                    - ssh
+                    - winrm
+                    - ping
+                    - http
+                    - ldap
+                    - dns
+                    - smb
+                    - imap
+                    - sql
+                    - caldav
+                weight:
+                  type: integer
+                point_boost:
+                  type: integer
+                round_frequency:
+                  type: integer
+                round_delay:
+                  type: integer
+                hostservices:
+                  type: array
+                  items:
+                    type: string
+                hostservicereports:
+                  type: array
+                  items:
+                    type: string
+        required: true
+      responses:
+        "200":
+          description: Service updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceUpdate'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /services/{id}/hostservicereports:
+    get:
+      tags:
+        - Service
+      summary: List attached Hostservicereports
+      description: List attached Hostservicereports.
+      operationId: listServiceHostservicereports
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Service
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: result Services list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service_HostservicereportsList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /services/{id}/hostservices:
+    get:
+      tags:
+        - Service
+      summary: List attached Hostservices
+      description: List attached Hostservices.
+      operationId: listServiceHostservices
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Service
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: result Services list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service_HostservicesList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /team-reports:
+    get:
+      tags:
+        - TeamReport
+      summary: List TeamReports
+      description: List TeamReports.
+      operationId: listTeamReport
+      parameters:
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+            maximum: 255
+            minimum: 10
+      responses:
+        "200":
+          description: result TeamReport list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamReportList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - TeamReport
+      summary: Create a new TeamReport
+      description: Creates a new TeamReport and persists it to storage.
+      operationId: createTeamReport
+      requestBody:
+        description: TeamReport to create
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                create_time:
+                  type: string
+                  format: date-time
+                update_time:
+                  type: string
+                  format: date-time
+                points:
+                  type: integer
+                team_id:
+                  type: string
+                team:
+                  type: string
+                hostservicereports:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - points
+                - team_id
+                - team
+        required: true
+      responses:
+        "200":
+          description: TeamReport created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamReportCreate'
+        "400":
+          $ref: '#/components/responses/400'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /team-reports/{id}:
+    get:
+      tags:
+        - TeamReport
+      summary: Find a TeamReport by ID
+      description: Finds the TeamReport with the requested ID and returns it.
+      operationId: readTeamReport
+      parameters:
+        - name: id
+          in: path
+          description: ID of the TeamReport
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: TeamReport with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamReportRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - TeamReport
+      summary: Deletes a TeamReport by ID
+      description: Deletes the TeamReport with the requested ID.
+      operationId: deleteTeamReport
+      parameters:
+        - name: id
+          in: path
+          description: ID of the TeamReport
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: TeamReport with requested ID was deleted
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    patch:
+      tags:
+        - TeamReport
+      summary: Updates a TeamReport
+      description: Updates a TeamReport and persists changes to storage.
+      operationId: updateTeamReport
+      parameters:
+        - name: id
+          in: path
+          description: ID of the TeamReport
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: TeamReport properties to update
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                update_time:
+                  type: string
+                  format: date-time
+                points:
+                  type: integer
+                team:
+                  type: string
+                hostservicereports:
+                  type: array
+                  items:
+                    type: string
+        required: true
+      responses:
+        "200":
+          description: TeamReport updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamReportUpdate'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /team-reports/{id}/hostservicereports:
+    get:
+      tags:
+        - TeamReport
+      summary: List attached Hostservicereports
+      description: List attached Hostservicereports.
+      operationId: listTeamReportHostservicereports
+      parameters:
+        - name: id
+          in: path
+          description: ID of the TeamReport
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: result TeamReports list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamReport_HostservicereportsList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /team-reports/{id}/team:
+    get:
+      tags:
+        - TeamReport
+      summary: Find the attached Team
+      description: Find the attached Team of the TeamReport with the given ID
+      operationId: readTeamReportTeam
+      parameters:
+        - name: id
+          in: path
+          description: ID of the TeamReport
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Team attached to TeamReport with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamReport_TeamRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /teams:
+    get:
+      tags:
+        - Team
+      summary: List Teams
+      description: List Teams.
+      operationId: listTeam
+      parameters:
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+            minimum: 1
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+            maximum: 255
+            minimum: 10
+      responses:
+        "200":
+          description: result Team list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeamList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Team
+      summary: Create a new Team
+      description: Creates a new Team and persists it to storage.
+      operationId: createTeam
+      requestBody:
+        description: Team to create
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                display_name:
+                  type: string
+                pause:
+                  type: boolean
+                hidden:
+                  type: boolean
+                create_time:
+                  type: string
+                  format: date-time
+                update_time:
+                  type: string
+                  format: date-time
+                number:
+                  type: integer
+                hosts:
+                  type: array
+                  items:
+                    type: string
+                hostservices:
+                  type: array
+                  items:
+                    type: string
+                teamreport:
+                  type: string
+                hostservicereports:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - name
+                - display_name
+                - number
+        required: true
+      responses:
+        "200":
+          description: Team created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamCreate'
+        "400":
+          $ref: '#/components/responses/400'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /teams/{id}:
+    get:
+      tags:
+        - Team
+      summary: Find a Team by ID
+      description: Finds the Team with the requested ID and returns it.
+      operationId: readTeam
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Team
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Team with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - Team
+      summary: Deletes a Team by ID
+      description: Deletes the Team with the requested ID.
+      operationId: deleteTeam
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Team
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Team with requested ID was deleted
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+    patch:
+      tags:
+        - Team
+      summary: Updates a Team
+      description: Updates a Team and persists changes to storage.
+      operationId: updateTeam
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Team
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Team properties to update
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                display_name:
+                  type: string
+                pause:
+                  type: boolean
+                hidden:
+                  type: boolean
+                update_time:
+                  type: string
+                  format: date-time
+                number:
+                  type: integer
+                hosts:
+                  type: array
+                  items:
+                    type: string
+                hostservices:
+                  type: array
+                  items:
+                    type: string
+                teamreport:
+                  type: string
+                hostservicereports:
+                  type: array
+                  items:
+                    type: string
+        required: true
+      responses:
+        "200":
+          description: Team updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamUpdate'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /teams/{id}/hosts:
+    get:
+      tags:
+        - Team
+      summary: List attached Hosts
+      description: List attached Hosts.
+      operationId: listTeamHosts
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Team
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: result Teams list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Team_HostsList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /teams/{id}/hostservicereports:
+    get:
+      tags:
+        - Team
+      summary: List attached Hostservicereports
+      description: List attached Hostservicereports.
+      operationId: listTeamHostservicereports
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Team
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: result Teams list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Team_HostservicereportsList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /teams/{id}/hostservices:
+    get:
+      tags:
+        - Team
+      summary: List attached Hostservices
+      description: List attached Hostservices.
+      operationId: listTeamHostservices
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Team
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: what page to render
+          schema:
+            type: integer
+        - name: itemsPerPage
+          in: query
+          description: item count to render per page
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: result Teams list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Team_HostservicesList'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+  /teams/{id}/teamreport:
+    get:
+      tags:
+        - Team
+      summary: Find the attached TeamReport
+      description: Find the attached TeamReport of the Team with the given ID
+      operationId: readTeamTeamreport
+      parameters:
+        - name: id
+          in: path
+          description: ID of the Team
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: TeamReport attached to Team with requested ID was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team_TeamreportRead'
+        "400":
+          $ref: '#/components/responses/400'
+        "404":
+          $ref: '#/components/responses/404'
+        "409":
+          $ref: '#/components/responses/409'
+        "500":
+          $ref: '#/components/responses/500'
+components:
+  schemas:
+    ApiToken:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        token:
+          type: string
+        role_id:
+          type: string
+        expired_at:
+          type: string
+          format: date-time
+        user_id:
+          type: string
+      required:
+        - id
+        - token
+        - role_id
+        - expired_at
+        - user_id
+    ApiTokenCreate:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        token:
+          type: string
+        role_id:
+          type: string
+        expired_at:
+          type: string
+          format: date-time
+        user_id:
+          type: string
+      required:
+        - id
+        - token
+        - role_id
+        - expired_at
+        - user_id
+    ApiTokenList:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        token:
+          type: string
+        role_id:
+          type: string
+        expired_at:
+          type: string
+          format: date-time
+        user_id:
+          type: string
+      required:
+        - id
+        - token
+        - role_id
+        - expired_at
+        - user_id
+    ApiTokenRead:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        token:
+          type: string
+        role_id:
+          type: string
+        expired_at:
+          type: string
+          format: date-time
+        user_id:
+          type: string
+      required:
+        - id
+        - token
+        - role_id
+        - expired_at
+        - user_id
+    ApiTokenUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        token:
+          type: string
+        role_id:
+          type: string
+        expired_at:
+          type: string
+          format: date-time
+        user_id:
+          type: string
+      required:
+        - id
+        - token
+        - role_id
+        - expired_at
+        - user_id
+    Check:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        log:
+          type: string
+        error:
+          type: string
+        passed:
+          type: boolean
+        round_id:
+          type: string
+        host_service_id:
+          type: string
+        round:
+          $ref: '#/components/schemas/Round'
+        hostservice:
+          $ref: '#/components/schemas/HostService'
+      required:
+        - id
+        - passed
+        - round_id
+        - host_service_id
+        - round
+        - hostservice
+    CheckCreate:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        log:
+          type: string
+        error:
+          type: string
+        passed:
+          type: boolean
+        round_id:
+          type: string
+        host_service_id:
+          type: string
+      required:
+        - id
+        - passed
+        - round_id
+        - host_service_id
+    CheckList:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        log:
+          type: string
+        error:
+          type: string
+        passed:
+          type: boolean
+        round_id:
+          type: string
+        host_service_id:
+          type: string
+      required:
+        - id
+        - passed
+        - round_id
+        - host_service_id
+    CheckRead:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        log:
+          type: string
+        error:
+          type: string
+        passed:
+          type: boolean
+        round_id:
+          type: string
+        host_service_id:
+          type: string
+      required:
+        - id
+        - passed
+        - round_id
+        - host_service_id
+    CheckUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        log:
+          type: string
+        error:
+          type: string
+        passed:
+          type: boolean
+        round_id:
+          type: string
+        host_service_id:
+          type: string
+      required:
+        - id
+        - passed
+        - round_id
+        - host_service_id
+    Check_HostserviceRead:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        service_id:
+          type: string
+        host_id:
+          type: string
+        team_id:
+          type: string
+      required:
+        - id
+        - name
+        - display_name
+        - service_id
+        - host_id
+        - team_id
+    Check_RoundRead:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        round_number:
+          type: integer
+        num_of_intended_checks:
+          type: integer
+        status:
+          type: string
+          enum:
+            - started
+            - ongoing
+            - finished
+            - incomplete
+          default: started
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - round_number
+        - status
+        - started_at
+    Competition:
+      type: object
+      properties:
+        id:
+          type: string
+        pause:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        name:
+          type: string
+        display_name:
+          type: string
+        round_duration:
+          type: integer
+        current_round_id:
+          type: string
+        viewable_to_public:
+          type: boolean
+        ignore_incomplete_round_in_scoring:
+          type: boolean
+        to_be_started_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - display_name
+    CompetitionCreate:
+      type: object
+      properties:
+        id:
+          type: string
+        pause:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        name:
+          type: string
+        display_name:
+          type: string
+        round_duration:
+          type: integer
+        current_round_id:
+          type: string
+        viewable_to_public:
+          type: boolean
+        ignore_incomplete_round_in_scoring:
+          type: boolean
+        to_be_started_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - display_name
+    CompetitionRead:
+      type: object
+      properties:
+        id:
+          type: string
+        pause:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        name:
+          type: string
+        display_name:
+          type: string
+        round_duration:
+          type: integer
+        current_round_id:
+          type: string
+        viewable_to_public:
+          type: boolean
+        ignore_incomplete_round_in_scoring:
+          type: boolean
+        to_be_started_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - display_name
+    CompetitionUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+        pause:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        name:
+          type: string
+        display_name:
+          type: string
+        round_duration:
+          type: integer
+        current_round_id:
+          type: string
+        viewable_to_public:
+          type: boolean
+        ignore_incomplete_round_in_scoring:
+          type: boolean
+        to_be_started_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - display_name
+    Host:
+      type: object
+      properties:
+        id:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        address:
+          type: string
+        team_id:
+          type: string
+        hostservices:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostService'
+        team:
+          $ref: '#/components/schemas/Team'
+      required:
+        - id
+        - address
+        - team_id
+        - team
+    HostCreate:
+      type: object
+      properties:
+        id:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        address:
+          type: string
+        team_id:
+          type: string
+      required:
+        - id
+        - address
+        - team_id
+    HostList:
+      type: object
+      properties:
+        id:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        address:
+          type: string
+        team_id:
+          type: string
+      required:
+        - id
+        - address
+        - team_id
+    HostRead:
+      type: object
+      properties:
+        id:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        address:
+          type: string
+        team_id:
+          type: string
+      required:
+        - id
+        - address
+        - team_id
+    HostService:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        service_id:
+          type: string
+        host_id:
+          type: string
+        team_id:
+          type: string
+        checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Check'
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/Property'
+        hostservicereport:
+          $ref: '#/components/schemas/HostServiceReport'
+        service:
+          $ref: '#/components/schemas/Service'
+        host:
+          $ref: '#/components/schemas/Host'
+        team:
+          $ref: '#/components/schemas/Team'
+      required:
+        - id
+        - name
+        - display_name
+        - service_id
+        - host_id
+        - team_id
+        - service
+        - host
+        - team
+    HostServiceCreate:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        service_id:
+          type: string
+        host_id:
+          type: string
+        team_id:
+          type: string
+      required:
+        - id
+        - name
+        - display_name
+        - service_id
+        - host_id
+        - team_id
+    HostServiceList:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        service_id:
+          type: string
+        host_id:
+          type: string
+        team_id:
+          type: string
+      required:
+        - id
+        - name
+        - display_name
+        - service_id
+        - host_id
+        - team_id
+    HostServiceRead:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        service_id:
+          type: string
+        host_id:
+          type: string
+        team_id:
+          type: string
+      required:
+        - id
+        - name
+        - display_name
+        - service_id
+        - host_id
+        - team_id
+    HostServiceReport:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        passing:
+          type: boolean
+        latest_check_time:
+          type: string
+          format: date-time
+        host_service_id:
+          type: string
+        service_id:
+          type: string
+        team_id:
+          type: string
+        team_report_id:
+          type: string
+        hostservice:
+          $ref: '#/components/schemas/HostService'
+        service:
+          $ref: '#/components/schemas/Service'
+        team:
+          $ref: '#/components/schemas/Team'
+        teamreport:
+          $ref: '#/components/schemas/TeamReport'
+      required:
+        - id
+        - points
+        - passing
+        - latest_check_time
+        - host_service_id
+        - service_id
+        - team_id
+        - hostservice
+        - service
+        - team
+    HostServiceReportCreate:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        passing:
+          type: boolean
+        latest_check_time:
+          type: string
+          format: date-time
+        host_service_id:
+          type: string
+        service_id:
+          type: string
+        team_id:
+          type: string
+        team_report_id:
+          type: string
+      required:
+        - id
+        - points
+        - passing
+        - latest_check_time
+        - host_service_id
+        - service_id
+        - team_id
+    HostServiceReportList:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        passing:
+          type: boolean
+        latest_check_time:
+          type: string
+          format: date-time
+        host_service_id:
+          type: string
+        service_id:
+          type: string
+        team_id:
+          type: string
+        team_report_id:
+          type: string
+      required:
+        - id
+        - points
+        - passing
+        - latest_check_time
+        - host_service_id
+        - service_id
+        - team_id
+    HostServiceReportRead:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        passing:
+          type: boolean
+        latest_check_time:
+          type: string
+          format: date-time
+        host_service_id:
+          type: string
+        service_id:
+          type: string
+        team_id:
+          type: string
+        team_report_id:
+          type: string
+      required:
+        - id
+        - points
+        - passing
+        - latest_check_time
+        - host_service_id
+        - service_id
+        - team_id
+    HostServiceReportUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        passing:
+          type: boolean
+        latest_check_time:
+          type: string
+          format: date-time
+        host_service_id:
+          type: string
+        service_id:
+          type: string
+        team_id:
+          type: string
+        team_report_id:
+          type: string
+      required:
+        - id
+        - points
+        - passing
+        - latest_check_time
+        - host_service_id
+        - service_id
+        - team_id
+    HostServiceReport_HostserviceRead:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        service_id:
+          type: string
+        host_id:
+          type: string
+        team_id:
+          type: string
+      required:
+        - id
+        - name
+        - display_name
+        - service_id
+        - host_id
+        - team_id
+    HostServiceReport_ServiceRead:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum:
+            - ftp
+            - ssh
+            - winrm
+            - ping
+            - http
+            - ldap
+            - dns
+            - smb
+            - imap
+            - sql
+            - caldav
+        weight:
+          type: integer
+        point_boost:
+          type: integer
+        round_frequency:
+          type: integer
+        round_delay:
+          type: integer
+      required:
+        - id
+        - name
+        - display_name
+        - type
+        - weight
+        - point_boost
+        - round_frequency
+        - round_delay
+    HostServiceReport_TeamRead:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        number:
+          type: integer
+      required:
+        - id
+        - name
+        - display_name
+        - number
+    HostServiceReport_TeamreportRead:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        team_id:
+          type: string
+      required:
+        - id
+        - points
+        - team_id
+    HostServiceUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        service_id:
+          type: string
+        host_id:
+          type: string
+        team_id:
+          type: string
+      required:
+        - id
+        - name
+        - display_name
+        - service_id
+        - host_id
+        - team_id
+    HostService_ChecksList:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        log:
+          type: string
+        error:
+          type: string
+        passed:
+          type: boolean
+        round_id:
+          type: string
+        host_service_id:
+          type: string
+      required:
+        - id
+        - passed
+        - round_id
+        - host_service_id
+    HostService_HostRead:
+      type: object
+      properties:
+        id:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        address:
+          type: string
+        team_id:
+          type: string
+      required:
+        - id
+        - address
+        - team_id
+    HostService_HostservicereportRead:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        passing:
+          type: boolean
+        latest_check_time:
+          type: string
+          format: date-time
+        host_service_id:
+          type: string
+        service_id:
+          type: string
+        team_id:
+          type: string
+        team_report_id:
+          type: string
+      required:
+        - id
+        - points
+        - passing
+        - latest_check_time
+        - host_service_id
+        - service_id
+        - team_id
+    HostService_PropertiesList:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        key:
+          type: string
+        value:
+          type: string
+        host_service_id:
+          type: string
+      required:
+        - id
+        - key
+        - value
+        - host_service_id
+    HostService_ServiceRead:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum:
+            - ftp
+            - ssh
+            - winrm
+            - ping
+            - http
+            - ldap
+            - dns
+            - smb
+            - imap
+            - sql
+            - caldav
+        weight:
+          type: integer
+        point_boost:
+          type: integer
+        round_frequency:
+          type: integer
+        round_delay:
+          type: integer
+      required:
+        - id
+        - name
+        - display_name
+        - type
+        - weight
+        - point_boost
+        - round_frequency
+        - round_delay
+    HostService_TeamRead:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        number:
+          type: integer
+      required:
+        - id
+        - name
+        - display_name
+        - number
+    HostUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        address:
+          type: string
+        team_id:
+          type: string
+      required:
+        - id
+        - address
+        - team_id
+    Host_HostservicesList:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        service_id:
+          type: string
+        host_id:
+          type: string
+        team_id:
+          type: string
+      required:
+        - id
+        - name
+        - display_name
+        - service_id
+        - host_id
+        - team_id
+    Host_TeamRead:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        number:
+          type: integer
+      required:
+        - id
+        - name
+        - display_name
+        - number
+    Property:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        key:
+          type: string
+        value:
+          type: string
+        host_service_id:
+          type: string
+        hostservice:
+          $ref: '#/components/schemas/HostService'
+      required:
+        - id
+        - key
+        - value
+        - host_service_id
+        - hostservice
+    PropertyCreate:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        key:
+          type: string
+        value:
+          type: string
+        host_service_id:
+          type: string
+      required:
+        - id
+        - key
+        - value
+        - host_service_id
+    PropertyList:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        key:
+          type: string
+        value:
+          type: string
+        host_service_id:
+          type: string
+      required:
+        - id
+        - key
+        - value
+        - host_service_id
+    PropertyRead:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        key:
+          type: string
+        value:
+          type: string
+        host_service_id:
+          type: string
+      required:
+        - id
+        - key
+        - value
+        - host_service_id
+    PropertyUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        key:
+          type: string
+        value:
+          type: string
+        host_service_id:
+          type: string
+      required:
+        - id
+        - key
+        - value
+        - host_service_id
+    Property_HostserviceRead:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        service_id:
+          type: string
+        host_id:
+          type: string
+        team_id:
+          type: string
+      required:
+        - id
+        - name
+        - display_name
+        - service_id
+        - host_id
+        - team_id
+    Round:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        round_number:
+          type: integer
+        num_of_intended_checks:
+          type: integer
+        status:
+          type: string
+          enum:
+            - started
+            - ongoing
+            - finished
+            - incomplete
+          default: started
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+        checks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Check'
+      required:
+        - id
+        - round_number
+        - status
+        - started_at
+    RoundCreate:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        round_number:
+          type: integer
+        num_of_intended_checks:
+          type: integer
+        status:
+          type: string
+          enum:
+            - started
+            - ongoing
+            - finished
+            - incomplete
+          default: started
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - round_number
+        - status
+        - started_at
+    RoundList:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        round_number:
+          type: integer
+        num_of_intended_checks:
+          type: integer
+        status:
+          type: string
+          enum:
+            - started
+            - ongoing
+            - finished
+            - incomplete
+          default: started
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - round_number
+        - status
+        - started_at
+    RoundRead:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        round_number:
+          type: integer
+        num_of_intended_checks:
+          type: integer
+        status:
+          type: string
+          enum:
+            - started
+            - ongoing
+            - finished
+            - incomplete
+          default: started
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - round_number
+        - status
+        - started_at
+    RoundUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        round_number:
+          type: integer
+        num_of_intended_checks:
+          type: integer
+        status:
+          type: string
+          enum:
+            - started
+            - ongoing
+            - finished
+            - incomplete
+          default: started
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - round_number
+        - status
+        - started_at
+    Round_ChecksList:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        log:
+          type: string
+        error:
+          type: string
+        passed:
+          type: boolean
+        round_id:
+          type: string
+        host_service_id:
+          type: string
+      required:
+        - id
+        - passed
+        - round_id
+        - host_service_id
+    Service:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum:
+            - ftp
+            - ssh
+            - winrm
+            - ping
+            - http
+            - ldap
+            - dns
+            - smb
+            - imap
+            - sql
+            - caldav
+        weight:
+          type: integer
+        point_boost:
+          type: integer
+        round_frequency:
+          type: integer
+        round_delay:
+          type: integer
+        hostservices:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostService'
+        hostservicereports:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostServiceReport'
+      required:
+        - id
+        - name
+        - display_name
+        - type
+        - weight
+        - point_boost
+        - round_frequency
+        - round_delay
+    ServiceCreate:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum:
+            - ftp
+            - ssh
+            - winrm
+            - ping
+            - http
+            - ldap
+            - dns
+            - smb
+            - imap
+            - sql
+            - caldav
+        weight:
+          type: integer
+        point_boost:
+          type: integer
+        round_frequency:
+          type: integer
+        round_delay:
+          type: integer
+      required:
+        - id
+        - name
+        - display_name
+        - type
+        - weight
+        - point_boost
+        - round_frequency
+        - round_delay
+    ServiceList:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum:
+            - ftp
+            - ssh
+            - winrm
+            - ping
+            - http
+            - ldap
+            - dns
+            - smb
+            - imap
+            - sql
+            - caldav
+        weight:
+          type: integer
+        point_boost:
+          type: integer
+        round_frequency:
+          type: integer
+        round_delay:
+          type: integer
+      required:
+        - id
+        - name
+        - display_name
+        - type
+        - weight
+        - point_boost
+        - round_frequency
+        - round_delay
+    ServiceRead:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum:
+            - ftp
+            - ssh
+            - winrm
+            - ping
+            - http
+            - ldap
+            - dns
+            - smb
+            - imap
+            - sql
+            - caldav
+        weight:
+          type: integer
+        point_boost:
+          type: integer
+        round_frequency:
+          type: integer
+        round_delay:
+          type: integer
+      required:
+        - id
+        - name
+        - display_name
+        - type
+        - weight
+        - point_boost
+        - round_frequency
+        - round_delay
+    ServiceUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum:
+            - ftp
+            - ssh
+            - winrm
+            - ping
+            - http
+            - ldap
+            - dns
+            - smb
+            - imap
+            - sql
+            - caldav
+        weight:
+          type: integer
+        point_boost:
+          type: integer
+        round_frequency:
+          type: integer
+        round_delay:
+          type: integer
+      required:
+        - id
+        - name
+        - display_name
+        - type
+        - weight
+        - point_boost
+        - round_frequency
+        - round_delay
+    Service_HostservicereportsList:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        passing:
+          type: boolean
+        latest_check_time:
+          type: string
+          format: date-time
+        host_service_id:
+          type: string
+        service_id:
+          type: string
+        team_id:
+          type: string
+        team_report_id:
+          type: string
+      required:
+        - id
+        - points
+        - passing
+        - latest_check_time
+        - host_service_id
+        - service_id
+        - team_id
+    Service_HostservicesList:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        service_id:
+          type: string
+        host_id:
+          type: string
+        team_id:
+          type: string
+      required:
+        - id
+        - name
+        - display_name
+        - service_id
+        - host_id
+        - team_id
+    Team:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        number:
+          type: integer
+        hosts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Host'
+        hostservices:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostService'
+        teamreport:
+          $ref: '#/components/schemas/TeamReport'
+        hostservicereports:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostServiceReport'
+      required:
+        - id
+        - name
+        - display_name
+        - number
+    TeamCreate:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        number:
+          type: integer
+      required:
+        - id
+        - name
+        - display_name
+        - number
+    TeamList:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        number:
+          type: integer
+      required:
+        - id
+        - name
+        - display_name
+        - number
+    TeamRead:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        number:
+          type: integer
+      required:
+        - id
+        - name
+        - display_name
+        - number
+    TeamReport:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        team_id:
+          type: string
+        team:
+          $ref: '#/components/schemas/Team'
+        hostservicereports:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostServiceReport'
+      required:
+        - id
+        - points
+        - team_id
+        - team
+    TeamReportCreate:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        team_id:
+          type: string
+      required:
+        - id
+        - points
+        - team_id
+    TeamReportList:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        team_id:
+          type: string
+      required:
+        - id
+        - points
+        - team_id
+    TeamReportRead:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        team_id:
+          type: string
+      required:
+        - id
+        - points
+        - team_id
+    TeamReportUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        team_id:
+          type: string
+      required:
+        - id
+        - points
+        - team_id
+    TeamReport_HostservicereportsList:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        passing:
+          type: boolean
+        latest_check_time:
+          type: string
+          format: date-time
+        host_service_id:
+          type: string
+        service_id:
+          type: string
+        team_id:
+          type: string
+        team_report_id:
+          type: string
+      required:
+        - id
+        - points
+        - passing
+        - latest_check_time
+        - host_service_id
+        - service_id
+        - team_id
+    TeamReport_TeamRead:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        number:
+          type: integer
+      required:
+        - id
+        - name
+        - display_name
+        - number
+    TeamUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        number:
+          type: integer
+      required:
+        - id
+        - name
+        - display_name
+        - number
+    Team_HostsList:
+      type: object
+      properties:
+        id:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        address:
+          type: string
+        team_id:
+          type: string
+      required:
+        - id
+        - address
+        - team_id
+    Team_HostservicereportsList:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        passing:
+          type: boolean
+        latest_check_time:
+          type: string
+          format: date-time
+        host_service_id:
+          type: string
+        service_id:
+          type: string
+        team_id:
+          type: string
+        team_report_id:
+          type: string
+      required:
+        - id
+        - points
+        - passing
+        - latest_check_time
+        - host_service_id
+        - service_id
+        - team_id
+    Team_HostservicesList:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        pause:
+          type: boolean
+        hidden:
+          type: boolean
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        service_id:
+          type: string
+        host_id:
+          type: string
+        team_id:
+          type: string
+      required:
+        - id
+        - name
+        - display_name
+        - service_id
+        - host_id
+        - team_id
+    Team_TeamreportRead:
+      type: object
+      properties:
+        id:
+          type: string
+        create_time:
+          type: string
+          format: date-time
+        update_time:
+          type: string
+          format: date-time
+        points:
+          type: integer
+        team_id:
+          type: string
+      required:
+        - id
+        - points
+        - team_id
+  responses:
+    "400":
+      description: invalid input, data invalid
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              status:
+                type: string
+              errors: {}
+            required:
+              - code
+              - status
+    "403":
+      description: insufficient permissions
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              status:
+                type: string
+              errors: {}
+            required:
+              - code
+              - status
+    "404":
+      description: resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              status:
+                type: string
+              errors: {}
+            required:
+              - code
+              - status
+    "409":
+      description: conflicting resources
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              status:
+                type: string
+              errors: {}
+            required:
+              - code
+              - status
+    "500":
+      description: unexpected error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+              status:
+                type: string
+              errors: {}
+            required:
+              - code
+              - status

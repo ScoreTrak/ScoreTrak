@@ -46,3 +46,6 @@ scoretrak.db
 
 .cache
 /.bash_history
+/dump.rdb
+
+.rtx.toml
