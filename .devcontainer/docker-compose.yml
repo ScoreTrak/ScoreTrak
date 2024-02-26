@@ -1,0 +1,60 @@
+version: '3.8'
+services:
+  devcontainer:
+    # image: mcr.microsoft.com/devcontainers/base:ubuntu
+    image: mcr.microsoft.com/devcontainers/go:1.21-bullseye
+    volumes:
+      - ../..:/workspaces:cached
+    network_mode: service:db
+    command: sleep infinity
+
+  kratos:
+    image: oryd/kratos:v1
+    command:
+      - serve
+      - -c
+      - /etc/kratos/kratos.yml
+      - --dev
+      - --watch-courier
+      - --sqa-opt-out
+    volumes:
+      - ../config/ory/kratos:/etc/kratos
+
+  import-users:
+    depends_on:
+      - kratos
+    image: oryd/kratos:v1
+    command:
+      - import
+      - identities
+      - -e
+      - http://kratos:4434
+      - /etc/kratos/users.json
+    volumes:
+      - ../config/ory/kratos/:/etc/kratos
+
+  db:
+    image: mysql:latest
+    restart: unless-stopped
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: scoretrak
+      MYSQL_ALLOW_EMPTY_PASSWORD: yes
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+
+  nats-js:
+    image: nats:latest
+    command:
+      - -js
+      - -DV
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+      - "6222:6222"
+
+volumes:
+  db:
+

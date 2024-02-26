@@ -1,0 +1,20 @@
+type: object
+properties:
+  id:
+    type: string
+  name:
+    type: string
+  display_name:
+    type: string
+  start_at:
+    type: string
+    format: date-time
+  end_at:
+    type: string
+    format: date-time
+  created_at:
+    type: string
+    format: date-time
+  updated_at:
+    type: string
+    format: date-time

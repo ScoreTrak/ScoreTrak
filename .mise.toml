@@ -1,0 +1,4 @@
+[tools]
+golangci-lint = "latest"
+etcd = "latest"
+go = "latest"

@@ -1,0 +1,42 @@
+[
+  {
+    "SuitePath": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/events",
+    "SuiteDescription": "Events Suite",
+    "SuiteLabels": [],
+    "SuiteSucceeded": true,
+    "SuiteHasProgrammaticFocus": false,
+    "SpecialSuiteFailureReasons": [],
+    "PreRunStats": {
+      "TotalSpecs": 0,
+      "SpecsThatWillRun": 0
+    },
+    "StartTime": "2024-01-29T18:52:31.799049-05:00",
+    "EndTime": "2024-01-29T18:52:31.814334-05:00",
+    "RunTime": 15285000,
+    "SuiteConfig": {
+      "RandomSeed": 1706572345,
+      "RandomizeAllSpecs": true,
+      "FocusStrings": null,
+      "SkipStrings": null,
+      "FocusFiles": null,
+      "SkipFiles": null,
+      "LabelFilter": "",
+      "FailOnPending": true,
+      "FailFast": false,
+      "FlakeAttempts": 0,
+      "MustPassRepeatedly": 0,
+      "DryRun": false,
+      "PollProgressAfter": 120000000000,
+      "PollProgressInterval": 30000000000,
+      "Timeout": 594798242803,
+      "EmitSpecProgress": false,
+      "OutputInterceptorMode": "",
+      "SourceRoots": null,
+      "GracePeriod": 30000000000,
+      "ParallelProcess": 1,
+      "ParallelTotal": 2,
+      "ParallelHost": "127.0.0.1:53686"
+    },
+    "SpecReports": []
+  }
+]

@@ -1,19 +1,10 @@
-# Install goreman (or any other procfile runner) to run the procfile. https://github.com/mattn/goreman
-
-#jaeger: jaeger-all-in-one --log-level=error --collector.otlp.enabled
-
-# Queue
-## NSQ
-nsqd: nsqd
-nsqadmin: nsqadmin --nsqd-http-address=127.0.0.1:4151
-
-# Database
-## SQLite
-#sqlite:
-## CockroachDB
-cockroachdb: cockroach start-single-node --insecure --listen-addr=localhost:26257
-
-#server: sudo go run main.go master --config ./configs/dev-config.yaml
-#worker: go run main.go worker --config ./configs/dev-config.yaml
-envoy: envoy -c ./configs/envoy/config.yaml
-#grpcui: while ! grpcui -plaintext localhost:33333 2> /dev/null ; do sleep 1 ; done ;
+kratos: kratos serve -c ./configs/ory/kratos/kratos.yml --dev --watch-courier --sqa-opt-out
+import-users: sleep 7 && kratos import identities -e http://localhost:4434 configs/ory/kratos/users.json
+keto: keto serve -c ./configs/ory/keto/keto.yml --sqa-opt-out
+oathkeeper: oathkeeper serve -c ./configs/ory/oathkeeper/oathkeeper.yml --sqa-opt-out
+nats: nats-server -js -DV
+web: npm --prefix web run dev
+node-01: go run main.go serve -c ./configs/multi/node-01.config.yml
+#reflex-node-01: reflex -R '^(web|images|deploy|.github|docs)/' -R 'configs/ory/' -r '(pkg|cmd)/\.go$' -r 'configs/multi/node-01.config.yaml' -- go run main.go serve -c ./configs/multi/node-01.config.yml
+#node-02: go run main.go serve -c ./configs/multi/node-02.config.yml
+#node-03: go run main.go serve -c ./configs/multi/node-03.config.yml

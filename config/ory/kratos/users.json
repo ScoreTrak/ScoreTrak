@@ -1,0 +1,73 @@
+[
+  {
+    "schema_id": "default",
+    "traits": {
+      "username": "scoretrak"
+    },
+    "state": "active",
+    "metadata_admin": {
+    },
+    "metadata_public": {
+      "is_admin": true
+    },
+    "credentials": {
+      "password": {
+        "config": {
+          "password": "scoretrak"
+        }
+      }
+    }
+  },
+  {
+    "schema_id": "default",
+    "metadata_public": {
+      "teams": [
+        "00000000000000000000000000"
+      ],
+      "team_role_assignments": {
+        "00000000000000000000000000": {
+          "roles": [
+            "00000000000000000000000000"
+          ]
+        }
+      }
+    },
+    "traits": {
+      "username": "compuser1"
+    },
+    "state": "active",
+    "credentials": {
+      "password": {
+        "config": {
+          "password": "scoretrak"
+        }
+      }
+    }
+  },
+  {
+    "schema_id": "default",
+    "metadata_public": {
+      "teams": [
+        "11111111111111111111111111"
+      ],
+      "team_role_assignments": {
+        "11111111111111111111111111": {
+          "roles": [
+            "00000000000000000000000000"
+          ]
+        }
+      }
+    },
+    "traits": {
+      "username": "compuser2"
+    },
+    "state": "active",
+    "credentials": {
+      "password": {
+        "config": {
+          "password": "scoretrak"
+        }
+      }
+    }
+  }
+]

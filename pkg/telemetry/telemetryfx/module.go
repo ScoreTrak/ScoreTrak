@@ -1,33 +1,40 @@
 package telemetryfx
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/telemetry"
+	"github.com/scoretrak/scoretrak/pkg/telemetry"
 	"go.uber.org/fx"
 )
 
-var LoggingModule = fx.Options(
-	// Logging
-	fx.Provide(telemetry.NewLogger),
-)
-
-var OTELModule = fx.Options(
-	// Tracing
-	fx.Provide(telemetry.NewResource),
-
-	// Exporters
+var Module = fx.Options(
+	// OTEL Resource
 	fx.Provide(
-		telemetry.NewOtlpGrpcExporter,
-		telemetry.NewOtlpGrpcTracerProvider,
+		telemetry.NewResource,
 	),
 
-	// Set Global Tracer
-	fx.Invoke(telemetry.RegisterTracerProvider),
-)
-
-var Module = fx.Options(
 	// Logging
-	LoggingModule,
+	fx.Provide(
+		telemetry.NewLogger,
+	),
 
-	// Open Telemetry
-	//OTELModule,
+	// Custom Loggers
+	fx.Provide(
+		telemetry.NewWatermillLogger,
+		telemetry.NewCronLogger,
+	),
+	fx.WithLogger(telemetry.NewFxEventLogger),
+
+	// Tracing
+	fx.Provide(
+		telemetry.NewTracerProvider,
+		telemetry.NewOtlpTraceGrpcExporter,
+		//telemetry.NewOtlpTraceHttpExporter,
+	),
+
+	// Metrics
+	fx.Provide(
+	//telemetry.NewMeterProvider,
+	//telemetry.NewOtlpMetricGrpcExporter,
+	//telemetry.NewOtlpMetricHttpExporter,
+	//telemetry.NewPrometheusExporter,
+	),
 )

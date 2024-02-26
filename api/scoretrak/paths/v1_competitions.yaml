@@ -1,0 +1,35 @@
+# Multiple Competitions (Not Implemented)
+
+#get:
+#  tags:
+#    - competition
+#  operationId: getCompetitions
+#  parameters:
+#    - $ref: ../components/parameters/limitParam.yaml
+#    - $ref: ../components/parameters/offsetParam.yaml
+#  responses:
+#    '200':
+#      description: OK
+#      content:
+#        application/json:
+#          schema:
+#            $ref: ../components/schemas/Competitions.yaml
+
+# This endpoint does not care about multiple or single competitions
+post:
+  tags:
+    - competition
+  operationId: createCompetition
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/CreateCompetitionRequest.yaml
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Competition.yaml

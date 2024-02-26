@@ -1,0 +1,49 @@
+# Multiple Competition Exist (Not Implemented)
+
+#get:
+#  tags:
+#    - competition
+#  operationId: getCompetition
+#  parameters:
+#    - $ref: ../components/parameters/competitionId.yaml
+#  responses:
+#    '200':
+#      description: OK
+#      content:
+#        application/json:
+#          schema:
+#            $ref: ../components/schemas/Competition.yaml
+
+#put:
+#  tags:
+#    - competition
+#  operationId: updateCompetition
+#  parameters:
+#    - $ref: ../components/parameters/competitionId.yaml
+#  requestBody:
+#    required: true
+#    content:
+#      application/json:
+#        schema:
+#          $ref: ../components/schemas/UpdateCompetitionRequest.yaml
+#  responses:
+#    '200':
+#      description: OK
+#      content:
+#        application/json:
+#          schema:
+#            $ref: ../components/schemas/Competition.yaml
+
+#delete:
+#  tags:
+#    - competition
+#  operationId: deleteCompetition
+#  parameters:
+#    - $ref: ../components/parameters/competitionId.yaml
+#  responses:
+#    '200':
+#      description: OK
+#      content:
+#        application/json:
+#          schema:
+#            $ref: ../components/schemas/Competition.yaml

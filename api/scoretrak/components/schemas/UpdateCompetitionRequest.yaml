@@ -1,0 +1,6 @@
+type: object
+properties:
+  name:
+    type: string
+  display_name:
+    type: string

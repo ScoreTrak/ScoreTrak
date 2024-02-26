@@ -1,0 +1,13 @@
+server:
+  port: 3001
+  cors:
+    allowedorigins: ["http://localhost:5173","http://localhost:4455","http://localhost:4456"]
+    allowcredentials: true
+
+queue:
+  #  use: "nats"
+  nats:
+    jetstream:
+#      disabled: true
+
+debug: true

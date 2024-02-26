@@ -1,0 +1,12 @@
+type: object
+required:
+  - name
+  - display_name
+properties:
+  name:
+    type: string
+  display_name:
+    type: string
+  viewable_to_public:
+    type: boolean
+    default: false
