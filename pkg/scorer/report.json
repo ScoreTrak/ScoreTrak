@@ -1,0 +1,1759 @@
+[
+  {
+    "SuitePath": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer",
+    "SuiteDescription": "Scorer Suite",
+    "SuiteLabels": [],
+    "SuiteSucceeded": false,
+    "SuiteHasProgrammaticFocus": false,
+    "SpecialSuiteFailureReasons": [
+      "Interrupted by User"
+    ],
+    "PreRunStats": {
+      "TotalSpecs": 4,
+      "SpecsThatWillRun": 4
+    },
+    "StartTime": "2024-01-30T08:44:48.478588-05:00",
+    "EndTime": "2024-01-30T08:44:48.603189-05:00",
+    "RunTime": 124602625,
+    "SuiteConfig": {
+      "RandomSeed": 1706622284,
+      "RandomizeAllSpecs": true,
+      "FocusStrings": null,
+      "SkipStrings": null,
+      "FocusFiles": null,
+      "SkipFiles": null,
+      "LabelFilter": "",
+      "FailOnPending": true,
+      "FailFast": false,
+      "FlakeAttempts": 0,
+      "MustPassRepeatedly": 0,
+      "DryRun": false,
+      "PollProgressAfter": 120000000000,
+      "PollProgressInterval": 30000000000,
+      "Timeout": 596882019146,
+      "EmitSpecProgress": false,
+      "OutputInterceptorMode": "",
+      "SourceRoots": null,
+      "GracePeriod": 30000000000,
+      "ParallelProcess": 1,
+      "ParallelTotal": 2,
+      "ParallelHost": "127.0.0.1:56160"
+    },
+    "SpecReports": [
+      {
+        "ContainerHierarchyTexts": [
+          "Scorer",
+          "Testing Scorer with http handler"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+            "LineNumber": 13
+          },
+          {
+            "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+            "LineNumber": 80
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+          "LineNumber": 86
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "Testing https://www4.google.com",
+        "State": "interrupted",
+        "StartTime": "2024-01-30T08:44:48.484695-05:00",
+        "EndTime": "2024-01-30T08:44:48.587215-05:00",
+        "RunTime": 102521677,
+        "ParallelProcess": 1,
+        "Failure": {
+          "Message": "Interrupted by User",
+          "Location": {
+            "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+            "LineNumber": 86
+          },
+          "TimelineLocation": {
+            "Order": 5,
+            "Time": "2024-01-30T08:44:48.579732-05:00"
+          },
+          "FailureNodeContext": "leaf-node",
+          "FailureNodeType": "It",
+          "FailureNodeLocation": {
+            "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+            "LineNumber": 86
+          },
+          "ProgressReport": {
+            "Message": "{{bold}}This is the Progress Report generated when the interrupt was received:{{/}}",
+            "ParallelProcess": 1,
+            "RunningInParallel": true,
+            "ContainerHierarchyTexts": [
+              "Scorer",
+              "Testing Scorer with http handler"
+            ],
+            "LeafNodeText": "Testing https://www4.google.com",
+            "LeafNodeLocation": {
+              "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+              "LineNumber": 86
+            },
+            "SpecStartTime": "2024-01-30T08:44:48.484695-05:00",
+            "CurrentNodeType": "It",
+            "CurrentNodeText": "Testing https://www4.google.com",
+            "CurrentNodeLocation": {
+              "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+              "LineNumber": 86
+            },
+            "CurrentNodeStartTime": "2024-01-30T08:44:48.485743-05:00",
+            "CurrentStepLocation": {},
+            "CurrentStepStartTime": "0001-01-01T00:00:00Z",
+            "TimelineLocation": {
+              "Order": 6,
+              "Time": "2024-01-30T08:44:48.57974-05:00"
+            },
+            "Goroutines": [
+              {
+                "ID": 20,
+                "State": "running",
+                "Stack": [
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.extractRunningGoroutines()",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/progress_report.go",
+                    "Line": 181
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.NewProgressReport(_, {{0xc000368140, 0x2, 0x2}, {0xc0003d3f80, 0x2, 0x2}, {0xc0000f33b0, 0x2, 0x2}, ...}, ...)",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/progress_report.go",
+                    "Line": 75
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*Suite).generateProgressReport(_, _)",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/suite.go",
+                    "Line": 381
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*Suite).runNode(_, {0x8, 0x4, {0x18bbd4d, 0x1f}, 0xc000316750, {{0x1abdcb5, 0x4e}, 0x56, {0x0, ...}, ...}, ...}, ...)",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/suite.go",
+                    "Line": 975
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*group).attemptSpec(0xc0001e2bf8, 0x1, {{0xc000180d80?, 0xc0003d3f80?, 0x2?}, 0x0?})",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/group.go",
+                    "Line": 199
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*group).run(0xc0001e2bf8, {0xc000368120, 0x1, 0x1})",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/group.go",
+                    "Line": 349
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*Suite).runSpecs(0xc000375500, {0x18accec, 0xc}, {0x1da5560, 0x0, 0x0}, {0xc00002a054, 0x3f}, 0x0, {0xc00036b800, ...})",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/suite.go",
+                    "Line": 489
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*Suite).Run(_, {_, _}, {_, _, _}, {_, _}, _, {0x19df2f8, ...}, ...)",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/suite.go",
+                    "Line": 130
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2.RunSpecs({0x19d8140, 0xc000157ba0}, {0x18accec, 0xc}, {0x0, 0x0, 0x0})",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/core_dsl.go",
+                    "Line": 300
+                  },
+                  {
+                    "Function": "github.com/scoretrak/scoretrak/pkg/scorer_test.TestScorer(0x0?)",
+                    "Filename": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_suite_test.go",
+                    "Line": 12
+                  },
+                  {
+                    "Function": "testing.tRunner(0xc000157ba0, 0x18f2020)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/testing/testing.go",
+                    "Line": 1595
+                  },
+                  {
+                    "Function": "testing.(*T).Run in goroutine 1",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/testing/testing.go",
+                    "Line": 1648
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 1,
+                "State": "chan receive",
+                "Stack": [
+                  {
+                    "Function": "testing.(*T).Run(0xc000157a00, {0x18ab38a, 0xa}, 0x18f2020)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/testing/testing.go",
+                    "Line": 1649
+                  },
+                  {
+                    "Function": "testing.runTests.func1(0x0?)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/testing/testing.go",
+                    "Line": 2054
+                  },
+                  {
+                    "Function": "testing.tRunner(0xc000157a00, 0xc0001b3ae8)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/testing/testing.go",
+                    "Line": 1595
+                  },
+                  {
+                    "Function": "testing.runTests(0xc000357cc0?, {0x1d4cb30, 0x1, 0x1}, {0x10673be?, 0x1e?, 0x0?})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/testing/testing.go",
+                    "Line": 2052
+                  },
+                  {
+                    "Function": "testing.(*M).Run(0xc000357cc0)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/testing/testing.go",
+                    "Line": 1925
+                  },
+                  {
+                    "Function": "main.main()",
+                    "Filename": "_testmain.go",
+                    "Line": 83
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 21,
+                "State": "IO wait",
+                "Stack": [
+                  {
+                    "Function": "internal/poll.runtime_pollWait(0x2fd7e30, 0x72)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/runtime/netpoll.go",
+                    "Line": 343
+                  },
+                  {
+                    "Function": "internal/poll.(*pollDesc).wait(0xc00036b6a0, 0xc0000de000?, 0x0)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/internal/poll/fd_poll_runtime.go",
+                    "Line": 84
+                  },
+                  {
+                    "Function": "internal/poll.(*pollDesc).waitRead(...)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/internal/poll/fd_poll_runtime.go",
+                    "Line": 89
+                  },
+                  {
+                    "Function": "internal/poll.(*FD).Read(0xc00036b680, {0xc0000de000, 0x1000, 0x1000})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/internal/poll/fd_unix.go",
+                    "Line": 164
+                  },
+                  {
+                    "Function": "net.(*netFD).Read(0xc00036b680, {0xc0000de000, 0x1000, 0x1000})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/fd_posix.go",
+                    "Line": 55
+                  },
+                  {
+                    "Function": "net.(*conn).Read(0xc00005a958, {0xc0000de000, 0x1000, 0x1000})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/net.go",
+                    "Line": 179
+                  },
+                  {
+                    "Function": "bufio.(*Reader).Read(0xc00028ed80, {0xc0004a9db7, 0x1, 0x9})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/bufio/bufio.go",
+                    "Line": 244
+                  },
+                  {
+                    "Function": "io.ReadAtLeast({0x19d8400, 0xc00028ed80}, {0xc0004a9db7, 0x1, 0x9}, 0x1)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/io/io.go",
+                    "Line": 335
+                  },
+                  {
+                    "Function": "io.ReadFull(...)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/io/io.go",
+                    "Line": 354
+                  },
+                  {
+                    "Function": "encoding/gob.decodeUintReader({0x19d8400, 0xc00028ed80}, {0xc0004a9db7, 0x9, 0x9})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/encoding/gob/decode.go",
+                    "Line": 116
+                  },
+                  {
+                    "Function": "encoding/gob.(*Decoder).recvMessage(0xc00036b700)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/encoding/gob/decoder.go",
+                    "Line": 82
+                  },
+                  {
+                    "Function": "encoding/gob.(*Decoder).decodeTypeSequence(0xc00036b700, 0x0)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/encoding/gob/decoder.go",
+                    "Line": 148
+                  },
+                  {
+                    "Function": "encoding/gob.(*Decoder).DecodeValue(0xc00036b700, {0x17daba0?, 0xc0005aa000?, 0xc00009000f?})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/encoding/gob/decoder.go",
+                    "Line": 227
+                  },
+                  {
+                    "Function": "encoding/gob.(*Decoder).Decode(0xc00036b700, {0x17daba0, 0xc0005aa000})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/encoding/gob/decoder.go",
+                    "Line": 204
+                  },
+                  {
+                    "Function": "net/rpc.(*gobClientCodec).ReadResponseHeader(0xc0003b59b0, 0x17d4c20?)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/rpc/client.go",
+                    "Line": 228
+                  },
+                  {
+                    "Function": "net/rpc.(*Client).input(0xc00028ee40)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/rpc/client.go",
+                    "Line": 109
+                  },
+                  {
+                    "Function": "net/rpc.NewClientWithCodec in goroutine 20",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/rpc/client.go",
+                    "Line": 206
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 37,
+                "State": "syscall",
+                "Stack": [
+                  {
+                    "Function": "os/signal.signal_recv()",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/runtime/sigqueue.go",
+                    "Line": 149
+                  },
+                  {
+                    "Function": "os/signal.loop()",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/os/signal/signal_unix.go",
+                    "Line": 23
+                  },
+                  {
+                    "Function": "os/signal.Notify.func1.1 in goroutine 20",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/os/signal/signal.go",
+                    "Line": 151
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 23,
+                "State": "select",
+                "Stack": [
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal/interrupt_handler.(*InterruptHandler).registerForInterrupts.func1()",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/interrupt_handler/interrupt_handler.go",
+                    "Line": 107
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal/interrupt_handler.(*InterruptHandler).registerForInterrupts in goroutine 20",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/interrupt_handler/interrupt_handler.go",
+                    "Line": 104
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 24,
+                "State": "select",
+                "Stack": [
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal/interrupt_handler.(*InterruptHandler).registerForInterrupts.func2(0xc000108ea0)",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/interrupt_handler/interrupt_handler.go",
+                    "Line": 131
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal/interrupt_handler.(*InterruptHandler).registerForInterrupts in goroutine 20",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/interrupt_handler/interrupt_handler.go",
+                    "Line": 128
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 25,
+                "State": "select",
+                "Stack": [
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.RegisterForProgressSignal.func1()",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/progress_report.go",
+                    "Line": 32
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.RegisterForProgressSignal in goroutine 20",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/progress_report.go",
+                    "Line": 30
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 26,
+                "State": "select",
+                "Stack": [
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.startPipeFactory(0xc000108ba0, 0xc000108f00)",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/output_interceptor.go",
+                    "Line": 77
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*genericOutputInterceptor).ResumeIntercepting in goroutine 20",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/output_interceptor.go",
+                    "Line": 143
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 52,
+                "State": "select",
+                "Stack": [
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*genericOutputInterceptor).ResumeIntercepting.func1()",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/output_interceptor.go",
+                    "Line": 163
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*genericOutputInterceptor).ResumeIntercepting in goroutine 20",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/output_interceptor.go",
+                    "Line": 153
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 7,
+                "State": "IO wait",
+                "Stack": [
+                  {
+                    "Function": "internal/poll.runtime_pollWait(0x2fd7d38, 0x72)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/runtime/netpoll.go",
+                    "Line": 343
+                  },
+                  {
+                    "Function": "internal/poll.(*pollDesc).wait(0xc000222140, 0xc0005be000?, 0x1)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/internal/poll/fd_poll_runtime.go",
+                    "Line": 84
+                  },
+                  {
+                    "Function": "internal/poll.(*pollDesc).waitRead(...)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/internal/poll/fd_poll_runtime.go",
+                    "Line": 89
+                  },
+                  {
+                    "Function": "internal/poll.(*FD).Read(0xc000222120, {0xc0005be000, 0x8000, 0x8000})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/internal/poll/fd_unix.go",
+                    "Line": 164
+                  },
+                  {
+                    "Function": "os.(*File).read(...)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/os/file_posix.go",
+                    "Line": 29
+                  },
+                  {
+                    "Function": "os.(*File).Read(0xc00005b140, {0xc0005be000, 0x8000, 0x8000})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/os/file.go",
+                    "Line": 118
+                  },
+                  {
+                    "Function": "io.copyBuffer({0x19d81e0, 0xc0005ac018}, {0x19d80e0, 0xc00005b140}, {0x0, 0x0, 0x0})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/io/io.go",
+                    "Line": 430
+                  },
+                  {
+                    "Function": "io.Copy(...)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/io/io.go",
+                    "Line": 389
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*genericOutputInterceptor).ResumeIntercepting.func1.1()",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/output_interceptor.go",
+                    "Line": 159
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*genericOutputInterceptor).ResumeIntercepting.func1 in goroutine 52",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/output_interceptor.go",
+                    "Line": 158
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 54,
+                "State": "select",
+                "Stack": [
+                  {
+                    "Function": "net/http.(*Transport).getConn(0x1d55be0, 0xc0001f4340, {{}, 0x0, {0xc000208120, 0x5}, {0xc000028648, 0x13}, 0x0})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 1393
+                  },
+                  {
+                    "Function": "net/http.(*Transport).roundTrip(0x1d55be0, 0xc0002a0100)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 591
+                  },
+                  {
+                    "Function": "net/http.(*Transport).RoundTrip(0xc0002a0100?, 0x19d96e0?)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/roundtrip.go",
+                    "Line": 17
+                  },
+                  {
+                    "Function": "net/http.send(0xc0002a0100, {0x19d96e0, 0x1d55be0}, {0x0?, 0xc0001e4068?, 0x0?})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/client.go",
+                    "Line": 260
+                  },
+                  {
+                    "Function": "net/http.(*Client).send(0x1d759e0, 0xc0002a0100, {0x0?, 0x2fb2ca8?, 0x0?})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/client.go",
+                    "Line": 181
+                  },
+                  {
+                    "Function": "net/http.(*Client).do(0x1d759e0, 0xc0002a0100)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/client.go",
+                    "Line": 724
+                  },
+                  {
+                    "Function": "net/http.(*Client).Do(...)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/client.go",
+                    "Line": 590
+                  },
+                  {
+                    "Function": "github.com/scoretrak/scoretrak/pkg/scorer/executors.ScoreHttp({0x19dc860?, 0x1da5560}, 0xc0003d4150, {0xc0001fa000, 0x85, 0x90})",
+                    "Filename": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/executors/http.go",
+                    "Line": 53,
+                    "Highlight": true,
+                    "Source": [
+                      "\treq = req.WithContext(ctx)",
+                      "\thttpClient := http.DefaultClient",
+                      "\tresp, err := httpClient.Do(req) //nolint:bodyclose",
+                      "\tif err != nil {",
+                      "\t\tow.SetError(fmt.Errorf(\"unable to craft the request: %w\", err))"
+                    ],
+                    "SourceHighlight": 2
+                  },
+                  {
+                    "Function": "github.com/scoretrak/scoretrak/pkg/scorer.(*Scorer).Score(0xc0001a0138, {0x19dc860, 0x1da5560}, {0x189f0a0, 0x4}, {0x1872100, 0xc0003e6380})",
+                    "Filename": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer.go",
+                    "Line": 89,
+                    "Highlight": true,
+                    "Source": [
+                      "",
+                      "\tif service, exists := s.services[serviceType]; exists {",
+                      "\t\tservice.Executor(ctx, ow, propertiesJson)",
+                      "\t\treturn o",
+                      "\t} else {"
+                    ],
+                    "SourceHighlight": 2
+                  },
+                  {
+                    "Function": "github.com/scoretrak/scoretrak/pkg/scorer_test.glob..func1.3.2()",
+                    "Filename": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+                    "Line": 88,
+                    "Highlight": true,
+                    "Source": [
+                      "\t\tIt(\"Testing https://www4.google.com\", func() {",
+                      "\t\t\tctx := context.Background()",
+                      "\t\t\toutcome := scorer1.Score(ctx, scorer.SERVICE_HTTP, httpProperties[1])",
+                      "\t\t\tgomega.Expect(outcome.Error).To(gomega.Not(gomega.BeNil()))",
+                      "\t\t})"
+                    ],
+                    "SourceHighlight": 2
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.extractBodyFunction.func3({0x0, 0x0})",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/node.go",
+                    "Line": 463
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*Suite).runNode.func3()",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/suite.go",
+                    "Line": 889
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*Suite).runNode in goroutine 20",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/suite.go",
+                    "Line": 876
+                  }
+                ],
+                "IsSpecGoroutine": true
+              },
+              {
+                "ID": 55,
+                "State": "chan receive",
+                "Stack": [
+                  {
+                    "Function": "net/http.(*persistConn).addTLS(0xc00019ea20, {0x19dc860?, 0x1da5560}, {0xc000028648, 0xf}, 0x0)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 1561
+                  },
+                  {
+                    "Function": "net/http.(*Transport).dialConn(0x1d55be0, {0x19dc860, 0x1da5560}, {{}, 0x0, {0xc000208120, 0x5}, {0xc000028648, 0x13}, 0x0})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 1635
+                  },
+                  {
+                    "Function": "net/http.(*Transport).dialConnFor(0xc00012bf37?, 0xc0001fc160)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 1467
+                  },
+                  {
+                    "Function": "net/http.(*Transport).queueForDial in goroutine 54",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 1436
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 9,
+                "State": "syscall",
+                "Stack": [
+                  {
+                    "Function": "crypto/x509/internal/macos.syscall(0xc0000d6b28?, 0x13ab5e6?, 0x13aa6bc?, 0xc1665d3420914f90?, 0x709dee3?, 0x1d75e60?, 0x0?)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/runtime/sys_darwin.go",
+                    "Line": 111
+                  },
+                  {
+                    "Function": "crypto/x509/internal/macos.SecTrustEvaluateWithError(0xc000028648?)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/x509/internal/macos/security.go",
+                    "Line": 204
+                  },
+                  {
+                    "Function": "crypto/x509.(*Certificate).systemVerify(0xc00037a000, 0xc0000d7050)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/x509/root_darwin.go",
+                    "Line": 62
+                  },
+                  {
+                    "Function": "crypto/x509.(*Certificate).Verify(0xc00037a000, {{0xc000028648, 0xf}, 0xc0005aa930, 0x0, {0xc1665d3420914f90, 0x709dee3, 0x1d75e60}, {0x0, 0x0, ...}, ...})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/x509/verify.go",
+                    "Line": 770
+                  },
+                  {
+                    "Function": "crypto/tls.(*Conn).verifyServerCertificate(0xc0005ca000, {0xc0001c9740, 0x3, 0x4})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/tls/handshake_client.go",
+                    "Line": 995
+                  },
+                  {
+                    "Function": "crypto/tls.(*clientHandshakeStateTLS13).readServerCertificate(0xc0000d7ba0)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/tls/handshake_client_tls13.go",
+                    "Line": 527
+                  },
+                  {
+                    "Function": "crypto/tls.(*clientHandshakeStateTLS13).handshake(0xc0000d7ba0)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/tls/handshake_client_tls13.go",
+                    "Line": 92
+                  },
+                  {
+                    "Function": "crypto/tls.(*Conn).clientHandshake(0xc0005ca000, {0x19dc908?, 0xc0005ae0a0})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/tls/handshake_client.go",
+                    "Line": 265
+                  },
+                  {
+                    "Function": "crypto/tls.(*Conn).handshakeContext(0xc0005ca000, {0x19dc860, 0x1da5560})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/tls/conn.go",
+                    "Line": 1552
+                  },
+                  {
+                    "Function": "crypto/tls.(*Conn).HandshakeContext(...)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/tls/conn.go",
+                    "Line": 1492
+                  },
+                  {
+                    "Function": "net/http.(*persistConn).addTLS.func2()",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 1555
+                  },
+                  {
+                    "Function": "net/http.(*persistConn).addTLS in goroutine 55",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 1551
+                  }
+                ],
+                "IsSpecGoroutine": false
+              }
+            ]
+          }
+        },
+        "NumAttempts": 1,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0,
+        "ProgressReports": [
+          {
+            "Message": "{{bold}}{{orange}}Interrupted by User{{/}}\nFirst interrupt received; Ginkgo will run any cleanup and reporting nodes but will skip all remaining specs.  {{bold}}Interrupt again to skip cleanup{{/}}.\nHere's a current progress report:",
+            "ParallelProcess": 1,
+            "RunningInParallel": true,
+            "ContainerHierarchyTexts": [
+              "Scorer",
+              "Testing Scorer with http handler"
+            ],
+            "LeafNodeText": "Testing https://www4.google.com",
+            "LeafNodeLocation": {
+              "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+              "LineNumber": 86
+            },
+            "SpecStartTime": "2024-01-30T08:44:48.484695-05:00",
+            "CurrentNodeType": "It",
+            "CurrentNodeText": "Testing https://www4.google.com",
+            "CurrentNodeLocation": {
+              "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+              "LineNumber": 86
+            },
+            "CurrentNodeStartTime": "2024-01-30T08:44:48.485743-05:00",
+            "CurrentStepLocation": {},
+            "CurrentStepStartTime": "0001-01-01T00:00:00Z",
+            "TimelineLocation": {
+              "Order": 6,
+              "Time": "2024-01-30T08:44:48.57974-05:00"
+            },
+            "Goroutines": [
+              {
+                "ID": 54,
+                "State": "select",
+                "Stack": [
+                  {
+                    "Function": "net/http.(*Transport).getConn(0x1d55be0, 0xc0001f4340, {{}, 0x0, {0xc000208120, 0x5}, {0xc000028648, 0x13}, 0x0})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 1393
+                  },
+                  {
+                    "Function": "net/http.(*Transport).roundTrip(0x1d55be0, 0xc0002a0100)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 591
+                  },
+                  {
+                    "Function": "net/http.(*Transport).RoundTrip(0xc0002a0100?, 0x19d96e0?)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/roundtrip.go",
+                    "Line": 17
+                  },
+                  {
+                    "Function": "net/http.send(0xc0002a0100, {0x19d96e0, 0x1d55be0}, {0x0?, 0xc0001e4068?, 0x0?})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/client.go",
+                    "Line": 260
+                  },
+                  {
+                    "Function": "net/http.(*Client).send(0x1d759e0, 0xc0002a0100, {0x0?, 0x2fb2ca8?, 0x0?})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/client.go",
+                    "Line": 181
+                  },
+                  {
+                    "Function": "net/http.(*Client).do(0x1d759e0, 0xc0002a0100)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/client.go",
+                    "Line": 724
+                  },
+                  {
+                    "Function": "net/http.(*Client).Do(...)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/client.go",
+                    "Line": 590
+                  },
+                  {
+                    "Function": "github.com/scoretrak/scoretrak/pkg/scorer/executors.ScoreHttp({0x19dc860?, 0x1da5560}, 0xc0003d4150, {0xc0001fa000, 0x85, 0x90})",
+                    "Filename": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/executors/http.go",
+                    "Line": 53,
+                    "Highlight": true,
+                    "Source": [
+                      "\treq = req.WithContext(ctx)",
+                      "\thttpClient := http.DefaultClient",
+                      "\tresp, err := httpClient.Do(req) //nolint:bodyclose",
+                      "\tif err != nil {",
+                      "\t\tow.SetError(fmt.Errorf(\"unable to craft the request: %w\", err))"
+                    ],
+                    "SourceHighlight": 2
+                  },
+                  {
+                    "Function": "github.com/scoretrak/scoretrak/pkg/scorer.(*Scorer).Score(0xc0001a0138, {0x19dc860, 0x1da5560}, {0x189f0a0, 0x4}, {0x1872100, 0xc0003e6380})",
+                    "Filename": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer.go",
+                    "Line": 89,
+                    "Highlight": true,
+                    "Source": [
+                      "",
+                      "\tif service, exists := s.services[serviceType]; exists {",
+                      "\t\tservice.Executor(ctx, ow, propertiesJson)",
+                      "\t\treturn o",
+                      "\t} else {"
+                    ],
+                    "SourceHighlight": 2
+                  },
+                  {
+                    "Function": "github.com/scoretrak/scoretrak/pkg/scorer_test.glob..func1.3.2()",
+                    "Filename": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+                    "Line": 88,
+                    "Highlight": true,
+                    "Source": [
+                      "\t\tIt(\"Testing https://www4.google.com\", func() {",
+                      "\t\t\tctx := context.Background()",
+                      "\t\t\toutcome := scorer1.Score(ctx, scorer.SERVICE_HTTP, httpProperties[1])",
+                      "\t\t\tgomega.Expect(outcome.Error).To(gomega.Not(gomega.BeNil()))",
+                      "\t\t})"
+                    ],
+                    "SourceHighlight": 2
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.extractBodyFunction.func3({0x0, 0x0})",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/node.go",
+                    "Line": 463
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*Suite).runNode.func3()",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/suite.go",
+                    "Line": 889
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*Suite).runNode in goroutine 20",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/suite.go",
+                    "Line": 876
+                  }
+                ],
+                "IsSpecGoroutine": true
+              }
+            ]
+          }
+        ],
+        "SpecEvents": [
+          {
+            "SpecEventType": "Node",
+            "CodeLocation": {
+              "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+              "LineNumber": 51
+            },
+            "TimelineLocation": {
+              "Order": 1,
+              "Time": "2024-01-30T08:44:48.485213-05:00"
+            },
+            "Message": "Scorer",
+            "NodeType": "BeforeEach"
+          },
+          {
+            "SpecEventType": "Node (End)",
+            "CodeLocation": {
+              "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+              "LineNumber": 51
+            },
+            "TimelineLocation": {
+              "Order": 3,
+              "Time": "2024-01-30T08:44:48.485442-05:00"
+            },
+            "Message": "Scorer",
+            "Duration": 228701,
+            "NodeType": "BeforeEach"
+          },
+          {
+            "SpecEventType": "Node",
+            "CodeLocation": {
+              "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+              "LineNumber": 86
+            },
+            "TimelineLocation": {
+              "Order": 4,
+              "Time": "2024-01-30T08:44:48.485746-05:00"
+            },
+            "Message": "Testing https://www4.google.com",
+            "NodeType": "It"
+          },
+          {
+            "SpecEventType": "Node (End)",
+            "CodeLocation": {
+              "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+              "LineNumber": 86
+            },
+            "TimelineLocation": {
+              "Order": 7,
+              "Time": "2024-01-30T08:44:48.587198-05:00"
+            },
+            "Message": "Testing https://www4.google.com",
+            "Duration": 101453812,
+            "NodeType": "It"
+          }
+        ]
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Scorer",
+          "Testing Scorer with dns handler"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+            "LineNumber": 13
+          },
+          {
+            "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+            "LineNumber": 72
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          [],
+          []
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+          "LineNumber": 73
+        },
+        "LeafNodeLabels": [],
+        "LeafNodeText": "Testing https://www.google.com",
+        "State": "skipped",
+        "StartTime": "2024-01-30T08:44:48.602567-05:00",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 1,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Scorer",
+          "Testing Scorer with http handler"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+            "LineNumber": 13
+          },
+          {
+            "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+            "LineNumber": 80
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          null,
+          null
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+          "LineNumber": 81
+        },
+        "LeafNodeLabels": null,
+        "LeafNodeText": "Testing https://www.google.com",
+        "State": "interrupted",
+        "StartTime": "2024-01-30T08:44:48.486845-05:00",
+        "EndTime": "2024-01-30T08:44:48.586829-05:00",
+        "RunTime": 99986315,
+        "ParallelProcess": 2,
+        "Failure": {
+          "Message": "Interrupted by User",
+          "Location": {
+            "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+            "LineNumber": 81
+          },
+          "TimelineLocation": {
+            "Order": 5,
+            "Time": "2024-01-30T08:44:48.579375-05:00"
+          },
+          "FailureNodeContext": "leaf-node",
+          "FailureNodeType": "It",
+          "FailureNodeLocation": {
+            "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+            "LineNumber": 81
+          },
+          "ProgressReport": {
+            "Message": "{{bold}}This is the Progress Report generated when the interrupt was received:{{/}}",
+            "ParallelProcess": 2,
+            "RunningInParallel": true,
+            "ContainerHierarchyTexts": [
+              "Scorer",
+              "Testing Scorer with http handler"
+            ],
+            "LeafNodeText": "Testing https://www.google.com",
+            "LeafNodeLocation": {
+              "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+              "LineNumber": 81
+            },
+            "SpecStartTime": "2024-01-30T08:44:48.486845-05:00",
+            "CurrentNodeType": "It",
+            "CurrentNodeText": "Testing https://www.google.com",
+            "CurrentNodeLocation": {
+              "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+              "LineNumber": 81
+            },
+            "CurrentNodeStartTime": "2024-01-30T08:44:48.487903-05:00",
+            "CurrentStepLocation": {},
+            "CurrentStepStartTime": "0001-01-01T00:00:00Z",
+            "TimelineLocation": {
+              "Order": 6,
+              "Time": "2024-01-30T08:44:48.579378-05:00"
+            },
+            "Goroutines": [
+              {
+                "ID": 9,
+                "State": "running",
+                "Stack": [
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.extractRunningGoroutines()",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/progress_report.go",
+                    "Line": 181
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.NewProgressReport(_, {{0xc00026a760, 0x2, 0x2}, {0xc0002729a0, 0x2, 0x2}, {0xc0002b5440, 0x2, 0x2}, ...}, ...)",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/progress_report.go",
+                    "Line": 75
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*Suite).generateProgressReport(_, _)",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/suite.go",
+                    "Line": 381
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*Suite).runNode(_, {0x7, 0x4, {0x18bb064, 0x1e}, 0xc00048f100, {{0x1abdcb5, 0x4e}, 0x51, {0x0, ...}, ...}, ...}, ...)",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/suite.go",
+                    "Line": 975
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*group).attemptSpec(0xc0003febf8, 0x1, {{0xc000101200?, 0xc0002729a0?, 0x2?}, 0x0?})",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/group.go",
+                    "Line": 199
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*group).run(0xc0003febf8, {0xc00026a740, 0x1, 0x1})",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/group.go",
+                    "Line": 349
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*Suite).runSpecs(0xc000279500, {0x18accec, 0xc}, {0x1da5560, 0x0, 0x0}, {0xc00002a054, 0x3f}, 0x0, {0xc0004b9080, ...})",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/suite.go",
+                    "Line": 489
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*Suite).Run(_, {_, _}, {_, _, _}, {_, _}, _, {0x19df2f8, ...}, ...)",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/suite.go",
+                    "Line": 130
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2.RunSpecs({0x19d8140, 0xc000583040}, {0x18accec, 0xc}, {0x0, 0x0, 0x0})",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/core_dsl.go",
+                    "Line": 300
+                  },
+                  {
+                    "Function": "github.com/scoretrak/scoretrak/pkg/scorer_test.TestScorer(0x0?)",
+                    "Filename": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_suite_test.go",
+                    "Line": 12
+                  },
+                  {
+                    "Function": "testing.tRunner(0xc000583040, 0x18f2020)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/testing/testing.go",
+                    "Line": 1595
+                  },
+                  {
+                    "Function": "testing.(*T).Run in goroutine 1",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/testing/testing.go",
+                    "Line": 1648
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 1,
+                "State": "chan receive",
+                "Stack": [
+                  {
+                    "Function": "testing.(*T).Run(0xc000582ea0, {0x18ab38a, 0xa}, 0x18f2020)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/testing/testing.go",
+                    "Line": 1649
+                  },
+                  {
+                    "Function": "testing.runTests.func1(0x0?)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/testing/testing.go",
+                    "Line": 2054
+                  },
+                  {
+                    "Function": "testing.tRunner(0xc000582ea0, 0xc000129ae8)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/testing/testing.go",
+                    "Line": 1595
+                  },
+                  {
+                    "Function": "testing.runTests(0xc000238320?, {0x1d4cb30, 0x1, 0x1}, {0x1c?, 0x1e?, 0x0?})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/testing/testing.go",
+                    "Line": 2052
+                  },
+                  {
+                    "Function": "testing.(*M).Run(0xc000238320)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/testing/testing.go",
+                    "Line": 1925
+                  },
+                  {
+                    "Function": "main.main()",
+                    "Filename": "_testmain.go",
+                    "Line": 83
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 10,
+                "State": "IO wait",
+                "Stack": [
+                  {
+                    "Function": "internal/poll.runtime_pollWait(0x7961e70, 0x72)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/runtime/netpoll.go",
+                    "Line": 343
+                  },
+                  {
+                    "Function": "internal/poll.(*pollDesc).wait(0xc0004b8f20, 0xc0004f0000?, 0x0)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/internal/poll/fd_poll_runtime.go",
+                    "Line": 84
+                  },
+                  {
+                    "Function": "internal/poll.(*pollDesc).waitRead(...)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/internal/poll/fd_poll_runtime.go",
+                    "Line": 89
+                  },
+                  {
+                    "Function": "internal/poll.(*FD).Read(0xc0004b8f00, {0xc0004f0000, 0x1000, 0x1000})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/internal/poll/fd_unix.go",
+                    "Line": 164
+                  },
+                  {
+                    "Function": "net.(*netFD).Read(0xc0004b8f00, {0xc0004f0000, 0x1000, 0x1000})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/fd_posix.go",
+                    "Line": 55
+                  },
+                  {
+                    "Function": "net.(*conn).Read(0xc00012c3e0, {0xc0004f0000, 0x1000, 0x1000})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/net.go",
+                    "Line": 179
+                  },
+                  {
+                    "Function": "bufio.(*Reader).Read(0xc00014a5a0, {0xc00035e087, 0x1, 0x9})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/bufio/bufio.go",
+                    "Line": 244
+                  },
+                  {
+                    "Function": "io.ReadAtLeast({0x19d8400, 0xc00014a5a0}, {0xc00035e087, 0x1, 0x9}, 0x1)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/io/io.go",
+                    "Line": 335
+                  },
+                  {
+                    "Function": "io.ReadFull(...)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/io/io.go",
+                    "Line": 354
+                  },
+                  {
+                    "Function": "encoding/gob.decodeUintReader({0x19d8400, 0xc00014a5a0}, {0xc00035e087, 0x9, 0x9})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/encoding/gob/decode.go",
+                    "Line": 116
+                  },
+                  {
+                    "Function": "encoding/gob.(*Decoder).recvMessage(0xc0004b8f80)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/encoding/gob/decoder.go",
+                    "Line": 82
+                  },
+                  {
+                    "Function": "encoding/gob.(*Decoder).decodeTypeSequence(0xc0004b8f80, 0x0)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/encoding/gob/decoder.go",
+                    "Line": 148
+                  },
+                  {
+                    "Function": "encoding/gob.(*Decoder).DecodeValue(0xc0004b8f80, {0x17daba0?, 0xc000254030?, 0xc00035e06f?})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/encoding/gob/decoder.go",
+                    "Line": 227
+                  },
+                  {
+                    "Function": "encoding/gob.(*Decoder).Decode(0xc0004b8f80, {0x17daba0, 0xc000254030})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/encoding/gob/decoder.go",
+                    "Line": 204
+                  },
+                  {
+                    "Function": "net/rpc.(*gobClientCodec).ReadResponseHeader(0xc000226360, 0x17d4c20?)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/rpc/client.go",
+                    "Line": 228
+                  },
+                  {
+                    "Function": "net/rpc.(*Client).input(0xc00014a660)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/rpc/client.go",
+                    "Line": 109
+                  },
+                  {
+                    "Function": "net/rpc.NewClientWithCodec in goroutine 9",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/rpc/client.go",
+                    "Line": 206
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 50,
+                "State": "syscall",
+                "Stack": [
+                  {
+                    "Function": "os/signal.signal_recv()",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/runtime/sigqueue.go",
+                    "Line": 149
+                  },
+                  {
+                    "Function": "os/signal.loop()",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/os/signal/signal_unix.go",
+                    "Line": 23
+                  },
+                  {
+                    "Function": "os/signal.Notify.func1.1 in goroutine 9",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/os/signal/signal.go",
+                    "Line": 151
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 12,
+                "State": "select",
+                "Stack": [
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal/interrupt_handler.(*InterruptHandler).registerForInterrupts.func1()",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/interrupt_handler/interrupt_handler.go",
+                    "Line": 107
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal/interrupt_handler.(*InterruptHandler).registerForInterrupts in goroutine 9",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/interrupt_handler/interrupt_handler.go",
+                    "Line": 104
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 13,
+                "State": "select",
+                "Stack": [
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal/interrupt_handler.(*InterruptHandler).registerForInterrupts.func2(0xc00008ee40)",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/interrupt_handler/interrupt_handler.go",
+                    "Line": 131
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal/interrupt_handler.(*InterruptHandler).registerForInterrupts in goroutine 9",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/interrupt_handler/interrupt_handler.go",
+                    "Line": 128
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 51,
+                "State": "select",
+                "Stack": [
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.RegisterForProgressSignal.func1()",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/progress_report.go",
+                    "Line": 32
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.RegisterForProgressSignal in goroutine 9",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/progress_report.go",
+                    "Line": 30
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 52,
+                "State": "select",
+                "Stack": [
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.startPipeFactory(0xc00008eb40, 0xc0005c2000)",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/output_interceptor.go",
+                    "Line": 77
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*genericOutputInterceptor).ResumeIntercepting in goroutine 9",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/output_interceptor.go",
+                    "Line": 143
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 21,
+                "State": "select",
+                "Stack": [
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*genericOutputInterceptor).ResumeIntercepting.func1()",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/output_interceptor.go",
+                    "Line": 163
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*genericOutputInterceptor).ResumeIntercepting in goroutine 9",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/output_interceptor.go",
+                    "Line": 153
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 53,
+                "State": "IO wait",
+                "Stack": [
+                  {
+                    "Function": "internal/poll.runtime_pollWait(0x7961d78, 0x72)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/runtime/netpoll.go",
+                    "Line": 343
+                  },
+                  {
+                    "Function": "internal/poll.(*pollDesc).wait(0xc00060f100, 0xc0005cc000?, 0x1)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/internal/poll/fd_poll_runtime.go",
+                    "Line": 84
+                  },
+                  {
+                    "Function": "internal/poll.(*pollDesc).waitRead(...)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/internal/poll/fd_poll_runtime.go",
+                    "Line": 89
+                  },
+                  {
+                    "Function": "internal/poll.(*FD).Read(0xc00060f0e0, {0xc0005cc000, 0x8000, 0x8000})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/internal/poll/fd_unix.go",
+                    "Line": 164
+                  },
+                  {
+                    "Function": "os.(*File).read(...)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/os/file_posix.go",
+                    "Line": 29
+                  },
+                  {
+                    "Function": "os.(*File).Read(0xc00061c878, {0xc0005cc000, 0x8000, 0x8000})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/os/file.go",
+                    "Line": 118
+                  },
+                  {
+                    "Function": "io.copyBuffer({0x19d81e0, 0xc000012df8}, {0x19d80e0, 0xc00061c878}, {0x0, 0x0, 0x0})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/io/io.go",
+                    "Line": 430
+                  },
+                  {
+                    "Function": "io.Copy(...)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/io/io.go",
+                    "Line": 389
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*genericOutputInterceptor).ResumeIntercepting.func1.1()",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/output_interceptor.go",
+                    "Line": 159
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*genericOutputInterceptor).ResumeIntercepting.func1 in goroutine 21",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/output_interceptor.go",
+                    "Line": 158
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 23,
+                "State": "select",
+                "Stack": [
+                  {
+                    "Function": "net/http.(*Transport).getConn(0x1d55be0, 0xc0001ba340, {{}, 0x0, {0xc00063c540, 0x5}, {0xc000028648, 0x12}, 0x0})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 1393
+                  },
+                  {
+                    "Function": "net/http.(*Transport).roundTrip(0x1d55be0, 0xc000200100)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 591
+                  },
+                  {
+                    "Function": "net/http.(*Transport).RoundTrip(0xc000200100?, 0x19d96e0?)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/roundtrip.go",
+                    "Line": 17
+                  },
+                  {
+                    "Function": "net/http.send(0xc000200100, {0x19d96e0, 0x1d55be0}, {0x0?, 0xc00005a488?, 0x0?})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/client.go",
+                    "Line": 260
+                  },
+                  {
+                    "Function": "net/http.(*Client).send(0x1d759e0, 0xc000200100, {0x0?, 0x76a0fc8?, 0x0?})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/client.go",
+                    "Line": 181
+                  },
+                  {
+                    "Function": "net/http.(*Client).do(0x1d759e0, 0xc000200100)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/client.go",
+                    "Line": 724
+                  },
+                  {
+                    "Function": "net/http.(*Client).Do(...)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/client.go",
+                    "Line": 590
+                  },
+                  {
+                    "Function": "github.com/scoretrak/scoretrak/pkg/scorer/executors.ScoreHttp({0x19dc860?, 0x1da5560}, 0xc000216140, {0xc0001c2000, 0x84, 0x90})",
+                    "Filename": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/executors/http.go",
+                    "Line": 53,
+                    "Highlight": true,
+                    "Source": [
+                      "\treq = req.WithContext(ctx)",
+                      "\thttpClient := http.DefaultClient",
+                      "\tresp, err := httpClient.Do(req) //nolint:bodyclose",
+                      "\tif err != nil {",
+                      "\t\tow.SetError(fmt.Errorf(\"unable to craft the request: %w\", err))"
+                    ],
+                    "SourceHighlight": 2
+                  },
+                  {
+                    "Function": "github.com/scoretrak/scoretrak/pkg/scorer.(*Scorer).Score(0xc00019e138, {0x19dc860, 0x1da5560}, {0x189f0a0, 0x4}, {0x1872100, 0xc0002741c0})",
+                    "Filename": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer.go",
+                    "Line": 89,
+                    "Highlight": true,
+                    "Source": [
+                      "",
+                      "\tif service, exists := s.services[serviceType]; exists {",
+                      "\t\tservice.Executor(ctx, ow, propertiesJson)",
+                      "\t\treturn o",
+                      "\t} else {"
+                    ],
+                    "SourceHighlight": 2
+                  },
+                  {
+                    "Function": "github.com/scoretrak/scoretrak/pkg/scorer_test.glob..func1.3.1()",
+                    "Filename": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+                    "Line": 83,
+                    "Highlight": true,
+                    "Source": [
+                      "\t\tIt(\"Testing https://www.google.com\", func() {",
+                      "\t\t\tctx := context.Background()",
+                      "\t\t\toutcome := scorer1.Score(ctx, scorer.SERVICE_HTTP, httpProperties[0])",
+                      "\t\t\tgomega.Expect(outcome.Error).To(gomega.BeNil())",
+                      "\t\t})"
+                    ],
+                    "SourceHighlight": 2
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.extractBodyFunction.func3({0x0, 0x0})",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/node.go",
+                    "Line": 463
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*Suite).runNode.func3()",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/suite.go",
+                    "Line": 889
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*Suite).runNode in goroutine 9",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/suite.go",
+                    "Line": 876
+                  }
+                ],
+                "IsSpecGoroutine": true
+              },
+              {
+                "ID": 24,
+                "State": "chan receive",
+                "Stack": [
+                  {
+                    "Function": "net/http.(*persistConn).addTLS(0xc00019ca20, {0x19dc860?, 0x1da5560}, {0xc000028648, 0xe}, 0x0)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 1561
+                  },
+                  {
+                    "Function": "net/http.(*Transport).dialConn(0x1d55be0, {0x19dc860, 0x1da5560}, {{}, 0x0, {0xc00063c540, 0x5}, {0xc000028648, 0x12}, 0x0})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 1635
+                  },
+                  {
+                    "Function": "net/http.(*Transport).dialConnFor(0xc0005c8737?, 0xc0001e80b0)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 1467
+                  },
+                  {
+                    "Function": "net/http.(*Transport).queueForDial in goroutine 23",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 1436
+                  }
+                ],
+                "IsSpecGoroutine": false
+              },
+              {
+                "ID": 29,
+                "State": "syscall",
+                "Stack": [
+                  {
+                    "Function": "crypto/x509/internal/macos.syscall(0xc000416b28?, 0x13ab5e6?, 0x13aa6bc?, 0xc1665d3420b8ccf0?, 0x72f4a08?, 0x1d75e60?, 0x0?)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/runtime/sys_darwin.go",
+                    "Line": 111
+                  },
+                  {
+                    "Function": "crypto/x509/internal/macos.SecTrustEvaluateWithError(0xc000028648?)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/x509/internal/macos/security.go",
+                    "Line": 204
+                  },
+                  {
+                    "Function": "crypto/x509.(*Certificate).systemVerify(0xc0002ae000, 0xc000417050)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/x509/root_darwin.go",
+                    "Line": 62
+                  },
+                  {
+                    "Function": "crypto/x509.(*Certificate).Verify(0xc0002ae000, {{0xc000028648, 0xe}, 0xc0001b0990, 0x0, {0xc1665d3420b8ccf0, 0x72f4a08, 0x1d75e60}, {0x0, 0x0, ...}, ...})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/x509/verify.go",
+                    "Line": 770
+                  },
+                  {
+                    "Function": "crypto/tls.(*Conn).verifyServerCertificate(0xc000206000, {0xc00027c840, 0x3, 0x4})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/tls/handshake_client.go",
+                    "Line": 995
+                  },
+                  {
+                    "Function": "crypto/tls.(*clientHandshakeStateTLS13).readServerCertificate(0xc000417ba0)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/tls/handshake_client_tls13.go",
+                    "Line": 527
+                  },
+                  {
+                    "Function": "crypto/tls.(*clientHandshakeStateTLS13).handshake(0xc000417ba0)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/tls/handshake_client_tls13.go",
+                    "Line": 92
+                  },
+                  {
+                    "Function": "crypto/tls.(*Conn).clientHandshake(0xc000206000, {0x19dc908?, 0xc0001a2500})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/tls/handshake_client.go",
+                    "Line": 265
+                  },
+                  {
+                    "Function": "crypto/tls.(*Conn).handshakeContext(0xc000206000, {0x19dc860, 0x1da5560})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/tls/conn.go",
+                    "Line": 1552
+                  },
+                  {
+                    "Function": "crypto/tls.(*Conn).HandshakeContext(...)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/crypto/tls/conn.go",
+                    "Line": 1492
+                  },
+                  {
+                    "Function": "net/http.(*persistConn).addTLS.func2()",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 1555
+                  },
+                  {
+                    "Function": "net/http.(*persistConn).addTLS in goroutine 24",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 1551
+                  }
+                ],
+                "IsSpecGoroutine": false
+              }
+            ]
+          }
+        },
+        "NumAttempts": 1,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0,
+        "ProgressReports": [
+          {
+            "Message": "{{bold}}{{orange}}Interrupted by User{{/}}\nFirst interrupt received; Ginkgo will run any cleanup and reporting nodes but will skip all remaining specs.  {{bold}}Interrupt again to skip cleanup{{/}}.\nHere's a current progress report:",
+            "ParallelProcess": 2,
+            "RunningInParallel": true,
+            "ContainerHierarchyTexts": [
+              "Scorer",
+              "Testing Scorer with http handler"
+            ],
+            "LeafNodeText": "Testing https://www.google.com",
+            "LeafNodeLocation": {
+              "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+              "LineNumber": 81
+            },
+            "SpecStartTime": "2024-01-30T08:44:48.486845-05:00",
+            "CurrentNodeType": "It",
+            "CurrentNodeText": "Testing https://www.google.com",
+            "CurrentNodeLocation": {
+              "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+              "LineNumber": 81
+            },
+            "CurrentNodeStartTime": "2024-01-30T08:44:48.487903-05:00",
+            "CurrentStepLocation": {},
+            "CurrentStepStartTime": "0001-01-01T00:00:00Z",
+            "TimelineLocation": {
+              "Order": 6,
+              "Time": "2024-01-30T08:44:48.579378-05:00"
+            },
+            "Goroutines": [
+              {
+                "ID": 23,
+                "State": "select",
+                "Stack": [
+                  {
+                    "Function": "net/http.(*Transport).getConn(0x1d55be0, 0xc0001ba340, {{}, 0x0, {0xc00063c540, 0x5}, {0xc000028648, 0x12}, 0x0})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 1393
+                  },
+                  {
+                    "Function": "net/http.(*Transport).roundTrip(0x1d55be0, 0xc000200100)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/transport.go",
+                    "Line": 591
+                  },
+                  {
+                    "Function": "net/http.(*Transport).RoundTrip(0xc000200100?, 0x19d96e0?)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/roundtrip.go",
+                    "Line": 17
+                  },
+                  {
+                    "Function": "net/http.send(0xc000200100, {0x19d96e0, 0x1d55be0}, {0x0?, 0xc00005a488?, 0x0?})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/client.go",
+                    "Line": 260
+                  },
+                  {
+                    "Function": "net/http.(*Client).send(0x1d759e0, 0xc000200100, {0x0?, 0x76a0fc8?, 0x0?})",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/client.go",
+                    "Line": 181
+                  },
+                  {
+                    "Function": "net/http.(*Client).do(0x1d759e0, 0xc000200100)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/client.go",
+                    "Line": 724
+                  },
+                  {
+                    "Function": "net/http.(*Client).Do(...)",
+                    "Filename": "/Users/ibrahimd/.local/share/mise/installs/go/latest/go/src/net/http/client.go",
+                    "Line": 590
+                  },
+                  {
+                    "Function": "github.com/scoretrak/scoretrak/pkg/scorer/executors.ScoreHttp({0x19dc860?, 0x1da5560}, 0xc000216140, {0xc0001c2000, 0x84, 0x90})",
+                    "Filename": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/executors/http.go",
+                    "Line": 53,
+                    "Highlight": true,
+                    "Source": [
+                      "\treq = req.WithContext(ctx)",
+                      "\thttpClient := http.DefaultClient",
+                      "\tresp, err := httpClient.Do(req) //nolint:bodyclose",
+                      "\tif err != nil {",
+                      "\t\tow.SetError(fmt.Errorf(\"unable to craft the request: %w\", err))"
+                    ],
+                    "SourceHighlight": 2
+                  },
+                  {
+                    "Function": "github.com/scoretrak/scoretrak/pkg/scorer.(*Scorer).Score(0xc00019e138, {0x19dc860, 0x1da5560}, {0x189f0a0, 0x4}, {0x1872100, 0xc0002741c0})",
+                    "Filename": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer.go",
+                    "Line": 89,
+                    "Highlight": true,
+                    "Source": [
+                      "",
+                      "\tif service, exists := s.services[serviceType]; exists {",
+                      "\t\tservice.Executor(ctx, ow, propertiesJson)",
+                      "\t\treturn o",
+                      "\t} else {"
+                    ],
+                    "SourceHighlight": 2
+                  },
+                  {
+                    "Function": "github.com/scoretrak/scoretrak/pkg/scorer_test.glob..func1.3.1()",
+                    "Filename": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+                    "Line": 83,
+                    "Highlight": true,
+                    "Source": [
+                      "\t\tIt(\"Testing https://www.google.com\", func() {",
+                      "\t\t\tctx := context.Background()",
+                      "\t\t\toutcome := scorer1.Score(ctx, scorer.SERVICE_HTTP, httpProperties[0])",
+                      "\t\t\tgomega.Expect(outcome.Error).To(gomega.BeNil())",
+                      "\t\t})"
+                    ],
+                    "SourceHighlight": 2
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.extractBodyFunction.func3({0x0, 0x0})",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/node.go",
+                    "Line": 463
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*Suite).runNode.func3()",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/suite.go",
+                    "Line": 889
+                  },
+                  {
+                    "Function": "github.com/onsi/ginkgo/v2/internal.(*Suite).runNode in goroutine 9",
+                    "Filename": "/Users/ibrahimd/go/pkg/mod/github.com/onsi/ginkgo/v2@v2.15.0/internal/suite.go",
+                    "Line": 876
+                  }
+                ],
+                "IsSpecGoroutine": true
+              }
+            ]
+          }
+        ],
+        "SpecEvents": [
+          {
+            "SpecEventType": "Node",
+            "CodeLocation": {
+              "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+              "LineNumber": 51
+            },
+            "TimelineLocation": {
+              "Order": 1,
+              "Time": "2024-01-30T08:44:48.487389-05:00"
+            },
+            "Message": "Scorer",
+            "NodeType": "BeforeEach"
+          },
+          {
+            "SpecEventType": "Node (End)",
+            "CodeLocation": {
+              "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+              "LineNumber": 51
+            },
+            "TimelineLocation": {
+              "Order": 3,
+              "Time": "2024-01-30T08:44:48.487648-05:00"
+            },
+            "Message": "Scorer",
+            "Duration": 259482,
+            "NodeType": "BeforeEach"
+          },
+          {
+            "SpecEventType": "Node",
+            "CodeLocation": {
+              "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+              "LineNumber": 81
+            },
+            "TimelineLocation": {
+              "Order": 4,
+              "Time": "2024-01-30T08:44:48.487906-05:00"
+            },
+            "Message": "Testing https://www.google.com",
+            "NodeType": "It"
+          },
+          {
+            "SpecEventType": "Node (End)",
+            "CodeLocation": {
+              "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+              "LineNumber": 81
+            },
+            "TimelineLocation": {
+              "Order": 7,
+              "Time": "2024-01-30T08:44:48.586811-05:00"
+            },
+            "Message": "Testing https://www.google.com",
+            "Duration": 98906679,
+            "NodeType": "It"
+          }
+        ]
+      },
+      {
+        "ContainerHierarchyTexts": [
+          "Scorer",
+          "Testing Scorer with ping handler"
+        ],
+        "ContainerHierarchyLocations": [
+          {
+            "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+            "LineNumber": 13
+          },
+          {
+            "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+            "LineNumber": 93
+          }
+        ],
+        "ContainerHierarchyLabels": [
+          null,
+          null
+        ],
+        "LeafNodeType": "It",
+        "LeafNodeLocation": {
+          "FileName": "/Users/ibrahimd/repos/github.com/scoretrak/scoretrak/pkg/scorer/scorer_test.go",
+          "LineNumber": 94
+        },
+        "LeafNodeLabels": null,
+        "LeafNodeText": "Testing 1.1.1.1",
+        "State": "skipped",
+        "StartTime": "2024-01-30T08:44:48.602226-05:00",
+        "EndTime": "0001-01-01T00:00:00Z",
+        "RunTime": 0,
+        "ParallelProcess": 2,
+        "NumAttempts": 0,
+        "MaxFlakeAttempts": 0,
+        "MaxMustPassRepeatedly": 0
+      }
+    ]
+  }
+]

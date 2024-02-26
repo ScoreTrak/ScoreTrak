@@ -1,23 +1,18 @@
 package telemetry
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/telemetry/cronlogger"
-	"github.com/ScoreTrak/ScoreTrak/pkg/telemetry/watermilllogger"
 	"github.com/ThreeDotsLabs/watermill"
+	"github.com/scoretrak/scoretrak/pkg/telemetry/cronlogger"
+	"github.com/scoretrak/scoretrak/pkg/telemetry/watermilllogger"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
 )
 
-func NewLogger(cfg *config.Config) (*otelzap.SugaredLogger, error) {
+func NewLogger() (*otelzap.SugaredLogger, error) {
 	var zapLogger *zap.Logger
 	var err error
-	if cfg.Dev {
-		zapLogger, err = zap.NewDevelopment()
-	} else {
-		zapLogger, err = zap.NewProduction()
-	}
+	zapLogger, err = zap.NewProduction()
 	if err != nil {
 		return nil, err
 	}
@@ -41,3 +36,11 @@ func NewWatermillLogger(logger *otelzap.SugaredLogger) watermill.LoggerAdapter {
 func NewCronLogger(logger *otelzap.SugaredLogger) cronlogger.Logger {
 	return cronlogger.NewLogger(logger.Desugar())
 }
+
+// Logging Keys
+const (
+	COMPETITION_ID = "competition_id"
+	TEAM_ID        = "team_id"
+	ROUND_ID       = "round_id"
+	ROUND_NUMBER   = "round_number"
+)

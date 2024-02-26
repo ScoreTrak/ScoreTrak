@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/cmd"
-	_ "github.com/ScoreTrak/ScoreTrak/pkg/entities/runtime"
+	"github.com/scoretrak/scoretrak/cmd"
+	_ "github.com/scoretrak/scoretrak/internal/entities/runtime"
 )
 
 func main() {

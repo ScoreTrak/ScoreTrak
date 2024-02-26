@@ -1,12 +1,12 @@
 package events
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-nats/v2/pkg/nats"
 	"github.com/ThreeDotsLabs/watermill/message"
 	wotelfloss "github.com/dentech-floss/watermill-opentelemetry-go-extra/pkg/opentelemetry"
 	nc "github.com/nats-io/nats.go"
+	"github.com/scoretrak/scoretrak/pkg/config"
 	wotel "github.com/voi-oss/watermill-opentelemetry/pkg/opentelemetry"
 	"log"
 	"strings"

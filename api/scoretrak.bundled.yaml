@@ -1,0 +1,75 @@
+openapi: 3.0.3
+info:
+  description: API for scoretrak, competition scoring engine
+  title: ScoreTrak
+  version: 0.0.1
+servers:
+  - url: http://localhost:3000/api
+security:
+  - ApiToken: []
+tags:
+  - name: competition
+    description: Competitions
+externalDocs:
+  description: Find out more about ScoreTrak
+  url: http://github.com/scoretrak/scoretrak/tree/main/docs
+paths:
+  /v1/competitions:
+    post:
+      tags:
+        - competition
+      operationId: createCompetition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompetitionRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Competition'
+  /v1/competitions/{id}: null
+components:
+  securitySchemes:
+    ApiToken:
+      scheme: bearer
+      type: http
+  schemas:
+    CreateCompetitionRequest:
+      type: object
+      required:
+        - name
+        - display_name
+      properties:
+        name:
+          type: string
+        display_name:
+          type: string
+        viewable_to_public:
+          type: boolean
+          default: false
+    Competition:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time

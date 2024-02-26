@@ -34,12 +34,13 @@ jobs:
       - name: PrepareReg Names
         run: |
           echo IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
-          echo IMAGE_TAG=$(echo ${{ github.ref }} | tr '[:upper:]' '[:lower:]' | awk '{split($0,a,"/"); print a[3]}') >> $GITHUB_ENV
+          echo VERSION=$(echo ${{ github.ref }} | tr '[:upper:]' '[:lower:]' | awk '{split($0,a,"/"); print a[3]}') >> $GITHUB_ENV
       - name: Build container image
         uses: docker/build-push-action@v4
         with:
           push: ${{ github.event_name == 'release' }}
-          build-args: IMAGE_TAG=${{ env.IMAGE_TAG }}
+          build-args: VERSION=${{ env.VERSION }}
+
           tags: |
             ghcr.io/${{ env.IMAGE_REPOSITORY }}:${{ github.sha }}
-            ghcr.io/${{ env.IMAGE_REPOSITORY }}:${{ env.IMAGE_TAG }}
+            ghcr.io/${{ env.IMAGE_REPOSITORY }}:${{ env.VERSION }}

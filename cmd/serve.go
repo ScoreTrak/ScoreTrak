@@ -1,14 +1,12 @@
 package cmd
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/auth/authfx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config/configfx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/events/eventsfx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/scheduler/schedulerfx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/scorer/scorerfx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/server/serverfx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/storagefx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/telemetry/telemetryfx"
+	"github.com/scoretrak/scoretrak/pkg/auth/authfx"
+	"github.com/scoretrak/scoretrak/pkg/config/configfx"
+	"github.com/scoretrak/scoretrak/pkg/events/eventsfx"
+	"github.com/scoretrak/scoretrak/pkg/server/serverfx"
+	"github.com/scoretrak/scoretrak/pkg/storage/storagefx"
+	"github.com/scoretrak/scoretrak/pkg/telemetry/telemetryfx"
 	"go.uber.org/fx"
 	"log"
 
@@ -34,15 +32,11 @@ var serveCmd = &cobra.Command{
 			// Auth components
 			authfx.Module,
 
-			// Server
-			serverfx.Module,
-
 			// Event components
 			eventsfx.Module,
-			scorerfx.Module, // TODO: REMOVE
 
-			// Cron scheduler
-			schedulerfx.Module, // TODO: REMOVE
+			// Server
+			serverfx.Module,
 		)
 
 		app.Run()

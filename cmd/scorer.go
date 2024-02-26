@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/events/eventsfx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/scorer/scorerfx"
+	"github.com/scoretrak/scoretrak/pkg/events/eventsfx"
+	"github.com/scoretrak/scoretrak/pkg/scorer/scorerfx"
 	"log"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/config/configfx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/storagefx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/telemetry/telemetryfx"
+	"github.com/scoretrak/scoretrak/pkg/config/configfx"
+	"github.com/scoretrak/scoretrak/pkg/storage/storagefx"
+	"github.com/scoretrak/scoretrak/pkg/telemetry/telemetryfx"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 )

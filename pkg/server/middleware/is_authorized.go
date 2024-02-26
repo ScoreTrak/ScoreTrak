@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/entities"
+	"github.com/scoretrak/scoretrak/internal/entities"
 	"github.com/justinas/alice"
 	"github.com/ory/kratos-client-go"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"

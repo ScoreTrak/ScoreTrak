@@ -1,13 +1,13 @@
 package cmd
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/events/eventsfx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/scheduler/schedulerfx"
+	"github.com/scoretrak/scoretrak/pkg/eventsv2/eventsv2fx"
+	"github.com/scoretrak/scoretrak/pkg/flagbearer/flagbearerfx"
 	"log"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/config/configfx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/storage/storagefx"
-	"github.com/ScoreTrak/ScoreTrak/pkg/telemetry/telemetryfx"
+	"github.com/scoretrak/scoretrak/pkg/config/configfx"
+	"github.com/scoretrak/scoretrak/pkg/storage/storagefx"
+	"github.com/scoretrak/scoretrak/pkg/telemetry/telemetryfx"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 )
@@ -30,10 +30,10 @@ var flagbearerCmd = &cobra.Command{
 			storagefx.Module,
 
 			// Create queueing components
-			eventsfx.Module,
+			eventsv2fx.Module,
 
 			// Create flagbearer
-			schedulerfx.Module,
+			flagbearerfx.Module,
 		)
 
 		app.Run()

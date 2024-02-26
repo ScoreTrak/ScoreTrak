@@ -1,7 +1,7 @@
 package flagbearer
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/scoretrak/scoretrak/pkg/config"
 	clientv3 "go.etcd.io/etcd/client/v3"
 )
 

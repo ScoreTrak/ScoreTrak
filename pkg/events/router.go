@@ -2,9 +2,11 @@ package events
 
 import (
 	"context"
+	"fmt"
+	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
+
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/ThreeDotsLabs/watermill/message/router/middleware"
 	"github.com/ThreeDotsLabs/watermill/message/router/plugin"
 	"go.uber.org/fx"
 )
@@ -17,14 +19,16 @@ func NewRouter(handlerEntries []*HandlerEntry, noPublishHandlerEntries []*NoPubl
 	router.AddPlugin(plugin.SignalsHandler)
 	router.AddMiddleware(
 		middleware.Recoverer,
-		middleware.CorrelationID,
+		//	middleware.CorrelationID,
 	)
 
 	for _, handlerEntry := range handlerEntries {
+		logger.Info(fmt.Sprintf("Adding handler %s", handlerEntry.HandlerName), watermill.LogFields{})
 		router.AddHandler(handlerEntry.HandlerName, handlerEntry.SubscribeTopic, handlerEntry.Subscriber, handlerEntry.PublishTopic, handlerEntry.Publisher, handlerEntry.Handler)
 	}
 
 	for _, noPublishHandlerEntry := range noPublishHandlerEntries {
+		logger.Info(fmt.Sprintf("Adding non publishing handler %s", noPublishHandlerEntry.HandlerName), watermill.LogFields{})
 		router.AddNoPublisherHandler(noPublishHandlerEntry.HandlerName, noPublishHandlerEntry.SubscribeTopic, noPublishHandlerEntry.Subscriber, noPublishHandlerEntry.NoPublishHandler)
 	}
 
@@ -32,11 +36,16 @@ func NewRouter(handlerEntries []*HandlerEntry, noPublishHandlerEntries []*NoPubl
 }
 
 func StartRouter(lc fx.Lifecycle, router *message.Router) {
-	go router.Run(context.Background())
 	lc.Append(fx.Hook{
-		//OnStart: func(ctx context.Context) error {
-		//	return nil
-		//},
+		OnStart: func(ctx context.Context) error {
+			go func() {
+				err := router.Run(context.Background())
+				if err != nil {
+					panic(err)
+				}
+			}()
+			return nil
+		},
 		OnStop: func(ctx context.Context) error {
 			return router.Close()
 		},

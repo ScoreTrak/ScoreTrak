@@ -1,10 +1,9 @@
 run:
   timeout: 3m
   skip-dirs:
-    - /pkg/entities
+    - /internal/entities
 
 linters:
-  # enable-all: false
   disable-all: true
   enable:
     - errcheck

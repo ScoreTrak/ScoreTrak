@@ -1,0 +1,25 @@
+
+server:
+  cors:
+    enabled: false
+    allowedorigins: ["http://localhost:5173","http://localhost:4455","http://localhost:4456"]
+    allowcredentials: true
+
+db:
+  use: "mysql"
+  dsn: "root:password@tcp(db:3306)/scoretrak"
+#  dsn: "scoretrak.db?_fk=1"
+
+queue:
+  use: "nats"
+  nats:
+    jetstream:
+#      disabled: true
+
+scheduler:
+  elector:
+    endpoints:
+      - etcd:2379
+
+log:
+  level: debug

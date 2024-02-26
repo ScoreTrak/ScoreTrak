@@ -2,9 +2,9 @@ package events
 
 import (
 	"errors"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/scoretrak/scoretrak/pkg/config"
 )
 
 const (

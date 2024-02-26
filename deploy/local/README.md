@@ -24,7 +24,7 @@
  Copy 
  ```bash
  # Make a copy of a default-config.yml
- $ cp ./configs/default-config.yml ./configs/config.yml
+ $ cp ./config/default-config.yml ./config/config.yml
  ```
  Note: 
  
@@ -32,4 +32,3 @@
  ```bash
  $ go run ./cmd/master/main.go 
  ```
- 

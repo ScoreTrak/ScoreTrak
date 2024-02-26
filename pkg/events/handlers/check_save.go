@@ -3,14 +3,18 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"github.com/ScoreTrak/ScoreTrak/pkg/entities"
-	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"time"
+
+	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/scoretrak/scoretrak/internal/entities"
+	"github.com/scoretrak/scoretrak/internal/entities/check"
+	"github.com/scoretrak/scoretrak/pkg/scorer/outcome"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 )
 
 type CheckSavePayload struct {
-	Check *entities.Check
+	Outcome *outcome.Outcome
+	CheckID string
 }
 
 func (sp *CheckSavePayload) Bytes() ([]byte, error) {
@@ -30,9 +34,10 @@ func CheckSavePayloadFromBytes(payloadBytes []byte) (*CheckSavePayload, error) {
 	return &payload, nil
 }
 
-func NewCheckSavePayload(check *entities.Check) *CheckSavePayload {
+func NewCheckSavePayload(outcome *outcome.Outcome, checkId string) *CheckSavePayload {
 	return &CheckSavePayload{
-		Check: check,
+		Outcome: outcome,
+		CheckID: checkId,
 	}
 }
 
@@ -53,24 +58,18 @@ func (s *CheckSaveHandler) Handler(msg *message.Message) error {
 	ctx, cancel := context.WithDeadline(ctx, time.Now().Add(time.Second*30))
 	defer cancel()
 
-	_, err := CheckSavePayloadFromBytes(msg.Payload)
+	payload, err := CheckSavePayloadFromBytes(msg.Payload)
 	if err != nil {
 		return err
 	}
-	//
-	//if err != nil {
-	//	chk, err = s.entitiesClient.Check.Create().SetLog(logOutput).SetError(err.Error()).SetPassed(passed).SetRoundID(payload.RoundID).SetHostserviceID(payload.HostServiceID).Save(ctx)
-	//	if err != nil {
-	//		return err
-	//	}
-	//} else {
-	//	chk, err = s.entitiesClient.Check.Create().SetLog(logOutput).SetPassed(passed).SetRoundID(payload.RoundID).SetHostserviceID(payload.HostServiceID).Save(ctx)
-	//	if err != nil {
-	//		return err
-	//	}
-	//}
-	//
-	//s.logger.Infof("Saved Check %s", chk.ID)
+
+	s.logger.Infow("Saving queue message", "check_id", payload.CheckID)
+	chk, err := s.entitiesClient.Check.UpdateOneID(payload.CheckID).SetError(payload.Outcome.Error.Error()).SetOutcomeStatus(check.OutcomeStatus(payload.Outcome.Status)).Save(ctx)
+	if err != nil {
+		return err
+	}
+
+	s.logger.Infof("Updated Check %s", chk.ID)
 	msg.Ack()
 	return nil
 }

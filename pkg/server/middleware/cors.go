@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
 	"github.com/justinas/alice"
 	"github.com/rs/cors"
+	"github.com/scoretrak/scoretrak/pkg/config"
 	"net/http"
 )
 

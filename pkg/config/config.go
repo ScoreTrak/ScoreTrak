@@ -9,14 +9,17 @@ import (
 // Config is read only at the moment, hence there is no lock / prevention to race conditions.
 type Config struct {
 	DB struct {
-		Use string `default:"sqlite3"`
-		DSN string `default:"file:ent?mode=memory&cache=shared&_fk=1"`
+		Use string `default:"sqlite3" json:"use"`
+		DSN string `default:"file:ent?mode=memory&cache=shared&_fk=1" json:"dsn"`
 	}
 
 	Queue struct {
-		Use       string `default:"gochannel"`
+		Use       string `default:"nats"`
 		Pool      int    `default:"5"`
 		GoChannel struct {
+			OutputChannelBuffer            int64 `default:"100000"`
+			Persistent                     bool  `default:"true"`
+			BlockPublishUntilSubscriberAck bool  `default: "false"`
 		}
 		NATS struct {
 			Url              string `default:"nats://localhost:4222"`
@@ -31,14 +34,23 @@ type Config struct {
 
 	Scheduler struct {
 		Enabled bool `default:"true"`
-		Jobs    struct {
+		Elector struct {
+			Enabled     bool     `json:"enabled" default:"false"`
+			Endpoints   []string `default:"\['127.0.0.1:2379'\]"`
+			DialTimeout int
+			Key         string `default:"/scoretrak/leader"`
+		}
+		Jobs struct {
+			Ping struct {
+				FrequencySecond int `default:"1"`
+			}
 			RoundStarter struct {
-				CronSpec string `default:"0 * * * * *"`
-				Timeout  int    `default:"55"`
+				FrequencySecond int `default:"60"`
+				Timeout         int `default:"10"`
 			}
 			RoundFinisher struct {
-				CronSpec string `default:"5 * * * * *"`
-				Timeout  int    `default:"15"`
+				FrequencySecond int `default:"3"`
+				Timeout         int `default:"10"`
 			}
 		}
 	}
@@ -80,7 +92,9 @@ type Config struct {
 		}
 	}
 
-	Dev bool `default:"true"` // Is in Dev mode
+	Log struct {
+		Level string `default:"debug"`
+	}
 }
 
 const (

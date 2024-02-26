@@ -1,24 +1,166 @@
-version: '3'
+version: '3.8'
 
 services:
+  scoretrak-api:
+    build:
+      context: .
+      target: scoretrak
+    command:
+      - serve
+      - -c
+      - ./config/dev-config.yaml
+      - /etc/scoretrak/scoretrak.yaml
+    ports:
+      - 3000:3000
+  scoretrak-flagbearer-1:
+    build:
+      context: .
+      target: scoretrak
+    volumes:
+      - ./config/dev-config.yaml:/etc/scoretrak/scoretrak.yaml
+    command:
+      - flagbearer
+      - -c
+      - ./config/dev-config.yaml
+      - /etc/scoretrak/scoretrak.yaml
+  scoretrak-flagbearer-2:
+    build:
+      context: .
+      target: scoretrak
+    volumes:
+      - ./config/dev-config.yaml:/etc/scoretrak/scoretrak.yaml
+    command:
+      - flagbearer
+      - -c
+      - ./config/dev-config.yaml
+      - /etc/scoretrak/scoretrak.yaml
+  scoretrak-flagbearer-3:
+    build:
+      context: .
+      target: scoretrak
+    volumes:
+      - ./config/dev-config.yaml:/etc/scoretrak/scoretrak.yaml
+    command:
+      - flagbearer
+      - -c
+      - ./config/dev-config.yaml
+      - /etc/scoretrak/scoretrak.yaml
+  scoretrak-scheduler-1:
+    build:
+      context: .
+      target: scoretrak
+    volumes:
+      - ./config/dev-config.yaml:/etc/scoretrak/scoretrak.yaml
+    command:
+      - scheduler
+      - -c
+      - /etc/scoretrak/scoretrak.yaml
+  scoretrak-scheduler-2:
+    build:
+      context: .
+      target: scoretrak
+    volumes:
+      - ./config/dev-config.yaml:/etc/scoretrak/scoretrak.yaml
+    command:
+      - scheduler
+      - -c
+      - /etc/scoretrak/scoretrak.yaml
+  scoretrak-scheduler-3:
+    build:
+      context: .
+      target: scoretrak
+    volumes:
+      - ./config/dev-config.yaml:/etc/scoretrak/scoretrak.yaml
+    command:
+      - scheduler
+      - -c
+      - /etc/scoretrak/scoretrak.yaml
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.9
+    ports:
+      - 2379:2379
+      - 2380:2380
+    entrypoint: /usr/local/bin/etcd
+    volumes:
+      - etcd:/etcd_data
+    environment:
+      ETCD_NAME: etcd
+      ETCDCTL_API: 3
+      ETCD_INITIAL_CLUSTER: etcd=http://etcd:2380
+      ETCD_INITIAL_CLUSTER_STATE: new
+      ETCD_INITIAL_CLUSTER_TOKEN: etcd
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://etcd:2380
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+      ETCD_LISTEN_PEER_URLS: http://0.0.0.0:2380
+      ETCD_ADVERTISE_CLIENT_URLS: http://etcd:2379
+
+  kratos:
+    image: oryd/kratos:v1
+    command:
+      - serve
+      - -c
+      - /etc/kratos/kratos.yml
+      - --dev
+      - --watch-courier
+      - --sqa-opt-out
+    volumes:
+      - ./config/ory/kratos:/etc/kratos
+
+  import-users:
+    depends_on:
+      - kratos
+    image: oryd/kratos:v1
+    command:
+      - import
+      - identities
+      - -e
+      - http://kratos:4434
+      - /etc/kratos/users.json
+    volumes:
+      - ./config/ory/kratos/:/etc/kratos
+
+  keto:
+    image: oryd/keto
+    command:
+      - serve
+      - -c
+      - /etc/keto/keto.yml
+    volumes:
+      - ./config/ory/keto:/etc/keto
+
+  oathkeeper:
+    image: oryd/oathkeeper
+    command:
+      - serve
+      - -c
+      - /etc/oathkeeper/oathkeeper.yml
+      - --sqa-opt-out
+    volumes:
+      - ./config/ory/oathkeeper:/etc/oathkeeper
+
+  db:
+    image: mysql:latest
+    restart: unless-stopped
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: scoretrak
+      MYSQL_ALLOW_EMPTY_PASSWORD: yes
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+
   nats-js:
     image: nats:latest
     command:
-      - nats-server
       - -js
+      - -DV
     ports:
       - "4222:4222"
       - "8222:8222"
       - "6222:6222"
 
-  scoretrak-node-01:
-    build: .
-    ports:
-      - "3001:3001"
-    volumes:
-      - type: bind
-        source: ./configs/multi/node-01.config.yml
-        target: /etc/scoretrak/config.yml
-        read_only: true
-    depends_on:
-      - nats-js
+volumes:
+  etcd:
+  db:

@@ -3,8 +3,8 @@ package storage
 import (
 	"context"
 
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/entities"
+	"github.com/scoretrak/scoretrak/internal/entities"
+	"github.com/scoretrak/scoretrak/pkg/config"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"

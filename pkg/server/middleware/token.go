@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"context"
-	"github.com/ScoreTrak/ScoreTrak/pkg/auth/user"
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
-	"github.com/ScoreTrak/ScoreTrak/pkg/entities"
+	"github.com/scoretrak/scoretrak/internal/entities"
+	"github.com/scoretrak/scoretrak/pkg/auth/user"
+	"github.com/scoretrak/scoretrak/pkg/config"
 	"github.com/justinas/alice"
 	"github.com/ory/kratos-client-go"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"

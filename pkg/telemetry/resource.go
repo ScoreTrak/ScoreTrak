@@ -2,7 +2,7 @@ package telemetry
 
 import (
 	"context"
-	"github.com/ScoreTrak/ScoreTrak/pkg/version"
+	"github.com/scoretrak/scoretrak/pkg/version"
 	"github.com/oklog/ulid/v2"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/semconv/v1.4.0"

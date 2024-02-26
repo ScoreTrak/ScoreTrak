@@ -1,7 +1,7 @@
 package configfx
 
 import (
-	"github.com/ScoreTrak/ScoreTrak/pkg/config"
+	"github.com/scoretrak/scoretrak/pkg/config"
 	"go.uber.org/fx"
 )
 
